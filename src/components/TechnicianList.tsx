@@ -1,13 +1,12 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { technicians } from "../data/mockData";
 import { cn } from "@/lib/utils";
 
 const statusClasses = {
-  available: "bg-green-500 hover:bg-green-600",
-  busy: "bg-yellow-500 hover:bg-yellow-600",
-  offline: "bg-gray-500 hover:bg-gray-600",
+  available: "bg-green-500",
+  busy: "bg-yellow-500",
+  offline: "bg-gray-500",
 };
 
 const TechnicianList = () => {
@@ -17,20 +16,23 @@ const TechnicianList = () => {
         <CardTitle>Technicians</CardTitle>
       </CardHeader>
       <CardContent>
-        <ul className="space-y-4">
+        <div className="space-y-4">
           {technicians.map(tech => (
-            <li key={tech.id} className="flex items-center justify-between">
+            <div key={tech.id} className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Avatar>
                   <AvatarImage src={tech.avatar} alt={tech.name} />
-                  <AvatarFallback>{tech.name.charAt(0)}</AvatarFallback>
+                  <AvatarFallback>{tech.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                 </Avatar>
-                <span>{tech.name}</span>
+                <div>
+                  <p className="font-medium">{tech.name}</p>
+                  <p className="text-sm text-muted-foreground capitalize">{tech.status}</p>
+                </div>
               </div>
-              <Badge className={cn("capitalize text-white", statusClasses[tech.status])}>{tech.status}</Badge>
-            </li>
+              <div className={cn("h-2.5 w-2.5 rounded-full", statusClasses[tech.status])} />
+            </div>
           ))}
-        </ul>
+        </div>
       </CardContent>
     </Card>
   );

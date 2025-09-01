@@ -9,17 +9,19 @@ const LocationList = () => {
         <CardTitle>Service Locations</CardTitle>
       </CardHeader>
       <CardContent>
-        <ul className="space-y-4">
+        <div className="space-y-4">
           {locations.map(loc => (
-            <li key={loc.id} className="flex items-start gap-3">
-              <MapPin className="h-5 w-5 text-muted-foreground mt-1 flex-shrink-0" />
+            <div key={loc.id} className="flex items-start gap-3">
+              <div className="mt-1 bg-muted p-2 rounded-full">
+                <MapPin className="h-4 w-4 text-muted-foreground" />
+              </div>
               <div>
                 <p className="font-medium">{loc.name}</p>
                 <p className="text-sm text-muted-foreground">{loc.address}</p>
               </div>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       </CardContent>
     </Card>
   );

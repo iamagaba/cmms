@@ -6,9 +6,7 @@ import NotFound from "./pages/NotFound";
 import TechniciansPage from "./pages/Technicians";
 import WorkOrdersPage from "./pages/WorkOrders";
 import LocationsPage from "./pages/Locations";
-import AppSidebar from "./components/Sidebar";
 import AppHeader from "./components/Header";
-import { useState } from "react";
 import TechnicianProfilePage from "./pages/TechnicianProfile";
 import WorkOrderDetailsPage from "./pages/WorkOrderDetails";
 
@@ -16,7 +14,6 @@ const { Content } = Layout;
 const queryClient = new QueryClient();
 
 const AppContent = () => {
-  const [collapsed, setCollapsed] = useState(false);
   const location = useLocation();
 
   // Hide layout on NotFound page
@@ -30,21 +27,18 @@ const AppContent = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <AppSidebar collapsed={collapsed} />
-      <Layout>
-        <AppHeader collapsed={collapsed} setCollapsed={setCollapsed} />
-        <Content style={{ margin: '24px 16px', padding: 24, background: '#f0f2f5' }}>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/technicians" element={<TechniciansPage />} />
-            <Route path="/technicians/:id" element={<TechnicianProfilePage />} />
-            <Route path="/work-orders" element={<WorkOrdersPage />} />
-            <Route path="/work-orders/:id" element={<WorkOrderDetailsPage />} />
-            <Route path="/locations" element={<LocationsPage />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Content>
-      </Layout>
+      <AppHeader />
+      <Content style={{ padding: '24px' }}>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/technicians" element={<TechniciansPage />} />
+          <Route path="/technicians/:id" element={<TechnicianProfilePage />} />
+          <Route path="/work-orders" element={<WorkOrdersPage />} />
+          <Route path="/work-orders/:id" element={<WorkOrderDetailsPage />} />
+          <Route path="/locations" element={<LocationsPage />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </Content>
     </Layout>
   );
 };

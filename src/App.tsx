@@ -9,6 +9,7 @@ import LocationsPage from "./pages/Locations";
 import AppHeader from "./components/Header";
 import TechnicianProfilePage from "./pages/TechnicianProfile";
 import WorkOrderDetailsPage from "./pages/WorkOrderDetails";
+import AnalyticsPage from "./pages/Analytics";
 
 const { Content } = Layout;
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const AppContent = () => {
           <Route path="/work-orders" element={<WorkOrdersPage />} />
           <Route path="/work-orders/:id" element={<WorkOrderDetailsPage />} />
           <Route path="/locations" element={<LocationsPage />} />
+          <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Content>

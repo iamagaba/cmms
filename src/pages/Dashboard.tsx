@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Row, Col, Typography, Select } from "antd";
+import { Row, Col, Typography, Segmented } from "antd";
 import KpiCard from "@/components/KpiCard";
 import LocationList from "@/components/LocationList";
 import TechnicianList from "@/components/TechnicianList";
@@ -8,7 +8,6 @@ import { workOrders, locations } from "../data/mockData";
 import { CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined, ToolOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
-const { Option } = Select;
 
 const Dashboard = () => {
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
@@ -30,21 +29,21 @@ const Dashboard = () => {
     { id: 'Completed', title: 'Completed' },
   ];
 
+  const locationOptions = [
+    { label: 'All Locations', value: 'all' },
+    ...locations.map(loc => ({ label: loc.name, value: loc.id }))
+  ];
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
           <Title level={4} style={{ margin: 0 }}>Overview</Title>
-          <Select
+          <Segmented
+            options={locationOptions}
             value={selectedLocation}
-            style={{ width: 240 }}
-            onChange={(value) => setSelectedLocation(value)}
-          >
-            <Option value="all">All Locations</Option>
-            {locations.map(loc => (
-              <Option key={loc.id} value={loc.id}>{loc.name}</Option>
-            ))}
-          </Select>
+            onChange={(value) => setSelectedLocation(value as string)}
+          />
         </div>
         <Row gutter={[24, 24]}>
           <Col xs={24} sm={12} md={12} lg={6}>

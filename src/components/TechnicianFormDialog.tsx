@@ -39,6 +39,8 @@ export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician }: Te
         phone: values.phone,
         specialization: values.specialization,
         joinDate: values.joinDate.toISOString(),
+        lat: technician?.lat || 0.32, // Default lat for new technicians
+        lng: technician?.lng || 32.58, // Default lng for new technicians
       };
       onSave(technicianToSave);
       onClose();

@@ -28,6 +28,8 @@ export const LocationFormDialog = ({ isOpen, onClose, onSave, location }: Locati
         id: newId,
         name: values.name,
         address: values.address,
+        lat: location?.lat || 0.32, // Default lat for new locations
+        lng: location?.lng || 32.58, // Default lng for new locations
       };
       onSave(locationToSave);
       onClose();

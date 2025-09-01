@@ -14,7 +14,7 @@ const navItems = [
 const Sidebar = () => {
   return (
     <aside className="hidden md:flex w-64 flex-shrink-0 border-r bg-gray-100/40 dark:bg-gray-800/40 p-4 flex-col">
-      <h2 className="text-2xl font-bold mb-8">EV CMMS</h2>
+      <h2 className="text-2xl font-bold mb-8">GOGO Electric CMMS</h2>
       <nav className="flex flex-col space-y-2">
         {navItems.map((item) => (
           <NavLink

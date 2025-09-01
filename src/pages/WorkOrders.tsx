@@ -1,12 +1,11 @@
-import Header from "@/components/Header";
-import Sidebar from "@/components/Sidebar";
-import { Button } from "@/components/ui/button";
-import { PlusCircle } from "lucide-react";
-import { workOrders, technicians, locations } from "@/data/mockData";
-import { WorkOrderDataTable } from "@/components/WorkOrderDataTable";
 import { useState } from "react";
+import { Button, Typography, Space } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import { workOrders, technicians, locations, WorkOrder } from "@/data/mockData";
+import { WorkOrderDataTable } from "@/components/WorkOrderDataTable";
 import { WorkOrderFormDialog } from "@/components/WorkOrderFormDialog";
-import { WorkOrder } from "@/data/mockData";
+
+const { Title } = Typography;
 
 const WorkOrdersPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -22,28 +21,20 @@ const WorkOrdersPage = () => {
   };
 
   return (
-    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-      <Sidebar />
-      <div className="flex flex-col">
-        <Header />
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-muted/40">
-          <div className="flex items-center justify-between">
-            <h1 className="text-lg font-semibold md:text-2xl">Work Order Management</h1>
-            <Button size="sm" className="gap-1" onClick={() => setIsDialogOpen(true)}>
-              <PlusCircle className="h-3.5 w-3.5" />
-              <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
-                Add Work Order
-              </span>
-            </Button>
-          </div>
-          
-          <WorkOrderDataTable 
-            initialData={allWorkOrders} 
-            technicians={technicians} 
-            locations={locations} 
-          />
-        </main>
+    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Title level={4}>Work Order Management</Title>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsDialogOpen(true)}>
+          Add Work Order
+        </Button>
       </div>
+      
+      <WorkOrderDataTable 
+        initialData={allWorkOrders} 
+        technicians={technicians} 
+        locations={locations} 
+      />
+
       {isDialogOpen && (
         <WorkOrderFormDialog 
           isOpen={isDialogOpen}
@@ -52,7 +43,7 @@ const WorkOrdersPage = () => {
           workOrder={null}
         />
       )}
-    </div>
+    </Space>
   );
 };
 

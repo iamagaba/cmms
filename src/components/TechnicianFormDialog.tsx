@@ -1,39 +1,8 @@
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useEffect } from "react";
+import { Modal, Form, Input, Select, Button } from "antd";
 import { Technician } from "@/data/mockData";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
-  status: z.enum(["available", "busy", "offline"]),
-});
+const { Option } = Select;
 
 interface TechnicianFormDialogProps {
   isOpen: boolean;
@@ -43,79 +12,57 @@ interface TechnicianFormDialogProps {
 }
 
 export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician }: TechnicianFormDialogProps) => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: technician?.name || "",
-      status: technician?.status || "available",
-    },
-  });
+  const [form] = Form.useForm();
 
-  const handleSubmit = (values: z.infer<typeof formSchema>) => {
-    const newId = technician?.id || `tech${Math.floor(Math.random() * 1000)}`;
-    const technicianToSave: Technician = {
-      id: newId,
-      name: values.name,
-      status: values.status,
-      avatar: technician?.avatar || '/placeholder.svg',
-    };
-    onSave(technicianToSave);
-    onClose();
+  useEffect(() => {
+    if (technician) {
+      form.setFieldsValue(technician);
+    } else {
+      form.resetFields();
+    }
+  }, [isOpen, technician, form]);
+
+  const handleSubmit = async () => {
+    try {
+      const values = await form.validateFields();
+      const newId = technician?.id || `tech${Math.floor(Math.random() * 1000)}`;
+      const technicianToSave: Technician = {
+        id: newId,
+        name: values.name,
+        status: values.status,
+        avatar: technician?.avatar || '/placeholder.svg',
+      };
+      onSave(technicianToSave);
+      onClose();
+    } catch (info) {
+      console.log('Validate Failed:', info);
+    }
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>{technician ? "Edit Technician" : "Add Technician"}</DialogTitle>
-          <DialogDescription>
-            {technician ? "Update the details for this technician." : "Enter the details for the new technician."}
-          </DialogDescription>
-        </DialogHeader>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input placeholder="e.g. John Doe" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a status" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="available">Available</SelectItem>
-                      <SelectItem value="busy">Busy</SelectItem>
-                      <SelectItem value="offline">Offline</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <DialogFooter>
-              <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
-              <Button type="submit">Save</Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+    <Modal
+      title={technician ? "Edit Technician" : "Add Technician"}
+      open={isOpen}
+      onOk={handleSubmit}
+      onCancel={onClose}
+      destroyOnClose
+      footer={[
+        <Button key="back" onClick={onClose}>Cancel</Button>,
+        <Button key="submit" type="primary" onClick={handleSubmit}>Save</Button>,
+      ]}
+    >
+      <Form form={form} layout="vertical" name="technician_form" initialValues={{ name: technician?.name, status: technician?.status || 'available' }}>
+        <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Please input the name!' }]}>
+          <Input placeholder="e.g. John Doe" />
+        </Form.Item>
+        <Form.Item name="status" label="Status" rules={[{ required: true, message: 'Please select a status!' }]}>
+          <Select placeholder="Select a status">
+            <Option value="available">Available</Option>
+            <Option value="busy">Busy</Option>
+            <Option value="offline">Offline</Option>
+          </Select>
+        </Form.Item>
+      </Form>
+    </Modal>
   );
 };

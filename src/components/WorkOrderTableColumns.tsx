@@ -1,128 +1,102 @@
-"use client"
+import { Avatar, Button, Dropdown, Menu, Tag, Typography } from "antd";
+import { MoreOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { WorkOrder, Technician, Location } from "@/data/mockData";
+import dayjs from "dayjs";
 
-import { ColumnDef } from "@tanstack/react-table"
-import { MoreHorizontal, ArrowUpDown } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar"
-import { Badge } from "./ui/badge"
-import { cn } from "@/lib/utils"
-import { WorkOrder, Technician, Location } from "@/data/mockData"
-import { format } from "date-fns"
+const { Text } = Typography;
 
 export type WorkOrderRow = WorkOrder & {
   technician?: Technician;
   location?: Location;
-}
-
-const priorityClasses: Record<WorkOrder['priority'], string> = {
-  High: "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800",
-  Medium: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-800",
-  Low: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800",
 };
 
-const statusClasses: Record<WorkOrder['status'], string> = {
-    Open: "bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-300",
-    "In Progress": "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-300",
-    "On Hold": "bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-300",
-    Completed: "bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300",
+const priorityColors: Record<WorkOrder['priority'], string> = {
+  High: "red",
+  Medium: "gold",
+  Low: "green",
+};
+
+const statusColors: Record<WorkOrder['status'], string> = {
+    Open: "blue",
+    "In Progress": "gold",
+    "On Hold": "orange",
+    Completed: "green",
 };
 
 export const getColumns = (
-    onEdit: (id: string) => void,
-    onDelete: (id: string) => void
-): ColumnDef<WorkOrderRow>[] => [
+  onEdit: (record: WorkOrderRow) => void,
+  onDelete: (record: WorkOrderRow) => void
+) => [
   {
-    accessorKey: "id",
-    header: "ID",
-    cell: ({ row }) => <div className="font-mono">{row.getValue("id")}</div>
+    title: "ID",
+    dataIndex: "id",
+    render: (id: string) => <Text code>{id}</Text>
   },
   {
-    accessorKey: "vehicleId",
-    header: ({ column }) => (
-      <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-        Vehicle
-        <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-    cell: ({ row }) => (
+    title: "Vehicle",
+    dataIndex: "vehicleId",
+    sorter: (a: WorkOrderRow, b: WorkOrderRow) => a.vehicleId.localeCompare(b.vehicleId),
+    render: (vehicleId: string, record: WorkOrderRow) => (
       <div>
-        <div className="font-medium">{row.original.vehicleId}</div>
-        <div className="text-xs text-muted-foreground">{row.original.vehicleModel}</div>
+        <Text strong>{vehicleId}</Text>
+        <br />
+        <Text type="secondary" style={{ fontSize: 12 }}>{record.vehicleModel}</Text>
       </div>
     )
   },
   {
-    accessorKey: "service",
-    header: "Service",
+    title: "Service",
+    dataIndex: "service",
   },
   {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-        const status = row.getValue("status") as WorkOrder['status'];
-        return <Badge variant="outline" className={cn("border-none", statusClasses[status])}>{status}</Badge>
-    }
+    title: "Status",
+    dataIndex: "status",
+    render: (status: WorkOrder['status']) => <Tag color={statusColors[status]}>{status}</Tag>
   },
   {
-    accessorKey: "priority",
-    header: "Priority",
-    cell: ({ row }) => {
-        const priority = row.getValue("priority") as WorkOrder['priority'];
-        return <Badge variant="outline" className={cn(priorityClasses[priority])}>{priority}</Badge>
-    }
+    title: "Priority",
+    dataIndex: "priority",
+    render: (priority: WorkOrder['priority']) => <Tag color={priorityColors[priority]}>{priority}</Tag>
   },
   {
-    accessorKey: "technician",
-    header: "Technician",
-    cell: ({ row }) => {
-        const tech = row.original.technician;
-        if (!tech) return <span className="text-xs text-muted-foreground">Unassigned</span>
-        return (
-            <div className="flex items-center gap-2">
-                <Avatar className="h-6 w-6">
-                    <AvatarImage src={tech.avatar} alt={tech.name} />
-                    <AvatarFallback className="text-xs">{tech.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                </Avatar>
-                <span className="text-sm">{tech.name}</span>
-            </div>
-        )
-    }
-  },
-  {
-    accessorKey: "slaDue",
-    header: "SLA Due",
-    cell: ({ row }) => format(new Date(row.getValue("slaDue")), "PP")
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      const workOrder = row.original
+    title: "Technician",
+    dataIndex: "technician",
+    render: (_: any, record: WorkOrderRow) => {
+      const tech = record.technician;
+      if (!tech) return <Text type="secondary">Unassigned</Text>;
       return (
-        <div className="text-right">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => onEdit(workOrder.id)}>Edit Work Order</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600" onClick={() => onDelete(workOrder.id)}>Delete Work Order</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Avatar size="small" src={tech.avatar}>{tech.name.split(' ').map(n => n[0]).join('')}</Avatar>
+          <Text>{tech.name}</Text>
         </div>
-      )
-    },
+      );
+    }
   },
-]
+  {
+    title: "SLA Due",
+    dataIndex: "slaDue",
+    render: (slaDue: string) => dayjs(slaDue).format("MMM D, YYYY")
+  },
+  {
+    title: "Actions",
+    key: "actions",
+    align: "right" as const,
+    render: (_: any, record: WorkOrderRow) => (
+      <Dropdown
+        overlay={
+          <Menu>
+            <Menu.Item key="edit" icon={<EditOutlined />} onClick={() => onEdit(record)}>
+              Edit Work Order
+            </Menu.Item>
+            <Menu.Item key="delete" icon={<DeleteOutlined />} danger onClick={() => onDelete(record)}>
+              Delete Work Order
+            </Menu.Item>
+          </Menu>
+        }
+        trigger={["click"]}
+      >
+        <Button type="text" icon={<MoreOutlined style={{ fontSize: '18px' }} />} />
+      </Dropdown>
+    ),
+  },
+];

@@ -1,6 +1,6 @@
-import { Card, List, Avatar } from "antd";
+import { Card, List, Avatar, Badge } from "antd";
 import { EnvironmentOutlined } from "@ant-design/icons";
-import { locations } from "../data/mockData";
+import { locations, workOrders } from "../data/mockData";
 
 const LocationList = () => {
   return (
@@ -8,15 +8,20 @@ const LocationList = () => {
       <List
         itemLayout="horizontal"
         dataSource={locations}
-        renderItem={loc => (
-          <List.Item>
-            <List.Item.Meta
-              avatar={<Avatar icon={<EnvironmentOutlined />} />}
-              title={loc.name}
-              description={loc.address}
-            />
-          </List.Item>
-        )}
+        renderItem={loc => {
+          const orderCount = workOrders.filter(wo => wo.locationId === loc.id).length;
+          return (
+            <List.Item
+              extra={<Badge count={orderCount} showZero color="#1677ff" />}
+            >
+              <List.Item.Meta
+                avatar={<Avatar icon={<EnvironmentOutlined />} />}
+                title={loc.name}
+                description={loc.address}
+              />
+            </List.Item>
+          );
+        }}
       />
     </Card>
   );

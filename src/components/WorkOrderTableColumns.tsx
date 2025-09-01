@@ -2,6 +2,7 @@ import { Avatar, Button, Dropdown, Menu, Tag, Typography } from "antd";
 import { MoreOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { WorkOrder, Technician, Location } from "@/data/mockData";
 import dayjs from "dayjs";
+import { Link } from "react-router-dom";
 
 const { Text } = Typography;
 
@@ -32,7 +33,7 @@ export const getColumns = (
   {
     title: "ID",
     dataIndex: "id",
-    render: (id: string) => <Text code>{id}</Text>
+    render: (id: string) => <Link to={`/work-orders/${id}`}><Text code>{id}</Text></Link>
   },
   {
     title: "Vehicle",

@@ -10,6 +10,7 @@ import AppSidebar from "./components/Sidebar";
 import AppHeader from "./components/Header";
 import { useState } from "react";
 import TechnicianProfilePage from "./pages/TechnicianProfile";
+import WorkOrderDetailsPage from "./pages/WorkOrderDetails";
 
 const { Content } = Layout;
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const AppContent = () => {
             <Route path="/technicians" element={<TechniciansPage />} />
             <Route path="/technicians/:id" element={<TechnicianProfilePage />} />
             <Route path="/work-orders" element={<WorkOrdersPage />} />
+            <Route path="/work-orders/:id" element={<WorkOrderDetailsPage />} />
             <Route path="/locations" element={<LocationsPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

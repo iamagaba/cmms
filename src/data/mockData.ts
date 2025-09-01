@@ -20,11 +20,15 @@ export interface WorkOrder {
   vehicleId: string;
   vehicleModel: string;
   customerName: string;
+  customerPhone: string;
   status: 'Open' | 'In Progress' | 'On Hold' | 'Completed';
   priority: 'High' | 'Medium' | 'Low';
   assignedTechnicianId: string | null;
   locationId: string;
   service: string;
+  serviceNotes: string;
+  partsUsed: { name: string; quantity: number }[];
+  activityLog: { timestamp: string; activity: string }[];
   slaDue: string; // ISO date string
 }
 
@@ -42,11 +46,101 @@ export const locations: Location[] = [
 ];
 
 export const workOrders: WorkOrder[] = [
-  { id: 'WO-001', vehicleId: 'GOGO-087', vehicleModel: 'GOGO S1', customerName: 'John Bosco', status: 'Open', priority: 'High', assignedTechnicianId: null, locationId: 'loc1', service: 'Battery Swap Failure', slaDue: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString() },
-  { id: 'WO-002', vehicleId: 'GOGO-112', vehicleModel: 'GOGO S2', customerName: 'Mary Nabirye', status: 'In Progress', priority: 'Medium', assignedTechnicianId: 'tech2', locationId: 'loc2', service: 'Motor Diagnostic', slaDue: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString() },
-  { id: 'WO-003', vehicleId: 'GOGO-045', vehicleModel: 'GOGO S1', customerName: 'Robert Ssentamu', status: 'Open', priority: 'Low', assignedTechnicianId: null, locationId: 'loc1', service: 'Brake System Check', slaDue: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString() },
-  { id: 'WO-004', vehicleId: 'GOGO-201', vehicleModel: 'GOGO Cargo', customerName: 'Emily Akankwasa', status: 'On Hold', priority: 'Medium', assignedTechnicianId: 'tech1', locationId: 'loc3', service: 'Controller Unit Replacement (Awaiting Part)', slaDue: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString() },
-  { id: 'WO-005', vehicleId: 'GOGO-153', vehicleModel: 'GOGO S2', customerName: 'Michael Okumu', status: 'Completed', priority: 'High', assignedTechnicianId: 'tech3', locationId: 'loc2', service: 'Full System Check', slaDue: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() },
-  { id: 'WO-006', vehicleId: 'GOGO-099', vehicleModel: 'GOGO S1', customerName: 'Sandra Adongo', status: 'In Progress', priority: 'High', assignedTechnicianId: 'tech2', locationId: 'loc1', service: 'Dashboard Display Fault', slaDue: new Date(Date.now() + 0.5 * 24 * 60 * 60 * 1000).toISOString() },
-  { id: 'WO-007', vehicleId: 'GOGO-178', vehicleModel: 'GOGO S2', customerName: 'David Martinez', status: 'Open', priority: 'Medium', assignedTechnicianId: null, locationId: 'loc3', service: 'Scheduled Maintenance', slaDue: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString() },
+  { 
+    id: 'WO-001', 
+    vehicleId: 'GOGO-087', 
+    vehicleModel: 'GOGO S1', 
+    customerName: 'John Bosco', 
+    customerPhone: '+256 772 987654',
+    status: 'Open', 
+    priority: 'High', 
+    assignedTechnicianId: null, 
+    locationId: 'loc1', 
+    service: 'Battery Swap Failure', 
+    serviceNotes: 'Customer reported that the battery swap station is not releasing the new battery. Needs urgent attention.',
+    partsUsed: [],
+    activityLog: [
+      { timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), activity: 'Work order created.' }
+    ],
+    slaDue: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString() 
+  },
+  { 
+    id: 'WO-002', 
+    vehicleId: 'GOGO-112', 
+    vehicleModel: 'GOGO S2', 
+    customerName: 'Mary Nabirye', 
+    customerPhone: '+256 772 876543',
+    status: 'In Progress', 
+    priority: 'Medium', 
+    assignedTechnicianId: 'tech2', 
+    locationId: 'loc2', 
+    service: 'Motor Diagnostic', 
+    serviceNotes: 'Vehicle is making a whining noise at high speeds. Technician Sarah is investigating.',
+    partsUsed: [],
+    activityLog: [
+      { timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), activity: 'Work order created.' },
+      { timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), activity: 'Assigned to Sarah Nakato.' },
+      { timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), activity: 'Status changed to In Progress.' }
+    ],
+    slaDue: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString() 
+  },
+  { 
+    id: 'WO-003', 
+    vehicleId: 'GOGO-045', 
+    vehicleModel: 'GOGO S1', 
+    customerName: 'Robert Ssentamu', 
+    customerPhone: '+256 772 765432',
+    status: 'Open', 
+    priority: 'Low', 
+    assignedTechnicianId: null, 
+    locationId: 'loc1', 
+    service: 'Brake System Check',
+    serviceNotes: 'Routine brake check requested by customer.',
+    partsUsed: [],
+    activityLog: [
+      { timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), activity: 'Work order created.' }
+    ],
+    slaDue: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString() 
+  },
+  { 
+    id: 'WO-004', 
+    vehicleId: 'GOGO-201', 
+    vehicleModel: 'GOGO Cargo', 
+    customerName: 'Emily Akankwasa', 
+    customerPhone: '+256 772 654321',
+    status: 'On Hold', 
+    priority: 'Medium', 
+    assignedTechnicianId: 'tech1', 
+    locationId: 'loc3', 
+    service: 'Controller Unit Replacement', 
+    serviceNotes: 'Controller unit is faulty. Awaiting new part from supplier. Part ETA is 2 days.',
+    partsUsed: [],
+    activityLog: [
+      { timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), activity: 'Work order created and assigned to David Okello.' },
+      { timestamp: new Date(Date.now() - 22 * 60 * 60 * 1000).toISOString(), activity: 'Status changed to On Hold.' }
+    ],
+    slaDue: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString() 
+  },
+  { 
+    id: 'WO-005', 
+    vehicleId: 'GOGO-153', 
+    vehicleModel: 'GOGO S2', 
+    customerName: 'Michael Okumu', 
+    customerPhone: '+256 772 543210',
+    status: 'Completed', 
+    priority: 'High', 
+    assignedTechnicianId: 'tech3', 
+    locationId: 'loc2', 
+    service: 'Full System Check',
+    serviceNotes: 'Completed full system diagnostics and software update. Vehicle is operating normally.',
+    partsUsed: [
+      { name: 'Fuse 15A', quantity: 1 }
+    ],
+    activityLog: [
+      { timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), activity: 'Work order created.' },
+      { timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), activity: 'Assigned to Brian Mugisha.' },
+      { timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), activity: 'Status changed to Completed.' }
+    ],
+    slaDue: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() 
+  },
 ];

@@ -1,6 +1,7 @@
 import Header from "@/components/Header";
 import KpiCard from "@/components/KpiCard";
 import LocationList from "@/components/LocationList";
+import Sidebar from "@/components/Sidebar";
 import TechnicianList from "@/components/TechnicianList";
 import WorkOrderKanban from "@/components/WorkOrderKanban";
 import { workOrders } from "../data/mockData";
@@ -14,26 +15,29 @@ const Dashboard = () => {
   const slaPerformance = completedOrders > 0 ? ((slaMet / completedOrders) * 100).toFixed(0) : 0;
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50 dark:bg-gray-950">
-      <Header />
-      <main className="flex-1 overflow-y-auto p-4 space-y-4">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={Wrench} />
-          <KpiCard title="Open Work Orders" value={openOrders.toString()} icon={AlertCircle} />
-          <KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={CheckCircle} />
-          <KpiCard title="Avg. Completion Time" value="3.2 Days" icon={Clock} />
-        </div>
-        
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 items-start">
-          <div className="xl:col-span-3">
-            <WorkOrderKanban />
+    <div className="flex h-screen bg-gray-50 dark:bg-gray-950">
+      <Sidebar />
+      <div className="flex flex-col flex-1">
+        <Header />
+        <main className="flex-1 overflow-y-auto p-4 space-y-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={Wrench} />
+            <KpiCard title="Open Work Orders" value={openOrders.toString()} icon={AlertCircle} />
+            <KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={CheckCircle} />
+            <KpiCard title="Avg. Completion Time" value="3.2 Days" icon={Clock} />
           </div>
-          <div className="space-y-4">
-            <TechnicianList />
-            <LocationList />
+          
+          <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 items-start">
+            <div className="xl:col-span-3">
+              <WorkOrderKanban />
+            </div>
+            <div className="space-y-4">
+              <TechnicianList />
+              <LocationList />
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 };

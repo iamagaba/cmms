@@ -1,11 +1,12 @@
-import Header from "@/components/Header";
+import { Row, Col, Typography } from "antd";
 import KpiCard from "@/components/KpiCard";
 import LocationList from "@/components/LocationList";
-import Sidebar from "@/components/Sidebar";
 import TechnicianList from "@/components/TechnicianList";
 import WorkOrderKanban from "@/components/WorkOrderKanban";
 import { workOrders } from "../data/mockData";
-import { CheckCircle, Clock, AlertCircle, Wrench } from "lucide-react";
+import { CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined, ToolOutlined } from "@ant-design/icons";
+
+const { Title } = Typography;
 
 const Dashboard = () => {
   const totalOrders = workOrders.length;
@@ -15,34 +16,38 @@ const Dashboard = () => {
   const slaPerformance = completedOrders > 0 ? ((slaMet / completedOrders) * 100).toFixed(0) : 0;
 
   return (
-    <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-      <Sidebar />
-      <div className="flex flex-col">
-        <Header />
-        <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-muted/40">
-          <div>
-            <h2 className="text-xl font-bold tracking-tight mb-4">Overview</h2>
-            <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
-              <KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={Wrench} />
-              <KpiCard title="Open Work Orders" value={openOrders.toString()} icon={AlertCircle} />
-              <KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={CheckCircle} />
-              <KpiCard title="Avg. Completion Time" value="3.2 Days" icon={Clock} />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
-            <div className="xl:col-span-2">
-              <h2 className="text-xl font-bold tracking-tight mb-4">Work Order Board</h2>
-              <WorkOrderKanban />
-            </div>
-            <div className="space-y-6">
-              <h2 className="text-xl font-bold tracking-tight mb-4">Team & Locations</h2>
-              <TechnicianList />
-              <LocationList />
-            </div>
-          </div>
-        </main>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <div>
+        <Title level={4}>Overview</Title>
+        <Row gutter={[24, 24]}>
+          <Col xs={24} sm={12} md={12} lg={6}>
+            <KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={<ToolOutlined />} />
+          </Col>
+          <Col xs={24} sm={12} md={12} lg={6}>
+            <KpiCard title="Open Work Orders" value={openOrders.toString()} icon={<ExclamationCircleOutlined />} />
+          </Col>
+          <Col xs={24} sm={12} md={12} lg={6}>
+            <KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={<CheckCircleOutlined />} />
+          </Col>
+          <Col xs={24} sm={12} md={12} lg={6}>
+            <KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<ClockCircleOutlined />} />
+          </Col>
+        </Row>
       </div>
+      
+      <Row gutter={[24, 24]}>
+        <Col xs={24} xl={16}>
+          <Title level={4}>Work Order Board</Title>
+          <WorkOrderKanban />
+        </Col>
+        <Col xs={24} xl={8}>
+          <Title level={4}>Team & Locations</Title>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <TechnicianList />
+            <LocationList />
+          </div>
+        </Col>
+      </Row>
     </div>
   );
 };

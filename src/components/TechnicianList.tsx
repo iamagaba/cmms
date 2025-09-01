@@ -1,39 +1,30 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Card, List, Avatar, Badge } from "antd";
 import { technicians } from "../data/mockData";
-import { cn } from "@/lib/utils";
 
-const statusClasses = {
-  available: "bg-green-500",
-  busy: "bg-yellow-500",
-  offline: "bg-gray-500",
+const statusColors: Record<typeof technicians[0]['status'], 'success' | 'warning' | 'default'> = {
+  available: "success",
+  busy: "warning",
+  offline: "default",
 };
 
 const TechnicianList = () => {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Technicians</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {technicians.map(tech => (
-            <div key={tech.id} className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Avatar>
-                  <AvatarImage src={tech.avatar} alt={tech.name} />
-                  <AvatarFallback>{tech.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-medium">{tech.name}</p>
-                  <p className="text-sm text-muted-foreground capitalize">{tech.status}</p>
-                </div>
-              </div>
-              <div className={cn("h-2.5 w-2.5 rounded-full", statusClasses[tech.status])} />
-            </div>
-          ))}
-        </div>
-      </CardContent>
+    <Card title="Technicians">
+      <List
+        itemLayout="horizontal"
+        dataSource={technicians}
+        renderItem={tech => (
+          <List.Item
+            actions={[<Badge key="status" status={statusColors[tech.status]} />]}
+          >
+            <List.Item.Meta
+              avatar={<Avatar src={tech.avatar} />}
+              title={tech.name}
+              description={tech.status.charAt(0).toUpperCase() + tech.status.slice(1)}
+            />
+          </List.Item>
+        )}
+      />
     </Card>
   );
 };

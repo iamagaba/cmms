@@ -1,11 +1,9 @@
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { MapPin, Calendar } from "lucide-react";
+import { Card, Tag, Avatar, Tooltip, Typography } from "antd";
+import { EnvironmentOutlined, CalendarOutlined, UserOutlined } from "@ant-design/icons";
 import { WorkOrder, Technician, Location } from "../data/mockData";
-import { cn } from "@/lib/utils";
 import { formatDistanceToNow } from 'date-fns';
+
+const { Text, Title } = Typography;
 
 interface WorkOrderCardProps {
   order: WorkOrder;
@@ -13,16 +11,16 @@ interface WorkOrderCardProps {
   location: Location | undefined;
 }
 
-const priorityClasses = {
-  High: "bg-red-100 text-red-800 border-red-200 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800",
-  Medium: "bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-800",
-  Low: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800",
+const priorityColors = {
+  High: "red",
+  Medium: "gold",
+  Low: "green",
 };
 
-const priorityBorderClasses = {
-  High: "border-l-4 border-l-red-500",
-  Medium: "border-l-4 border-l-yellow-500",
-  Low: "border-l-4 border-l-transparent",
+const priorityBorderColors = {
+    High: "red",
+    Medium: "gold",
+    Low: "transparent",
 }
 
 const WorkOrderCard = ({ order, technician, location }: WorkOrderCardProps) => {
@@ -30,48 +28,40 @@ const WorkOrderCard = ({ order, technician, location }: WorkOrderCardProps) => {
   const isOverdue = slaDue < new Date();
 
   return (
-    <Card className={cn("hover:shadow-lg transition-shadow", priorityBorderClasses[order.priority])}>
-      <CardHeader className="p-4 pb-2">
-        <div className="flex justify-between items-start gap-2">
-          <CardTitle className="text-base font-bold leading-tight">{order.vehicleId}</CardTitle>
-          <Badge variant="outline" className={cn("text-xs shrink-0", priorityClasses[order.priority])}>{order.priority}</Badge>
+    <Card 
+      hoverable 
+      style={{ borderLeft: `4px solid ${priorityBorderColors[order.priority]}` }}
+      bodyStyle={{ padding: 16 }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+        <div>
+          <Title level={5} style={{ margin: 0 }}>{order.vehicleId}</Title>
+          <Text type="secondary">{order.customerName} • {order.vehicleModel}</Text>
         </div>
-        <p className="text-sm text-muted-foreground">{order.customerName} • {order.vehicleModel}</p>
-      </CardHeader>
-      <CardContent className="p-4 pt-2">
-        <p className="text-sm font-medium mb-3">{order.service}</p>
-        <div className="text-xs text-muted-foreground space-y-2">
-          <div className="flex items-center gap-2">
-            <MapPin className="h-3 w-3" />
-            <span>{location?.name}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Calendar className="h-3 w-3" />
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <span className={cn(isOverdue && "text-destructive font-semibold")}>
-                    Due {formatDistanceToNow(slaDue, { addSuffix: true })}
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>SLA: {slaDue.toLocaleString()}</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
+        <Tag color={priorityColors[order.priority]}>{order.priority}</Tag>
+      </div>
+      <Text style={{ display: 'block', marginBottom: 12 }}>{order.service}</Text>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <EnvironmentOutlined />
+          <Text type="secondary" style={{ fontSize: 12 }}>{location?.name}</Text>
         </div>
-      </CardContent>
-      <CardFooter className="p-4 pt-0 flex justify-between items-center">
-        <div className="flex items-center gap-2">
-          <Avatar className="h-6 w-6">
-            <AvatarImage src={technician?.avatar} alt={technician?.name} />
-            <AvatarFallback className="text-xs">{technician ? technician.name.split(' ').map(n => n[0]).join('') : 'U'}</AvatarFallback>
-          </Avatar>
-          <span className="text-xs font-medium">{technician?.name || 'Unassigned'}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <CalendarOutlined />
+          <Tooltip title={`SLA: ${slaDue.toLocaleString()}`}>
+            <Text type={isOverdue ? 'danger' : 'secondary'} style={{ fontSize: 12 }}>
+              Due {formatDistanceToNow(slaDue, { addSuffix: true })}
+            </Text>
+          </Tooltip>
         </div>
-        <span className="text-xs text-muted-foreground">{order.id}</span>
-      </CardFooter>
+      </div>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Avatar size="small" src={technician?.avatar} icon={<UserOutlined />} />
+          <Text style={{ fontSize: 12 }}>{technician?.name || 'Unassigned'}</Text>
+        </div>
+        <Text type="secondary" style={{ fontSize: 12 }}>{order.id}</Text>
+      </div>
     </Card>
   );
 };

@@ -23,6 +23,8 @@ const statusColors: Record<WorkOrder['status'], string> = {
     Completed: "green",
 };
 
+const priorityOrder: Record<WorkOrder['priority'], number> = { 'High': 1, 'Medium': 2, 'Low': 3 };
+
 export const getColumns = (
   onEdit: (record: WorkOrderRow) => void,
   onDelete: (record: WorkOrderRow) => void
@@ -51,12 +53,14 @@ export const getColumns = (
   {
     title: "Status",
     dataIndex: "status",
-    render: (status: WorkOrder['status']) => <Tag color={statusColors[status]}>{status}</Tag>
+    render: (status: WorkOrder['status']) => <Tag color={statusColors[status]}>{status}</Tag>,
+    sorter: (a: WorkOrderRow, b: WorkOrderRow) => a.status.localeCompare(b.status),
   },
   {
     title: "Priority",
     dataIndex: "priority",
-    render: (priority: WorkOrder['priority']) => <Tag color={priorityColors[priority]}>{priority}</Tag>
+    render: (priority: WorkOrder['priority']) => <Tag color={priorityColors[priority]}>{priority}</Tag>,
+    sorter: (a: WorkOrderRow, b: WorkOrderRow) => priorityOrder[a.priority] - priorityOrder[b.priority],
   },
   {
     title: "Technician",
@@ -75,7 +79,8 @@ export const getColumns = (
   {
     title: "SLA Due",
     dataIndex: "slaDue",
-    render: (slaDue: string) => dayjs(slaDue).format("MMM D, YYYY")
+    render: (slaDue: string) => dayjs(slaDue).format("MMM D, YYYY"),
+    sorter: (a: WorkOrderRow, b: WorkOrderRow) => dayjs(a.slaDue).unix() - dayjs(b.slaDue).unix(),
   },
   {
     title: "Actions",

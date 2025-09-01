@@ -1,4 +1,4 @@
-import { workOrders, technicians, locations, WorkOrder } from "../data/mockData";
+import { technicians, locations, WorkOrder } from "../data/mockData";
 import WorkOrderCard from "./WorkOrderCard";
 import { Row, Col, Typography, Tag } from "antd";
 
@@ -13,7 +13,11 @@ const statusColors = {
   Completed: "green",
 };
 
-const WorkOrderKanban = () => {
+interface WorkOrderKanbanProps {
+    workOrders: WorkOrder[];
+}
+
+const WorkOrderKanban = ({ workOrders }: WorkOrderKanbanProps) => {
   const getColumnOrders = (status: WorkOrder['status']) => {
     return workOrders.filter(order => order.status === status);
   };
@@ -26,7 +30,7 @@ const WorkOrderKanban = () => {
             <Title level={5} style={{ margin: 0 }}>{status}</Title>
             <Tag color={statusColors[status]}>{getColumnOrders(status).length}</Tag>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, height: 'calc(100vh - 22rem)', overflowY: 'auto', paddingRight: 8 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, height: 'calc(100vh - 28rem)', overflowY: 'auto', paddingRight: 8 }}>
             {getColumnOrders(status).map(order => {
               const technician = technicians.find(t => t.id === order.assignedTechnicianId);
               const location = locations.find(l => l.id === order.locationId);

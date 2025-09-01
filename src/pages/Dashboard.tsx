@@ -38,7 +38,7 @@ const Dashboard = () => {
       <Row gutter={[24, 24]}>
         <Col xs={24} xl={16}>
           <Title level={4}>Work Order Board</Title>
-          <WorkOrderKanban />
+          <WorkOrderKanban workOrders={workOrders} />
         </Col>
         <Col xs={24} xl={8}>
           <Title level={4}>Team & Locations</Title>

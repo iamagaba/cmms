@@ -2,7 +2,6 @@
 
 import * as React from "react"
 import {
-  ColumnDef,
   SortingState,
   flexRender,
   getCoreRowModel,
@@ -10,6 +9,7 @@ import {
   useReactTable,
   getFilteredRowModel,
   ColumnFiltersState,
+  getPaginationRowModel,
 } from "@tanstack/react-table"
 
 import {
@@ -25,6 +25,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { WorkOrder, Technician, Location } from "@/data/mockData"
 import { WorkOrderRow, getColumns } from "./WorkOrderTableColumns"
 import { WorkOrderFormDialog } from "./WorkOrderFormDialog"
+import { DataTablePagination } from "./ui/data-table-pagination"
 
 interface WorkOrderDataTableProps {
   initialData: WorkOrder[];
@@ -79,6 +80,7 @@ export function WorkOrderDataTable({ initialData, technicians, locations }: Work
     getSortedRowModel: getSortedRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     state: {
       sorting,
       columnFilters,
@@ -86,8 +88,8 @@ export function WorkOrderDataTable({ initialData, technicians, locations }: Work
   })
 
   return (
-    <div>
-      <div className="flex items-center py-4 gap-4">
+    <div className="rounded-lg border shadow-sm bg-card">
+      <div className="flex items-center p-4 gap-4">
         <Input
           placeholder="Filter by Vehicle ID..."
           value={(table.getColumn("vehicleId")?.getFilterValue() as string) ?? ""}
@@ -112,7 +114,7 @@ export function WorkOrderDataTable({ initialData, technicians, locations }: Work
           </SelectContent>
         </Select>
       </div>
-      <div className="rounded-md border">
+      <div className="border-t">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -128,7 +130,7 @@ export function WorkOrderDataTable({ initialData, technicians, locations }: Work
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"}>
+                <TableRow key={row.id} data-state={row.getIsSelected() && "selected"} className="hover:bg-muted/50">
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                   ))}
@@ -142,6 +144,7 @@ export function WorkOrderDataTable({ initialData, technicians, locations }: Work
           </TableBody>
         </Table>
       </div>
+      <DataTablePagination table={table} />
       {isDialogOpen && (
         <WorkOrderFormDialog 
           isOpen={isDialogOpen}

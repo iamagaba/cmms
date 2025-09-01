@@ -20,18 +20,23 @@ const Dashboard = () => {
       <div className="flex flex-col">
         <Header />
         <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6 bg-muted/40">
-          <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
-            <KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={Wrench} />
-            <KpiCard title="Open Work Orders" value={openOrders.toString()} icon={AlertCircle} />
-            <KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={CheckCircle} />
-            <KpiCard title="Avg. Completion Time" value="3.2 Days" icon={Clock} />
+          <div>
+            <h2 className="text-xl font-bold tracking-tight mb-4">Overview</h2>
+            <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
+              <KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={Wrench} />
+              <KpiCard title="Open Work Orders" value={openOrders.toString()} icon={AlertCircle} />
+              <KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={CheckCircle} />
+              <KpiCard title="Avg. Completion Time" value="3.2 Days" icon={Clock} />
+            </div>
           </div>
           
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6 items-start">
-            <div className="xl:col-span-3">
+          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+            <div className="xl:col-span-2">
+              <h2 className="text-xl font-bold tracking-tight mb-4">Work Order Board</h2>
               <WorkOrderKanban />
             </div>
             <div className="space-y-6">
+              <h2 className="text-xl font-bold tracking-tight mb-4">Team & Locations</h2>
               <TechnicianList />
               <LocationList />
             </div>

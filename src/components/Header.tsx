@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Bell, Search, Menu, Mountain, LayoutDashboard, Wrench, Users, MapPin, BarChart, Settings } from "lucide-react";
+import { Bell, Search, Menu, Mountain, LayoutDashboard, Wrench, Users, MapPin, BarChart, Settings, User, LogOut, LifeBuoy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -82,10 +82,11 @@ const Header = () => {
         <DropdownMenuContent align="end">
           <DropdownMenuLabel>Service Manager</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Profile</DropdownMenuItem>
-          <DropdownMenuItem>Settings</DropdownMenuItem>
+          <DropdownMenuItem><User className="mr-2 h-4 w-4" /><span>Profile</span></DropdownMenuItem>
+          <DropdownMenuItem><Settings className="mr-2 h-4 w-4" /><span>Settings</span></DropdownMenuItem>
+          <DropdownMenuItem><LifeBuoy className="mr-2 h-4 w-4" /><span>Support</span></DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem>Logout</DropdownMenuItem>
+          <DropdownMenuItem><LogOut className="mr-2 h-4 w-4" /><span>Logout</span></DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
     </header>

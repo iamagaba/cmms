@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { MapPin, Calendar } from "lucide-react";
 import { WorkOrder, Technician, Location } from "../data/mockData";
 import { cn } from "@/lib/utils";
@@ -19,18 +19,24 @@ const priorityClasses = {
   Low: "bg-green-100 text-green-800 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800",
 };
 
+const priorityBorderClasses = {
+  High: "border-l-4 border-l-red-500",
+  Medium: "border-l-4 border-l-yellow-500",
+  Low: "border-l-4 border-l-transparent",
+}
+
 const WorkOrderCard = ({ order, technician, location }: WorkOrderCardProps) => {
   const slaDue = new Date(order.slaDue);
   const isOverdue = slaDue < new Date();
 
   return (
-    <Card className="hover:shadow-md transition-shadow">
+    <Card className={cn("hover:shadow-lg transition-shadow", priorityBorderClasses[order.priority])}>
       <CardHeader className="p-4 pb-2">
         <div className="flex justify-between items-start gap-2">
           <CardTitle className="text-base font-bold leading-tight">{order.vehicleId}</CardTitle>
           <Badge variant="outline" className={cn("text-xs shrink-0", priorityClasses[order.priority])}>{order.priority}</Badge>
         </div>
-        <p className="text-sm text-muted-foreground">{order.vehicleModel}</p>
+        <p className="text-sm text-muted-foreground">{order.customerName} • {order.vehicleModel}</p>
       </CardHeader>
       <CardContent className="p-4 pt-2">
         <p className="text-sm font-medium mb-3">{order.service}</p>
@@ -41,16 +47,18 @@ const WorkOrderCard = ({ order, technician, location }: WorkOrderCardProps) => {
           </div>
           <div className="flex items-center gap-2">
             <Calendar className="h-3 w-3" />
-            <Tooltip>
-              <TooltipTrigger>
-                <span className={cn(isOverdue && "text-destructive font-semibold")}>
-                  Due {formatDistanceToNow(slaDue, { addSuffix: true })}
-                </span>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>SLA: {slaDue.toLocaleString()}</p>
-              </TooltipContent>
-            </Tooltip>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <span className={cn(isOverdue && "text-destructive font-semibold")}>
+                    Due {formatDistanceToNow(slaDue, { addSuffix: true })}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>SLA: {slaDue.toLocaleString()}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         </div>
       </CardContent>

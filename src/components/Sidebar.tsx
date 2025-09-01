@@ -17,7 +17,7 @@ const Sidebar = () => {
       <div className="flex h-full max-h-screen flex-col gap-2">
         <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
           <NavLink to="/" className="flex items-center gap-2 font-semibold">
-            <Mountain className="h-6 w-6" />
+            <Mountain className="h-6 w-6 text-primary" />
             <span className="">GOGO Electric</span>
           </NavLink>
         </div>
@@ -31,7 +31,7 @@ const Sidebar = () => {
                 className={({ isActive }) =>
                   cn(
                     "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
-                    isActive && "bg-muted text-primary"
+                    isActive && "bg-primary/10 text-primary font-semibold"
                   )
                 }
               >

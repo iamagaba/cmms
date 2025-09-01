@@ -7,6 +7,7 @@ import {
   getCoreRowModel,
   getSortedRowModel,
   useReactTable,
+  getPaginationRowModel,
 } from "@tanstack/react-table"
 
 import {
@@ -20,6 +21,7 @@ import {
 import { Location, WorkOrder } from "@/data/mockData"
 import { LocationRow, getColumns } from "./LocationTableColumns"
 import { LocationFormDialog } from "./LocationFormDialog"
+import { DataTablePagination } from "./ui/data-table-pagination"
 
 interface LocationDataTableProps {
   initialData: Location[];
@@ -69,14 +71,15 @@ export function LocationDataTable({ initialData, workOrders }: LocationDataTable
     getCoreRowModel: getCoreRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
     state: {
       sorting,
     },
   })
 
   return (
-    <div>
-      <div className="rounded-md border">
+    <div className="rounded-lg border shadow-sm bg-card">
+      <div className="border-t">
         <Table>
             <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -102,6 +105,7 @@ export function LocationDataTable({ initialData, workOrders }: LocationDataTable
                 <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
+                    className="hover:bg-muted/50"
                 >
                     {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
@@ -120,6 +124,7 @@ export function LocationDataTable({ initialData, workOrders }: LocationDataTable
             </TableBody>
         </Table>
       </div>
+      <DataTablePagination table={table} />
       {isDialogOpen && (
         <LocationFormDialog 
           isOpen={isDialogOpen}

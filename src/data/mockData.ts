@@ -7,12 +7,16 @@ export interface Technician {
   phone: string;
   specialization: 'Mechanical' | 'Electrical' | 'Diagnostics';
   joinDate: string; // ISO date string
+  lat: number;
+  lng: number;
 }
 
 export interface Location {
   id: string;
   name: string;
   address: string;
+  lat: number;
+  lng: number;
 }
 
 export interface WorkOrder {
@@ -33,16 +37,16 @@ export interface WorkOrder {
 }
 
 export const technicians: Technician[] = [
-  { id: 'tech1', name: 'David Okello', avatar: '/placeholder.svg', status: 'available', email: 'david.okello@gogo.com', phone: '+256 772 123456', specialization: 'Electrical', joinDate: '2022-08-15T00:00:00.000Z' },
-  { id: 'tech2', name: 'Sarah Nakato', avatar: '/placeholder.svg', status: 'busy', email: 'sarah.nakato@gogo.com', phone: '+256 772 234567', specialization: 'Diagnostics', joinDate: '2021-05-20T00:00:00.000Z' },
-  { id: 'tech3', name: 'Brian Mugisha', avatar: '/placeholder.svg', status: 'available', email: 'brian.mugisha@gogo.com', phone: '+256 772 345678', specialization: 'Mechanical', joinDate: '2023-01-10T00:00:00.000Z' },
-  { id: 'tech4', name: 'Esther Achen', avatar: '/placeholder.svg', status: 'offline', email: 'esther.achen@gogo.com', phone: '+256 772 456789', specialization: 'Electrical', joinDate: '2022-11-30T00:00:00.000Z' },
+  { id: 'tech1', name: 'David Okello', avatar: '/placeholder.svg', status: 'available', email: 'david.okello@gogo.com', phone: '+256 772 123456', specialization: 'Electrical', joinDate: '2022-08-15T00:00:00.000Z', lat: 0.335, lng: 32.570 },
+  { id: 'tech2', name: 'Sarah Nakato', avatar: '/placeholder.svg', status: 'busy', email: 'sarah.nakato@gogo.com', phone: '+256 772 234567', specialization: 'Diagnostics', joinDate: '2021-05-20T00:00:00.000Z', lat: 0.315, lng: 32.599 },
+  { id: 'tech3', name: 'Brian Mugisha', avatar: '/placeholder.svg', status: 'available', email: 'brian.mugisha@gogo.com', phone: '+256 772 345678', specialization: 'Mechanical', joinDate: '2023-01-10T00:00:00.000Z', lat: 0.320, lng: 32.585 },
+  { id: 'tech4', name: 'Esther Achen', avatar: '/placeholder.svg', status: 'offline', email: 'esther.achen@gogo.com', phone: '+256 772 456789', specialization: 'Electrical', joinDate: '2022-11-30T00:00:00.000Z', lat: 0.058, lng: 32.460 },
 ];
 
 export const locations: Location[] = [
-  { id: 'loc1', name: 'GOGO Station - Wandegeya', address: 'Wandegeya, Kampala' },
-  { id: 'loc2', name: 'GOGO Hub - Industrial Area', address: 'Industrial Area, Kampala' },
-  { id: 'loc3', name: 'GOGO Swap Point - Entebbe Town', address: 'Entebbe Town Road, Entebbe' },
+  { id: 'loc1', name: 'GOGO Station - Wandegeya', address: 'Wandegeya, Kampala', lat: 0.3325, lng: 32.5725 },
+  { id: 'loc2', name: 'GOGO Hub - Industrial Area', address: 'Industrial Area, Kampala', lat: 0.3136, lng: 32.5941 },
+  { id: 'loc3', name: 'GOGO Swap Point - Entebbe Town', address: 'Entebbe Town Road, Entebbe', lat: 0.0527, lng: 32.4637 },
 ];
 
 export const workOrders: WorkOrder[] = [

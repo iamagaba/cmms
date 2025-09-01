@@ -12,6 +12,7 @@ import {
   UsergroupAddOutlined,
   EnvironmentOutlined,
   BarChartOutlined,
+  GlobalOutlined,
 } from "@ant-design/icons";
 import { NavLink, useLocation } from "react-router-dom";
 
@@ -20,6 +21,7 @@ const { Header } = Layout;
 const navItems = [
   { key: "/", label: "Dashboard", icon: <DashboardOutlined /> },
   { key: "/work-orders", label: "Work Orders", icon: <ToolOutlined /> },
+  { key: "/map", label: "Map View", icon: <GlobalOutlined /> },
   { key: "/technicians", label: "Technicians", icon: <UsergroupAddOutlined /> },
   { key: "/locations", label: "Locations", icon: <EnvironmentOutlined /> },
   { key: "/analytics", label: "Analytics", icon: <BarChartOutlined /> },

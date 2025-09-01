@@ -10,6 +10,7 @@ import AppHeader from "./components/Header";
 import TechnicianProfilePage from "./pages/TechnicianProfile";
 import WorkOrderDetailsPage from "./pages/WorkOrderDetails";
 import AnalyticsPage from "./pages/Analytics";
+import MapViewPage from "./pages/MapView";
 
 const { Content } = Layout;
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const AppContent = () => {
           <Route path="/work-orders/:id" element={<WorkOrderDetailsPage />} />
           <Route path="/locations" element={<LocationsPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
+          <Route path="/map" element={<MapViewPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Content>

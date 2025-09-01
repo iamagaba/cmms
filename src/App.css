@@ -2,3 +2,9 @@
 #root {
   height: 100%;
 }
+
+/* Custom styles for Leaflet divIcons to remove default background/border */
+.custom-leaflet-icon {
+  background: transparent;
+  border: none;
+}

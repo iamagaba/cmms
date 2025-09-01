@@ -53,11 +53,13 @@ export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician }: Te
 
   const handleSubmit = (values: z.infer<typeof formSchema>) => {
     const newId = technician?.id || `tech${Math.floor(Math.random() * 1000)}`;
-    onSave({
-      ...values,
+    const technicianToSave: Technician = {
       id: newId,
+      name: values.name,
+      status: values.status,
       avatar: technician?.avatar || '/placeholder.svg',
-    });
+    };
+    onSave(technicianToSave);
     onClose();
   };
 

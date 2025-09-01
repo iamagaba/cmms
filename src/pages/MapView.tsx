@@ -1,3 +1,4 @@
+import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { locations, technicians, workOrders } from '@/data/mockData';
 import { Typography, Tag, List } from 'antd';
@@ -32,9 +33,9 @@ const MapViewPage = () => {
   const center: [number, number] = [0.32, 32.58]; // Centered on Kampala
 
   return (
-    <div>
-      <Title level={4} style={{ marginBottom: '24px' }}>Live Operations Map</Title>
-      <MapContainer center={center} zoom={12} style={{ height: 'calc(100vh - 160px)', width: '100%', borderRadius: '8px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <Title level={4} style={{ marginBottom: '24px', flexShrink: 0 }}>Live Operations Map</Title>
+      <MapContainer center={center} zoom={12} style={{ flexGrow: 1, width: '100%', borderRadius: '8px' }}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

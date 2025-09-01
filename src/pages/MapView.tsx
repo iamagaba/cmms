@@ -1,4 +1,3 @@
-import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { locations, technicians, workOrders } from '@/data/mockData';
 import { Typography, Tag, List } from 'antd';

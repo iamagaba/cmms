@@ -4,7 +4,6 @@ import { Avatar, Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typ
 import { ArrowLeftOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined, CalendarOutlined, ToolOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import NotFound from "./NotFound";
-import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 import { locationIcon } from "@/components/MapIcons";
 

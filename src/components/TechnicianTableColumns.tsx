@@ -1,6 +1,7 @@
 import { Avatar, Button, Dropdown, Menu, Tag, Typography } from "antd";
 import { MoreOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Technician } from "@/data/mockData";
+import { Link } from "react-router-dom";
 
 const { Text } = Typography;
 
@@ -31,7 +32,9 @@ export const getColumns = (
     render: (name: string, record: TechnicianRow) => (
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
         <Avatar src={record.avatar}>{name.split(' ').map(n => n[0]).join('')}</Avatar>
-        <Text strong>{name}</Text>
+        <Link to={`/technicians/${record.id}`}>
+            <Text strong>{name}</Text>
+        </Link>
       </div>
     )
   },

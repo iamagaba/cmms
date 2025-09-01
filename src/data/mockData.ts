@@ -3,6 +3,10 @@ export interface Technician {
   name: string;
   avatar: string;
   status: 'available' | 'busy' | 'offline';
+  email: string;
+  phone: string;
+  specialization: 'Mechanical' | 'Electrical' | 'Diagnostics';
+  joinDate: string; // ISO date string
 }
 
 export interface Location {
@@ -25,10 +29,10 @@ export interface WorkOrder {
 }
 
 export const technicians: Technician[] = [
-  { id: 'tech1', name: 'David Okello', avatar: '/placeholder.svg', status: 'available' },
-  { id: 'tech2', name: 'Sarah Nakato', avatar: '/placeholder.svg', status: 'busy' },
-  { id: 'tech3', name: 'Brian Mugisha', avatar: '/placeholder.svg', status: 'available' },
-  { id: 'tech4', name: 'Esther Achen', avatar: '/placeholder.svg', status: 'offline' },
+  { id: 'tech1', name: 'David Okello', avatar: '/placeholder.svg', status: 'available', email: 'david.okello@gogo.com', phone: '+256 772 123456', specialization: 'Electrical', joinDate: '2022-08-15T00:00:00.000Z' },
+  { id: 'tech2', name: 'Sarah Nakato', avatar: '/placeholder.svg', status: 'busy', email: 'sarah.nakato@gogo.com', phone: '+256 772 234567', specialization: 'Diagnostics', joinDate: '2021-05-20T00:00:00.000Z' },
+  { id: 'tech3', name: 'Brian Mugisha', avatar: '/placeholder.svg', status: 'available', email: 'brian.mugisha@gogo.com', phone: '+256 772 345678', specialization: 'Mechanical', joinDate: '2023-01-10T00:00:00.000Z' },
+  { id: 'tech4', name: 'Esther Achen', avatar: '/placeholder.svg', status: 'offline', email: 'esther.achen@gogo.com', phone: '+256 772 456789', specialization: 'Electrical', joinDate: '2022-11-30T00:00:00.000Z' },
 ];
 
 export const locations: Location[] = [

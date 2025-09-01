@@ -9,6 +9,7 @@ import LocationsPage from "./pages/Locations";
 import AppSidebar from "./components/Sidebar";
 import AppHeader from "./components/Header";
 import { useState } from "react";
+import TechnicianProfilePage from "./pages/TechnicianProfile";
 
 const { Content } = Layout;
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const AppContent = () => {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/technicians" element={<TechniciansPage />} />
+            <Route path="/technicians/:id" element={<TechnicianProfilePage />} />
             <Route path="/work-orders" element={<WorkOrdersPage />} />
             <Route path="/locations" element={<LocationsPage />} />
             <Route path="*" element={<NotFound />} />

@@ -15,6 +15,13 @@ const Dashboard = () => {
   const slaMet = workOrders.filter(o => o.status === 'Completed' && new Date(o.slaDue) >= new Date()).length;
   const slaPerformance = completedOrders > 0 ? ((slaMet / completedOrders) * 100).toFixed(0) : 0;
 
+  const kanbanColumns = [
+    { id: 'Open', title: 'Open' },
+    { id: 'In Progress', title: 'In Progress' },
+    { id: 'On Hold', title: 'On Hold' },
+    { id: 'Completed', title: 'Completed' },
+  ];
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <div>
@@ -38,7 +45,11 @@ const Dashboard = () => {
       <Row gutter={[24, 24]}>
         <Col xs={24} xl={16}>
           <Title level={4}>Work Order Board</Title>
-          <WorkOrderKanban workOrders={workOrders} />
+          <WorkOrderKanban 
+            workOrders={workOrders} 
+            groupBy="status"
+            columns={kanbanColumns}
+          />
         </Col>
         <Col xs={24} xl={8}>
           <Title level={4}>Team & Locations</Title>

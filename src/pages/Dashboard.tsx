@@ -1,18 +1,26 @@
-import { Row, Col, Typography } from "antd";
+import { useState } from "react";
+import { Row, Col, Typography, Select } from "antd";
 import KpiCard from "@/components/KpiCard";
 import LocationList from "@/components/LocationList";
 import TechnicianList from "@/components/TechnicianList";
 import WorkOrderKanban from "@/components/WorkOrderKanban";
-import { workOrders } from "../data/mockData";
+import { workOrders, locations } from "../data/mockData";
 import { CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined, ToolOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
+const { Option } = Select;
 
 const Dashboard = () => {
-  const totalOrders = workOrders.length;
-  const openOrders = workOrders.filter(o => o.status === 'Open' || o.status === 'In Progress').length;
-  const completedOrders = workOrders.filter(o => o.status === 'Completed').length;
-  const slaMet = workOrders.filter(o => o.status === 'Completed' && new Date(o.slaDue) >= new Date()).length;
+  const [selectedLocation, setSelectedLocation] = useState<string>('all');
+
+  const filteredWorkOrders = selectedLocation === 'all'
+    ? workOrders
+    : workOrders.filter(wo => wo.locationId === selectedLocation);
+
+  const totalOrders = filteredWorkOrders.length;
+  const openOrders = filteredWorkOrders.filter(o => o.status === 'Open' || o.status === 'In Progress').length;
+  const completedOrders = filteredWorkOrders.filter(o => o.status === 'Completed').length;
+  const slaMet = filteredWorkOrders.filter(o => o.status === 'Completed' && new Date(o.slaDue) >= new Date()).length;
   const slaPerformance = completedOrders > 0 ? ((slaMet / completedOrders) * 100).toFixed(0) : 0;
 
   const kanbanColumns = [
@@ -25,7 +33,19 @@ const Dashboard = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <div>
-        <Title level={4}>Overview</Title>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <Title level={4} style={{ margin: 0 }}>Overview</Title>
+          <Select
+            value={selectedLocation}
+            style={{ width: 240 }}
+            onChange={(value) => setSelectedLocation(value)}
+          >
+            <Option value="all">All Locations</Option>
+            {locations.map(loc => (
+              <Option key={loc.id} value={loc.id}>{loc.name}</Option>
+            ))}
+          </Select>
+        </div>
         <Row gutter={[24, 24]}>
           <Col xs={24} sm={12} md={12} lg={6}>
             <KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={<ToolOutlined />} />
@@ -46,7 +66,7 @@ const Dashboard = () => {
         <Col xs={24} xl={16}>
           <Title level={4}>Work Order Board</Title>
           <WorkOrderKanban 
-            workOrders={workOrders} 
+            workOrders={filteredWorkOrders} 
             groupBy="status"
             columns={kanbanColumns}
           />

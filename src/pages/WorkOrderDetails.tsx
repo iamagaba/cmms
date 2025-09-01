@@ -6,21 +6,12 @@ import dayjs from "dayjs";
 import NotFound from "./NotFound";
 import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, Marker } from 'react-leaflet';
-import { renderToString } from 'react-dom/server';
-import L from 'leaflet';
+import { locationIcon } from "@/components/MapIcons";
 
 const { Title, Text, Paragraph } = Typography;
 
 const statusColors: Record<string, string> = { Open: "blue", "In Progress": "gold", "On Hold": "orange", Completed: "green" };
 const priorityColors: Record<string, string> = { High: "red", Medium: "gold", Low: "green" };
-
-const locationIcon = L.divIcon({
-  html: renderToString(<EnvironmentOutlined style={{ fontSize: '32px', color: '#1677ff' }} />),
-  className: 'custom-leaflet-icon',
-  iconSize: [32, 32],
-  iconAnchor: [16, 32],
-  popupAnchor: [0, -32]
-});
 
 const WorkOrderDetailsPage = () => {
   const { id } = useParams<{ id: string }>();

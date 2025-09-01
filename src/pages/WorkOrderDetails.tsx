@@ -4,11 +4,23 @@ import { Avatar, Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typ
 import { ArrowLeftOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined, CalendarOutlined, ToolOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import NotFound from "./NotFound";
+import 'leaflet/dist/leaflet.css';
+import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import { renderToString } from 'react-dom/server';
+import L from 'leaflet';
 
 const { Title, Text, Paragraph } = Typography;
 
 const statusColors: Record<string, string> = { Open: "blue", "In Progress": "gold", "On Hold": "orange", Completed: "green" };
 const priorityColors: Record<string, string> = { High: "red", Medium: "gold", Low: "green" };
+
+const locationIcon = L.divIcon({
+  html: renderToString(<EnvironmentOutlined style={{ fontSize: '32px', color: '#1677ff' }} />),
+  className: 'custom-leaflet-icon',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32]
+});
 
 const WorkOrderDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -83,6 +95,19 @@ const WorkOrderDetailsPage = () => {
                   )}
                 </Descriptions.Item>
               </Descriptions>
+            </Card>
+            <Card title="Location on Map">
+              {location ? (
+                <MapContainer center={[location.lat, location.lng]} zoom={15} style={{ height: '250px', width: '100%', borderRadius: '8px' }}>
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                  />
+                  <Marker position={[location.lat, location.lng]} icon={locationIcon} />
+                </MapContainer>
+              ) : (
+                <Text type="secondary">Location data not available.</Text>
+              )}
             </Card>
             <Card title="Activity Log">
               <Timeline>

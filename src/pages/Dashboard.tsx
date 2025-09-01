@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Row, Col, Typography, Segmented } from "antd";
+import { Row, Col, Typography, Segmented, Badge, Space } from "antd";
 import KpiCard from "@/components/KpiCard";
 import LocationList from "@/components/LocationList";
 import TechnicianList from "@/components/TechnicianList";
@@ -30,8 +30,27 @@ const Dashboard = () => {
   ];
 
   const locationOptions = [
-    { label: 'All Locations', value: 'all' },
-    ...locations.map(loc => ({ label: loc.name, value: loc.id }))
+    { 
+      label: (
+        <Space>
+          <span>All Locations</span>
+          <Badge count={workOrders.length} showZero color="#1677ff" />
+        </Space>
+      ), 
+      value: 'all' 
+    },
+    ...locations.map(loc => {
+      const count = workOrders.filter(wo => wo.locationId === loc.id).length;
+      return {
+        label: (
+          <Space>
+            <span>{loc.name}</span>
+            <Badge count={count} showZero color="#1677ff" />
+          </Space>
+        ),
+        value: loc.id
+      }
+    })
   ];
 
   return (

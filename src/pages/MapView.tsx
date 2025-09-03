@@ -10,7 +10,7 @@ const MapViewPage = () => {
   const center: [number, number] = [0.32, 32.58]; // Centered on Kampala
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 112px)' }}>
       <Title level={4} style={{ marginBottom: '24px', flexShrink: 0 }}>Live Operations Map</Title>
       <MapContainer center={center} zoom={12} style={{ flexGrow: 1, width: '100%', borderRadius: '8px' }}>
         <TileLayer

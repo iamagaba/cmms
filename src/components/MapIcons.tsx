@@ -14,6 +14,13 @@ const toolIconSvg = `
   </svg>
 `;
 
+// Raw SVG for Ant Design's UserOutlined icon
+const userIconSvg = `
+  <svg viewBox="64 64 896 896" focusable="false" data-icon="user" width="1em" height="1em" fill="currentColor" aria-hidden="true">
+    <path d="M858.5 763.6a374 374 0 00-80.6-119.5 375.63 375.63 0 00-119.5-80.6c-.4-.2-.8-.3-1.2-.5C719.5 518 760 444.7 760 362c0-137-111-248-248-248S264 225 264 362c0 82.7 40.5 156 102.8 201.1-.4.2-.8.3-1.2.5-44.8 18.9-85 46-119.5 80.6a375.63 375.63 0 00-80.6 119.5A371.7 371.7 0 00136 901.8a8 8 0 008 8.2h724a8 8 0 008-8.2c0-122.1-44.9-235.2-128.5-322.6zM512 462c-79.5 0-144-64.5-144-144s64.5-144 144-144 144 64.5 144 144-64.5 144-144 144z"></path>
+  </svg>
+`;
+
 export const locationIcon = L.divIcon({
   html: `<div style="font-size: 32px; color: #1677ff;">${locationIconSvg}</div>`,
   className: 'custom-leaflet-icon',
@@ -32,3 +39,11 @@ export const technicianIcon = (status: 'available' | 'busy' | 'offline') => {
         popupAnchor: [0, -18]
     });
 };
+
+export const clientIcon = L.divIcon({
+  html: `<div style="font-size: 32px; color: #faad14;">${userIconSvg}</div>`,
+  className: 'custom-leaflet-icon',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32]
+});

@@ -1,11 +1,12 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { workOrders, technicians, locations } from "@/data/mockData";
-import { Avatar, Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typography, List } from "antd";
+import { Avatar, Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typography, List, Popover } from "antd";
 import { ArrowLeftOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined, CalendarOutlined, ToolOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import NotFound from "./NotFound";
-import { MapContainer, TileLayer, Marker } from 'react-leaflet';
-import { locationIcon } from "@/components/MapIcons";
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { locationIcon, clientIcon } from "@/components/MapIcons";
+import L from 'leaflet';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -23,6 +24,21 @@ const WorkOrderDetailsPage = () => {
 
   const technician = technicians.find(t => t.id === workOrder.assignedTechnicianId);
   const location = locations.find(l => l.id === workOrder.locationId);
+  const hasClientLocation = workOrder.customerLat != null && workOrder.customerLng != null;
+
+  const mapCenter: [number, number] = hasClientLocation 
+    ? [workOrder.customerLat!, workOrder.customerLng!] 
+    : (location ? [location.lat, location.lng] : [0.32, 32.58]);
+  
+  const mapBounds = () => {
+    if (location && hasClientLocation) {
+      return L.latLngBounds([
+        [location.lat, location.lng],
+        [workOrder.customerLat!, workOrder.customerLng!]
+      ]);
+    }
+    return undefined;
+  }
 
   return (
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
@@ -73,7 +89,10 @@ const WorkOrderDetailsPage = () => {
               <Descriptions column={1}>
                 <Descriptions.Item label="Priority"><Tag color={priorityColors[workOrder.priority]}>{workOrder.priority}</Tag></Descriptions.Item>
                 <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}>{dayjs(workOrder.slaDue).format('MMM D, YYYY h:mm A')}</Descriptions.Item>
-                <Descriptions.Item label={<><EnvironmentOutlined /> Location</>}>{location?.name || 'N/A'}</Descriptions.Item>
+                <Descriptions.Item label={<><EnvironmentOutlined /> Service Location</>}>{location?.name || 'N/A'}</Descriptions.Item>
+                <Descriptions.Item label="Client Location">
+                  {hasClientLocation ? `${workOrder.customerLat?.toFixed(4)}, ${workOrder.customerLng?.toFixed(4)}` : <Text type="secondary">Not Captured</Text>}
+                </Descriptions.Item>
                 <Descriptions.Item label={<><ToolOutlined /> Assigned To</>}>
                   {technician ? (
                     <Link to={`/technicians/${technician.id}`}>
@@ -87,17 +106,14 @@ const WorkOrderDetailsPage = () => {
               </Descriptions>
             </Card>
             <Card title="Location on Map">
-              {location ? (
-                <MapContainer center={[location.lat, location.lng]} zoom={15} style={{ height: '250px', width: '100%', borderRadius: '8px' }}>
-                  <TileLayer
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                  />
-                  <Marker position={[location.lat, location.lng]} icon={locationIcon} />
-                </MapContainer>
-              ) : (
-                <Text type="secondary">Location data not available.</Text>
-              )}
+              <MapContainer center={mapCenter} zoom={15} bounds={mapBounds()} style={{ height: '250px', width: '100%', borderRadius: '8px' }}>
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+                {location && <Marker position={[location.lat, location.lng]} icon={locationIcon}><Popup>Service Location: {location.name}</Popup></Marker>}
+                {hasClientLocation && <Marker position={[workOrder.customerLat!, workOrder.customerLng!]} icon={clientIcon}><Popup>Client Location</Popup></Marker>}
+              </MapContainer>
             </Card>
             <Card title="Activity Log">
               <Timeline>

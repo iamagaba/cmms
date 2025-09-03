@@ -34,6 +34,8 @@ export interface WorkOrder {
   partsUsed: { name: string; quantity: number }[];
   activityLog: { timestamp: string; activity: string }[];
   slaDue: string; // ISO date string
+  customerLat?: number | null;
+  customerLng?: number | null;
 }
 
 export const technicians: Technician[] = [
@@ -66,7 +68,9 @@ export const workOrders: WorkOrder[] = [
     activityLog: [
       { timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), activity: 'Work order created.' }
     ],
-    slaDue: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString() 
+    slaDue: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    customerLat: 0.3412,
+    customerLng: 32.5701,
   },
   { 
     id: 'WO-002', 

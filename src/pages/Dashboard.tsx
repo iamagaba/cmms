@@ -1,13 +1,24 @@
 import { useState } from "react";
-import { Row, Col, Typography, Segmented, Badge, Space } from "antd";
-import KpiCard from "@/components/KpiCard";
+import {
+  Activity,
+  CheckCircle,
+  Clock,
+  Users,
+  Wrench,
+} from "lucide-react"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import LocationList from "@/components/LocationList";
 import TechnicianList from "@/components/TechnicianList";
 import WorkOrderKanban from "@/components/WorkOrderKanban";
 import { workOrders, locations } from "../data/mockData";
-import { CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined, ToolOutlined } from "@ant-design/icons";
-
-const { Title } = Typography;
 
 const Dashboard = () => {
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
@@ -29,74 +40,87 @@ const Dashboard = () => {
     { id: 'Completed', title: 'Completed' },
   ];
 
-  const locationOptions = [
-    { 
-      label: (
-        <Space>
-          <span>All Locations</span>
-          <Badge count={workOrders.length} showZero color="#1677ff" />
-        </Space>
-      ), 
-      value: 'all' 
-    },
-    ...locations.map(loc => {
-      const count = workOrders.filter(wo => wo.locationId === loc.id).length;
-      return {
-        label: (
-          <Space>
-            <span>{loc.name}</span>
-            <Badge count={count} showZero color="#1677ff" />
-          </Space>
-        ),
-        value: loc.id
-      }
-    })
-  ];
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="flex flex-col gap-8">
       <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <Title level={4} style={{ margin: 0 }}>Overview</Title>
-          <Segmented
-            options={locationOptions}
+        <div className="flex items-center justify-between mb-4">
+          <h1 className="text-2xl font-semibold">Overview</h1>
+          <ToggleGroup 
+            type="single" 
+            defaultValue="all" 
+            variant="outline"
             value={selectedLocation}
-            onChange={(value) => setSelectedLocation(value as string)}
-          />
+            onValueChange={(value) => value && setSelectedLocation(value)}
+          >
+            <ToggleGroupItem value="all" className="flex items-center gap-2">
+              All Locations <Badge variant="secondary">{workOrders.length}</Badge>
+            </ToggleGroupItem>
+            {locations.map(loc => (
+              <ToggleGroupItem key={loc.id} value={loc.id} className="flex items-center gap-2">
+                {loc.name} <Badge variant="secondary">{workOrders.filter(wo => wo.locationId === loc.id).length}</Badge>
+              </ToggleGroupItem>
+            ))}
+          </ToggleGroup>
         </div>
-        <Row gutter={[24, 24]}>
-          <Col xs={24} sm={12} md={12} lg={6}>
-            <KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={<ToolOutlined />} />
-          </Col>
-          <Col xs={24} sm={12} md={12} lg={6}>
-            <KpiCard title="Open Work Orders" value={openOrders.toString()} icon={<ExclamationCircleOutlined />} />
-          </Col>
-          <Col xs={24} sm={12} md={12} lg={6}>
-            <KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={<CheckCircleOutlined />} />
-          </Col>
-          <Col xs={24} sm={12} md={12} lg={6}>
-            <KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<ClockCircleOutlined />} />
-          </Col>
-        </Row>
+        <div className="grid gap-4 md:grid-cols-2 md:gap-8 lg:grid-cols-4">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Work Orders</CardTitle>
+              <Wrench className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{totalOrders}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Open Work Orders</CardTitle>
+              <Activity className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{openOrders}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">SLA Performance</CardTitle>
+              <CheckCircle className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{slaPerformance}%</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Avg. Completion Time</CardTitle>
+              <Clock className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">3.2 Days</div>
+            </CardContent>
+          </Card>
+        </div>
       </div>
       
-      <Row gutter={[24, 24]}>
-        <Col xs={24} xl={16}>
-          <Title level={4}>Work Order Board</Title>
+      <div className="grid gap-4 md:gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <h2 className="text-xl font-semibold mb-4">Work Order Board</h2>
           <WorkOrderKanban 
             workOrders={filteredWorkOrders} 
             groupBy="status"
             columns={kanbanColumns}
           />
-        </Col>
-        <Col xs={24} xl={8}>
-          <Title level={4}>Team & Locations</Title>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <TechnicianList />
-            <LocationList />
+        </div>
+        <div className="flex flex-col gap-8">
+          <div>
+            <h2 className="text-xl font-semibold mb-4">Team & Locations</h2>
+            <div className="flex flex-col gap-4">
+              <TechnicianList />
+              <LocationList />
+            </div>
           </div>
-        </Col>
-      </Row>
+        </div>
+      </div>
     </div>
   );
 };

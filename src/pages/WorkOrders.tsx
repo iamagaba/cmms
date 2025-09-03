@@ -1,14 +1,20 @@
 import { useState, useMemo } from "react";
-import { Button, Typography, Space, Segmented, Input, Select, Card } from "antd";
-import { PlusOutlined, AppstoreOutlined, TableOutlined } from "@ant-design/icons";
+import { PlusCircle, List, LayoutGrid } from "lucide-react";
 import { workOrders, technicians, locations, WorkOrder } from "@/data/mockData";
 import { WorkOrderDataTable } from "@/components/WorkOrderDataTable";
 import { WorkOrderFormDialog } from "@/components/WorkOrderFormDialog";
 import WorkOrderKanban from "@/components/WorkOrderKanban";
-
-const { Title } = Typography;
-const { Search } = Input;
-const { Option } = Select;
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 type GroupByOption = 'status' | 'priority' | 'technician';
 
@@ -20,9 +26,9 @@ const WorkOrdersPage = () => {
 
   // Filter states
   const [vehicleFilter, setVehicleFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
-  const [priorityFilter, setPriorityFilter] = useState<string | undefined>(undefined);
-  const [technicianFilter, setTechnicianFilter] = useState<string | undefined>(undefined);
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [priorityFilter, setPriorityFilter] = useState<string>("");
+  const [technicianFilter, setTechnicianFilter] = useState<string>("");
 
   const handleSave = (workOrderData: WorkOrder) => {
     const exists = allWorkOrders.some(wo => wo.id === workOrderData.id);
@@ -75,77 +81,70 @@ const WorkOrdersPage = () => {
   }, [groupBy]);
 
   return (
-    <Space direction="vertical" size="large" style={{ width: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Title level={4}>Work Order Management</Title>
-        <Space>
-            <Segmented
-                options={[
-                    { label: 'Table', value: 'table', icon: <TableOutlined /> },
-                    { label: 'Board', value: 'kanban', icon: <AppstoreOutlined /> },
-                ]}
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Work Order Management</h1>
+        <div className="flex items-center gap-2">
+            <ToggleGroup
+                type="single"
+                variant="outline"
                 value={view}
-                onChange={(value) => setView(value as 'table' | 'kanban')}
-            />
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsDialogOpen(true)}>
+                onValueChange={(value) => value && setView(value as 'table' | 'kanban')}
+            >
+                <ToggleGroupItem value="table" aria-label="Table view"><List className="h-4 w-4" /></ToggleGroupItem>
+                <ToggleGroupItem value="kanban" aria-label="Kanban view"><LayoutGrid className="h-4 w-4" /></ToggleGroupItem>
+            </ToggleGroup>
+            <Button onClick={() => setIsDialogOpen(true)} className="flex items-center gap-2">
+                <PlusCircle className="h-4 w-4" />
                 Add Work Order
             </Button>
-        </Space>
+        </div>
       </div>
       
       <Card>
-        <Space wrap>
-          <Search
-            placeholder="Filter by Vehicle ID..."
-            allowClear
-            onSearch={setVehicleFilter}
-            onChange={(e) => setVehicleFilter(e.target.value)}
-            style={{ width: 200 }}
-          />
-          <Select
-            placeholder="Filter by Status"
-            allowClear
-            style={{ width: 150 }}
-            onChange={setStatusFilter}
-            value={statusFilter}
-          >
-            <Option value="Open">Open</Option>
-            <Option value="In Progress">In Progress</Option>
-            <Option value="On Hold">On Hold</Option>
-            <Option value="Completed">Completed</Option>
-          </Select>
-          <Select
-            placeholder="Filter by Priority"
-            allowClear
-            style={{ width: 150 }}
-            onChange={setPriorityFilter}
-            value={priorityFilter}
-          >
-            <Option value="High">High</Option>
-            <Option value="Medium">Medium</Option>
-            <Option value="Low">Low</Option>
-          </Select>
-          <Select
-            placeholder="Filter by Technician"
-            allowClear
-            style={{ width: 200 }}
-            onChange={setTechnicianFilter}
-            value={technicianFilter}
-          >
-            {technicians.map(t => <Option key={t.id} value={t.id}>{t.name}</Option>)}
-          </Select>
-          {view === 'kanban' && (
-            <Select
-              value={groupBy}
-              onChange={(value) => setGroupBy(value as GroupByOption)}
-              style={{ width: 180 }}
-            >
-              <Option value="status">Group by: Status</Option>
-              <Option value="priority">Group by: Priority</Option>
-              <Option value="technician">Group by: Technician</Option>
+        <CardContent className="p-4">
+          <div className="flex flex-wrap items-center gap-4">
+            <Input
+              placeholder="Filter by Vehicle ID..."
+              value={vehicleFilter}
+              onChange={(e) => setVehicleFilter(e.target.value)}
+              className="max-w-sm"
+            />
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-[180px]"><SelectValue placeholder="Filter by Status" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Open">Open</SelectItem>
+                <SelectItem value="In Progress">In Progress</SelectItem>
+                <SelectItem value="On Hold">On Hold</SelectItem>
+                <SelectItem value="Completed">Completed</SelectItem>
+              </SelectContent>
             </Select>
-          )}
-        </Space>
+            <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+              <SelectTrigger className="w-[180px]"><SelectValue placeholder="Filter by Priority" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="High">High</SelectItem>
+                <SelectItem value="Medium">Medium</SelectItem>
+                <SelectItem value="Low">Low</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={technicianFilter} onValueChange={setTechnicianFilter}>
+              <SelectTrigger className="w-[180px]"><SelectValue placeholder="Filter by Technician" /></SelectTrigger>
+              <SelectContent>
+                {technicians.map(t => <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            {view === 'kanban' && (
+              <Select value={groupBy} onValueChange={(value) => setGroupBy(value as GroupByOption)}>
+                <SelectTrigger className="w-[180px]"><SelectValue placeholder="Group by..." /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="status">Group by: Status</SelectItem>
+                  <SelectItem value="priority">Group by: Priority</SelectItem>
+                  <SelectItem value="technician">Group by: Technician</SelectItem>
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+        </CardContent>
       </Card>
 
       {view === 'table' ? (
@@ -172,7 +171,7 @@ const WorkOrdersPage = () => {
           workOrder={null}
         />
       )}
-    </Space>
+    </div>
   );
 };
 

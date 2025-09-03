@@ -1,30 +1,46 @@
-import { Card, List, Avatar, Badge } from "antd";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "@/components/ui/avatar"
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { technicians } from "../data/mockData";
 
-const statusColors: Record<typeof technicians[0]['status'], 'success' | 'warning' | 'default'> = {
-  available: "success",
-  busy: "warning",
-  offline: "default",
+const statusVariant: Record<typeof technicians[0]['status'], 'default' | 'secondary' | 'outline'> = {
+  available: "default",
+  busy: "secondary",
+  offline: "outline",
 };
 
 const TechnicianList = () => {
   return (
-    <Card title="Technicians">
-      <List
-        itemLayout="horizontal"
-        dataSource={technicians}
-        renderItem={tech => (
-          <List.Item
-            actions={[<Badge key="status" status={statusColors[tech.status]} />]}
-          >
-            <List.Item.Meta
-              avatar={<Avatar src={tech.avatar} />}
-              title={tech.name}
-              description={tech.status.charAt(0).toUpperCase() + tech.status.slice(1)}
-            />
-          </List.Item>
-        )}
-      />
+    <Card>
+      <CardHeader>
+        <CardTitle>Technicians</CardTitle>
+      </CardHeader>
+      <CardContent className="grid gap-6">
+        {technicians.map(tech => (
+          <div key={tech.id} className="flex items-center justify-between space-x-4">
+            <div className="flex items-center space-x-4">
+              <Avatar>
+                <AvatarImage src={tech.avatar} />
+                <AvatarFallback>{tech.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+              </Avatar>
+              <div>
+                <p className="text-sm font-medium leading-none">{tech.name}</p>
+                <p className="text-sm text-muted-foreground">{tech.specialization}</p>
+              </div>
+            </div>
+            <Badge variant={statusVariant[tech.status]} className="capitalize">{tech.status}</Badge>
+          </div>
+        ))}
+      </CardContent>
     </Card>
   );
 };

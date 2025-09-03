@@ -36,6 +36,7 @@ export interface WorkOrder {
   slaDue: string; // ISO date string
   customerLat?: number | null;
   customerLng?: number | null;
+  customerAddress?: string | null;
 }
 
 export const technicians: Technician[] = [
@@ -71,6 +72,7 @@ export const workOrders: WorkOrder[] = [
     slaDue: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
     customerLat: 0.3412,
     customerLng: 32.5701,
+    customerAddress: 'Makerere University, Kampala, Uganda',
   },
   { 
     id: 'WO-002', 

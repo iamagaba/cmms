@@ -1,6 +1,6 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { workOrders, technicians, locations } from "@/data/mockData";
-import { Avatar, Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typography, List, Popover } from "antd";
+import { Avatar, Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typography, List } from "antd";
 import { ArrowLeftOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined, CalendarOutlined, ToolOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import NotFound from "./NotFound";
@@ -32,10 +32,11 @@ const WorkOrderDetailsPage = () => {
   
   const mapBounds = () => {
     if (location && hasClientLocation) {
-      return L.latLngBounds([
+      const bounds = L.latLngBounds([
         [location.lat, location.lng],
         [workOrder.customerLat!, workOrder.customerLng!]
       ]);
+      return bounds.pad(0.1); // Add some padding
     }
     return undefined;
   }
@@ -91,7 +92,13 @@ const WorkOrderDetailsPage = () => {
                 <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}>{dayjs(workOrder.slaDue).format('MMM D, YYYY h:mm A')}</Descriptions.Item>
                 <Descriptions.Item label={<><EnvironmentOutlined /> Service Location</>}>{location?.name || 'N/A'}</Descriptions.Item>
                 <Descriptions.Item label="Client Location">
-                  {hasClientLocation ? `${workOrder.customerLat?.toFixed(4)}, ${workOrder.customerLng?.toFixed(4)}` : <Text type="secondary">Not Captured</Text>}
+                  {workOrder.customerAddress ? (
+                    <Text>{workOrder.customerAddress}</Text>
+                  ) : hasClientLocation ? (
+                    `${workOrder.customerLat?.toFixed(4)}, ${workOrder.customerLng?.toFixed(4)}`
+                  ) : (
+                    <Text type="secondary">Not Captured</Text>
+                  )}
                 </Descriptions.Item>
                 <Descriptions.Item label={<><ToolOutlined /> Assigned To</>}>
                   {technician ? (
@@ -112,7 +119,7 @@ const WorkOrderDetailsPage = () => {
                   attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 />
                 {location && <Marker position={[location.lat, location.lng]} icon={locationIcon}><Popup>Service Location: {location.name}</Popup></Marker>}
-                {hasClientLocation && <Marker position={[workOrder.customerLat!, workOrder.customerLng!]} icon={clientIcon}><Popup>Client Location</Popup></Marker>}
+                {hasClientLocation && <Marker position={[workOrder.customerLat!, workOrder.customerLng!]} icon={clientIcon}><Popup>{workOrder.customerAddress || 'Client Location'}</Popup></Marker>}
               </MapContainer>
             </Card>
             <Card title="Activity Log">

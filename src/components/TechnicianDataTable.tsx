@@ -18,50 +18,41 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
-import { WorkOrder, Technician, Location } from "@/data/mockData"
-import { WorkOrderRow, getColumns } from "./WorkOrderTableColumns"
-import { WorkOrderFormDialog } from "./WorkOrderFormDialog"
+import { Technician, WorkOrder } from "@/data/mockData"
+import { getColumns } from "./TechnicianTableColumns"
+import { TechnicianFormDialog } from "./TechnicianFormDialog"
 
-interface WorkOrderDataTableProps {
+interface TechnicianDataTableProps {
+  initialData: Technician[];
   workOrders: WorkOrder[];
-  technicians: Technician[];
-  locations: Location[];
-  onSave: (workOrderData: WorkOrder) => void;
-  onDelete: (workOrderData: WorkOrder) => void;
 }
 
-export function WorkOrderDataTable({ workOrders, technicians, locations, onSave, onDelete }: WorkOrderDataTableProps) {
+export function TechnicianDataTable({ initialData, workOrders }: TechnicianDataTableProps) {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
-  const [editingWorkOrder, setEditingWorkOrder] = React.useState<WorkOrder | null>(null);
+  const [editingTechnician, setEditingTechnician] = React.useState<Technician | null>(null);
+  const [data, setData] = React.useState(initialData);
   const [sorting, setSorting] = React.useState<SortingState>([])
 
-  const tableData: WorkOrderRow[] = React.useMemo(() => {
-    return workOrders.map(wo => ({
-      ...wo,
-      technician: technicians.find(t => t.id === wo.assignedTechnicianId),
-      location: locations.find(l => l.id === wo.locationId),
-    }));
-  }, [workOrders, technicians, locations]);
-
-  const handleSaveDialog = (workOrderData: WorkOrder) => {
-    onSave(workOrderData);
+  const handleSave = (technicianData: Technician) => {
+    const exists = data.some(t => t.id === technicianData.id);
+    if (exists) {
+      setData(data.map(t => t.id === technicianData.id ? technicianData : t));
+    } else {
+      setData([...data, technicianData]);
+    }
     setIsDialogOpen(false);
-    setEditingWorkOrder(null);
+    setEditingTechnician(null);
   };
 
-  const handleEdit = (record: WorkOrderRow) => {
-    setEditingWorkOrder(record);
+  const handleEdit = (record: Technician) => {
+    setEditingTechnician(record);
     setIsDialogOpen(true);
   };
 
-  const handleDelete = (record: WorkOrderRow) => {
-    onDelete(record);
-  };
-
-  const columns = React.useMemo(() => getColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
+  const columns = React.useMemo(() => getColumns(handleEdit), []);
 
   const table = useReactTable({
-    data: tableData,
+    data,
     columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -137,14 +128,14 @@ export function WorkOrderDataTable({ workOrders, technicians, locations, onSave,
         </Button>
       </div>
       {isDialogOpen && (
-        <WorkOrderFormDialog
+        <TechnicianFormDialog
           isOpen={isDialogOpen}
           onClose={() => {
             setIsDialogOpen(false);
-            setEditingWorkOrder(null);
+            setEditingTechnician(null);
           }}
-          onSave={handleSaveDialog}
-          workOrder={editingWorkOrder}
+          onSave={handleSave}
+          technician={editingTechnician}
         />
       )}
     </div>

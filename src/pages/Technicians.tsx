@@ -1,11 +1,9 @@
 import { useState } from "react";
-import { Button, Typography, Space } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusCircle } from "lucide-react";
 import { technicians, workOrders, Technician } from "@/data/mockData";
 import { TechnicianDataTable } from "@/components/TechnicianDataTable";
 import { TechnicianFormDialog } from "@/components/TechnicianFormDialog";
-
-const { Title } = Typography;
+import { Button } from "@/components/ui/button";
 
 const TechniciansPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -21,10 +19,11 @@ const TechniciansPage = () => {
   };
 
   return (
-    <Space direction="vertical" size="large" style={{ width: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Title level={4}>Technician Management</Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsDialogOpen(true)}>
+    <div className="flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold">Technician Management</h1>
+        <Button onClick={() => setIsDialogOpen(true)} className="flex items-center gap-2">
+          <PlusCircle className="h-4 w-4" />
           Add Technician
         </Button>
       </div>
@@ -39,7 +38,7 @@ const TechniciansPage = () => {
           technician={null}
         />
       )}
-    </Space>
+    </div>
   );
 };
 

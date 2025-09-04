@@ -1,6 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { App as AntApp, ConfigProvider, theme } from "antd";
+import { Layout, App as AntApp, ConfigProvider, theme } from "antd";
 import { LoadScript } from "@react-google-maps/api";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
@@ -13,6 +13,7 @@ import WorkOrderDetailsPage from "./pages/WorkOrderDetails";
 import AnalyticsPage from "./pages/Analytics";
 import MapViewPage from "./pages/MapView";
 
+const { Content } = Layout;
 const queryClient = new QueryClient();
 
 const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "";
@@ -21,6 +22,7 @@ const libraries: ("places")[] = ['places'];
 const AppContent = () => {
   const location = useLocation();
 
+  // Hide layout on NotFound page
   if (location.pathname === "/404" || location.pathname === "*") {
     return (
       <Routes>
@@ -30,9 +32,9 @@ const AppContent = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50">
+    <Layout style={{ minHeight: '100vh' }}>
       <AppHeader />
-      <main className="flex-grow p-6">
+      <Content style={{ padding: '24px' }}>
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/technicians" element={<TechniciansPage />} />
@@ -44,8 +46,8 @@ const AppContent = () => {
           <Route path="/map" element={<MapViewPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-      </main>
-    </div>
+      </Content>
+    </Layout>
   );
 };
 

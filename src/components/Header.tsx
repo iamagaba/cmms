@@ -1,4 +1,4 @@
-import { Layout, Input, Badge, Dropdown, Avatar, Menu } from "antd";
+import { Layout, Input, Badge, Dropdown, Avatar, Menu, List, Typography, Empty } from "antd";
 import {
   SearchOutlined,
   BellOutlined,
@@ -14,9 +14,12 @@ import {
   BarChartOutlined,
   GlobalOutlined,
 } from "@ant-design/icons";
-import { NavLink, useLocation } from "react-router-dom";
+import { NavLink, useLocation, Link } from "react-router-dom";
+import { useNotifications } from "@/context/NotificationsContext";
+import { formatDistanceToNow } from 'date-fns';
 
 const { Header } = Layout;
+const { Text } = Typography;
 
 const navItems = [
   { key: "/", label: "Dashboard", icon: <DashboardOutlined /> },
@@ -30,6 +33,7 @@ const navItems = [
 
 const AppHeader = () => {
   const location = useLocation();
+  const { notifications, unreadCount, markAllAsRead } = useNotifications();
 
   const userMenu = (
     <Menu>
@@ -39,6 +43,30 @@ const AppHeader = () => {
       <Menu.Divider />
       <Menu.Item key="4" icon={<LogoutOutlined />}>Logout</Menu.Item>
     </Menu>
+  );
+
+  const notificationMenu = (
+    <div style={{ width: 350, backgroundColor: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', borderRadius: '4px' }}>
+      <div style={{ padding: '12px 16px', borderBottom: '1px solid #f0f0f0' }}>
+        <Text strong>Notifications</Text>
+      </div>
+      <List
+        itemLayout="horizontal"
+        dataSource={notifications}
+        locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No new notifications" /> }}
+        renderItem={item => (
+          <List.Item style={{ padding: '12px 16px', backgroundColor: item.is_read ? 'transparent' : '#e6f7ff' }}>
+            <Link to={`/work-orders/${item.work_order_id}`} style={{ color: 'inherit', textDecoration: 'none', width: '100%' }}>
+              <List.Item.Meta
+                title={<Text>{item.message}</Text>}
+                description={<Text type="secondary">{formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}</Text>}
+              />
+            </Link>
+          </List.Item>
+        )}
+        style={{ maxHeight: 400, overflowY: 'auto' }}
+      />
+    </div>
   );
 
   return (
@@ -62,9 +90,11 @@ const AppHeader = () => {
           prefix={<SearchOutlined />}
           style={{ width: 250 }}
         />
-        <Badge count={5}>
-          <BellOutlined style={{ fontSize: '20px', cursor: 'pointer' }} />
-        </Badge>
+        <Dropdown overlay={notificationMenu} placement="bottomRight" trigger={['click']} onOpenChange={(open) => open && markAllAsRead()}>
+          <Badge count={unreadCount}>
+            <BellOutlined style={{ fontSize: '20px', cursor: 'pointer' }} />
+          </Badge>
+        </Dropdown>
         <Dropdown overlay={userMenu} placement="bottomRight">
           <Avatar style={{ cursor: 'pointer' }} icon={<UserOutlined />} />
         </Dropdown>

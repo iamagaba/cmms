@@ -12,6 +12,7 @@ import TechnicianProfilePage from "./pages/TechnicianProfile";
 import WorkOrderDetailsPage from "./pages/WorkOrderDetails";
 import AnalyticsPage from "./pages/Analytics";
 import MapViewPage from "./pages/MapView";
+import { NotificationsProvider } from "./context/NotificationsContext";
 
 const { Content } = Layout;
 const queryClient = new QueryClient();
@@ -63,9 +64,11 @@ const App = () => (
     >
       <AntApp>
         <BrowserRouter>
-          <LoadScript googleMapsApiKey={API_KEY} libraries={libraries}>
-            <AppContent />
-          </LoadScript>
+          <NotificationsProvider>
+            <LoadScript googleMapsApiKey={API_KEY} libraries={libraries}>
+              <AppContent />
+            </LoadScript>
+          </NotificationsProvider>
         </BrowserRouter>
       </AntApp>
     </ConfigProvider>

@@ -21,7 +21,7 @@ const WorkOrderDetailsPage = () => {
     return <NotFound />;
   }
 
-  const technician = technicians.find(t => t.id === work.assignedTechnicianId);
+  const technician = technicians.find(t => t.id === workOrder.assignedTechnicianId);
   const location = locations.find(l => l.id === workOrder.locationId);
   const hasClientLocation = workOrder.customerLat != null && workOrder.customerLng != null;
 

@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Row, Col, Typography, Segmented, Badge, Space } from "antd";
+import { Typography, Segmented, Badge, Space } from "antd";
 import KpiCard from "@/components/KpiCard";
 import LocationList from "@/components/LocationList";
 import TechnicianList from "@/components/TechnicianList";
 import WorkOrderKanban from "@/components/WorkOrderKanban";
 import { workOrders, locations } from "../data/mockData";
-import { CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined, ToolOutlined } from "@ant-design/icons";
+import { Wrench, AlertTriangle, CheckCircle, Clock } from "lucide-react";
 
 const { Title } = Typography;
 
@@ -54,9 +54,9 @@ const Dashboard = () => {
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div className="flex flex-col gap-6">
       <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+        <div className="flex justify-between items-center mb-4">
           <Title level={4} style={{ margin: 0 }}>Overview</Title>
           <Segmented
             options={locationOptions}
@@ -64,39 +64,29 @@ const Dashboard = () => {
             onChange={(value) => setSelectedLocation(value as string)}
           />
         </div>
-        <Row gutter={[24, 24]}>
-          <Col xs={24} sm={12} md={12} lg={6}>
-            <KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={<ToolOutlined />} />
-          </Col>
-          <Col xs={24} sm={12} md={12} lg={6}>
-            <KpiCard title="Open Work Orders" value={openOrders.toString()} icon={<ExclamationCircleOutlined />} />
-          </Col>
-          <Col xs={24} sm={12} md={12} lg={6}>
-            <KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={<CheckCircleOutlined />} />
-          </Col>
-          <Col xs={24} sm={12} md={12} lg={6}>
-            <KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<ClockCircleOutlined />} />
-          </Col>
-        </Row>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={<Wrench className="h-4 w-4" />} />
+          <KpiCard title="Open Work Orders" value={openOrders.toString()} icon={<AlertTriangle className="h-4 w-4" />} />
+          <KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={<CheckCircle className="h-4 w-4" />} />
+          <KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<Clock className="h-4 w-4" />} />
+        </div>
       </div>
       
-      <Row gutter={[24, 24]}>
-        <Col xs={24} xl={16}>
-          <Title level={4}>Work Order Board</Title>
+      <div className="grid md:grid-cols-3 gap-6">
+        <div className="md:col-span-2">
+          <Title level={4} className="mb-4">Work Order Board</Title>
           <WorkOrderKanban 
             workOrders={filteredWorkOrders} 
             groupBy="status"
             columns={kanbanColumns}
           />
-        </Col>
-        <Col xs={24} xl={8}>
-          <Title level={4}>Team & Locations</Title>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <TechnicianList />
-            <LocationList />
-          </div>
-        </Col>
-      </Row>
+        </div>
+        <div className="md:col-span-1 flex flex-col gap-6">
+          <Title level={4} className="mb-0">Team & Locations</Title>
+          <TechnicianList />
+          <LocationList />
+        </div>
+      </div>
     </div>
   );
 };

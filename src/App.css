@@ -8,3 +8,44 @@
   background: transparent;
   border: none;
 }
+
+.app-header {
+  padding: 0 24px;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  color: #1677ff;
+}
+
+.logo .anticon {
+  font-size: 24px;
+}
+
+.header-menu {
+  line-height: 62px;
+  border-bottom: none;
+  flex: 1;
+  justify-content: center;
+}
+
+.search-input {
+  width: 250px;
+}
+
+@media (max-width: 768px) {
+  .header-menu {
+    display: none;
+  }
+  .search-input {
+    width: 150px;
+  }
+  .logo .ant-typography {
+    display: none;
+  }
+}

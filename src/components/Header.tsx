@@ -1,4 +1,4 @@
-import { Layout, Input, Badge, Dropdown, Avatar, Menu } from "antd";
+import { Layout, Input, Badge, Dropdown, Avatar, Menu, Row, Col, Typography } from "antd";
 import {
   SearchOutlined,
   BellOutlined,
@@ -15,8 +15,10 @@ import {
   GlobalOutlined,
 } from "@ant-design/icons";
 import { NavLink, useLocation } from "react-router-dom";
+import '../App.css';
 
 const { Header } = Layout;
+const { Title } = Typography;
 
 const navItems = [
   { key: "/", label: "Dashboard", icon: <DashboardOutlined /> },
@@ -27,6 +29,13 @@ const navItems = [
   { key: "/analytics", label: "Analytics", icon: <BarChartOutlined /> },
   { key: "/settings", label: "Settings", icon: <SettingOutlined /> },
 ];
+
+const Logo = () => (
+  <div className="logo">
+    <FireOutlined />
+    <Title level={4} style={{ margin: 0, marginLeft: '8px', color: '#1677ff' }}>GOGO Electric</Title>
+  </div>
+);
 
 const AppHeader = () => {
   const location = useLocation();
@@ -42,33 +51,42 @@ const AppHeader = () => {
   );
 
   return (
-    <Header style={{ padding: '0 24px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #f0f0f0' }}>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginRight: '24px' }}>
-          <FireOutlined style={{color: '#1677ff', fontSize: '24px'}} />
-          <span style={{color: '#1677ff', marginLeft: '8px', fontWeight: 'bold', fontSize: '18px'}}>GOGO Electric</span>
-        </div>
-        <Menu theme="light" mode="horizontal" selectedKeys={[location.pathname]} style={{ lineHeight: '62px', borderBottom: 'none', flex: 1 }}>
-          {navItems.map(item => (
-            <Menu.Item key={item.key} icon={item.icon}>
-              <NavLink to={item.key}>{item.label}</NavLink>
-            </Menu.Item>
-          ))}
-        </Menu>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-        <Input
-          placeholder="Search..."
-          prefix={<SearchOutlined />}
-          style={{ width: 250 }}
-        />
-        <Badge count={5}>
-          <BellOutlined style={{ fontSize: '20px', cursor: 'pointer' }} />
-        </Badge>
-        <Dropdown overlay={userMenu} placement="bottomRight">
-          <Avatar style={{ cursor: 'pointer' }} icon={<UserOutlined />} />
-        </Dropdown>
-      </div>
+    <Header className="app-header">
+      <Row justify="space-between" align="middle" style={{ width: '100%' }}>
+        <Col xs={12} sm={12} md={4}>
+          <Logo />
+        </Col>
+        <Col xs={0} sm={0} md={12}>
+          <Menu theme="light" mode="horizontal" selectedKeys={[location.pathname]} className="header-menu">
+            {navItems.map(item => (
+              <Menu.Item key={item.key} icon={item.icon}>
+                <NavLink to={item.key}>{item.label}</NavLink>
+              </Menu.Item>
+            ))}
+          </Menu>
+        </Col>
+        <Col xs={12} sm={12} md={8}>
+          <Row justify="end" align="middle" gutter={24}>
+            <Col>
+              <Input
+                placeholder="Search..."
+                prefix={<SearchOutlined />}
+                className="search-input"
+              />
+            </Col>
+            <Col>
+              <Badge count={5}>
+                <BellOutlined style={{ fontSize: '20px', cursor: 'pointer' }} />
+              </Badge>
+            </Col>
+            <Col>
+              <Dropdown overlay={userMenu} placement="bottomRight">
+                <Avatar style={{ cursor: 'pointer' }} icon={<UserOutlined />} />
+              </Dropdown>
+            </Col>
+          </Row>
+        </Col>
+      </Row>
     </Header>
   );
 };

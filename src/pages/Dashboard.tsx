@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Row, Col, Typography, Segmented, Badge, Space } from "antd";
+import { Row, Col, Typography, Segmented, Badge, Space, Card } from "antd";
 import KpiCard from "@/components/KpiCard";
 import LocationList from "@/components/LocationList";
 import TechnicianList from "@/components/TechnicianList";
@@ -54,16 +54,20 @@ const Dashboard = () => {
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <Title level={4} style={{ margin: 0 }}>Overview</Title>
-          <Segmented
-            options={locationOptions}
-            value={selectedLocation}
-            onChange={(value) => setSelectedLocation(value as string)}
-          />
-        </div>
+    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <Card>
+        <Row justify="space-between" align="middle" style={{ marginBottom: '24px' }}>
+          <Col>
+            <Title level={4} style={{ margin: 0 }}>Overview</Title>
+          </Col>
+          <Col>
+            <Segmented
+              options={locationOptions}
+              value={selectedLocation}
+              onChange={(value) => setSelectedLocation(value as string)}
+            />
+          </Col>
+        </Row>
         <Row gutter={[24, 24]}>
           <Col xs={24} sm={12} md={12} lg={6}>
             <KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={<ToolOutlined />} />
@@ -78,26 +82,28 @@ const Dashboard = () => {
             <KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<ClockCircleOutlined />} />
           </Col>
         </Row>
-      </div>
+      </Card>
       
       <Row gutter={[24, 24]}>
         <Col xs={24} xl={16}>
-          <Title level={4}>Work Order Board</Title>
-          <WorkOrderKanban 
-            workOrders={filteredWorkOrders} 
-            groupBy="status"
-            columns={kanbanColumns}
-          />
+          <Card title="Work Order Board">
+            <WorkOrderKanban
+              workOrders={filteredWorkOrders}
+              groupBy="status"
+              columns={kanbanColumns}
+            />
+          </Card>
         </Col>
         <Col xs={24} xl={8}>
-          <Title level={4}>Team & Locations</Title>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <TechnicianList />
-            <LocationList />
-          </div>
+          <Card title="Team & Locations">
+            <Space direction="vertical" size="large" style={{ width: '100%' }}>
+              <TechnicianList />
+              <LocationList />
+            </Space>
+          </Card>
         </Col>
       </Row>
-    </div>
+    </Space>
   );
 };
 

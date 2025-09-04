@@ -4,14 +4,13 @@ import { Avatar, Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typ
 import { ArrowLeftOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined, CalendarOutlined, ToolOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import NotFound from "./NotFound";
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { locationIcon, clientIcon } from "@/components/MapIcons";
-import L from 'leaflet';
 
 const { Title, Text, Paragraph } = Typography;
 
 const statusColors: Record<string, string> = { Open: "blue", "In Progress": "gold", "On Hold": "orange", Completed: "green" };
 const priorityColors: Record<string, string> = { High: "red", Medium: "gold", Low: "green" };
+
+const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "";
 
 const WorkOrderDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -22,24 +21,28 @@ const WorkOrderDetailsPage = () => {
     return <NotFound />;
   }
 
-  const technician = technicians.find(t => t.id === workOrder.assignedTechnicianId);
+  const technician = technicians.find(t => t.id === work.assignedTechnicianId);
   const location = locations.find(l => l.id === workOrder.locationId);
   const hasClientLocation = workOrder.customerLat != null && workOrder.customerLng != null;
 
-  const mapCenter: [number, number] = hasClientLocation 
-    ? [workOrder.customerLat!, workOrder.customerLng!] 
-    : (location ? [location.lat, location.lng] : [0.32, 32.58]);
-  
-  const mapBounds = () => {
-    if (location && hasClientLocation) {
-      const bounds = L.latLngBounds([
-        [location.lat, location.lng],
-        [workOrder.customerLat!, workOrder.customerLng!]
-      ]);
-      return bounds.pad(0.1); // Add some padding
+  const getMapUrl = () => {
+    if (!API_KEY) return "";
+    
+    let markers = [];
+    if (location) {
+      markers.push(`markers=color:blue%7Clabel:S%7C${location.lat},${location.lng}`);
     }
-    return undefined;
-  }
+    if (hasClientLocation) {
+      markers.push(`markers=color:orange%7Clabel:C%7C${workOrder.customerLat},${workOrder.customerLng}`);
+    }
+
+    if (markers.length === 0) return "";
+
+    // This static map URL is more flexible for multiple markers than the embed API
+    return `https://maps.googleapis.com/maps/api/staticmap?size=600x300&maptype=roadmap&${markers.join('&')}&key=${API_KEY}`;
+  };
+
+  const mapUrl = getMapUrl();
 
   return (
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
@@ -89,7 +92,7 @@ const WorkOrderDetailsPage = () => {
             <Card title="Details">
               <Descriptions column={1}>
                 <Descriptions.Item label="Priority"><Tag color={priorityColors[workOrder.priority]}>{workOrder.priority}</Tag></Descriptions.Item>
-                <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}>{dayjs(workOrder.slaDue).format('MMM D, YYYY h:mm A')}</Descriptions.Item>
+                <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}>{dayjs(workOrder.slaDue).format('MMM D, YY h:mm A')}</Descriptions.Item>
                 <Descriptions.Item label={<><EnvironmentOutlined /> Service Location</>}>{location?.name || 'N/A'}</Descriptions.Item>
                 <Descriptions.Item label="Client Location">
                   {workOrder.customerAddress ? (
@@ -112,15 +115,16 @@ const WorkOrderDetailsPage = () => {
                 </Descriptions.Item>
               </Descriptions>
             </Card>
-            <Card title="Location on Map">
-              <MapContainer center={mapCenter} zoom={15} bounds={mapBounds()} style={{ height: '250px', width: '100%', borderRadius: '8px' }}>
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                />
-                {location && <Marker position={[location.lat, location.lng]} icon={locationIcon}><Popup>Service Location: {location.name}</Popup></Marker>}
-                {hasClientLocation && <Marker position={[workOrder.customerLat!, workOrder.customerLng!]} icon={clientIcon}><Popup>{workOrder.customerAddress || 'Client Location'}</Popup></Marker>}
-              </MapContainer>
+            <Card title="Location on Map" bodyStyle={{ padding: 0 }}>
+              {API_KEY ? (
+                  mapUrl ? (
+                      <img 
+                          src={mapUrl} 
+                          alt="Map of service and client locations" 
+                          style={{ width: '100%', height: 'auto', display: 'block', borderRadius: '8px' }} 
+                      />
+                  ) : <div style={{padding: '24px'}}><Text type="secondary">No location data to display.</Text></div>
+              ) : <div style={{padding: '24px'}}><Text type="secondary">Google Maps API Key not configured.</Text></div>}
             </Card>
             <Card title="Activity Log">
               <Timeline>

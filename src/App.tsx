@@ -1,6 +1,7 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { Layout, App as AntApp, ConfigProvider, theme } from "antd";
+import { LoadScript } from "@react-google-maps/api";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import TechniciansPage from "./pages/Technicians";
@@ -14,6 +15,9 @@ import MapViewPage from "./pages/MapView";
 
 const { Content } = Layout;
 const queryClient = new QueryClient();
+
+const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "";
+const libraries: ("places")[] = ['places'];
 
 const AppContent = () => {
   const location = useLocation();
@@ -59,7 +63,9 @@ const App = () => (
     >
       <AntApp>
         <BrowserRouter>
-          <AppContent />
+          <LoadScript googleMapsApiKey={API_KEY} libraries={libraries}>
+            <AppContent />
+          </LoadScript>
         </BrowserRouter>
       </AntApp>
     </ConfigProvider>

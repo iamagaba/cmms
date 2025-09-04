@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Modal, Form, Input, Select, Button, DatePicker, Col, Row } from "antd";
 import { WorkOrder, technicians, locations } from "@/data/mockData";
 import dayjs from 'dayjs';
-import { LocationSearchInput } from "./LocationSearchInput";
+import { GoogleLocationSearchInput } from "./GoogleLocationSearchInput";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -92,7 +92,7 @@ export const WorkOrderFormDialog = ({ isOpen, onClose, onSave, workOrder }: Work
           <Col span={12}><Form.Item name="slaDue" label="SLA Due Date" rules={[{ required: true }]}><DatePicker showTime style={{ width: '100%' }} /></Form.Item></Col>
           <Col span={12}>
               <Form.Item name="customerAddress" label="Client Location">
-                  <LocationSearchInput 
+                  <GoogleLocationSearchInput 
                       onLocationSelect={handleLocationSelect}
                       initialValue={workOrder?.customerAddress || ''}
                   />

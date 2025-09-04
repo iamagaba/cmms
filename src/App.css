@@ -8,11 +8,3 @@
   background: transparent;
   border: none;
 }
-
-.leaflet-popup-content-wrapper {
-  @apply rounded-lg;
-}
-
-.leaflet-popup-content {
-  @apply text-sm;
-}

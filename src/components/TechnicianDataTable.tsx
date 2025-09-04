@@ -1,26 +1,8 @@
-import * as React from "react"
-import {
-  ColumnDef,
-  SortingState,
-  flexRender,
-  getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table"
-
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { Technician, WorkOrder } from "@/data/mockData"
-import { getColumns } from "./TechnicianTableColumns"
-import { TechnicianFormDialog } from "./TechnicianFormDialog"
+import * as React from "react";
+import { Table } from "antd";
+import { Technician, WorkOrder } from "@/data/mockData";
+import { TechnicianRow, getColumns } from "./TechnicianTableColumns";
+import { TechnicianFormDialog } from "./TechnicianFormDialog";
 
 interface TechnicianDataTableProps {
   initialData: Technician[];
@@ -28,105 +10,47 @@ interface TechnicianDataTableProps {
 }
 
 export function TechnicianDataTable({ initialData, workOrders }: TechnicianDataTableProps) {
+  const [data, setData] = React.useState<Technician[]>(initialData);
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [editingTechnician, setEditingTechnician] = React.useState<Technician | null>(null);
-  const [data, setData] = React.useState(initialData);
-  const [sorting, setSorting] = React.useState<SortingState>([])
+
+  const tableData: TechnicianRow[] = React.useMemo(() => {
+    return data.map(tech => ({
+      ...tech,
+      openTasks: workOrders.filter(wo => wo.assignedTechnicianId === tech.id && wo.status !== 'Completed').length
+    }));
+  }, [data, workOrders]);
 
   const handleSave = (technicianData: Technician) => {
     const exists = data.some(t => t.id === technicianData.id);
     if (exists) {
-      setData(data.map(t => t.id === technicianData.id ? technicianData : t));
+      setData(data.map(t => (t.id === technicianData.id ? technicianData : t)));
     } else {
       setData([...data, technicianData]);
     }
-    setIsDialogOpen(false);
     setEditingTechnician(null);
+    setIsDialogOpen(false);
   };
 
-  const handleEdit = (record: Technician) => {
+  const handleEdit = (record: TechnicianRow) => {
     setEditingTechnician(record);
     setIsDialogOpen(true);
   };
 
-  const columns = React.useMemo(() => getColumns(handleEdit), []);
+  const handleDelete = (record: TechnicianRow) => {
+    setData(data.filter(t => t.id !== record.id));
+  };
 
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    state: {
-      sorting,
-    },
-  })
+  const columns = getColumns(handleEdit, handleDelete);
 
   return (
-    <div>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Previous
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Next
-        </Button>
-      </div>
+    <>
+      <Table
+        dataSource={tableData}
+        columns={columns}
+        rowKey="id"
+        pagination={{ pageSize: 10, hideOnSinglePage: true }}
+      />
       {isDialogOpen && (
         <TechnicianFormDialog
           isOpen={isDialogOpen}
@@ -138,6 +62,6 @@ export function TechnicianDataTable({ initialData, workOrders }: TechnicianDataT
           technician={editingTechnician}
         />
       )}
-    </div>
-  )
+    </>
+  );
 }

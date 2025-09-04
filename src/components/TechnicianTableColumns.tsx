@@ -1,87 +1,75 @@
-"use client"
+import { Avatar, Button, Dropdown, Menu, Tag, Typography } from "antd";
+import { MoreOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { Technician } from "@/data/mockData";
+import { Link } from "react-router-dom";
 
-import { ColumnDef } from "@tanstack/react-table"
-import { MoreHorizontal } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Technician } from "@/data/mockData"
-import { Link } from "react-router-dom"
+const { Text } = Typography;
 
-const statusVariant: Record<Technician['status'], 'default' | 'secondary' | 'outline'> = {
-  available: "default",
-  busy: "secondary",
-  offline: "outline",
+export type TechnicianRow = Technician & {
+  openTasks: number;
+};
+
+const statusColorMap: Record<TechnicianRow['status'], string> = {
+  available: 'success',
+  busy: 'warning',
+  offline: 'default',
+};
+
+const statusTextMap: Record<TechnicianRow['status'], string> = {
+    available: 'Available',
+    busy: 'Busy',
+    offline: 'Offline',
 };
 
 export const getColumns = (
-    onEdit: (technician: Technician) => void,
-): ColumnDef<Technician>[] => [
+  onEdit: (record: TechnicianRow) => void,
+  onDelete: (record: TechnicianRow) => void
+) => [
   {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => {
-      const tech = row.original;
-      return (
-        <Link to={`/technicians/${tech.id}`} className="flex items-center gap-2 hover:underline">
-          <Avatar>
-            <AvatarImage src={tech.avatar} />
-            <AvatarFallback>{tech.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
-          </Avatar>
-          {tech.name}
+    title: "Technician",
+    dataIndex: "name",
+    sorter: (a: TechnicianRow, b: TechnicianRow) => a.name.localeCompare(b.name),
+    render: (name: string, record: TechnicianRow) => (
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <Avatar src={record.avatar}>{name.split(' ').map(n => n[0]).join('')}</Avatar>
+        <Link to={`/technicians/${record.id}`}>
+            <Text strong>{name}</Text>
         </Link>
-      )
-    }
+      </div>
+    )
   },
   {
-    accessorKey: "email",
-    header: "Email",
+    title: "Status",
+    dataIndex: "status",
+    render: (status: TechnicianRow['status']) => (
+      <Tag color={statusColorMap[status]}>{statusTextMap[status]}</Tag>
+    )
   },
   {
-    accessorKey: "phone",
-    header: "Phone",
+    title: "Open Tasks",
+    dataIndex: "openTasks",
+    sorter: (a: TechnicianRow, b: TechnicianRow) => a.openTasks - b.openTasks,
   },
   {
-    accessorKey: "specialization",
-    header: "Specialization",
+    title: "Actions",
+    key: "actions",
+    align: "right" as const,
+    render: (_: any, record: TechnicianRow) => (
+      <Dropdown
+        overlay={
+          <Menu>
+            <Menu.Item key="edit" icon={<EditOutlined />} onClick={() => onEdit(record)}>
+              Edit Details
+            </Menu.Item>
+            <Menu.Item key="delete" icon={<DeleteOutlined />} danger onClick={() => onDelete(record)}>
+              Delete Technician
+            </Menu.Item>
+          </Menu>
+        }
+        trigger={["click"]}
+      >
+        <Button type="text" icon={<MoreOutlined style={{ fontSize: '18px' }} />} />
+      </Dropdown>
+    ),
   },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-        const status = row.getValue("status") as Technician['status'];
-        return <Badge variant={statusVariant[status]} className="capitalize">{status}</Badge>
-    }
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      const technician = row.original
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => onEdit(technician)}>
-              Edit Technician
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )
-    },
-  },
-]
+];

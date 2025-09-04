@@ -1,18 +1,20 @@
 import { technicians, locations, WorkOrder } from "../data/mockData";
 import WorkOrderCard from "./WorkOrderCard";
-import { Badge } from "@/components/ui/badge";
+import { Row, Col, Typography, Tag } from "antd";
 
-const statusColors: { [key: string]: 'default' | 'secondary' | 'destructive' | 'outline' } = {
-  Open: "default",
-  "In Progress": "secondary",
-  "On Hold": "outline",
-  Completed: "default", // Will use custom class for green
+const { Title } = Typography;
+
+const statusColors: { [key: string]: string } = {
+  Open: "blue",
+  "In Progress": "gold",
+  "On Hold": "orange",
+  Completed: "green",
 };
 
-const priorityColors: { [key: string]: 'default' | 'secondary' | 'destructive' } = {
-    High: "destructive",
-    Medium: "secondary",
-    Low: "default",
+const priorityColors: { [key: string]: string } = {
+    High: "red",
+    Medium: "gold",
+    Low: "green",
 };
 
 interface KanbanColumn {
@@ -31,43 +33,38 @@ const WorkOrderKanban = ({ workOrders, groupBy, columns }: WorkOrderKanbanProps)
     return workOrders.filter(order => order[groupBy as keyof WorkOrder] === columnId);
   };
 
-  const getColumnBadgeVariant = (column: KanbanColumn) => {
+  const getColumnColor = (column: KanbanColumn) => {
     if (groupBy === 'status') {
         return statusColors[column.id as string] || 'default';
     }
     if (groupBy === 'priority') {
         return priorityColors[column.id as string] || 'default';
     }
-    return 'secondary';
+    return '#1677ff'; // Default primary color for other groupings
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <Row gutter={[16, 16]}>
       {columns.map(column => {
         const columnOrders = getColumnOrders(column.id);
-        const badgeVariant = getColumnBadgeVariant(column);
+        const columnColor = getColumnColor(column);
         return (
-            <div key={column.id || 'unassigned'}>
-                <div className="flex items-center gap-2 mb-4 pb-2 border-b">
-                    <h3 className="font-semibold text-sm whitespace-nowrap overflow-hidden text-ellipsis">{column.title}</h3>
-                    <Badge 
-                      variant={badgeVariant}
-                      className={column.id === 'Completed' ? 'bg-green-100 text-green-800' : ''}
-                    >
-                      {columnOrders.length}
-                    </Badge>
+            <Col key={column.id || 'unassigned'} xs={24} sm={12} md={8} lg={6}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16, borderBottom: `2px solid ${columnColor}`, paddingBottom: 8 }}>
+                    <Title level={5} style={{ margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{column.title}</Title>
+                    <Tag color={columnColor}>{columnOrders.length}</Tag>
                 </div>
-                <div className="flex flex-col gap-4 h-[calc(100vh-32rem)] overflow-y-auto p-1">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16, height: 'calc(100vh - 32rem)', overflowY: 'auto', paddingRight: 8 }}>
                     {columnOrders.map(order => {
-                      const technician = technicians.find(t => t.id === order.assignedTechnicianId);
-                      const location = locations.find(l => l.id === order.locationId);
-                      return <WorkOrderCard key={order.id} order={order} technician={technician} location={location} />;
+                    const technician = technicians.find(t => t.id === order.assignedTechnicianId);
+                    const location = locations.find(l => l.id === order.locationId);
+                    return <WorkOrderCard key={order.id} order={order} technician={technician} location={location} />;
                     })}
                 </div>
-            </div>
+            </Col>
         )
       })}
-    </div>
+    </Row>
   );
 };
 

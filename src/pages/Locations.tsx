@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { PlusCircle } from "lucide-react";
+import { Button, Typography, Space } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import { locations, workOrders, Location } from "@/data/mockData";
 import { LocationDataTable } from "@/components/LocationDataTable";
 import { LocationFormDialog } from "@/components/LocationFormDialog";
-import { Button } from "@/components/ui/button";
+
+const { Title } = Typography;
 
 const LocationsPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -19,11 +21,10 @@ const LocationsPage = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-semibold">Location Management</h1>
-        <Button onClick={() => setIsDialogOpen(true)} className="flex items-center gap-2">
-          <PlusCircle className="h-4 w-4" />
+    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Title level={4}>Location Management</Title>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsDialogOpen(true)}>
           Add Location
         </Button>
       </div>
@@ -41,7 +42,7 @@ const LocationsPage = () => {
           location={null}
         />
       )}
-    </div>
+    </Space>
   );
 };
 

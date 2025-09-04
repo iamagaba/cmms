@@ -1,26 +1,8 @@
-import * as React from "react"
-import {
-  ColumnDef,
-  SortingState,
-  flexRender,
-  getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from "@tanstack/react-table"
-
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
-import { WorkOrder, Technician, Location } from "@/data/mockData"
-import { WorkOrderRow, getColumns } from "./WorkOrderTableColumns"
-import { WorkOrderFormDialog } from "./WorkOrderFormDialog"
+import * as React from "react";
+import { Table } from "antd";
+import { WorkOrder, Technician, Location } from "@/data/mockData";
+import { WorkOrderRow, getColumns } from "./WorkOrderTableColumns";
+import { WorkOrderFormDialog } from "./WorkOrderFormDialog";
 
 interface WorkOrderDataTableProps {
   workOrders: WorkOrder[];
@@ -33,7 +15,6 @@ interface WorkOrderDataTableProps {
 export function WorkOrderDataTable({ workOrders, technicians, locations, onSave, onDelete }: WorkOrderDataTableProps) {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [editingWorkOrder, setEditingWorkOrder] = React.useState<WorkOrder | null>(null);
-  const [sorting, setSorting] = React.useState<SortingState>([])
 
   const tableData: WorkOrderRow[] = React.useMemo(() => {
     return workOrders.map(wo => ({
@@ -58,84 +39,16 @@ export function WorkOrderDataTable({ workOrders, technicians, locations, onSave,
     onDelete(record);
   };
 
-  const columns = React.useMemo(() => getColumns(handleEdit, handleDelete), [handleEdit, handleDelete]);
-
-  const table = useReactTable({
-    data: tableData,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
-    state: {
-      sorting,
-    },
-  })
+  const columns = getColumns(handleEdit, handleDelete);
 
   return (
-    <div>
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  )
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={columns.length} className="h-24 text-center">
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Previous
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Next
-        </Button>
-      </div>
+    <>
+      <Table
+        dataSource={tableData}
+        columns={columns}
+        rowKey="id"
+        pagination={{ pageSize: 10, hideOnSinglePage: true }}
+      />
       {isDialogOpen && (
         <WorkOrderFormDialog
           isOpen={isDialogOpen}
@@ -147,6 +60,6 @@ export function WorkOrderDataTable({ workOrders, technicians, locations, onSave,
           workOrder={editingWorkOrder}
         />
       )}
-    </div>
-  )
+    </>
+  );
 }

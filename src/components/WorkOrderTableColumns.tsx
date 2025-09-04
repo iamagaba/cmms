@@ -1,118 +1,108 @@
-"use client"
+import { Avatar, Button, Dropdown, Menu, Tag, Typography } from "antd";
+import { MoreOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { WorkOrder, Technician, Location } from "@/data/mockData";
+import dayjs from "dayjs";
+import { Link } from "react-router-dom";
 
-import { ColumnDef } from "@tanstack/react-table"
-import { MoreHorizontal, ArrowUpDown } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Badge } from "@/components/ui/badge"
-import { WorkOrder, Technician, Location } from "@/data/mockData"
-import { format } from "date-fns"
+const { Text } = Typography;
 
 export type WorkOrderRow = WorkOrder & {
-  technician?: Technician
-  location?: Location
-}
-
-const priorityVariant: Record<WorkOrder['priority'], 'destructive' | 'secondary' | 'default'> = {
-  High: "destructive",
-  Medium: "secondary",
-  Low: "default",
+  technician?: Technician;
+  location?: Location;
 };
 
-const statusVariant: Record<WorkOrder['status'], 'default' | 'secondary' | 'outline'> = {
-    Open: "default",
-    "In Progress": "secondary",
-    "On Hold": "outline",
-    Completed: "default",
+const priorityColors: Record<WorkOrder['priority'], string> = {
+  High: "red",
+  Medium: "gold",
+  Low: "green",
 };
+
+const statusColors: Record<WorkOrder['status'], string> = {
+    Open: "blue",
+    "In Progress": "gold",
+    "On Hold": "orange",
+    Completed: "green",
+};
+
+const priorityOrder: Record<WorkOrder['priority'], number> = { 'High': 1, 'Medium': 2, 'Low': 3 };
 
 export const getColumns = (
-    onEdit: (workOrder: WorkOrderRow) => void,
-    onDelete: (workOrder: WorkOrderRow) => void
-): ColumnDef<WorkOrderRow>[] => [
+  onEdit: (record: WorkOrderRow) => void,
+  onDelete: (record: WorkOrderRow) => void
+) => [
   {
-    accessorKey: "id",
-    header: "ID",
+    title: "ID",
+    dataIndex: "id",
+    render: (id: string) => <Link to={`/work-orders/${id}`}><Text code>{id}</Text></Link>
   },
   {
-    accessorKey: "vehicleId",
-    header: "Vehicle ID",
+    title: "Vehicle",
+    dataIndex: "vehicleId",
+    sorter: (a: WorkOrderRow, b: WorkOrderRow) => a.vehicleId.localeCompare(b.vehicleId),
+    render: (vehicleId: string, record: WorkOrderRow) => (
+      <div>
+        <Text strong>{vehicleId}</Text>
+        <br />
+        <Text type="secondary" style={{ fontSize: 12 }}>{record.vehicleModel}</Text>
+      </div>
+    )
   },
   {
-    accessorKey: "customerName",
-    header: "Customer",
+    title: "Service",
+    dataIndex: "service",
   },
   {
-    accessorKey: "technician.name",
-    header: "Technician",
-    cell: ({ row }) => row.original.technician?.name || "Unassigned",
+    title: "Status",
+    dataIndex: "status",
+    render: (status: WorkOrder['status']) => <Tag color={statusColors[status]}>{status}</Tag>,
+    sorter: (a: WorkOrderRow, b: WorkOrderRow) => a.status.localeCompare(b.status),
   },
   {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => {
-        const status = row.getValue("status") as WorkOrder['status'];
-        return <Badge variant={statusVariant[status]} className={status === 'Completed' ? 'bg-green-100 text-green-800' : ''}>{status}</Badge>
+    title: "Priority",
+    dataIndex: "priority",
+    render: (priority: WorkOrder['priority']) => <Tag color={priorityColors[priority]}>{priority}</Tag>,
+    sorter: (a: WorkOrderRow, b: WorkOrderRow) => priorityOrder[a.priority] - priorityOrder[b.priority],
+  },
+  {
+    title: "Technician",
+    dataIndex: "technician",
+    render: (_: any, record: WorkOrderRow) => {
+      const tech = record.technician;
+      if (!tech) return <Text type="secondary">Unassigned</Text>;
+      return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <Avatar size="small" src={tech.avatar}>{tech.name.split(' ').map(n => n[0]).join('')}</Avatar>
+          <Text>{tech.name}</Text>
+        </div>
+      );
     }
   },
   {
-    accessorKey: "priority",
-    header: "Priority",
-    cell: ({ row }) => {
-        const priority = row.getValue("priority") as WorkOrder['priority'];
-        return <Badge variant={priorityVariant[priority]}>{priority}</Badge>
-    }
+    title: "SLA Due",
+    dataIndex: "slaDue",
+    render: (slaDue: string) => dayjs(slaDue).format("MMM D, YYYY"),
+    sorter: (a: WorkOrderRow, b: WorkOrderRow) => dayjs(a.slaDue).unix() - dayjs(b.slaDue).unix(),
   },
   {
-    accessorKey: "slaDue",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          SLA Due
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
-    cell: ({ row }) => format(new Date(row.getValue("slaDue")), "PP"),
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => {
-      const workOrder = row.original
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => onEdit(workOrder)}>
+    title: "Actions",
+    key: "actions",
+    align: "right" as const,
+    render: (_: any, record: WorkOrderRow) => (
+      <Dropdown
+        overlay={
+          <Menu>
+            <Menu.Item key="edit" icon={<EditOutlined />} onClick={() => onEdit(record)}>
               Edit Work Order
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              className="text-red-600"
-              onClick={() => onDelete(workOrder)}
-            >
+            </Menu.Item>
+            <Menu.Item key="delete" icon={<DeleteOutlined />} danger onClick={() => onDelete(record)}>
               Delete Work Order
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )
-    },
+            </Menu.Item>
+          </Menu>
+        }
+        trigger={["click"]}
+      >
+        <Button type="text" icon={<MoreOutlined style={{ fontSize: '18px' }} />} />
+      </Dropdown>
+    ),
   },
-]
+];

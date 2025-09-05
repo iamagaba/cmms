@@ -1,25 +1,22 @@
-import { toast } from "sonner";
+import { message } from 'antd';
 
 export const showSuccess = (content: string) => {
-  toast.success(content);
+  message.success(content);
 };
 
 export const showError = (content: string) => {
-  toast.error(content);
+  message.error(content);
 };
 
-// sonner doesn't have a direct equivalent of a non-expiring loading message
-// that returns a closer function. We'll use a standard loading toast.
-export const showLoading = (content: string): string | number => {
-  return toast.loading(content);
+export const showLoading = (content: string) => {
+  // Ant Design's message.loading returns a function to close the message.
+  // The second argument `0` makes it non-expiring until explicitly closed.
+  return message.loading(content, 0);
 };
 
-// In sonner, you dismiss by the ID returned from the toast function.
-export const dismissToast = (toastId?: string | number) => {
-  if (toastId) {
-    toast.dismiss(toastId);
-  } else {
-    // Dismiss all toasts if no ID is provided
-    toast.dismiss();
+export const dismissToast = (close?: () => void) => {
+  // Expects the close function returned by showLoading
+  if (close) {
+    close();
   }
 };

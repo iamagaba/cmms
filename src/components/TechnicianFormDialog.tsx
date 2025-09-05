@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
-import { LocalizationProvider, DatePicker } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { Modal, Form, Input, Select, Button, DatePicker } from "antd";
 import { Technician } from "@/data/mockData";
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
+
+const { Option } = Select;
 
 interface TechnicianFormDialogProps {
   isOpen: boolean;
@@ -13,69 +13,39 @@ interface TechnicianFormDialogProps {
 }
 
 export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician }: TechnicianFormDialogProps) => {
-  const [formState, setFormState] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    status: 'available' as Technician['status'],
-    specialization: 'Electrical' as Technician['specialization'],
-    joinDate: null as Dayjs | null,
-  });
+  const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (isOpen) {
-      if (technician) {
-        setFormState({
-          name: technician.name,
-          email: technician.email,
-          phone: technician.phone,
-          status: technician.status,
-          specialization: technician.specialization,
-          joinDate: technician.joinDate ? dayjs(technician.joinDate) : null,
-        });
-      } else {
-        setFormState({
-          name: '',
-          email: '',
-          phone: '',
-          status: 'available',
-          specialization: 'Electrical',
-          joinDate: null,
-        });
-      }
+    if (technician) {
+      form.setFieldsValue({
+        ...technician,
+        joinDate: technician.joinDate ? dayjs(technician.joinDate) : null,
+      });
+    } else {
+      form.resetFields();
     }
-  }, [isOpen, technician]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>) => {
-    const { name, value } = e.target;
-    setFormState(prevState => ({ ...prevState, [name!]: value }));
-  };
-
-  const handleDateChange = (newValue: Dayjs | null) => {
-    setFormState(prevState => ({ ...prevState, joinDate: newValue }));
-  };
+  }, [isOpen, technician, form]);
 
   const handleSubmit = async () => {
-    if (!formState.name || !formState.email || !formState.phone || !formState.joinDate) {
-      return;
-    }
     setLoading(true);
     try {
+      const values = await form.validateFields();
       const newId = technician?.id || `tech${Math.floor(Math.random() * 1000)}`;
       const technicianToSave: Technician = {
         id: newId,
-        name: formState.name,
-        status: formState.status,
+        name: values.name,
+        status: values.status,
         avatar: technician?.avatar || '/placeholder.svg',
-        email: formState.email,
-        phone: formState.phone,
-        specialization: formState.specialization,
-        joinDate: formState.joinDate.toISOString(),
-        lat: technician?.lat || 0.32,
-        lng: technician?.lng || 32.58,
+        email: values.email,
+        phone: values.phone,
+        specialization: values.specialization,
+        joinDate: values.joinDate.toISOString(),
+        lat: technician?.lat || 0.32, // Default lat for new technicians
+        lng: technician?.lng || 32.58, // Default lng for new technicians
       };
       
+      // Simulate network delay
       await new Promise(resolve => setTimeout(resolve, 500));
       onSave(technicianToSave);
       onClose();
@@ -87,36 +57,45 @@ export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician }: Te
   };
 
   return (
-    <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="sm">
-      <DialogTitle>{technician ? "Edit Technician" : "Add Technician"}</DialogTitle>
-      <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: '16px !important' }}>
-        <TextField name="name" label="Name" value={formState.name} onChange={handleChange} fullWidth placeholder="e.g. John Doe" />
-        <TextField name="email" label="Email" type="email" value={formState.email} onChange={handleChange} fullWidth placeholder="e.g. john.doe@gogo.com" />
-        <TextField name="phone" label="Phone Number" value={formState.phone} onChange={handleChange} fullWidth placeholder="e.g. +256 772 123456" />
-        <FormControl fullWidth>
-          <InputLabel id="status-label">Status</InputLabel>
-          <Select labelId="status-label" name="status" value={formState.status} label="Status" onChange={handleChange as any}>
-            <MenuItem value="available">Available</MenuItem>
-            <MenuItem value="busy">Busy</MenuItem>
-            <MenuItem value="offline">Offline</MenuItem>
+    <Modal
+      title={technician ? "Edit Technician" : "Add Technician"}
+      open={isOpen}
+      onOk={handleSubmit}
+      onCancel={onClose}
+      destroyOnClose
+      footer={[
+        <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>,
+        <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save</Button>,
+      ]}
+    >
+      <Form form={form} layout="vertical" name="technician_form">
+        <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Please input the name!' }]}>
+          <Input placeholder="e.g. John Doe" />
+        </Form.Item>
+        <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email', message: 'Please enter a valid email!' }]}>
+          <Input placeholder="e.g. john.doe@gogo.com" />
+        </Form.Item>
+        <Form.Item name="phone" label="Phone Number" rules={[{ required: true, message: 'Please input the phone number!' }]}>
+          <Input placeholder="e.g. +256 772 123456" />
+        </Form.Item>
+        <Form.Item name="status" label="Status" rules={[{ required: true, message: 'Please select a status!' }]}>
+          <Select placeholder="Select a status">
+            <Option value="available">Available</Option>
+            <Option value="busy">Busy</Option>
+            <Option value="offline">Offline</Option>
           </Select>
-        </FormControl>
-        <FormControl fullWidth>
-          <InputLabel id="specialization-label">Specialization</InputLabel>
-          <Select labelId="specialization-label" name="specialization" value={formState.specialization} label="Specialization" onChange={handleChange as any}>
-            <MenuItem value="Electrical">Electrical</MenuItem>
-            <MenuItem value="Mechanical">Mechanical</MenuItem>
-            <MenuItem value="Diagnostics">Diagnostics</MenuItem>
+        </Form.Item>
+        <Form.Item name="specialization" label="Specialization" rules={[{ required: true, message: 'Please select a specialization!' }]}>
+          <Select placeholder="Select a specialization">
+            <Option value="Electrical">Electrical</Option>
+            <Option value="Mechanical">Mechanical</Option>
+            <Option value="Diagnostics">Diagnostics</Option>
           </Select>
-        </FormControl>
-        <LocalizationProvider dateAdapter={AdapterDayjs}>
-          <DatePicker label="Join Date" value={formState.joinDate} onChange={handleDateChange} />
-        </LocalizationProvider>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} disabled={loading}>Cancel</Button>
-        <Button onClick={handleSubmit} variant="contained" disabled={loading}>Save</Button>
-      </DialogActions>
-    </Dialog>
+        </Form.Item>
+        <Form.Item name="joinDate" label="Join Date" rules={[{ required: true, message: 'Please select a join date!' }]}>
+          <DatePicker style={{ width: '100%' }} />
+        </Form.Item>
+      </Form>
+    </Modal>
   );
 };

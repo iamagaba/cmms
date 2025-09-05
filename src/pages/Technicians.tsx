@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { Button, Typography, Box } from "@mui/material";
-import { Add } from "@mui/icons-material";
+import { Button, Typography, Space } from "antd";
+import { PlusOutlined } from "@ant-design/icons";
 import { technicians, workOrders, Technician } from "@/data/mockData";
 import { TechnicianDataTable } from "@/components/TechnicianDataTable";
 import { TechnicianFormDialog } from "@/components/TechnicianFormDialog";
+
+const { Title } = Typography;
 
 const TechniciansPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -19,15 +21,13 @@ const TechniciansPage = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h5" component="h1" fontWeight="bold">
-          Technician Management
-        </Typography>
-        <Button variant="contained" startIcon={<Add />} onClick={() => setIsDialogOpen(true)}>
+    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Title level={4}>Technician Management</Title>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsDialogOpen(true)}>
           Add Technician
         </Button>
-      </Box>
+      </div>
       
       <TechnicianDataTable initialData={allTechnicians} workOrders={workOrders} />
 
@@ -39,7 +39,7 @@ const TechniciansPage = () => {
           technician={null}
         />
       )}
-    </Box>
+    </Space>
   );
 };
 

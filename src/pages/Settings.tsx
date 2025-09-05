@@ -1,10 +1,13 @@
-import React, { useState } from 'react';
-import { Card, Tabs, Tab, Box, TextField, Button, Select, Switch, Avatar, Typography, Grid, FormControl, InputLabel, MenuItem, FormControlLabel } from '@mui/material';
-import { Person, Settings as SettingsIcon, Notifications, Lock, Save } from '@mui/icons-material';
+import { useState } from 'react';
+import { Card, Tabs, Form, Input, Button, Select, Switch, Avatar, Typography, Space, Row, Col } from 'antd';
+import { UserOutlined, SettingOutlined, BellOutlined, LockOutlined, SaveOutlined } from '@ant-design/icons';
 import { TechnicianDataTable } from '@/components/TechnicianDataTable';
 import { technicians, workOrders, Technician } from '@/data/mockData';
 import { TechnicianFormDialog } from '@/components/TechnicianFormDialog';
 import { showSuccess } from '@/utils/toast';
+
+const { Title } = Typography;
+const { Option } = Select;
 
 // Mock current user data
 const currentUser = {
@@ -29,10 +32,14 @@ const UserManagement = () => {
 
   return (
     <Card>
-      <Box sx={{ p: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography variant="h6">Manage Users</Typography>
-        <Button variant="contained" onClick={() => setIsDialogOpen(true)}>Add User</Button>
-      </Box>
+      <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
+        <Col>
+          <Title level={5}>Manage Users</Title>
+        </Col>
+        <Col>
+          <Button type="primary" onClick={() => setIsDialogOpen(true)}>Add User</Button>
+        </Col>
+      </Row>
       <TechnicianDataTable initialData={allTechnicians} workOrders={workOrders} />
       {isDialogOpen && (
         <TechnicianFormDialog 
@@ -47,113 +54,155 @@ const UserManagement = () => {
 };
 
 const SystemSettings = () => {
-  const onFinish = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const values = Object.fromEntries(formData.entries());
+  const [form] = Form.useForm();
+
+  const onFinish = (values: any) => {
     console.log('Saving system settings:', values);
     showSuccess('System settings have been updated.');
   };
 
   return (
-    <Card>
-      <Box sx={{ p: 2 }}>
-        <Typography variant="h6" gutterBottom>System Configuration</Typography>
-        <Box component="form" onSubmit={onFinish} sx={{ mt: 2, display: 'flex', flexDirection: 'column', gap: 3 }}>
-          <FormControlLabel
-            control={<Switch name="notifications" defaultChecked />}
-            label="Enable Email Notifications"
-          />
-          <FormControl sx={{ maxWidth: 250 }}>
-            <InputLabel>Default Work Order Priority</InputLabel>
-            <Select name="defaultPriority" label="Default Work Order Priority" defaultValue="Medium">
-              <MenuItem value="Low">Low</MenuItem>
-              <MenuItem value="Medium">Medium</MenuItem>
-              <MenuItem value="High">High</MenuItem>
-            </Select>
-          </FormControl>
-          <TextField
-            name="slaThreshold"
-            label="SLA Warning Threshold (days)"
-            type="number"
-            defaultValue={3}
-            sx={{ maxWidth: 250 }}
-          />
-          <Box>
-            <Button type="submit" variant="contained" startIcon={<Save />}>
-              Save Settings
-            </Button>
-          </Box>
-        </Box>
-      </Box>
+    <Card title="System Configuration">
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        initialValues={{
+          notifications: true,
+          defaultPriority: 'Medium',
+          slaThreshold: 3,
+        }}
+      >
+        <Form.Item
+          name="notifications"
+          label="Enable Email Notifications"
+          valuePropName="checked"
+          tooltip="Toggle all system-wide email notifications for events like work order creation and status changes."
+        >
+          <Switch />
+        </Form.Item>
+        <Form.Item
+          name="defaultPriority"
+          label="Default Work Order Priority"
+          tooltip="Set the default priority for all newly created work orders."
+        >
+          <Select style={{ maxWidth: 200 }}>
+            <Option value="Low">Low</Option>
+            <Option value="Medium">Medium</Option>
+            <Option value="High">High</Option>
+          </Select>
+        </Form.Item>
+        <Form.Item
+          name="slaThreshold"
+          label="SLA Warning Threshold (days)"
+          tooltip="Get a warning for work orders that are due within this many days."
+        >
+          <Input type="number" style={{ maxWidth: 200 }} />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit" icon={<SaveOutlined />}>
+            Save Settings
+          </Button>
+        </Form.Item>
+      </Form>
     </Card>
   );
 };
 
 const ProfileSettings = () => {
-  const onProfileFinish = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const [form] = Form.useForm();
+
+  const onFinish = (values: any) => {
+    console.log('Updating profile:', values);
     showSuccess('Your profile has been updated.');
   };
 
   return (
-    <Grid container spacing={3}>
-      <Grid item xs={12} md={4}>
-        <Card sx={{ p: 3, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
-          <Avatar sx={{ width: 128, height: 128 }} src={currentUser.avatar}><Person /></Avatar>
-          <Typography variant="h5">{currentUser.name}</Typography>
-          <Typography color="text.secondary">{currentUser.email}</Typography>
-          <Button variant="outlined">Change Avatar</Button>
+    <Row gutter={[24, 24]}>
+      <Col xs={24} md={8}>
+        <Card>
+          <Space direction="vertical" align="center" style={{ width: '100%' }}>
+            <Avatar size={128} src={currentUser.avatar} icon={<UserOutlined />} />
+            <Title level={4}>{currentUser.name}</Title>
+            <Typography.Text type="secondary">{currentUser.email}</Typography.Text>
+            <Button>Change Avatar</Button>
+          </Space>
         </Card>
-      </Grid>
-      <Grid item xs={12} md={8}>
-        <Card sx={{ p: 3, mb: 3 }}>
-          <Typography variant="h6" gutterBottom>Edit Profile Information</Typography>
-          <Box component="form" onSubmit={onProfileFinish} sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-            <TextField name="name" label="Full Name" defaultValue={currentUser.name} required />
-            <TextField name="email" label="Email Address" type="email" defaultValue={currentUser.email} required />
-            <Box>
-              <Button type="submit" variant="contained">Update Profile</Button>
-            </Box>
-          </Box>
+      </Col>
+      <Col xs={24} md={16}>
+        <Card title="Edit Profile Information">
+          <Form layout="vertical" form={form} onFinish={onFinish} initialValues={currentUser}>
+            <Form.Item name="name" label="Full Name" rules={[{ required: true }]}>
+              <Input prefix={<UserOutlined />} />
+            </Form.Item>
+            <Form.Item name="email" label="Email Address" rules={[{ required: true, type: 'email' }]}>
+              <Input prefix={<UserOutlined />} />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary" htmlType="submit">Update Profile</Button>
+            </Form.Item>
+          </Form>
         </Card>
-        <Card sx={{ p: 3 }}>
-          <Typography variant="h6" gutterBottom>Change Password</Typography>
-          <Box component="form" sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 2 }}>
-            <TextField name="currentPassword" label="Current Password" type="password" InputProps={{ startAdornment: <Lock /> }} />
-            <TextField name="newPassword" label="New Password" type="password" InputProps={{ startAdornment: <Lock /> }} />
-            <TextField name="confirmPassword" label="Confirm New Password" type="password" InputProps={{ startAdornment: <Lock /> }} />
-            <Box>
-              <Button type="submit" variant="contained">Update Password</Button>
-            </Box>
-          </Box>
+        <Card title="Change Password" style={{ marginTop: 24 }}>
+          <Form layout="vertical">
+            <Form.Item name="currentPassword" label="Current Password">
+              <Input.Password prefix={<LockOutlined />} />
+            </Form.Item>
+            <Form.Item name="newPassword" label="New Password">
+              <Input.Password prefix={<LockOutlined />} />
+            </Form.Item>
+            <Form.Item name="confirmPassword" label="Confirm New Password">
+              <Input.Password prefix={<LockOutlined />} />
+            </Form.Item>
+            <Form.Item>
+              <Button type="primary">Update Password</Button>
+            </Form.Item>
+          </Form>
         </Card>
-      </Grid>
-    </Grid>
+      </Col>
+    </Row>
   );
 };
 
 const SettingsPage = () => {
-  const [activeTab, setActiveTab] = useState(0);
-
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setActiveTab(newValue);
-  };
+  const tabItems = [
+    {
+      label: (
+        <span>
+          <UserOutlined />
+          User Management
+        </span>
+      ),
+      key: '1',
+      children: <UserManagement />,
+    },
+    {
+      label: (
+        <span>
+          <SettingOutlined />
+          System Settings
+        </span>
+      ),
+      key: '2',
+      children: <SystemSettings />,
+    },
+    {
+      label: (
+        <span>
+          <BellOutlined />
+          My Profile
+        </span>
+      ),
+      key: '3',
+      children: <ProfileSettings />,
+    },
+  ];
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-      <Typography variant="h5" component="h1" fontWeight="bold">Settings</Typography>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-        <Tabs value={activeTab} onChange={handleChange}>
-          <Tab label="User Management" icon={<Person />} iconPosition="start" />
-          <Tab label="System Settings" icon={<SettingsIcon />} iconPosition="start" />
-          <Tab label="My Profile" icon={<Notifications />} iconPosition="start" />
-        </Tabs>
-      </Box>
-      {activeTab === 0 && <UserManagement />}
-      {activeTab === 1 && <SystemSettings />}
-      {activeTab === 2 && <ProfileSettings />}
-    </Box>
+    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <Title level={4}>Settings</Title>
+      <Tabs defaultActiveKey="1" items={tabItems} />
+    </Space>
   );
 };
 

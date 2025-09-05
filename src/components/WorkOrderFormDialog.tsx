@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
-import { Dialog, DialogActions, DialogContent, DialogTitle, TextField, Button, Select, MenuItem, FormControl, InputLabel, Grid, Stepper, Step, StepLabel, Box } from "@mui/material";
-import { LocalizationProvider, DateTimePicker } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { Modal, Form, Input, Select, Button, DatePicker, Col, Row, Steps } from "antd";
 import { WorkOrder, technicians, locations } from "@/data/mockData";
-import dayjs, { Dayjs } from 'dayjs';
+import dayjs from 'dayjs';
 import { GoogleLocationSearchInput } from "./GoogleLocationSearchInput";
+
+const { Option } = Select;
+const { TextArea } = Input;
 
 interface WorkOrderFormDialogProps {
   isOpen: boolean;
@@ -13,82 +14,83 @@ interface WorkOrderFormDialogProps {
   workOrder?: WorkOrder | null;
 }
 
-interface WorkOrderFormState extends Omit<Partial<WorkOrder>, 'slaDue'> {
-  slaDue: Dayjs | null;
-}
+const steps = [
+  { title: 'Customer & Vehicle' },
+  { title: 'Service Details' },
+  { title: 'Assignment & Scheduling' },
+];
 
-const steps = ['Customer & Vehicle', 'Service Details', 'Assignment & Scheduling'];
+const stepFields = [
+  ['vehicleId', 'vehicleModel', 'customerName', 'customerPhone'],
+  ['service', 'status', 'priority', 'locationId', 'customerAddress'],
+  ['assignedTechnicianId', 'slaDue'],
+];
 
 export const WorkOrderFormDialog = ({ isOpen, onClose, onSave, workOrder }: WorkOrderFormDialogProps) => {
-  const [formState, setFormState] = useState<WorkOrderFormState>({
-    vehicleId: '',
-    vehicleModel: '',
-    customerName: '',
-    customerPhone: '',
-    service: '',
-    status: 'Open',
-    priority: 'Medium',
-    locationId: '',
-    customerAddress: '',
-    assignedTechnicianId: null,
-    slaDue: null,
-  });
+  const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [clientLocation, setClientLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [clientAddress, setClientAddress] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
       if (workOrder) {
-        setFormState({
+        form.setFieldsValue({
           ...workOrder,
           slaDue: workOrder.slaDue ? dayjs(workOrder.slaDue) : null,
+          customerAddress: workOrder.customerAddress,
         });
         if (workOrder.customerLat && workOrder.customerLng) {
           setClientLocation({ lat: workOrder.customerLat, lng: workOrder.customerLng });
         }
+        if (workOrder.customerAddress) {
+          setClientAddress(workOrder.customerAddress);
+        }
       } else {
-        setFormState({
-          vehicleId: '', vehicleModel: '', customerName: '', customerPhone: '',
-          service: '', status: 'Open', priority: 'Medium', locationId: '',
-          customerAddress: '', assignedTechnicianId: null, slaDue: null,
-        });
+        form.resetFields();
         setClientLocation(null);
+        setClientAddress(null);
       }
       setCurrentStep(0);
     }
-  }, [isOpen, workOrder]);
-
-  const handleChange = (e: any) => {
-    const { name, value } = e.target;
-    setFormState(prev => ({ ...prev, [name!]: value }));
-  };
-
-  const handleDateChange = (newValue: Dayjs | null) => {
-    setFormState(prev => ({ ...prev, slaDue: newValue }));
-  };
+  }, [isOpen, workOrder, form]);
 
   const handleLocationSelect = (location: { lat: number; lng: number; label: string }) => {
     setClientLocation({ lat: location.lat, lng: location.lng });
-    setFormState(prev => ({ ...prev, customerAddress: location.label }));
+    setClientAddress(location.label);
+    form.setFieldsValue({ customerAddress: location.label });
   };
 
-  const handleNext = () => setCurrentStep(prev => prev + 1);
-  const handleBack = () => setCurrentStep(prev => prev - 1);
+  const handleNext = async () => {
+    try {
+      await form.validateFields(stepFields[currentStep]);
+      setCurrentStep(currentStep + 1);
+    } catch (info) {
+      console.log('Validate Failed:', info);
+    }
+  };
+
+  const handleBack = () => {
+    setCurrentStep(currentStep - 1);
+  };
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
+      const values = await form.validateFields();
       const newId = workOrder?.id || `WO-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
       const workOrderToSave: WorkOrder = {
-        ...formState,
+        ...workOrder,
+        ...values,
         id: newId,
-        slaDue: formState.slaDue!.toISOString(),
+        slaDue: values.slaDue.toISOString(),
         customerLat: clientLocation?.lat,
         customerLng: clientLocation?.lng,
+        customerAddress: clientAddress,
         activityLog: workOrder?.activityLog || [],
         partsUsed: workOrder?.partsUsed || [],
-      } as WorkOrder;
+      };
       
       await new Promise(resolve => setTimeout(resolve, 500));
       onSave(workOrderToSave);
@@ -100,58 +102,70 @@ export const WorkOrderFormDialog = ({ isOpen, onClose, onSave, workOrder }: Work
     }
   };
 
-  const renderStepContent = (step: number) => {
-    switch (step) {
-      case 0:
-        return (
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}><TextField name="vehicleId" label="Vehicle ID" value={formState.vehicleId} onChange={handleChange} fullWidth /></Grid>
-            <Grid item xs={12} sm={6}><TextField name="vehicleModel" label="Vehicle Model" value={formState.vehicleModel} onChange={handleChange} fullWidth /></Grid>
-            <Grid item xs={12} sm={6}><TextField name="customerName" label="Customer Name" value={formState.customerName} onChange={handleChange} fullWidth /></Grid>
-            <Grid item xs={12} sm={6}><TextField name="customerPhone" label="Customer Phone" value={formState.customerPhone} onChange={handleChange} fullWidth /></Grid>
-          </Grid>
-        );
-      case 1:
-        return (
-          <Grid container spacing={2}>
-            <Grid item xs={12}><TextField name="service" label="Service Description" value={formState.service} onChange={handleChange} fullWidth multiline rows={2} /></Grid>
-            <Grid item xs={12} sm={6}><FormControl fullWidth><InputLabel>Status</InputLabel><Select name="status" label="Status" value={formState.status} onChange={handleChange}><MenuItem value="Open">Open</MenuItem><MenuItem value="In Progress">In Progress</MenuItem><MenuItem value="On Hold">On Hold</MenuItem><MenuItem value="Completed">Completed</MenuItem></Select></FormControl></Grid>
-            <Grid item xs={12} sm={6}><FormControl fullWidth><InputLabel>Priority</InputLabel><Select name="priority" label="Priority" value={formState.priority} onChange={handleChange}><MenuItem value="High">High</MenuItem><MenuItem value="Medium">Medium</MenuItem><MenuItem value="Low">Low</MenuItem></Select></FormControl></Grid>
-            <Grid item xs={12} sm={6}><FormControl fullWidth><InputLabel>Service Location</InputLabel><Select name="locationId" label="Service Location" value={formState.locationId} onChange={handleChange}>{locations.map(l => <MenuItem key={l.id} value={l.id}>{l.name}</MenuItem>)}</Select></FormControl></Grid>
-            <Grid item xs={12} sm={6}><GoogleLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder?.customerAddress || ''} /></Grid>
-          </Grid>
-        );
-      case 2:
-        return (
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}><FormControl fullWidth><InputLabel>Assigned Technician</InputLabel><Select name="assignedTechnicianId" label="Assigned Technician" value={formState.assignedTechnicianId || ''} onChange={handleChange}>{technicians.map(t => <MenuItem key={t.id} value={t.id}>{t.name}</MenuItem>)}</Select></FormControl></Grid>
-            <Grid item xs={12} sm={6}><LocalizationProvider dateAdapter={AdapterDayjs}><DateTimePicker label="SLA Due Date" value={formState.slaDue} onChange={handleDateChange} /></LocalizationProvider></Grid>
-          </Grid>
-        );
-      default:
-        return null;
-    }
+  const renderFooter = () => {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+        {currentStep > 0 && (
+          <Button onClick={handleBack} disabled={loading}>
+            Back
+          </Button>
+        )}
+        {currentStep < steps.length - 1 && (
+          <Button type="primary" onClick={handleNext}>
+            Next
+          </Button>
+        )}
+        {currentStep === steps.length - 1 && (
+          <Button type="primary" onClick={handleSubmit} loading={loading}>
+            Save Work Order
+          </Button>
+        )}
+      </div>
+    );
   };
 
   return (
-    <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="md">
-      <DialogTitle>{workOrder ? "Edit Work Order" : "Create Work Order"}</DialogTitle>
-      <DialogContent>
-        <Stepper activeStep={currentStep} sx={{ mb: 3 }}>
-          {steps.map(label => <Step key={label}><StepLabel>{label}</StepLabel></Step>)}
-        </Stepper>
-        {renderStepContent(currentStep)}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Box sx={{ flex: '1 1 auto' }} />
-        {currentStep > 0 && <Button onClick={handleBack}>Back</Button>}
-        {currentStep < steps.length - 1 ? (
-          <Button onClick={handleNext} variant="contained">Next</Button>
-        ) : (
-          <Button onClick={handleSubmit} variant="contained" disabled={loading}>Save Work Order</Button>
-        )}
-      </DialogActions>
-    </Dialog>
+    <Modal
+      title={workOrder ? "Edit Work Order" : "Create Work Order"}
+      open={isOpen}
+      onCancel={onClose}
+      width={600}
+      destroyOnClose
+      footer={renderFooter()}
+    >
+      <Steps current={currentStep} items={steps} style={{ marginBottom: 24 }} />
+      <Form form={form} layout="vertical" name="work_order_form">
+        <div style={{ display: currentStep === 0 ? 'block' : 'none' }}>
+          <Row gutter={16}>
+            <Col span={12}><Form.Item name="vehicleId" label="Vehicle ID" rules={[{ required: true }]}><Input /></Form.Item></Col>
+            <Col span={12}><Form.Item name="vehicleModel" label="Vehicle Model" rules={[{ required: true }]}><Input /></Form.Item></Col>
+            <Col span={12}><Form.Item name="customerName" label="Customer Name" rules={[{ required: true }]}><Input /></Form.Item></Col>
+            <Col span={12}><Form.Item name="customerPhone" label="Customer Phone" rules={[{ required: true }]}><Input /></Form.Item></Col>
+          </Row>
+        </div>
+        <div style={{ display: currentStep === 1 ? 'block' : 'none' }}>
+          <Row gutter={16}>
+            <Col span={24}><Form.Item name="service" label="Service Description" rules={[{ required: true }]}><TextArea rows={2} /></Form.Item></Col>
+            <Col span={12}><Form.Item name="status" label="Status" rules={[{ required: true }]}><Select><Option value="Open">Open</Option><Option value="In Progress">In Progress</Option><Option value="On Hold">On Hold</Option><Option value="Completed">Completed</Option></Select></Form.Item></Col>
+            <Col span={12}><Form.Item name="priority" label="Priority" rules={[{ required: true }]}><Select><Option value="High">High</Option><Option value="Medium">Medium</Option><Option value="Low">Low</Option></Select></Form.Item></Col>
+            <Col span={12}><Form.Item name="locationId" label="Service Location" rules={[{ required: true }]}><Select>{locations.map(l => <Option key={l.id} value={l.id}>{l.name}</Option>)}</Select></Form.Item></Col>
+            <Col span={12}>
+              <Form.Item name="customerAddress" label="Client Location (Optional)">
+                  <GoogleLocationSearchInput 
+                      onLocationSelect={handleLocationSelect}
+                      initialValue={workOrder?.customerAddress || ''}
+                  />
+              </Form.Item>
+            </Col>
+          </Row>
+        </div>
+        <div style={{ display: currentStep === 2 ? 'block' : 'none' }}>
+          <Row gutter={16}>
+            <Col span={12}><Form.Item name="assignedTechnicianId" label="Assigned Technician"><Select allowClear>{technicians.map(t => <Option key={t.id} value={t.id}>{t.name}</Option>)}</Select></Form.Item></Col>
+            <Col span={12}><Form.Item name="slaDue" label="SLA Due Date" rules={[{ required: true }]}><DatePicker showTime style={{ width: '100%' }} /></Form.Item></Col>
+          </Row>
+        </div>
+      </Form>
+    </Modal>
   );
 };

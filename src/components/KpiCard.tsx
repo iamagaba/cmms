@@ -1,7 +1,9 @@
-import { Card, CardContent, Avatar, Box, Typography } from "@mui/material";
-import { ArrowUpward, ArrowDownward } from "@mui/icons-material";
+import { Card, Statistic, Avatar, Space, Typography } from "antd";
+import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 import { ReactNode } from "react";
 import { LineChart, Line, ResponsiveContainer } from 'recharts';
+
+const { Text } = Typography;
 
 interface KpiCardProps {
   title: string;
@@ -15,45 +17,32 @@ interface KpiCardProps {
 
 const KpiCard = ({ title, value, icon, trend, trendDirection, isUpGood = true, chartData }: KpiCardProps) => {
   const isPositive = (trendDirection === 'up' && isUpGood) || (trendDirection === 'down' && !isUpGood);
-  const trendColor = isPositive ? 'success.main' : 'error.main';
+  const trendColor = isPositive ? '#52c41a' : '#ff4d4f';
 
   return (
-    <Card sx={{ height: '100%' }}>
-      <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-          <Box>
-            <Typography variant="body2" color="text.secondary" gutterBottom>
-              {title}
-            </Typography>
-            <Typography variant="h4" component="div" fontWeight="bold">
-              {value}
-            </Typography>
-            {trend && trendDirection && (
-              <Box sx={{ display: 'flex', alignItems: 'center', mt: 1 }}>
-                {trendDirection === 'up' ? <ArrowUpward sx={{ color: trendColor, fontSize: 16 }} /> : <ArrowDownward sx={{ color: trendColor, fontSize: 16 }} />}
-                <Typography variant="caption" sx={{ color: trendColor, mx: 0.5 }}>
-                  {trend}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  vs last week
-                </Typography>
-              </Box>
-            )}
-          </Box>
-          <Avatar sx={{ bgcolor: 'primary.light', color: 'primary.main' }}>
-            {icon}
-          </Avatar>
-        </Box>
-        {chartData && (
-          <Box sx={{ height: 40, mt: 2, mx: -2, mb: -2 }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={chartData}>
-                <Line type="monotone" dataKey="value" stroke={isPositive ? '#52c41a' : '#ff4d4f'} strokeWidth={2} dot={false} />
-              </LineChart>
-            </ResponsiveContainer>
-          </Box>
-        )}
-      </CardContent>
+    <Card>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+        <div>
+          <Statistic title={title} value={value} />
+          {trend && trendDirection && (
+            <Space size={4} style={{ marginTop: 8 }}>
+              {trendDirection === 'up' ? <ArrowUpOutlined style={{ color: trendColor }} /> : <ArrowDownOutlined style={{ color: trendColor }} />}
+              <Text style={{ color: trendColor, fontSize: 12 }}>{trend}</Text>
+              <Text type="secondary" style={{ fontSize: 12 }}>vs last week</Text>
+            </Space>
+          )}
+        </div>
+        <Avatar size="large" icon={icon} style={{ backgroundColor: '#e6f7ff', color: '#1890ff' }} />
+      </div>
+      {chartData && (
+        <div style={{ height: 40, marginTop: 16, marginLeft: -24, marginRight: -24, marginBottom: -16 }}>
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData}>
+              <Line type="monotone" dataKey="value" stroke={trendColor} strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      )}
     </Card>
   );
 };

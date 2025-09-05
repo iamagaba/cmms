@@ -1,12 +1,14 @@
 import { useState } from "react";
-import { Grid, Typography, ToggleButtonGroup, ToggleButton, Badge, Box } from "@mui/material";
+import { Row, Col, Typography, Segmented, Badge, Space } from "antd";
 import KpiCard from "@/components/KpiCard";
 import TechnicianStatusList from "@/components/TechnicianStatusList";
 import WorkOrderKanban from "@/components/WorkOrderKanban";
 import { workOrders, locations, technicians, WorkOrder } from "../data/mockData";
-import { CheckCircleOutline, AccessTime, ErrorOutline, Build } from "@mui/icons-material";
+import { CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined, ToolOutlined } from "@ant-design/icons";
 import UrgentWorkOrders from "@/components/UrgentWorkOrders";
 import { showSuccess } from "@/utils/toast";
+
+const { Title } = Typography;
 
 // Mock data for sparkline charts
 const generateChartData = () => Array.from({ length: 10 }, () => ({ value: Math.floor(Math.random() * 100) }));
@@ -22,12 +24,6 @@ const Dashboard = () => {
       )
     );
     showSuccess(`Work order ${id} ${String(field)} updated.`);
-  };
-
-  const handleLocationChange = (event: React.MouseEvent<HTMLElement>, newLocation: string | null) => {
-    if (newLocation !== null) {
-      setSelectedLocation(newLocation);
-    }
   };
 
   const filteredWorkOrders = selectedLocation === 'all'
@@ -47,74 +43,76 @@ const Dashboard = () => {
     { id: 'Completed', title: 'Completed' },
   ];
 
+  const locationOptions = [
+    { 
+      label: (
+        <Space>
+          <span>All Locations</span>
+          <Badge count={allWorkOrders.length} showZero color="#1677ff" />
+        </Space>
+      ), 
+      value: 'all' 
+    },
+    ...locations.map(loc => {
+      const count = allWorkOrders.filter(wo => wo.locationId === loc.id).length;
+      return {
+        label: (
+          <Space>
+            <span>{loc.name}</span>
+            <Badge count={count} showZero color="#1677ff" />
+          </Space>
+        ),
+        value: loc.id
+      }
+    })
+  ];
+
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <UrgentWorkOrders workOrders={allWorkOrders} technicians={technicians} />
-      
-      <Box>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant="h5" component="h1" fontWeight="bold">
-            Overview
-          </Typography>
-          <ToggleButtonGroup
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <Title level={4} style={{ margin: 0 }}>Overview</Title>
+          <Segmented
+            options={locationOptions}
             value={selectedLocation}
-            exclusive
-            onChange={handleLocationChange}
-            aria-label="location filter"
-            size="small"
-          >
-            <ToggleButton value="all" aria-label="all locations">
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                All Locations
-                <Badge badgeContent={allWorkOrders.length} color="primary" />
-              </Box>
-            </ToggleButton>
-            {locations.map(loc => (
-              <ToggleButton key={loc.id} value={loc.id} aria-label={loc.name}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  {loc.name}
-                  <Badge badgeContent={allWorkOrders.filter(wo => wo.locationId === loc.id).length} color="primary" />
-                </Box>
-              </ToggleButton>
-            ))}
-          </ToggleButtonGroup>
-        </Box>
-        <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} lg={3}>
-            <KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={<Build />} trend="+5%" trendDirection="up" chartData={generateChartData()} />
-          </Grid>
-          <Grid item xs={12} sm={6} lg={3}>
-            <KpiCard title="Open Work Orders" value={openOrders.toString()} icon={<ErrorOutline />} trend="+3" trendDirection="up" isUpGood={false} chartData={generateChartData()} />
-          </Grid>
-          <Grid item xs={12} sm={6} lg={3}>
-            <KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={<CheckCircleOutline />} trend="+1.2%" trendDirection="up" chartData={generateChartData()} />
-          </Grid>
-          <Grid item xs={12} sm={6} lg={3}>
-            <KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<AccessTime />} trend="-0.2 Days" trendDirection="down" isUpGood={false} chartData={generateChartData()} />
-          </Grid>
-        </Grid>
-      </Box>
+            onChange={(value) => setSelectedLocation(value as string)}
+          />
+        </div>
+        <Row gutter={[24, 24]}>
+          <Col xs={24} sm={12} md={12} lg={6} className="fade-in" style={{ animationDelay: '0ms' }}>
+            <KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={<ToolOutlined />} trend="+5%" trendDirection="up" chartData={generateChartData()} />
+          </Col>
+          <Col xs={24} sm={12} md={12} lg={6} className="fade-in" style={{ animationDelay: '100ms' }}>
+            <KpiCard title="Open Work Orders" value={openOrders.toString()} icon={<ExclamationCircleOutlined />} trend="+3" trendDirection="up" isUpGood={false} chartData={generateChartData()} />
+          </Col>
+          <Col xs={24} sm={12} md={12} lg={6} className="fade-in" style={{ animationDelay: '200ms' }}>
+            <KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={<CheckCircleOutlined />} trend="+1.2%" trendDirection="up" chartData={generateChartData()} />
+          </Col>
+          <Col xs={24} sm={12} md={12} lg={6} className="fade-in" style={{ animationDelay: '300ms' }}>
+            <KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<ClockCircleOutlined />} trend="-0.2 Days" trendDirection="down" isUpGood={false} chartData={generateChartData()} />
+          </Col>
+        </Row>
+      </div>
       
-      <Grid container spacing={3}>
-        <Grid item xs={12} xl={8}>
-          <Typography variant="h5" component="h2" fontWeight="bold" gutterBottom>
-            Work Order Board
-          </Typography>
+      <Row gutter={[24, 24]}>
+        <Col xs={24} xl={16}>
+          <Title level={4}>Work Order Board</Title>
           <WorkOrderKanban 
             workOrders={filteredWorkOrders} 
             groupBy="status"
             columns={kanbanColumns}
             onUpdateWorkOrder={handleUpdateWorkOrder}
           />
-        </Grid>
-        <Grid item xs={12} xl={4}>
-          <Typography variant="h5" component="h2" fontWeight="bold" gutterBottom>
-            Team Status
-          </Typography>
-          <TechnicianStatusList />
-        </Grid>
-      </Grid>
-    </Box>
+        </Col>
+        <Col xs={24} xl={8}>
+          <Title level={4}>Team Status</Title>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <TechnicianStatusList />
+          </div>
+        </Col>
+      </Row>
+    </div>
   );
 };
 

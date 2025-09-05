@@ -1,8 +1,10 @@
-import { Card, CardHeader, List, ListItem, ListItemText, Chip, Typography, Box, Avatar } from '@mui/material';
-import { WarningAmber, PersonOutline } from '@mui/icons-material';
+import { Card, List, Tag, Typography, Space, Avatar } from 'antd';
+import { WarningOutlined, UserOutlined } from '@ant-design/icons';
 import { WorkOrder, Technician } from '@/data/mockData';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow, isPast } from 'date-fns';
+
+const { Text } = Typography;
 
 interface UrgentWorkOrdersProps {
   workOrders: WorkOrder[];
@@ -22,58 +24,56 @@ const UrgentWorkOrders = ({ workOrders, technicians }: UrgentWorkOrdersProps) =>
     .sort((a, b) => new Date(a.slaDue).getTime() - new Date(b.slaDue).getTime());
 
   if (urgentOrders.length === 0) {
-    return null;
+    return null; // Don't render the card if there are no urgent orders
   }
 
   return (
-    <Card>
-      <CardHeader
-        avatar={<WarningAmber sx={{ color: 'warning.main' }} />}
-        title={<Typography variant="h6">Urgent Work Orders</Typography>}
-      />
-      <List disablePadding>
-        {urgentOrders.map(order => {
+    <Card
+      title={
+        <Space>
+          <WarningOutlined style={{ color: '#faad14' }} />
+          <Text>Urgent Work Orders</Text>
+        </Space>
+      }
+    >
+      <List
+        itemLayout="horizontal"
+        dataSource={urgentOrders}
+        renderItem={order => {
           const dueDate = new Date(order.slaDue);
           const isOverdue = isPast(dueDate);
           const technician = technicians.find(t => t.id === order.assignedTechnicianId);
 
           return (
-            <ListItem
-              key={order.id}
-              secondaryAction={
-                <Box sx={{ textAlign: 'right' }}>
-                  <Chip
-                    label={isOverdue ? 'Overdue' : 'Due Soon'}
-                    color={isOverdue ? 'error' : 'warning'}
-                    size="small"
-                  />
-                  <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.5 }}>
-                    {formatDistanceToNow(dueDate, { addSuffix: true })}
-                  </Typography>
-                </Box>
-              }
-            >
-              <ListItemText
-                primary={<Link to={`/work-orders/${order.id}`}>{order.vehicleId} - {order.service}</Link>}
-                secondary={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+            <List.Item>
+              <List.Item.Meta
+                title={<Link to={`/work-orders/${order.id}`}>{order.vehicleId} - {order.service}</Link>}
+                description={
+                  <Space>
                     {technician ? (
                       <>
-                        <Avatar sx={{ width: 24, height: 24 }} src={technician.avatar}>
-                          <PersonOutline fontSize="small" />
-                        </Avatar>
-                        <Typography variant="body2" color="text.secondary">{technician.name}</Typography>
+                        <Avatar size="small" src={technician.avatar} icon={<UserOutlined />} />
+                        <Text type="secondary">{technician.name}</Text>
                       </>
                     ) : (
-                      <Typography variant="body2" color="text.secondary">Unassigned</Typography>
+                      <Text type="secondary">Unassigned</Text>
                     )}
-                  </Box>
+                  </Space>
                 }
               />
-            </ListItem>
+              <div style={{ textAlign: 'right' }}>
+                <Tag color={isOverdue ? 'error' : 'warning'}>
+                  {isOverdue ? 'Overdue' : 'Due Soon'}
+                </Tag>
+                <br />
+                <Text type="secondary" style={{ fontSize: 12 }}>
+                  {formatDistanceToNow(dueDate, { addSuffix: true })}
+                </Text>
+              </div>
+            </List.Item>
           );
-        })}
-      </List>
+        }}
+      />
     </Card>
   );
 };

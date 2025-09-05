@@ -1,25 +1,16 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { workOrders, technicians, locations } from "@/data/mockData";
-import { Avatar, Button, Card, CardContent, CardHeader, Grid, Box, Chip, Typography, List, ListItem, ListItemText, Divider } from "@mui/material";
-import { Timeline, TimelineItem, TimelineSeparator, TimelineConnector, TimelineContent, TimelineDot } from '@mui/lab';
-import { ArrowBack, Person, Place, Phone, CalendarToday, Build } from "@mui/icons-material";
+import { Avatar, Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typography, List } from "antd";
+import { ArrowLeftOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined, CalendarOutlined, ToolOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import NotFound from "./NotFound";
 
-const statusColors: Record<string, "info" | "warning" | "secondary" | "success"> = { Open: "info", "In Progress": "warning", "On Hold": "secondary", Completed: "success" };
-const priorityColors: Record<string, "error" | "warning" | "success"> = { High: "error", Medium: "warning", Low: "success" };
+const { Title, Text, Paragraph } = Typography;
+
+const statusColors: Record<string, string> = { Open: "blue", "In Progress": "gold", "On Hold": "orange", Completed: "green" };
+const priorityColors: Record<string, string> = { High: "red", Medium: "gold", Low: "green" };
 
 const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "";
-
-const DetailItem = ({ icon, label, children }: { icon?: React.ReactNode, label: string, children: React.ReactNode }) => (
-  <Box sx={{ display: 'flex', justifyContent: 'space-between', py: 1 }}>
-    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, color: 'text.secondary' }}>
-      {icon}
-      <Typography variant="body2">{label}</Typography>
-    </Box>
-    <Typography variant="body2" sx={{ textAlign: 'right' }}>{children}</Typography>
-  </Box>
-);
 
 const WorkOrderDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -47,130 +38,108 @@ const WorkOrderDetailsPage = () => {
 
     if (markers.length === 0) return "";
 
+    // This static map URL is more flexible for multiple markers than the embed API
     return `https://maps.googleapis.com/maps/api/staticmap?size=600x300&maptype=roadmap&${markers.join('&')}&key=${API_KEY}`;
   };
 
   const mapUrl = getMapUrl();
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Button startIcon={<ArrowBack />} onClick={() => navigate('/work-orders')}>
+    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/work-orders')}>
           Back to Work Orders
         </Button>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-          <Typography variant="h5" component="h1" fontWeight="bold">Work Order: {workOrder.id}</Typography>
-          <Chip label={workOrder.status} color={statusColors[workOrder.status]} />
-        </Box>
-      </Box>
+        <Space>
+          <Title level={4} style={{ margin: 0 }}>Work Order: {workOrder.id}</Title>
+          <Tag color={statusColors[workOrder.status]}>{workOrder.status}</Tag>
+        </Space>
+      </div>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} lg={8}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <Card>
-              <CardContent>
-                <Typography variant="h6">{workOrder.service}</Typography>
-                <Typography variant="body2" color="text.secondary" paragraph>{workOrder.serviceNotes}</Typography>
-                {workOrder.partsUsed.length > 0 && (
-                  <>
-                    <Typography variant="subtitle2" sx={{ mt: 2 }}>Parts Used</Typography>
-                    <List dense>
-                      {workOrder.partsUsed.map(item => (
-                        <ListItem key={item.name} disableGutters>
-                          <ListItemText primary={item.name} secondary={`Qty: ${item.quantity}`} />
-                        </ListItem>
-                      ))}
-                    </List>
-                  </>
-                )}
-              </CardContent>
+      <Row gutter={[24, 24]}>
+        <Col xs={24} lg={16}>
+          <Space direction="vertical" size="large" style={{ width: '100%' }}>
+            <Card title="Service Information">
+              <Title level={5}>{workOrder.service}</Title>
+              <Paragraph type="secondary">{workOrder.serviceNotes}</Paragraph>
+              {workOrder.partsUsed.length > 0 && (
+                <>
+                  <Text strong>Parts Used</Text>
+                  <List
+                    size="small"
+                    dataSource={workOrder.partsUsed}
+                    renderItem={item => (
+                      <List.Item>
+                        {item.name} <Text type="secondary">(Qty: {item.quantity})</Text>
+                      </List.Item>
+                    )}
+                  />
+                </>
+              )}
             </Card>
-            <Card>
-              <CardHeader title="Customer & Vehicle Details" />
-              <CardContent>
-                <DetailItem label="Customer">{workOrder.customerName}</DetailItem>
-                <Divider />
-                <DetailItem icon={<Phone fontSize="small" />} label="Phone"><a href={`tel:${workOrder.customerPhone}`}>{workOrder.customerPhone}</a></DetailItem>
-                <Divider />
-                <DetailItem label="Vehicle ID">{workOrder.vehicleId}</DetailItem>
-                <Divider />
-                <DetailItem label="Vehicle Model">{workOrder.vehicleModel}</DetailItem>
-              </CardContent>
+            <Card title="Customer & Vehicle Details">
+              <Descriptions column={1} bordered>
+                <Descriptions.Item label="Customer">{workOrder.customerName}</Descriptions.Item>
+                <Descriptions.Item label={<><PhoneOutlined /> Phone</>}><a href={`tel:${workOrder.customerPhone}`}>{workOrder.customerPhone}</a></Descriptions.Item>
+                <Descriptions.Item label="Vehicle ID">{workOrder.vehicleId}</Descriptions.Item>
+                <Descriptions.Item label="Vehicle Model">{workOrder.vehicleModel}</Descriptions.Item>
+              </Descriptions>
             </Card>
-          </Box>
-        </Grid>
-        <Grid item xs={12} lg={4}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-            <Card>
-              <CardHeader title="Details" />
-              <CardContent>
-                <DetailItem label="Priority"><Chip label={workOrder.priority} color={priorityColors[workOrder.priority]} size="small" /></DetailItem>
-                <Divider />
-                <DetailItem icon={<CalendarToday fontSize="small" />} label="SLA Due">{dayjs(workOrder.slaDue).format('MMM D, YY h:mm A')}</DetailItem>
-                <Divider />
-                <DetailItem icon={<Place fontSize="small" />} label="Service Location">{location?.name || 'N/A'}</DetailItem>
-                <Divider />
-                <DetailItem label="Client Location">
+          </Space>
+        </Col>
+        <Col xs={24} lg={8}>
+          <Space direction="vertical" size="large" style={{ width: '100%' }}>
+            <Card title="Details">
+              <Descriptions column={1}>
+                <Descriptions.Item label="Priority"><Tag color={priorityColors[workOrder.priority]}>{workOrder.priority}</Tag></Descriptions.Item>
+                <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}>{dayjs(workOrder.slaDue).format('MMM D, YY h:mm A')}</Descriptions.Item>
+                <Descriptions.Item label={<><EnvironmentOutlined /> Service Location</>}>{location?.name || 'N/A'}</Descriptions.Item>
+                <Descriptions.Item label="Client Location">
                   {workOrder.customerAddress ? (
-                    <Typography variant="body2">{workOrder.customerAddress}</Typography>
+                    <Text>{workOrder.customerAddress}</Text>
                   ) : hasClientLocation ? (
                     `${workOrder.customerLat?.toFixed(4)}, ${workOrder.customerLng?.toFixed(4)}`
                   ) : (
-                    <Typography variant="body2" color="text.secondary">Not Captured</Typography>
+                    <Text type="secondary">Not Captured</Text>
                   )}
-                </DetailItem>
-                <Divider />
-                <DetailItem icon={<Build fontSize="small" />} label="Assigned To">
+                </Descriptions.Item>
+                <Descriptions.Item label={<><ToolOutlined /> Assigned To</>}>
                   {technician ? (
-                    <Link to={`/technicians/${technician.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Avatar sx={{ width: 24, height: 24 }} src={technician.avatar}><Person fontSize="small" /></Avatar>
-                        {technician.name}
-                      </Box>
+                    <Link to={`/technicians/${technician.id}`}>
+                      <Avatar size="small" src={technician.avatar} icon={<UserOutlined />} style={{ marginRight: 8 }} />
+                      {technician.name}
                     </Link>
                   ) : (
-                    <Typography variant="body2" color="text.secondary">Unassigned</Typography>
+                    <Text type="secondary">Unassigned</Text>
                   )}
-                </DetailItem>
-              </CardContent>
+                </Descriptions.Item>
+              </Descriptions>
             </Card>
-            <Card>
-              <CardHeader title="Location on Map" />
-              <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-                {API_KEY ? (
-                    mapUrl ? (
-                        <img 
-                            src={mapUrl} 
-                            alt="Map of service and client locations" 
-                            style={{ width: '100%', height: 'auto', display: 'block' }} 
-                        />
-                    ) : <Box sx={{p: 2}}><Typography color="text.secondary">No location data to display.</Typography></Box>
-                ) : <Box sx={{p: 2}}><Typography color="text.secondary">Google Maps API Key not configured.</Typography></Box>}
-              </CardContent>
+            <Card title="Location on Map" bodyStyle={{ padding: 0 }}>
+              {API_KEY ? (
+                  mapUrl ? (
+                      <img 
+                          src={mapUrl} 
+                          alt="Map of service and client locations" 
+                          style={{ width: '100%', height: 'auto', display: 'block', borderRadius: '8px' }} 
+                      />
+                  ) : <div style={{padding: '24px'}}><Text type="secondary">No location data to display.</Text></div>
+              ) : <div style={{padding: '24px'}}><Text type="secondary">Google Maps API Key not configured.</Text></div>}
             </Card>
-            <Card>
-              <CardHeader title="Activity Log" />
-              <CardContent>
-                <Timeline sx={{ p: 0, m: 0 }}>
-                  {workOrder.activityLog.map((item, index) => (
-                    <TimelineItem key={index}>
-                      <TimelineSeparator>
-                        <TimelineDot />
-                        {index < workOrder.activityLog.length - 1 && <TimelineConnector />}
-                      </TimelineSeparator>
-                      <TimelineContent>
-                        <Typography variant="subtitle2">{item.activity}</Typography>
-                        <Typography variant="caption" color="text.secondary">{dayjs(item.timestamp).format('MMM D, YYYY h:mm A')}</Typography>
-                      </TimelineContent>
-                    </TimelineItem>
-                  ))}
-                </Timeline>
-              </CardContent>
+            <Card title="Activity Log">
+              <Timeline>
+                {workOrder.activityLog.map((item, index) => (
+                  <Timeline.Item key={index}>
+                    <Text strong>{item.activity}</Text><br/>
+                    <Text type="secondary">{dayjs(item.timestamp).format('MMM D, YYYY h:mm A')}</Text>
+                  </Timeline.Item>
+                ))}
+              </Timeline>
             </Card>
-          </Box>
-        </Grid>
-      </Grid>
-    </Box>
+          </Space>
+        </Col>
+      </Row>
+    </Space>
   );
 };
 

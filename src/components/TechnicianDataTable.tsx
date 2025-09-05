@@ -1,9 +1,8 @@
 import * as React from "react";
-import { DataGrid } from "@mui/x-data-grid";
+import { Table } from "antd";
 import { Technician, WorkOrder } from "@/data/mockData";
-import { TechnicianRow, getTechnicianColumns } from "./TechnicianTableColumns";
+import { TechnicianRow, getColumns } from "./TechnicianTableColumns";
 import { TechnicianFormDialog } from "./TechnicianFormDialog";
-import { Paper } from "@mui/material";
 
 interface TechnicianDataTableProps {
   initialData: Technician[];
@@ -42,22 +41,18 @@ export function TechnicianDataTable({ initialData, workOrders }: TechnicianDataT
     setData(data.filter(t => t.id !== record.id));
   };
 
-  const columns = getTechnicianColumns(handleEdit, handleDelete);
+  const columns = getColumns(handleEdit, handleDelete);
 
   return (
-    <Paper sx={{ height: 600, width: '100%' }}>
-      <DataGrid
-        rows={tableData}
+    <>
+      <Table
+        dataSource={tableData}
         columns={columns}
-        getRowId={(row) => row.id}
-        initialState={{
-          pagination: {
-            paginationModel: { page: 0, pageSize: 10 },
-          },
-        }}
-        pageSizeOptions={[5, 10, 20]}
-        checkboxSelection
-        disableRowSelectionOnClick
+        rowKey="id"
+        pagination={{ pageSize: 10, hideOnSinglePage: true }}
+        onRow={() => ({
+          className: 'lift-on-hover-row'
+        })}
       />
       {isDialogOpen && (
         <TechnicianFormDialog
@@ -70,6 +65,6 @@ export function TechnicianDataTable({ initialData, workOrders }: TechnicianDataT
           technician={editingTechnician}
         />
       )}
-    </Paper>
+    </>
   );
 }

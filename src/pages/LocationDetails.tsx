@@ -1,12 +1,14 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { locations, workOrders, technicians, Technician, WorkOrder } from "@/data/mockData";
-import { Avatar, Button, Card, CardContent, Grid, Box, Typography, List, ListItem, ListItemAvatar, ListItemText } from "@mui/material";
-import { ArrowBack, Place } from "@mui/icons-material";
+import { Avatar, Button, Card, Col, Row, Space, Typography, List } from "antd";
+import { ArrowLeftOutlined, EnvironmentOutlined } from "@ant-design/icons";
 import { GoogleMap, MarkerF } from "@react-google-maps/api";
 import { WorkOrderDataTable } from "@/components/WorkOrderDataTable";
 import NotFound from "./NotFound";
 import { useMemo, useState } from "react";
 import { showSuccess } from "@/utils/toast";
+
+const { Title, Text } = Typography;
 
 const containerStyle = {
   width: '100%',
@@ -57,74 +59,63 @@ const LocationDetailsPage = () => {
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-      <Button startIcon={<ArrowBack />} onClick={() => navigate('/locations')}>
+    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/locations')}>
         Back to Locations
       </Button>
 
-      <Grid container spacing={3}>
-        <Grid item xs={12} lg={4}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <Row gutter={[24, 24]}>
+        <Col xs={24} lg={8}>
+          <Space direction="vertical" size="large" style={{ width: '100%' }}>
             <Card>
-              <CardContent>
-                <Typography variant="h5" component="h1">{location.name}</Typography>
-                <Typography color="text.secondary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Place fontSize="small" /> {location.address}
-                </Typography>
-              </CardContent>
+              <Title level={4}>{location.name}</Title>
+              <Text type="secondary"><EnvironmentOutlined /> {location.address}</Text>
             </Card>
-            <Card>
-              <CardContent>
-                <Typography variant="h6" gutterBottom>Technicians On-Site</Typography>
-                <List>
-                  {locationTechnicians.map((tech: Technician) => (
-                    <ListItem key={tech.id} disablePadding>
-                      <ListItemAvatar>
-                        <Avatar src={tech.avatar} />
-                      </ListItemAvatar>
-                      <ListItemText
-                        primary={<a href={`/technicians/${tech.id}`}>{tech.name}</a>}
-                        secondary={tech.specialization}
-                      />
-                    </ListItem>
-                  ))}
-                </List>
-              </CardContent>
+            <Card title="Technicians On-Site">
+              <List
+                itemLayout="horizontal"
+                dataSource={locationTechnicians}
+                renderItem={(tech: Technician) => (
+                  <List.Item>
+                    <List.Item.Meta
+                      avatar={<Avatar src={tech.avatar} />}
+                      title={<a href={`/technicians/${tech.id}`}>{tech.name}</a>}
+                      description={tech.specialization}
+                    />
+                  </List.Item>
+                )}
+              />
             </Card>
-          </Box>
-        </Grid>
-        <Grid item xs={12} lg={8}>
-          <Card>
-            <CardContent sx={{ p: 0, '&:last-child': { pb: 0 } }}>
-              <GoogleMap
-                mapContainerStyle={containerStyle}
-                center={{ lat: location.lat, lng: location.lng }}
-                zoom={14}
-              >
-                <MarkerF position={{ lat: location.lat, lng: location.lng }} label="L" />
-                {locationTechnicians.map(tech => (
-                  <MarkerF key={tech.id} position={{ lat: tech.lat, lng: tech.lng }} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 5, fillColor: 'blue', fillOpacity: 1, strokeWeight: 0 }} />
-                ))}
-              </GoogleMap>
-            </CardContent>
+          </Space>
+        </Col>
+        <Col xs={24} lg={16}>
+          <Card title="Location Map" bodyStyle={{ padding: 0 }}>
+            <GoogleMap
+              mapContainerStyle={containerStyle}
+              center={{ lat: location.lat, lng: location.lng }}
+              zoom={14}
+            >
+              <MarkerF position={{ lat: location.lat, lng: location.lng }} label="L" />
+              {locationTechnicians.map(tech => (
+                <MarkerF key={tech.id} position={{ lat: tech.lat, lng: tech.lng }} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 5, fillColor: 'blue', fillOpacity: 1, strokeWeight: 0 }} />
+              ))}
+            </GoogleMap>
           </Card>
-        </Grid>
-      </Grid>
+        </Col>
+      </Row>
 
       <Card>
-        <CardContent>
-          <Typography variant="h6" gutterBottom>Work Orders at {location.name}</Typography>
-          <WorkOrderDataTable 
-            workOrders={locationWorkOrders}
-            technicians={technicians}
-            locations={locations}
-            onSave={handleSaveWorkOrder}
-            onDelete={handleDeleteWorkOrder}
-            onUpdateWorkOrder={handleUpdateWorkOrder}
-          />
-        </CardContent>
+        <Title level={5}>Work Orders at {location.name}</Title>
+        <WorkOrderDataTable 
+          workOrders={locationWorkOrders}
+          technicians={technicians}
+          locations={locations}
+          onSave={handleSaveWorkOrder}
+          onDelete={handleDeleteWorkOrder}
+          onUpdateWorkOrder={handleUpdateWorkOrder}
+        />
       </Card>
-    </Box>
+    </Space>
   );
 };
 

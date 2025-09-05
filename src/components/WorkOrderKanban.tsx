@@ -48,7 +48,7 @@ const WorkOrderKanban = ({ workOrders, groupBy, columns, onUpdateWorkOrder }: Wo
         const columnOrders = getColumnOrders(column.id);
         const columnColor = getColumnColor(column);
         return (
-            <Grid item key={column.id || 'unassigned'} sx={{ minWidth: 320, width: 320 }}>
+            <Grid key={column.id || 'unassigned'} sx={{ minWidth: 320, width: 320 }}>
                 <Paper sx={{ backgroundColor: 'grey.100', height: '100%' }}>
                     <Box sx={{ p: 1.5, borderBottom: 1, borderColor: 'divider', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>

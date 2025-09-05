@@ -18,6 +18,7 @@ import MapViewPage from "./pages/MapView";
 import SettingsPage from "./pages/Settings";
 import { NotificationsProvider } from "./context/NotificationsContext";
 import LocationDetailsPage from "./pages/LocationDetails";
+import { Toaster } from "@/components/ui/sonner";
 
 const { Content } = Layout;
 const queryClient = new QueryClient();
@@ -73,6 +74,7 @@ const App = () => (
         }}
       >
         <AntApp>
+          <Toaster />
           <BrowserRouter>
             <NotificationsProvider>
               <LoadScript googleMapsApiKey={API_KEY} libraries={libraries}>

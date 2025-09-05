@@ -14,6 +14,7 @@ import AnalyticsPage from "./pages/Analytics";
 import MapViewPage from "./pages/MapView";
 import SettingsPage from "./pages/Settings";
 import { NotificationsProvider } from "./context/NotificationsContext";
+import LocationDetailsPage from "./pages/LocationDetails";
 
 const { Content } = Layout;
 const queryClient = new QueryClient();
@@ -44,6 +45,7 @@ const AppContent = () => {
           <Route path="/work-orders" element={<WorkOrdersPage />} />
           <Route path="/work-orders/:id" element={<WorkOrderDetailsPage />} />
           <Route path="/locations" element={<LocationsPage />} />
+          <Route path="/locations/:id" element={<LocationDetailsPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/map" element={<MapViewPage />} />
           <Route path="/settings" element={<SettingsPage />} />

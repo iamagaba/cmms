@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { Row, Col, Typography, Segmented, Badge, Space } from "antd";
 import KpiCard from "@/components/KpiCard";
-import LocationList from "@/components/LocationList";
-import TechnicianList from "@/components/TechnicianList";
+import TechnicianStatusList from "@/components/TechnicianStatusList";
 import WorkOrderKanban from "@/components/WorkOrderKanban";
 import { workOrders, locations, technicians } from "../data/mockData";
 import { CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined, ToolOutlined } from "@ant-design/icons";
 import UrgentWorkOrders from "@/components/UrgentWorkOrders";
 
 const { Title } = Typography;
+
+// Mock data for sparkline charts
+const generateChartData = () => Array.from({ length: 10 }, () => ({ value: Math.floor(Math.random() * 100) }));
 
 const Dashboard = () => {
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
@@ -68,16 +70,16 @@ const Dashboard = () => {
         </div>
         <Row gutter={[24, 24]}>
           <Col xs={24} sm={12} md={12} lg={6} className="fade-in" style={{ animationDelay: '0ms' }}>
-            <KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={<ToolOutlined />} trend="+5%" trendDirection="up" />
+            <KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={<ToolOutlined />} trend="+5%" trendDirection="up" chartData={generateChartData()} />
           </Col>
           <Col xs={24} sm={12} md={12} lg={6} className="fade-in" style={{ animationDelay: '100ms' }}>
-            <KpiCard title="Open Work Orders" value={openOrders.toString()} icon={<ExclamationCircleOutlined />} trend="+3" trendDirection="up" isUpGood={false} />
+            <KpiCard title="Open Work Orders" value={openOrders.toString()} icon={<ExclamationCircleOutlined />} trend="+3" trendDirection="up" isUpGood={false} chartData={generateChartData()} />
           </Col>
           <Col xs={24} sm={12} md={12} lg={6} className="fade-in" style={{ animationDelay: '200ms' }}>
-            <KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={<CheckCircleOutlined />} trend="+1.2%" trendDirection="up" />
+            <KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={<CheckCircleOutlined />} trend="+1.2%" trendDirection="up" chartData={generateChartData()} />
           </Col>
           <Col xs={24} sm={12} md={12} lg={6} className="fade-in" style={{ animationDelay: '300ms' }}>
-            <KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<ClockCircleOutlined />} trend="-0.2 Days" trendDirection="down" isUpGood={false} />
+            <KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<ClockCircleOutlined />} trend="-0.2 Days" trendDirection="down" isUpGood={false} chartData={generateChartData()} />
           </Col>
         </Row>
       </div>
@@ -92,10 +94,9 @@ const Dashboard = () => {
           />
         </Col>
         <Col xs={24} xl={8}>
-          <Title level={4}>Team & Locations</Title>
+          <Title level={4}>Team Status</Title>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <TechnicianList />
-            <LocationList />
+            <TechnicianStatusList />
           </div>
         </Col>
       </Row>

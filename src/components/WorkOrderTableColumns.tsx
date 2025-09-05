@@ -1,8 +1,11 @@
-import { Avatar, Button, Dropdown, Menu, Tag, Typography } from "antd";
-import { MoreOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { Avatar, Button, Dropdown, Menu, Tag, Typography, Tooltip } from "antd";
+import { MoreOutlined, DeleteOutlined, EditOutlined, ClockCircleOutlined, WarningOutlined } from "@ant-design/icons";
 import { WorkOrder, Technician, Location } from "@/data/mockData";
 import dayjs from "dayjs";
+import relativeTime from 'dayjs/plugin/relativeTime';
 import { Link } from "react-router-dom";
+
+dayjs.extend(relativeTime);
 
 const { Text } = Typography;
 
@@ -26,6 +29,29 @@ const statusColors: Record<WorkOrder['status'], string> = {
 
 const priorityOrder: Record<WorkOrder['priority'], number> = { 'High': 1, 'Medium': 2, 'Low': 3 };
 
+const SlaDisplay = ({ slaDue }: { slaDue: string }) => {
+  const dueDate = dayjs(slaDue);
+  const now = dayjs();
+  const isOverdue = dueDate.isBefore(now);
+  const isDueSoon = dueDate.isBefore(now.add(1, 'day'));
+
+  let icon = <ClockCircleOutlined style={{ color: '#52c41a' }} />;
+  if (isOverdue) {
+    icon = <WarningOutlined style={{ color: '#ff4d4f' }} />;
+  } else if (isDueSoon) {
+    icon = <ClockCircleOutlined style={{ color: '#faad14' }} />;
+  }
+
+  return (
+    <Tooltip title={`Due: ${dueDate.format("MMM D, YYYY h:mm A")}`}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+        {icon}
+        <Text type={isOverdue ? 'danger' : 'secondary'}>{dueDate.fromNow()}</Text>
+      </div>
+    </Tooltip>
+  );
+};
+
 export const getColumns = (
   onEdit: (record: WorkOrderRow) => void,
   onDelete: (record: WorkOrderRow) => void
@@ -36,14 +62,13 @@ export const getColumns = (
     render: (id: string) => <Link to={`/work-orders/${id}`}><Text code>{id}</Text></Link>
   },
   {
-    title: "Vehicle",
-    dataIndex: "vehicleId",
-    sorter: (a: WorkOrderRow, b: WorkOrderRow) => a.vehicleId.localeCompare(b.vehicleId),
-    render: (vehicleId: string, record: WorkOrderRow) => (
+    title: "Customer & Vehicle",
+    dataIndex: "customerName",
+    render: (_: any, record: WorkOrderRow) => (
       <div>
-        <Text strong>{vehicleId}</Text>
+        <Text strong>{record.customerName}</Text>
         <br />
-        <Text type="secondary" style={{ fontSize: 12 }}>{record.vehicleModel}</Text>
+        <Text type="secondary" style={{ fontSize: 12 }}>{record.vehicleId} ({record.vehicleModel})</Text>
       </div>
     )
   },
@@ -80,7 +105,7 @@ export const getColumns = (
   {
     title: "SLA Due",
     dataIndex: "slaDue",
-    render: (slaDue: string) => dayjs(slaDue).format("MMM D, YYYY"),
+    render: (slaDue: string) => <SlaDisplay slaDue={slaDue} />,
     sorter: (a: WorkOrderRow, b: WorkOrderRow) => dayjs(a.slaDue).unix() - dayjs(b.slaDue).unix(),
   },
   {

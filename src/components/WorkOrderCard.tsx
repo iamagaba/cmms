@@ -1,8 +1,8 @@
-import { Card, Tag, Avatar, Tooltip, Typography, Select } from "antd";
-import { EnvironmentOutlined, CalendarOutlined, UserOutlined } from "@ant-design/icons";
-import { WorkOrder, Technician, Location, technicians as allTechnicians } from "../data/mockData"; // Import allTechnicians
-import { formatDistanceToNow } from 'date-fns';
+import { Card, Tag, Avatar, Typography, Select } from "antd";
+import { EnvironmentOutlined, UserOutlined } from "@ant-design/icons";
+import { WorkOrder, Technician, Location, technicians as allTechnicians } from "../data/mockData";
 import { Link } from "react-router-dom";
+import SlaCountdown from "./SlaCountdown";
 
 const { Text, Title } = Typography;
 const { Option } = Select;
@@ -34,9 +34,6 @@ const statusColors: Record<WorkOrder['status'], string> = {
 };
 
 const WorkOrderCard = ({ order, technician, location, onUpdateWorkOrder }: WorkOrderCardProps) => {
-  const slaDue = new Date(order.slaDue);
-  const isOverdue = slaDue < new Date();
-
   return (
     <Card 
       hoverable 
@@ -70,13 +67,8 @@ const WorkOrderCard = ({ order, technician, location, onUpdateWorkOrder }: WorkO
           <EnvironmentOutlined />
           <Text type="secondary" style={{ fontSize: 12 }}>{location?.name}</Text>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <CalendarOutlined />
-          <Tooltip title={`SLA: ${slaDue.toLocaleString()}`}>
-            <Text type={isOverdue ? 'danger' : 'secondary'} style={{ fontSize: 12 }}>
-              Due {formatDistanceToNow(slaDue, { addSuffix: true })}
-            </Text>
-          </Tooltip>
+        <div style={{ display: 'flex', alignItems: 'center' }}>
+          <SlaCountdown slaDue={order.slaDue} status={order.status} completedAt={order.completedAt} />
         </div>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

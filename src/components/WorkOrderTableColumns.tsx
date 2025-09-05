@@ -1,9 +1,10 @@
 import { Avatar, Button, Dropdown, Menu, Tag, Typography, Tooltip, Select } from "antd";
-import { MoreOutlined, DeleteOutlined, EditOutlined, ClockCircleOutlined, WarningOutlined } from "@ant-design/icons";
-import { WorkOrder, Technician, Location, technicians as allTechnicians } from "@/data/mockData"; // Import allTechnicians
+import { MoreOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { WorkOrder, Technician, Location, technicians as allTechnicians } from "@/data/mockData";
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { Link } from "react-router-dom";
+import SlaCountdown from "./SlaCountdown";
 
 dayjs.extend(relativeTime);
 
@@ -29,29 +30,6 @@ const statusColors: Record<WorkOrder['status'], string> = {
 };
 
 const priorityOrder: Record<WorkOrder['priority'], number> = { 'High': 1, 'Medium': 2, 'Low': 3 };
-
-const SlaDisplay = ({ slaDue }: { slaDue: string }) => {
-  const dueDate = dayjs(slaDue);
-  const now = dayjs();
-  const isOverdue = dueDate.isBefore(now);
-  const isDueSoon = dueDate.isBefore(now.add(1, 'day'));
-
-  let icon = <ClockCircleOutlined style={{ color: '#52c41a' }} />;
-  if (isOverdue) {
-    icon = <WarningOutlined style={{ color: '#ff4d4f' }} />;
-  } else if (isDueSoon) {
-    icon = <ClockCircleOutlined style={{ color: '#faad14' }} />;
-  }
-
-  return (
-    <Tooltip title={`Due: ${dueDate.format("MMM D, YYYY h:mm A")}`}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-        {icon}
-        <Text type={isOverdue ? 'danger' : 'secondary'}>{dueDate.fromNow()}</Text>
-      </div>
-    </Tooltip>
-  );
-};
 
 export const getColumns = (
   onEdit: (record: WorkOrderRow) => void,
@@ -137,9 +115,9 @@ export const getColumns = (
     )
   },
   {
-    title: "SLA Due",
+    title: "SLA Status",
     dataIndex: "slaDue",
-    render: (slaDue: string) => <SlaDisplay slaDue={slaDue} />,
+    render: (_: any, record: WorkOrderRow) => <SlaCountdown slaDue={record.slaDue} status={record.status} completedAt={record.completedAt} />,
     sorter: (a: WorkOrderRow, b: WorkOrderRow) => dayjs(a.slaDue).unix() - dayjs(b.slaDue).unix(),
   },
   {

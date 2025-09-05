@@ -35,6 +35,7 @@ export interface WorkOrder {
   partsUsed: { name: string; quantity: number }[];
   activityLog: { timestamp: string; activity: string }[];
   slaDue: string; // ISO date string
+  completedAt: string | null; // ISO date string
   customerLat?: number | null;
   customerLng?: number | null;
   customerAddress?: string | null;
@@ -71,6 +72,7 @@ export const workOrders: WorkOrder[] = [
       { timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), activity: 'Work order created.' }
     ],
     slaDue: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+    completedAt: null,
     customerLat: 0.3412,
     customerLng: 32.5701,
     customerAddress: 'Makerere University, Kampala, Uganda',
@@ -93,7 +95,8 @@ export const workOrders: WorkOrder[] = [
       { timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(), activity: 'Assigned to Sarah Nakato.' },
       { timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), activity: 'Status changed to In Progress.' }
     ],
-    slaDue: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString() 
+    slaDue: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
+    completedAt: null,
   },
   { 
     id: 'WO-003', 
@@ -111,7 +114,8 @@ export const workOrders: WorkOrder[] = [
     activityLog: [
       { timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), activity: 'Work order created.' }
     ],
-    slaDue: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString() 
+    slaDue: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
+    completedAt: null,
   },
   { 
     id: 'WO-004', 
@@ -130,7 +134,8 @@ export const workOrders: WorkOrder[] = [
       { timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), activity: 'Work order created and assigned to David Okello.' },
       { timestamp: new Date(Date.now() - 22 * 60 * 60 * 1000).toISOString(), activity: 'Status changed to On Hold.' }
     ],
-    slaDue: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString() 
+    slaDue: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+    completedAt: null,
   },
   { 
     id: 'WO-005', 
@@ -150,8 +155,9 @@ export const workOrders: WorkOrder[] = [
     activityLog: [
       { timestamp: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(), activity: 'Work order created.' },
       { timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), activity: 'Assigned to Brian Mugisha.' },
-      { timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), activity: 'Status changed to Completed.' }
+      { timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), activity: 'Status changed to Completed.' }
     ],
-    slaDue: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString() 
+    slaDue: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
+    completedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
   },
 ];

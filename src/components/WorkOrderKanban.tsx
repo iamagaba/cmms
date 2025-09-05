@@ -1,23 +1,11 @@
-import { technicians, locations, WorkOrder } from "../data/mockData";
+import { WorkOrder, Technician, Location } from "@/types/supabase";
 import WorkOrderCard from "./WorkOrderCard";
 import { Row, Col, Typography, Tag, Space } from "antd";
 
 const { Title } = Typography;
 
-const statusColors: { [key: string]: string } = {
-  Open: "blue",
-  "Pending Confirmation": "cyan",
-  "Confirmed & Ready": "purple",
-  "In Progress": "gold",
-  "On Hold": "orange",
-  Completed: "green",
-};
-
-const priorityColors: { [key: string]: string } = {
-    High: "red",
-    Medium: "gold",
-    Low: "green",
-};
+const statusColors: { [key: string]: string } = { Open: "blue", "Pending Confirmation": "cyan", "Confirmed & Ready": "purple", "In Progress": "gold", "On Hold": "orange", Completed: "green" };
+const priorityColors: { [key: string]: string } = { High: "red", Medium: "gold", Low: "green" };
 
 interface KanbanColumn {
     id: string | null;
@@ -26,24 +14,22 @@ interface KanbanColumn {
 
 interface WorkOrderKanbanProps {
     workOrders: WorkOrder[];
+    technicians: Technician[];
+    locations: Location[];
     groupBy: 'status' | 'priority' | 'assignedTechnicianId';
     columns: KanbanColumn[];
     onUpdateWorkOrder: (id: string, updates: Partial<WorkOrder>) => void;
 }
 
-const WorkOrderKanban = ({ workOrders, groupBy, columns, onUpdateWorkOrder }: WorkOrderKanbanProps) => {
+const WorkOrderKanban = ({ workOrders, technicians, locations, groupBy, columns, onUpdateWorkOrder }: WorkOrderKanbanProps) => {
   const getColumnOrders = (columnId: string | null) => {
-    return workOrders.filter(order => order[groupBy as keyof WorkOrder] === columnId);
+    return workOrders.filter(order => (order as any)[groupBy] === columnId);
   };
 
   const getColumnColor = (column: KanbanColumn) => {
-    if (groupBy === 'status') {
-        return statusColors[column.id as string] || 'default';
-    }
-    if (groupBy === 'priority') {
-        return priorityColors[column.id as string] || 'default';
-    }
-    return '#1677ff'; // Default primary color for other groupings
+    if (groupBy === 'status') return statusColors[column.id as string] || 'default';
+    if (groupBy === 'priority') return priorityColors[column.id as string] || 'default';
+    return '#1677ff';
   }
 
   return (
@@ -66,7 +52,7 @@ const WorkOrderKanban = ({ workOrders, groupBy, columns, onUpdateWorkOrder }: Wo
                             {columnOrders.map(order => {
                                 const technician = technicians.find(t => t.id === order.assignedTechnicianId);
                                 const location = locations.find(l => l.id === order.locationId);
-                                return <WorkOrderCard key={order.id} order={order} technician={technician} location={location} onUpdateWorkOrder={onUpdateWorkOrder} />;
+                                return <WorkOrderCard key={order.id} order={order} technician={technician} location={location} onUpdateWorkOrder={onUpdateWorkOrder} allTechnicians={technicians} />;
                             })}
                         </Space>
                     </div>

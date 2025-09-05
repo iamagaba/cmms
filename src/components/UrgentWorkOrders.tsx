@@ -1,6 +1,6 @@
 import { Card, List, Tag, Typography, Space, Avatar } from 'antd';
 import { WarningOutlined, UserOutlined } from '@ant-design/icons';
-import { WorkOrder, Technician } from '@/data/mockData';
+import { WorkOrder, Technician } from '@/types/supabase';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow, isPast } from 'date-fns';
 
@@ -17,14 +17,14 @@ const UrgentWorkOrders = ({ workOrders, technicians }: UrgentWorkOrdersProps) =>
 
   const urgentOrders = workOrders
     .filter(wo => {
-      if (wo.status === 'Completed') return false;
+      if (wo.status === 'Completed' || !wo.slaDue) return false;
       const dueDate = new Date(wo.slaDue);
       return isPast(dueDate) || dueDate < twentyFourHoursFromNow;
     })
-    .sort((a, b) => new Date(a.slaDue).getTime() - new Date(b.slaDue).getTime());
+    .sort((a, b) => new Date(a.slaDue!).getTime() - new Date(b.slaDue!).getTime());
 
   if (urgentOrders.length === 0) {
-    return null; // Don't render the card if there are no urgent orders
+    return null;
   }
 
   return (
@@ -40,7 +40,7 @@ const UrgentWorkOrders = ({ workOrders, technicians }: UrgentWorkOrdersProps) =>
         itemLayout="horizontal"
         dataSource={urgentOrders}
         renderItem={order => {
-          const dueDate = new Date(order.slaDue);
+          const dueDate = new Date(order.slaDue!);
           const isOverdue = isPast(dueDate);
           const technician = technicians.find(t => t.id === order.assignedTechnicianId);
 
@@ -52,7 +52,7 @@ const UrgentWorkOrders = ({ workOrders, technicians }: UrgentWorkOrdersProps) =>
                   <Space>
                     {technician ? (
                       <>
-                        <Avatar size="small" src={technician.avatar} icon={<UserOutlined />} />
+                        <Avatar size="small" src={technician.avatar || undefined} icon={<UserOutlined />} />
                         <Text type="secondary">{technician.name}</Text>
                       </>
                     ) : (

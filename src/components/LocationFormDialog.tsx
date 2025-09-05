@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Modal, Form, Input, Button } from "antd";
-import { Location } from "@/data/mockData";
+import { Location } from "@/types/supabase";
 
 interface LocationFormDialogProps {
   isOpen: boolean;
@@ -25,17 +25,13 @@ export const LocationFormDialog = ({ isOpen, onClose, onSave, location }: Locati
     setLoading(true);
     try {
       const values = await form.validateFields();
-      const newId = location?.id || `loc${Math.floor(Math.random() * 1000)}`;
       const locationToSave: Location = {
-        id: newId,
-        name: values.name,
-        address: values.address,
-        lat: location?.lat || 0.32, // Default lat for new locations
-        lng: location?.lng || 32.58, // Default lng for new locations
+        id: location?.id,
+        ...values,
+        lat: location?.lat || 0.32,
+        lng: location?.lng || 32.58,
       };
       
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 500));
       onSave(locationToSave);
       onClose();
     } catch (info) {

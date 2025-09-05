@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Modal, Form, Input, Select, Button, DatePicker } from "antd";
-import { Technician } from "@/data/mockData";
+import { Technician } from "@/types/supabase";
 import dayjs from 'dayjs';
 
 const { Option } = Select;
@@ -31,22 +31,12 @@ export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician }: Te
     setLoading(true);
     try {
       const values = await form.validateFields();
-      const newId = technician?.id || `tech${Math.floor(Math.random() * 1000)}`;
       const technicianToSave: Technician = {
-        id: newId,
-        name: values.name,
-        status: values.status,
-        avatar: technician?.avatar || '/placeholder.svg',
-        email: values.email,
-        phone: values.phone,
-        specialization: values.specialization,
+        id: technician?.id,
+        ...values,
         joinDate: values.joinDate.toISOString(),
-        lat: technician?.lat || 0.32, // Default lat for new technicians
-        lng: technician?.lng || 32.58, // Default lng for new technicians
       };
       
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 500));
       onSave(technicianToSave);
       onClose();
     } catch (info) {

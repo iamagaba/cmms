@@ -1,70 +1,102 @@
-import { useState } from "react";
-import { Row, Col, Typography, Segmented, Badge, Space } from "antd";
+import { useState, useMemo } from "react";
+import { Row, Col, Typography, Segmented, Badge, Space, Skeleton } from "antd";
 import KpiCard from "@/components/KpiCard";
 import TechnicianStatusList from "@/components/TechnicianStatusList";
 import WorkOrderKanban from "@/components/WorkOrderKanban";
-import { workOrders, locations, technicians, WorkOrder } from "../data/mockData";
 import { CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined, ToolOutlined } from "@ant-design/icons";
 import UrgentWorkOrders from "@/components/UrgentWorkOrders";
-import { showSuccess, showInfo } from "@/utils/toast";
+import { showSuccess, showInfo, showError } from "@/utils/toast";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { WorkOrder, Technician, Location } from "@/types/supabase";
+import dayjs from "dayjs";
 
 const { Title } = Typography;
 
-// Mock data for sparkline charts
 const generateChartData = () => Array.from({ length: 10 }, () => ({ value: Math.floor(Math.random() * 100) }));
 
 const Dashboard = () => {
+  const queryClient = useQueryClient();
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
-  const [allWorkOrders, setAllWorkOrders] = useState(workOrders);
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
 
+  // Data Fetching
+  const { data: allWorkOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({
+    queryKey: ['work_orders'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('work_orders').select('*').order('created_at', { ascending: false });
+      if (error) throw new Error(error.message);
+      return data || [];
+    }
+  });
+
+  const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({
+    queryKey: ['technicians'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('technicians').select('*');
+      if (error) throw new Error(error.message);
+      return data || [];
+    }
+  });
+
+  const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({
+    queryKey: ['locations'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('locations').select('*');
+      if (error) throw new Error(error.message);
+      return data || [];
+    }
+  });
+
+  // Mutations
+  const workOrderMutation = useMutation({
+    mutationFn: async (workOrderData: Partial<WorkOrder>) => {
+      const { error } = await supabase.from('work_orders').upsert(workOrderData);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['work_orders'] });
+      showSuccess('Work order has been updated.');
+    },
+    onError: (error) => showError(error.message),
+  });
+
   const handleUpdateWorkOrder = (id: string, updates: Partial<WorkOrder>) => {
-    const workOrder = allWorkOrders.find(wo => wo.id === id);
+    const workOrder = allWorkOrders?.find(wo => wo.id === id);
     if (!workOrder) return;
 
-    // Intercept 'On Hold' status change to capture a reason
     if (updates.status === 'On Hold') {
       setOnHoldWorkOrder(workOrder);
       return;
     }
 
-    // Automate status transition when assigning a technician or scheduling
     if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Confirmed & Ready') {
       updates.status = 'In Progress';
-      showInfo(`Work Order ${id} automatically moved to In Progress.`);
+      showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`);
     }
-
-    setAllWorkOrders(prevOrders =>
-      prevOrders.map(wo =>
-        wo.id === id ? { ...wo, ...updates } : wo
-      )
-    );
-    showSuccess(`Work order ${id} updated.`);
+    
+    workOrderMutation.mutate({ id, ...updates });
   };
 
   const handleSaveOnHoldReason = (reason: string) => {
     if (!onHoldWorkOrder) return;
-    
     const updates = { status: 'On Hold' as const, onHoldReason: reason };
-    
-    setAllWorkOrders(prevOrders =>
-      prevOrders.map(wo =>
-        wo.id === onHoldWorkOrder.id ? { ...wo, ...updates } : wo
-      )
-    );
-    showSuccess(`Work order ${onHoldWorkOrder.id} is now On Hold.`);
+    workOrderMutation.mutate({ id: onHoldWorkOrder.id, ...updates });
     setOnHoldWorkOrder(null);
   };
 
-  const filteredWorkOrders = selectedLocation === 'all'
-    ? allWorkOrders
-    : allWorkOrders.filter(wo => wo.locationId === selectedLocation);
+  const filteredWorkOrders = useMemo(() => {
+    if (!allWorkOrders) return [];
+    return selectedLocation === 'all'
+      ? allWorkOrders
+      : allWorkOrders.filter(wo => wo.locationId === selectedLocation);
+  }, [allWorkOrders, selectedLocation]);
 
   const totalOrders = filteredWorkOrders.length;
   const openOrders = filteredWorkOrders.filter(o => o.status !== 'Completed').length;
   const completedOrders = filteredWorkOrders.filter(o => o.status === 'Completed').length;
-  const slaMet = filteredWorkOrders.filter(o => o.status === 'Completed' && new Date(o.slaDue) >= new Date()).length;
+  const slaMet = filteredWorkOrders.filter(o => o.status === 'Completed' && o.completedAt && o.slaDue && dayjs(o.completedAt).isBefore(dayjs(o.slaDue))).length;
   const slaPerformance = completedOrders > 0 ? ((slaMet / completedOrders) * 100).toFixed(0) : 0;
 
   const kanbanColumns = [
@@ -81,13 +113,13 @@ const Dashboard = () => {
       label: (
         <Space>
           <span>All Locations</span>
-          <Badge count={allWorkOrders.length} showZero color="#1677ff" />
+          <Badge count={allWorkOrders?.length || 0} showZero color="#1677ff" />
         </Space>
       ), 
       value: 'all' 
     },
-    ...locations.map(loc => {
-      const count = allWorkOrders.filter(wo => wo.locationId === loc.id).length;
+    ...(locations || []).map(loc => {
+      const count = allWorkOrders?.filter(wo => wo.locationId === loc.id).length || 0;
       return {
         label: (
           <Space>
@@ -100,10 +132,16 @@ const Dashboard = () => {
     })
   ];
 
+  const isLoading = isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations;
+
+  if (isLoading) {
+    return <Skeleton active paragraph={{ rows: 10 }} />;
+  }
+
   return (
     <>
       <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        <UrgentWorkOrders workOrders={allWorkOrders} technicians={technicians} />
+        <UrgentWorkOrders workOrders={allWorkOrders || []} technicians={technicians || []} />
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
             <Title level={4} style={{ margin: 0 }}>Overview</Title>
@@ -114,18 +152,10 @@ const Dashboard = () => {
             />
           </div>
           <Row gutter={[24, 24]}>
-            <Col xs={24} sm={12} md={12} lg={6} className="fade-in" style={{ animationDelay: '0ms' }}>
-              <KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={<ToolOutlined />} trend="+5%" trendDirection="up" chartData={generateChartData()} />
-            </Col>
-            <Col xs={24} sm={12} md={12} lg={6} className="fade-in" style={{ animationDelay: '100ms' }}>
-              <KpiCard title="Open Work Orders" value={openOrders.toString()} icon={<ExclamationCircleOutlined />} trend="+3" trendDirection="up" isUpGood={false} chartData={generateChartData()} />
-            </Col>
-            <Col xs={24} sm={12} md={12} lg={6} className="fade-in" style={{ animationDelay: '200ms' }}>
-              <KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={<CheckCircleOutlined />} trend="+1.2%" trendDirection="up" chartData={generateChartData()} />
-            </Col>
-            <Col xs={24} sm={12} md={12} lg={6} className="fade-in" style={{ animationDelay: '300ms' }}>
-              <KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<ClockCircleOutlined />} trend="-0.2 Days" trendDirection="down" isUpGood={false} chartData={generateChartData()} />
-            </Col>
+            <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={<ToolOutlined />} trend="+5%" trendDirection="up" chartData={generateChartData()} /></Col>
+            <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Open Work Orders" value={openOrders.toString()} icon={<ExclamationCircleOutlined />} trend="+3" trendDirection="up" isUpGood={false} chartData={generateChartData()} /></Col>
+            <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={<CheckCircleOutlined />} trend="+1.2%" trendDirection="up" chartData={generateChartData()} /></Col>
+            <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<ClockCircleOutlined />} trend="-0.2 Days" trendDirection="down" isUpGood={false} chartData={generateChartData()} /></Col>
           </Row>
         </div>
         
@@ -134,6 +164,8 @@ const Dashboard = () => {
             <Title level={4}>Work Order Board</Title>
             <WorkOrderKanban 
               workOrders={filteredWorkOrders} 
+              technicians={technicians || []}
+              locations={locations || []}
               groupBy="status"
               columns={kanbanColumns}
               onUpdateWorkOrder={handleUpdateWorkOrder}
@@ -141,9 +173,7 @@ const Dashboard = () => {
           </Col>
           <Col xs={24} xl={8}>
             <Title level={4}>Team Status</Title>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              <TechnicianStatusList />
-            </div>
+            <TechnicianStatusList technicians={technicians || []} workOrders={allWorkOrders || []} />
           </Col>
         </Row>
       </div>

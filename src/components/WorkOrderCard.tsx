@@ -1,6 +1,6 @@
 import { Card, Tag, Avatar, Typography, Select, Tooltip } from "antd";
-import { EnvironmentOutlined, UserOutlined, MessageOutlined } from "@ant-design/icons";
-import { WorkOrder, Technician, Location, technicians as allTechnicians } from "../data/mockData";
+import { EnvironmentOutlined, MessageOutlined } from "@ant-design/icons";
+import { WorkOrder, Technician, Location } from "@/types/supabase";
 import { Link } from "react-router-dom";
 import SlaCountdown from "./SlaCountdown";
 
@@ -11,36 +11,20 @@ interface WorkOrderCardProps {
   order: WorkOrder;
   technician: Technician | undefined;
   location: Location | undefined;
+  allTechnicians: Technician[];
   onUpdateWorkOrder: (id: string, updates: Partial<WorkOrder>) => void;
 }
 
-const priorityColors = {
-  High: "red",
-  Medium: "gold",
-  Low: "green",
-};
+const priorityColors: Record<string, string> = { High: "red", Medium: "gold", Low: "green" };
+const priorityBorderColors: Record<string, string> = { High: "red", Medium: "gold", Low: "transparent" };
+const statusColors: Record<string, string> = { Open: "blue", "Pending Confirmation": "cyan", "Confirmed & Ready": "purple", "In Progress": "gold", "On Hold": "orange", Completed: "green" };
 
-const priorityBorderColors = {
-    High: "red",
-    Medium: "gold",
-    Low: "transparent",
-}
-
-const statusColors: Record<WorkOrder['status'], string> = {
-  Open: "blue",
-  "Pending Confirmation": "cyan",
-  "Confirmed & Ready": "purple",
-  "In Progress": "gold",
-  "On Hold": "orange",
-  Completed: "green",
-};
-
-const WorkOrderCard = ({ order, technician, location, onUpdateWorkOrder }: WorkOrderCardProps) => {
+const WorkOrderCard = ({ order, technician, location, allTechnicians, onUpdateWorkOrder }: WorkOrderCardProps) => {
   return (
     <Card 
       hoverable 
       className="lift-on-hover"
-      style={{ borderLeft: `4px solid ${priorityBorderColors[order.priority]}` }}
+      style={{ borderLeft: `4px solid ${priorityBorderColors[order.priority || 'Low']}` }}
       bodyStyle={{ padding: 16 }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
@@ -50,14 +34,7 @@ const WorkOrderCard = ({ order, technician, location, onUpdateWorkOrder }: WorkO
           </Title>
           <Text type="secondary">{order.customerName} • {order.vehicleModel}</Text>
         </div>
-        <Select
-          value={order.priority}
-          onChange={(value) => onUpdateWorkOrder(order.id, { priority: value })}
-          style={{ width: 90 }}
-          bordered={false}
-          size="small"
-          dropdownMatchSelectWidth={false}
-        >
+        <Select value={order.priority} onChange={(value) => onUpdateWorkOrder(order.id, { priority: value })} style={{ width: 90 }} bordered={false} size="small" dropdownMatchSelectWidth={false}>
           <Option value="High"><Tag color={priorityColors["High"]}>High</Tag></Option>
           <Option value="Medium"><Tag color={priorityColors["Medium"]}>Medium</Tag></Option>
           <Option value="Low"><Tag color={priorityColors["Low"]}>Low</Tag></Option>
@@ -74,20 +51,11 @@ const WorkOrderCard = ({ order, technician, location, onUpdateWorkOrder }: WorkO
         </div>
       </div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Select
-          value={order.assignedTechnicianId}
-          onChange={(value) => onUpdateWorkOrder(order.id, { assignedTechnicianId: value })}
-          style={{ width: 150 }}
-          bordered={false}
-          allowClear
-          placeholder="Unassigned"
-          size="small"
-          dropdownMatchSelectWidth={false}
-        >
+        <Select value={order.assignedTechnicianId} onChange={(value) => onUpdateWorkOrder(order.id, { assignedTechnicianId: value })} style={{ width: 150 }} bordered={false} allowClear placeholder="Unassigned" size="small" dropdownMatchSelectWidth={false}>
           {allTechnicians.map(tech => (
             <Option key={tech.id} value={tech.id}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Avatar size="small" src={tech.avatar}>{tech.name.split(' ').map(n => n[0]).join('')}</Avatar>
+                <Avatar size="small" src={tech.avatar || undefined}>{tech.name.split(' ').map(n => n[0]).join('')}</Avatar>
                 <Text>{tech.name}</Text>
               </div>
             </Option>
@@ -95,18 +63,9 @@ const WorkOrderCard = ({ order, technician, location, onUpdateWorkOrder }: WorkO
         </Select>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           {order.status === 'On Hold' && order.onHoldReason && (
-            <Tooltip title={`On Hold: ${order.onHoldReason}`}>
-              <MessageOutlined style={{ color: 'orange', cursor: 'pointer' }} />
-            </Tooltip>
+            <Tooltip title={`On Hold: ${order.onHoldReason}`}><MessageOutlined style={{ color: 'orange', cursor: 'pointer' }} /></Tooltip>
           )}
-          <Select
-            value={order.status}
-            onChange={(value) => onUpdateWorkOrder(order.id, { status: value })}
-            style={{ width: 150 }}
-            bordered={false}
-            size="small"
-            dropdownMatchSelectWidth={false}
-          >
+          <Select value={order.status} onChange={(value) => onUpdateWorkOrder(order.id, { status: value })} style={{ width: 150 }} bordered={false} size="small" dropdownMatchSelectWidth={false}>
             <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
             <Option value="Pending Confirmation"><Tag color={statusColors["Pending Confirmation"]}>Pending Confirmation</Tag></Option>
             <Option value="Confirmed & Ready"><Tag color={statusColors["Confirmed & Ready"]}>Confirmed & Ready</Tag></Option>

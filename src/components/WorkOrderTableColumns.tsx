@@ -1,6 +1,6 @@
-import { Avatar, Button, Dropdown, Menu, Tag, Typography, Tooltip, Select } from "antd";
+import { Avatar, Button, Dropdown, Menu, Tag, Typography, Select } from "antd";
 import { MoreOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { WorkOrder, Technician, Location, technicians as allTechnicians } from "@/data/mockData";
+import { WorkOrder, Technician, Location } from "@/types/supabase";
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { Link } from "react-router-dom";
@@ -16,40 +16,27 @@ export type WorkOrderRow = WorkOrder & {
   location?: Location;
 };
 
-const priorityColors: Record<WorkOrder['priority'], string> = {
-  High: "red",
-  Medium: "gold",
-  Low: "green",
-};
-
-const statusColors: Record<WorkOrder['status'], string> = {
-    Open: "blue",
-    "Pending Confirmation": "cyan",
-    "Confirmed & Ready": "purple",
-    "In Progress": "gold",
-    "On Hold": "orange",
-    Completed: "green",
-};
-
-const priorityOrder: Record<WorkOrder['priority'], number> = { 'High': 1, 'Medium': 2, 'Low': 3 };
+const priorityColors: Record<string, string> = { High: "red", Medium: "gold", Low: "green" };
+const statusColors: Record<string, string> = { Open: "blue", "Pending Confirmation": "cyan", "Confirmed & Ready": "purple", "In Progress": "gold", "On Hold": "orange", Completed: "green" };
+const priorityOrder: Record<string, number> = { 'High': 1, 'Medium': 2, 'Low': 3 };
 
 export const getColumns = (
   onEdit: (record: WorkOrderRow) => void,
   onDelete: (record: WorkOrderRow) => void,
-  onUpdateWorkOrder: (id: string, updates: Partial<WorkOrder>) => void
+  onUpdateWorkOrder: (id: string, updates: Partial<WorkOrder>) => void,
+  allTechnicians: Technician[]
 ) => [
   {
     title: "ID",
-    dataIndex: "id",
-    render: (id: string) => <Link to={`/work-orders/${id}`}><Text code>{id}</Text></Link>
+    dataIndex: "workOrderNumber",
+    render: (text: string, record: WorkOrderRow) => <Link to={`/work-orders/${record.id}`}><Text code>{text || record.id.substring(0, 6)}</Text></Link>
   },
   {
     title: "Customer & Vehicle",
     dataIndex: "customerName",
     render: (_: any, record: WorkOrderRow) => (
       <div>
-        <Text strong>{record.customerName}</Text>
-        <br />
+        <Text strong>{record.customerName}</Text><br />
         <Text type="secondary" style={{ fontSize: 12 }}>{record.vehicleId} ({record.vehicleModel})</Text>
       </div>
     )
@@ -62,12 +49,7 @@ export const getColumns = (
     title: "Status",
     dataIndex: "status",
     render: (status: WorkOrder['status'], record: WorkOrderRow) => (
-      <Select
-        value={status}
-        onChange={(value) => onUpdateWorkOrder(record.id, { status: value })}
-        style={{ width: 180 }}
-        bordered={false}
-      >
+      <Select value={status} onChange={(value) => onUpdateWorkOrder(record.id, { status: value })} style={{ width: 180 }} bordered={false}>
         <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
         <Option value="Pending Confirmation"><Tag color={statusColors["Pending Confirmation"]}>Pending Confirmation</Tag></Option>
         <Option value="Confirmed & Ready"><Tag color={statusColors["Confirmed & Ready"]}>Confirmed & Ready</Tag></Option>
@@ -76,41 +58,29 @@ export const getColumns = (
         <Option value="Completed"><Tag color={statusColors["Completed"]}>Completed</Tag></Option>
       </Select>
     ),
-    sorter: (a: WorkOrderRow, b: WorkOrderRow) => a.status.localeCompare(b.status),
+    sorter: (a: WorkOrderRow, b: WorkOrderRow) => (a.status || "").localeCompare(b.status || ""),
   },
   {
     title: "Priority",
     dataIndex: "priority",
     render: (priority: WorkOrder['priority'], record: WorkOrderRow) => (
-      <Select
-        value={priority}
-        onChange={(value) => onUpdateWorkOrder(record.id, { priority: value })}
-        style={{ width: 100 }}
-        bordered={false}
-      >
+      <Select value={priority} onChange={(value) => onUpdateWorkOrder(record.id, { priority: value })} style={{ width: 100 }} bordered={false}>
         <Option value="High"><Tag color={priorityColors["High"]}>High</Tag></Option>
         <Option value="Medium"><Tag color={priorityColors["Medium"]}>Medium</Tag></Option>
         <Option value="Low"><Tag color={priorityColors["Low"]}>Low</Tag></Option>
       </Select>
     ),
-    sorter: (a: WorkOrderRow, b: WorkOrderRow) => priorityOrder[a.priority] - priorityOrder[b.priority],
+    sorter: (a: WorkOrderRow, b: WorkOrderRow) => priorityOrder[a.priority || 'Low'] - priorityOrder[b.priority || 'Low'],
   },
   {
     title: "Technician",
     dataIndex: "technician",
     render: (_: any, record: WorkOrderRow) => (
-      <Select
-        value={record.assignedTechnicianId}
-        onChange={(value) => onUpdateWorkOrder(record.id, { assignedTechnicianId: value })}
-        style={{ width: 150 }}
-        bordered={false}
-        allowClear
-        placeholder="Unassigned"
-      >
+      <Select value={record.assignedTechnicianId} onChange={(value) => onUpdateWorkOrder(record.id, { assignedTechnicianId: value })} style={{ width: 150 }} bordered={false} allowClear placeholder="Unassigned">
         {allTechnicians.map(tech => (
           <Option key={tech.id} value={tech.id}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Avatar size="small" src={tech.avatar}>{tech.name.split(' ').map(n => n[0]).join('')}</Avatar>
+              <Avatar size="small" src={tech.avatar || undefined}>{tech.name.split(' ').map(n => n[0]).join('')}</Avatar>
               <Text>{tech.name}</Text>
             </div>
           </Option>
@@ -129,19 +99,7 @@ export const getColumns = (
     key: "actions",
     align: "right" as const,
     render: (_: any, record: WorkOrderRow) => (
-      <Dropdown
-        overlay={
-          <Menu>
-            <Menu.Item key="edit" icon={<EditOutlined />} onClick={() => onEdit(record)}>
-              Edit Work Order
-            </Menu.Item>
-            <Menu.Item key="delete" icon={<DeleteOutlined />} danger onClick={() => onDelete(record)}>
-              Delete Work Order
-            </Menu.Item>
-          </Menu>
-        }
-        trigger={["click"]}
-      >
+      <Dropdown overlay={<Menu><Menu.Item key="edit" icon={<EditOutlined />} onClick={() => onEdit(record)}>Edit Work Order</Menu.Item><Menu.Item key="delete" icon={<DeleteOutlined />} danger onClick={() => onDelete(record)}>Delete Work Order</Menu.Item></Menu>} trigger={["click"]}>
         <Button type="text" icon={<MoreOutlined style={{ fontSize: '18px' }} />} />
       </Dropdown>
     ),

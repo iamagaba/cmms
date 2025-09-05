@@ -1,19 +1,24 @@
 import { Card, List, Avatar, Progress, Typography, Space, Tooltip } from "antd";
-import { technicians, workOrders } from "../data/mockData";
 import { Link } from "react-router-dom";
+import { Technician, WorkOrder } from "@/types/supabase";
 
 const { Text } = Typography;
 
-const statusColors: Record<typeof technicians[0]['status'], 'success' | 'warning' | 'default'> = {
+const statusColors: Record<string, 'success' | 'warning' | 'default'> = {
   available: "success",
   busy: "warning",
   offline: "default",
 };
 
-const TechnicianStatusList = () => {
+interface TechnicianStatusListProps {
+  technicians: Technician[];
+  workOrders: WorkOrder[];
+}
+
+const TechnicianStatusList = ({ technicians, workOrders }: TechnicianStatusListProps) => {
   const techData = technicians.map(tech => {
     const openTasks = workOrders.filter(wo => wo.assignedTechnicianId === tech.id && wo.status !== 'Completed').length;
-    const maxTasks = tech.max_concurrent_orders || 5; // Assuming a default max if not specified
+    const maxTasks = tech.maxConcurrentOrders || 5;
     return { ...tech, openTasks, maxTasks };
   });
 
@@ -26,8 +31,8 @@ const TechnicianStatusList = () => {
           <List.Item>
             <List.Item.Meta
               avatar={
-                <Tooltip title={tech.status.charAt(0).toUpperCase() + tech.status.slice(1)}>
-                  <Avatar src={tech.avatar} style={{ border: `2px solid ${statusColors[tech.status] === 'success' ? '#52c41a' : statusColors[tech.status] === 'warning' ? '#faad14' : '#bfbfbf'}` }} />
+                <Tooltip title={tech.status ? tech.status.charAt(0).toUpperCase() + tech.status.slice(1) : 'Unknown'}>
+                  <Avatar src={tech.avatar || undefined} style={{ border: `2px solid ${statusColors[tech.status || 'offline'] === 'success' ? '#52c41a' : statusColors[tech.status || 'offline'] === 'warning' ? '#faad14' : '#bfbfbf'}` }} />
                 </Tooltip>
               }
               title={<Link to={`/technicians/${tech.id}`}>{tech.name}</Link>}

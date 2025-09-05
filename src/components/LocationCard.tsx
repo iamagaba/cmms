@@ -1,7 +1,7 @@
 import { Card, Typography, Space, Badge } from 'antd';
-import { EnvironmentOutlined, ToolOutlined } from '@ant-design/icons';
+import { EnvironmentOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
-import { Location, WorkOrder } from '@/data/mockData';
+import { Location, WorkOrder } from '@/types/supabase';
 
 const { Title, Text } = Typography;
 

@@ -13,6 +13,7 @@ import {
   EnvironmentOutlined,
   BarChartOutlined,
   GlobalOutlined,
+  CalendarOutlined,
 } from "@ant-design/icons";
 import { NavLink, useLocation, Link } from "react-router-dom";
 import { useNotifications } from "@/context/NotificationsContext";
@@ -24,6 +25,7 @@ const { Text } = Typography;
 const navItems = [
   { key: "/", label: "Dashboard", icon: <DashboardOutlined /> },
   { key: "/work-orders", label: "Work Orders", icon: <ToolOutlined /> },
+  { key: "/calendar", label: "Calendar", icon: <CalendarOutlined /> },
   { key: "/map", label: "Map View", icon: <GlobalOutlined /> },
   { key: "/technicians", label: "Technicians", icon: <UsergroupAddOutlined /> },
   { key: "/locations", label: "Locations", icon: <EnvironmentOutlined /> },

@@ -29,8 +29,8 @@ const Dashboard = () => {
       return;
     }
 
-    // Automate status transition when assigning a technician to a ready work order
-    if (updates.assignedTechnicianId && workOrder.status === 'Confirmed & Ready') {
+    // Automate status transition when assigning a technician or scheduling
+    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Confirmed & Ready') {
       updates.status = 'In Progress';
       showInfo(`Work Order ${id} automatically moved to In Progress.`);
     }

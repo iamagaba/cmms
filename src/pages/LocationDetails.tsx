@@ -60,7 +60,7 @@ const LocationDetailsPage = () => {
       return;
     }
 
-    if (updates.assignedTechnicianId && workOrder.status === 'Confirmed & Ready') {
+    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Confirmed & Ready') {
       updates.status = 'In Progress';
       showInfo(`Work Order ${id} automatically moved to In Progress.`);
     }

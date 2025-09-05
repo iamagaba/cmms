@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
-import { Modal, Form, Input, Select, Button, DatePicker, Col, Row, Steps } from "antd";
+import { Modal, Form, Input, Select, Button, DatePicker, Col, Row, Steps, Typography } from "antd";
 import { WorkOrder, technicians, locations } from "@/data/mockData";
 import dayjs from 'dayjs';
 import { GoogleLocationSearchInput } from "./GoogleLocationSearchInput";
 
 const { Option } = Select;
 const { TextArea } = Input;
+const { Text } = Typography;
 
 interface WorkOrderFormDialogProps {
   isOpen: boolean;
@@ -23,7 +24,7 @@ const steps = [
 const stepFields = [
   ['vehicleId', 'vehicleModel', 'customerName', 'customerPhone'],
   ['service', 'status', 'priority', 'locationId', 'customerAddress'],
-  ['assignedTechnicianId', 'slaDue'],
+  ['assignedTechnicianId', 'slaDue', 'appointmentDate'],
 ];
 
 export const WorkOrderFormDialog = ({ isOpen, onClose, onSave, workOrder }: WorkOrderFormDialogProps) => {
@@ -39,6 +40,7 @@ export const WorkOrderFormDialog = ({ isOpen, onClose, onSave, workOrder }: Work
         form.setFieldsValue({
           ...workOrder,
           slaDue: workOrder.slaDue ? dayjs(workOrder.slaDue) : null,
+          appointmentDate: workOrder.appointmentDate ? dayjs(workOrder.appointmentDate) : null,
           customerAddress: workOrder.customerAddress,
         });
         if (workOrder.customerLat && workOrder.customerLng) {
@@ -85,6 +87,7 @@ export const WorkOrderFormDialog = ({ isOpen, onClose, onSave, workOrder }: Work
         ...values,
         id: newId,
         slaDue: values.slaDue.toISOString(),
+        appointmentDate: values.appointmentDate ? values.appointmentDate.toISOString() : null,
         customerLat: clientLocation?.lat,
         customerLng: clientLocation?.lng,
         customerAddress: clientAddress,
@@ -161,8 +164,12 @@ export const WorkOrderFormDialog = ({ isOpen, onClose, onSave, workOrder }: Work
         </div>
         <div style={{ display: currentStep === 2 ? 'block' : 'none' }}>
           <Row gutter={16}>
+            <Col span={24}>
+              <Text type="secondary">Assign a technician OR schedule an appointment to move the work order to 'In Progress'.</Text>
+            </Col>
             <Col span={12}><Form.Item name="assignedTechnicianId" label="Assigned Technician"><Select allowClear>{technicians.map(t => <Option key={t.id} value={t.id}>{t.name}</Option>)}</Select></Form.Item></Col>
-            <Col span={12}><Form.Item name="slaDue" label="SLA Due Date" rules={[{ required: true }]}><DatePicker showTime style={{ width: '100%' }} /></Form.Item></Col>
+            <Col span={12}><Form.Item name="appointmentDate" label="Appointment Date"><DatePicker showTime style={{ width: '100%' }} /></Form.Item></Col>
+            <Col span={24}><Form.Item name="slaDue" label="SLA Due Date" rules={[{ required: true }]}><DatePicker showTime style={{ width: '100%' }} /></Form.Item></Col>
           </Row>
         </div>
       </Form>

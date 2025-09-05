@@ -40,6 +40,7 @@ export interface WorkOrder {
   customerLng?: number | null;
   customerAddress?: string | null;
   onHoldReason?: string | null;
+  appointmentDate?: string | null;
 }
 
 export const technicians: Technician[] = [
@@ -98,6 +99,7 @@ export const workOrders: WorkOrder[] = [
     ],
     slaDue: new Date(Date.now() + 1 * 24 * 60 * 60 * 1000).toISOString(),
     completedAt: null,
+    appointmentDate: new Date().toISOString(),
   },
   { 
     id: 'WO-003', 
@@ -182,5 +184,6 @@ export const workOrders: WorkOrder[] = [
     ],
     slaDue: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
     completedAt: null,
+    appointmentDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
   },
 ];

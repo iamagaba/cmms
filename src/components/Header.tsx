@@ -15,9 +15,12 @@ import {
   GlobalOutlined,
   CalendarOutlined,
 } from "@ant-design/icons";
-import { NavLink, useLocation, Link } from "react-router-dom";
+import { NavLink, useLocation, Link, useNavigate } from "react-router-dom";
 import { useNotifications } from "@/context/NotificationsContext";
 import { formatDistanceToNow } from 'date-fns';
+import { useSession } from "@/context/SessionContext";
+import { supabase } from "@/integrations/supabase/client";
+import { showSuccess, showError } from "@/utils/toast";
 
 const { Header } = Layout;
 const { Text } = Typography;
@@ -35,7 +38,20 @@ const navItems = [
 
 const AppHeader = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { notifications, unreadCount, markAllAsRead } = useNotifications();
+  const { session } = useSession();
+  const user = session?.user;
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      showError('Failed to log out: ' + error.message);
+    } else {
+      showSuccess('You have been logged out.');
+      navigate('/login');
+    }
+  };
 
   const userMenu = (
     <Menu>
@@ -43,7 +59,7 @@ const AppHeader = () => {
       <Menu.Item key="2" icon={<SettingOutlined />}>Settings</Menu.Item>
       <Menu.Item key="3" icon={<QuestionCircleOutlined />}>Support</Menu.Item>
       <Menu.Divider />
-      <Menu.Item key="4" icon={<LogoutOutlined />}>Logout</Menu.Item>
+      <Menu.Item key="4" icon={<LogoutOutlined />} onClick={handleLogout}>Logout</Menu.Item>
     </Menu>
   );
 
@@ -98,7 +114,7 @@ const AppHeader = () => {
           </Badge>
         </Dropdown>
         <Dropdown overlay={userMenu} placement="bottomRight">
-          <Avatar style={{ cursor: 'pointer' }} icon={<UserOutlined />} />
+          <Avatar style={{ cursor: 'pointer' }} src={user?.user_metadata?.avatar_url || undefined} icon={<UserOutlined />} />
         </Dropdown>
       </div>
     </Header>

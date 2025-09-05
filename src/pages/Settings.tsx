@@ -7,11 +7,10 @@ import { showSuccess, showError } from '@/utils/toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Technician, WorkOrder } from '@/types/supabase';
+import { useSession } from '@/context/SessionContext';
 
 const { Title } = Typography;
 const { Option } = Select;
-
-const currentUser = { name: 'Admin User', email: 'admin@gogo.com', avatar: '/placeholder.svg' };
 
 const UserManagement = () => {
   const queryClient = useQueryClient();
@@ -67,20 +66,100 @@ const SystemSettings = () => {
 };
 
 const ProfileSettings = () => {
+  const { session } = useSession();
+  const user = session?.user;
   const [form] = Form.useForm();
-  const onFinish = (values: any) => { console.log('Updating profile:', values); showSuccess('Your profile has been updated.'); };
+  const queryClient = useQueryClient();
+
+  const { data: profile, isLoading: isLoadingProfile } = useQuery({
+    queryKey: ['profile', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+      if (error) throw new Error(error.message);
+      return data;
+    },
+    enabled: !!user?.id,
+  });
+
+  const updateProfileMutation = useMutation({
+    mutationFn: async (updates: { first_name?: string; last_name?: string; avatar_url?: string }) => {
+      if (!user?.id) throw new Error("User not authenticated.");
+      const { error } = await supabase.from('profiles').update(updates).eq('id', user.id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
+      showSuccess('Your profile has been updated.');
+    },
+    onError: (error) => showError(error.message),
+  });
+
+  const onFinish = (values: any) => {
+    const { name, email } = values;
+    const [first_name, ...last_name_parts] = name.split(' ');
+    const last_name = last_name_parts.join(' ');
+    updateProfileMutation.mutate({ first_name, last_name });
+    // For email, Supabase auth.updateUser is needed, which is more complex.
+    // For simplicity, we'll just update the profile table for now.
+    console.log('Updating profile:', values);
+  };
+
+  useEffect(() => {
+    if (profile && user) {
+      form.setFieldsValue({
+        name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim(),
+        email: user.email,
+      });
+    }
+  }, [profile, user, form]);
+
+  if (isLoadingProfile) {
+    return <Skeleton active />;
+  }
+
+  const displayName = profile?.first_name || user?.email || 'Guest';
+  const displayEmail = user?.email || 'N/A';
+  const displayAvatar = profile?.avatar_url || user?.user_metadata?.avatar_url;
+
   return (
     <Row gutter={[24, 24]}>
-      <Col xs={24} md={8}><Card><Space direction="vertical" align="center" style={{ width: '100%' }}><Avatar size={128} src={currentUser.avatar} icon={<UserOutlined />} /><Title level={4}>{currentUser.name}</Title><Typography.Text type="secondary">{currentUser.email}</Typography.Text><Button>Change Avatar</Button></Space></Card></Col>
+      <Col xs={24} md={8}>
+        <Card>
+          <Space direction="vertical" align="center" style={{ width: '100%' }}>
+            <Avatar size={128} src={displayAvatar || undefined} icon={<UserOutlined />} />
+            <Title level={4}>{displayName}</Title>
+            <Typography.Text type="secondary">{displayEmail}</Typography.Text>
+            <Button>Change Avatar</Button>
+          </Space>
+        </Card>
+      </Col>
       <Col xs={24} md={16}>
         <Card title="Edit Profile Information">
-          <Form layout="vertical" form={form} onFinish={onFinish} initialValues={currentUser}>
-            <Form.Item name="name" label="Full Name" rules={[{ required: true }]}><Input prefix={<UserOutlined />} /></Form.Item>
-            <Form.Item name="email" label="Email Address" rules={[{ required: true, type: 'email' }]}><Input prefix={<UserOutlined />} /></Form.Item>
-            <Form.Item><Button type="primary" htmlType="submit">Update Profile</Button></Form.Item>
+          <Form layout="vertical" form={form} onFinish={onFinish}>
+            <Form.Item name="name" label="Full Name" rules={[{ required: true, message: 'Please enter your full name!' }]}>
+              <Input prefix={<UserOutlined />} />
+            </Form.Item>
+            <Form.Item name="email" label="Email Address" rules={[{ required: true, type: 'email', message: 'Please enter a valid email!' }]}>
+              <Input prefix={<UserOutlined />} disabled /> {/* Email usually updated via auth.updateUser */}
+            </Form.Item>
+            <Form.Item><Button type="primary" htmlType="submit" loading={updateProfileMutation.isPending}>Update Profile</Button></Form.Item>
           </Form>
         </Card>
-        <Card title="Change Password" style={{ marginTop: 24 }}><Form layout="vertical"><Form.Item name="currentPassword" label="Current Password"><Input.Password prefix={<LockOutlined />} /></Form.Item><Form.Item name="newPassword" label="New Password"><Input.Password prefix={<LockOutlined />} /></Form.Item><Form.Item name="confirmPassword" label="Confirm New Password"><Input.Password prefix={<LockOutlined />} /></Form.Item><Form.Item><Button type="primary">Update Password</Button></Form.Item></Form></Card>
+        <Card title="Change Password" style={{ marginTop: 24 }}>
+          <Form layout="vertical">
+            <Form.Item name="currentPassword" label="Current Password">
+              <Input.Password prefix={<LockOutlined />} />
+            </Form.Item>
+            <Form.Item name="newPassword" label="New Password">
+              <Input.Password prefix={<LockOutlined />} />
+            </Form.Item>
+            <Form.Item name="confirmPassword" label="Confirm New Password">
+              <Input.Password prefix={<LockOutlined />} />
+            </Form.Item>
+            <Form.Item><Button type="primary">Update Password</Button></Form.Item>
+          </Form>
+        </Card>
       </Col>
     </Row>
   );

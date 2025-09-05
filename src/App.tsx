@@ -1,7 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { Layout, App as AntApp, ConfigProvider, theme } from "antd";
+import { Layout, App as AntApp, ConfigProvider, theme as antTheme } from "antd";
 import { LoadScript } from "@react-google-maps/api";
+import { ThemeProvider } from "@mui/material/styles";
+import CssBaseline from "@mui/material/CssBaseline";
+import muiTheme from "./theme";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import TechniciansPage from "./pages/Technicians";
@@ -58,25 +61,28 @@ const AppContent = () => {
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ConfigProvider
-      theme={{
-        algorithm: theme.defaultAlgorithm,
-        token: {
-          colorPrimary: '#1677ff',
-          fontFamily: 'Inter, sans-serif',
-        },
-      }}
-    >
-      <AntApp>
-        <BrowserRouter>
-          <NotificationsProvider>
-            <LoadScript googleMapsApiKey={API_KEY} libraries={libraries}>
-              <AppContent />
-            </LoadScript>
-          </NotificationsProvider>
-        </BrowserRouter>
-      </AntApp>
-    </ConfigProvider>
+    <ThemeProvider theme={muiTheme}>
+      <CssBaseline />
+      <ConfigProvider
+        theme={{
+          algorithm: antTheme.defaultAlgorithm,
+          token: {
+            colorPrimary: '#1677ff',
+            fontFamily: 'Inter, sans-serif',
+          },
+        }}
+      >
+        <AntApp>
+          <BrowserRouter>
+            <NotificationsProvider>
+              <LoadScript googleMapsApiKey={API_KEY} libraries={libraries}>
+                <AppContent />
+              </LoadScript>
+            </NotificationsProvider>
+          </BrowserRouter>
+        </AntApp>
+      </ConfigProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

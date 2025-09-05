@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, Tabs, Form, Input, Button, Select, Switch, Avatar, Typography, Space, Row, Col, Skeleton } from 'antd';
 import { UserOutlined, SettingOutlined, BellOutlined, LockOutlined, SaveOutlined } from '@ant-design/icons';
 import { TechnicianDataTable } from '@/components/TechnicianDataTable';
@@ -6,7 +6,7 @@ import { TechnicianFormDialog } from '@/components/TechnicianFormDialog';
 import { showSuccess, showError } from '@/utils/toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Technician, WorkOrder } from '@/types/supabase';
+import { Technician, WorkOrder, Profile } from '@/types/supabase';
 import { useSession } from '@/context/SessionContext';
 
 const { Title } = Typography;
@@ -59,8 +59,7 @@ const SystemSettings = () => {
         <Form.Item name="notifications" label="Enable Email Notifications" valuePropName="checked" tooltip="Toggle all system-wide email notifications for events like work order creation and status changes."><Switch /></Form.Item>
         <Form.Item name="defaultPriority" label="Default Work Order Priority" tooltip="Set the default priority for all newly created work orders."><Select style={{ maxWidth: 200 }}><Option value="Low">Low</Option><Option value="Medium">Medium</Option><Option value="High">High</Option></Select></Form.Item>
         <Form.Item name="slaThreshold" label="SLA Warning Threshold (days)" tooltip="Get a warning for work orders that are due within this many days."><Input type="number" style={{ maxWidth: 200 }} /></Form.Item>
-        <Form.Item><Button type="primary" htmlType="submit" icon={<SaveOutlined />}>Save Settings</Button></Form.Item>
-      </Form>
+        <Form.Item><Button type="primary" htmlType="submit" icon={<SaveOutlined />}>Save Settings</Button></Form.Item></Form>
     </Card>
   );
 };
@@ -71,7 +70,7 @@ const ProfileSettings = () => {
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
 
-  const { data: profile, isLoading: isLoadingProfile } = useQuery({
+  const { data: profile, isLoading: isLoadingProfile } = useQuery<Profile | null>({
     queryKey: ['profile', user?.id],
     queryFn: async () => {
       if (!user?.id) return null;
@@ -83,7 +82,7 @@ const ProfileSettings = () => {
   });
 
   const updateProfileMutation = useMutation({
-    mutationFn: async (updates: { first_name?: string; last_name?: string; avatar_url?: string }) => {
+    mutationFn: async (updates: { first_name?: string; last_name?: string; avatar_url?: string; is_admin?: boolean }) => {
       if (!user?.id) throw new Error("User not authenticated.");
       const { error } = await supabase.from('profiles').update(updates).eq('id', user.id);
       if (error) throw new Error(error.message);
@@ -96,10 +95,10 @@ const ProfileSettings = () => {
   });
 
   const onFinish = (values: any) => {
-    const { name, email } = values;
+    const { name, email, is_admin } = values;
     const [first_name, ...last_name_parts] = name.split(' ');
     const last_name = last_name_parts.join(' ');
-    updateProfileMutation.mutate({ first_name, last_name });
+    updateProfileMutation.mutate({ first_name, last_name, is_admin });
     // For email, Supabase auth.updateUser is needed, which is more complex.
     // For simplicity, we'll just update the profile table for now.
     console.log('Updating profile:', values);
@@ -110,6 +109,7 @@ const ProfileSettings = () => {
       form.setFieldsValue({
         name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim(),
         email: user.email,
+        is_admin: profile.is_admin,
       });
     }
   }, [profile, user, form]);
@@ -143,6 +143,11 @@ const ProfileSettings = () => {
             <Form.Item name="email" label="Email Address" rules={[{ required: true, type: 'email', message: 'Please enter a valid email!' }]}>
               <Input prefix={<UserOutlined />} disabled /> {/* Email usually updated via auth.updateUser */}
             </Form.Item>
+            {user?.id === 'df02bbc5-167b-4a8c-a3f8-de0eb4d9db47' && (
+              <Form.Item name="is_admin" label="Admin Access" valuePropName="checked" tooltip="Toggle your administrative privileges.">
+                <Switch />
+              </Form.Item>
+            )}
             <Form.Item><Button type="primary" htmlType="submit" loading={updateProfileMutation.isPending}>Update Profile</Button></Form.Item>
           </Form>
         </Card>

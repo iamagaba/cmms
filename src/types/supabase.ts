@@ -49,3 +49,12 @@ export interface WorkOrder {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export interface Profile {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  avatar_url: string | null;
+  updated_at: string | null;
+  is_admin: boolean | null; // Added is_admin field
+}

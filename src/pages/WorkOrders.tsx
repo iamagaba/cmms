@@ -1,16 +1,11 @@
 import { useState, useMemo } from "react";
-import { Button, Typography, Space, Segmented, Input, Select, Card, Row, Col, Collapse } from "antd";
-import { PlusOutlined, AppstoreOutlined, TableOutlined, FilterOutlined } from "@ant-design/icons";
+import { Button, Typography, Box, ToggleButtonGroup, ToggleButton, TextField, Select, Paper, Grid, Accordion, AccordionSummary, AccordionDetails, FormControl, InputLabel, MenuItem, InputAdornment } from "@mui/material";
+import { Add, TableView, GridView, FilterList, Search } from "@mui/icons-material";
 import { workOrders, technicians, locations, WorkOrder } from "@/data/mockData";
 import { WorkOrderDataTable } from "@/components/WorkOrderDataTable";
 import { WorkOrderFormDialog } from "@/components/WorkOrderFormDialog";
 import WorkOrderKanban from "@/components/WorkOrderKanban";
 import { showSuccess } from "@/utils/toast";
-
-const { Title } = Typography;
-const { Search } = Input;
-const { Option } = Select;
-const { Panel } = Collapse;
 
 type GroupByOption = 'status' | 'priority' | 'technician';
 
@@ -22,9 +17,9 @@ const WorkOrdersPage = () => {
 
   // Filter states
   const [vehicleFilter, setVehicleFilter] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
-  const [priorityFilter, setPriorityFilter] = useState<string | undefined>(undefined);
-  const [technicianFilter, setTechnicianFilter] = useState<string | undefined>(undefined);
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [priorityFilter, setPriorityFilter] = useState<string>("");
+  const [technicianFilter, setTechnicianFilter] = useState<string>("");
 
   const handleSave = (workOrderData: WorkOrder) => {
     const exists = allWorkOrders.some(wo => wo.id === workOrderData.id);
@@ -61,151 +56,53 @@ const WorkOrdersPage = () => {
   const kanbanColumns = useMemo(() => {
     switch (groupBy) {
       case 'priority':
-        return [
-          { id: 'High', title: 'High' },
-          { id: 'Medium', title: 'Medium' },
-          { id: 'Low', title: 'Low' },
-        ];
+        return [ { id: 'High', title: 'High' }, { id: 'Medium', title: 'Medium' }, { id: 'Low', title: 'Low' } ];
       case 'technician':
-        return [
-          { id: null, title: 'Unassigned' },
-          ...technicians.map(t => ({ id: t.id, title: t.name })),
-        ];
+        return [ { id: null, title: 'Unassigned' }, ...technicians.map(t => ({ id: t.id, title: t.name })) ];
       case 'status':
       default:
-        return [
-          { id: 'Open', title: 'Open' },
-          { id: 'In Progress', title: 'In Progress' },
-          { id: 'On Hold', title: 'On Hold' },
-          { id: 'Completed', title: 'Completed' },
-        ];
+        return [ { id: 'Open', title: 'Open' }, { id: 'In Progress', title: 'In Progress' }, { id: 'On Hold', title: 'On Hold' }, { id: 'Completed', title: 'Completed' } ];
     }
   }, [groupBy]);
 
-  const groupByField = useMemo(() => {
-    if (groupBy === 'technician') return 'assignedTechnicianId';
-    return groupBy;
-  }, [groupBy]);
+  const groupByField = useMemo(() => (groupBy === 'technician' ? 'assignedTechnicianId' : groupBy), [groupBy]);
 
   return (
-    <Space direction="vertical" size="large" style={{ width: '100%' }}>
-      <Row justify="space-between" align="middle">
-        <Col>
-          <Title level={4} style={{ margin: 0 }}>Work Order Management</Title>
-        </Col>
-        <Col>
-          <Space size="middle">
-            <Segmented
-              options={[
-                { label: 'Table', value: 'table', icon: <TableOutlined /> },
-                { label: 'Board', value: 'kanban', icon: <AppstoreOutlined /> },
-              ]}
-              value={view}
-              onChange={(value) => setView(value as 'table' | 'kanban')}
-            />
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsDialogOpen(true)}>
-              Add Work Order
-            </Button>
-          </Space>
-        </Col>
-      </Row>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h5" component="h1" fontWeight="bold">Work Order Management</Typography>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <ToggleButtonGroup value={view} exclusive onChange={(e, v) => v && setView(v)} size="small">
+            <ToggleButton value="table"><TableView /> Table</ToggleButton>
+            <ToggleButton value="kanban"><GridView /> Board</ToggleButton>
+          </ToggleButtonGroup>
+          <Button variant="contained" startIcon={<Add />} onClick={() => setIsDialogOpen(true)}>Add Work Order</Button>
+        </Box>
+      </Box>
       
-      <Collapse>
-        <Panel header={<><FilterOutlined /> Filters & View Options</>} key="1">
-          <Row gutter={[16, 16]} align="bottom">
-            <Col xs={24} sm={12} md={6}>
-              <Search
-                placeholder="Filter by Vehicle ID..."
-                allowClear
-                onSearch={setVehicleFilter}
-                onChange={(e) => setVehicleFilter(e.target.value)}
-                style={{ width: '100%' }}
-              />
-            </Col>
-            <Col xs={24} sm={12} md={5}>
-              <Select
-                placeholder="Filter by Status"
-                allowClear
-                style={{ width: '100%' }}
-                onChange={setStatusFilter}
-                value={statusFilter}
-              >
-                <Option value="Open">Open</Option>
-                <Option value="In Progress">In Progress</Option>
-                <Option value="On Hold">On Hold</Option>
-                <Option value="Completed">Completed</Option>
-              </Select>
-            </Col>
-            <Col xs={24} sm={12} md={5}>
-              <Select
-                placeholder="Filter by Priority"
-                allowClear
-                style={{ width: '100%' }}
-                onChange={setPriorityFilter}
-                value={priorityFilter}
-              >
-                <Option value="High">High</Option>
-                <Option value="Medium">Medium</Option>
-                <Option value="Low">Low</Option>
-              </Select>
-            </Col>
-            <Col xs={24} sm={12} md={5}>
-              <Select
-                placeholder="Filter by Technician"
-                allowClear
-                style={{ width: '100%' }}
-                onChange={setTechnicianFilter}
-                value={technicianFilter}
-              >
-                {technicians.map(t => <Option key={t.id} value={t.id}>{t.name}</Option>)}
-              </Select>
-            </Col>
-            {view === 'kanban' && (
-              <Col xs={24} sm={12} md={3}>
-                <Select
-                  value={groupBy}
-                  onChange={(value) => setGroupBy(value as GroupByOption)}
-                  style={{ width: '100%' }}
-                >
-                  <Option value="status">Group by: Status</Option>
-                  <Option value="priority">Group by: Priority</Option>
-                  <Option value="technician">Group by: Technician</Option>
-                </Select>
-              </Col>
-            )}
-          </Row>
-        </Panel>
-      </Collapse>
+      <Accordion>
+        <AccordionSummary expandIcon={<FilterList />}>
+          <Typography>Filters & View Options</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Grid container spacing={2} alignItems="flex-end">
+            <Grid item xs={12} sm={6} md={3}><TextField label="Filter by Vehicle ID..." variant="outlined" size="small" fullWidth onChange={(e) => setVehicleFilter(e.target.value)} InputProps={{ startAdornment: <InputAdornment position="start"><Search /></InputAdornment> }} /></Grid>
+            <Grid item xs={12} sm={6} md={2}><FormControl fullWidth size="small"><InputLabel>Status</InputLabel><Select label="Status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}><MenuItem value=""><em>All</em></MenuItem><MenuItem value="Open">Open</MenuItem><MenuItem value="In Progress">In Progress</MenuItem><MenuItem value="On Hold">On Hold</MenuItem><MenuItem value="Completed">Completed</MenuItem></Select></FormControl></Grid>
+            <Grid item xs={12} sm={6} md={2}><FormControl fullWidth size="small"><InputLabel>Priority</InputLabel><Select label="Priority" value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)}><MenuItem value=""><em>All</em></MenuItem><MenuItem value="High">High</MenuItem><MenuItem value="Medium">Medium</MenuItem><MenuItem value="Low">Low</MenuItem></Select></FormControl></Grid>
+            <Grid item xs={12} sm={6} md={3}><FormControl fullWidth size="small"><InputLabel>Technician</InputLabel><Select label="Technician" value={technicianFilter} onChange={(e) => setTechnicianFilter(e.target.value)}><MenuItem value=""><em>All</em></MenuItem>{technicians.map(t => <MenuItem key={t.id} value={t.id}>{t.name}</MenuItem>)}</Select></FormControl></Grid>
+            {view === 'kanban' && <Grid item xs={12} sm={6} md={2}><FormControl fullWidth size="small"><InputLabel>Group by</InputLabel><Select label="Group by" value={groupBy} onChange={(e) => setGroupBy(e.target.value as GroupByOption)}><MenuItem value="status">Status</MenuItem><MenuItem value="priority">Priority</MenuItem><MenuItem value="technician">Technician</MenuItem></Select></FormControl></Grid>}
+          </Grid>
+        </AccordionDetails>
+      </Accordion>
 
-      <Card bordered={false} bodyStyle={{ padding: view === 'kanban' ? '1' : '0' }}>
-        {view === 'table' ? (
-          <WorkOrderDataTable 
-            workOrders={filteredWorkOrders} 
-            technicians={technicians} 
-            locations={locations} 
-            onSave={handleSave}
-            onDelete={handleDelete}
-            onUpdateWorkOrder={handleUpdateWorkOrder}
-          />
-        ) : (
-          <WorkOrderKanban 
-            workOrders={filteredWorkOrders} 
-            groupBy={groupByField}
-            columns={kanbanColumns}
-            onUpdateWorkOrder={handleUpdateWorkOrder}
-          />
-        )}
-      </Card>
-
-      {isDialogOpen && (
-        <WorkOrderFormDialog 
-          isOpen={isDialogOpen}
-          onClose={() => setIsDialogOpen(false)}
-          onSave={handleSave}
-          workOrder={null}
-        />
+      {view === 'table' ? (
+        <WorkOrderDataTable workOrders={filteredWorkOrders} technicians={technicians} locations={locations} onSave={handleSave} onDelete={handleDelete} onUpdateWorkOrder={handleUpdateWorkOrder} />
+      ) : (
+        <WorkOrderKanban workOrders={filteredWorkOrders} groupBy={groupByField} columns={kanbanColumns} onUpdateWorkOrder={handleUpdateWorkOrder} />
       )}
-    </Space>
+
+      {isDialogOpen && <WorkOrderFormDialog isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)} onSave={handleSave} workOrder={null} />}
+    </Box>
   );
 };
 

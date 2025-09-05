@@ -1,34 +1,31 @@
-import { Avatar, Button, Dropdown, Menu, Tag, Typography, Tooltip, Select } from "antd";
-import { MoreOutlined, DeleteOutlined, EditOutlined, ClockCircleOutlined, WarningOutlined } from "@ant-design/icons";
-import { WorkOrder, Technician, Location, technicians as allTechnicians } from "@/data/mockData"; // Import allTechnicians
+import React from 'react';
+import { Avatar, Chip, IconButton, Menu, MenuItem, Typography, Box, Tooltip, Select } from "@mui/material";
+import { MoreVert, Delete, Edit, AccessTime, Warning } from "@mui/icons-material";
+import { GridColDef } from "@mui/x-data-grid";
+import { WorkOrder, Technician, Location, technicians as allTechnicians } from "@/data/mockData";
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { Link } from "react-router-dom";
 
 dayjs.extend(relativeTime);
 
-const { Text } = Typography;
-const { Option } = Select;
-
 export type WorkOrderRow = WorkOrder & {
   technician?: Technician;
   location?: Location;
 };
 
-const priorityColors: Record<WorkOrder['priority'], string> = {
-  High: "red",
-  Medium: "gold",
-  Low: "green",
+const priorityColors: Record<WorkOrder['priority'], "error" | "warning" | "success"> = {
+  High: "error",
+  Medium: "warning",
+  Low: "success",
 };
 
-const statusColors: Record<WorkOrder['status'], string> = {
-    Open: "blue",
-    "In Progress": "gold",
-    "On Hold": "orange",
-    Completed: "green",
+const statusColors: Record<WorkOrder['status'], "info" | "warning" | "secondary" | "success"> = {
+    Open: "info",
+    "In Progress": "warning",
+    "On Hold": "secondary",
+    Completed: "success",
 };
-
-const priorityOrder: Record<WorkOrder['priority'], number> = { 'High': 1, 'Medium': 2, 'Low': 3 };
 
 const SlaDisplay = ({ slaDue }: { slaDue: string }) => {
   const dueDate = dayjs(slaDue);
@@ -36,20 +33,50 @@ const SlaDisplay = ({ slaDue }: { slaDue: string }) => {
   const isOverdue = dueDate.isBefore(now);
   const isDueSoon = dueDate.isBefore(now.add(1, 'day'));
 
-  let icon = <ClockCircleOutlined style={{ color: '#52c41a' }} />;
+  let icon = <AccessTime sx={{ color: 'success.main' }} />;
   if (isOverdue) {
-    icon = <WarningOutlined style={{ color: '#ff4d4f' }} />;
+    icon = <Warning sx={{ color: 'error.main' }} />;
   } else if (isDueSoon) {
-    icon = <ClockCircleOutlined style={{ color: '#faad14' }} />;
+    icon = <AccessTime sx={{ color: 'warning.main' }} />;
   }
 
   return (
     <Tooltip title={`Due: ${dueDate.format("MMM D, YYYY h:mm A")}`}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         {icon}
-        <Text type={isOverdue ? 'danger' : 'secondary'}>{dueDate.fromNow()}</Text>
-      </div>
+        <Typography variant="body2" color={isOverdue ? 'error' : 'text.secondary'}>{dueDate.fromNow()}</Typography>
+      </Box>
     </Tooltip>
+  );
+};
+
+const ActionsCell = ({ row, onEdit, onDelete }: { row: WorkOrderRow, onEdit: (r: WorkOrderRow) => void, onDelete: (r: WorkOrderRow) => void }) => {
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => setAnchorEl(event.currentTarget);
+  const handleClose = () => setAnchorEl(null);
+
+  const handleEdit = () => {
+    onEdit(row);
+    handleClose();
+  };
+
+  const handleDelete = () => {
+    onDelete(row);
+    handleClose();
+  };
+
+  return (
+    <>
+      <IconButton onClick={handleClick}>
+        <MoreVert />
+      </IconButton>
+      <Menu anchorEl={anchorEl} open={open} onClose={handleClose}>
+        <MenuItem onClick={handleEdit}><Edit sx={{ mr: 1 }} /> Edit Work Order</MenuItem>
+        <MenuItem onClick={handleDelete} sx={{ color: 'error.main' }}><Delete sx={{ mr: 1 }} /> Delete Work Order</MenuItem>
+      </Menu>
+    </>
   );
 };
 
@@ -57,111 +84,108 @@ export const getColumns = (
   onEdit: (record: WorkOrderRow) => void,
   onDelete: (record: WorkOrderRow) => void,
   onUpdateWorkOrder: (id: string, field: keyof WorkOrder, value: any) => void
-) => [
+): GridColDef[] => [
   {
-    title: "ID",
-    dataIndex: "id",
-    render: (id: string) => <Link to={`/work-orders/${id}`}><Text code>{id}</Text></Link>
+    field: "id",
+    headerName: "ID",
+    width: 100,
+    renderCell: (params) => <Link to={`/work-orders/${params.value}`}><Typography variant="body2" sx={{ fontFamily: 'monospace' }}>{params.value}</Typography></Link>
   },
   {
-    title: "Customer & Vehicle",
-    dataIndex: "customerName",
-    render: (_: any, record: WorkOrderRow) => (
-      <div>
-        <Text strong>{record.customerName}</Text>
-        <br />
-        <Text type="secondary" style={{ fontSize: 12 }}>{record.vehicleId} ({record.vehicleModel})</Text>
-      </div>
+    field: "customerName",
+    headerName: "Customer & Vehicle",
+    flex: 1,
+    renderCell: (params) => (
+      <Box>
+        <Typography variant="body2" fontWeight="bold">{params.value}</Typography>
+        <Typography variant="caption" color="text.secondary">{params.row.vehicleId} ({params.row.vehicleModel})</Typography>
+      </Box>
     )
   },
   {
-    title: "Service",
-    dataIndex: "service",
+    field: "service",
+    headerName: "Service",
+    flex: 1,
   },
   {
-    title: "Status",
-    dataIndex: "status",
-    render: (status: WorkOrder['status'], record: WorkOrderRow) => (
+    field: "status",
+    headerName: "Status",
+    width: 150,
+    renderCell: (params) => (
       <Select
-        value={status}
-        onChange={(value) => onUpdateWorkOrder(record.id, 'status', value)}
-        style={{ width: 120 }}
-        bordered={false}
+        value={params.value}
+        onChange={(e) => onUpdateWorkOrder(params.row.id, 'status', e.target.value)}
+        variant="standard"
+        fullWidth
+        disableUnderline
       >
-        <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
-        <Option value="In Progress"><Tag color={statusColors["In Progress"]}>In Progress</Tag></Option>
-        <Option value="On Hold"><Tag color={statusColors["On Hold"]}>On Hold</Tag></Option>
-        <Option value="Completed"><Tag color={statusColors["Completed"]}>Completed</Tag></Option>
+        {Object.keys(statusColors).map(status => (
+          <MenuItem key={status} value={status}>
+            <Chip label={status} color={statusColors[status as keyof typeof statusColors]} size="small" />
+          </MenuItem>
+        ))}
       </Select>
     ),
-    sorter: (a: WorkOrderRow, b: WorkOrderRow) => a.status.localeCompare(b.status),
   },
   {
-    title: "Priority",
-    dataIndex: "priority",
-    render: (priority: WorkOrder['priority'], record: WorkOrderRow) => (
+    field: "priority",
+    headerName: "Priority",
+    width: 120,
+    renderCell: (params) => (
       <Select
-        value={priority}
-        onChange={(value) => onUpdateWorkOrder(record.id, 'priority', value)}
-        style={{ width: 100 }}
-        bordered={false}
+        value={params.value}
+        onChange={(e) => onUpdateWorkOrder(params.row.id, 'priority', e.target.value)}
+        variant="standard"
+        fullWidth
+        disableUnderline
       >
-        <Option value="High"><Tag color={priorityColors["High"]}>High</Tag></Option>
-        <Option value="Medium"><Tag color={priorityColors["Medium"]}>Medium</Tag></Option>
-        <Option value="Low"><Tag color={priorityColors["Low"]}>Low</Tag></Option>
+        {Object.keys(priorityColors).map(p => (
+          <MenuItem key={p} value={p}>
+            <Chip label={p} color={priorityColors[p as keyof typeof priorityColors]} size="small" />
+          </MenuItem>
+        ))}
       </Select>
     ),
-    sorter: (a: WorkOrderRow, b: WorkOrderRow) => priorityOrder[a.priority] - priorityOrder[b.priority],
   },
   {
-    title: "Technician",
-    dataIndex: "technician",
-    render: (_: any, record: WorkOrderRow) => (
+    field: "assignedTechnicianId",
+    headerName: "Technician",
+    width: 200,
+    renderCell: (params) => (
       <Select
-        value={record.assignedTechnicianId}
-        onChange={(value) => onUpdateWorkOrder(record.id, 'assignedTechnicianId', value)}
-        style={{ width: 150 }}
-        bordered={false}
-        allowClear
-        placeholder="Unassigned"
+        value={params.value || ''}
+        onChange={(e) => onUpdateWorkOrder(params.row.id, 'assignedTechnicianId', e.target.value === '' ? null : e.target.value)}
+        variant="standard"
+        fullWidth
+        disableUnderline
+        displayEmpty
       >
+        <MenuItem value=""><em>Unassigned</em></MenuItem>
         {allTechnicians.map(tech => (
-          <Option key={tech.id} value={tech.id}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Avatar size="small" src={tech.avatar}>{tech.name.split(' ').map(n => n[0]).join('')}</Avatar>
-              <Text>{tech.name}</Text>
-            </div>
-          </Option>
+          <MenuItem key={tech.id} value={tech.id}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Avatar sx={{ width: 24, height: 24 }} src={tech.avatar}>{tech.name.split(' ').map(n => n[0]).join('')}</Avatar>
+              {tech.name}
+            </Box>
+          </MenuItem>
         ))}
       </Select>
     )
   },
   {
-    title: "SLA Due",
-    dataIndex: "slaDue",
-    render: (slaDue: string) => <SlaDisplay slaDue={slaDue} />,
-    sorter: (a: WorkOrderRow, b: WorkOrderRow) => dayjs(a.slaDue).unix() - dayjs(b.slaDue).unix(),
+    field: "slaDue",
+    headerName: "SLA Due",
+    width: 150,
+    renderCell: (params) => <SlaDisplay slaDue={params.value} />,
+    sortComparator: (v1, v2) => dayjs(v1).unix() - dayjs(v2).unix(),
   },
   {
-    title: "Actions",
-    key: "actions",
-    align: "right" as const,
-    render: (_: any, record: WorkOrderRow) => (
-      <Dropdown
-        overlay={
-          <Menu>
-            <Menu.Item key="edit" icon={<EditOutlined />} onClick={() => onEdit(record)}>
-              Edit Work Order
-            </Menu.Item>
-            <Menu.Item key="delete" icon={<DeleteOutlined />} danger onClick={() => onDelete(record)}>
-              Delete Work Order
-            </Menu.Item>
-          </Menu>
-        }
-        trigger={["click"]}
-      >
-        <Button type="text" icon={<MoreOutlined style={{ fontSize: '18px' }} />} />
-      </Dropdown>
-    ),
+    field: "actions",
+    headerName: "Actions",
+    width: 100,
+    align: "right",
+    headerAlign: "right",
+    sortable: false,
+    renderCell: (params) => <ActionsCell row={params.row} onEdit={onEdit} onDelete={onDelete} />,
   },
 ];

@@ -13,10 +13,14 @@ interface WorkOrderFormDialogProps {
   workOrder?: WorkOrder | null;
 }
 
+interface WorkOrderFormState extends Omit<Partial<WorkOrder>, 'slaDue'> {
+  slaDue: Dayjs | null;
+}
+
 const steps = ['Customer & Vehicle', 'Service Details', 'Assignment & Scheduling'];
 
 export const WorkOrderFormDialog = ({ isOpen, onClose, onSave, workOrder }: WorkOrderFormDialogProps) => {
-  const [formState, setFormState] = useState<Partial<WorkOrder> & { slaDue: Dayjs | null }>({
+  const [formState, setFormState] = useState<WorkOrderFormState>({
     vehicleId: '',
     vehicleModel: '',
     customerName: '',

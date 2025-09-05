@@ -135,7 +135,6 @@ const AppHeader = () => {
                 notifications.map(item => (
                   <ListItem
                     key={item.id}
-                    button
                     component={Link}
                     to={`/work-orders/${item.work_order_id}`}
                     sx={{ backgroundColor: item.is_read ? 'transparent' : 'action.hover' }}

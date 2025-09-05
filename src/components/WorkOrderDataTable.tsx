@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Table } from "antd";
+import { DataGrid } from "@mui/x-data-grid";
+import { Paper } from "@mui/material";
 import { WorkOrder, Technician, Location } from "@/data/mockData";
 import { WorkOrderRow, getColumns } from "./WorkOrderTableColumns";
 import { WorkOrderFormDialog } from "./WorkOrderFormDialog";
@@ -44,15 +45,20 @@ export function WorkOrderDataTable({ workOrders, technicians, locations, onSave,
 
   return (
     <>
-      <Table
-        dataSource={tableData}
-        columns={columns}
-        rowKey="id"
-        pagination={{ pageSize: 10, hideOnSinglePage: true }}
-        onRow={() => ({
-          className: 'lift-on-hover-row'
-        })}
-      />
+      <Paper sx={{ height: 'calc(100vh - 300px)', width: '100%' }}>
+        <DataGrid
+          rows={tableData}
+          columns={columns}
+          getRowId={(row) => row.id}
+          initialState={{
+            pagination: {
+              paginationModel: { page: 0, pageSize: 20 },
+            },
+          }}
+          pageSizeOptions={[10, 20, 50]}
+          disableRowSelectionOnClick
+        />
+      </Paper>
       {isDialogOpen && (
         <WorkOrderFormDialog
           isOpen={isDialogOpen}

@@ -1,9 +1,9 @@
 import { useState } from "react";
-import { Button, Typography, Space, Row, Col } from "antd";
+import { Button, Typography, Space } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { locations, workOrders, Location } from "@/data/mockData";
 import { LocationFormDialog } from "@/components/LocationFormDialog";
-import { LocationCard } from "@/components/LocationCard";
+import { LocationDataTable } from "@/components/LocationDataTable";
 
 const { Title } = Typography;
 
@@ -29,13 +29,7 @@ const LocationsPage = () => {
         </Button>
       </div>
       
-      <Row gutter={[24, 24]}>
-        {allLocations.map(location => (
-          <Col key={location.id} xs={24} sm={12} md={8} lg={6}>
-            <LocationCard location={location} workOrders={workOrders} />
-          </Col>
-        ))}
-      </Row>
+      <LocationDataTable initialData={allLocations} workOrders={workOrders} />
 
       {isDialogOpen && (
         <LocationFormDialog 

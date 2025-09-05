@@ -1,6 +1,7 @@
 import { Button, Dropdown, Menu, Typography } from "antd";
 import { MoreOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Location } from "@/data/mockData";
+import { Link } from "react-router-dom";
 
 const { Text } = Typography;
 
@@ -16,6 +17,7 @@ export const getColumns = (
     title: "Name",
     dataIndex: "name",
     sorter: (a: LocationRow, b: LocationRow) => a.name.localeCompare(b.name),
+    render: (name: string, record: LocationRow) => <Link to={`/locations/${record.id}`}><Text strong>{name}</Text></Link>,
   },
   {
     title: "Address",

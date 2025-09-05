@@ -6,6 +6,7 @@ import WorkOrderKanban from "@/components/WorkOrderKanban";
 import { workOrders, locations, technicians } from "../data/mockData";
 import { CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined, ToolOutlined } from "@ant-design/icons";
 import UrgentWorkOrders from "@/components/UrgentWorkOrders";
+import LocationStatusList from "@/components/LocationStatusList";
 
 const { Title } = Typography;
 
@@ -94,9 +95,10 @@ const Dashboard = () => {
           />
         </Col>
         <Col xs={24} xl={8}>
-          <Title level={4}>Team Status</Title>
+          <Title level={4}>Team & Location Status</Title>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <TechnicianStatusList />
+            <LocationStatusList />
           </div>
         </Col>
       </Row>

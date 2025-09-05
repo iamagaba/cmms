@@ -46,7 +46,7 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'notifications' },
         (payload: RealtimePostgresChangesPayload<Notification>) => {
-          setNotifications(prev => [payload.new, ...prev]);
+          setNotifications(prev => [payload.new as Notification, ...prev]);
           setUnreadCount(prev => prev + 1);
         }
       )

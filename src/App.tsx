@@ -12,6 +12,7 @@ import TechnicianProfilePage from "./pages/TechnicianProfile";
 import WorkOrderDetailsPage from "./pages/WorkOrderDetails";
 import AnalyticsPage from "./pages/Analytics";
 import MapViewPage from "./pages/MapView";
+import SettingsPage from "./pages/Settings";
 import { NotificationsProvider } from "./context/NotificationsContext";
 
 const { Content } = Layout;
@@ -45,6 +46,7 @@ const AppContent = () => {
           <Route path="/locations" element={<LocationsPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/map" element={<MapViewPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Content>

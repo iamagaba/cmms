@@ -1,11 +1,9 @@
 import { useState } from "react";
-import { Button, Typography, Space, Row, Col } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Button, Typography, Box, Grid } from "@mui/material";
+import { Add } from "@mui/icons-material";
 import { locations, workOrders, Location } from "@/data/mockData";
 import { LocationFormDialog } from "@/components/LocationFormDialog";
 import { LocationCard } from "@/components/LocationCard";
-
-const { Title } = Typography;
 
 const LocationsPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -21,21 +19,21 @@ const LocationsPage = () => {
   };
 
   return (
-    <Space direction="vertical" size="large" style={{ width: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Title level={4}>Service Locations</Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsDialogOpen(true)}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Typography variant="h5" component="h1" fontWeight="bold">Service Locations</Typography>
+        <Button variant="contained" startIcon={<Add />} onClick={() => setIsDialogOpen(true)}>
           Add Location
         </Button>
-      </div>
+      </Box>
       
-      <Row gutter={[24, 24]}>
+      <Grid container spacing={3}>
         {allLocations.map(location => (
-          <Col key={location.id} xs={24} sm={12} md={8} lg={6}>
+          <Grid item key={location.id} xs={12} sm={6} md={4} lg={3}>
             <LocationCard location={location} workOrders={workOrders} />
-          </Col>
+          </Grid>
         ))}
-      </Row>
+      </Grid>
 
       {isDialogOpen && (
         <LocationFormDialog 
@@ -45,7 +43,7 @@ const LocationsPage = () => {
           location={null}
         />
       )}
-    </Space>
+    </Box>
   );
 };
 

@@ -7,6 +7,16 @@ body {
   font-family: 'Inter', sans-serif;
 }
 
+/* Apply Lato to all major headings and titles for a distinct look */
+h1, h2, h3, h4, h5, h6,
+.ant-typography,
+.ant-card-head-title,
+.ant-modal-title,
+.ant-statistic-title {
+  font-family: 'Lato', sans-serif;
+  font-weight: 700;
+}
+
 /* Custom styles for Leaflet divIcons to remove default background/border */
 .custom-leaflet-icon {
   background: transparent;

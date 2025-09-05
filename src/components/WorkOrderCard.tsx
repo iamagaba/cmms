@@ -1,11 +1,8 @@
-import { Card, Tag, Avatar, Tooltip, Typography, Select } from "antd";
-import { EnvironmentOutlined, CalendarOutlined, UserOutlined } from "@ant-design/icons";
-import { WorkOrder, Technician, Location, technicians as allTechnicians } from "../data/mockData"; // Import allTechnicians
+import { Card, CardContent, Chip, Avatar, Tooltip, Typography, Select, MenuItem, Box, FormControl } from "@mui/material";
+import { LocationOn, CalendarToday } from "@mui/icons-material";
+import { WorkOrder, Technician, Location, technicians as allTechnicians } from "../data/mockData";
 import { formatDistanceToNow } from 'date-fns';
 import { Link } from "react-router-dom";
-
-const { Text, Title } = Typography;
-const { Option } = Select;
 
 interface WorkOrderCardProps {
   order: WorkOrder;
@@ -14,105 +11,124 @@ interface WorkOrderCardProps {
   onUpdateWorkOrder: (id: string, field: keyof WorkOrder, value: any) => void;
 }
 
-const priorityColors = {
-  High: "red",
-  Medium: "gold",
-  Low: "green",
-};
-
-const priorityBorderColors = {
-    High: "red",
-    Medium: "gold",
-    Low: "transparent",
-}
-
-const statusColors: Record<WorkOrder['status'], string> = {
-  Open: "blue",
-  "In Progress": "gold",
-  "On Hold": "orange",
-  Completed: "green",
-};
-
 const WorkOrderCard = ({ order, technician, location, onUpdateWorkOrder }: WorkOrderCardProps) => {
   const slaDue = new Date(order.slaDue);
   const isOverdue = slaDue < new Date();
 
+  const priorityColors = {
+    High: "error",
+    Medium: "warning",
+    Low: "success",
+  };
+
+  const priorityBorderColors = {
+      High: "error.main",
+      Medium: "warning.main",
+      Low: "transparent",
+  }
+
+  const statusColors = {
+    Open: "info",
+    "In Progress": "warning",
+    "On Hold": "secondary",
+    Completed: "success",
+  };
+
   return (
     <Card 
-      hoverable 
-      className="lift-on-hover"
-      style={{ borderLeft: `4px solid ${priorityBorderColors[order.priority]}` }}
-      bodyStyle={{ padding: 16 }}
+      sx={{ 
+        borderLeft: `4px solid`, 
+        borderColor: priorityBorderColors[order.priority],
+        transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+        '&:hover': {
+          transform: 'translateY(-4px)',
+          boxShadow: 3,
+        }
+      }}
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
-        <div>
-          <Title level={5} style={{ margin: 0 }}>
-            <Link to={`/work-orders/${order.id}`}>{order.vehicleId}</Link>
-          </Title>
-          <Text type="secondary">{order.customerName} • {order.vehicleModel}</Text>
-        </div>
-        <Select
-          value={order.priority}
-          onChange={(value) => onUpdateWorkOrder(order.id, 'priority', value)}
-          style={{ width: 90 }}
-          bordered={false}
-          size="small"
-          dropdownMatchSelectWidth={false}
-        >
-          <Option value="High"><Tag color={priorityColors["High"]}>High</Tag></Option>
-          <Option value="Medium"><Tag color={priorityColors["Medium"]}>Medium</Tag></Option>
-          <Option value="Low"><Tag color={priorityColors["Low"]}>Low</Tag></Option>
-        </Select>
-      </div>
-      <Text style={{ display: 'block', marginBottom: 12 }}>{order.service}</Text>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <EnvironmentOutlined />
-          <Text type="secondary" style={{ fontSize: 12 }}>{location?.name}</Text>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <CalendarOutlined />
-          <Tooltip title={`SLA: ${slaDue.toLocaleString()}`}>
-            <Text type={isOverdue ? 'danger' : 'secondary'} style={{ fontSize: 12 }}>
-              Due {formatDistanceToNow(slaDue, { addSuffix: true })}
-            </Text>
-          </Tooltip>
-        </div>
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Select
-          value={order.assignedTechnicianId}
-          onChange={(value) => onUpdateWorkOrder(order.id, 'assignedTechnicianId', value)}
-          style={{ width: 150 }}
-          bordered={false}
-          allowClear
-          placeholder="Unassigned"
-          size="small"
-          dropdownMatchSelectWidth={false}
-        >
-          {allTechnicians.map(tech => (
-            <Option key={tech.id} value={tech.id}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Avatar size="small" src={tech.avatar}>{tech.name.split(' ').map(n => n[0]).join('')}</Avatar>
-                <Text>{tech.name}</Text>
-              </div>
-            </Option>
-          ))}
-        </Select>
-        <Select
-          value={order.status}
-          onChange={(value) => onUpdateWorkOrder(order.id, 'status', value)}
-          style={{ width: 100 }}
-          bordered={false}
-          size="small"
-          dropdownMatchSelectWidth={false}
-        >
-          <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
-          <Option value="In Progress"><Tag color={statusColors["In Progress"]}>In Progress</Tag></Option>
-          <Option value="On Hold"><Tag color={statusColors["On Hold"]}>On Hold</Tag></Option>
-          <Option value="Completed"><Tag color={statusColors["Completed"]}>Completed</Tag></Option>
-        </Select>
-      </div>
+      <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+          <Box>
+            <Typography variant="h6" component="div" sx={{ mb: 0 }}>
+              <Link to={`/work-orders/${order.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>{order.vehicleId}</Link>
+            </Typography>
+            <Typography variant="body2" color="text.secondary">{order.customerName} • {order.vehicleModel}</Typography>
+          </Box>
+          <FormControl variant="standard" sx={{ m: -1, minWidth: 90 }}>
+            <Select
+              value={order.priority}
+              onChange={(e) => onUpdateWorkOrder(order.id, 'priority', e.target.value)}
+              sx={{ '.MuiSelect-select': { p: 0.5 } }}
+            >
+              {['High', 'Medium', 'Low'].map(p => (
+                <MenuItem key={p} value={p}>
+                  <Chip label={p} color={priorityColors[p as keyof typeof priorityColors] as any} size="small" />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+        <Typography variant="body1" sx={{ display: 'block', mb: 1.5 }}>{order.service}</Typography>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mb: 2 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <LocationOn fontSize="small" sx={{ color: 'text.secondary' }} />
+            <Typography variant="caption" color="text.secondary">{location?.name}</Typography>
+          </Box>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <CalendarToday fontSize="small" sx={{ color: 'text.secondary' }} />
+            <Tooltip title={`SLA: ${slaDue.toLocaleString()}`}>
+              <Typography variant="caption" color={isOverdue ? 'error' : 'text.secondary'}>
+                Due {formatDistanceToNow(slaDue, { addSuffix: true })}
+              </Typography>
+            </Tooltip>
+          </Box>
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <FormControl variant="standard" sx={{ minWidth: 150 }}>
+            <Select
+              value={order.assignedTechnicianId || ''}
+              onChange={(e) => onUpdateWorkOrder(order.id, 'assignedTechnicianId', e.target.value === '' ? null : e.target.value)}
+              displayEmpty
+              renderValue={(selected) => {
+                if (!selected) {
+                  return <em style={{color: 'grey'}}>Unassigned</em>;
+                }
+                const tech = allTechnicians.find(t => t.id === selected);
+                return (
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Avatar sx={{ width: 20, height: 20, fontSize: '0.75rem' }} src={tech?.avatar}>{tech?.name.split(' ').map(n => n[0]).join('')}</Avatar>
+                    {tech?.name}
+                  </Box>
+                );
+              }}
+            >
+              <MenuItem value="">
+                <em>Unassigned</em>
+              </MenuItem>
+              {allTechnicians.map(tech => (
+                <MenuItem key={tech.id} value={tech.id}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Avatar sx={{ width: 24, height: 24 }} src={tech.avatar}>{tech?.name.split(' ').map(n => n[0]).join('')}</Avatar>
+                    {tech.name}
+                  </Box>
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+          <FormControl variant="standard" sx={{ minWidth: 120 }}>
+            <Select
+              value={order.status}
+              onChange={(e) => onUpdateWorkOrder(order.id, 'status', e.target.value)}
+            >
+              {['Open', 'In Progress', 'On Hold', 'Completed'].map(status => (
+                <MenuItem key={status} value={status}>
+                  <Chip label={status} color={statusColors[status as keyof typeof statusColors] as any} size="small" />
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+      </CardContent>
     </Card>
   );
 };

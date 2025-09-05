@@ -8,6 +8,7 @@ export interface Notification {
   message: string;
   is_read: boolean;
   work_order_id: string;
+  work_order_number: string;
 }
 
 interface NotificationsContextType {
@@ -32,7 +33,7 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
     if (error) {
       console.error('Error fetching notifications:', error);
     } else if (data) {
-      setNotifications(data);
+      setNotifications(data as Notification[]);
       setUnreadCount(data.filter(n => !n.is_read).length);
     }
   };

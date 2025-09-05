@@ -58,7 +58,7 @@ const AppHeader = () => {
         locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No new notifications" /> }}
         renderItem={item => (
           <List.Item style={{ padding: '12px 16px', backgroundColor: item.is_read ? 'transparent' : '#e6f7ff' }}>
-            <Link to={`/work-orders/${item.work_order_id}`} style={{ color: 'inherit', textDecoration: 'none', width: '100%' }}>
+            <Link to={`/work-orders/${item.work_order_number}`} style={{ color: 'inherit', textDecoration: 'none', width: '100%' }}>
               <List.Item.Meta
                 title={<Text>{item.message}</Text>}
                 description={<Text type="secondary">{formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}</Text>}

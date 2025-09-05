@@ -3,6 +3,10 @@
   height: 100%;
 }
 
+body {
+  font-family: 'Inter', sans-serif;
+}
+
 /* Custom styles for Leaflet divIcons to remove default background/border */
 .custom-leaflet-icon {
   background: transparent;

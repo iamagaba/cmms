@@ -63,6 +63,7 @@ const App = () => (
         algorithm: theme.defaultAlgorithm,
         token: {
           colorPrimary: '#1677ff',
+          fontFamily: 'Inter, sans-serif',
         },
       }}
     >

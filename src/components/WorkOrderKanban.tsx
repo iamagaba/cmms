@@ -45,7 +45,7 @@ const WorkOrderKanban = ({ workOrders, groupBy, columns, onUpdateWorkOrder }: Wo
   }
 
   return (
-    <Row gutter={[16, 16]} wrap={false} style={{ width: '100%', overflowX: 'auto', paddingBottom: '16px' }}>
+    <Row gutter={[16, 16]} wrap={false} className="hide-scrollbar" style={{ width: '100%', overflowX: 'auto', paddingBottom: '16px' }}>
       {columns.map(column => {
         const columnOrders = getColumnOrders(column.id);
         const columnColor = getColumnColor(column);
@@ -59,7 +59,7 @@ const WorkOrderKanban = ({ workOrders, groupBy, columns, onUpdateWorkOrder }: Wo
                         </Space>
                         <Tag color="default">{columnOrders.length}</Tag>
                     </div>
-                    <div style={{ height: 'calc(100vh - 29rem)', overflowY: 'auto', padding: '16px' }}>
+                    <div className="hide-scrollbar" style={{ height: 'calc(100vh - 29rem)', overflowY: 'auto', padding: '16px' }}>
                         <Space direction="vertical" style={{ width: '100%' }} size="middle">
                             {columnOrders.map(order => {
                                 const technician = technicians.find(t => t.id === order.assignedTechnicianId);

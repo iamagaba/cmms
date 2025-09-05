@@ -1,11 +1,12 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { locations, workOrders, technicians, Technician } from "@/data/mockData";
-import { Avatar, Button, Card, Col, Descriptions, Row, Space, Table, Typography, List } from "antd";
-import { ArrowLeftOutlined, UserOutlined, EnvironmentOutlined } from "@ant-design/icons";
+import { locations, workOrders, technicians, Technician, WorkOrder } from "@/data/mockData";
+import { Avatar, Button, Card, Col, Row, Space, Typography, List } from "antd";
+import { ArrowLeftOutlined, EnvironmentOutlined } from "@ant-design/icons";
 import { GoogleMap, MarkerF } from "@react-google-maps/api";
 import { WorkOrderDataTable } from "@/components/WorkOrderDataTable";
 import NotFound from "./NotFound";
 import { useMemo, useState } from "react";
+import { showSuccess } from "@/utils/toast";
 
 const { Title, Text } = Typography;
 
@@ -46,6 +47,15 @@ const LocationDetailsPage = () => {
 
   const handleDeleteWorkOrder = (workOrderData: typeof workOrders[0]) => {
     setAllWorkOrders(allWorkOrders.filter(wo => wo.id !== workOrderData.id));
+  };
+
+  const handleUpdateWorkOrder = (id: string, field: keyof WorkOrder, value: any) => {
+    setAllWorkOrders(prevOrders =>
+      prevOrders.map(wo =>
+        wo.id === id ? { ...wo, [field]: value } : wo
+      )
+    );
+    showSuccess(`Work order ${id} ${String(field)} updated.`);
   };
 
   return (
@@ -102,6 +112,7 @@ const LocationDetailsPage = () => {
           locations={locations}
           onSave={handleSaveWorkOrder}
           onDelete={handleDeleteWorkOrder}
+          onUpdateWorkOrder={handleUpdateWorkOrder}
         />
       </Card>
     </Space>

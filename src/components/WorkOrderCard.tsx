@@ -19,8 +19,8 @@ const priorityColors = {
 };
 
 const priorityBorderColors = {
-    High: "#ff4d4f",
-    Medium: "#faad14",
+    High: "red",
+    Medium: "gold",
     Low: "transparent",
 }
 

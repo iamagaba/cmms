@@ -50,7 +50,7 @@ export function LocationDataTable({ initialData, workOrders }: LocationDataTable
         columns={columns}
         rowKey="id"
         pagination={{ pageSize: 10, hideOnSinglePage: true }}
-        onRow={(record) => ({
+        onRow={() => ({
           className: 'lift-on-hover-row'
         })}
       />

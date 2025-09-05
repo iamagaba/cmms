@@ -5,16 +5,16 @@ import { Row, Col, Typography, Tag, Space } from "antd";
 const { Title } = Typography;
 
 const statusColors: { [key: string]: string } = {
-  Open: "#1677ff",
-  "In Progress": "#faad14",
-  "On Hold": "#f5222d",
-  Completed: "#52c41a",
+  Open: "blue",
+  "In Progress": "gold",
+  "On Hold": "orange",
+  Completed: "green",
 };
 
 const priorityColors: { [key: string]: string } = {
-    High: "#ff4d4f",
-    Medium: "#faad14",
-    Low: "#52c41a",
+    High: "red",
+    Medium: "gold",
+    Low: "green",
 };
 
 interface KanbanColumn {
@@ -40,7 +40,7 @@ const WorkOrderKanban = ({ workOrders, groupBy, columns }: WorkOrderKanbanProps)
     if (groupBy === 'priority') {
         return priorityColors[column.id as string] || 'default';
     }
-    return '#e6f7ff'; // A neutral color for other groupings
+    return '#1677ff'; // Default primary color for other groupings
   }
 
   return (
@@ -51,8 +51,11 @@ const WorkOrderKanban = ({ workOrders, groupBy, columns }: WorkOrderKanbanProps)
         return (
             <Col key={column.id || 'unassigned'} flex="0 0 320px">
                 <div style={{ backgroundColor: '#f5f5f5', borderRadius: '8px', height: '100%' }}>
-                    <div style={{ padding: '12px 16px', borderTop: `4px solid ${columnColor}`, borderTopLeftRadius: '8px', borderTopRightRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                        <Title level={5} style={{ margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{column.title}</Title>
+                    <div style={{ padding: '12px 16px', borderBottom: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <Space>
+                            <div style={{ width: '4px', height: '16px', backgroundColor: columnColor, borderRadius: '2px' }} />
+                            <Title level={5} style={{ margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{column.title}</Title>
+                        </Space>
                         <Tag color="default">{columnOrders.length}</Tag>
                     </div>
                     <div style={{ height: 'calc(100vh - 29rem)', overflowY: 'auto', padding: '16px' }}>

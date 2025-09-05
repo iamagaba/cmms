@@ -7,15 +7,8 @@ import {
   QuestionCircleOutlined,
   LogoutOutlined,
   FireOutlined,
-  DashboardOutlined,
-  ToolOutlined,
-  UsergroupAddOutlined,
-  EnvironmentOutlined,
-  BarChartOutlined,
-  GlobalOutlined,
-  CalendarOutlined,
-} from "@ant-design/icons";
-import { NavLink, useLocation, Link, useNavigate } from "react-router-dom";
+} from "@ant-design/icons"; // Removed navigation-specific icons
+import { useLocation, Link, useNavigate } from "react-router-dom"; // Removed NavLink
 import { useNotifications } from "@/context/NotificationsContext";
 import { formatDistanceToNow } from 'date-fns';
 import { useSession } from "@/context/SessionContext";
@@ -25,16 +18,7 @@ import { showSuccess, showError } from "@/utils/toast";
 const { Header } = Layout;
 const { Text } = Typography;
 
-const navItems = [
-  { key: "/", label: "Dashboard", icon: <DashboardOutlined /> },
-  { key: "/work-orders", label: "Work Orders", icon: <ToolOutlined /> },
-  { key: "/calendar", label: "Calendar", icon: <CalendarOutlined /> },
-  { key: "/map", label: "Map View", icon: <GlobalOutlined /> },
-  { key: "/technicians", label: "Technicians", icon: <UsergroupAddOutlined /> },
-  { key: "/locations", label: "Locations", icon: <EnvironmentOutlined /> },
-  { key: "/analytics", label: "Analytics", icon: <BarChartOutlined /> },
-  { key: "/settings", label: "Settings", icon: <SettingOutlined /> },
-];
+// Removed navItems as they are now in SideNavigation
 
 const AppHeader = () => {
   const location = useLocation();
@@ -94,13 +78,7 @@ const AppHeader = () => {
           <FireOutlined style={{color: '#1677ff', fontSize: '24px'}} />
           <span style={{color: '#1677ff', marginLeft: '8px', fontWeight: 'bold', fontSize: '18px'}}>GOGO Electric</span>
         </div>
-        <Menu theme="light" mode="horizontal" selectedKeys={[location.pathname]} style={{ lineHeight: '62px', borderBottom: 'none', flex: 1 }}>
-          {navItems.map(item => (
-            <Menu.Item key={item.key} icon={item.icon}>
-              <NavLink to={item.key}>{item.label}</NavLink>
-            </Menu.Item>
-          ))}
-        </Menu>
+        {/* Removed horizontal Menu component */}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
         <Input

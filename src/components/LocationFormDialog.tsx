@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Form, Input, Button } from "antd";
 import { Location } from "@/data/mockData";
 
@@ -11,6 +11,7 @@ interface LocationFormDialogProps {
 
 export const LocationFormDialog = ({ isOpen, onClose, onSave, location }: LocationFormDialogProps) => {
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (location) {
@@ -21,6 +22,7 @@ export const LocationFormDialog = ({ isOpen, onClose, onSave, location }: Locati
   }, [isOpen, location, form]);
 
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       const values = await form.validateFields();
       const newId = location?.id || `loc${Math.floor(Math.random() * 1000)}`;
@@ -31,10 +33,15 @@ export const LocationFormDialog = ({ isOpen, onClose, onSave, location }: Locati
         lat: location?.lat || 0.32, // Default lat for new locations
         lng: location?.lng || 32.58, // Default lng for new locations
       };
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 500));
       onSave(locationToSave);
       onClose();
     } catch (info) {
       console.log('Validate Failed:', info);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -46,8 +53,8 @@ export const LocationFormDialog = ({ isOpen, onClose, onSave, location }: Locati
       onCancel={onClose}
       destroyOnClose
       footer={[
-        <Button key="back" onClick={onClose}>Cancel</Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit}>Save</Button>,
+        <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>,
+        <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save</Button>,
       ]}
     >
       <Form form={form} layout="vertical" name="location_form" initialValues={{ name: location?.name, address: location?.address }}>

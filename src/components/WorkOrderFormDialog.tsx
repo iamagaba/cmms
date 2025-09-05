@@ -16,6 +16,7 @@ interface WorkOrderFormDialogProps {
 
 export const WorkOrderFormDialog = ({ isOpen, onClose, onSave, workOrder }: WorkOrderFormDialogProps) => {
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
   const [clientLocation, setClientLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [clientAddress, setClientAddress] = useState<string | null>(null);
 
@@ -46,6 +47,7 @@ export const WorkOrderFormDialog = ({ isOpen, onClose, onSave, workOrder }: Work
   };
 
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       const values = await form.validateFields();
       const newId = workOrder?.id || `WO-${Math.floor(Math.random() * 1000).toString().padStart(3, '0')}`;
@@ -57,11 +59,18 @@ export const WorkOrderFormDialog = ({ isOpen, onClose, onSave, workOrder }: Work
         customerLat: clientLocation?.lat,
         customerLng: clientLocation?.lng,
         customerAddress: clientAddress,
+        activityLog: workOrder?.activityLog || [],
+        partsUsed: workOrder?.partsUsed || [],
       };
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 500));
       onSave(workOrderToSave);
       onClose();
     } catch (info) {
       console.log('Validate Failed:', info);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -74,8 +83,8 @@ export const WorkOrderFormDialog = ({ isOpen, onClose, onSave, workOrder }: Work
       width={600}
       destroyOnClose
       footer={[
-        <Button key="back" onClick={onClose}>Cancel</Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit}>Save Work Order</Button>,
+        <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>,
+        <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save Work Order</Button>,
       ]}
     >
       <Form form={form} layout="vertical" name="work_order_form">

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Modal, Form, Input, Select, Button, DatePicker } from "antd";
 import { Technician } from "@/data/mockData";
 import dayjs from 'dayjs';
@@ -14,6 +14,7 @@ interface TechnicianFormDialogProps {
 
 export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician }: TechnicianFormDialogProps) => {
   const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (technician) {
@@ -27,6 +28,7 @@ export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician }: Te
   }, [isOpen, technician, form]);
 
   const handleSubmit = async () => {
+    setLoading(true);
     try {
       const values = await form.validateFields();
       const newId = technician?.id || `tech${Math.floor(Math.random() * 1000)}`;
@@ -42,10 +44,15 @@ export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician }: Te
         lat: technician?.lat || 0.32, // Default lat for new technicians
         lng: technician?.lng || 32.58, // Default lng for new technicians
       };
+      
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 500));
       onSave(technicianToSave);
       onClose();
     } catch (info) {
       console.log('Validate Failed:', info);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -57,8 +64,8 @@ export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician }: Te
       onCancel={onClose}
       destroyOnClose
       footer={[
-        <Button key="back" onClick={onClose}>Cancel</Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit}>Save</Button>,
+        <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>,
+        <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save</Button>,
       ]}
     >
       <Form form={form} layout="vertical" name="technician_form">

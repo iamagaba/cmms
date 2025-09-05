@@ -65,16 +65,16 @@ const Dashboard = () => {
           />
         </div>
         <Row gutter={[24, 24]}>
-          <Col xs={24} sm={12} md={12} lg={6}>
+          <Col xs={24} sm={12} md={12} lg={6} className="fade-in" style={{ animationDelay: '0ms' }}>
             <KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={<ToolOutlined />} />
           </Col>
-          <Col xs={24} sm={12} md={12} lg={6}>
+          <Col xs={24} sm={12} md={12} lg={6} className="fade-in" style={{ animationDelay: '100ms' }}>
             <KpiCard title="Open Work Orders" value={openOrders.toString()} icon={<ExclamationCircleOutlined />} />
           </Col>
-          <Col xs={24} sm={12} md={12} lg={6}>
+          <Col xs={24} sm={12} md={12} lg={6} className="fade-in" style={{ animationDelay: '200ms' }}>
             <KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={<CheckCircleOutlined />} />
           </Col>
-          <Col xs={24} sm={12} md={12} lg={6}>
+          <Col xs={24} sm={12} md={12} lg={6} className="fade-in" style={{ animationDelay: '300ms' }}>
             <KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<ClockCircleOutlined />} />
           </Col>
         </Row>

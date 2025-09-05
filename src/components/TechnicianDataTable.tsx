@@ -50,6 +50,9 @@ export function TechnicianDataTable({ initialData, workOrders }: TechnicianDataT
         columns={columns}
         rowKey="id"
         pagination={{ pageSize: 10, hideOnSinglePage: true }}
+        onRow={() => ({
+          className: 'lift-on-hover-row'
+        })}
       />
       {isDialogOpen && (
         <TechnicianFormDialog

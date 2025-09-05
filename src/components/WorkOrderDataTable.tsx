@@ -48,6 +48,9 @@ export function WorkOrderDataTable({ workOrders, technicians, locations, onSave,
         columns={columns}
         rowKey="id"
         pagination={{ pageSize: 10, hideOnSinglePage: true }}
+        onRow={() => ({
+          className: 'lift-on-hover-row'
+        })}
       />
       {isDialogOpen && (
         <WorkOrderFormDialog

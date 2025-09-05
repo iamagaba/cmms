@@ -32,6 +32,7 @@ const WorkOrderCard = ({ order, technician, location }: WorkOrderCardProps) => {
     <Link to={`/work-orders/${order.id}`}>
       <Card 
         hoverable 
+        className="lift-on-hover"
         style={{ borderLeft: `4px solid ${priorityBorderColors[order.priority]}` }}
         bodyStyle={{ padding: 16 }}
       >

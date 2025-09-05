@@ -3,6 +3,7 @@ import { Modal, Form, Input, Select, Button, DatePicker, Col, Row, Steps, Typogr
 import { WorkOrder, Technician, Location } from "@/types/supabase";
 import dayjs from 'dayjs';
 import { GoogleLocationSearchInput } from "./GoogleLocationSearchInput";
+import { camelToSnakeCase } from "@/utils/data-helpers"; // Import the new utility
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -96,7 +97,8 @@ export const WorkOrderFormDialog = ({ isOpen, onClose, onSave, workOrder, techni
         partsUsed: workOrder?.partsUsed || [],
       };
       
-      onSave(workOrderToSave);
+      // Convert keys to snake_case before saving
+      onSave(camelToSnakeCase(workOrderToSave));
     } catch (info) {
       console.log('Validate Failed:', info);
     } finally {

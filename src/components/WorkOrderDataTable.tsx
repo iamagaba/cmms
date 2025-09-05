@@ -10,9 +10,10 @@ interface WorkOrderDataTableProps {
   locations: Location[];
   onSave: (workOrderData: WorkOrder) => void;
   onDelete: (workOrderData: WorkOrder) => void;
+  onUpdateWorkOrder: (id: string, field: keyof WorkOrder, value: any) => void;
 }
 
-export function WorkOrderDataTable({ workOrders, technicians, locations, onSave, onDelete }: WorkOrderDataTableProps) {
+export function WorkOrderDataTable({ workOrders, technicians, locations, onSave, onDelete, onUpdateWorkOrder }: WorkOrderDataTableProps) {
   const [isDialogOpen, setIsDialogOpen] = React.useState(false);
   const [editingWorkOrder, setEditingWorkOrder] = React.useState<WorkOrder | null>(null);
 
@@ -39,7 +40,7 @@ export function WorkOrderDataTable({ workOrders, technicians, locations, onSave,
     onDelete(record);
   };
 
-  const columns = getColumns(handleEdit, handleDelete);
+  const columns = getColumns(handleEdit, handleDelete, onUpdateWorkOrder);
 
   return (
     <>

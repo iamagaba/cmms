@@ -26,9 +26,10 @@ interface WorkOrderKanbanProps {
     workOrders: WorkOrder[];
     groupBy: 'status' | 'priority' | 'assignedTechnicianId';
     columns: KanbanColumn[];
+    onUpdateWorkOrder: (id: string, field: keyof WorkOrder, value: any) => void;
 }
 
-const WorkOrderKanban = ({ workOrders, groupBy, columns }: WorkOrderKanbanProps) => {
+const WorkOrderKanban = ({ workOrders, groupBy, columns, onUpdateWorkOrder }: WorkOrderKanbanProps) => {
   const getColumnOrders = (columnId: string | null) => {
     return workOrders.filter(order => order[groupBy as keyof WorkOrder] === columnId);
   };
@@ -63,7 +64,7 @@ const WorkOrderKanban = ({ workOrders, groupBy, columns }: WorkOrderKanbanProps)
                             {columnOrders.map(order => {
                                 const technician = technicians.find(t => t.id === order.assignedTechnicianId);
                                 const location = locations.find(l => l.id === order.locationId);
-                                return <WorkOrderCard key={order.id} order={order} technician={technician} location={location} />;
+                                return <WorkOrderCard key={order.id} order={order} technician={technician} location={location} onUpdateWorkOrder={onUpdateWorkOrder} />;
                             })}
                         </Space>
                     </div>

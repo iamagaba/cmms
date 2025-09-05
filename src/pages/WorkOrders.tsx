@@ -5,6 +5,7 @@ import { workOrders, technicians, locations, WorkOrder } from "@/data/mockData";
 import { WorkOrderDataTable } from "@/components/WorkOrderDataTable";
 import { WorkOrderFormDialog } from "@/components/WorkOrderFormDialog";
 import WorkOrderKanban from "@/components/WorkOrderKanban";
+import { showSuccess } from "@/utils/toast";
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -32,10 +33,21 @@ const WorkOrdersPage = () => {
     } else {
       setAllWorkOrders([workOrderData, ...allWorkOrders]);
     }
+    showSuccess(`Work order ${workOrderData.id} has been saved.`);
   };
 
   const handleDelete = (workOrderData: WorkOrder) => {
     setAllWorkOrders(allWorkOrders.filter(wo => wo.id !== workOrderData.id));
+    showSuccess(`Work order ${workOrderData.id} has been deleted.`);
+  };
+
+  const handleUpdateWorkOrder = (id: string, field: keyof WorkOrder, value: any) => {
+    setAllWorkOrders(prevOrders => 
+      prevOrders.map(wo => 
+        wo.id === id ? { ...wo, [field]: value } : wo
+      )
+    );
+    showSuccess(`Work order ${id} ${String(field)} updated.`);
   };
 
   const filteredWorkOrders = allWorkOrders.filter(wo => {
@@ -173,12 +185,14 @@ const WorkOrdersPage = () => {
             locations={locations} 
             onSave={handleSave}
             onDelete={handleDelete}
+            onUpdateWorkOrder={handleUpdateWorkOrder}
           />
         ) : (
           <WorkOrderKanban 
             workOrders={filteredWorkOrders} 
             groupBy={groupByField}
             columns={kanbanColumns}
+            onUpdateWorkOrder={handleUpdateWorkOrder}
           />
         )}
       </Card>

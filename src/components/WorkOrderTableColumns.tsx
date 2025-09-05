@@ -1,6 +1,6 @@
-import { Avatar, Button, Dropdown, Menu, Tag, Typography, Tooltip } from "antd";
+import { Avatar, Button, Dropdown, Menu, Tag, Typography, Tooltip, Select } from "antd";
 import { MoreOutlined, DeleteOutlined, EditOutlined, ClockCircleOutlined, WarningOutlined } from "@ant-design/icons";
-import { WorkOrder, Technician, Location } from "@/data/mockData";
+import { WorkOrder, Technician, Location, technicians as allTechnicians } from "@/data/mockData"; // Import allTechnicians
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { Link } from "react-router-dom";
@@ -8,6 +8,7 @@ import { Link } from "react-router-dom";
 dayjs.extend(relativeTime);
 
 const { Text } = Typography;
+const { Option } = Select;
 
 export type WorkOrderRow = WorkOrder & {
   technician?: Technician;
@@ -54,7 +55,8 @@ const SlaDisplay = ({ slaDue }: { slaDue: string }) => {
 
 export const getColumns = (
   onEdit: (record: WorkOrderRow) => void,
-  onDelete: (record: WorkOrderRow) => void
+  onDelete: (record: WorkOrderRow) => void,
+  onUpdateWorkOrder: (id: string, field: keyof WorkOrder, value: any) => void
 ) => [
   {
     title: "ID",
@@ -79,28 +81,60 @@ export const getColumns = (
   {
     title: "Status",
     dataIndex: "status",
-    render: (status: WorkOrder['status']) => <Tag color={statusColors[status]}>{status}</Tag>,
+    render: (status: WorkOrder['status'], record: WorkOrderRow) => (
+      <Select
+        value={status}
+        onChange={(value) => onUpdateWorkOrder(record.id, 'status', value)}
+        style={{ width: 120 }}
+        bordered={false}
+      >
+        <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
+        <Option value="In Progress"><Tag color={statusColors["In Progress"]}>In Progress</Tag></Option>
+        <Option value="On Hold"><Tag color={statusColors["On Hold"]}>On Hold</Tag></Option>
+        <Option value="Completed"><Tag color={statusColors["Completed"]}>Completed</Tag></Option>
+      </Select>
+    ),
     sorter: (a: WorkOrderRow, b: WorkOrderRow) => a.status.localeCompare(b.status),
   },
   {
     title: "Priority",
     dataIndex: "priority",
-    render: (priority: WorkOrder['priority']) => <Tag color={priorityColors[priority]}>{priority}</Tag>,
+    render: (priority: WorkOrder['priority'], record: WorkOrderRow) => (
+      <Select
+        value={priority}
+        onChange={(value) => onUpdateWorkOrder(record.id, 'priority', value)}
+        style={{ width: 100 }}
+        bordered={false}
+      >
+        <Option value="High"><Tag color={priorityColors["High"]}>High</Tag></Option>
+        <Option value="Medium"><Tag color={priorityColors["Medium"]}>Medium</Tag></Option>
+        <Option value="Low"><Tag color={priorityColors["Low"]}>Low</Tag></Option>
+      </Select>
+    ),
     sorter: (a: WorkOrderRow, b: WorkOrderRow) => priorityOrder[a.priority] - priorityOrder[b.priority],
   },
   {
     title: "Technician",
     dataIndex: "technician",
-    render: (_: any, record: WorkOrderRow) => {
-      const tech = record.technician;
-      if (!tech) return <Text type="secondary">Unassigned</Text>;
-      return (
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Avatar size="small" src={tech.avatar}>{tech.name.split(' ').map(n => n[0]).join('')}</Avatar>
-          <Text>{tech.name}</Text>
-        </div>
-      );
-    }
+    render: (_: any, record: WorkOrderRow) => (
+      <Select
+        value={record.assignedTechnicianId}
+        onChange={(value) => onUpdateWorkOrder(record.id, 'assignedTechnicianId', value)}
+        style={{ width: 150 }}
+        bordered={false}
+        allowClear
+        placeholder="Unassigned"
+      >
+        {allTechnicians.map(tech => (
+          <Option key={tech.id} value={tech.id}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Avatar size="small" src={tech.avatar}>{tech.name.split(' ').map(n => n[0]).join('')}</Avatar>
+              <Text>{tech.name}</Text>
+            </div>
+          </Option>
+        ))}
+      </Select>
+    )
   },
   {
     title: "SLA Due",

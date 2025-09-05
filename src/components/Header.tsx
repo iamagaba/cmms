@@ -1,105 +1,161 @@
-import { Layout, Input, Badge, Dropdown, Avatar, Menu, List, Typography, Empty } from "antd";
+import { useState } from 'react';
+import { AppBar, Toolbar, Typography, Box, TextField, InputAdornment, IconButton, Badge, Avatar, Menu, MenuItem, List, ListItem, ListItemText, Divider, Button, Popover } from '@mui/material';
 import {
-  SearchOutlined,
-  BellOutlined,
-  UserOutlined,
-  SettingOutlined,
-  QuestionCircleOutlined,
-  LogoutOutlined,
-  FireOutlined,
-  DashboardOutlined,
-  ToolOutlined,
-  UsergroupAddOutlined,
-  EnvironmentOutlined,
-  BarChartOutlined,
-  GlobalOutlined,
-} from "@ant-design/icons";
-import { NavLink, useLocation, Link } from "react-router-dom";
-import { useNotifications } from "@/context/NotificationsContext";
+  Search,
+  Notifications,
+  AccountCircle,
+  Settings,
+  HelpOutline,
+  Logout,
+  Dashboard,
+  Build,
+  People,
+  LocationOn,
+  BarChart,
+  Public,
+  Fireplace,
+} from '@mui/icons-material';
+import { NavLink, useLocation, Link } from 'react-router-dom';
+import { useNotifications } from '@/context/NotificationsContext';
 import { formatDistanceToNow } from 'date-fns';
 
-const { Header } = Layout;
-const { Text } = Typography;
-
 const navItems = [
-  { key: "/", label: "Dashboard", icon: <DashboardOutlined /> },
-  { key: "/work-orders", label: "Work Orders", icon: <ToolOutlined /> },
-  { key: "/map", label: "Map View", icon: <GlobalOutlined /> },
-  { key: "/technicians", label: "Technicians", icon: <UsergroupAddOutlined /> },
-  { key: "/locations", label: "Locations", icon: <EnvironmentOutlined /> },
-  { key: "/analytics", label: "Analytics", icon: <BarChartOutlined /> },
-  { key: "/settings", label: "Settings", icon: <SettingOutlined /> },
+  { path: '/', label: 'Dashboard', icon: <Dashboard fontSize="small" /> },
+  { path: '/work-orders', label: 'Work Orders', icon: <Build fontSize="small" /> },
+  { path: '/map', label: 'Map View', icon: <Public fontSize="small" /> },
+  { path: '/technicians', label: 'Technicians', icon: <People fontSize="small" /> },
+  { path: '/locations', label: 'Locations', icon: <LocationOn fontSize="small" /> },
+  { path: '/analytics', label: 'Analytics', icon: <BarChart fontSize="small" /> },
+  { path: '/settings', label: 'Settings', icon: <Settings fontSize="small" /> },
 ];
 
 const AppHeader = () => {
   const location = useLocation();
   const { notifications, unreadCount, markAllAsRead } = useNotifications();
 
-  const userMenu = (
-    <Menu>
-      <Menu.Item key="1" icon={<UserOutlined />}>Profile</Menu.Item>
-      <Menu.Item key="2" icon={<SettingOutlined />}>Settings</Menu.Item>
-      <Menu.Item key="3" icon={<QuestionCircleOutlined />}>Support</Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key="4" icon={<LogoutOutlined />}>Logout</Menu.Item>
-    </Menu>
-  );
+  const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
+  const [notificationsMenuAnchor, setNotificationsMenuAnchor] = useState<null | HTMLElement>(null);
 
-  const notificationMenu = (
-    <div style={{ width: 350, backgroundColor: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', borderRadius: '4px' }}>
-      <div style={{ padding: '12px 16px', borderBottom: '1px solid #f0f0f0' }}>
-        <Text strong>Notifications</Text>
-      </div>
-      <List
-        itemLayout="horizontal"
-        dataSource={notifications}
-        locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No new notifications" /> }}
-        renderItem={item => (
-          <List.Item style={{ padding: '12px 16px', backgroundColor: item.is_read ? 'transparent' : '#e6f7ff' }}>
-            <Link to={`/work-orders/${item.work_order_id}`} style={{ color: 'inherit', textDecoration: 'none', width: '100%' }}>
-              <List.Item.Meta
-                title={<Text>{item.message}</Text>}
-                description={<Text type="secondary">{formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}</Text>}
-              />
-            </Link>
-          </List.Item>
-        )}
-        style={{ maxHeight: 400, overflowY: 'auto' }}
-      />
-    </div>
-  );
+  const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => setUserMenuAnchor(event.currentTarget);
+  const handleUserMenuClose = () => setUserMenuAnchor(null);
+
+  const handleNotificationsMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setNotificationsMenuAnchor(event.currentTarget);
+    markAllAsRead();
+  };
+  const handleNotificationsMenuClose = () => setNotificationsMenuAnchor(null);
 
   return (
-    <Header style={{ padding: '0 24px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #f0f0f0' }}>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginRight: '24px' }}>
-          <FireOutlined style={{color: '#1677ff', fontSize: '24px'}} />
-          <span style={{color: '#1677ff', marginLeft: '8px', fontWeight: 'bold', fontSize: '18px'}}>GOGO Electric</span>
-        </div>
-        <Menu theme="light" mode="horizontal" selectedKeys={[location.pathname]} style={{ lineHeight: '62px', borderBottom: 'none', flex: 1 }}>
-          {navItems.map(item => (
-            <Menu.Item key={item.key} icon={item.icon}>
-              <NavLink to={item.key}>{item.label}</NavLink>
-            </Menu.Item>
-          ))}
+    <AppBar position="static" sx={{ background: '#fff', color: 'text.primary', borderBottom: '1px solid', borderColor: 'divider' }} elevation={0}>
+      <Toolbar sx={{ justifyContent: 'space-between' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', color: 'primary.main' }}>
+            <Fireplace />
+            <Typography variant="h6" component="div" sx={{ ml: 1, fontWeight: 'bold' }}>
+              GOGO Electric
+            </Typography>
+          </Box>
+          <Box component="nav" sx={{ display: 'flex', gap: 1 }}>
+            {navItems.map((item) => (
+              <Button
+                key={item.path}
+                component={NavLink}
+                to={item.path}
+                startIcon={item.icon}
+                sx={{
+                  color: 'text.secondary',
+                  fontWeight: 500,
+                  '&.active': {
+                    backgroundColor: 'action.selected',
+                    color: 'primary.main',
+                  },
+                }}
+              >
+                {item.label}
+              </Button>
+            ))}
+          </Box>
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+          <TextField
+            placeholder="Search..."
+            variant="outlined"
+            size="small"
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <Search />
+                </InputAdornment>
+              ),
+              sx: { borderRadius: '20px' }
+            }}
+          />
+          <IconButton color="inherit" onClick={handleNotificationsMenuOpen}>
+            <Badge badgeContent={unreadCount} color="error">
+              <Notifications />
+            </Badge>
+          </IconButton>
+          <IconButton onClick={handleUserMenuOpen}>
+            <Avatar sx={{ width: 32, height: 32 }}>
+              <AccountCircle />
+            </Avatar>
+          </IconButton>
+        </Box>
+
+        {/* User Menu */}
+        <Menu
+          anchorEl={userMenuAnchor}
+          open={Boolean(userMenuAnchor)}
+          onClose={handleUserMenuClose}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        >
+          <MenuItem onClick={handleUserMenuClose}><AccountCircle sx={{ mr: 1 }} /> Profile</MenuItem>
+          <MenuItem onClick={handleUserMenuClose}><Settings sx={{ mr: 1 }} /> Settings</MenuItem>
+          <MenuItem onClick={handleUserMenuClose}><HelpOutline sx={{ mr: 1 }} /> Support</MenuItem>
+          <Divider />
+          <MenuItem onClick={handleUserMenuClose}><Logout sx={{ mr: 1 }} /> Logout</MenuItem>
         </Menu>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-        <Input
-          placeholder="Search..."
-          prefix={<SearchOutlined />}
-          style={{ width: 250 }}
-        />
-        <Dropdown overlay={notificationMenu} placement="bottomRight" trigger={['click']} onOpenChange={(open) => open && markAllAsRead()}>
-          <Badge count={unreadCount}>
-            <BellOutlined style={{ fontSize: '20px', cursor: 'pointer' }} />
-          </Badge>
-        </Dropdown>
-        <Dropdown overlay={userMenu} placement="bottomRight">
-          <Avatar style={{ cursor: 'pointer' }} icon={<UserOutlined />} />
-        </Dropdown>
-      </div>
-    </Header>
+
+        {/* Notifications Popover */}
+        <Popover
+          open={Boolean(notificationsMenuAnchor)}
+          anchorEl={notificationsMenuAnchor}
+          onClose={handleNotificationsMenuClose}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+        >
+          <Box sx={{ width: 350 }}>
+            <Box sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
+              <Typography variant="h6">Notifications</Typography>
+            </Box>
+            <List sx={{ maxHeight: 400, overflow: 'auto' }}>
+              {notifications.length > 0 ? (
+                notifications.map(item => (
+                  <ListItem
+                    key={item.id}
+                    button
+                    component={Link}
+                    to={`/work-orders/${item.work_order_id}`}
+                    sx={{ backgroundColor: item.is_read ? 'transparent' : 'action.hover' }}
+                  >
+                    <ListItemText
+                      primary={item.message}
+                      secondary={formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}
+                    />
+                  </ListItem>
+                ))
+              ) : (
+                <ListItem>
+                  <ListItemText primary="No new notifications" />
+                </ListItem>
+              )}
+            </List>
+          </Box>
+        </Popover>
+      </Toolbar>
+    </AppBar>
   );
 };
 

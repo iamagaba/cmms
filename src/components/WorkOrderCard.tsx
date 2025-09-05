@@ -1,5 +1,5 @@
-import { Card, Tag, Avatar, Typography, Select } from "antd";
-import { EnvironmentOutlined, UserOutlined } from "@ant-design/icons";
+import { Card, Tag, Avatar, Typography, Select, Tooltip } from "antd";
+import { EnvironmentOutlined, UserOutlined, MessageOutlined } from "@ant-design/icons";
 import { WorkOrder, Technician, Location, technicians as allTechnicians } from "../data/mockData";
 import { Link } from "react-router-dom";
 import SlaCountdown from "./SlaCountdown";
@@ -11,7 +11,7 @@ interface WorkOrderCardProps {
   order: WorkOrder;
   technician: Technician | undefined;
   location: Location | undefined;
-  onUpdateWorkOrder: (id: string, field: keyof WorkOrder, value: any) => void;
+  onUpdateWorkOrder: (id: string, updates: Partial<WorkOrder>) => void;
 }
 
 const priorityColors = {
@@ -28,6 +28,8 @@ const priorityBorderColors = {
 
 const statusColors: Record<WorkOrder['status'], string> = {
   Open: "blue",
+  "Pending Confirmation": "cyan",
+  "Confirmed & Ready": "purple",
   "In Progress": "gold",
   "On Hold": "orange",
   Completed: "green",
@@ -50,7 +52,7 @@ const WorkOrderCard = ({ order, technician, location, onUpdateWorkOrder }: WorkO
         </div>
         <Select
           value={order.priority}
-          onChange={(value) => onUpdateWorkOrder(order.id, 'priority', value)}
+          onChange={(value) => onUpdateWorkOrder(order.id, { priority: value })}
           style={{ width: 90 }}
           bordered={false}
           size="small"
@@ -74,7 +76,7 @@ const WorkOrderCard = ({ order, technician, location, onUpdateWorkOrder }: WorkO
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Select
           value={order.assignedTechnicianId}
-          onChange={(value) => onUpdateWorkOrder(order.id, 'assignedTechnicianId', value)}
+          onChange={(value) => onUpdateWorkOrder(order.id, { assignedTechnicianId: value })}
           style={{ width: 150 }}
           bordered={false}
           allowClear
@@ -91,19 +93,28 @@ const WorkOrderCard = ({ order, technician, location, onUpdateWorkOrder }: WorkO
             </Option>
           ))}
         </Select>
-        <Select
-          value={order.status}
-          onChange={(value) => onUpdateWorkOrder(order.id, 'status', value)}
-          style={{ width: 100 }}
-          bordered={false}
-          size="small"
-          dropdownMatchSelectWidth={false}
-        >
-          <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
-          <Option value="In Progress"><Tag color={statusColors["In Progress"]}>In Progress</Tag></Option>
-          <Option value="On Hold"><Tag color={statusColors["On Hold"]}>On Hold</Tag></Option>
-          <Option value="Completed"><Tag color={statusColors["Completed"]}>Completed</Tag></Option>
-        </Select>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          {order.status === 'On Hold' && order.onHoldReason && (
+            <Tooltip title={`On Hold: ${order.onHoldReason}`}>
+              <MessageOutlined style={{ color: 'orange', cursor: 'pointer' }} />
+            </Tooltip>
+          )}
+          <Select
+            value={order.status}
+            onChange={(value) => onUpdateWorkOrder(order.id, { status: value })}
+            style={{ width: 150 }}
+            bordered={false}
+            size="small"
+            dropdownMatchSelectWidth={false}
+          >
+            <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
+            <Option value="Pending Confirmation"><Tag color={statusColors["Pending Confirmation"]}>Pending Confirmation</Tag></Option>
+            <Option value="Confirmed & Ready"><Tag color={statusColors["Confirmed & Ready"]}>Confirmed & Ready</Tag></Option>
+            <Option value="In Progress"><Tag color={statusColors["In Progress"]}>In Progress</Tag></Option>
+            <Option value="On Hold"><Tag color={statusColors["On Hold"]}>On Hold</Tag></Option>
+            <Option value="Completed"><Tag color={statusColors["Completed"]}>Completed</Tag></Option>
+          </Select>
+        </div>
       </div>
     </Card>
   );

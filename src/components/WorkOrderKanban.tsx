@@ -6,6 +6,8 @@ const { Title } = Typography;
 
 const statusColors: { [key: string]: string } = {
   Open: "blue",
+  "Pending Confirmation": "cyan",
+  "Confirmed & Ready": "purple",
   "In Progress": "gold",
   "On Hold": "orange",
   Completed: "green",
@@ -26,7 +28,7 @@ interface WorkOrderKanbanProps {
     workOrders: WorkOrder[];
     groupBy: 'status' | 'priority' | 'assignedTechnicianId';
     columns: KanbanColumn[];
-    onUpdateWorkOrder: (id: string, field: keyof WorkOrder, value: any) => void;
+    onUpdateWorkOrder: (id: string, updates: Partial<WorkOrder>) => void;
 }
 
 const WorkOrderKanban = ({ workOrders, groupBy, columns, onUpdateWorkOrder }: WorkOrderKanbanProps) => {

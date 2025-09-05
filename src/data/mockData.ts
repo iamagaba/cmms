@@ -26,7 +26,7 @@ export interface WorkOrder {
   vehicleModel: string;
   customerName: string;
   customerPhone: string;
-  status: 'Open' | 'In Progress' | 'On Hold' | 'Completed';
+  status: 'Open' | 'Pending Confirmation' | 'On Hold' | 'Confirmed & Ready' | 'In Progress' | 'Completed';
   priority: 'High' | 'Medium' | 'Low';
   assignedTechnicianId: string | null;
   locationId: string;
@@ -39,6 +39,7 @@ export interface WorkOrder {
   customerLat?: number | null;
   customerLng?: number | null;
   customerAddress?: string | null;
+  onHoldReason?: string | null;
 }
 
 export const technicians: Technician[] = [
@@ -104,15 +105,16 @@ export const workOrders: WorkOrder[] = [
     vehicleModel: 'GOGO S1', 
     customerName: 'Robert Ssentamu', 
     customerPhone: '+256 772 765432',
-    status: 'Open', 
+    status: 'Confirmed & Ready', 
     priority: 'Low', 
     assignedTechnicianId: null, 
     locationId: 'loc1', 
     service: 'Brake System Check',
-    serviceNotes: 'Routine brake check requested by customer.',
+    serviceNotes: 'Routine brake check requested by customer. Confirmed with client, ready for assignment.',
     partsUsed: [],
     activityLog: [
-      { timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), activity: 'Work order created.' }
+      { timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), activity: 'Work order created.' },
+      { timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(), activity: 'Client confirmed details. Status changed to Confirmed & Ready.' }
     ],
     slaDue: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
     completedAt: null,
@@ -129,6 +131,7 @@ export const workOrders: WorkOrder[] = [
     locationId: 'loc3', 
     service: 'Controller Unit Replacement', 
     serviceNotes: 'Controller unit is faulty. Awaiting new part from supplier. Part ETA is 2 days.',
+    onHoldReason: 'Awaiting Spare Parts',
     partsUsed: [],
     activityLog: [
       { timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), activity: 'Work order created and assigned to David Okello.' },
@@ -159,5 +162,25 @@ export const workOrders: WorkOrder[] = [
     ],
     slaDue: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
     completedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  { 
+    id: 'WO-006', 
+    vehicleId: 'GOGO-099', 
+    vehicleModel: 'GOGO S1', 
+    customerName: 'Brenda Nanyonjo', 
+    customerPhone: '+256 772 112233',
+    status: 'Pending Confirmation', 
+    priority: 'Medium', 
+    assignedTechnicianId: null, 
+    locationId: 'loc2', 
+    service: 'Headlight Malfunction',
+    serviceNotes: 'Customer reports headlight is not turning on. Attempted to call client to confirm details, no answer.',
+    partsUsed: [],
+    activityLog: [
+      { timestamp: new Date(Date.now() - 1 * 60 * 60 * 1000).toISOString(), activity: 'Work order created.' },
+      { timestamp: new Date(Date.now() - 0.5 * 60 * 60 * 1000).toISOString(), activity: 'Status changed to Pending Confirmation.' }
+    ],
+    slaDue: new Date(Date.now() + 4 * 24 * 60 * 60 * 1000).toISOString(),
+    completedAt: null,
   },
 ];

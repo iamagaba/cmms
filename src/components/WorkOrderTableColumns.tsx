@@ -24,6 +24,8 @@ const priorityColors: Record<WorkOrder['priority'], string> = {
 
 const statusColors: Record<WorkOrder['status'], string> = {
     Open: "blue",
+    "Pending Confirmation": "cyan",
+    "Confirmed & Ready": "purple",
     "In Progress": "gold",
     "On Hold": "orange",
     Completed: "green",
@@ -34,7 +36,7 @@ const priorityOrder: Record<WorkOrder['priority'], number> = { 'High': 1, 'Mediu
 export const getColumns = (
   onEdit: (record: WorkOrderRow) => void,
   onDelete: (record: WorkOrderRow) => void,
-  onUpdateWorkOrder: (id: string, field: keyof WorkOrder, value: any) => void
+  onUpdateWorkOrder: (id: string, updates: Partial<WorkOrder>) => void
 ) => [
   {
     title: "ID",
@@ -62,11 +64,13 @@ export const getColumns = (
     render: (status: WorkOrder['status'], record: WorkOrderRow) => (
       <Select
         value={status}
-        onChange={(value) => onUpdateWorkOrder(record.id, 'status', value)}
-        style={{ width: 120 }}
+        onChange={(value) => onUpdateWorkOrder(record.id, { status: value })}
+        style={{ width: 180 }}
         bordered={false}
       >
         <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
+        <Option value="Pending Confirmation"><Tag color={statusColors["Pending Confirmation"]}>Pending Confirmation</Tag></Option>
+        <Option value="Confirmed & Ready"><Tag color={statusColors["Confirmed & Ready"]}>Confirmed & Ready</Tag></Option>
         <Option value="In Progress"><Tag color={statusColors["In Progress"]}>In Progress</Tag></Option>
         <Option value="On Hold"><Tag color={statusColors["On Hold"]}>On Hold</Tag></Option>
         <Option value="Completed"><Tag color={statusColors["Completed"]}>Completed</Tag></Option>
@@ -80,7 +84,7 @@ export const getColumns = (
     render: (priority: WorkOrder['priority'], record: WorkOrderRow) => (
       <Select
         value={priority}
-        onChange={(value) => onUpdateWorkOrder(record.id, 'priority', value)}
+        onChange={(value) => onUpdateWorkOrder(record.id, { priority: value })}
         style={{ width: 100 }}
         bordered={false}
       >
@@ -97,7 +101,7 @@ export const getColumns = (
     render: (_: any, record: WorkOrderRow) => (
       <Select
         value={record.assignedTechnicianId}
-        onChange={(value) => onUpdateWorkOrder(record.id, 'assignedTechnicianId', value)}
+        onChange={(value) => onUpdateWorkOrder(record.id, { assignedTechnicianId: value })}
         style={{ width: 150 }}
         bordered={false}
         allowClear

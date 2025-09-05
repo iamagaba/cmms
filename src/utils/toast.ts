@@ -8,6 +8,10 @@ export const showError = (content: string) => {
   message.error(content);
 };
 
+export const showInfo = (content: string) => {
+  message.info(content);
+};
+
 export const showLoading = (content: string) => {
   // Ant Design's message.loading returns a function to close the message.
   // The second argument `0` makes it non-expiring until explicitly closed.

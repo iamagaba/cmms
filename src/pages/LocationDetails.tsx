@@ -10,6 +10,7 @@ import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Location, WorkOrder, Technician } from "@/types/supabase";
+import { camelToSnakeCase } from "@/utils/data-helpers"; // Import the utility
 
 const { Title, Text } = Typography;
 
@@ -39,13 +40,13 @@ const LocationDetailsPage = () => {
     if (!workOrder) return;
     if (updates.status === 'On Hold') { setOnHoldWorkOrder(workOrder); return; }
     if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Confirmed & Ready') { updates.status = 'In Progress'; showInfo(`Work Order ${id} automatically moved to In Progress.`); }
-    workOrderMutation.mutate({ id, ...updates });
+    workOrderMutation.mutate(camelToSnakeCase({ id, ...updates })); // Apply camelToSnakeCase here
   };
 
   const handleSaveOnHoldReason = (reason: string) => {
     if (!onHoldWorkOrder) return;
     const updates = { status: 'On Hold' as const, onHoldReason: reason };
-    workOrderMutation.mutate({ id: onHoldWorkOrder.id, ...updates });
+    workOrderMutation.mutate(camelToSnakeCase({ id: onHoldWorkOrder.id, ...updates })); // Apply camelToSnakeCase here
     setOnHoldWorkOrder(null);
   };
 

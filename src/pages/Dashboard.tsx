@@ -11,6 +11,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { WorkOrder, Technician, Location } from "@/types/supabase";
 import dayjs from "dayjs";
+import { camelToSnakeCase } from "@/utils/data-helpers"; // Import the utility
 
 const { Title } = Typography;
 
@@ -76,13 +77,13 @@ const Dashboard = () => {
       showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`);
     }
     
-    workOrderMutation.mutate({ id, ...updates });
+    workOrderMutation.mutate(camelToSnakeCase({ id, ...updates })); // Apply camelToSnakeCase here
   };
 
   const handleSaveOnHoldReason = (reason: string) => {
     if (!onHoldWorkOrder) return;
     const updates = { status: 'On Hold' as const, onHoldReason: reason };
-    workOrderMutation.mutate({ id: onHoldWorkOrder.id, ...updates });
+    workOrderMutation.mutate(camelToSnakeCase({ id: onHoldWorkOrder.id, ...updates })); // Apply camelToSnakeCase here
     setOnHoldWorkOrder(null);
   };
 

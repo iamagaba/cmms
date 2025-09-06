@@ -1,19 +1,22 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { Avatar, Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typography, List, Skeleton } from "antd";
-import { ArrowLeftOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined, CalendarOutlined, ToolOutlined, EditOutlined } from "@ant-design/icons";
+import { Avatar, Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typography, List, Skeleton, Select, DatePicker, Input } from "antd";
+import { ArrowLeftOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined, CalendarOutlined, ToolOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import NotFound from "./NotFound";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { WorkOrder, Technician, Location } from "@/types/supabase";
 import { useState } from "react";
-import { WorkOrderFormDialog } from "@/components/WorkOrderFormDialog";
-import { showSuccess, showError } from "@/utils/toast";
+import { showSuccess, showError, showInfo } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
+import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
+import { GoogleLocationSearchInput } from "@/components/GoogleLocationSearchInput";
 
 const { Title, Text, Paragraph } = Typography;
+const { Option } = Select;
+const { TextArea } = Input;
 
-const statusColors: Record<string, string> = { Open: "blue", "In Progress": "gold", "On Hold": "orange", Completed: "green" };
+const statusColors: Record<string, string> = { Open: "blue", "Pending Confirmation": "cyan", "Confirmed & Ready": "purple", "In Progress": "gold", "On Hold": "orange", Completed: "green" };
 const priorityColors: Record<string, string> = { High: "red", Medium: "gold", Low: "green" };
 
 const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "";
@@ -22,7 +25,7 @@ const WorkOrderDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
 
   const { data: workOrder, isLoading: isLoadingWorkOrder } = useQuery<WorkOrder | null>({
     queryKey: ['work_order', id],
@@ -56,7 +59,6 @@ const WorkOrderDetailsPage = () => {
     enabled: !!workOrder?.locationId,
   });
 
-  // Fetch all technicians and locations for the edit form
   const { data: allTechnicians, isLoading: isLoadingAllTechnicians } = useQuery<Technician[]>({
     queryKey: ['technicians'],
     queryFn: async () => {
@@ -81,16 +83,42 @@ const WorkOrderDetailsPage = () => {
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['work_order', id] }); // Invalidate specific work order
-      queryClient.invalidateQueries({ queryKey: ['work_orders'] }); // Invalidate all work orders for lists
+      queryClient.invalidateQueries({ queryKey: ['work_order', id] });
+      queryClient.invalidateQueries({ queryKey: ['work_orders'] });
       showSuccess('Work order has been updated.');
-      setIsEditDialogOpen(false);
     },
     onError: (error) => showError(error.message),
   });
 
-  const handleSaveWorkOrder = (data: Partial<WorkOrder>) => {
-    workOrderMutation.mutate(data);
+  const handleUpdateWorkOrder = (updates: Partial<WorkOrder>) => {
+    if (!workOrder) return;
+
+    if (updates.status === 'On Hold') {
+      setOnHoldWorkOrder(workOrder);
+      return;
+    }
+
+    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Confirmed & Ready') {
+      updates.status = 'In Progress';
+      showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`);
+    }
+    
+    workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates }));
+  };
+
+  const handleSaveOnHoldReason = (reason: string) => {
+    if (!onHoldWorkOrder) return;
+    const updates = { status: 'On Hold' as const, onHoldReason: reason };
+    workOrderMutation.mutate(camelToSnakeCase({ id: onHoldWorkOrder.id, ...updates }));
+    setOnHoldWorkOrder(null);
+  };
+
+  const handleLocationSelect = (selectedLoc: { lat: number; lng: number; label: string }) => {
+    handleUpdateWorkOrder({
+      customerAddress: selectedLoc.label,
+      customerLat: selectedLoc.lat,
+      customerLng: selectedLoc.lng,
+    });
   };
 
   const isLoading = isLoadingWorkOrder || isLoadingTechnician || isLoadingLocation || isLoadingAllTechnicians || isLoadingAllLocations;
@@ -122,8 +150,19 @@ const WorkOrderDetailsPage = () => {
         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/work-orders')}>Back to Work Orders</Button>
         <Space>
           <Title level={4} style={{ margin: 0 }}>Work Order: {workOrder.workOrderNumber}</Title>
-          <Tag color={statusColors[workOrder.status || '']}>{workOrder.status}</Tag>
-          <Button type="default" icon={<EditOutlined />} onClick={() => setIsEditDialogOpen(true)}>Edit</Button>
+          <Select
+            value={workOrder.status || 'Open'}
+            onChange={(value) => handleUpdateWorkOrder({ status: value })}
+            style={{ width: 180 }}
+            bordered={false}
+          >
+            <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
+            <Option value="Pending Confirmation"><Tag color={statusColors["Pending Confirmation"]}>Pending Confirmation</Tag></Option>
+            <Option value="Confirmed & Ready"><Tag color={statusColors["Confirmed & Ready"]}>Confirmed & Ready</Tag></Option>
+            <Option value="In Progress"><Tag color={statusColors["In Progress"]}>In Progress</Tag></Option>
+            <Option value="On Hold"><Tag color={statusColors["On Hold"]}>On Hold</Tag></Option>
+            <Option value="Completed"><Tag color={statusColors["Completed"]}>Completed</Tag></Option>
+          </Select>
         </Space>
       </div>
 
@@ -131,8 +170,8 @@ const WorkOrderDetailsPage = () => {
         <Col xs={24} lg={16}>
           <Space direction="vertical" size="large" style={{ width: '100%' }}>
             <Card title="Service Information">
-              <Title level={5}>{workOrder.service}</Title>
-              <Paragraph type="secondary">{workOrder.serviceNotes}</Paragraph>
+              <Title level={5} editable={{ onChange: (value) => handleUpdateWorkOrder({ service: value }) }}>{workOrder.service}</Title>
+              <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ serviceNotes: value }) }} type="secondary">{workOrder.serviceNotes}</Paragraph>
               {(workOrder.partsUsed || []).length > 0 && (
                 <>
                   <Text strong>Parts Used</Text>
@@ -150,10 +189,18 @@ const WorkOrderDetailsPage = () => {
             </Card>
             <Card title="Customer & Vehicle Details">
               <Descriptions column={1} bordered>
-                <Descriptions.Item label="Customer">{workOrder.customerName}</Descriptions.Item>
-                <Descriptions.Item label={<><PhoneOutlined /> Phone</>}><a href={`tel:${workOrder.customerPhone}`}>{workOrder.customerPhone}</a></Descriptions.Item>
-                <Descriptions.Item label="Vehicle ID">{workOrder.vehicleId}</Descriptions.Item>
-                <Descriptions.Item label="Vehicle Model">{workOrder.vehicleModel}</Descriptions.Item>
+                <Descriptions.Item label="Customer" labelStyle={{ width: '150px' }}>
+                  <Text editable={{ onChange: (value) => handleUpdateWorkOrder({ customerName: value }) }}>{workOrder.customerName}</Text>
+                </Descriptions.Item>
+                <Descriptions.Item label={<><PhoneOutlined /> Phone</>} labelStyle={{ width: '150px' }}>
+                  <Text editable={{ onChange: (value) => handleUpdateWorkOrder({ customerPhone: value }) }}>{workOrder.customerPhone}</Text>
+                </Descriptions.Item>
+                <Descriptions.Item label="Vehicle ID" labelStyle={{ width: '150px' }}>
+                  <Text editable={{ onChange: (value) => handleUpdateWorkOrder({ vehicleId: value }) }}>{workOrder.vehicleId}</Text>
+                </Descriptions.Item>
+                <Descriptions.Item label="Vehicle Model" labelStyle={{ width: '150px' }}>
+                  <Text editable={{ onChange: (value) => handleUpdateWorkOrder({ vehicleModel: value }) }}>{workOrder.vehicleModel}</Text>
+                </Descriptions.Item>
               </Descriptions>
             </Card>
           </Space>
@@ -162,19 +209,73 @@ const WorkOrderDetailsPage = () => {
           <Space direction="vertical" size="large" style={{ width: '100%' }}>
             <Card title="Details">
               <Descriptions column={1}>
-                <Descriptions.Item label="Priority"><Tag color={priorityColors[workOrder.priority || '']}>{workOrder.priority}</Tag></Descriptions.Item>
-                <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}>{dayjs(workOrder.slaDue).format('MMM D, YY h:mm A')}</Descriptions.Item>
-                <Descriptions.Item label={<><EnvironmentOutlined /> Service Location</>}>{location?.name || 'N/A'}</Descriptions.Item>
+                <Descriptions.Item label="Priority">
+                  <Select
+                    value={workOrder.priority || 'Low'}
+                    onChange={(value) => handleUpdateWorkOrder({ priority: value })}
+                    style={{ width: 100 }}
+                    bordered={false}
+                    size="small"
+                  >
+                    <Option value="High"><Tag color={priorityColors["High"]}>High</Tag></Option>
+                    <Option value="Medium"><Tag color={priorityColors["Medium"]}>Medium</Tag></Option>
+                    <Option value="Low"><Tag color={priorityColors["Low"]}>Low</Tag></Option>
+                  </Select>
+                </Descriptions.Item>
+                <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}>
+                  <DatePicker
+                    showTime
+                    value={workOrder.slaDue ? dayjs(workOrder.slaDue) : null}
+                    onChange={(date) => handleUpdateWorkOrder({ slaDue: date ? date.toISOString() : null })}
+                    bordered={false}
+                    style={{ width: '100%' }}
+                  />
+                </Descriptions.Item>
+                <Descriptions.Item label="Appointment Date">
+                  <DatePicker
+                    showTime
+                    value={workOrder.appointmentDate ? dayjs(workOrder.appointmentDate) : null}
+                    onChange={(date) => handleUpdateWorkOrder({ appointmentDate: date ? date.toISOString() : null })}
+                    bordered={false}
+                    style={{ width: '100%' }}
+                  />
+                </Descriptions.Item>
+                <Descriptions.Item label={<><EnvironmentOutlined /> Service Location</>}>
+                  <Select
+                    value={workOrder.locationId}
+                    onChange={(value) => handleUpdateWorkOrder({ locationId: value })}
+                    style={{ width: '100%' }}
+                    bordered={false}
+                    allowClear
+                    placeholder="Select location"
+                  >
+                    {(allLocations || []).map(l => <Option key={l.id} value={l.id}>{l.name}</Option>)}
+                  </Select>
+                </Descriptions.Item>
                 <Descriptions.Item label="Client Location">
-                  {workOrder.customerAddress ? <Text>{workOrder.customerAddress}</Text> : hasClientLocation ? `${workOrder.customerLat?.toFixed(4)}, ${workOrder.customerLng?.toFixed(4)}` : <Text type="secondary">Not Captured</Text>}
+                  <GoogleLocationSearchInput
+                    onLocationSelect={handleLocationSelect}
+                    initialValue={workOrder.customerAddress || ''}
+                  />
                 </Descriptions.Item>
                 <Descriptions.Item label={<><ToolOutlined /> Assigned To</>}>
-                  {technician ? (
-                    <Link to={`/technicians/${technician.id}`}>
-                      <Avatar size="small" src={technician.avatar || undefined} icon={<UserOutlined />} style={{ marginRight: 8 }} />
-                      {technician.name}
-                    </Link>
-                  ) : <Text type="secondary">Unassigned</Text>}
+                  <Select
+                    value={workOrder.assignedTechnicianId}
+                    onChange={(value) => handleUpdateWorkOrder({ assignedTechnicianId: value })}
+                    style={{ width: '100%' }}
+                    bordered={false}
+                    allowClear
+                    placeholder="Unassigned"
+                  >
+                    {(allTechnicians || []).map(t => (
+                      <Option key={t.id} value={t.id}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <Avatar size="small" src={t.avatar || undefined}>{t.name.split(' ').map(n => n[0]).join('')}</Avatar>
+                          <Text>{t.name}</Text>
+                        </div>
+                      </Option>
+                    ))}
+                  </Select>
                 </Descriptions.Item>
               </Descriptions>
             </Card>
@@ -195,14 +296,11 @@ const WorkOrderDetailsPage = () => {
         </Col>
       </Row>
 
-      {isEditDialogOpen && (
-        <WorkOrderFormDialog
-          isOpen={isEditDialogOpen}
-          onClose={() => setIsEditDialogOpen(false)}
-          onSave={handleSaveWorkOrder}
-          workOrder={workOrder}
-          technicians={allTechnicians || []}
-          locations={allLocations || []}
+      {onHoldWorkOrder && (
+        <OnHoldReasonDialog
+          isOpen={!!onHoldWorkOrder}
+          onClose={() => setOnHoldWorkOrder(null)}
+          onSave={handleSaveOnHoldReason}
         />
       )}
     </Space>

@@ -17,7 +17,7 @@ interface KpiCardProps {
 
 const KpiCard = ({ title, value, icon, trend, trendDirection, isUpGood = true }: KpiCardProps) => {
   const isPositive = (trendDirection === 'up' && isUpGood) || (trendDirection === 'down' && !isUpGood);
-  const trendColor = isPositive ? '#52c41a' : '#ff4d4f';
+  const trendColor = isPositive ? '#52c41a' : '#ff4d4f'; // Keep semantic green/red for trends
 
   return (
     <Card>
@@ -32,7 +32,7 @@ const KpiCard = ({ title, value, icon, trend, trendDirection, isUpGood = true }:
             </Space>
           )}
         </div>
-        <Avatar size="large" icon={icon} style={{ backgroundColor: '#e6f7ff', color: '#1890ff' }} />
+        <Avatar size="large" icon={icon} style={{ backgroundColor: '#E8D9F7', color: '#6A0DAD' }} /> {/* Light purple background, GOGO Brand Purple icon */}
       </div>
       {/* Removed chartData rendering block */}
     </Card>

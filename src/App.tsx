@@ -99,7 +99,7 @@ const App = () => (
       theme={{
         algorithm: theme.defaultAlgorithm,
         token: {
-          colorPrimary: '#1677ff',
+          colorPrimary: '#6A0DAD', // GOGO Brand Purple
           fontFamily: 'Inter, sans-serif',
         },
       }}

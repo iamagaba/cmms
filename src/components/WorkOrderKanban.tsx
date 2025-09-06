@@ -4,7 +4,18 @@ import { Row, Col, Typography, Tag, Space } from "antd";
 
 const { Title } = Typography;
 
-const statusColors: { [key: string]: string } = { Open: "blue", "Pending Confirmation": "cyan", "Confirmed & Ready": "purple", "In Progress": "gold", "On Hold": "orange", Completed: "green" };
+const primaryPurple = '#6A0DAD'; // GOGO Brand Purple
+const electricGreen = '#7FFF00'; // GOGO Electric Green
+const lightGrey = '#d9d9d9'; // Light Grey for 'Confirmed & Ready' status
+
+const statusColors: { [key: string]: string } = { 
+  Open: primaryPurple, 
+  "Pending Confirmation": "cyan", 
+  "Confirmed & Ready": lightGrey, 
+  "In Progress": "gold", 
+  "On Hold": "orange", 
+  Completed: electricGreen 
+};
 const priorityColors: { [key: string]: string } = { High: "red", Medium: "gold", Low: "green" };
 
 interface KanbanColumn {
@@ -29,7 +40,7 @@ const WorkOrderKanban = ({ workOrders, technicians, locations, groupBy, columns,
   const getColumnColor = (column: KanbanColumn) => {
     if (groupBy === 'status') return statusColors[column.id as string] || 'default';
     if (groupBy === 'priority') return priorityColors[column.id as string] || 'default';
-    return '#1677ff';
+    return primaryPurple; // Use GOGO Brand Purple for technician grouping
   }
 
   return (

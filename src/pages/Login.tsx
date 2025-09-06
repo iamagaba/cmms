@@ -10,7 +10,7 @@ function Login() {
     <div className="min-h-screen flex items-center justify-center bg-gray-100 p-4">
       <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-md">
         <div className="text-center mb-6">
-          <Title level={3} className="text-blue-600">GOGO Electric</Title>
+          <Title level={3} style={{ color: '#6A0DAD' }}>GOGO Electric</Title> {/* GOGO Brand Purple */}
           <Text type="secondary">Sign in to your account</Text>
         </div>
         <Auth
@@ -21,8 +21,8 @@ function Login() {
             variables: {
               default: {
                 colors: {
-                  brand: '#1677ff',
-                  brandAccent: '#1677ff',
+                  brand: '#6A0DAD', // GOGO Brand Purple
+                  brandAccent: '#6A0DAD', // GOGO Brand Purple
                 },
               },
             },

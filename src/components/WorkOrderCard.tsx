@@ -7,6 +7,10 @@ import SlaCountdown from "./SlaCountdown";
 const { Text, Title } = Typography;
 const { Option } = Select;
 
+const primaryPurple = '#6A0DAD'; // GOGO Brand Purple
+const electricGreen = '#7FFF00'; // GOGO Electric Green
+const lightGrey = '#d9d9d9'; // Light Grey for 'Confirmed & Ready' status
+
 interface WorkOrderCardProps {
   order: WorkOrder;
   technician: Technician | undefined;
@@ -17,7 +21,14 @@ interface WorkOrderCardProps {
 
 const priorityColors: Record<string, string> = { High: "red", Medium: "gold", Low: "green" };
 const priorityBorderColors: Record<string, string> = { High: "red", Medium: "gold", Low: "transparent" };
-const statusColors: Record<string, string> = { Open: "blue", "Pending Confirmation": "cyan", "Confirmed & Ready": "purple", "In Progress": "gold", "On Hold": "orange", Completed: "green" };
+const statusColors: Record<string, string> = { 
+  Open: primaryPurple, 
+  "Pending Confirmation": "cyan", 
+  "Confirmed & Ready": lightGrey, 
+  "In Progress": "gold", 
+  "On Hold": "orange", 
+  Completed: electricGreen 
+};
 
 const WorkOrderCard = ({ order, technician, location, allTechnicians, onUpdateWorkOrder }: WorkOrderCardProps) => {
   return (

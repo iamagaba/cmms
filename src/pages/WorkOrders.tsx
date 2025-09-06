@@ -131,6 +131,10 @@ const WorkOrdersPage = () => {
   }, [allWorkOrders, vehicleFilter, statusFilter, priorityFilter, technicianFilter]);
 
   const kanbanColumns = useMemo(() => {
+    const primaryPurple = '#6A0DAD'; // GOGO Brand Purple
+    const electricGreen = '#7FFF00'; // GOGO Electric Green
+    const lightGrey = '#d9d9d9'; // Light Grey for 'Confirmed & Ready' status
+
     switch (groupBy) {
       case 'priority':
         return [ { id: 'High', title: 'High' }, { id: 'Medium', title: 'Medium' }, { id: 'Low', title: 'Low' } ];
@@ -138,7 +142,14 @@ const WorkOrdersPage = () => {
         return [ { id: null, title: 'Unassigned' }, ...(technicians || []).map(t => ({ id: t.id, title: t.name })) ];
       case 'status':
       default:
-        return [ { id: 'Open', title: 'Open' }, { id: 'Pending Confirmation', title: 'Pending Confirmation' }, { id: 'Confirmed & Ready', title: 'Confirmed & Ready' }, { id: 'In Progress', title: 'In Progress' }, { id: 'On Hold', title: 'On Hold' }, { id: 'Completed', title: 'Completed' } ];
+        return [ 
+          { id: 'Open', title: 'Open' }, 
+          { id: 'Pending Confirmation', title: 'Pending Confirmation' }, 
+          { id: 'Confirmed & Ready', title: 'Confirmed & Ready' }, 
+          { id: 'In Progress', title: 'In Progress' }, 
+          { id: 'On Hold', title: 'On Hold' }, 
+          { id: 'Completed', title: 'Completed' } 
+        ];
     }
   }, [groupBy, technicians]);
 

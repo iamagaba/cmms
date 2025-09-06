@@ -4,6 +4,8 @@ import { Technician, WorkOrder } from "@/types/supabase";
 
 const { Text } = Typography;
 
+const electricGreen = '#7FFF00'; // GOGO Electric Green
+
 const statusColors: Record<string, 'success' | 'warning' | 'default'> = {
   available: "success",
   busy: "warning",
@@ -32,7 +34,7 @@ const TechnicianStatusList = ({ technicians, workOrders }: TechnicianStatusListP
             <List.Item.Meta
               avatar={
                 <Tooltip title={tech.status ? tech.status.charAt(0).toUpperCase() + tech.status.slice(1) : 'Unknown'}>
-                  <Avatar src={tech.avatar || undefined} style={{ border: `2px solid ${statusColors[tech.status || 'offline'] === 'success' ? '#52c41a' : statusColors[tech.status || 'offline'] === 'warning' ? '#faad14' : '#bfbfbf'}` }} />
+                  <Avatar src={tech.avatar || undefined} style={{ border: `2px solid ${tech.status === 'available' ? electricGreen : statusColors[tech.status || 'offline'] === 'warning' ? '#faad14' : '#bfbfbf'}` }} />
                 </Tooltip>
               }
               title={<Link to={`/technicians/${tech.id}`}>{tech.name}</Link>}

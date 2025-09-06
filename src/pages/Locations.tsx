@@ -7,6 +7,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Location, WorkOrder } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
+import { camelToSnakeCase } from "@/utils/data-helpers"; // Import the utility
 
 const { Title } = Typography;
 
@@ -46,7 +47,7 @@ const LocationsPage = () => {
   });
 
   const handleSave = (locationData: Location) => {
-    locationMutation.mutate(locationData);
+    locationMutation.mutate(camelToSnakeCase(locationData)); // Apply camelToSnakeCase here
     setIsDialogOpen(false);
     setEditingLocation(null);
   };

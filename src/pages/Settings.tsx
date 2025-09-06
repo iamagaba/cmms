@@ -8,6 +8,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Technician, WorkOrder, Profile } from '@/types/supabase';
 import { useSession } from '@/context/SessionContext';
+import { camelToSnakeCase } from "@/utils/data-helpers"; // Import the utility
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -32,7 +33,7 @@ const UserManagement = () => {
     onError: (error) => showError(error.message),
   });
 
-  const handleSave = (technicianData: Technician) => { technicianMutation.mutate(technicianData); setIsDialogOpen(false); setEditingTechnician(null); };
+  const handleSave = (technicianData: Technician) => { technicianMutation.mutate(camelToSnakeCase(technicianData)); setIsDialogOpen(false); setEditingTechnician(null); }; // Apply camelToSnakeCase here
   const handleDelete = (technicianData: Technician) => { deleteMutation.mutate(technicianData.id); };
   const handleEdit = (technician: Technician) => { setEditingTechnician(technician); setIsDialogOpen(true); };
 

@@ -7,6 +7,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Technician, WorkOrder } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
+import { camelToSnakeCase } from "@/utils/data-helpers"; // Import the utility
 
 const { Title } = Typography;
 
@@ -58,7 +59,7 @@ const TechniciansPage = () => {
   });
 
   const handleSave = (technicianData: Technician) => {
-    technicianMutation.mutate(technicianData);
+    technicianMutation.mutate(camelToSnakeCase(technicianData)); // Apply camelToSnakeCase here
     setIsDialogOpen(false);
     setEditingTechnician(null);
   };

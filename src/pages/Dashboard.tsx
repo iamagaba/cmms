@@ -15,7 +15,7 @@ import { camelToSnakeCase } from "@/utils/data-helpers"; // Import the utility
 
 const { Title } = Typography;
 
-const generateChartData = () => Array.from({ length: 10 }, () => ({ value: Math.floor(Math.random() * 100) }));
+// Removed generateChartData function
 
 const Dashboard = () => {
   const queryClient = useQueryClient();
@@ -153,10 +153,10 @@ const Dashboard = () => {
             />
           </div>
           <Row gutter={[24, 24]}>
-            <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={<ToolOutlined />} trend="+5%" trendDirection="up" chartData={generateChartData()} /></Col>
-            <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Open Work Orders" value={openOrders.toString()} icon={<ExclamationCircleOutlined />} trend="+3" trendDirection="up" isUpGood={false} chartData={generateChartData()} /></Col>
-            <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={<CheckCircleOutlined />} trend="+1.2%" trendDirection="up" chartData={generateChartData()} /></Col>
-            <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<ClockCircleOutlined />} trend="-0.2 Days" trendDirection="down" isUpGood={false} chartData={generateChartData()} /></Col>
+            <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={<ToolOutlined />} trend="+5%" trendDirection="up" /></Col>
+            <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Open Work Orders" value={openOrders.toString()} icon={<ExclamationCircleOutlined />} trend="+3" trendDirection="up" isUpGood={false} /></Col>
+            <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={<CheckCircleOutlined />} trend="+1.2%" trendDirection="up" /></Col>
+            <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<ClockCircleOutlined />} trend="-0.2 Days" trendDirection="down" isUpGood={false} /></Col>
           </Row>
         </div>
         

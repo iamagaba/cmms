@@ -1,7 +1,7 @@
 import { Card, Statistic, Avatar, Space, Typography } from "antd";
 import { ArrowUpOutlined, ArrowDownOutlined } from "@ant-design/icons";
 import { ReactNode } from "react";
-import { LineChart, Line, ResponsiveContainer } from 'recharts';
+// Removed LineChart, Line, ResponsiveContainer from recharts
 
 const { Text } = Typography;
 
@@ -12,10 +12,10 @@ interface KpiCardProps {
   trend?: string;
   trendDirection?: 'up' | 'down';
   isUpGood?: boolean;
-  chartData?: { value: number }[];
+  // Removed chartData prop
 }
 
-const KpiCard = ({ title, value, icon, trend, trendDirection, isUpGood = true, chartData }: KpiCardProps) => {
+const KpiCard = ({ title, value, icon, trend, trendDirection, isUpGood = true }: KpiCardProps) => {
   const isPositive = (trendDirection === 'up' && isUpGood) || (trendDirection === 'down' && !isUpGood);
   const trendColor = isPositive ? '#52c41a' : '#ff4d4f';
 
@@ -34,15 +34,7 @@ const KpiCard = ({ title, value, icon, trend, trendDirection, isUpGood = true, c
         </div>
         <Avatar size="large" icon={icon} style={{ backgroundColor: '#e6f7ff', color: '#1890ff' }} />
       </div>
-      {chartData && (
-        <div style={{ height: 40, marginTop: 16, marginLeft: -24, marginRight: -24, marginBottom: -16 }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData}>
-              <Line type="monotone" dataKey="value" stroke={trendColor} strokeWidth={2} dot={false} />
-            </LineChart>
-          </ResponsiveContainer>
-        </div>
-      )}
+      {/* Removed chartData rendering block */}
     </Card>
   );
 };

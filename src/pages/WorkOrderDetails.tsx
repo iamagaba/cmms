@@ -1,11 +1,15 @@
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { Avatar, Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typography, List, Skeleton } from "antd";
-import { ArrowLeftOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined, CalendarOutlined, ToolOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined, CalendarOutlined, ToolOutlined, EditOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import NotFound from "./NotFound";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { WorkOrder, Technician, Location } from "@/types/supabase";
+import { useState } from "react";
+import { WorkOrderFormDialog } from "@/components/WorkOrderFormDialog";
+import { showSuccess, showError } from "@/utils/toast";
+import { camelToSnakeCase } from "@/utils/data-helpers";
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -17,6 +21,8 @@ const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "";
 const WorkOrderDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
   const { data: workOrder, isLoading: isLoadingWorkOrder } = useQuery<WorkOrder | null>({
     queryKey: ['work_order', id],
@@ -50,7 +56,44 @@ const WorkOrderDetailsPage = () => {
     enabled: !!workOrder?.locationId,
   });
 
-  const isLoading = isLoadingWorkOrder || isLoadingTechnician || isLoadingLocation;
+  // Fetch all technicians and locations for the edit form
+  const { data: allTechnicians, isLoading: isLoadingAllTechnicians } = useQuery<Technician[]>({
+    queryKey: ['technicians'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('technicians').select('*');
+      if (error) throw new Error(error.message);
+      return data || [];
+    }
+  });
+
+  const { data: allLocations, isLoading: isLoadingAllLocations } = useQuery<Location[]>({
+    queryKey: ['locations'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('locations').select('*');
+      if (error) throw new Error(error.message);
+      return data || [];
+    }
+  });
+
+  const workOrderMutation = useMutation({
+    mutationFn: async (workOrderData: Partial<WorkOrder>) => {
+      const { error } = await supabase.from('work_orders').upsert(workOrderData);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['work_order', id] }); // Invalidate specific work order
+      queryClient.invalidateQueries({ queryKey: ['work_orders'] }); // Invalidate all work orders for lists
+      showSuccess('Work order has been updated.');
+      setIsEditDialogOpen(false);
+    },
+    onError: (error) => showError(error.message),
+  });
+
+  const handleSaveWorkOrder = (data: Partial<WorkOrder>) => {
+    workOrderMutation.mutate(data);
+  };
+
+  const isLoading = isLoadingWorkOrder || isLoadingTechnician || isLoadingLocation || isLoadingAllTechnicians || isLoadingAllLocations;
 
   if (isLoading) {
     return <Skeleton active />;
@@ -80,6 +123,7 @@ const WorkOrderDetailsPage = () => {
         <Space>
           <Title level={4} style={{ margin: 0 }}>Work Order: {workOrder.workOrderNumber}</Title>
           <Tag color={statusColors[workOrder.status || '']}>{workOrder.status}</Tag>
+          <Button type="default" icon={<EditOutlined />} onClick={() => setIsEditDialogOpen(true)}>Edit</Button>
         </Space>
       </div>
 
@@ -150,6 +194,17 @@ const WorkOrderDetailsPage = () => {
           </Space>
         </Col>
       </Row>
+
+      {isEditDialogOpen && (
+        <WorkOrderFormDialog
+          isOpen={isEditDialogOpen}
+          onClose={() => setIsEditDialogOpen(false)}
+          onSave={handleSaveWorkOrder}
+          workOrder={workOrder}
+          technicians={allTechnicians || []}
+          locations={allLocations || []}
+        />
+      )}
     </Space>
   );
 };

@@ -9,7 +9,9 @@ import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { WorkOrder, Technician, Location } from "@/types/supabase";
-import { camelToSnakeCase } from "@/utils/data-helpers"; // Import the utility
+import { camelToSnakeCase } from "@/utils/data-helpers";
+import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -20,11 +22,16 @@ type GroupByOption = 'status' | 'priority' | 'technician';
 
 const WorkOrdersPage = () => {
   const queryClient = useQueryClient();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
   const [editingWorkOrder, setEditingWorkOrder] = useState<WorkOrder | null>(null);
   const [view, setView] = useState<'table' | 'kanban'>('table');
   const [groupBy, setGroupBy] = useState<GroupByOption>('status');
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
+
+  const viewingWorkOrderId = searchParams.get('view');
 
   // Filter states
   const [vehicleFilter, setVehicleFilter] = useState("");
@@ -87,7 +94,7 @@ const WorkOrdersPage = () => {
 
   const handleSave = (workOrderData: WorkOrder) => {
     workOrderMutation.mutate(workOrderData);
-    setIsDialogOpen(false);
+    setIsFormDialogOpen(false);
     setEditingWorkOrder(null);
   };
 
@@ -109,14 +116,22 @@ const WorkOrdersPage = () => {
       showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`);
     }
     
-    workOrderMutation.mutate(camelToSnakeCase({ id, ...updates })); // Apply camelToSnakeCase here
+    workOrderMutation.mutate(camelToSnakeCase({ id, ...updates }));
   };
 
   const handleSaveOnHoldReason = (reason: string) => {
     if (!onHoldWorkOrder) return;
     const updates = { status: 'On Hold' as const, onHoldReason: reason };
-    workOrderMutation.mutate(camelToSnakeCase({ id: onHoldWorkOrder.id, ...updates })); // Apply camelToSnakeCase here
+    workOrderMutation.mutate(camelToSnakeCase({ id: onHoldWorkOrder.id, ...updates }));
     setOnHoldWorkOrder(null);
+  };
+
+  const handleViewDetails = (workOrderId: string) => {
+    setSearchParams({ view: workOrderId });
+  };
+
+  const handleCloseDrawer = () => {
+    setSearchParams({});
   };
 
   const filteredWorkOrders = useMemo(() => {
@@ -161,7 +176,7 @@ const WorkOrdersPage = () => {
           <Col>
             <Space size="middle">
               <Segmented options={[{ label: 'Table', value: 'table', icon: <TableOutlined /> }, { label: 'Board', value: 'kanban', icon: <AppstoreOutlined /> }]} value={view} onChange={(value) => setView(value as 'table' | 'kanban')} />
-              <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingWorkOrder(null); setIsDialogOpen(true); }}>Add Work Order</Button>
+              <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingWorkOrder(null); setIsFormDialogOpen(true); }}>Add Work Order</Button>
             </Space>
           </Col>
         </Row>
@@ -181,16 +196,17 @@ const WorkOrdersPage = () => {
         <Card bordered={false} bodyStyle={{ padding: view === 'kanban' ? '1' : '0' }}>
           {isLoading ? <Skeleton active paragraph={{ rows: 5 }} /> : (
             view === 'table' ? (
-              <WorkOrderDataTable workOrders={filteredWorkOrders} technicians={technicians || []} locations={locations || []} onEdit={(wo) => { setEditingWorkOrder(wo); setIsDialogOpen(true); }} onDelete={handleDelete} onUpdateWorkOrder={handleUpdateWorkOrder} />
+              <WorkOrderDataTable workOrders={filteredWorkOrders} technicians={technicians || []} locations={locations || []} onEdit={(wo) => { setEditingWorkOrder(wo); setIsFormDialogOpen(true); }} onDelete={handleDelete} onUpdateWorkOrder={handleUpdateWorkOrder} onViewDetails={handleViewDetails} />
             ) : (
-              <WorkOrderKanban workOrders={filteredWorkOrders} groupBy={groupByField} columns={kanbanColumns} onUpdateWorkOrder={handleUpdateWorkOrder} technicians={technicians || []} locations={locations || []} />
+              <WorkOrderKanban workOrders={filteredWorkOrders} groupBy={groupByField} columns={kanbanColumns} onUpdateWorkOrder={handleUpdateWorkOrder} technicians={technicians || []} locations={locations || []} onViewDetails={handleViewDetails} />
             )
           )}
         </Card>
 
-        {isDialogOpen && <WorkOrderFormDialog isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)} onSave={handleSave} workOrder={editingWorkOrder} technicians={technicians || []} locations={locations || []} />}
+        {isFormDialogOpen && <WorkOrderFormDialog isOpen={isFormDialogOpen} onClose={() => setIsFormDialogOpen(false)} onSave={handleSave} workOrder={editingWorkOrder} technicians={technicians || []} locations={locations || []} />}
       </Space>
       {onHoldWorkOrder && <OnHoldReasonDialog isOpen={!!onHoldWorkOrder} onClose={() => setOnHoldWorkOrder(null)} onSave={handleSaveOnHoldReason} />}
+      <WorkOrderDetailsDrawer workOrderId={viewingWorkOrderId} onClose={handleCloseDrawer} />
     </>
   );
 };

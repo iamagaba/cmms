@@ -50,6 +50,10 @@ const LocationDetailsPage = () => {
     setOnHoldWorkOrder(null);
   };
 
+  const handleViewDetails = (workOrderId: string) => {
+    navigate(`/work-orders/${workOrderId}`);
+  };
+
   const isLoading = isLoadingLocation || isLoadingWorkOrders || isLoadingTechnicians;
 
   if (isLoading) return <Skeleton active />;
@@ -81,7 +85,7 @@ const LocationDetailsPage = () => {
         </Row>
         <Card>
           <Title level={5}>Work Orders at {location.name.replace(' Service Center', '')}</Title>
-          <WorkOrderDataTable workOrders={locationWorkOrders} technicians={technicians || []} locations={allWorkOrders ? [location] : []} onEdit={() => {}} onDelete={() => {}} onUpdateWorkOrder={handleUpdateWorkOrder} />
+          <WorkOrderDataTable workOrders={locationWorkOrders} technicians={technicians || []} locations={allWorkOrders ? [location] : []} onEdit={() => {}} onDelete={() => {}} onUpdateWorkOrder={handleUpdateWorkOrder} onViewDetails={handleViewDetails} />
         </Card>
       </Space>
       {onHoldWorkOrder && <OnHoldReasonDialog isOpen={!!onHoldWorkOrder} onClose={() => setOnHoldWorkOrder(null)} onSave={handleSaveOnHoldReason} />}

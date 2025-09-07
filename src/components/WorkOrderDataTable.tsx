@@ -10,9 +10,10 @@ interface WorkOrderDataTableProps {
   onEdit: (workOrderData: WorkOrder) => void;
   onDelete: (workOrderData: WorkOrder) => void;
   onUpdateWorkOrder: (id: string, updates: Partial<WorkOrder>) => void;
+  onViewDetails: (workOrderId: string) => void;
 }
 
-export function WorkOrderDataTable({ workOrders, technicians, locations, onEdit, onDelete, onUpdateWorkOrder }: WorkOrderDataTableProps) {
+export function WorkOrderDataTable({ workOrders, technicians, locations, onEdit, onDelete, onUpdateWorkOrder, onViewDetails }: WorkOrderDataTableProps) {
 
   const tableData: WorkOrderRow[] = React.useMemo(() => {
     return workOrders.map(wo => ({
@@ -31,8 +32,9 @@ export function WorkOrderDataTable({ workOrders, technicians, locations, onEdit,
       rowKey="id"
       size="small"
       pagination={{ pageSize: 10, hideOnSinglePage: true }}
-      onRow={() => ({
-        className: 'lift-on-hover-row'
+      onRow={(record) => ({
+        className: 'lift-on-hover-row',
+        onClick: () => onViewDetails(record.id),
       })}
     />
   );

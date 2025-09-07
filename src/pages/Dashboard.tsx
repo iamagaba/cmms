@@ -11,14 +11,19 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { WorkOrder, Technician, Location } from "@/types/supabase";
 import dayjs from "dayjs";
-import { camelToSnakeCase } from "@/utils/data-helpers"; // Import the utility
+import { camelToSnakeCase } from "@/utils/data-helpers";
+import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
+import { useSearchParams } from "react-router-dom";
 
 const { Title } = Typography;
 
 const Dashboard = () => {
   const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
+
+  const viewingWorkOrderId = searchParams.get('view');
 
   // Data Fetching
   const { data: allWorkOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({
@@ -83,6 +88,14 @@ const Dashboard = () => {
     const updates = { status: 'On Hold' as const, onHoldReason: reason };
     workOrderMutation.mutate(camelToSnakeCase({ id: onHoldWorkOrder.id, ...updates }));
     setOnHoldWorkOrder(null);
+  };
+
+  const handleViewDetails = (workOrderId: string) => {
+    setSearchParams({ view: workOrderId });
+  };
+
+  const handleCloseDrawer = () => {
+    setSearchParams({});
   };
 
   const filteredWorkOrders = useMemo(() => {
@@ -174,6 +187,7 @@ const Dashboard = () => {
       groupBy="status"
       columns={kanbanColumns}
       onUpdateWorkOrder={handleUpdateWorkOrder}
+      onViewDetails={handleViewDetails}
     />
   );
 
@@ -192,6 +206,7 @@ const Dashboard = () => {
           onSave={handleSaveOnHoldReason}
         />
       )}
+      <WorkOrderDetailsDrawer workOrderId={viewingWorkOrderId} onClose={handleCloseDrawer} />
     </>
   );
 };

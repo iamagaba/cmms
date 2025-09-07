@@ -3,7 +3,6 @@ import { MoreOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { WorkOrder, Technician, Location } from "@/types/supabase";
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { Link } from "react-router-dom";
 import SlaCountdown from "./SlaCountdown";
 
 dayjs.extend(relativeTime);
@@ -36,7 +35,7 @@ export const getColumns = (
   {
     title: "ID",
     dataIndex: "workOrderNumber",
-    render: (text: string, record: WorkOrderRow) => <Link to={`/work-orders/${record.id}`}><Text code>{text || record.id.substring(0, 6)}</Text></Link>
+    render: (text: string, record: WorkOrderRow) => <Text code>{text || record.id.substring(0, 6)}</Text>
   },
   {
     title: "Customer & Vehicle",
@@ -56,7 +55,7 @@ export const getColumns = (
     title: "Status",
     dataIndex: "status",
     render: (status: WorkOrder['status'], record: WorkOrderRow) => (
-      <Select value={status} onChange={(value) => onUpdateWorkOrder(record.id, { status: value })} style={{ width: 180 }} bordered={false} suffixIcon={null} size="small">
+      <Select value={status} onChange={(value) => onUpdateWorkOrder(record.id, { status: value })} style={{ width: 180 }} bordered={false} suffixIcon={null} size="small" onClick={(e) => e.stopPropagation()}>
         <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
         <Option value="Confirmation"><Tag color={statusColors["Confirmation"]}>Confirmation</Tag></Option>
         <Option value="Ready"><Tag color={statusColors["Ready"]}>Ready</Tag></Option>
@@ -71,7 +70,7 @@ export const getColumns = (
     title: "Priority",
     dataIndex: "priority",
     render: (priority: WorkOrder['priority'], record: WorkOrderRow) => (
-      <Select value={priority} onChange={(value) => onUpdateWorkOrder(record.id, { priority: value })} style={{ width: 100 }} bordered={false} suffixIcon={null} size="small">
+      <Select value={priority} onChange={(value) => onUpdateWorkOrder(record.id, { priority: value })} style={{ width: 100 }} bordered={false} suffixIcon={null} size="small" onClick={(e) => e.stopPropagation()}>
         <Option value="High"><Tag color={priorityColors["High"]}>High</Tag></Option>
         <Option value="Medium"><Tag color={priorityColors["Medium"]}>Medium</Tag></Option>
         <Option value="Low"><Tag color={priorityColors["Low"]}>Low</Tag></Option>
@@ -83,7 +82,7 @@ export const getColumns = (
     title: "Technician",
     dataIndex: "technician",
     render: (_: any, record: WorkOrderRow) => (
-      <Select value={record.assignedTechnicianId} onChange={(value) => onUpdateWorkOrder(record.id, { assignedTechnicianId: value })} style={{ width: 150 }} bordered={false} allowClear placeholder="Unassigned" suffixIcon={null} size="small">
+      <Select value={record.assignedTechnicianId} onChange={(value) => onUpdateWorkOrder(record.id, { assignedTechnicianId: value })} style={{ width: 150 }} bordered={false} allowClear placeholder="Unassigned" suffixIcon={null} size="small" onClick={(e) => e.stopPropagation()}>
         {allTechnicians.map(tech => (
           <Option key={tech.id} value={tech.id}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -106,8 +105,8 @@ export const getColumns = (
     key: "actions",
     align: "right" as const,
     render: (_: any, record: WorkOrderRow) => (
-      <Dropdown overlay={<Menu><Menu.Item key="edit" icon={<EditOutlined />} onClick={() => onEdit(record)}>Edit Work Order</Menu.Item><Menu.Item key="delete" icon={<DeleteOutlined />} danger onClick={() => onDelete(record)}>Delete Work Order</Menu.Item></Menu>} trigger={["click"]}>
-        <Button type="text" icon={<MoreOutlined style={{ fontSize: '18px' }} />} />
+      <Dropdown overlay={<Menu><Menu.Item key="edit" icon={<EditOutlined />} onClick={(e) => { e.domEvent.stopPropagation(); onEdit(record); }}>Edit Work Order</Menu.Item><Menu.Item key="delete" icon={<DeleteOutlined />} danger onClick={(e) => { e.domEvent.stopPropagation(); onDelete(record); }}>Delete Work Order</Menu.Item></Menu>} trigger={["click"]}>
+        <Button type="text" icon={<MoreOutlined style={{ fontSize: '18px' }} />} onClick={(e) => e.stopPropagation()} />
       </Dropdown>
     ),
   },

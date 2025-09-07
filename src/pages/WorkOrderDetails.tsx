@@ -11,6 +11,7 @@ import { showSuccess, showError, showInfo } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
 import { GoogleLocationSearchInput } from "@/components/GoogleLocationSearchInput";
+import { useSearchParams } from "react-router-dom";
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -28,15 +29,23 @@ const priorityColors: Record<string, string> = { High: "#FF4D4F", Medium: "#FAAD
 
 const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "";
 
-const WorkOrderDetailsPage = () => {
-  const { id } = useParams<{ id: string }>();
+interface WorkOrderDetailsProps {
+  isDrawerMode?: boolean;
+}
+
+const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) => {
+  const { id: paramId } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
 
+  const id = isDrawerMode ? searchParams.get('view') : paramId;
+
   const { data: workOrder, isLoading: isLoadingWorkOrder } = useQuery<WorkOrder | null>({
     queryKey: ['work_order', id],
     queryFn: async () => {
+      if (!id) return null;
       const { data, error } = await supabase.from('work_orders').select('*').eq('id', id).single();
       if (error) throw new Error(error.message);
       return data;
@@ -135,7 +144,7 @@ const WorkOrderDetailsPage = () => {
   }
 
   if (!workOrder) {
-    return <NotFound />;
+    return isDrawerMode ? <div style={{ padding: 24 }}><NotFound /></div> : <NotFound />;
   }
 
   const hasClientLocation = workOrder.customerLat != null && workOrder.customerLng != null;
@@ -154,9 +163,9 @@ const WorkOrderDetailsPage = () => {
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/work-orders')}>Back to Work Orders</Button>
+        {!isDrawerMode && <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/work-orders')}>Back to Work Orders</Button>}
         <Space>
-          <Title level={4} style={{ margin: 0 }}>Work Order: {workOrder.workOrderNumber}</Title>
+          {!isDrawerMode && <Title level={4} style={{ margin: 0 }}>Work Order: {workOrder.workOrderNumber}</Title>}
           <Select
             value={workOrder.status || 'Open'}
             onChange={(value) => handleUpdateWorkOrder({ status: value })}

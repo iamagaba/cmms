@@ -26,9 +26,10 @@ interface WorkOrderKanbanProps {
     groupBy: 'status' | 'priority' | 'assignedTechnicianId';
     columns: KanbanColumn[];
     onUpdateWorkOrder: (id: string, updates: Partial<WorkOrder>) => void;
+    onViewDetails: (workOrderId: string) => void;
 }
 
-const WorkOrderKanban = ({ workOrders, technicians, locations, groupBy, columns, onUpdateWorkOrder }: WorkOrderKanbanProps) => {
+const WorkOrderKanban = ({ workOrders, technicians, locations, groupBy, columns, onUpdateWorkOrder, onViewDetails }: WorkOrderKanbanProps) => {
   const getColumnOrders = (columnId: string | null) => {
     return workOrders.filter(order => (order as any)[groupBy] === columnId);
   };
@@ -59,7 +60,7 @@ const WorkOrderKanban = ({ workOrders, technicians, locations, groupBy, columns,
                             {columnOrders.map(order => {
                                 const technician = technicians.find(t => t.id === order.assignedTechnicianId);
                                 const location = locations.find(l => l.id === order.locationId);
-                                return <WorkOrderCard key={order.id} order={order} technician={technician} location={location} onUpdateWorkOrder={onUpdateWorkOrder} allTechnicians={technicians} />;
+                                return <WorkOrderCard key={order.id} order={order} technician={technician} location={location} onUpdateWorkOrder={onUpdateWorkOrder} allTechnicians={technicians} onViewDetails={() => onViewDetails(order.id)} />;
                             })}
                         </Space>
                     </div>

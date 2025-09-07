@@ -1,7 +1,6 @@
 import { Card, Tag, Avatar, Typography, Select, Tooltip } from "antd";
 import { EnvironmentOutlined, MessageOutlined } from "@ant-design/icons";
 import { WorkOrder, Technician, Location } from "@/types/supabase";
-import { useNavigate } from "react-router-dom";
 import SlaCountdown from "./SlaCountdown";
 
 const { Text, Title } = Typography;
@@ -13,6 +12,7 @@ interface WorkOrderCardProps {
   location: Location | undefined;
   allTechnicians: Technician[];
   onUpdateWorkOrder: (id: string, updates: Partial<WorkOrder>) => void;
+  onViewDetails: () => void;
 }
 
 const priorityColors: Record<string, string> = { High: "#FF4D4F", Medium: "#FAAD14", Low: "#52c41a" };
@@ -26,13 +26,7 @@ const statusColors: Record<string, string> = {
   Completed: '#22C55E' // Green
 };
 
-const WorkOrderCard = ({ order, technician, location, allTechnicians, onUpdateWorkOrder }: WorkOrderCardProps) => {
-  const navigate = useNavigate();
-
-  const handleCardClick = () => {
-    navigate(`/work-orders/${order.id}`);
-  };
-
+const WorkOrderCard = ({ order, technician, location, allTechnicians, onUpdateWorkOrder, onViewDetails }: WorkOrderCardProps) => {
   const stopPropagation = (e: React.MouseEvent) => {
     e.stopPropagation();
   };
@@ -43,7 +37,7 @@ const WorkOrderCard = ({ order, technician, location, allTechnicians, onUpdateWo
       className="lift-on-hover"
       style={{ borderLeft: `4px solid ${priorityBorderColors[order.priority || 'Low']}`, cursor: 'pointer' }}
       bodyStyle={{ padding: 12 }}
-      onClick={handleCardClick}
+      onClick={onViewDetails}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
         <div>

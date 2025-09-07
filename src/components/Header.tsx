@@ -7,8 +7,8 @@ import {
   QuestionCircleOutlined,
   LogoutOutlined,
   FireOutlined,
-} from "@ant-design/icons"; // Removed navigation-specific icons
-import { useLocation, Link, useNavigate } from "react-router-dom"; // Removed NavLink
+} from "@ant-design/icons";
+import { Link, useNavigate } from "react-router-dom";
 import { useNotifications } from "@/context/NotificationsContext";
 import { formatDistanceToNow } from 'date-fns';
 import { useSession } from "@/context/SessionContext";
@@ -18,10 +18,7 @@ import { showSuccess, showError } from "@/utils/toast";
 const { Header } = Layout;
 const { Text } = Typography;
 
-// Removed navItems as they are now in SideNavigation
-
 const AppHeader = () => {
-  const location = useLocation();
   const navigate = useNavigate();
   const { notifications, unreadCount, markAllAsRead } = useNotifications();
   const { session } = useSession();
@@ -72,13 +69,12 @@ const AppHeader = () => {
   );
 
   return (
-    <Header style={{ padding: '0 24px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #f0f0f0' }}>
+    <Header style={{ padding: '0 24px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb' }}>
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', marginRight: '24px', textDecoration: 'none' }}>
-          <FireOutlined style={{color: '#6A0DAD', fontSize: '24px'}} /> {/* GOGO Brand Purple */}
-          <span style={{color: '#6A0DAD', marginLeft: '8px', fontWeight: 'bold', fontSize: '18px'}}>GOGO Electric</span> {/* GOGO Brand Purple */}
+          <FireOutlined style={{color: '#6A0DAD', fontSize: '24px'}} />
+          <span style={{color: '#6A0DAD', marginLeft: '8px', fontWeight: 'bold', fontSize: '18px'}}>GOGO Electric</span>
         </Link>
-        {/* Removed horizontal Menu component */}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
         <Input

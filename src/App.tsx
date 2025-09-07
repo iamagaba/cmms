@@ -52,11 +52,11 @@ const AppContent = () => {
   }
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ minHeight: '100vh', backgroundColor: '#f6f7f9' }}>
       <AppHeader />
       <Layout>
         <SideNavigation collapsed={collapsed} onCollapse={setCollapsed} />
-        <Content className="fade-in" style={{ padding: '24px 32px', margin: '0', overflow: 'initial' }}>
+        <Content className="fade-in main-content">
           <Routes>
             <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/technicians" element={<ProtectedRoute><TechniciansPage /></ProtectedRoute>} />
@@ -83,13 +83,26 @@ const App = () => (
       theme={{
         algorithm: theme.defaultAlgorithm,
         token: {
+          // Brand & Semantic Colors
           colorPrimary: '#6A0DAD',
           colorSuccess: '#22C55E',
           colorWarning: '#FAAD14',
           colorError: '#FF4D4F',
-          colorInfo: '#0052CC', // A more professional blue
-          borderRadius: 8, // Softer corners
-          fontFamily: 'Lato, sans-serif', // App-wide font
+          colorInfo: '#0052CC',
+
+          // Typography
+          fontFamily: 'Lato, sans-serif',
+          colorText: '#1f2937', // Dark gray for primary text
+          colorTextSecondary: '#6b7280', // Lighter gray for secondary text
+
+          // Layout & Spacing
+          borderRadius: 8,
+          controlHeight: 36, // Slightly larger default controls
+          colorBgLayout: '#f6f7f9', // Light gray background for the main layout
+          
+          // Borders
+          colorBorder: '#e5e7eb', // Lighter, more subtle borders
+          colorSplit: '#f3f4f6', // Even lighter for dividers
         },
       }}
     >

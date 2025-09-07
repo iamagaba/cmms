@@ -5,6 +5,21 @@
 
 body {
   font-family: 'Lato', sans-serif;
+  background-color: #f6f7f9; /* Set a base background color */
+}
+
+/* --- Polaris-Inspired Layout --- */
+.main-content {
+  padding: 24px 32px;
+  margin: 0;
+  overflow: initial;
+  background-color: transparent; /* Content area is transparent to show layout background */
+}
+
+/* --- Polaris-Inspired Typography --- */
+/* Add more vertical spacing to page titles */
+.ant-typography {
+  margin-bottom: 1.2em;
 }
 
 /* Custom styles for Leaflet divIcons to remove default background/border */
@@ -39,7 +54,7 @@ body {
 
 .lift-on-hover:hover {
   transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Softer shadow */
 }
 
 /* 3. Lift effect for table rows on hover */

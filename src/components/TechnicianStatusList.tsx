@@ -4,7 +4,7 @@ import { Technician, WorkOrder } from "@/types/supabase";
 
 const { Text } = Typography;
 
-const electricGreen = '#7FFF00'; // GOGO Electric Green
+const electricGreen = '#22C55E'; // A more balanced, vibrant green
 
 const statusColors: Record<string, 'success' | 'warning' | 'default'> = {
   available: "success",

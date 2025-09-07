@@ -4,19 +4,15 @@ import { Row, Col, Typography, Tag, Space } from "antd";
 
 const { Title } = Typography;
 
-const primaryPurple = '#6A0DAD'; // GOGO Brand Purple
-const electricGreen = '#7FFF00'; // GOGO Electric Green
-const lightGrey = '#d9d9d9'; // Light Grey for 'Confirmed & Ready' status
-
 const statusColors: { [key: string]: string } = { 
-  Open: primaryPurple, 
-  "Pending Confirmation": "cyan", 
-  "Confirmed & Ready": lightGrey, 
-  "In Progress": "gold", 
-  "On Hold": "orange", 
-  Completed: electricGreen 
+  Open: '#6A0DAD', 
+  "Pending Confirmation": "#13C2C2", 
+  "Confirmed & Ready": "#d9d9d9", 
+  "In Progress": "#FAAD14", 
+  "On Hold": "#FA8C16", 
+  Completed: '#22C55E' 
 };
-const priorityColors: { [key: string]: string } = { High: "red", Medium: "gold", Low: "green" };
+const priorityColors: { [key: string]: string } = { High: "#FF4D4F", Medium: "#FAAD14", Low: "#52c41a" };
 
 interface KanbanColumn {
     id: string | null;
@@ -40,7 +36,7 @@ const WorkOrderKanban = ({ workOrders, technicians, locations, groupBy, columns,
   const getColumnColor = (column: KanbanColumn) => {
     if (groupBy === 'status') return statusColors[column.id as string] || 'default';
     if (groupBy === 'priority') return priorityColors[column.id as string] || 'default';
-    return primaryPurple; // Use GOGO Brand Purple for technician grouping
+    return '#6A0DAD'; // Use GOGO Brand Purple for technician grouping
   }
 
   return (

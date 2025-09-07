@@ -16,19 +16,15 @@ const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
 const { TextArea } = Input;
 
-const primaryPurple = '#6A0DAD'; // GOGO Brand Purple
-const electricGreen = '#7FFF00'; // GOGO Electric Green
-const lightGrey = '#d9d9d9'; // Light Grey for 'Confirmed & Ready' status
-
 const statusColors: Record<string, string> = { 
-  Open: primaryPurple, 
-  "Pending Confirmation": "cyan", 
-  "Confirmed & Ready": lightGrey, 
-  "In Progress": "gold", 
-  "On Hold": "orange", 
-  Completed: electricGreen 
+  Open: '#6A0DAD', 
+  "Pending Confirmation": "#13C2C2", 
+  "Confirmed & Ready": "#d9d9d9", 
+  "In Progress": "#FAAD14", 
+  "On Hold": "#FA8C16", 
+  Completed: '#22C55E' 
 };
-const priorityColors: Record<string, string> = { High: "red", Medium: "gold", Low: "green" };
+const priorityColors: Record<string, string> = { High: "#FF4D4F", Medium: "#FAAD14", Low: "#52c41a" };
 
 const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "";
 

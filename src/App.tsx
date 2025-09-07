@@ -100,6 +100,11 @@ const App = () => (
         algorithm: theme.defaultAlgorithm,
         token: {
           colorPrimary: '#6A0DAD', // GOGO Brand Purple
+          colorSuccess: '#22C55E',
+          colorWarning: '#FAAD14',
+          colorError: '#FF4D4F',
+          colorInfo: '#13C2C2',
+          borderRadius: 6,
           fontFamily: 'Inter, sans-serif',
         },
       }}

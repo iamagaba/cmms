@@ -131,10 +131,6 @@ const WorkOrdersPage = () => {
   }, [allWorkOrders, vehicleFilter, statusFilter, priorityFilter, technicianFilter]);
 
   const kanbanColumns = useMemo(() => {
-    const primaryPurple = '#6A0DAD'; // GOGO Brand Purple
-    const electricGreen = '#7FFF00'; // GOGO Electric Green
-    const lightGrey = '#d9d9d9'; // Light Grey for 'Confirmed & Ready' status
-
     switch (groupBy) {
       case 'priority':
         return [ { id: 'High', title: 'High' }, { id: 'Medium', title: 'Medium' }, { id: 'Low', title: 'Low' } ];

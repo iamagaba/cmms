@@ -101,7 +101,7 @@ const App = () => (
           colorInfo: '#0052CC',
 
           // Typography
-          fontFamily: 'Montserrat, sans-serif', // Changed to Montserrat
+          fontFamily: 'Lato, sans-serif',
           colorText: '#1f2937', // Dark gray for primary text
           colorTextSecondary: '#6b7280', // Lighter gray for secondary text
 

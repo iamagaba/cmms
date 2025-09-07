@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Modal, Form, Input, Button } from "antd";
 import { Location } from "@/types/supabase";
+import { GoogleLocationSearchInput } from "./GoogleLocationSearchInput"; // Import the component
 
 interface LocationFormDialogProps {
   isOpen: boolean;
@@ -12,14 +13,28 @@ interface LocationFormDialogProps {
 export const LocationFormDialog = ({ isOpen, onClose, onSave, location }: LocationFormDialogProps) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [selectedLocationData, setSelectedLocationData] = useState<{ lat: number; lng: number; label: string } | null>(null);
 
   useEffect(() => {
-    if (location) {
-      form.setFieldsValue(location);
-    } else {
-      form.resetFields();
+    if (isOpen) {
+      if (location) {
+        form.setFieldsValue(location);
+        if (location.lat && location.lng && location.address) {
+          setSelectedLocationData({ lat: location.lat, lng: location.lng, label: location.address });
+        } else {
+          setSelectedLocationData(null);
+        }
+      } else {
+        form.resetFields();
+        setSelectedLocationData(null);
+      }
     }
   }, [isOpen, location, form]);
+
+  const handleLocationSelect = (data: { lat: number; lng: number; label: string }) => {
+    setSelectedLocationData(data);
+    form.setFieldsValue({ address: data.label });
+  };
 
   const handleSubmit = async () => {
     setLoading(true);
@@ -28,8 +43,8 @@ export const LocationFormDialog = ({ isOpen, onClose, onSave, location }: Locati
       const locationToSave: Location = {
         id: location?.id,
         ...values,
-        lat: location?.lat || 0.32,
-        lng: location?.lng || 32.58,
+        lat: selectedLocationData?.lat || null, // Use captured lat/lng
+        lng: selectedLocationData?.lng || null, // Use captured lat/lng
       };
       
       onSave(locationToSave);
@@ -53,12 +68,15 @@ export const LocationFormDialog = ({ isOpen, onClose, onSave, location }: Locati
         <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save</Button>,
       ]}
     >
-      <Form form={form} layout="vertical" name="location_form" initialValues={{ name: location?.name, address: location?.address }}>
+      <Form form={form} layout="vertical" name="location_form">
         <Form.Item name="name" label="Location Name" rules={[{ required: true, message: 'Please input the location name!' }]}>
           <Input placeholder="e.g. GOGO Station - Wandegeya" />
         </Form.Item>
         <Form.Item name="address" label="Address" rules={[{ required: true, message: 'Please input the address!' }]}>
-          <Input placeholder="e.g. Wandegeya, Kampala" />
+          <GoogleLocationSearchInput 
+            onLocationSelect={handleLocationSelect} 
+            initialValue={location?.address || ''} 
+          />
         </Form.Item>
       </Form>
     </Modal>

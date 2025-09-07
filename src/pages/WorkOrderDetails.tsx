@@ -72,8 +72,8 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   const partsColumns = [
     { title: 'Part', dataIndex: ['inventory_items', 'name'], render: (name: string, record: WorkOrderPart) => `${name} (${record.inventory_items.sku})` },
     { title: 'Qty', dataIndex: 'quantity_used' },
-    { title: 'Unit Price', dataIndex: 'price_at_time_of_use', render: (price: number) => `$${price.toFixed(2)}` },
-    { title: 'Total', render: (_: any, record: WorkOrderPart) => `$${(record.quantity_used * record.price_at_time_of_use).toFixed(2)}` },
+    { title: 'Unit Price', dataIndex: 'price_at_time_of_use', render: (price: number) => `UGX ${price.toLocaleString('en-US')}` },
+    { title: 'Total', render: (_: any, record: WorkOrderPart) => `UGX ${(record.quantity_used * record.price_at_time_of_use).toLocaleString('en-US')}` },
   ];
   const partsTotal = (usedParts || []).reduce((sum, part) => sum + (part.quantity_used * part.price_at_time_of_use), 0);
 
@@ -97,7 +97,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
                 <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ serviceNotes: value }) }} type="secondary">{workOrder.serviceNotes}</Paragraph>
               </Card>
               <Card title="Parts & Materials" extra={<Button icon={<PlusOutlined />} onClick={() => setIsAddPartDialogOpen(true)}>Add Part</Button>}>
-                <Table columns={partsColumns} dataSource={usedParts} rowKey="id" pagination={false} size="small" summary={() => <Table.Summary.Row><Table.Summary.Cell index={0} colSpan={3}><Text strong>Total Parts Cost</Text></Table.Summary.Cell><Table.Summary.Cell index={1}><Text strong>${partsTotal.toFixed(2)}</Text></Table.Summary.Cell></Table.Summary.Row>} />
+                <Table columns={partsColumns} dataSource={usedParts} rowKey="id" pagination={false} size="small" summary={() => <Table.Summary.Row><Table.Summary.Cell index={0} colSpan={3}><Text strong>Total Parts Cost</Text></Table.Summary.Cell><Table.Summary.Cell index={1}><Text strong>UGX {partsTotal.toLocaleString('en-US')}</Text></Table.Summary.Cell></Table.Summary.Row>} />
               </Card>
               <Card title="Customer & Vehicle Details">
                 <Descriptions column={1} bordered>

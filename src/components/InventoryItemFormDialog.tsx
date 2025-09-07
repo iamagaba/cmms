@@ -59,7 +59,7 @@ export const InventoryItemFormDialog = ({ isOpen, onClose, onSave, item }: Inven
           <Col span={24}><Form.Item name="description" label="Description"><TextArea rows={2} placeholder="Details about the part, compatibility, etc." /></Form.Item></Col>
           <Col span={8}><Form.Item name="quantity_on_hand" label="Quantity" rules={[{ required: true, type: 'number' }]}><InputNumber style={{ width: '100%' }} min={0} /></Form.Item></Col>
           <Col span={8}><Form.Item name="reorder_level" label="Reorder Level" rules={[{ required: true, type: 'number' }]}><InputNumber style={{ width: '100%' }} min={0} /></Form.Item></Col>
-          <Col span={8}><Form.Item name="unit_price" label="Unit Price ($)" rules={[{ required: true, type: 'number' }]}><InputNumber style={{ width: '100%' }} min={0} step={0.01} precision={2} /></Form.Item></Col>
+          <Col span={8}><Form.Item name="unit_price" label="Unit Price (UGX)" rules={[{ required: true, type: 'number' }]}><InputNumber style={{ width: '100%' }} min={0} formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} parser={value => value!.replace(/,/g, '')} /></Form.Item></Col>
         </Row>
       </Form>
     </Modal>

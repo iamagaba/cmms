@@ -32,7 +32,7 @@ export const getColumns = (
   {
     title: "Unit Price",
     dataIndex: "unit_price",
-    render: (price: number) => `$${price.toFixed(2)}`,
+    render: (price: number) => `UGX ${price.toLocaleString('en-US')}`,
     sorter: (a: InventoryItem, b: InventoryItem) => a.unit_price - b.unit_price,
   },
   {

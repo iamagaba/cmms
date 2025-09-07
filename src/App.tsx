@@ -92,18 +92,17 @@ const App = () => (
 
           // Typography
           fontFamily: 'Lato, sans-serif',
-          fontSize: 12, // Reduced base font size for density
-          colorText: '#1f2937',
-          colorTextSecondary: '#6b7280',
+          colorText: '#1f2937', // Dark gray for primary text
+          colorTextSecondary: '#6b7280', // Lighter gray for secondary text
 
           // Layout & Spacing
-          borderRadius: 6, // Slightly smaller border radius
-          controlHeight: 28, // Compact controls
-          colorBgLayout: '#f6f7f9',
+          borderRadius: 8,
+          controlHeight: 36, // Slightly larger default controls
+          colorBgLayout: '#f6f7f9', // Light gray background for the main layout
           
           // Borders
-          colorBorder: '#e5e7eb',
-          colorSplit: '#f3f4f6',
+          colorBorder: '#e5e7eb', // Lighter, more subtle borders
+          colorSplit: '#f3f4f6', // Even lighter for dividers
         },
       }}
     >

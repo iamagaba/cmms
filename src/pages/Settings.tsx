@@ -124,7 +124,7 @@ const ProfileSettings = () => {
   const displayAvatar = profile?.avatar_url || user?.user_metadata?.avatar_url;
 
   return (
-    <Row gutter={[24, 24]}>
+    <Row gutter={[16, 16]}>
       <Col xs={24} md={8}>
         <Card>
           <Space direction="vertical" align="center" style={{ width: '100%' }}>
@@ -152,7 +152,7 @@ const ProfileSettings = () => {
             <Form.Item><Button type="primary" htmlType="submit" loading={updateProfileMutation.isPending}>Update Profile</Button></Form.Item>
           </Form>
         </Card>
-        <Card title="Change Password" style={{ marginTop: 24 }}>
+        <Card title="Change Password" style={{ marginTop: 16 }}>
           <Form layout="vertical">
             <Form.Item name="currentPassword" label="Current Password">
               <Input.Password prefix={<LockOutlined />} />
@@ -178,7 +178,7 @@ const SettingsPage = () => {
     { label: <span><BellOutlined />My Profile</span>, key: '3', children: <ProfileSettings /> },
   ];
   return (
-    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
       <Title level={4}>Settings</Title>
       <Tabs defaultActiveKey="1" items={tabItems} />
     </Space>

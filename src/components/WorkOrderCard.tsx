@@ -32,7 +32,7 @@ const WorkOrderCard = ({ order, technician, location, allTechnicians, onUpdateWo
       hoverable 
       className="lift-on-hover"
       style={{ borderLeft: `4px solid ${priorityBorderColors[order.priority || 'Low']}` }}
-      bodyStyle={{ padding: 16 }}
+      bodyStyle={{ padding: 12 }}
     >
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
         <div>

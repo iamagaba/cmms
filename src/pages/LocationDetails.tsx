@@ -57,11 +57,11 @@ const LocationDetailsPage = () => {
 
   return (
     <>
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <Space direction="vertical" size="middle" style={{ width: '100%' }}>
         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/locations')}>Back to Locations</Button>
-        <Row gutter={[24, 24]}>
+        <Row gutter={[16, 16]}>
           <Col xs={24} lg={8}>
-            <Space direction="vertical" size="large" style={{ width: '100%' }}>
+            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
               <Card><Title level={4}>{location.name.replace(' Service Center', '')}</Title><Text type="secondary"><EnvironmentOutlined /> {location.address}</Text></Card>
               <Card title="Technicians On-Site">
                 <List itemLayout="horizontal" dataSource={locationTechnicians} renderItem={(tech: Technician) => (<List.Item><List.Item.Meta avatar={<Avatar src={tech.avatar || undefined} />} title={<a href={`/technicians/${tech.id}`}>{tech.name}</a>} description={tech.specialization} /></List.Item>)} />

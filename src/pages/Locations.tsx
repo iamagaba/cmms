@@ -55,7 +55,7 @@ const LocationsPage = () => {
   const isLoading = isLoadingLocations || isLoadingWorkOrders;
 
   return (
-    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Title level={4}>Service Locations</Title>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingLocation(null); setIsDialogOpen(true); }}>
@@ -64,7 +64,7 @@ const LocationsPage = () => {
       </div>
       
       {isLoading ? <Skeleton active /> : (
-        <Row gutter={[24, 24]}>
+        <Row gutter={[16, 16]}>
           {(allLocations || []).map(location => (
             <Col key={location.id} xs={24} sm={12} md={8} lg={6}>
               <LocationCard location={location} workOrders={workOrders || []} />

@@ -155,7 +155,7 @@ const WorkOrdersPage = () => {
 
   return (
     <>
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <Space direction="vertical" size="middle" style={{ width: '100%' }}>
         <Row justify="space-between" align="middle">
           <Col><Title level={4} style={{ margin: 0 }}>Work Order Management</Title></Col>
           <Col>

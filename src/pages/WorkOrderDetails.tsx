@@ -152,7 +152,7 @@ const WorkOrderDetailsPage = () => {
   const mapUrl = getMapUrl();
 
   return (
-    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/work-orders')}>Back to Work Orders</Button>
         <Space>
@@ -174,9 +174,9 @@ const WorkOrderDetailsPage = () => {
         </Space>
       </div>
 
-      <Row gutter={[24, 24]}>
+      <Row gutter={[16, 16]}>
         <Col xs={24} lg={16}>
-          <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          <Space direction="vertical" size="middle" style={{ width: '100%' }}>
             <Card title="Service Information">
               <Title level={5} editable={{ onChange: (value) => handleUpdateWorkOrder({ service: value }) }}>{workOrder.service}</Title>
               <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ serviceNotes: value }) }} type="secondary">{workOrder.serviceNotes}</Paragraph>
@@ -214,7 +214,7 @@ const WorkOrderDetailsPage = () => {
           </Space>
         </Col>
         <Col xs={24} lg={8}>
-          <Space direction="vertical" size="large" style={{ width: '100%' }}>
+          <Space direction="vertical" size="middle" style={{ width: '100%' }}>
             <Card title="Details">
               <Descriptions column={1}>
                 <Descriptions.Item label="Priority">

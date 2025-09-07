@@ -65,11 +65,11 @@ const TechnicianProfilePage = () => {
   ];
 
   return (
-    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/technicians')}>
             Back to Technicians
         </Button>
-        <Row gutter={[24, 24]}>
+        <Row gutter={[16, 16]}>
             <Col xs={24} md={8}>
                 <Card>
                     <div style={{ textAlign: 'center', marginBottom: 24 }}>

@@ -10,7 +10,7 @@ body {
 
 /* --- Polaris-Inspired Layout --- */
 .main-content {
-  padding: 24px 32px;
+  padding: 16px 24px;
   margin: 0;
   overflow: initial;
   background-color: transparent; /* Content area is transparent to show layout background */
@@ -19,7 +19,7 @@ body {
 /* --- Polaris-Inspired Typography --- */
 /* Add more vertical spacing to page titles */
 .ant-typography {
-  margin-bottom: 1.2em;
+  margin-bottom: 1em;
 }
 
 /* Custom styles for Leaflet divIcons to remove default background/border */

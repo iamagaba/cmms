@@ -76,7 +76,7 @@ const TechniciansPage = () => {
   const isLoading = isLoadingTechnicians || isLoadingWorkOrders;
 
   return (
-    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Title level={4}>Technician Management</Title>
         <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingTechnician(null); setIsDialogOpen(true); }}>

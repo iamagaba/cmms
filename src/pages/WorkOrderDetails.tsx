@@ -54,11 +54,24 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
 
   const workOrderMutation = useMutation({ mutationFn: async (workOrderData: Partial<WorkOrder>) => { const { error } = await supabase.from('work_orders').upsert(workOrderData); if (error) throw new Error(error.message); }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['work_order', id] }); queryClient.invalidateQueries({ queryKey: ['work_orders'] }); showSuccess('Work order has been updated.'); }, onError: (error) => showError(error.message) });
   const addPartMutation = useMutation({ mutationFn: async ({ itemId, quantity }: { itemId: string, quantity: number }) => { const { error } = await supabase.rpc('add_part_to_work_order', { p_work_order_id: id, p_item_id: itemId, p_quantity_used: quantity }); if (error) throw new Error(error.message); }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['work_order_parts', id] }); queryClient.invalidateQueries({ queryKey: ['inventory_items'] }); showSuccess('Part added to work order.'); }, onError: (error) => showError(error.message) });
+  const removePartMutation = useMutation({
+    mutationFn: async (partId: string) => {
+      const { error } = await supabase.from('work_order_parts').delete().eq('id', partId);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['work_order_parts', id] });
+      queryClient.invalidateQueries({ queryKey: ['inventory_items'] }); // Invalidate inventory to reflect stock changes
+      showSuccess('Part removed from work order.');
+    },
+    onError: (error) => showError(error.message),
+  });
 
   const handleUpdateWorkOrder = (updates: Partial<WorkOrder>) => { if (!workOrder) return; if (updates.status === 'On Hold') { setOnHoldWorkOrder(workOrder); return; } if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready') { updates.status = 'In Progress'; showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`); } workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates })); };
   const handleSaveOnHoldReason = (reason: string) => { if (!onHoldWorkOrder) return; const updates = { status: 'On Hold' as const, onHoldReason: reason }; workOrderMutation.mutate(camelToSnakeCase({ id: onHoldWorkOrder.id, ...updates })); setOnHoldWorkOrder(null); };
   const handleLocationSelect = (selectedLoc: { lat: number; lng: number; label: string }) => { handleUpdateWorkOrder({ customerAddress: selectedLoc.label, customerLat: selectedLoc.lat, customerLng: selectedLoc.lng }); };
   const handleAddPart = (itemId: string, quantity: number) => { addPartMutation.mutate({ itemId, quantity }); };
+  const handleRemovePart = (partId: string) => { removePartMutation.mutate(partId); };
 
   const isLoading = isLoadingWorkOrder || isLoadingTechnician || isLoadingLocation || isLoadingAllTechnicians || isLoadingAllLocations || isLoadingCustomer || isLoadingVehicle || isLoadingUsedParts;
 
@@ -74,6 +87,20 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     { title: 'Qty', dataIndex: 'quantity_used' },
     { title: 'Unit Price', dataIndex: 'price_at_time_of_use', render: (price: number) => `UGX ${price.toLocaleString('en-US')}` },
     { title: 'Total', render: (_: any, record: WorkOrderPart) => `UGX ${(record.quantity_used * record.price_at_time_of_use).toLocaleString('en-US')}` },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_: any, record: WorkOrderPart) => (
+        <Popconfirm
+          title="Are you sure to delete this part?"
+          onConfirm={() => handleRemovePart(record.id)}
+          okText="Yes"
+          cancelText="No"
+        >
+          <Button type="text" danger icon={<DeleteOutlined />} size="small" />
+        </Popconfirm>
+      ),
+    },
   ];
   const partsTotal = (usedParts || []).reduce((sum, part) => sum + (part.quantity_used * part.price_at_time_of_use), 0);
 

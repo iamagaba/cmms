@@ -22,6 +22,7 @@ import { SessionProvider, useSession } from "./context/SessionContext";
 import { useState } from "react";
 import AssetsPage from "./pages/Assets";
 import AssetDetailsPage from "./pages/AssetDetails";
+import InventoryPage from "./pages/Inventory";
 
 const { Content } = Layout;
 const queryClient = new QueryClient();
@@ -69,6 +70,7 @@ const AppContent = () => {
             <Route path="/locations/:id" element={<ProtectedRoute><LocationDetailsPage /></ProtectedRoute>} />
             <Route path="/assets" element={<ProtectedRoute><AssetsPage /></ProtectedRoute>} />
             <Route path="/assets/:id" element={<ProtectedRoute><AssetDetailsPage /></ProtectedRoute>} />
+            <Route path="/inventory" element={<ProtectedRoute><InventoryPage /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
             <Route path="/map" element={<ProtectedRoute><MapViewPage /></ProtectedRoute>} />
             <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />

@@ -86,3 +86,25 @@ export interface WorkOrder {
   customerId: string | null;
   vehicleId: string | null;
 }
+
+export interface InventoryItem {
+  id: string;
+  name: string;
+  sku: string;
+  description: string | null;
+  quantity_on_hand: number;
+  reorder_level: number;
+  unit_price: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface WorkOrderPart {
+  id: string;
+  work_order_id: string;
+  item_id: string;
+  quantity_used: number;
+  price_at_time_of_use: number;
+  created_at?: string;
+  inventory_items: InventoryItem; // For joined queries
+}

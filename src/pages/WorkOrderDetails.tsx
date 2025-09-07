@@ -18,8 +18,8 @@ const { TextArea } = Input;
 
 const statusColors: Record<string, string> = { 
   Open: '#0052CC', // Professional Blue
-  "Pending Confirmation": "#13C2C2", // Cyan
-  "Confirmed & Ready": "#595959", // Dark Gray
+  "Confirmation": "#13C2C2", // Cyan
+  "Ready": "#595959", // Dark Gray
   "In Progress": "#FAAD14", // Amber
   "On Hold": "#FA8C16", // Orange
   Completed: '#22C55E' // Green
@@ -105,7 +105,7 @@ const WorkOrderDetailsPage = () => {
       return;
     }
 
-    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Confirmed & Ready') {
+    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready') {
       updates.status = 'In Progress';
       showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`);
     }
@@ -164,8 +164,8 @@ const WorkOrderDetailsPage = () => {
             bordered={false}
           >
             <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
-            <Option value="Pending Confirmation"><Tag color={statusColors["Pending Confirmation"]}>Pending Confirmation</Tag></Option>
-            <Option value="Confirmed & Ready"><Tag color={statusColors["Confirmed & Ready"]}>Confirmed & Ready</Tag></Option>
+            <Option value="Confirmation"><Tag color={statusColors["Confirmation"]}>Confirmation</Tag></Option>
+            <Option value="Ready"><Tag color={statusColors["Ready"]}>Ready</Tag></Option>
             <Option value="In Progress"><Tag color={statusColors["In Progress"]}>In Progress</Tag></Option>
             <Option value="On Hold"><Tag color={statusColors["On Hold"]}>On Hold</Tag></Option>
             <Option value="Completed"><Tag color={statusColors["Completed"]}>Completed</Tag></Option>
@@ -256,7 +256,7 @@ const WorkOrderDetailsPage = () => {
                     allowClear
                     placeholder="Select location"
                   >
-                    {(allLocations || []).map(l => <Option key={l.id} value={l.id}>{l.name}</Option>)}
+                    {(allLocations || []).map(l => <Option key={l.id} value={l.id}>{l.name.replace(' Service Center', '')}</Option>)}
                   </Select>
                 </Descriptions.Item>
                 <Descriptions.Item label="Client Location">

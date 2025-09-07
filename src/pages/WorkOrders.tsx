@@ -104,7 +104,7 @@ const WorkOrdersPage = () => {
       return;
     }
 
-    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Confirmed & Ready') {
+    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready') {
       updates.status = 'In Progress';
       showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`);
     }
@@ -140,8 +140,8 @@ const WorkOrdersPage = () => {
       default:
         return [ 
           { id: 'Open', title: 'Open' }, 
-          { id: 'Pending Confirmation', title: 'Pending Confirmation' }, 
-          { id: 'Confirmed & Ready', title: 'Confirmed & Ready' }, 
+          { id: 'Confirmation', title: 'Confirmation' }, 
+          { id: 'Ready', title: 'Ready' }, 
           { id: 'In Progress', title: 'In Progress' }, 
           { id: 'On Hold', title: 'On Hold' }, 
           { id: 'Completed', title: 'Completed' } 
@@ -170,7 +170,7 @@ const WorkOrdersPage = () => {
           <Panel header={<><FilterOutlined /> Filters & View Options</>} key="1">
             <Row gutter={[16, 16]} align="bottom">
               <Col xs={24} sm={12} md={6}><Search placeholder="Filter by Vehicle ID..." allowClear onSearch={setVehicleFilter} onChange={(e) => setVehicleFilter(e.target.value)} style={{ width: '100%' }} /></Col>
-              <Col xs={24} sm={12} md={5}><Select placeholder="Filter by Status" allowClear style={{ width: '100%' }} onChange={setStatusFilter} value={statusFilter}><Option value="Open">Open</Option><Option value="Pending Confirmation">Pending Confirmation</Option><Option value="Confirmed & Ready">Confirmed & Ready</Option><Option value="In Progress">In Progress</Option><Option value="On Hold">On Hold</Option><Option value="Completed">Completed</Option></Select></Col>
+              <Col xs={24} sm={12} md={5}><Select placeholder="Filter by Status" allowClear style={{ width: '100%' }} onChange={setStatusFilter} value={statusFilter}><Option value="Open">Open</Option><Option value="Confirmation">Confirmation</Option><Option value="Ready">Ready</Option><Option value="In Progress">In Progress</Option><Option value="On Hold">On Hold</Option><Option value="Completed">Completed</Option></Select></Col>
               <Col xs={24} sm={12} md={5}><Select placeholder="Filter by Priority" allowClear style={{ width: '100%' }} onChange={setPriorityFilter} value={priorityFilter}><Option value="High">High</Option><Option value="Medium">Medium</Option><Option value="Low">Low</Option></Select></Col>
               <Col xs={24} sm={12} md={5}><Select placeholder="Filter by Technician" allowClear style={{ width: '100%' }} onChange={setTechnicianFilter} value={technicianFilter}>{(technicians || []).map(t => <Option key={t.id} value={t.id}>{t.name}</Option>)}</Select></Col>
               {view === 'kanban' && (<Col xs={24} sm={12} md={3}><Select value={groupBy} onChange={(value) => setGroupBy(value as GroupByOption)} style={{ width: '100%' }}><Option value="status">Group by: Status</Option><Option value="priority">Group by: Priority</Option><Option value="technician">Group by: Technician</Option></Select></Col>)}

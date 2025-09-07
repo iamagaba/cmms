@@ -60,7 +60,7 @@ const TechnicianProfilePage = () => {
     { title: 'ID', dataIndex: 'workOrderNumber', render: (text: string, record: WorkOrder) => <Link to={`/work-orders/${record.id}`}><Text code>{text}</Text></Link> },
     { title: 'Vehicle', dataIndex: 'vehicleId' },
     { title: 'Priority', dataIndex: 'priority', render: (priority: string) => <Tag color={priorityColors[priority]}>{priority}</Tag> },
-    { title: 'Location', dataIndex: 'locationId', render: (locId: string) => locations?.find(l => l.id === locId)?.name || 'N/A' },
+    { title: 'Location', dataIndex: 'locationId', render: (locId: string) => locations?.find(l => l.id === locId)?.name?.replace(' Service Center', '') || 'N/A' },
     { title: 'Due Date', dataIndex: 'slaDue', render: (date: string) => dayjs(date).format('MMM D, YYYY') },
   ];
 

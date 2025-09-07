@@ -39,7 +39,7 @@ const LocationDetailsPage = () => {
     const workOrder = allWorkOrders?.find(wo => wo.id === id);
     if (!workOrder) return;
     if (updates.status === 'On Hold') { setOnHoldWorkOrder(workOrder); return; }
-    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Confirmed & Ready') { updates.status = 'In Progress'; showInfo(`Work Order ${id} automatically moved to In Progress.`); }
+    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready') { updates.status = 'In Progress'; showInfo(`Work Order ${id} automatically moved to In Progress.`); }
     workOrderMutation.mutate(camelToSnakeCase({ id, ...updates })); // Apply camelToSnakeCase here
   };
 
@@ -62,7 +62,7 @@ const LocationDetailsPage = () => {
         <Row gutter={[24, 24]}>
           <Col xs={24} lg={8}>
             <Space direction="vertical" size="large" style={{ width: '100%' }}>
-              <Card><Title level={4}>{location.name}</Title><Text type="secondary"><EnvironmentOutlined /> {location.address}</Text></Card>
+              <Card><Title level={4}>{location.name.replace(' Service Center', '')}</Title><Text type="secondary"><EnvironmentOutlined /> {location.address}</Text></Card>
               <Card title="Technicians On-Site">
                 <List itemLayout="horizontal" dataSource={locationTechnicians} renderItem={(tech: Technician) => (<List.Item><List.Item.Meta avatar={<Avatar src={tech.avatar || undefined} />} title={<a href={`/technicians/${tech.id}`}>{tech.name}</a>} description={tech.specialization} /></List.Item>)} />
               </Card>
@@ -80,7 +80,7 @@ const LocationDetailsPage = () => {
           </Col>
         </Row>
         <Card>
-          <Title level={5}>Work Orders at {location.name}</Title>
+          <Title level={5}>Work Orders at {location.name.replace(' Service Center', '')}</Title>
           <WorkOrderDataTable workOrders={locationWorkOrders} technicians={technicians || []} locations={allWorkOrders ? [location] : []} onEdit={() => {}} onDelete={() => {}} onUpdateWorkOrder={handleUpdateWorkOrder} />
         </Card>
       </Space>

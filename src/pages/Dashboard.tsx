@@ -72,7 +72,7 @@ const Dashboard = () => {
       return;
     }
 
-    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Confirmed & Ready') {
+    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready') {
       updates.status = 'In Progress';
       showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`);
     }
@@ -102,8 +102,8 @@ const Dashboard = () => {
 
   const kanbanColumns = [
     { id: 'Open', title: 'Open' },
-    { id: 'Pending Confirmation', title: 'Pending Confirmation' },
-    { id: 'Confirmed & Ready', title: 'Confirmed & Ready' },
+    { id: 'Confirmation', title: 'Confirmation' },
+    { id: 'Ready', title: 'Ready' },
     { id: 'In Progress', title: 'In Progress' },
     { id: 'On Hold', title: 'On Hold' },
     { id: 'Completed', title: 'Completed' },
@@ -124,7 +124,7 @@ const Dashboard = () => {
       return {
         label: (
           <Space>
-            <span>{loc.name}</span>
+            <span>{loc.name.replace(' Service Center', '')}</span>
             <Badge count={count} showZero color="#6A0DAD" /> {/* GOGO Brand Purple */}
           </Space>
         ),

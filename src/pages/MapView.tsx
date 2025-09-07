@@ -39,7 +39,7 @@ const MapViewPage = () => {
                   const openWorkOrders = (workOrders || []).filter(wo => wo.locationId === selected.data.id && wo.status !== 'Completed');
                   return (
                     <>
-                      <Title level={5}>{selected.data.name}</Title>
+                      <Title level={5}>{selected.data.name.replace(' Service Center', '')}</Title>
                       <Text type="secondary">{selected.data.address}</Text>
                       {openWorkOrders.length > 0 ? (
                         <List size="small" header={<Text strong>Open Work Orders</Text>} dataSource={openWorkOrders} renderItem={(item: WorkOrder) => (<List.Item><Link to={`/work-orders/${item.id}`}>{item.workOrderNumber}: {item.service}</Link></List.Item>)} />

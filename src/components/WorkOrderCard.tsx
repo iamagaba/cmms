@@ -19,8 +19,8 @@ const priorityColors: Record<string, string> = { High: "#FF4D4F", Medium: "#FAAD
 const priorityBorderColors: Record<string, string> = { High: "#FF4D4F", Medium: "#FAAD14", Low: "transparent" };
 const statusColors: Record<string, string> = { 
   Open: '#0052CC', // Professional Blue
-  "Pending Confirmation": "#13C2C2", // Cyan
-  "Confirmed & Ready": "#595959", // Dark Gray
+  "Confirmation": "#13C2C2", // Cyan
+  "Ready": "#595959", // Dark Gray
   "In Progress": "#FAAD14", // Amber
   "On Hold": "#FA8C16", // Orange
   Completed: '#22C55E' // Green
@@ -51,7 +51,7 @@ const WorkOrderCard = ({ order, technician, location, allTechnicians, onUpdateWo
       <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <EnvironmentOutlined />
-          <Text type="secondary" style={{ fontSize: 12 }}>{location?.name}</Text>
+          <Text type="secondary" style={{ fontSize: 12 }}>{location?.name?.replace(' Service Center', '')}</Text>
         </div>
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <SlaCountdown slaDue={order.slaDue} status={order.status} completedAt={order.completedAt} />
@@ -74,8 +74,8 @@ const WorkOrderCard = ({ order, technician, location, allTechnicians, onUpdateWo
           )}
           <Select value={order.status} onChange={(value) => onUpdateWorkOrder(order.id, { status: value })} style={{ width: 150 }} bordered={false} size="small" dropdownMatchSelectWidth={false}>
             <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
-            <Option value="Pending Confirmation"><Tag color={statusColors["Pending Confirmation"]}>Pending Confirmation</Tag></Option>
-            <Option value="Confirmed & Ready"><Tag color={statusColors["Confirmed & Ready"]}>Confirmed & Ready</Tag></Option>
+            <Option value="Confirmation"><Tag color={statusColors["Confirmation"]}>Confirmation</Tag></Option>
+            <Option value="Ready"><Tag color={statusColors["Ready"]}>Ready</Tag></Option>
             <Option value="In Progress"><Tag color={statusColors["In Progress"]}>In Progress</Tag></Option>
             <Option value="On Hold"><Tag color={statusColors["On Hold"]}>On Hold</Tag></Option>
             <Option value="Completed"><Tag color={statusColors["Completed"]}>Completed</Tag></Option>

@@ -31,7 +31,7 @@ export interface WorkOrder {
   vehicleModel: string | null;
   customerName: string | null;
   customerPhone: string | null;
-  status: 'Open' | 'Pending Confirmation' | 'On Hold' | 'Confirmed & Ready' | 'In Progress' | 'Completed' | null;
+  status: 'Open' | 'Confirmation' | 'On Hold' | 'Ready' | 'In Progress' | 'Completed' | null;
   priority: 'High' | 'Medium' | 'Low' | null;
   assignedTechnicianId: string | null;
   locationId: string | null;

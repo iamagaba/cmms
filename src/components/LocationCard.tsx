@@ -16,7 +16,7 @@ export const LocationCard = ({ location, workOrders }: LocationCardProps) => {
   return (
     <Link to={`/locations/${location.id}`}>
       <Card hoverable className="lift-on-hover">
-        <Title level={5}>{location.name}</Title>
+        <Title level={5}>{location.name.replace(' Service Center', '')}</Title>
         <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
           <EnvironmentOutlined style={{ marginRight: 8 }} />
           {location.address}

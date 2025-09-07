@@ -162,6 +162,7 @@ const WorkOrderDetailsPage = () => {
             onChange={(value) => handleUpdateWorkOrder({ status: value })}
             style={{ width: 180 }}
             bordered={false}
+            suffixIcon={null}
           >
             <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
             <Option value="Confirmation"><Tag color={statusColors["Confirmation"]}>Confirmation</Tag></Option>
@@ -223,6 +224,7 @@ const WorkOrderDetailsPage = () => {
                     style={{ width: 100 }}
                     bordered={false}
                     size="small"
+                    suffixIcon={null}
                   >
                     <Option value="High"><Tag color={priorityColors["High"]}>High</Tag></Option>
                     <Option value="Medium"><Tag color={priorityColors["Medium"]}>Medium</Tag></Option>
@@ -255,6 +257,7 @@ const WorkOrderDetailsPage = () => {
                     bordered={false}
                     allowClear
                     placeholder="Select location"
+                    suffixIcon={null}
                   >
                     {(allLocations || []).map(l => <Option key={l.id} value={l.id}>{l.name.replace(' Service Center', '')}</Option>)}
                   </Select>
@@ -273,6 +276,7 @@ const WorkOrderDetailsPage = () => {
                     bordered={false}
                     allowClear
                     placeholder="Unassigned"
+                    suffixIcon={null}
                   >
                     {(allTechnicians || []).map(t => (
                       <Option key={t.id} value={t.id}>

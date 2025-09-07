@@ -56,7 +56,7 @@ export const getColumns = (
     title: "Status",
     dataIndex: "status",
     render: (status: WorkOrder['status'], record: WorkOrderRow) => (
-      <Select value={status} onChange={(value) => onUpdateWorkOrder(record.id, { status: value })} style={{ width: 180 }} bordered={false}>
+      <Select value={status} onChange={(value) => onUpdateWorkOrder(record.id, { status: value })} style={{ width: 180 }} bordered={false} suffixIcon={null}>
         <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
         <Option value="Confirmation"><Tag color={statusColors["Confirmation"]}>Confirmation</Tag></Option>
         <Option value="Ready"><Tag color={statusColors["Ready"]}>Ready</Tag></Option>
@@ -71,7 +71,7 @@ export const getColumns = (
     title: "Priority",
     dataIndex: "priority",
     render: (priority: WorkOrder['priority'], record: WorkOrderRow) => (
-      <Select value={priority} onChange={(value) => onUpdateWorkOrder(record.id, { priority: value })} style={{ width: 100 }} bordered={false}>
+      <Select value={priority} onChange={(value) => onUpdateWorkOrder(record.id, { priority: value })} style={{ width: 100 }} bordered={false} suffixIcon={null}>
         <Option value="High"><Tag color={priorityColors["High"]}>High</Tag></Option>
         <Option value="Medium"><Tag color={priorityColors["Medium"]}>Medium</Tag></Option>
         <Option value="Low"><Tag color={priorityColors["Low"]}>Low</Tag></Option>
@@ -83,7 +83,7 @@ export const getColumns = (
     title: "Technician",
     dataIndex: "technician",
     render: (_: any, record: WorkOrderRow) => (
-      <Select value={record.assignedTechnicianId} onChange={(value) => onUpdateWorkOrder(record.id, { assignedTechnicianId: value })} style={{ width: 150 }} bordered={false} allowClear placeholder="Unassigned">
+      <Select value={record.assignedTechnicianId} onChange={(value) => onUpdateWorkOrder(record.id, { assignedTechnicianId: value })} style={{ width: 150 }} bordered={false} allowClear placeholder="Unassigned" suffixIcon={null}>
         {allTechnicians.map(tech => (
           <Option key={tech.id} value={tech.id}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>

@@ -25,6 +25,7 @@ export function LocationDataTable({ locations, workOrders, onEdit, onDelete }: L
       dataSource={tableData}
       columns={columns}
       rowKey="id"
+      size="middle"
       pagination={{ pageSize: 10, hideOnSinglePage: true }}
       onRow={(record) => ({
         className: 'lift-on-hover-row',

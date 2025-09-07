@@ -114,7 +114,7 @@ const Dashboard = () => {
       label: (
         <Space>
           <span>All Locations</span>
-          <Badge count={allWorkOrders?.length || 0} showZero color="#7F56D9" /> {/* GOGO Brand Purple - Toned down */}
+          <Badge count={allWorkOrders?.length || 0} showZero color="#6A0DAD" /> {/* GOGO Brand Purple */}
         </Space>
       ), 
       value: 'all' 
@@ -125,7 +125,7 @@ const Dashboard = () => {
         label: (
           <Space>
             <span>{loc.name}</span>
-            <Badge count={count} showZero color="#7F56D9" /> {/* GOGO Brand Purple - Toned down */}
+            <Badge count={count} showZero color="#6A0DAD" /> {/* GOGO Brand Purple */}
           </Space>
         ),
         value: loc.id

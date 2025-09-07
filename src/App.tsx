@@ -99,13 +99,13 @@ const App = () => (
       theme={{
         algorithm: theme.defaultAlgorithm,
         token: {
-          colorPrimary: '#7F56D9', // GOGO Brand Purple - Toned down
+          colorPrimary: '#6A0DAD', // GOGO Brand Purple
           colorSuccess: '#22C55E',
           colorWarning: '#FAAD14',
           colorError: '#FF4D4F',
           colorInfo: '#13C2C2',
           borderRadius: 6,
-          fontFamily: 'Roboto, sans-serif',
+          fontFamily: 'Inter, sans-serif',
         },
       }}
     >

@@ -32,7 +32,7 @@ const KpiCard = ({ title, value, icon, trend, trendDirection, isUpGood = true }:
             </Space>
           )}
         </div>
-        <Avatar size="large" icon={icon} style={{ backgroundColor: '#E8D9F7', color: '#6A0DAD' }} /> {/* Light purple background, GOGO Brand Purple icon */}
+        <Avatar size="large" icon={icon} style={{ backgroundColor: '#F9F5FF', color: '#7F56D9' }} /> {/* Light purple background, Toned-down GOGO Brand Purple icon */}
       </div>
       {/* Removed chartData rendering block */}
     </Card>

@@ -17,7 +17,7 @@ const { Option } = Select;
 const { TextArea } = Input;
 
 const statusColors: Record<string, string> = { 
-  Open: '#6A0DAD', 
+  Open: '#7F56D9', 
   "Pending Confirmation": "#13C2C2", 
   "Confirmed & Ready": "#d9d9d9", 
   "In Progress": "#FAAD14", 

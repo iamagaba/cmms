@@ -5,7 +5,7 @@ import { Row, Col, Typography, Tag, Space } from "antd";
 const { Title } = Typography;
 
 const statusColors: { [key: string]: string } = { 
-  Open: '#6A0DAD', 
+  Open: '#7F56D9', 
   "Pending Confirmation": "#13C2C2", 
   "Confirmed & Ready": "#d9d9d9", 
   "In Progress": "#FAAD14", 
@@ -36,7 +36,7 @@ const WorkOrderKanban = ({ workOrders, technicians, locations, groupBy, columns,
   const getColumnColor = (column: KanbanColumn) => {
     if (groupBy === 'status') return statusColors[column.id as string] || 'default';
     if (groupBy === 'priority') return priorityColors[column.id as string] || 'default';
-    return '#6A0DAD'; // Use GOGO Brand Purple for technician grouping
+    return '#7F56D9'; // Use Toned-down GOGO Brand Purple for technician grouping
   }
 
   return (

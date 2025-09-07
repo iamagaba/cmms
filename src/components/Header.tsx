@@ -74,10 +74,10 @@ const AppHeader = () => {
   return (
     <Header style={{ padding: '0 24px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #f0f0f0' }}>
       <div style={{ display: 'flex', alignItems: 'center' }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginRight: '24px' }}>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', marginRight: '24px', textDecoration: 'none' }}>
           <FireOutlined style={{color: '#6A0DAD', fontSize: '24px'}} /> {/* GOGO Brand Purple */}
           <span style={{color: '#6A0DAD', marginLeft: '8px', fontWeight: 'bold', fontSize: '18px'}}>GOGO Electric</span> {/* GOGO Brand Purple */}
-        </div>
+        </Link>
         {/* Removed horizontal Menu component */}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>

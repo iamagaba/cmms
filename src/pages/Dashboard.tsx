@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Row, Col, Typography, Segmented, Badge, Space, Skeleton } from "antd";
+import { Row, Col, Typography, Segmented, Badge, Space, Skeleton, Tabs } from "antd";
 import KpiCard from "@/components/KpiCard";
 import TechnicianStatusList from "@/components/TechnicianStatusList";
 import WorkOrderKanban from "@/components/WorkOrderKanban";
@@ -14,8 +14,6 @@ import dayjs from "dayjs";
 import { camelToSnakeCase } from "@/utils/data-helpers"; // Import the utility
 
 const { Title } = Typography;
-
-// Removed generateChartData function
 
 const Dashboard = () => {
   const queryClient = useQueryClient();
@@ -77,13 +75,13 @@ const Dashboard = () => {
       showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`);
     }
     
-    workOrderMutation.mutate(camelToSnakeCase({ id, ...updates })); // Apply camelToSnakeCase here
+    workOrderMutation.mutate(camelToSnakeCase({ id, ...updates }));
   };
 
   const handleSaveOnHoldReason = (reason: string) => {
     if (!onHoldWorkOrder) return;
     const updates = { status: 'On Hold' as const, onHoldReason: reason };
-    workOrderMutation.mutate(camelToSnakeCase({ id: onHoldWorkOrder.id, ...updates })); // Apply camelToSnakeCase here
+    workOrderMutation.mutate(camelToSnakeCase({ id: onHoldWorkOrder.id, ...updates }));
     setOnHoldWorkOrder(null);
   };
 
@@ -114,7 +112,7 @@ const Dashboard = () => {
       label: (
         <Space>
           <span>All Locations</span>
-          <Badge count={allWorkOrders?.length || 0} showZero color="#6A0DAD" /> {/* GOGO Brand Purple */}
+          <Badge count={allWorkOrders?.length || 0} showZero color="#6A0DAD" />
         </Space>
       ), 
       value: 'all' 
@@ -125,7 +123,7 @@ const Dashboard = () => {
         label: (
           <Space>
             <span>{loc.name.replace(' Service Center', '')}</span>
-            <Badge count={count} showZero color="#6A0DAD" /> {/* GOGO Brand Purple */}
+            <Badge count={count} showZero color="#6A0DAD" />
           </Space>
         ),
         value: loc.id
@@ -139,45 +137,54 @@ const Dashboard = () => {
     return <Skeleton active paragraph={{ rows: 10 }} />;
   }
 
-  return (
-    <>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        <UrgentWorkOrders workOrders={allWorkOrders || []} technicians={technicians || []} />
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <Title level={4} style={{ margin: 0 }}>Overview</Title>
-            <Segmented
-              options={locationOptions}
-              value={selectedLocation}
-              onChange={(value) => setSelectedLocation(value as string)}
-            />
-          </div>
-          <Row gutter={[24, 24]}>
-            <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={<ToolOutlined />} trend="+5%" trendDirection="up" /></Col>
-            <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Open Work Orders" value={openOrders.toString()} icon={<ExclamationCircleOutlined />} trend="+3" trendDirection="up" isUpGood={false} /></Col>
-            <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={<CheckCircleOutlined />} trend="+1.2%" trendDirection="up" /></Col>
-            <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<ClockCircleOutlined />} trend="-0.2 Days" trendDirection="down" isUpGood={false} /></Col>
-          </Row>
+  const overviewTab = (
+    <Space direction="vertical" size="large" style={{ width: '100%' }}>
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
+          <Title level={4} style={{ margin: 0 }}>Overview</Title>
+          <Segmented
+            options={locationOptions}
+            value={selectedLocation}
+            onChange={(value) => setSelectedLocation(value as string)}
+          />
         </div>
-        
         <Row gutter={[24, 24]}>
-          <Col xs={24} xl={16}>
-            <Title level={4}>Work Order Board</Title>
-            <WorkOrderKanban 
-              workOrders={filteredWorkOrders} 
-              technicians={technicians || []}
-              locations={locations || []}
-              groupBy="status"
-              columns={kanbanColumns}
-              onUpdateWorkOrder={handleUpdateWorkOrder}
-            />
-          </Col>
-          <Col xs={24} xl={8}>
-            <Title level={4}>Team Status</Title>
-            <TechnicianStatusList technicians={technicians || []} workOrders={allWorkOrders || []} />
-          </Col>
+          <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={<ToolOutlined />} trend="+5%" trendDirection="up" /></Col>
+          <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Open Work Orders" value={openOrders.toString()} icon={<ExclamationCircleOutlined />} trend="+3" trendDirection="up" isUpGood={false} /></Col>
+          <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={<CheckCircleOutlined />} trend="+1.2%" trendDirection="up" /></Col>
+          <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<ClockCircleOutlined />} trend="-0.2 Days" trendDirection="down" isUpGood={false} /></Col>
         </Row>
       </div>
+      <Row gutter={[24, 24]}>
+        <Col xs={24} xl={16}>
+          <UrgentWorkOrders workOrders={allWorkOrders || []} technicians={technicians || []} />
+        </Col>
+        <Col xs={24} xl={8}>
+          <TechnicianStatusList technicians={technicians || []} workOrders={allWorkOrders || []} />
+        </Col>
+      </Row>
+    </Space>
+  );
+
+  const workOrderBoardTab = (
+    <WorkOrderKanban 
+      workOrders={filteredWorkOrders} 
+      technicians={technicians || []}
+      locations={locations || []}
+      groupBy="status"
+      columns={kanbanColumns}
+      onUpdateWorkOrder={handleUpdateWorkOrder}
+    />
+  );
+
+  const tabItems = [
+    { label: 'Dashboard', key: '1', children: overviewTab },
+    { label: 'Work Order Board', key: '2', children: workOrderBoardTab },
+  ];
+
+  return (
+    <>
+      <Tabs defaultActiveKey="1" items={tabItems} />
       {onHoldWorkOrder && (
         <OnHoldReasonDialog
           isOpen={!!onHoldWorkOrder}

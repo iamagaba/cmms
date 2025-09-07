@@ -56,7 +56,7 @@ const AppContent = () => {
       <AppHeader />
       <Layout>
         <SideNavigation collapsed={collapsed} onCollapse={setCollapsed} />
-        <Content style={{ padding: '24px 32px', margin: '0', overflow: 'initial' }}>
+        <Content className="fade-in" style={{ padding: '24px 32px', margin: '0', overflow: 'initial' }}>
           <Routes>
             <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/technicians" element={<ProtectedRoute><TechniciansPage /></ProtectedRoute>} />

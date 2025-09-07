@@ -23,6 +23,8 @@ import { useState } from "react";
 import AssetsPage from "./pages/Assets";
 import AssetDetailsPage from "./pages/AssetDetails";
 import InventoryPage from "./pages/Inventory";
+import CustomersPage from "./pages/Customers";
+import CustomerDetailsPage from "./pages/CustomerDetails";
 
 const { Content } = Layout;
 const queryClient = new QueryClient();
@@ -71,6 +73,8 @@ const AppContent = () => {
             <Route path="/assets" element={<ProtectedRoute><AssetsPage /></ProtectedRoute>} />
             <Route path="/assets/:id" element={<ProtectedRoute><AssetDetailsPage /></ProtectedRoute>} />
             <Route path="/inventory" element={<ProtectedRoute><InventoryPage /></ProtectedRoute>} />
+            <Route path="/customers" element={<ProtectedRoute><CustomersPage /></ProtectedRoute>} />
+            <Route path="/customers/:id" element={<ProtectedRoute><CustomerDetailsPage /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
             <Route path="/map" element={<ProtectedRoute><MapViewPage /></ProtectedRoute>} />
             <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />

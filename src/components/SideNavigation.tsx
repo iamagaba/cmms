@@ -13,6 +13,7 @@ import {
   FireOutlined,
   CarOutlined,
   ShoppingOutlined,
+  ContactsOutlined,
 } from '@ant-design/icons';
 
 const { Sider } = Layout;
@@ -25,9 +26,10 @@ const navGroups = [
     { key: "/map", label: "Map View", icon: <GlobalOutlined /> },
   ],
   [
+    { key: "/customers", label: "Customers", icon: <ContactsOutlined /> },
+    { key: "/assets", label: "Assets", icon: <CarOutlined /> },
     { key: "/technicians", label: "Technicians", icon: <UsergroupAddOutlined /> },
     { key: "/locations", label: "Locations", icon: <EnvironmentOutlined /> },
-    { key: "/assets", label: "Assets", icon: <CarOutlined /> },
     { key: "/inventory", label: "Inventory", icon: <ShoppingOutlined /> },
   ],
   [

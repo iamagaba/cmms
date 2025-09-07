@@ -25,7 +25,7 @@ export function TechnicianDataTable({ technicians, workOrders, onEdit, onDelete 
       dataSource={tableData}
       columns={columns}
       rowKey="id"
-      size="middle"
+      size="small"
       pagination={{ pageSize: 10, hideOnSinglePage: true }}
       onRow={(record) => ({
         className: 'lift-on-hover-row',

@@ -29,7 +29,7 @@ export function WorkOrderDataTable({ workOrders, technicians, locations, onEdit,
       dataSource={tableData}
       columns={columns}
       rowKey="id"
-      size="middle"
+      size="small"
       pagination={{ pageSize: 10, hideOnSinglePage: true }}
       onRow={() => ({
         className: 'lift-on-hover-row'

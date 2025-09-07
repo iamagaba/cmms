@@ -8,7 +8,7 @@ import TechniciansPage from "./pages/Technicians";
 import WorkOrdersPage from "./pages/WorkOrders";
 import LocationsPage from "./pages/Locations";
 import AppHeader from "./components/Header";
-import SideNavigation from "./components/SideNavigation"; // Import the new SideNavigation
+import SideNavigation from "./components/SideNavigation";
 import TechnicianProfilePage from "./pages/TechnicianProfile";
 import WorkOrderDetailsPage from "./pages/WorkOrderDetails";
 import AnalyticsPage from "./pages/Analytics";
@@ -19,7 +19,7 @@ import LocationDetailsPage from "./pages/LocationDetails";
 import CalendarPage from "./pages/Calendar";
 import Login from "./pages/Login";
 import { SessionProvider, useSession } from "./context/SessionContext";
-import { useState } from "react"; // Import useState
+import { useState } from "react";
 
 const { Content } = Layout;
 const queryClient = new QueryClient();
@@ -27,38 +27,22 @@ const queryClient = new QueryClient();
 const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "";
 const libraries: ("places")[] = ['places'];
 
-// A component to protect routes
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, isLoading } = useSession();
-
-  if (isLoading) {
-    return null; // Or a loading spinner, handled by SessionProvider
-  }
-
-  if (!session) {
-    return <Navigate to="/login" replace />;
-  }
-
+  if (isLoading) return null;
+  if (!session) return <Navigate to="/login" replace />;
   return <>{children}</>;
 };
 
 const AppContent = () => {
   const location = useLocation();
   const { session, isLoading } = useSession();
-  const [collapsed, setCollapsed] = useState(false); // State for sidebar collapse
+  const [collapsed, setCollapsed] = useState(false);
 
-  // If session is loading, render nothing here as SessionProvider handles the loading state
-  if (isLoading) {
-    return null;
-  }
+  if (isLoading) return null;
+  if (session && location.pathname === "/login") return <Navigate to="/" replace />;
 
-  // Redirect authenticated users from login page to dashboard
-  if (session && location.pathname === "/login") {
-    return <Navigate to="/" replace />;
-  }
-
-  // Hide layout on NotFound page or Login page
-  if (location.pathname === "/404" || location.pathname === "*" || location.pathname === "/login") {
+  if (["/404", "*", "/login"].includes(location.pathname)) {
     return (
       <Routes>
         <Route path="/login" element={<Login />} />
@@ -70,9 +54,9 @@ const AppContent = () => {
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <AppHeader />
-      <Layout> {/* Nested Layout for Sider and Content */}
+      <Layout>
         <SideNavigation collapsed={collapsed} onCollapse={setCollapsed} />
-        <Content style={{ padding: '24px', margin: '0 16px', overflow: 'initial' }}>
+        <Content style={{ padding: '24px 32px', margin: '0', overflow: 'initial' }}>
           <Routes>
             <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/technicians" element={<ProtectedRoute><TechniciansPage /></ProtectedRoute>} />
@@ -99,13 +83,13 @@ const App = () => (
       theme={{
         algorithm: theme.defaultAlgorithm,
         token: {
-          colorPrimary: '#6A0DAD', // GOGO Brand Purple
+          colorPrimary: '#6A0DAD',
           colorSuccess: '#22C55E',
           colorWarning: '#FAAD14',
           colorError: '#FF4D4F',
-          colorInfo: '#13C2C2',
-          borderRadius: 6,
-          fontFamily: 'Inter, sans-serif',
+          colorInfo: '#0052CC', // A more professional blue
+          borderRadius: 8, // Softer corners
+          fontFamily: 'Lato, sans-serif', // App-wide font
         },
       }}
     >

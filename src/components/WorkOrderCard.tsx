@@ -18,12 +18,12 @@ interface WorkOrderCardProps {
 const priorityColors: Record<string, string> = { High: "#FF4D4F", Medium: "#FAAD14", Low: "#52c41a" };
 const priorityBorderColors: Record<string, string> = { High: "#FF4D4F", Medium: "#FAAD14", Low: "transparent" };
 const statusColors: Record<string, string> = { 
-  Open: '#6A0DAD', 
-  "Pending Confirmation": "#13C2C2", 
-  "Confirmed & Ready": "#d9d9d9", 
-  "In Progress": "#FAAD14", 
-  "On Hold": "#FA8C16", 
-  Completed: '#22C55E' 
+  Open: '#0052CC', // Professional Blue
+  "Pending Confirmation": "#13C2C2", // Cyan
+  "Confirmed & Ready": "#595959", // Dark Gray
+  "In Progress": "#FAAD14", // Amber
+  "On Hold": "#FA8C16", // Orange
+  Completed: '#22C55E' // Green
 };
 
 const WorkOrderCard = ({ order, technician, location, allTechnicians, onUpdateWorkOrder }: WorkOrderCardProps) => {

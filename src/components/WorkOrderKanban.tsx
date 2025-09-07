@@ -46,7 +46,7 @@ const WorkOrderKanban = ({ workOrders, technicians, locations, groupBy, columns,
         const columnColor = getColumnColor(column);
         return (
             <Col key={column.id || 'unassigned'} flex="0 0 320px">
-                <div style={{ backgroundColor: '#f5f5f5', borderRadius: '8px', height: '100%' }}>
+                <div style={{ backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
                     <div style={{ padding: '8px 12px', borderBottom: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <Space>
                             <div style={{ width: '4px', height: '16px', backgroundColor: columnColor, borderRadius: '2px' }} />
@@ -54,7 +54,7 @@ const WorkOrderKanban = ({ workOrders, technicians, locations, groupBy, columns,
                         </Space>
                         <Tag color="default">{columnOrders.length}</Tag>
                     </div>
-                    <div className="hide-scrollbar" style={{ height: 'calc(100vh - 29rem)', overflowY: 'auto', padding: '12px' }}>
+                    <div className="hide-scrollbar" style={{ padding: '12px' }}>
                         <Space direction="vertical" style={{ width: '100%' }} size="small">
                             {columnOrders.map(order => {
                                 const technician = technicians.find(t => t.id === order.assignedTechnicianId);

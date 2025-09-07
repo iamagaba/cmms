@@ -10,7 +10,7 @@ body {
 
 /* --- Polaris-Inspired Layout --- */
 .main-content {
-  padding: 24px 32px;
+  padding: 16px 24px;
   margin: 0;
   overflow: initial;
   background-color: transparent; /* Content area is transparent to show layout background */

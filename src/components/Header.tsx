@@ -69,26 +69,26 @@ const AppHeader = () => {
   );
 
   return (
-    <Header style={{ padding: '0 24px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb' }}>
+    <Header style={{ height: 48, padding: '0 16px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb' }}>
       <div style={{ display: 'flex', alignItems: 'center' }}>
         <Link to="/" style={{ display: 'flex', alignItems: 'center', marginRight: '24px', textDecoration: 'none' }}>
-          <FireOutlined style={{color: '#6A0DAD', fontSize: '24px'}} />
-          <span style={{color: '#6A0DAD', marginLeft: '8px', fontWeight: 'bold', fontSize: '18px'}}>GOGO Electric</span>
+          <FireOutlined style={{color: '#6A0DAD', fontSize: '20px'}} />
+          <span style={{color: '#6A0DAD', marginLeft: '8px', fontWeight: 'bold', fontSize: '16px'}}>GOGO Electric</span>
         </Link>
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
         <Input
           placeholder="Search..."
           prefix={<SearchOutlined />}
-          style={{ width: 250 }}
+          style={{ width: 200 }}
         />
         <Dropdown overlay={notificationMenu} placement="bottomRight" trigger={['click']} onOpenChange={(open) => open && markAllAsRead()}>
           <Badge count={unreadCount}>
-            <BellOutlined style={{ fontSize: '20px', cursor: 'pointer' }} />
+            <BellOutlined style={{ fontSize: '18px', cursor: 'pointer' }} />
           </Badge>
         </Dropdown>
         <Dropdown overlay={userMenu} placement="bottomRight">
-          <Avatar style={{ cursor: 'pointer' }} src={user?.user_metadata?.avatar_url || undefined} icon={<UserOutlined />} />
+          <Avatar size="small" style={{ cursor: 'pointer' }} src={user?.user_metadata?.avatar_url || undefined} icon={<UserOutlined />} />
         </Dropdown>
       </div>
     </Header>

@@ -14,23 +14,26 @@ export const getColumns = (
   onDelete: (record: AssetRow) => void
 ) => [
   {
-    title: "Vehicle",
-    dataIndex: "make",
-    render: (_: any, record: AssetRow) => (
+    title: "License Plate",
+    dataIndex: "license_plate",
+    render: (license_plate: string, record: AssetRow) => (
       <Link to={`/assets/${record.id}`}>
-        <Text strong>{record.year} {record.make} {record.model}</Text>
+        <Text strong>{license_plate}</Text>
       </Link>
     ),
+    sorter: (a: AssetRow, b: AssetRow) => a.license_plate.localeCompare(b.license_plate),
+  },
+  {
+    title: "Vehicle",
+    dataIndex: "make",
+    render: (_: any, record: AssetRow) => `${record.year} ${record.make} ${record.model}`,
     sorter: (a: AssetRow, b: AssetRow) => `${a.year} ${a.make}`.localeCompare(`${b.year} ${b.make}`),
   },
   {
-    title: "VIN",
-    dataIndex: "vin",
-    render: (vin: string) => <Text code>{vin}</Text>
-  },
-  {
-    title: "License Plate",
-    dataIndex: "license_plate",
+    title: "Mileage (KMs)",
+    dataIndex: "mileage",
+    render: (mileage?: number) => mileage ? mileage.toLocaleString() : 'N/A',
+    sorter: (a: AssetRow, b: AssetRow) => (a.mileage || 0) - (b.mileage || 0),
   },
   {
     title: "Owner",

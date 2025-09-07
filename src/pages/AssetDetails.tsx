@@ -6,6 +6,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Vehicle, Customer, WorkOrder, Technician, Location } from "@/types/supabase";
 import { WorkOrderDataTable } from "@/components/WorkOrderDataTable";
+import { formatDistanceToNow } from 'date-fns';
+import dayjs from 'dayjs';
 
 const { Title, Text } = Typography;
 
@@ -44,7 +46,6 @@ const AssetDetailsPage = () => {
     enabled: !!id,
   });
   
-  // Need technicians and locations for the work order table
   const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return data || []; } });
   const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({ queryKey: ['locations'], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*'); if (error) throw new Error(error.message); return data || []; } });
   const { data: customers, isLoading: isLoadingCustomers } = useQuery<Customer[]>({ queryKey: ['customers'], queryFn: async () => { const { data, error } = await supabase.from('customers').select('*'); if (error) throw new Error(error.message); return data || []; } });
@@ -60,6 +61,8 @@ const AssetDetailsPage = () => {
     return <NotFound />;
   }
 
+  const assetAge = vehicle.release_date ? formatDistanceToNow(new Date(vehicle.release_date)) : 'N/A';
+
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/assets')}>
@@ -68,10 +71,15 @@ const AssetDetailsPage = () => {
         <Row gutter={[16, 16]}>
             <Col xs={24} md={8}>
                 <Card>
-                    <Title level={4}>{vehicle.year} {vehicle.make} {vehicle.model}</Title>
-                    <Descriptions column={1} bordered>
-                        <Descriptions.Item label="VIN">{vehicle.vin}</Descriptions.Item>
-                        <Descriptions.Item label="License Plate">{vehicle.license_plate || 'N/A'}</Descriptions.Item>
+                    <Title level={4}>{vehicle.license_plate}</Title>
+                    <Text type="secondary">{vehicle.year} {vehicle.make} {vehicle.model}</Text>
+                    <Descriptions column={1} bordered style={{ marginTop: 16 }}>
+                        <Descriptions.Item label="VIN / Chassis Number">{vehicle.vin}</Descriptions.Item>
+                        <Descriptions.Item label="Motor Number">{vehicle.motor_number || 'N/A'}</Descriptions.Item>
+                        <Descriptions.Item label="Mileage">{vehicle.mileage ? `${vehicle.mileage.toLocaleString()} KMs` : 'N/A'}</Descriptions.Item>
+                        <Descriptions.Item label="Manufacture Date">{vehicle.date_of_manufacture ? dayjs(vehicle.date_of_manufacture).format('MMMM D, YYYY') : 'N/A'}</Descriptions.Item>
+                        <Descriptions.Item label="Release Date">{vehicle.release_date ? dayjs(vehicle.release_date).format('MMMM D, YYYY') : 'N/A'}</Descriptions.Item>
+                        <Descriptions.Item label="Asset Age">{assetAge}</Descriptions.Item>
                         <Descriptions.Item label="Battery (kWh)">{vehicle.battery_capacity || 'N/A'}</Descriptions.Item>
                     </Descriptions>
                 </Card>

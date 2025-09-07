@@ -43,11 +43,24 @@ export interface Vehicle {
   make: string;
   model: string;
   year: number;
-  license_plate: string | null;
+  license_plate: string;
   battery_capacity: number | null;
   customer_id: string | null;
   createdAt?: string;
   updatedAt?: string;
+  date_of_manufacture: string | null;
+  release_date: string | null;
+  motor_number: string | null;
+  mileage: number | null;
+}
+
+export interface Profile {
+  id: string;
+  first_name: string | null;
+  last_name: string | null;
+  avatar_url: string | null;
+  updated_at: string | null;
+  is_admin: boolean | null; // Added is_admin field
 }
 
 export interface WorkOrder {
@@ -72,13 +85,4 @@ export interface WorkOrder {
   updatedAt?: string;
   customerId: string | null;
   vehicleId: string | null;
-}
-
-export interface Profile {
-  id: string;
-  first_name: string | null;
-  last_name: string | null;
-  avatar_url: string | null;
-  updated_at: string | null;
-  is_admin: boolean | null; // Added is_admin field
 }

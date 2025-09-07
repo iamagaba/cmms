@@ -1,4 +1,4 @@
-import { WorkOrder, Technician, Location } from "@/types/supabase";
+import { WorkOrder, Technician, Location, Customer, Vehicle } from "@/types/supabase";
 import WorkOrderCard from "./WorkOrderCard";
 import { Row, Col, Typography, Tag, Space } from "antd";
 
@@ -23,13 +23,15 @@ interface WorkOrderKanbanProps {
     workOrders: WorkOrder[];
     technicians: Technician[];
     locations: Location[];
+    customers: Customer[];
+    vehicles: Vehicle[];
     groupBy: 'status' | 'priority' | 'assignedTechnicianId';
     columns: KanbanColumn[];
     onUpdateWorkOrder: (id: string, updates: Partial<WorkOrder>) => void;
     onViewDetails: (workOrderId: string) => void;
 }
 
-const WorkOrderKanban = ({ workOrders, technicians, locations, groupBy, columns, onUpdateWorkOrder, onViewDetails }: WorkOrderKanbanProps) => {
+const WorkOrderKanban = ({ workOrders, technicians, locations, customers, vehicles, groupBy, columns, onUpdateWorkOrder, onViewDetails }: WorkOrderKanbanProps) => {
   const getColumnOrders = (columnId: string | null) => {
     return workOrders.filter(order => (order as any)[groupBy] === columnId);
   };
@@ -39,6 +41,9 @@ const WorkOrderKanban = ({ workOrders, technicians, locations, groupBy, columns,
     if (groupBy === 'priority') return priorityColors[column.id as string] || 'default';
     return '#6A0DAD'; // Use GOGO Brand Purple for technician grouping
   }
+
+  const custMap = new Map(customers.map(c => [c.id, c]));
+  const vehMap = new Map(vehicles.map(v => [v.id, v]));
 
   return (
     <Row gutter={[16, 16]} wrap={false} className="hide-scrollbar" style={{ width: '100%', overflowX: 'auto', paddingBottom: '16px' }}>
@@ -60,7 +65,9 @@ const WorkOrderKanban = ({ workOrders, technicians, locations, groupBy, columns,
                             {columnOrders.map(order => {
                                 const technician = technicians.find(t => t.id === order.assignedTechnicianId);
                                 const location = locations.find(l => l.id === order.locationId);
-                                return <WorkOrderCard key={order.id} order={order} technician={technician} location={location} onUpdateWorkOrder={onUpdateWorkOrder} allTechnicians={technicians} onViewDetails={() => onViewDetails(order.id)} />;
+                                const customer = order.customerId ? custMap.get(order.customerId) : undefined;
+                                const vehicle = order.vehicleId ? vehMap.get(order.vehicleId) : undefined;
+                                return <WorkOrderCard key={order.id} order={order} technician={technician} location={location} customer={customer} vehicle={vehicle} onUpdateWorkOrder={onUpdateWorkOrder} allTechnicians={technicians} onViewDetails={() => onViewDetails(order.id)} />;
                             })}
                         </Space>
                     </div>

@@ -11,6 +11,7 @@ import {
   CalendarOutlined,
   SettingOutlined,
   FireOutlined,
+  CarOutlined,
 } from '@ant-design/icons';
 
 const { Sider } = Layout;
@@ -25,6 +26,7 @@ const navGroups = [
   [
     { key: "/technicians", label: "Technicians", icon: <UsergroupAddOutlined /> },
     { key: "/locations", label: "Locations", icon: <EnvironmentOutlined /> },
+    { key: "/assets", label: "Assets", icon: <CarOutlined /> },
   ],
   [
     { key: "/analytics", label: "Analytics", icon: <BarChartOutlined /> },

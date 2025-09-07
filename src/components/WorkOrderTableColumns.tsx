@@ -1,6 +1,6 @@
 import { Avatar, Button, Dropdown, Menu, Tag, Typography, Select } from "antd";
 import { MoreOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { WorkOrder, Technician, Location } from "@/types/supabase";
+import { WorkOrder, Technician, Location, Customer, Vehicle } from "@/types/supabase";
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime';
 import SlaCountdown from "./SlaCountdown";
@@ -13,6 +13,8 @@ const { Option } = Select;
 export type WorkOrderRow = WorkOrder & {
   technician?: Technician;
   location?: Location;
+  customer?: Customer;
+  vehicle?: Vehicle;
 };
 
 const priorityColors: Record<string, string> = { High: "#FF4D4F", Medium: "#FAAD14", Low: "#52c41a" };
@@ -42,8 +44,10 @@ export const getColumns = (
     dataIndex: "customerName",
     render: (_: any, record: WorkOrderRow) => (
       <div>
-        <Text strong>{record.customerName}</Text><br />
-        <Text type="secondary" style={{ fontSize: 12 }}>{record.vehicleId} ({record.vehicleModel})</Text>
+        <Text strong>{record.customer?.name || 'N/A'}</Text><br />
+        <Text type="secondary" style={{ fontSize: 12 }}>
+          {record.vehicle ? `${record.vehicle.make} ${record.vehicle.model}` : 'N/A'}
+        </Text>
       </div>
     )
   },

@@ -24,13 +24,35 @@ export interface Technician {
   updatedAt?: string;
 }
 
+export interface Customer {
+  id: string;
+  name: string;
+  email: string;
+  phone: string | null;
+  address: string | null;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Vehicle {
+  id: string;
+  vin: string;
+  make: string;
+  model: string;
+  year: number;
+  license_plate: string | null;
+  battery_capacity: number | null;
+  customer_id: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface WorkOrder {
   id: string;
   workOrderNumber: string;
-  vehicleId: string | null;
-  vehicleModel: string | null;
-  customerName: string | null;
-  customerPhone: string | null;
   status: 'Open' | 'Confirmation' | 'On Hold' | 'Ready' | 'In Progress' | 'Completed' | null;
   priority: 'High' | 'Medium' | 'Low' | null;
   assignedTechnicianId: string | null;
@@ -48,6 +70,8 @@ export interface WorkOrder {
   appointmentDate: string | null;
   createdAt?: string;
   updatedAt?: string;
+  customerId: string | null;
+  vehicleId: string | null;
 }
 
 export interface Profile {

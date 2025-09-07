@@ -8,7 +8,7 @@ import { showSuccess, showInfo, showError } from "@/utils/toast";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { WorkOrder, Technician, Location } from "@/types/supabase";
+import { WorkOrder, Technician, Location, Customer, Vehicle } from "@/types/supabase";
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -64,6 +64,24 @@ const WorkOrdersPage = () => {
       const { data, error } = await supabase.from('locations').select('*');
       if (error) throw new Error(error.message);
       return data;
+    }
+  });
+
+  const { data: customers, isLoading: isLoadingCustomers } = useQuery<Customer[]>({
+    queryKey: ['customers'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('customers').select('*');
+      if (error) throw new Error(error.message);
+      return data || [];
+    }
+  });
+
+  const { data: vehicles, isLoading: isLoadingVehicles } = useQuery<Vehicle[]>({
+    queryKey: ['vehicles'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('vehicles').select('*');
+      if (error) throw new Error(error.message);
+      return data || [];
     }
   });
 
@@ -166,7 +184,7 @@ const WorkOrdersPage = () => {
 
   const groupByField = useMemo(() => (groupBy === 'technician' ? 'assignedTechnicianId' : groupBy), [groupBy]);
 
-  const isLoading = isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations;
+  const isLoading = isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingCustomers || isLoadingVehicles;
 
   return (
     <>
@@ -196,9 +214,9 @@ const WorkOrdersPage = () => {
         <Card bordered={false} bodyStyle={{ padding: view === 'kanban' ? '1' : '0' }}>
           {isLoading ? <Skeleton active paragraph={{ rows: 5 }} /> : (
             view === 'table' ? (
-              <WorkOrderDataTable workOrders={filteredWorkOrders} technicians={technicians || []} locations={locations || []} onEdit={(wo) => { setEditingWorkOrder(wo); setIsFormDialogOpen(true); }} onDelete={handleDelete} onUpdateWorkOrder={handleUpdateWorkOrder} onViewDetails={handleViewDetails} />
+              <WorkOrderDataTable workOrders={filteredWorkOrders} technicians={technicians || []} locations={locations || []} customers={customers || []} vehicles={vehicles || []} onEdit={(wo) => { setEditingWorkOrder(wo); setIsFormDialogOpen(true); }} onDelete={handleDelete} onUpdateWorkOrder={handleUpdateWorkOrder} onViewDetails={handleViewDetails} />
             ) : (
-              <WorkOrderKanban workOrders={filteredWorkOrders} groupBy={groupByField} columns={kanbanColumns} onUpdateWorkOrder={handleUpdateWorkOrder} technicians={technicians || []} locations={locations || []} onViewDetails={handleViewDetails} />
+              <WorkOrderKanban workOrders={filteredWorkOrders} groupBy={groupByField} columns={kanbanColumns} onUpdateWorkOrder={handleUpdateWorkOrder} technicians={technicians || []} locations={locations || []} customers={customers || []} vehicles={vehicles || []} onViewDetails={handleViewDetails} />
             )
           )}
         </Card>

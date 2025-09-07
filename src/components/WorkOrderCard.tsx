@@ -1,6 +1,6 @@
 import { Card, Tag, Avatar, Typography, Select, Tooltip } from "antd";
 import { EnvironmentOutlined, MessageOutlined } from "@ant-design/icons";
-import { WorkOrder, Technician, Location } from "@/types/supabase";
+import { WorkOrder, Technician, Location, Customer, Vehicle } from "@/types/supabase";
 import SlaCountdown from "./SlaCountdown";
 
 const { Text, Title } = Typography;
@@ -10,6 +10,8 @@ interface WorkOrderCardProps {
   order: WorkOrder;
   technician: Technician | undefined;
   location: Location | undefined;
+  customer: Customer | undefined;
+  vehicle: Vehicle | undefined;
   allTechnicians: Technician[];
   onUpdateWorkOrder: (id: string, updates: Partial<WorkOrder>) => void;
   onViewDetails: () => void;
@@ -26,7 +28,7 @@ const statusColors: Record<string, string> = {
   Completed: '#22C55E' // Green
 };
 
-const WorkOrderCard = ({ order, technician, location, allTechnicians, onUpdateWorkOrder, onViewDetails }: WorkOrderCardProps) => {
+const WorkOrderCard = ({ order, technician, location, customer, vehicle, allTechnicians, onUpdateWorkOrder, onViewDetails }: WorkOrderCardProps) => {
   const stopPropagation = (e: React.MouseEvent) => {
     e.stopPropagation();
   };
@@ -42,9 +44,9 @@ const WorkOrderCard = ({ order, technician, location, allTechnicians, onUpdateWo
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
         <div>
           <Title level={5} style={{ margin: 0 }}>
-            {order.vehicleId}
+            {vehicle ? `${vehicle.make} ${vehicle.model}` : 'N/A'}
           </Title>
-          <Text type="secondary">{order.customerName} • {order.vehicleModel}</Text>
+          <Text type="secondary">{customer?.name || 'N/A'} • {vehicle?.year || ''}</Text>
         </div>
         <div onClick={stopPropagation}>
           <Select value={order.priority} onChange={(value) => onUpdateWorkOrder(order.id, { priority: value })} style={{ width: 90 }} bordered={false} size="small" dropdownMatchSelectWidth={false} suffixIcon={null}>

@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import NotFound from "./NotFound";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Technician, WorkOrder, Location } from "@/types/supabase";
+import { Technician, WorkOrder, Location, Vehicle } from "@/types/supabase";
 
 const { Title, Text } = Typography;
 
@@ -46,7 +46,16 @@ const TechnicianProfilePage = () => {
     }
   });
 
-  const isLoading = isLoadingTechnician || isLoadingWorkOrders || isLoadingLocations;
+  const { data: vehicles, isLoading: isLoadingVehicles } = useQuery<Vehicle[]>({
+    queryKey: ['vehicles'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('vehicles').select('*');
+      if (error) throw new Error(error.message);
+      return data || [];
+    }
+  });
+
+  const isLoading = isLoadingTechnician || isLoadingWorkOrders || isLoadingLocations || isLoadingVehicles;
 
   if (isLoading) {
     return <Skeleton active />;
@@ -58,7 +67,10 @@ const TechnicianProfilePage = () => {
 
   const workOrderColumns = [
     { title: 'ID', dataIndex: 'workOrderNumber', render: (text: string, record: WorkOrder) => <Link to={`/work-orders/${record.id}`}><Text code>{text}</Text></Link> },
-    { title: 'Vehicle', dataIndex: 'vehicleId' },
+    { title: 'Vehicle', dataIndex: 'vehicleId', render: (vehicleId: string) => {
+        const vehicle = vehicles?.find(v => v.id === vehicleId);
+        return vehicle ? `${vehicle.make} ${vehicle.model}` : 'N/A';
+    }},
     { title: 'Priority', dataIndex: 'priority', render: (priority: string) => <Tag color={priorityColors[priority]}>{priority}</Tag> },
     { title: 'Location', dataIndex: 'locationId', render: (locId: string) => locations?.find(l => l.id === locId)?.name?.replace(' Service Center', '') || 'N/A' },
     { title: 'Due Date', dataIndex: 'slaDue', render: (date: string) => dayjs(date).format('MMM D, YYYY') },

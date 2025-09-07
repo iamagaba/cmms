@@ -9,7 +9,7 @@ import { showSuccess, showInfo, showError } from "@/utils/toast";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Location, WorkOrder, Technician } from "@/types/supabase";
+import { Location, WorkOrder, Technician, Customer, Vehicle } from "@/types/supabase";
 import { camelToSnakeCase } from "@/utils/data-helpers"; // Import the utility
 
 const { Title, Text } = Typography;
@@ -25,6 +25,8 @@ const LocationDetailsPage = () => {
   const { data: location, isLoading: isLoadingLocation } = useQuery<Location | null>({ queryKey: ['location', id], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*').eq('id', id).single(); if (error) throw new Error(error.message); return data; }, enabled: !!id });
   const { data: allWorkOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ queryKey: ['work_orders'], queryFn: async () => { const { data, error } = await supabase.from('work_orders').select('*'); if (error) throw new Error(error.message); return data || []; } });
   const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return data || []; } });
+  const { data: customers, isLoading: isLoadingCustomers } = useQuery<Customer[]>({ queryKey: ['customers'], queryFn: async () => { const { data, error } = await supabase.from('customers').select('*'); if (error) throw new Error(error.message); return data || []; } });
+  const { data: vehicles, isLoading: isLoadingVehicles } = useQuery<Vehicle[]>({ queryKey: ['vehicles'], queryFn: async () => { const { data, error } = await supabase.from('vehicles').select('*'); if (error) throw new Error(error.message); return data || []; } });
 
   const workOrderMutation = useMutation({
     mutationFn: async (workOrderData: Partial<WorkOrder>) => { const { error } = await supabase.from('work_orders').upsert(workOrderData); if (error) throw new Error(error.message); },
@@ -54,7 +56,7 @@ const LocationDetailsPage = () => {
     navigate(`/work-orders/${workOrderId}`);
   };
 
-  const isLoading = isLoadingLocation || isLoadingWorkOrders || isLoadingTechnicians;
+  const isLoading = isLoadingLocation || isLoadingWorkOrders || isLoadingTechnicians || isLoadingCustomers || isLoadingVehicles;
 
   if (isLoading) return <Skeleton active />;
   if (!location) return <NotFound />;
@@ -85,7 +87,7 @@ const LocationDetailsPage = () => {
         </Row>
         <Card>
           <Title level={5}>Work Orders at {location.name.replace(' Service Center', '')}</Title>
-          <WorkOrderDataTable workOrders={locationWorkOrders} technicians={technicians || []} locations={allWorkOrders ? [location] : []} onEdit={() => {}} onDelete={() => {}} onUpdateWorkOrder={handleUpdateWorkOrder} onViewDetails={handleViewDetails} />
+          <WorkOrderDataTable workOrders={locationWorkOrders} technicians={technicians || []} locations={allWorkOrders ? [location] : []} customers={customers || []} vehicles={vehicles || []} onEdit={() => {}} onDelete={() => {}} onUpdateWorkOrder={handleUpdateWorkOrder} onViewDetails={handleViewDetails} />
         </Card>
       </Space>
       {onHoldWorkOrder && <OnHoldReasonDialog isOpen={!!onHoldWorkOrder} onClose={() => setOnHoldWorkOrder(null)} onSave={handleSaveOnHoldReason} />}

@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import NotFound from "./NotFound";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { WorkOrder, Technician, Location } from "@/types/supabase";
+import { WorkOrder, Technician, Location, Customer, Vehicle } from "@/types/supabase";
 import { useState } from "react";
 import { showSuccess, showError, showInfo } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
@@ -93,6 +93,28 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     }
   });
 
+  const { data: customer, isLoading: isLoadingCustomer } = useQuery<Customer | null>({
+    queryKey: ['customer', workOrder?.customerId],
+    queryFn: async () => {
+      if (!workOrder?.customerId) return null;
+      const { data, error } = await supabase.from('customers').select('*').eq('id', workOrder.customerId).single();
+      if (error) throw new Error(error.message);
+      return data;
+    },
+    enabled: !!workOrder?.customerId,
+  });
+
+  const { data: vehicle, isLoading: isLoadingVehicle } = useQuery<Vehicle | null>({
+    queryKey: ['vehicle', workOrder?.vehicleId],
+    queryFn: async () => {
+      if (!workOrder?.vehicleId) return null;
+      const { data, error } = await supabase.from('vehicles').select('*').eq('id', workOrder.vehicleId).single();
+      if (error) throw new Error(error.message);
+      return data;
+    },
+    enabled: !!workOrder?.vehicleId,
+  });
+
   const workOrderMutation = useMutation({
     mutationFn: async (workOrderData: Partial<WorkOrder>) => {
       const { error } = await supabase.from('work_orders').upsert(workOrderData);
@@ -137,7 +159,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     });
   };
 
-  const isLoading = isLoadingWorkOrder || isLoadingTechnician || isLoadingLocation || isLoadingAllTechnicians || isLoadingAllLocations;
+  const isLoading = isLoadingWorkOrder || isLoadingTechnician || isLoadingLocation || isLoadingAllTechnicians || isLoadingAllLocations || isLoadingCustomer || isLoadingVehicle;
 
   if (isLoading) {
     return <Skeleton active />;
@@ -207,16 +229,16 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
             <Card title="Customer & Vehicle Details">
               <Descriptions column={1} bordered>
                 <Descriptions.Item label="Customer" labelStyle={{ width: '150px' }}>
-                  <Text editable={{ onChange: (value) => handleUpdateWorkOrder({ customerName: value }) }}>{workOrder.customerName}</Text>
+                  <Text>{customer?.name || 'N/A'}</Text>
                 </Descriptions.Item>
                 <Descriptions.Item label={<><PhoneOutlined /> Phone</>} labelStyle={{ width: '150px' }}>
-                  <Text editable={{ onChange: (value) => handleUpdateWorkOrder({ customerPhone: value }) }}>{workOrder.customerPhone}</Text>
+                  <Text>{customer?.phone || 'N/A'}</Text>
                 </Descriptions.Item>
-                <Descriptions.Item label="Vehicle ID" labelStyle={{ width: '150px' }}>
-                  <Text editable={{ onChange: (value) => handleUpdateWorkOrder({ vehicleId: value }) }}>{workOrder.vehicleId}</Text>
+                <Descriptions.Item label="Vehicle" labelStyle={{ width: '150px' }}>
+                  <Text>{vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : 'N/A'}</Text>
                 </Descriptions.Item>
-                <Descriptions.Item label="Vehicle Model" labelStyle={{ width: '150px' }}>
-                  <Text editable={{ onChange: (value) => handleUpdateWorkOrder({ vehicleModel: value }) }}>{workOrder.vehicleModel}</Text>
+                <Descriptions.Item label="VIN" labelStyle={{ width: '150px' }}>
+                  <Text code>{vehicle?.vin || 'N/A'}</Text>
                 </Descriptions.Item>
               </Descriptions>
             </Card>

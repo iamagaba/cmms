@@ -20,6 +20,8 @@ import CalendarPage from "./pages/Calendar";
 import Login from "./pages/Login";
 import { SessionProvider, useSession } from "./context/SessionContext";
 import { useState } from "react";
+import AssetsPage from "./pages/Assets";
+import AssetDetailsPage from "./pages/AssetDetails";
 
 const { Content } = Layout;
 const queryClient = new QueryClient();
@@ -65,6 +67,8 @@ const AppContent = () => {
             <Route path="/work-orders/:id" element={<ProtectedRoute><WorkOrderDetailsPage /></ProtectedRoute>} />
             <Route path="/locations" element={<ProtectedRoute><LocationsPage /></ProtectedRoute>} />
             <Route path="/locations/:id" element={<ProtectedRoute><LocationDetailsPage /></ProtectedRoute>} />
+            <Route path="/assets" element={<ProtectedRoute><AssetsPage /></ProtectedRoute>} />
+            <Route path="/assets/:id" element={<ProtectedRoute><AssetDetailsPage /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
             <Route path="/map" element={<ProtectedRoute><MapViewPage /></ProtectedRoute>} />
             <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />

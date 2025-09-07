@@ -9,7 +9,7 @@ import { showSuccess, showInfo, showError } from "@/utils/toast";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { WorkOrder, Technician, Location } from "@/types/supabase";
+import { WorkOrder, Technician, Location, Customer, Vehicle } from "@/types/supabase";
 import dayjs from "dayjs";
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
@@ -48,6 +48,24 @@ const Dashboard = () => {
     queryKey: ['locations'],
     queryFn: async () => {
       const { data, error } = await supabase.from('locations').select('*');
+      if (error) throw new Error(error.message);
+      return data || [];
+    }
+  });
+
+  const { data: customers, isLoading: isLoadingCustomers } = useQuery<Customer[]>({
+    queryKey: ['customers'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('customers').select('*');
+      if (error) throw new Error(error.message);
+      return data || [];
+    }
+  });
+
+  const { data: vehicles, isLoading: isLoadingVehicles } = useQuery<Vehicle[]>({
+    queryKey: ['vehicles'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('vehicles').select('*');
       if (error) throw new Error(error.message);
       return data || [];
     }
@@ -144,7 +162,7 @@ const Dashboard = () => {
     })
   ];
 
-  const isLoading = isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations;
+  const isLoading = isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingCustomers || isLoadingVehicles;
 
   if (isLoading) {
     return <Skeleton active paragraph={{ rows: 10 }} />;
@@ -184,6 +202,8 @@ const Dashboard = () => {
       workOrders={filteredWorkOrders} 
       technicians={technicians || []}
       locations={locations || []}
+      customers={customers || []}
+      vehicles={vehicles || []}
       groupBy="status"
       columns={kanbanColumns}
       onUpdateWorkOrder={handleUpdateWorkOrder}

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Layout, Menu, Typography } from 'antd';
-import { NavLink, useLocation } from 'react-router-dom';
+import React from 'react';
+import { Layout, Menu } from 'antd';
+import { NavLink, useLocation, Link } from 'react-router-dom';
 import {
   DashboardOutlined,
   ToolOutlined,
@@ -10,20 +10,26 @@ import {
   GlobalOutlined,
   CalendarOutlined,
   SettingOutlined,
+  FireOutlined,
 } from '@ant-design/icons';
 
 const { Sider } = Layout;
-const { Text } = Typography;
 
-const navItems = [
-  { key: "/", label: "Dashboard", icon: <DashboardOutlined /> },
-  { key: "/work-orders", label: "Work Orders", icon: <ToolOutlined /> },
-  { key: "/calendar", label: "Calendar", icon: <CalendarOutlined /> },
-  { key: "/map", label: "Map View", icon: <GlobalOutlined /> },
-  { key: "/technicians", label: "Technicians", icon: <UsergroupAddOutlined /> },
-  { key: "/locations", label: "Locations", icon: <EnvironmentOutlined /> },
-  { key: "/analytics", label: "Analytics", icon: <BarChartOutlined /> },
-  { key: "/settings", label: "Settings", icon: <SettingOutlined /> },
+const navGroups = [
+  [
+    { key: "/", label: "Dashboard", icon: <DashboardOutlined /> },
+    { key: "/work-orders", label: "Work Orders", icon: <ToolOutlined /> },
+    { key: "/calendar", label: "Calendar", icon: <CalendarOutlined /> },
+    { key: "/map", label: "Map View", icon: <GlobalOutlined /> },
+  ],
+  [
+    { key: "/technicians", label: "Technicians", icon: <UsergroupAddOutlined /> },
+    { key: "/locations", label: "Locations", icon: <EnvironmentOutlined /> },
+  ],
+  [
+    { key: "/analytics", label: "Analytics", icon: <BarChartOutlined /> },
+    { key: "/settings", label: "Settings", icon: <SettingOutlined /> },
+  ]
 ];
 
 interface SideNavigationProps {
@@ -35,13 +41,25 @@ const SideNavigation = ({ collapsed, onCollapse }: SideNavigationProps) => {
   const location = useLocation();
 
   return (
-    <Sider collapsible collapsed={collapsed} onCollapse={onCollapse} theme="light" width={220}>
-      <div className="demo-logo-vertical" />
+    <Sider collapsible collapsed={collapsed} onCollapse={onCollapse} theme="light" width={200}>
+      <div style={{ height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px' }}>
+        {!collapsed && (
+          <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
+            <FireOutlined style={{color: '#6A0DAD', fontSize: '24px'}} />
+            <span style={{color: '#6A0DAD', marginLeft: '8px', fontWeight: 'bold', fontSize: '18px'}}>GOGO</span>
+          </Link>
+        )}
+      </div>
       <Menu theme="light" mode="inline" selectedKeys={[location.pathname]}>
-        {navItems.map(item => (
-          <Menu.Item key={item.key} icon={item.icon}>
-            <NavLink to={item.key}>{item.label}</NavLink>
-          </Menu.Item>
+        {navGroups.map((group, index) => (
+          <React.Fragment key={index}>
+            {index > 0 && <Menu.Divider />}
+            {group.map(item => (
+              <Menu.Item key={item.key} icon={item.icon}>
+                <NavLink to={item.key}>{item.label}</NavLink>
+              </Menu.Item>
+            ))}
+          </React.Fragment>
         ))}
       </Menu>
     </Sider>

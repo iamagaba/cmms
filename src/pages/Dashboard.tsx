@@ -245,17 +245,6 @@ const Dashboard = () => {
 
   const overviewTab = (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <PageHeader
-        title="Overview"
-        hideSearch
-        actions={
-          <Segmented
-            options={locationOptions}
-            value={selectedLocation}
-            onChange={(value) => setSelectedLocation(value as string)}
-          />
-        }
-      />
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Total Work Orders" value={kpiData.totalOrders.toString()} icon={<ToolOutlined />} trend={kpiData.totalOrdersTrend.trend} trendDirection={kpiData.totalOrdersTrend.trendDirection} /></Col>
         <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Open Work Orders" value={kpiData.openOrders.toString()} icon={<ExclamationCircleOutlined />} isUpGood={false} trend={kpiData.openOrdersTrend.trend} trendDirection={kpiData.openOrdersTrend.trendDirection} /></Col>
@@ -294,6 +283,17 @@ const Dashboard = () => {
 
   return (
     <>
+      <PageHeader
+        title="Dashboard"
+        hideSearch
+        actions={
+          <Segmented
+            options={locationOptions}
+            value={selectedLocation}
+            onChange={(value) => setSelectedLocation(value as string)}
+          />
+        }
+      />
       <Tabs defaultActiveKey="1" items={tabItems} />
       {onHoldWorkOrder && (
         <OnHoldReasonDialog

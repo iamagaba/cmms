@@ -46,11 +46,12 @@ const AppContent = () => {
   if (isLoading) return null;
   if (session && location.pathname === "/login") return <Navigate to="/" replace />;
 
-  if (["/404", "*", "/login"].includes(location.pathname)) {
+  const isLoginPage = location.pathname === "/login";
+
+  if (isLoginPage) {
     return (
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="*" element={<NotFound />} />
       </Routes>
     );
   }
@@ -87,43 +88,28 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ConfigProvider
       theme={{
-        algorithm: [theme.defaultAlgorithm, theme.compactAlgorithm], // Apply compact algorithm
+        algorithm: [theme.defaultAlgorithm, theme.compactAlgorithm],
         token: {
-          // Brand & Semantic Colors
           colorPrimary: '#6A0DAD',
           colorSuccess: '#22C55E',
           colorWarning: '#FAAD14',
           colorError: '#FF4D4F',
           colorInfo: '#0052CC',
-
-          // Typography
           fontFamily: 'PolySans Neutral, sans-serif',
           colorText: '#1f2937',
           colorTextSecondary: '#6b7280',
-
-          // Layout & Spacing - Denser values
-          borderRadius: 6, // Sharper corners
-          controlHeight: 32, // Smaller inputs, buttons, etc.
+          borderRadius: 6,
+          controlHeight: 32,
           colorBgLayout: '#f6f7f9',
-          
-          // Borders
           colorBorder: '#e5e7eb',
           colorSplit: '#f3f4f6',
         },
         components: {
-          Table: {
-            // Reduce padding in table cells for more density
-            padding: 12,
-            paddingSM: 8,
-          },
-          Card: {
-            // Reduce padding inside cards
-            padding: 16,
-          },
-          Form: {
-            // Reduce margin between form items
-            itemMarginBottom: 16,
-          }
+          Table: { padding: 12, paddingSM: 8 },
+          Card: { padding: 16 },
+          Form: { itemMarginBottom: 16 },
+          Layout: { headerBg: '#ffffff', headerPadding: '0 24px', headerHeight: 64, siderBg: '#ffffff' },
+          Menu: { itemBg: '#ffffff' }
         }
       }}
     >

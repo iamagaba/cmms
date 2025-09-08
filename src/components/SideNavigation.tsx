@@ -45,7 +45,21 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
   const location = useLocation();
 
   return (
-    <Sider collapsible collapsed={collapsed} onCollapse={onCollapse} theme="light" width={220}>
+    <Sider 
+      collapsible 
+      collapsed={collapsed} 
+      onCollapse={onCollapse} 
+      theme="light" 
+      width={220}
+      style={{
+        overflow: 'auto',
+        height: '100vh',
+        position: 'sticky',
+        top: 0,
+        left: 0,
+        borderRight: '1px solid #f0f0f0'
+      }}
+    >
       <div style={{
         height: '64px',
         display: 'flex',
@@ -58,6 +72,11 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
             <img src={logoUrl} alt="System Logo" style={{ height: '32px', transition: 'all 0.2s' }} />
           ) : (
             <FireOutlined style={{ color: '#6A0DAD', fontSize: '28px', transition: 'all 0.2s' }} />
+          )}
+          {!collapsed && (
+            <Title level={4} style={{ margin: 0, color: '#6A0DAD', whiteSpace: 'nowrap' }}>
+              GOGO Electric
+            </Title>
           )}
         </NavLink>
       </div>

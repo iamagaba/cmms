@@ -123,11 +123,45 @@ const Dashboard = () => {
       : allWorkOrders.filter(wo => wo.locationId === selectedLocation);
   }, [allWorkOrders, selectedLocation]);
 
-  const totalOrders = filteredWorkOrders.length;
-  const openOrders = filteredWorkOrders.filter(o => o.status !== 'Completed').length;
-  const completedOrders = filteredWorkOrders.filter(o => o.status === 'Completed').length;
-  const slaMet = filteredWorkOrders.filter(o => o.status === 'Completed' && o.completedAt && o.slaDue && dayjs(o.completedAt).isBefore(dayjs(o.slaDue))).length;
-  const slaPerformance = completedOrders > 0 ? ((slaMet / completedOrders) * 100).toFixed(0) : 0;
+  // KPI and Chart Data Calculations
+  const { kpiData, chartData } = useMemo(() => {
+    const orders = filteredWorkOrders || [];
+    const totalOrders = orders.length;
+    const openOrders = orders.filter(o => o.status !== 'Completed').length;
+    const completedOrders = orders.filter(o => o.status === 'Completed');
+    const slaMet = completedOrders.filter(o => o.completedAt && o.slaDue && dayjs(o.completedAt).isBefore(dayjs(o.slaDue))).length;
+    const slaPerformance = completedOrders.length > 0 ? ((slaMet / completedOrders.length) * 100) : 0;
+
+    // Chart data for the last 7 days
+    const last7Days = Array.from({ length: 7 }, (_, i) => dayjs().subtract(i, 'day')).reverse();
+    const dailyNewOrders = last7Days.map(day => ({
+      name: day.format('ddd'),
+      value: orders.filter(wo => wo.createdAt && dayjs(wo.createdAt).isSame(day, 'day')).length,
+    }));
+    const dailyOpenOrders = last7Days.map(day => ({
+        name: day.format('ddd'),
+        value: orders.filter(wo => wo.createdAt && dayjs(wo.createdAt).isSameOrBefore(day, 'day') && (wo.status !== 'Completed' || (wo.completedAt && dayjs(wo.completedAt).isAfter(day, 'day')))).length,
+    }));
+    const dailySlaPerformance = last7Days.map(day => {
+        const completedOnDay = completedOrders.filter(wo => wo.completedAt && dayjs(wo.completedAt).isSame(day, 'day'));
+        const metOnDay = completedOnDay.filter(wo => wo.slaDue && dayjs(wo.completedAt).isBefore(dayjs(wo.slaDue))).length;
+        const perf = completedOnDay.length > 0 ? (metOnDay / completedOnDay.length) * 100 : 0;
+        return { name: day.format('ddd'), value: perf };
+    });
+
+    return {
+      kpiData: {
+        totalOrders,
+        openOrders,
+        slaPerformance: slaPerformance.toFixed(0),
+      },
+      chartData: {
+        total: dailyNewOrders,
+        open: dailyOpenOrders,
+        sla: dailySlaPerformance,
+      }
+    };
+  }, [filteredWorkOrders]);
 
   const kanbanColumns = [
     { id: 'Open', title: 'Open' },
@@ -183,10 +217,10 @@ const Dashboard = () => {
         </Col>
       </Row>
       <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={<ToolOutlined />} trend="+5%" trendDirection="up" /></Col>
-        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Open Work Orders" value={openOrders.toString()} icon={<ExclamationCircleOutlined />} trend="+3" trendDirection="up" isUpGood={false} /></Col>
-        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={<CheckCircleOutlined />} trend="+1.2%" trendDirection="up" /></Col>
-        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<ClockCircleOutlined />} trend="-0.2 Days" trendDirection="down" isUpGood={false} /></Col>
+        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Total Work Orders" value={kpiData.totalOrders.toString()} icon={<ToolOutlined />} chartData={chartData.total} /></Col>
+        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Open Work Orders" value={kpiData.openOrders.toString()} icon={<ExclamationCircleOutlined />} isUpGood={false} chartData={chartData.open} /></Col>
+        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="SLA Performance" value={`${kpiData.slaPerformance}%`} icon={<CheckCircleOutlined />} chartData={chartData.sla} /></Col>
+        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<ClockCircleOutlined />} isUpGood={false} /></Col>
       </Row>
       <Row gutter={[16, 16]}>
         <Col xs={24} xl={16}>

@@ -24,7 +24,7 @@ const UserManagement = () => {
   const { data: workOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ queryKey: ['work_orders'], queryFn: async () => { const { data, error } = await supabase.from('work_orders').select('*'); if (error) throw new Error(error.message); return data || []; } });
 
   const technicianMutation = useMutation({
-    mutationFn: async (technicianData: Partial<Technician>) => { const { error } = await supabase.from('technicians').upsert(technicianData); if (error) throw new Error(error.message); },
+    mutationFn: async (technicianData: Partial<Technician>) => { const { error } = await supabase.from('technicians').upsert([technicianData]); if (error) throw new Error(error.message); },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['technicians'] }); showSuccess('Technician has been saved.'); },
     onError: (error) => showError(error.message),
   });
@@ -83,7 +83,7 @@ const SystemSettings = () => {
 
     const { error: dbError } = await supabase
       .from('system_settings')
-      .upsert({ key: 'logo_url', value: publicUrl });
+      .upsert([{ key: 'logo_url', value: publicUrl }]);
 
     if (dbError) {
       showError(`Failed to save logo URL: ${dbError.message}`);

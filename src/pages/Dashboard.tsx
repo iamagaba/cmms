@@ -77,7 +77,7 @@ const Dashboard = () => {
   // Mutations
   const workOrderMutation = useMutation({
     mutationFn: async (workOrderData: Partial<WorkOrder>) => {
-      const { error } = await supabase.from('work_orders').upsert(workOrderData);
+      const { error } = await supabase.from('work_orders').upsert([workOrderData]);
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {

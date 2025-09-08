@@ -32,7 +32,7 @@ const CustomersPage = () => {
 
   const customerMutation = useMutation({
     mutationFn: async (customerData: Partial<Customer>) => {
-      const { error } = await supabase.from('customers').upsert(customerData);
+      const { error } = await supabase.from('customers').upsert([customerData]);
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {

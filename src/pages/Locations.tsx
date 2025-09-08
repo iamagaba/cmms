@@ -37,7 +37,7 @@ const LocationsPage = () => {
 
   const locationMutation = useMutation({
     mutationFn: async (locationData: Partial<Location>) => {
-      const { error } = await supabase.from('locations').upsert(locationData);
+      const { error } = await supabase.from('locations').upsert([locationData]);
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {

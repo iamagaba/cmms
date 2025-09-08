@@ -37,7 +37,7 @@ const AssetsPage = () => {
 
   const vehicleMutation = useMutation({
     mutationFn: async (vehicleData: Partial<Vehicle>) => {
-      const { error } = await supabase.from('vehicles').upsert(camelToSnakeCase(vehicleData));
+      const { error } = await supabase.from('vehicles').upsert([camelToSnakeCase(vehicleData)]);
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {

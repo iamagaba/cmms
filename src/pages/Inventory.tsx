@@ -32,7 +32,7 @@ const InventoryPage = () => {
 
   const itemMutation = useMutation({
     mutationFn: async (itemData: Partial<InventoryItem>) => {
-      const { error } = await supabase.from('inventory_items').upsert(itemData);
+      const { error } = await supabase.from('inventory_items').upsert([itemData]);
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {

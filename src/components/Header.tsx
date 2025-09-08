@@ -6,6 +6,7 @@ import {
   SettingOutlined,
   QuestionCircleOutlined,
   LogoutOutlined,
+  FireOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { useNotifications } from "@/context/NotificationsContext";
@@ -13,6 +14,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { useSession } from "@/context/SessionContext";
 import { supabase } from "@/integrations/supabase/client";
 import { showSuccess, showError } from "@/utils/toast";
+import { useSystemSettings } from "@/context/SystemSettingsContext";
 
 const { Header } = Layout;
 const { Text } = Typography;
@@ -21,7 +23,9 @@ const AppHeader = () => {
   const navigate = useNavigate();
   const { notifications, unreadCount, markAllAsRead } = useNotifications();
   const { session } = useSession();
+  const { settings } = useSystemSettings();
   const user = session?.user;
+  const logoUrl = settings.logo_url;
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -68,7 +72,17 @@ const AppHeader = () => {
   );
 
   return (
-    <Header style={{ padding: '0 24px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'flex-end', borderBottom: '1px solid #e5e7eb' }}>
+    <Header style={{ padding: '0 24px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb' }}>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', marginRight: '24px', textDecoration: 'none' }}>
+          {logoUrl ? (
+            <img src={logoUrl} alt="System Logo" style={{ height: '32px' }} />
+          ) : (
+            <FireOutlined style={{color: '#6A0DAD', fontSize: '24px'}} />
+          )}
+          <span style={{color: '#6A0DAD', marginLeft: '8px', fontWeight: 'bold', fontSize: '18px'}}>GOGO Electric</span>
+        </Link>
+      </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
         <Input
           placeholder="Search..."

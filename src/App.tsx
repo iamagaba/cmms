@@ -102,7 +102,7 @@ const App = () => (
           colorInfo: '#0052CC',
 
           // Typography
-          fontFamily: 'Lato, sans-serif',
+          fontFamily: 'Asap, sans-serif',
           colorText: '#1f2937',
           colorTextSecondary: '#6b7280',
 

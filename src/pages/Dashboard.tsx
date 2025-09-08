@@ -11,9 +11,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { WorkOrder, Technician, Location, Customer, Vehicle } from "@/types/supabase";
 import dayjs from "dayjs";
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import isAfter from 'dayjs/plugin/isAfter';
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
 import { useSearchParams } from "react-router-dom";
+
+dayjs.extend(isSameOrBefore);
+dayjs.extend(isAfter);
 
 const { Title } = Typography;
 
@@ -140,7 +145,7 @@ const Dashboard = () => {
     }));
     const dailyOpenOrders = last7Days.map(day => ({
         name: day.format('ddd'),
-        value: orders.filter(wo => wo.createdAt && dayjs(wo.createdAt).diff(day, 'day') <= 0 && (wo.status !== 'Completed' || (wo.completedAt && dayjs(wo.completedAt).diff(day, 'day') > 0))).length,
+        value: orders.filter(wo => wo.createdAt && dayjs(wo.createdAt).isSameOrBefore(day, 'day') && (wo.status !== 'Completed' || (wo.completedAt && dayjs(wo.completedAt).isAfter(day, 'day')))).length,
     }));
     const dailySlaPerformance = last7Days.map(day => {
         const completedOnDay = completedOrders.filter(wo => wo.completedAt && dayjs(wo.completedAt).isSame(day, 'day'));

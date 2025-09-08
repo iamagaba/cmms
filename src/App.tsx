@@ -97,7 +97,7 @@ const App = () => (
           colorInfo: '#0052CC',
 
           // Typography
-          fontFamily: 'Work Sans, sans-serif',
+          fontFamily: 'PolySans Neutral, sans-serif',
           colorText: '#1f2937',
           colorTextSecondary: '#6b7280',
 

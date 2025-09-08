@@ -148,17 +148,16 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     <Card title="Activity Log"><Timeline>{(workOrder.activityLog || []).map((item: { activity: string; timestamp: string }, index: number) => (<Timeline.Item key={index}><Text strong>{item.activity}</Text><br/><Text type="secondary">{dayjs(item.timestamp).format('MMM D, YYYY h:mm A')}</Text></Timeline.Item>))}</Timeline></Card>
   );
 
-  const locationCard = (
-    <Card title="Service & Client Location">
+  const locationAndMapCard = (
+    <Card title="Location Details">
       <Descriptions column={1}>
         <Descriptions.Item label={<><EnvironmentOutlined /> Service Location</>}><Select value={workOrder.locationId} onChange={(value) => handleUpdateWorkOrder({ locationId: value })} style={{ width: '100%' }} bordered={false} allowClear placeholder="Select location" suffixIcon={null}>{(allLocations || []).map(l => <Option key={l.id} value={l.id}>{l.name.replace(' Service Center', '')}</Option>)}</Select></Descriptions.Item>
         <Descriptions.Item label="Client Location"><GoogleLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder.customerAddress || ''} /></Descriptions.Item>
       </Descriptions>
+      <div style={{ marginTop: 16, borderRadius: token.borderRadius, overflow: 'hidden' }}>
+        {API_KEY ? (mapUrl ? <img src={mapUrl} alt="Map of service and client locations" style={{ width: '100%', height: 'auto', display: 'block' }} /> : <div style={{padding: '24px', textAlign: 'center'}}><Text type="secondary">No location data to display.</Text></div>) : <div style={{padding: '24px', textAlign: 'center'}}><Text type="secondary">Google Maps API Key not configured.</Text></div>}
+      </div>
     </Card>
-  );
-
-  const mapCard = (
-    <Card title="Location on Map" bodyStyle={{ padding: 0 }}>{API_KEY ? (mapUrl ? <img src={mapUrl} alt="Map of service and client locations" style={{ width: '100%', height: 'auto', display: 'block', borderRadius: '8px' }} /> : <div style={{padding: '24px'}}><Text type="secondary">No location data to display.</Text></div>) : <div style={{padding: '24px'}}><Text type="secondary">Google Maps API Key not configured.</Text></div>}</Card>
   );
 
   // --- Main Render Logic ---
@@ -179,9 +178,9 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
           <Tabs defaultActiveKey="1">
             <TabPane tab={<span><InfoCircleOutlined /> Overview</span>} key="1">
               <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                {customerVehicleCard}
                 {serviceInfoCard}
                 {assignmentScheduleCard}
+                {customerVehicleCard}
               </Space>
             </TabPane>
             <TabPane tab={<span><UnorderedListOutlined /> Parts & Log</span>} key="2">
@@ -192,16 +191,26 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
             </TabPane>
             <TabPane tab={<span><CompassOutlined /> Location</span>} key="3">
               <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                {locationCard}
-                {mapCard}
+                {locationAndMapCard}
               </Space>
             </TabPane>
           </Tabs>
         ) : (
           <Row gutter={[16, 16]}>
-            <Col xs={24} lg={8}><Space direction="vertical" size="middle" style={{ width: '100%' }}>{customerVehicleCard}</Space></Col>
-            <Col xs={24} lg={8}><Space direction="vertical" size="middle" style={{ width: '100%' }}>{serviceInfoCard}{locationCard}{mapCard}</Space></Col>
-            <Col xs={24} lg={8}><Space direction="vertical" size="middle" style={{ width: '100%' }}>{assignmentScheduleCard}{partsCard}{activityLogCard}</Space></Col>
+            <Col xs={24} lg={16}>
+              <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                {serviceInfoCard}
+                {partsCard}
+                {activityLogCard}
+              </Space>
+            </Col>
+            <Col xs={24} lg={8}>
+              <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                {assignmentScheduleCard}
+                {customerVehicleCard}
+                {locationAndMapCard}
+              </Space>
+            </Col>
           </Row>
         )}
       </Space>

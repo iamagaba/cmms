@@ -142,12 +142,15 @@ const Dashboard = () => {
         name: day.format('ddd'),
         value: orders.filter(wo => {
             if (!wo.createdAt) return false;
-            const wasCreated = dayjs(wo.createdAt).diff(day) <= 0;
-            if (!wasCreated) return false;
+            const wasCreatedOnOrBefore = dayjs(wo.createdAt).startOf('day').diff(day.startOf('day')) <= 0;
+            if (!wasCreatedOnOrBefore) return false;
+            
             const isCompleted = wo.status === 'Completed';
             if (!isCompleted) return true;
+            
             if (!wo.completedAt) return true;
-            const wasCompletedAfter = dayjs(wo.completedAt).diff(day) > 0;
+            
+            const wasCompletedAfter = dayjs(wo.completedAt).startOf('day').diff(day.startOf('day')) > 0;
             return wasCompletedAfter;
         }).length,
     }));

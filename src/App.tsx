@@ -91,7 +91,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ConfigProvider
       theme={{
-        algorithm: theme.defaultAlgorithm,
+        algorithm: [theme.defaultAlgorithm, theme.compactAlgorithm], // Apply compact algorithm
         token: {
           // Brand & Semantic Colors
           colorPrimary: '#6A0DAD',
@@ -102,18 +102,33 @@ const App = () => (
 
           // Typography
           fontFamily: 'Lato, sans-serif',
-          colorText: '#1f2937', // Dark gray for primary text
-          colorTextSecondary: '#6b7280', // Lighter gray for secondary text
+          colorText: '#1f2937',
+          colorTextSecondary: '#6b7280',
 
-          // Layout & Spacing
-          borderRadius: 8,
-          controlHeight: 36, // Slightly larger default controls
-          colorBgLayout: '#f6f7f9', // Light gray background for the main layout
+          // Layout & Spacing - Denser values
+          borderRadius: 6, // Sharper corners
+          controlHeight: 32, // Smaller inputs, buttons, etc.
+          colorBgLayout: '#f6f7f9',
           
           // Borders
-          colorBorder: '#e5e7eb', // Lighter, more subtle borders
-          colorSplit: '#f3f4f6', // Even lighter for dividers
+          colorBorder: '#e5e7eb',
+          colorSplit: '#f3f4f6',
         },
+        components: {
+          Table: {
+            // Reduce padding in table cells for more density
+            padding: 12,
+            paddingSM: 8,
+          },
+          Card: {
+            // Reduce padding inside cards
+            padding: 16,
+          },
+          Form: {
+            // Reduce margin between form items
+            itemMarginBottom: 16,
+          }
+        }
       }}
     >
       <AntApp>

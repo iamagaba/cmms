@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button, Typography, Space, Skeleton, Row, Col } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
-import { TechnicianDataTable } from "@/components/TechnicianDataTable";
 import { TechnicianFormDialog } from "@/components/TechnicianFormDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Technician, WorkOrder } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
-import { camelToSnakeCase } from "@/utils/data-helpers"; // Import the utility
+import { camelToSnakeCase } from "@/utils/data-helpers";
 import PageHeader from "@/components/PageHeader";
+import { TechnicianCard, TechnicianCardData } from "@/components/TechnicianCard";
 
 const { Title } = Typography;
 
@@ -16,11 +16,12 @@ const TechniciansPage = () => {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTechnician, setEditingTechnician] = useState<Technician | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({
     queryKey: ['technicians'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('technicians').select('*');
+      const { data, error } = await supabase.from('technicians').select('*').order('name');
       if (error) throw new Error(error.message);
       return data || [];
     }
@@ -60,7 +61,7 @@ const TechniciansPage = () => {
   });
 
   const handleSave = (technicianData: Technician) => {
-    technicianMutation.mutate(camelToSnakeCase(technicianData)); // Apply camelToSnakeCase here
+    technicianMutation.mutate(camelToSnakeCase(technicianData));
     setIsDialogOpen(false);
     setEditingTechnician(null);
   };
@@ -74,12 +75,30 @@ const TechniciansPage = () => {
     setIsDialogOpen(true);
   };
 
+  const technicianData: TechnicianCardData[] = useMemo(() => {
+    if (!technicians || !workOrders) return [];
+    return technicians.map(tech => ({
+      ...tech,
+      openTasks: workOrders.filter(wo => wo.assignedTechnicianId === tech.id && wo.status !== 'Completed').length
+    }));
+  }, [technicians, workOrders]);
+
+  const filteredTechnicians = useMemo(() => {
+    if (!technicianData) return [];
+    return technicianData.filter(tech =>
+      tech.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (tech.specialization && tech.specialization.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+  }, [technicianData, searchTerm]);
+
   const isLoading = isLoadingTechnicians || isLoadingWorkOrders;
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
       <PageHeader
         title="Technician Management"
+        onSearch={setSearchTerm}
+        onSearchChange={(e) => !e.target.value && setSearchTerm("")}
         actions={
           <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingTechnician(null); setIsDialogOpen(true); }}>
             Add Technician
@@ -88,12 +107,17 @@ const TechniciansPage = () => {
       />
       
       {isLoading ? <Skeleton active /> : (
-        <TechnicianDataTable 
-          technicians={technicians || []} 
-          workOrders={workOrders || []}
-          onEdit={handleEdit}
-          onDelete={handleDelete}
-        />
+        <Row gutter={[16, 16]}>
+          {filteredTechnicians.map(tech => (
+            <Col key={tech.id} xs={24} sm={12} md={8} lg={6}>
+              <TechnicianCard 
+                technician={tech}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            </Col>
+          ))}
+        </Row>
       )}
 
       {isDialogOpen && (

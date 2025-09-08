@@ -1,6 +1,6 @@
-import { useParams, useNavigate, Link } from "react-router-dom";
-import { Avatar, Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typography, List, Skeleton, Select, DatePicker, Input, Popconfirm, Table } from "antd";
-import { ArrowLeftOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined, CalendarOutlined, ToolOutlined, PlusOutlined, DeleteOutlined } from "@ant-design/icons";
+import { useParams, useNavigate } from "react-router-dom";
+import { Avatar, Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typography, List, Skeleton, Select, DatePicker, Input, Popconfirm, Table, Tabs } from "antd";
+import { ArrowLeftOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined, CalendarOutlined, ToolOutlined, PlusOutlined, DeleteOutlined, InfoCircleOutlined, UnorderedListOutlined, CompassOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import NotFound from "./NotFound";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -16,6 +16,7 @@ import { AddPartToWorkOrderDialog } from "@/components/AddPartToWorkOrderDialog"
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
+const { TabPane } = Tabs;
 
 const statusColors: Record<string, string> = { 
   Open: '#0052CC',
@@ -104,6 +105,61 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   ];
   const partsTotal = (usedParts || []).reduce((sum, part) => sum + (part.quantity_used * part.price_at_time_of_use), 0);
 
+  // --- Reusable Content Blocks ---
+  const customerVehicleCard = (
+    <Card title="Customer & Vehicle Details">
+      <Descriptions column={1} bordered>
+        <Descriptions.Item label="Customer" labelStyle={{ width: '150px' }}><Text>{customer?.name || 'N/A'}</Text></Descriptions.Item>
+        <Descriptions.Item label={<><PhoneOutlined /> Phone</>} labelStyle={{ width: '150px' }}><Text>{customer?.phone || 'N/A'}</Text></Descriptions.Item>
+        <Descriptions.Item label="Vehicle" labelStyle={{ width: '150px' }}><Text>{vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : 'N/A'}</Text></Descriptions.Item>
+        <Descriptions.Item label="VIN" labelStyle={{ width: '150px' }}><Text code>{vehicle?.vin || 'N/A'}</Text></Descriptions.Item>
+        <Descriptions.Item label="License Plate" labelStyle={{ width: '150px' }}><Text>{vehicle?.license_plate || 'N/A'}</Text></Descriptions.Item>
+      </Descriptions>
+    </Card>
+  );
+
+  const serviceInfoCard = (
+    <Card title="Service Information">
+      <Title level={5} editable={{ onChange: (value) => handleUpdateWorkOrder({ service: value }) }}>{workOrder.service}</Title>
+      <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ serviceNotes: value }) }} type="secondary">{workOrder.serviceNotes}</Paragraph>
+    </Card>
+  );
+
+  const assignmentScheduleCard = (
+    <Card title="Assignment & Schedule">
+      <Descriptions column={1}>
+        <Descriptions.Item label="Priority"><Select value={workOrder.priority || 'Low'} onChange={(value) => handleUpdateWorkOrder({ priority: value })} style={{ width: 100 }} bordered={false} size="small" suffixIcon={null}><Option value="High"><Tag color={priorityColors["High"]}>High</Tag></Option><Option value="Medium"><Tag color={priorityColors["Medium"]}>Medium</Tag></Option><Option value="Low"><Tag color={priorityColors["Low"]}>Low</Tag></Option></Select></Descriptions.Item>
+        <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}><DatePicker showTime value={workOrder.slaDue ? dayjs(workOrder.slaDue) : null} onChange={(date) => handleUpdateWorkOrder({ slaDue: date ? date.toISOString() : null })} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
+        <Descriptions.Item label="Appointment Date"><DatePicker showTime value={workOrder.appointmentDate ? dayjs(workOrder.appointmentDate) : null} onChange={(date) => handleUpdateWorkOrder({ appointmentDate: date ? date.toISOString() : null })} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
+        <Descriptions.Item label={<><ToolOutlined /> Assigned To</>}><Select value={workOrder.assignedTechnicianId} onChange={(value) => handleUpdateWorkOrder({ assignedTechnicianId: value })} style={{ width: '100%' }} bordered={false} allowClear placeholder="Unassigned" suffixIcon={null}>{(allTechnicians || []).map(t => (<Option key={t.id} value={t.id}><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Avatar size="small" src={t.avatar || undefined}>{t.name.split(' ').map(n => n[0]).join('')}</Avatar><Text>{t.name}</Text></div></Option>))}</Select></Descriptions.Item>
+      </Descriptions>
+    </Card>
+  );
+
+  const partsCard = (
+    <Card title="Parts & Materials" extra={<Button icon={<PlusOutlined />} onClick={() => setIsAddPartDialogOpen(true)}>Add Part</Button>}>
+      <Table columns={partsColumns} dataSource={usedParts} rowKey="id" pagination={false} size="small" summary={() => <Table.Summary.Row><Table.Summary.Cell index={0} colSpan={3}><Text strong>Total Parts Cost</Text></Table.Summary.Cell><Table.Summary.Cell index={1}><Text strong>UGX {partsTotal.toLocaleString('en-US')}</Text></Table.Summary.Cell></Table.Summary.Row>} />
+    </Card>
+  );
+
+  const activityLogCard = (
+    <Card title="Activity Log"><Timeline>{(workOrder.activityLog || []).map((item: { activity: string; timestamp: string }, index: number) => (<Timeline.Item key={index}><Text strong>{item.activity}</Text><br/><Text type="secondary">{dayjs(item.timestamp).format('MMM D, YYYY h:mm A')}</Text></Timeline.Item>))}</Timeline></Card>
+  );
+
+  const locationCard = (
+    <Card title="Service & Client Location">
+      <Descriptions column={1}>
+        <Descriptions.Item label={<><EnvironmentOutlined /> Service Location</>}><Select value={workOrder.locationId} onChange={(value) => handleUpdateWorkOrder({ locationId: value })} style={{ width: '100%' }} bordered={false} allowClear placeholder="Select location" suffixIcon={null}>{(allLocations || []).map(l => <Option key={l.id} value={l.id}>{l.name.replace(' Service Center', '')}</Option>)}</Select></Descriptions.Item>
+        <Descriptions.Item label="Client Location"><GoogleLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder.customerAddress || ''} /></Descriptions.Item>
+      </Descriptions>
+    </Card>
+  );
+
+  const mapCard = (
+    <Card title="Location on Map" bodyStyle={{ padding: 0 }}>{API_KEY ? (mapUrl ? <img src={mapUrl} alt="Map of service and client locations" style={{ width: '100%', height: 'auto', display: 'block', borderRadius: '8px' }} /> : <div style={{padding: '24px'}}><Text type="secondary">No location data to display.</Text></div>) : <div style={{padding: '24px'}}><Text type="secondary">Google Maps API Key not configured.</Text></div>}</Card>
+  );
+
+  // --- Main Render Logic ---
   return (
     <>
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
@@ -116,57 +172,36 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
             </Select>
           </Space>
         </div>
-        <Row gutter={[16, 16]}>
-          {/* Column 1: Client & Vehicle Details */}
-          <Col xs={24} lg={8}>
-            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-              <Card title="Customer & Vehicle Details">
-                <Descriptions column={1} bordered>
-                  <Descriptions.Item label="Customer" labelStyle={{ width: '150px' }}><Text>{customer?.name || 'N/A'}</Text></Descriptions.Item>
-                  <Descriptions.Item label={<><PhoneOutlined /> Phone</>} labelStyle={{ width: '150px' }}><Text>{customer?.phone || 'N/A'}</Text></Descriptions.Item>
-                  <Descriptions.Item label="Vehicle" labelStyle={{ width: '150px' }}><Text>{vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : 'N/A'}</Text></Descriptions.Item>
-                  <Descriptions.Item label="VIN" labelStyle={{ width: '150px' }}><Text code>{vehicle?.vin || 'N/A'}</Text></Descriptions.Item>
-                  <Descriptions.Item label="License Plate" labelStyle={{ width: '150px' }}><Text>{vehicle?.license_plate || 'N/A'}</Text></Descriptions.Item>
-                </Descriptions>
-              </Card>
-            </Space>
-          </Col>
 
-          {/* Column 2: Service & Location Details */}
-          <Col xs={24} lg={8}>
-            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-              <Card title="Service Information">
-                <Title level={5} editable={{ onChange: (value) => handleUpdateWorkOrder({ service: value }) }}>{workOrder.service}</Title>
-                <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ serviceNotes: value }) }} type="secondary">{workOrder.serviceNotes}</Paragraph>
-              </Card>
-              <Card title="Service & Client Location">
-                <Descriptions column={1}>
-                  <Descriptions.Item label={<><EnvironmentOutlined /> Service Location</>}><Select value={workOrder.locationId} onChange={(value) => handleUpdateWorkOrder({ locationId: value })} style={{ width: '100%' }} bordered={false} allowClear placeholder="Select location" suffixIcon={null}>{(allLocations || []).map(l => <Option key={l.id} value={l.id}>{l.name.replace(' Service Center', '')}</Option>)}</Select></Descriptions.Item>
-                  <Descriptions.Item label="Client Location"><GoogleLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder.customerAddress || ''} /></Descriptions.Item>
-                </Descriptions>
-              </Card>
-              <Card title="Location on Map" bodyStyle={{ padding: 0 }}>{API_KEY ? (mapUrl ? <img src={mapUrl} alt="Map of service and client locations" style={{ width: '100%', height: 'auto', display: 'block', borderRadius: '8px' }} /> : <div style={{padding: '24px'}}><Text type="secondary">No location data to display.</Text></div>) : <div style={{padding: '24px'}}><Text type="secondary">Google Maps API Key not configured.</Text></div>}</Card>
-            </Space>
-          </Col>
-
-          {/* Column 3: Assignment, Parts & History */}
-          <Col xs={24} lg={8}>
-            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-              <Card title="Assignment & Schedule">
-                <Descriptions column={1}>
-                  <Descriptions.Item label="Priority"><Select value={workOrder.priority || 'Low'} onChange={(value) => handleUpdateWorkOrder({ priority: value })} style={{ width: 100 }} bordered={false} size="small" suffixIcon={null}><Option value="High"><Tag color={priorityColors["High"]}>High</Tag></Option><Option value="Medium"><Tag color={priorityColors["Medium"]}>Medium</Tag></Option><Option value="Low"><Tag color={priorityColors["Low"]}>Low</Tag></Option></Select></Descriptions.Item>
-                  <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}><DatePicker showTime value={workOrder.slaDue ? dayjs(workOrder.slaDue) : null} onChange={(date) => handleUpdateWorkOrder({ slaDue: date ? date.toISOString() : null })} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
-                  <Descriptions.Item label="Appointment Date"><DatePicker showTime value={workOrder.appointmentDate ? dayjs(workOrder.appointmentDate) : null} onChange={(date) => handleUpdateWorkOrder({ appointmentDate: date ? date.toISOString() : null })} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
-                  <Descriptions.Item label={<><ToolOutlined /> Assigned To</>}><Select value={workOrder.assignedTechnicianId} onChange={(value) => handleUpdateWorkOrder({ assignedTechnicianId: value })} style={{ width: '100%' }} bordered={false} allowClear placeholder="Unassigned" suffixIcon={null}>{(allTechnicians || []).map(t => (<Option key={t.id} value={t.id}><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Avatar size="small" src={t.avatar || undefined}>{t.name.split(' ').map(n => n[0]).join('')}</Avatar><Text>{t.name}</Text></div></Option>))}</Select></Descriptions.Item>
-                </Descriptions>
-              </Card>
-              <Card title="Parts & Materials" extra={<Button icon={<PlusOutlined />} onClick={() => setIsAddPartDialogOpen(true)}>Add Part</Button>}>
-                <Table columns={partsColumns} dataSource={usedParts} rowKey="id" pagination={false} size="small" summary={() => <Table.Summary.Row><Table.Summary.Cell index={0} colSpan={3}><Text strong>Total Parts Cost</Text></Table.Summary.Cell><Table.Summary.Cell index={1}><Text strong>UGX {partsTotal.toLocaleString('en-US')}</Text></Table.Summary.Cell></Table.Summary.Row>} />
-              </Card>
-              <Card title="Activity Log"><Timeline>{(workOrder.activityLog || []).map((item: { activity: string; timestamp: string }, index: number) => (<Timeline.Item key={index}><Text strong>{item.activity}</Text><br/><Text type="secondary">{dayjs(item.timestamp).format('MMM D, YYYY h:mm A')}</Text></Timeline.Item>))}</Timeline></Card>
-            </Space>
-          </Col>
-        </Row>
+        {isDrawerMode ? (
+          <Tabs defaultActiveKey="1">
+            <TabPane tab={<span><InfoCircleOutlined /> Overview</span>} key="1">
+              <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                {customerVehicleCard}
+                {serviceInfoCard}
+                {assignmentScheduleCard}
+              </Space>
+            </TabPane>
+            <TabPane tab={<span><UnorderedListOutlined /> Parts & Log</span>} key="2">
+              <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                {partsCard}
+                {activityLogCard}
+              </Space>
+            </TabPane>
+            <TabPane tab={<span><CompassOutlined /> Location</span>} key="3">
+              <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                {locationCard}
+                {mapCard}
+              </Space>
+            </TabPane>
+          </Tabs>
+        ) : (
+          <Row gutter={[16, 16]}>
+            <Col xs={24} lg={8}><Space direction="vertical" size="middle" style={{ width: '100%' }}>{customerVehicleCard}</Space></Col>
+            <Col xs={24} lg={8}><Space direction="vertical" size="middle" style={{ width: '100%' }}>{serviceInfoCard}{locationCard}{mapCard}</Space></Col>
+            <Col xs={24} lg={8}><Space direction="vertical" size="middle" style={{ width: '100%' }}>{assignmentScheduleCard}{partsCard}{activityLogCard}</Space></Col>
+          </Row>
+        )}
       </Space>
       {onHoldWorkOrder && <OnHoldReasonDialog isOpen={!!onHoldWorkOrder} onClose={() => setOnHoldWorkOrder(null)} onSave={handleSaveOnHoldReason} />}
       {isAddPartDialogOpen && <AddPartToWorkOrderDialog isOpen={isAddPartDialogOpen} onClose={() => setIsAddPartDialogOpen(false)} onSave={handleAddPart} />}

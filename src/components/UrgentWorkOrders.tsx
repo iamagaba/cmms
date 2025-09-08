@@ -35,6 +35,7 @@ const UrgentWorkOrders = ({ workOrders, technicians }: UrgentWorkOrdersProps) =>
           <Text>Urgent Work Orders</Text>
         </Space>
       }
+      style={{ height: '100%' }}
     >
       <List
         itemLayout="horizontal"

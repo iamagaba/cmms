@@ -58,7 +58,16 @@ const WorkOrderCard = ({ order, technician, location, customer, vehicle, allTech
             <Text type="secondary" style={{ fontSize: '12px' }}>{customer?.name || 'N/A'} • {vehicle?.year || ''}</Text>
           </div>
           <div onClick={stopPropagation}>
-            <Select value={order.priority} onChange={(value) => onUpdateWorkOrder(order.id, { priority: value })} style={{ width: 90 }} bordered={false} size="small" dropdownMatchSelectWidth={false} suffixIcon={null}>
+            <Select 
+              value={order.priority} 
+              onChange={(value) => onUpdateWorkOrder(order.id, { priority: value })} 
+              style={{ width: 90 }} 
+              bordered={false} 
+              size="small" 
+              dropdownMatchSelectWidth={false} 
+              suffixIcon={null}
+              className="kanban-card-select" // Added custom class
+            >
               <Option value="High"><Tag color={priorityColors["High"]}>High</Tag></Option>
               <Option value="Medium"><Tag color={priorityColors["Medium"]}>Medium</Tag></Option>
               <Option value="Low"><Tag color={priorityColors["Low"]}>Low</Tag></Option>
@@ -78,7 +87,18 @@ const WorkOrderCard = ({ order, technician, location, customer, vehicle, allTech
 
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div onClick={stopPropagation}>
-            <Select value={order.assignedTechnicianId} onChange={(value) => onUpdateWorkOrder(order.id, { assignedTechnicianId: value })} style={{ width: 150 }} bordered={false} allowClear placeholder="Unassigned" size="small" dropdownMatchSelectWidth={false} suffixIcon={null}>
+            <Select 
+              value={order.assignedTechnicianId} 
+              onChange={(value) => onUpdateWorkOrder(order.id, { assignedTechnicianId: value })} 
+              style={{ width: 150 }} 
+              bordered={false} 
+              allowClear 
+              placeholder="Unassigned" 
+              size="small" 
+              dropdownMatchSelectWidth={false} 
+              suffixIcon={null}
+              className="kanban-card-select" // Added custom class
+            >
               {allTechnicians.map(tech => (
                 <Option key={tech.id} value={tech.id}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -93,7 +113,16 @@ const WorkOrderCard = ({ order, technician, location, customer, vehicle, allTech
             {order.status === 'On Hold' && order.onHoldReason && (
               <Tooltip title={`On Hold: ${order.onHoldReason}`}><MessageOutlined style={{ color: token.colorWarning, cursor: 'pointer' }} /></Tooltip>
             )}
-            <Select value={order.status} onChange={(value) => onUpdateWorkOrder(order.id, { status: value })} style={{ width: 150 }} bordered={false} size="small" dropdownMatchSelectWidth={false} suffixIcon={null}>
+            <Select 
+              value={order.status} 
+              onChange={(value) => onUpdateWorkOrder(order.id, { status: value })} 
+              style={{ width: 150 }} 
+              bordered={false} 
+              size="small" 
+              dropdownMatchSelectWidth={false} 
+              suffixIcon={null}
+              className="kanban-card-select" // Added custom class
+            >
               <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
               <Option value="Confirmation"><Tag color={statusColors["Confirmation"]}>Confirmation</Tag></Option>
               <Option value="Ready"><Tag color={statusColors["Ready"]}>Ready</Tag></Option>

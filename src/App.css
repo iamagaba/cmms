@@ -87,3 +87,20 @@ body {
   height: auto !important; /* Allow content to dictate height */
   min-height: unset !important; /* Remove minimum height */
 }
+
+/* Kanban Card Select Styles */
+.kanban-card-select .ant-select-selector {
+  background-color: transparent !important; /* Ensure transparent background by default */
+  border: none !important; /* Remove border */
+  box-shadow: none !important; /* Remove shadow */
+}
+
+.kanban-card-select .ant-select-selector:hover {
+  background-color: rgba(0, 0, 0, 0.04) !important; /* Subtle background on hover */
+  border-radius: 4px; /* Match Ant Design's default border radius */
+}
+
+.kanban-card-select.ant-select-focused .ant-select-selector {
+  background-color: rgba(0, 0, 0, 0.06) !important; /* Slightly darker on focus */
+  box-shadow: none !important; /* Keep shadow removed */
+}

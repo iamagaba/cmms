@@ -15,6 +15,7 @@ import {
   ShoppingOutlined,
   ContactsOutlined,
 } from '@ant-design/icons';
+import { useSystemSettings } from '@/context/SystemSettingsContext';
 
 const { Sider } = Layout;
 
@@ -45,16 +46,26 @@ interface SideNavigationProps {
 
 const SideNavigation = ({ collapsed, onCollapse }: SideNavigationProps) => {
   const location = useLocation();
+  const { settings } = useSystemSettings();
+  const logoUrl = settings.logo_url;
+
+  const logoContent = (
+    <Link to="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', color: 'inherit' }}>
+      {logoUrl ? (
+        <img src={logoUrl} alt="System Logo" style={{ height: '32px', marginRight: collapsed ? 0 : '8px' }} />
+      ) : (
+        <FireOutlined style={{color: '#6A0DAD', fontSize: '24px'}} />
+      )}
+      {!collapsed && (
+        <span style={{color: '#6A0DAD', marginLeft: '8px', fontWeight: 'bold', fontSize: '18px'}}>GOGO</span>
+      )}
+    </Link>
+  );
 
   return (
     <Sider collapsible collapsed={collapsed} onCollapse={onCollapse} theme="light" width={200}>
       <div style={{ height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px' }}>
-        {!collapsed && (
-          <Link to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', color: 'inherit' }}>
-            <FireOutlined style={{color: '#6A0DAD', fontSize: '24px'}} />
-            <span style={{color: '#6A0DAD', marginLeft: '8px', fontWeight: 'bold', fontSize: '18px'}}>GOGO</span>
-          </Link>
-        )}
+        {logoContent}
       </div>
       <Menu theme="light" mode="inline" selectedKeys={[location.pathname]}>
         {navGroups.map((group, index) => (

@@ -25,6 +25,7 @@ import AssetDetailsPage from "./pages/AssetDetails";
 import InventoryPage from "./pages/Inventory";
 import CustomersPage from "./pages/Customers";
 import CustomerDetailsPage from "./pages/CustomerDetails";
+import { SystemSettingsProvider } from "./context/SystemSettingsContext";
 
 const { Content } = Layout;
 const queryClient = new QueryClient();
@@ -134,11 +135,13 @@ const App = () => (
       <AntApp>
         <BrowserRouter>
           <SessionProvider>
-            <NotificationsProvider>
-              <LoadScript googleMapsApiKey={API_KEY} libraries={libraries}>
-                <AppContent />
-              </LoadScript>
-            </NotificationsProvider>
+            <SystemSettingsProvider>
+              <NotificationsProvider>
+                <LoadScript googleMapsApiKey={API_KEY} libraries={libraries}>
+                  <AppContent />
+                </LoadScript>
+              </NotificationsProvider>
+            </SystemSettingsProvider>
           </SessionProvider>
         </BrowserRouter>
       </AntApp>

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Card, Tabs, Form, Input, Button, Select, Switch, Avatar, Typography, Space, Row, Col, Skeleton } from 'antd';
-import { UserOutlined, SettingOutlined, BellOutlined, LockOutlined, SaveOutlined } from '@ant-design/icons';
+import { Card, Tabs, Form, Input, Button, Select, Switch, Avatar, Typography, Space, Row, Col, Skeleton, Upload } from 'antd';
+import { UserOutlined, SettingOutlined, BellOutlined, LockOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons';
 import { TechnicianDataTable } from '@/components/TechnicianDataTable';
 import { TechnicianFormDialog } from '@/components/TechnicianFormDialog';
 import { showSuccess, showError } from '@/utils/toast';
@@ -8,7 +8,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Technician, WorkOrder, Profile } from '@/types/supabase';
 import { useSession } from '@/context/SessionContext';
-import { camelToSnakeCase } from "@/utils/data-helpers"; // Import the utility
+import { camelToSnakeCase } from "@/utils/data-helpers";
+import { useSystemSettings } from '@/context/SystemSettingsContext';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -33,7 +34,7 @@ const UserManagement = () => {
     onError: (error) => showError(error.message),
   });
 
-  const handleSave = (technicianData: Technician) => { technicianMutation.mutate(camelToSnakeCase(technicianData)); setIsDialogOpen(false); setEditingTechnician(null); }; // Apply camelToSnakeCase here
+  const handleSave = (technicianData: Technician) => { technicianMutation.mutate(camelToSnakeCase(technicianData)); setIsDialogOpen(false); setEditingTechnician(null); };
   const handleDelete = (technicianData: Technician) => { deleteMutation.mutate(technicianData.id); };
   const handleEdit = (technician: Technician) => { setEditingTechnician(technician); setIsDialogOpen(true); };
 
@@ -53,14 +54,72 @@ const UserManagement = () => {
 
 const SystemSettings = () => {
   const [form] = Form.useForm();
+  const queryClient = useQueryClient();
+  const { settings, isLoading: isLoadingSettings } = useSystemSettings();
+
   const onFinish = (values: any) => { console.log('Saving system settings:', values); showSuccess('System settings have been updated.'); };
+
+  const logoUrl = settings.logo_url;
+
+  const handleLogoUpload = async (options: any) => {
+    const { file } = options;
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+    const filePath = `public/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('system_assets')
+      .upload(filePath, file);
+
+    if (uploadError) {
+      showError(`Upload failed: ${uploadError.message}`);
+      return;
+    }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('system_assets')
+      .getPublicUrl(filePath);
+
+    const { error: dbError } = await supabase
+      .from('system_settings')
+      .upsert({ key: 'logo_url', value: publicUrl });
+
+    if (dbError) {
+      showError(`Failed to save logo URL: ${dbError.message}`);
+      return;
+    }
+
+    queryClient.invalidateQueries({ queryKey: ['system_settings'] });
+    showSuccess('Logo updated successfully.');
+  };
+
+  if (isLoadingSettings) {
+    return <Card title="System Configuration"><Skeleton active /></Card>;
+  }
+
   return (
     <Card title="System Configuration">
       <Form form={form} layout="vertical" onFinish={onFinish} initialValues={{ notifications: true, defaultPriority: 'Medium', slaThreshold: 3 }}>
         <Form.Item name="notifications" label="Enable Email Notifications" valuePropName="checked" tooltip="Toggle all system-wide email notifications for events like work order creation and status changes."><Switch /></Form.Item>
         <Form.Item name="defaultPriority" label="Default Work Order Priority" tooltip="Set the default priority for all newly created work orders."><Select style={{ maxWidth: 200 }}><Option value="Low">Low</Option><Option value="Medium">Medium</Option><Option value="High">High</Option></Select></Form.Item>
         <Form.Item name="slaThreshold" label="SLA Warning Threshold (days)" tooltip="Get a warning for work orders that are due within this many days."><Input type="number" style={{ maxWidth: 200 }} /></Form.Item>
-        <Form.Item><Button type="primary" htmlType="submit" icon={<SaveOutlined />}>Save Settings</Button></Form.Item></Form>
+        
+        <Form.Item label="System Logo" tooltip="Upload a logo to be displayed in the header and sidebar. Recommended size: 128x128px.">
+          <Space align="center">
+            {logoUrl && <Avatar src={logoUrl} size={64} shape="square" />}
+            <Upload
+              customRequest={handleLogoUpload}
+              maxCount={1}
+              showUploadList={false}
+              accept=".png,.jpg,.jpeg,.svg"
+            >
+              <Button icon={<UploadOutlined />}>Change Logo</Button>
+            </Upload>
+          </Space>
+        </Form.Item>
+
+        <Form.Item><Button type="primary" htmlType="submit" icon={<SaveOutlined />}>Save Settings</Button></Form.Item>
+      </Form>
     </Card>
   );
 };
@@ -100,8 +159,6 @@ const ProfileSettings = () => {
     const [first_name, ...last_name_parts] = name.split(' ');
     const last_name = last_name_parts.join(' ');
     updateProfileMutation.mutate({ first_name, last_name, is_admin });
-    // For email, Supabase auth.updateUser is needed, which is more complex.
-    // For simplicity, we'll just update the profile table for now.
     console.log('Updating profile:', values);
   };
 
@@ -142,7 +199,7 @@ const ProfileSettings = () => {
               <Input prefix={<UserOutlined />} />
             </Form.Item>
             <Form.Item name="email" label="Email Address" rules={[{ required: true, type: 'email', message: 'Please enter a valid email!' }]}>
-              <Input prefix={<UserOutlined />} disabled /> {/* Email usually updated via auth.updateUser */}
+              <Input prefix={<UserOutlined />} disabled />
             </Form.Item>
             {user?.id === 'df02bbc5-167b-4a8c-a3f8-de0eb4d9db47' && (
               <Form.Item name="is_admin" label="Admin Access" valuePropName="checked" tooltip="Toggle your administrative privileges.">

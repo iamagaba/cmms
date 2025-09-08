@@ -6,6 +6,7 @@ import NotFound from "./NotFound";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Technician, WorkOrder, Location, Vehicle } from "@/types/supabase";
+import PageHeader from "@/components/PageHeader";
 
 const { Title, Text } = Typography;
 
@@ -78,9 +79,17 @@ const TechnicianProfilePage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/technicians')}>
-            Back to Technicians
-        </Button>
+        <PageHeader
+          title={
+            <Space>
+              <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/technicians')}>
+                Back to Technicians
+              </Button>
+              <Title level={4} style={{ margin: 0 }}>Technician Profile</Title>
+            </Space>
+          }
+          hideSearch
+        />
         <Row gutter={[16, 16]}>
             <Col xs={24} md={8}>
                 <Card>

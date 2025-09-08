@@ -14,6 +14,7 @@ import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import CalendarPage from "./Calendar"; // Import CalendarPage
 import MapViewPage from "./MapView"; // Import MapViewPage
+import PageHeader from "@/components/PageHeader";
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -193,14 +194,15 @@ const WorkOrdersPage = () => {
   return (
     <>
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <Row justify="space-between" align="middle">
-          <Col><Title level={4}>Work Order Management</Title></Col>
-          <Col>
-            <Space size="middle">
-              <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingWorkOrder(null); setIsFormDialogOpen(true); }}>Add Work Order</Button>
-            </Space>
-          </Col>
-        </Row>
+        <PageHeader
+          title="Work Order Management"
+          hideSearch
+          actions={
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingWorkOrder(null); setIsFormDialogOpen(true); }}>
+              Add Work Order
+            </Button>
+          }
+        />
         
         <Collapse>
           <Panel header={<><FilterOutlined /> Filters & View Options</>} key="1">

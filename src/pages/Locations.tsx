@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Location, WorkOrder } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers"; // Import the utility
+import PageHeader from "@/components/PageHeader";
 
 const { Title } = Typography;
 
@@ -56,16 +57,14 @@ const LocationsPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Row justify="space-between" align="middle">
-        <Col>
-          <Title level={4}>Service Locations</Title>
-        </Col>
-        <Col>
+      <PageHeader
+        title="Service Locations"
+        actions={
           <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingLocation(null); setIsDialogOpen(true); }}>
             Add Location
           </Button>
-        </Col>
-      </Row>
+        }
+      />
       
       {isLoading ? <Skeleton active /> : (
         <Row gutter={[16, 16]}>

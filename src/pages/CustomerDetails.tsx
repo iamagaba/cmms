@@ -6,6 +6,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Customer, Vehicle, WorkOrder } from "@/types/supabase";
 import { Link } from "react-router-dom";
+import PageHeader from "@/components/PageHeader";
 
 const { Title, Text } = Typography;
 
@@ -71,9 +72,17 @@ const CustomerDetailsPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/customers')}>
-        Back to Customers
-      </Button>
+      <PageHeader
+        title={
+          <Space>
+            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/customers')}>
+              Back to Customers
+            </Button>
+            <Title level={4} style={{ margin: 0 }}>Customer Details</Title>
+          </Space>
+        }
+        hideSearch
+      />
       <Row gutter={[16, 16]}>
         <Col xs={24} md={8}>
           <Card>

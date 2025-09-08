@@ -13,6 +13,7 @@ import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
 import { GoogleLocationSearchInput } from "@/components/GoogleLocationSearchInput";
 import { useSearchParams } from "react-router-dom";
 import { AddPartToWorkOrderDialog } from "@/components/AddPartToWorkOrderDialog";
+import PageHeader from "@/components/PageHeader";
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -164,15 +165,35 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   return (
     <>
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          {!isDrawerMode && <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/work-orders')}>Back to Work Orders</Button>}
-          <Space>
-            {!isDrawerMode && <Title level={4} style={{ margin: 0 }}>Work Order: {workOrder.workOrderNumber}</Title>}
-            <Select value={workOrder.status || 'Open'} onChange={(value) => handleUpdateWorkOrder({ status: value })} style={{ width: 180 }} bordered={false} suffixIcon={null}>
-              <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option><Option value="Confirmation"><Tag color={statusColors["Confirmation"]}>Confirmation</Tag></Option><Option value="Ready"><Tag color={statusColors["Ready"]}>Ready</Tag></Option><Option value="In Progress"><Tag color={statusColors["In Progress"]}>In Progress</Tag></Option><Option value="On Hold"><Tag color={statusColors["On Hold"]}>On Hold</Tag></Option><Option value="Completed"><Tag color={statusColors["Completed"]}>Completed</Tag></Option>
-            </Select>
-          </Space>
-        </div>
+        {!isDrawerMode && (
+          <PageHeader
+            title={
+              <Space align="center">
+                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/work-orders')}>
+                  Back to Work Orders
+                </Button>
+                <Title level={4} style={{ margin: 0 }}>
+                  Work Order: {workOrder.workOrderNumber}
+                </Title>
+              </Space>
+            }
+            hideSearch
+            actions={
+              <Select
+                value={workOrder.status || 'Open'}
+                onChange={(value) => handleUpdateWorkOrder({ status: value })}
+                style={{ width: 180 }}
+              >
+                <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
+                <Option value="Confirmation"><Tag color={statusColors["Confirmation"]}>Confirmation</Tag></Option>
+                <Option value="Ready"><Tag color={statusColors["Ready"]}>Ready</Tag></Option>
+                <Option value="In Progress"><Tag color={statusColors["In Progress"]}>In Progress</Tag></Option>
+                <Option value="On Hold"><Tag color={statusColors["On Hold"]}>On Hold</Tag></Option>
+                <Option value="Completed"><Tag color={statusColors["Completed"]}>Completed</Tag></Option>
+              </Select>
+            }
+          />
+        )}
 
         {isDrawerMode ? (
           <Tabs defaultActiveKey="1">

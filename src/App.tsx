@@ -7,16 +7,13 @@ import NotFound from "./pages/NotFound";
 import TechniciansPage from "./pages/Technicians";
 import WorkOrdersPage from "./pages/WorkOrders";
 import LocationsPage from "./pages/Locations";
-import AppHeader from "./components/Header";
 import SideNavigation from "./components/SideNavigation";
 import TechnicianProfilePage from "./pages/TechnicianProfile";
 import WorkOrderDetailsPage from "./pages/WorkOrderDetails";
 import AnalyticsPage from "./pages/Analytics";
-// import MapViewPage from "./pages/MapView"; // Removed
 import SettingsPage from "./pages/Settings";
 import { NotificationsProvider } from "./context/NotificationsContext";
 import LocationDetailsPage from "./pages/LocationDetails";
-// import CalendarPage from "./pages/Calendar"; // Removed
 import Login from "./pages/Login";
 import { SessionProvider, useSession } from "./context/SessionContext";
 import { useState } from "react";
@@ -25,7 +22,7 @@ import AssetDetailsPage from "./pages/AssetDetails";
 import InventoryPage from "./pages/Inventory";
 import CustomersPage from "./pages/Customers";
 import CustomerDetailsPage from "./pages/CustomerDetails";
-import { SystemSettingsProvider } from "./context/SystemSettingsContext";
+import { SystemSettingsProvider, useSystemSettings } from "./context/SystemSettingsContext";
 
 const { Content } = Layout;
 const queryClient = new QueryClient();
@@ -43,6 +40,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 const AppContent = () => {
   const location = useLocation();
   const { session, isLoading } = useSession();
+  const { settings } = useSystemSettings();
   const [collapsed, setCollapsed] = useState(false);
 
   if (isLoading) return null;
@@ -58,10 +56,9 @@ const AppContent = () => {
   }
 
   return (
-    <Layout style={{ minHeight: '100vh', backgroundColor: '#f6f7f9' }}>
-      <AppHeader />
+    <Layout style={{ minHeight: '100vh' }}>
+      <SideNavigation collapsed={collapsed} onCollapse={setCollapsed} logoUrl={settings.logo_url} />
       <Layout>
-        <SideNavigation collapsed={collapsed} onCollapse={setCollapsed} />
         <Content className="fade-in main-content">
           <Routes>
             <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
@@ -77,8 +74,6 @@ const AppContent = () => {
             <Route path="/customers" element={<ProtectedRoute><CustomersPage /></ProtectedRoute>} />
             <Route path="/customers/:id" element={<ProtectedRoute><CustomerDetailsPage /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
-            {/* <Route path="/map" element={<ProtectedRoute><MapViewPage /></ProtectedRoute>} /> */}
-            {/* <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} /> */}
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>

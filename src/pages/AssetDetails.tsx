@@ -8,6 +8,7 @@ import { Vehicle, Customer, WorkOrder, Technician, Location } from "@/types/supa
 import { WorkOrderDataTable } from "@/components/WorkOrderDataTable";
 import { formatDistanceToNow } from 'date-fns';
 import dayjs from 'dayjs';
+import PageHeader from "@/components/PageHeader";
 
 const { Title, Text } = Typography;
 
@@ -65,9 +66,17 @@ const AssetDetailsPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/assets')}>
-            Back to Assets
-        </Button>
+        <PageHeader
+          title={
+            <Space>
+              <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/assets')}>
+                Back to Assets
+              </Button>
+              <Title level={4} style={{ margin: 0 }}>Asset Details</Title>
+            </Space>
+          }
+          hideSearch
+        />
         <Row gutter={[16, 16]}>
             <Col xs={24} md={8}>
                 <Card>

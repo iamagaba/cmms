@@ -11,6 +11,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Location, WorkOrder, Technician, Customer, Vehicle } from "@/types/supabase";
 import { camelToSnakeCase } from "@/utils/data-helpers"; // Import the utility
+import PageHeader from "@/components/PageHeader";
 
 const { Title, Text } = Typography;
 
@@ -64,7 +65,17 @@ const LocationDetailsPage = () => {
   return (
     <>
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/locations')}>Back to Locations</Button>
+        <PageHeader
+          title={
+            <Space>
+              <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/locations')}>
+                Back to Locations
+              </Button>
+              <Title level={4} style={{ margin: 0 }}>Location Details</Title>
+            </Space>
+          }
+          hideSearch
+        />
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={8}>
             <Space direction="vertical" size="middle" style={{ width: '100%' }}>

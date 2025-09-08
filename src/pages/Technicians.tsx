@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Technician, WorkOrder } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers"; // Import the utility
+import PageHeader from "@/components/PageHeader";
 
 const { Title } = Typography;
 
@@ -77,16 +78,14 @@ const TechniciansPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Row justify="space-between" align="middle">
-        <Col>
-          <Title level={4}>Technician Management</Title>
-        </Col>
-        <Col>
+      <PageHeader
+        title="Technician Management"
+        actions={
           <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingTechnician(null); setIsDialogOpen(true); }}>
             Add Technician
           </Button>
-        </Col>
-      </Row>
+        }
+      />
       
       {isLoading ? <Skeleton active /> : (
         <TechnicianDataTable 

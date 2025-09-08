@@ -1,4 +1,5 @@
-import { Layout, Input, Badge, Dropdown, Avatar, Menu, List, Typography, Empty } from "antd";
+import React from "react";
+import { Row, Col, Typography, Space, Input, Badge, Dropdown, Avatar, Menu, List, Empty } from "antd";
 import {
   SearchOutlined,
   BellOutlined,
@@ -6,7 +7,6 @@ import {
   SettingOutlined,
   QuestionCircleOutlined,
   LogoutOutlined,
-  FireOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
 import { useNotifications } from "@/context/NotificationsContext";
@@ -14,18 +14,22 @@ import { formatDistanceToNow } from 'date-fns';
 import { useSession } from "@/context/SessionContext";
 import { supabase } from "@/integrations/supabase/client";
 import { showSuccess, showError } from "@/utils/toast";
-import { useSystemSettings } from "@/context/SystemSettingsContext";
 
-const { Header } = Layout;
-const { Text } = Typography;
+const { Title, Text } = Typography;
 
-const AppHeader = () => {
+interface PageHeaderProps {
+  title: React.ReactNode;
+  actions?: React.ReactNode;
+  onSearch?: (value: string) => void;
+  onSearchChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  hideSearch?: boolean;
+}
+
+const PageHeader = ({ title, actions, onSearch, onSearchChange, hideSearch = false }: PageHeaderProps) => {
   const navigate = useNavigate();
   const { notifications, unreadCount, markAllAsRead } = useNotifications();
   const { session } = useSession();
-  const { settings } = useSystemSettings();
   const user = session?.user;
-  const logoUrl = settings.logo_url;
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -72,33 +76,35 @@ const AppHeader = () => {
   );
 
   return (
-    <Header style={{ padding: '0 24px', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e5e7eb' }}>
-      <div style={{ display: 'flex', alignItems: 'center' }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', marginRight: '24px', textDecoration: 'none' }}>
-          {logoUrl ? (
-            <img src={logoUrl} alt="System Logo" style={{ height: '32px' }} />
-          ) : (
-            <FireOutlined style={{color: '#6A0DAD', fontSize: '24px'}} />
+    <Row justify="space-between" align="middle" style={{ marginBottom: '24px' }}>
+      <Col>
+        {typeof title === 'string' ? <Title level={4} style={{ margin: 0 }}>{title}</Title> : title}
+      </Col>
+      <Col>
+        <Space size="middle" align="center">
+          {!hideSearch && (
+            <Input
+              placeholder="Search..."
+              prefix={<SearchOutlined />}
+              style={{ width: 250 }}
+              onPressEnter={(e) => onSearch && onSearch(e.currentTarget.value)}
+              onChange={onSearchChange}
+              allowClear
+            />
           )}
-        </Link>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-        <Input
-          placeholder="Search..."
-          prefix={<SearchOutlined />}
-          style={{ width: 250 }}
-        />
-        <Dropdown overlay={notificationMenu} placement="bottomRight" trigger={['click']} onOpenChange={(open) => open && markAllAsRead()}>
-          <Badge count={unreadCount}>
-            <BellOutlined style={{ fontSize: '20px', cursor: 'pointer' }} />
-          </Badge>
-        </Dropdown>
-        <Dropdown overlay={userMenu} placement="bottomRight">
-          <Avatar style={{ cursor: 'pointer' }} src={user?.user_metadata?.avatar_url || undefined} icon={<UserOutlined />} />
-        </Dropdown>
-      </div>
-    </Header>
+          <Dropdown overlay={notificationMenu} placement="bottomRight" trigger={['click']} onOpenChange={(open) => open && markAllAsRead()}>
+            <Badge count={unreadCount}>
+              <BellOutlined style={{ fontSize: '20px', cursor: 'pointer' }} />
+            </Badge>
+          </Dropdown>
+          <Dropdown overlay={userMenu} placement="bottomRight">
+            <Avatar style={{ cursor: 'pointer' }} src={user?.user_metadata?.avatar_url || undefined} icon={<UserOutlined />} />
+          </Dropdown>
+          {actions && <>{actions}</>}
+        </Space>
+      </Col>
+    </Row>
   );
 };
 
-export default AppHeader;
+export default PageHeader;

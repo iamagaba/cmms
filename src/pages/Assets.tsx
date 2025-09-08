@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Vehicle, Customer } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
+import PageHeader from "@/components/PageHeader";
 
 const { Title } = Typography;
 
@@ -77,16 +78,14 @@ const AssetsPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Row justify="space-between" align="middle">
-        <Col>
-          <Title level={4}>Asset Management</Title>
-        </Col>
-        <Col>
+      <PageHeader
+        title="Asset Management"
+        actions={
           <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingVehicle(null); setIsDialogOpen(true); }}>
             Add Asset
           </Button>
-        </Col>
-      </Row>
+        }
+      />
       
       {isLoading ? <Skeleton active /> : (
         <AssetDataTable 

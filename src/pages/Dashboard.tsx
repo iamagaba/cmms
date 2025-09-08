@@ -14,6 +14,7 @@ import dayjs from "dayjs";
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
 import { useSearchParams } from "react-router-dom";
+import PageHeader from "@/components/PageHeader";
 
 const { Title } = Typography;
 
@@ -216,18 +217,17 @@ const Dashboard = () => {
 
   const overviewTab = (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Row justify="space-between" align="middle">
-        <Col>
-          <Title level={4}>Overview</Title>
-        </Col>
-        <Col>
+      <PageHeader
+        title="Overview"
+        hideSearch
+        actions={
           <Segmented
             options={locationOptions}
             value={selectedLocation}
             onChange={(value) => setSelectedLocation(value as string)}
           />
-        </Col>
-      </Row>
+        }
+      />
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Total Work Orders" value={kpiData.totalOrders.toString()} icon={<ToolOutlined />} chartData={chartData.total} /></Col>
         <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Open Work Orders" value={kpiData.openOrders.toString()} icon={<ExclamationCircleOutlined />} isUpGood={false} chartData={chartData.open} /></Col>

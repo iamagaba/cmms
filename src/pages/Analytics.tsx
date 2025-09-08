@@ -7,6 +7,7 @@ import KpiCard from '@/components/KpiCard';
 import { CheckCircleOutlined, ClockCircleOutlined, ToolOutlined, UserOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useState } from 'react';
+import PageHeader from '@/components/PageHeader';
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -90,10 +91,12 @@ const AnalyticsPage = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <Row justify="space-between" align="middle">
-        <Col><Title level={4}>Analytics Dashboard</Title></Col>
-        <Col><RangePicker value={dateRange} onChange={(dates) => dates && setDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])} /></Col>
-      </Row>
+      <PageHeader
+        title="Analytics Dashboard"
+        actions={
+          <RangePicker value={dateRange} onChange={(dates) => dates && setDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])} />
+        }
+      />
       
       <Row gutter={[24, 24]}>
         <Col xs={24} sm={12} lg={6}><KpiCard title="Total Work Orders" value={(workOrders || []).length.toString()} icon={<ToolOutlined />} /></Col>

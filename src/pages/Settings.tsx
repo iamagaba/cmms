@@ -10,6 +10,7 @@ import { Technician, WorkOrder, Profile } from '@/types/supabase';
 import { useSession } from '@/context/SessionContext';
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import { useSystemSettings } from '@/context/SystemSettingsContext';
+import PageHeader from '@/components/PageHeader';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -236,7 +237,7 @@ const SettingsPage = () => {
   ];
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Title level={4}>Settings</Title>
+      <PageHeader title="Settings" hideSearch />
       <Tabs defaultActiveKey="1" items={tabItems} />
     </Space>
   );

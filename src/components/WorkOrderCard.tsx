@@ -1,5 +1,5 @@
 import { Card, Tag, Avatar, Typography, Select, Tooltip, theme, Space } from "antd";
-import { EnvironmentOutlined, MessageOutlined } from "@ant-design/icons";
+import { MessageOutlined } from "@ant-design/icons";
 import { WorkOrder, Technician, Location, Customer, Vehicle } from "@/types/supabase";
 import SlaCountdown from "./SlaCountdown";
 
@@ -44,10 +44,10 @@ const WorkOrderCard = ({ order, technician, location, customer, vehicle, allTech
         borderLeft: `4px solid ${priorityBorderColors[order.priority || 'Low']}`, 
         cursor: 'pointer',
       }}
-      bodyStyle={{ padding: '10px 12px' }}
+      bodyStyle={{ padding: '12px' }}
       onClick={onViewDetails}
     >
-      <Space direction="vertical" size={8} style={{ width: '100%' }}>
+      <Space direction="vertical" size={6} style={{ width: '100%' }}>
         {/* Row 1: Title & Priority */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
@@ -75,12 +75,15 @@ const WorkOrderCard = ({ order, technician, location, customer, vehicle, allTech
         </div>
 
         {/* Row 2: Service */}
-        <Paragraph style={{ fontSize: '12px', margin: 0 }} ellipsis={{ rows: 2, tooltip: order.service }}>
+        <Paragraph 
+          style={{ fontSize: '12px', margin: 0, minHeight: '36px' }}
+          ellipsis={{ rows: 2, tooltip: order.service }}
+        >
           {order.service}
         </Paragraph>
 
         {/* Row 3: Meta & Status */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Space align="center">
             <Tooltip title={technician ? `Assigned to ${technician.name}` : 'Unassigned'}>
               <Avatar size={24} src={technician?.avatar || undefined}>
@@ -90,7 +93,7 @@ const WorkOrderCard = ({ order, technician, location, customer, vehicle, allTech
             <SlaCountdown slaDue={order.slaDue} status={order.status} completedAt={order.completedAt} />
           </Space>
           
-          <Space size={4} onClick={stopPropagation}>
+          <Space align="center" size={4} onClick={stopPropagation}>
             {order.status === 'On Hold' && order.onHoldReason && (
               <Tooltip title={`On Hold: ${order.onHoldReason}`}><MessageOutlined style={{ color: token.colorWarning, cursor: 'pointer' }} /></Tooltip>
             )}

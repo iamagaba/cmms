@@ -12,11 +12,11 @@ import SideNavigation from "./components/SideNavigation";
 import TechnicianProfilePage from "./pages/TechnicianProfile";
 import WorkOrderDetailsPage from "./pages/WorkOrderDetails";
 import AnalyticsPage from "./pages/Analytics";
-import MapViewPage from "./pages/MapView"; // Re-added
+// import MapViewPage from "./pages/MapView"; // Removed
 import SettingsPage from "./pages/Settings";
 import { NotificationsProvider } from "./context/NotificationsContext";
 import LocationDetailsPage from "./pages/LocationDetails";
-import CalendarPage from "./pages/Calendar"; // Re-added
+// import CalendarPage from "./pages/Calendar"; // Removed
 import Login from "./pages/Login";
 import { SessionProvider, useSession } from "./context/SessionContext";
 import { useState } from "react";
@@ -77,8 +77,8 @@ const AppContent = () => {
             <Route path="/customers" element={<ProtectedRoute><CustomersPage /></ProtectedRoute>} />
             <Route path="/customers/:id" element={<ProtectedRoute><CustomerDetailsPage /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
-            <Route path="/map" element={<ProtectedRoute><MapViewPage /></ProtectedRoute>} />
-            <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
+            {/* <Route path="/map" element={<ProtectedRoute><MapViewPage /></ProtectedRoute>} /> */}
+            {/* <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} /> */}
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>

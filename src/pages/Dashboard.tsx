@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
 import { Row, Col, Typography, Segmented, Badge, Space, Skeleton, Tabs } from "antd";
 import KpiCard from "@/components/KpiCard";
-import TechnicianStatusList from "@/components/TechnicianStatusList";
+import TechnicianStatusAvatars from "@/components/TechnicianStatusAvatars";
 import WorkOrderKanban from "@/components/WorkOrderKanban";
 import { CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined, ToolOutlined } from "@ant-design/icons";
 import UrgentWorkOrders from "@/components/UrgentWorkOrders";
@@ -267,7 +267,7 @@ const Dashboard = () => {
           <UrgentWorkOrders workOrders={allWorkOrders || []} technicians={technicians || []} />
         </Col>
         <Col xs={24} xl={8}>
-          <TechnicianStatusList technicians={technicians || []} workOrders={allWorkOrders || []} />
+          <TechnicianStatusAvatars technicians={technicians || []} workOrders={allWorkOrders || []} />
         </Col>
       </Row>
     </Space>

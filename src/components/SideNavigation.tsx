@@ -59,11 +59,6 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
           ) : (
             <FireOutlined style={{ color: '#6A0DAD', fontSize: '28px', transition: 'all 0.2s' }} />
           )}
-          {!collapsed && (
-            <Title level={5} style={{ margin: 0, color: '#6A0DAD', whiteSpace: 'nowrap' }}>
-              GOGO Electric
-            </Title>
-          )}
         </NavLink>
       </div>
       <Menu theme="light" mode="inline" selectedKeys={[location.pathname]} style={{ borderRight: 0 }}>

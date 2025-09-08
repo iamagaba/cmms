@@ -18,7 +18,7 @@ const KpiCard = ({ title, value, icon, trend, trendDirection, isUpGood = true }:
   const trendColor = isPositive ? '#52c41a' : '#ff4d4f';
 
   return (
-    <Card className="lift-on-hover">
+    <Card className="lift-on-hover" style={{ height: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <div>
           <Statistic title={title} value={value} />

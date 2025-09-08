@@ -16,12 +16,6 @@ body {
   background-color: transparent; /* Content area is transparent to show layout background */
 }
 
-/* --- Polaris-Inspired Typography --- */
-/* Add more vertical spacing to page titles */
-.ant-typography {
-  margin-bottom: 1em;
-}
-
 /* Custom styles for Leaflet divIcons to remove default background/border */
 .custom-leaflet-icon {
   background: transparent;

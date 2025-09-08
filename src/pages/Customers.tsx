@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Typography, Space, Skeleton, Input } from "antd";
+import { Button, Typography, Space, Skeleton, Input, Row, Col } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { CustomerDataTable } from "@/components/CustomerDataTable";
 import { CustomerFormDialog } from "@/components/CustomerFormDialog";
@@ -71,21 +71,25 @@ const CustomersPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Title level={4}>Customer Management</Title>
-        <Space>
-          <Search 
-            placeholder="Search by name, email, or phone..." 
-            onSearch={setSearchTerm} 
-            onChange={(e) => !e.target.value && setSearchTerm("")}
-            style={{ width: 250 }} 
-            allowClear
-          />
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingCustomer(null); setIsDialogOpen(true); }}>
-            Add Customer
-          </Button>
-        </Space>
-      </div>
+      <Row justify="space-between" align="middle">
+        <Col>
+          <Title level={4}>Customer Management</Title>
+        </Col>
+        <Col>
+          <Space>
+            <Search 
+              placeholder="Search by name, email, or phone..." 
+              onSearch={setSearchTerm} 
+              onChange={(e) => !e.target.value && setSearchTerm("")}
+              style={{ width: 250 }} 
+              allowClear
+            />
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingCustomer(null); setIsDialogOpen(true); }}>
+              Add Customer
+            </Button>
+          </Space>
+        </Col>
+      </Row>
       
       {isLoading ? <Skeleton active /> : (
         <CustomerDataTable 

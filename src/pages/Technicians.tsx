@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Typography, Space, Skeleton } from "antd";
+import { Button, Typography, Space, Skeleton, Row, Col } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { TechnicianDataTable } from "@/components/TechnicianDataTable";
 import { TechnicianFormDialog } from "@/components/TechnicianFormDialog";
@@ -77,12 +77,16 @@ const TechniciansPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Title level={4}>Technician Management</Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingTechnician(null); setIsDialogOpen(true); }}>
-          Add Technician
-        </Button>
-      </div>
+      <Row justify="space-between" align="middle">
+        <Col>
+          <Title level={4}>Technician Management</Title>
+        </Col>
+        <Col>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingTechnician(null); setIsDialogOpen(true); }}>
+            Add Technician
+          </Button>
+        </Col>
+      </Row>
       
       {isLoading ? <Skeleton active /> : (
         <TechnicianDataTable 

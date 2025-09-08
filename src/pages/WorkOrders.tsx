@@ -190,7 +190,7 @@ const WorkOrdersPage = () => {
     <>
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
         <Row justify="space-between" align="middle">
-          <Col><Title level={4} style={{ margin: 0 }}>Work Order Management</Title></Col>
+          <Col><Title level={4}>Work Order Management</Title></Col>
           <Col>
             <Space size="middle">
               <Segmented options={[{ label: 'Table', value: 'table', icon: <TableOutlined /> }, { label: 'Board', value: 'kanban', icon: <AppstoreOutlined /> }]} value={view} onChange={(value) => setView(value as 'table' | 'kanban')} />

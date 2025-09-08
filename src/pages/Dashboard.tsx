@@ -170,22 +170,24 @@ const Dashboard = () => {
 
   const overviewTab = (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-          <Title level={4} style={{ margin: 0 }}>Overview</Title>
+      <Row justify="space-between" align="middle">
+        <Col>
+          <Title level={4}>Overview</Title>
+        </Col>
+        <Col>
           <Segmented
             options={locationOptions}
             value={selectedLocation}
             onChange={(value) => setSelectedLocation(value as string)}
           />
-        </div>
-        <Row gutter={[16, 16]}>
-          <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={<ToolOutlined />} trend="+5%" trendDirection="up" /></Col>
-          <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Open Work Orders" value={openOrders.toString()} icon={<ExclamationCircleOutlined />} trend="+3" trendDirection="up" isUpGood={false} /></Col>
-          <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={<CheckCircleOutlined />} trend="+1.2%" trendDirection="up" /></Col>
-          <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<ClockCircleOutlined />} trend="-0.2 Days" trendDirection="down" isUpGood={false} /></Col>
-        </Row>
-      </div>
+        </Col>
+      </Row>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Total Work Orders" value={totalOrders.toString()} icon={<ToolOutlined />} trend="+5%" trendDirection="up" /></Col>
+        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Open Work Orders" value={openOrders.toString()} icon={<ExclamationCircleOutlined />} trend="+3" trendDirection="up" isUpGood={false} /></Col>
+        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="SLA Performance" value={`${slaPerformance}%`} icon={<CheckCircleOutlined />} trend="+1.2%" trendDirection="up" /></Col>
+        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<ClockCircleOutlined />} trend="-0.2 Days" trendDirection="down" isUpGood={false} /></Col>
+      </Row>
       <Row gutter={[16, 16]}>
         <Col xs={24} xl={16}>
           <UrgentWorkOrders workOrders={allWorkOrders || []} technicians={technicians || []} />

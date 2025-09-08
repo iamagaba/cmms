@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Typography, Space, Skeleton, Input } from "antd";
+import { Button, Typography, Space, Skeleton, Input, Row, Col } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { InventoryDataTable } from "@/components/InventoryDataTable";
 import { InventoryItemFormDialog } from "@/components/InventoryItemFormDialog";
@@ -69,21 +69,25 @@ const InventoryPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Title level={4}>Inventory Management</Title>
-        <Space>
-          <Search 
-            placeholder="Search by name or SKU..." 
-            onSearch={setSearchTerm} 
-            onChange={(e) => !e.target.value && setSearchTerm("")}
-            style={{ width: 250 }} 
-            allowClear
-          />
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingItem(null); setIsDialogOpen(true); }}>
-            Add Item
-          </Button>
-        </Space>
-      </div>
+      <Row justify="space-between" align="middle">
+        <Col>
+          <Title level={4}>Inventory Management</Title>
+        </Col>
+        <Col>
+          <Space>
+            <Search 
+              placeholder="Search by name or SKU..." 
+              onSearch={setSearchTerm} 
+              onChange={(e) => !e.target.value && setSearchTerm("")}
+              style={{ width: 250 }} 
+              allowClear
+            />
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingItem(null); setIsDialogOpen(true); }}>
+              Add Item
+            </Button>
+          </Space>
+        </Col>
+      </Row>
       
       {isLoading ? <Skeleton active /> : (
         <InventoryDataTable 

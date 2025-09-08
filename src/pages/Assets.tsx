@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Typography, Space, Skeleton } from "antd";
+import { Button, Typography, Space, Skeleton, Row, Col } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { AssetDataTable } from "@/components/AssetDataTable";
 import { AssetFormDialog } from "@/components/AssetFormDialog";
@@ -77,12 +77,16 @@ const AssetsPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Title level={4}>Asset Management</Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingVehicle(null); setIsDialogOpen(true); }}>
-          Add Asset
-        </Button>
-      </div>
+      <Row justify="space-between" align="middle">
+        <Col>
+          <Title level={4}>Asset Management</Title>
+        </Col>
+        <Col>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingVehicle(null); setIsDialogOpen(true); }}>
+            Add Asset
+          </Button>
+        </Col>
+      </Row>
       
       {isLoading ? <Skeleton active /> : (
         <AssetDataTable 

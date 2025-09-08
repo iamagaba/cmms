@@ -56,12 +56,16 @@ const LocationsPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Title level={4}>Service Locations</Title>
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingLocation(null); setIsDialogOpen(true); }}>
-          Add Location
-        </Button>
-      </div>
+      <Row justify="space-between" align="middle">
+        <Col>
+          <Title level={4}>Service Locations</Title>
+        </Col>
+        <Col>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingLocation(null); setIsDialogOpen(true); }}>
+            Add Location
+          </Button>
+        </Col>
+      </Row>
       
       {isLoading ? <Skeleton active /> : (
         <Row gutter={[16, 16]}>

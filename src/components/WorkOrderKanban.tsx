@@ -55,21 +55,37 @@ const WorkOrderKanban = ({ workOrders, technicians, locations, customers, vehicl
         const columnColor = getColumnColor(column);
         return (
             <Col key={column.id || 'unassigned'} flex="0 0 320px">
-                <div style={{ backgroundColor: '#f5f5f5', borderRadius: '8px' }}>
-                    <div style={{ padding: '8px 12px', borderBottom: '1px solid #e8e8e8', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ 
+                    backgroundColor: token.colorBgContainer, 
+                    borderRadius: token.borderRadiusLG, 
+                    boxShadow: token.boxShadowSecondary,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    height: '100%'
+                }}>
+                    <div style={{ 
+                        padding: '12px 16px', 
+                        borderBottom: `1px solid ${token.colorBorderSecondary}`, 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'space-between',
+                        backgroundColor: token.colorFillAlter,
+                        borderTopLeftRadius: token.borderRadiusLG,
+                        borderTopRightRadius: token.borderRadiusLG,
+                    }}>
                         <Space>
                             <div style={{ width: '4px', height: '16px', backgroundColor: columnColor, borderRadius: '2px' }} />
                             <Title level={5} style={{ margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{column.title}</Title>
                         </Space>
                         <Tag color="default">{columnOrders.length}</Tag>
                     </div>
-                    <div className="hide-scrollbar" style={{ padding: '12px' }}>
+                    <div className="hide-scrollbar" style={{ padding: '12px', flexGrow: 1, overflowY: 'auto' }}>
                         <Space direction="vertical" style={{ width: '100%' }} size="small">
                             {columnOrders.map(order => {
                                 const technician = technicians.find(t => t.id === order.assignedTechnicianId);
                                 const location = locations.find(l => l.id === order.locationId);
-                                const customer = order.customerId ? custMap.get(order.customerId) : undefined;
-                                const vehicle = order.vehicleId ? vehMap.get(order.vehicleId) : undefined;
+                                const customer: Customer | undefined = order.customerId ? custMap.get(order.customerId) : undefined;
+                                const vehicle: Vehicle | undefined = order.vehicleId ? vehMap.get(order.vehicleId) : undefined;
                                 return <WorkOrderCard key={order.id} order={order} technician={technician} location={location} customer={customer} vehicle={vehicle} onUpdateWorkOrder={onUpdateWorkOrder} allTechnicians={technicians} onViewDetails={() => onViewDetails(order.id)} />;
                             })}
                         </Space>

@@ -3,7 +3,7 @@ import { EnvironmentOutlined, MessageOutlined } from "@ant-design/icons";
 import { WorkOrder, Technician, Location, Customer, Vehicle } from "@/types/supabase";
 import SlaCountdown from "./SlaCountdown";
 
-const { Text, Title } = Typography;
+const { Text, Title, Paragraph } = Typography;
 const { Option } = Select;
 const { useToken } = theme;
 
@@ -22,7 +22,7 @@ const WorkOrderCard = ({ order, technician, location, customer, vehicle, allTech
   const { token } = useToken();
 
   const priorityColors: Record<string, string> = { High: token.colorError, Medium: token.colorWarning, Low: token.colorSuccess };
-  const priorityBorderColors: Record<string, string> = { High: token.colorError, Medium: token.colorWarning, Low: token.colorBorderSecondary }; // Use a subtle border for low priority
+  const priorityBorderColors: Record<string, string> = { High: token.colorError, Medium: token.colorWarning, Low: token.colorBorderSecondary };
   const statusColors: Record<string, string> = { 
     Open: token.colorInfo,
     "Confirmation": token.cyan6,
@@ -43,25 +43,24 @@ const WorkOrderCard = ({ order, technician, location, customer, vehicle, allTech
       style={{ 
         borderLeft: `4px solid ${priorityBorderColors[order.priority || 'Low']}`, 
         cursor: 'pointer',
-        borderRadius: token.borderRadiusSM,
-        padding: 0,
       }}
-      bodyStyle={{ padding: 8 }} // Reduced padding here
+      bodyStyle={{ padding: '10px 12px' }}
       onClick={onViewDetails}
     >
-      <Space direction="vertical" size={4} style={{ width: '100%' }}> {/* Reduced space size */}
+      <Space direction="vertical" size={8} style={{ width: '100%' }}>
+        {/* Row 1: Title & Priority */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
           <div>
-            <Title level={5} style={{ margin: 0, lineHeight: 1.2, fontSize: '15px' }}> {/* Slightly smaller title */}
+            <Title level={5} style={{ margin: 0, lineHeight: 1.3, fontSize: '14px' }}>
               {vehicle ? `${vehicle.make} ${vehicle.model}` : 'N/A'}
             </Title>
-            <Text type="secondary" style={{ fontSize: '11px' }}>{customer?.name || 'N/A'} • {vehicle?.year || ''}</Text> {/* Smaller secondary text */}
+            <Text type="secondary" style={{ fontSize: '12px' }}>{customer?.name || 'N/A'}</Text>
           </div>
           <div onClick={stopPropagation}>
             <Select 
               value={order.priority} 
               onChange={(value) => onUpdateWorkOrder(order.id, { priority: value })} 
-              style={{ width: 80 }} // Slightly narrower select
+              style={{ width: 80 }}
               bordered={false} 
               size="small" 
               dropdownMatchSelectWidth={false} 
@@ -75,48 +74,30 @@ const WorkOrderCard = ({ order, technician, location, customer, vehicle, allTech
           </div>
         </div>
 
-        <Text style={{ display: 'block', fontSize: '12px' }}>{order.service}</Text> {/* Smaller service text */}
+        {/* Row 2: Service */}
+        <Paragraph style={{ fontSize: '12px', margin: 0 }} ellipsis={{ rows: 2, tooltip: order.service }}>
+          {order.service}
+        </Paragraph>
 
-        <Space direction="vertical" size={2} style={{ width: '100%' }}> {/* Reduced space size */}
-          <Space size={2} align="center"> {/* Reduced space size */}
-            <EnvironmentOutlined style={{ color: token.colorTextSecondary, fontSize: '12px' }} /> {/* Smaller icon */}
-            <Text type="secondary" style={{ fontSize: 11 }}>{location?.name?.replace(' Service Center', '') || 'N/A'}</Text> {/* Smaller text */}
+        {/* Row 3: Meta & Status */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+          <Space align="center">
+            <Tooltip title={technician ? `Assigned to ${technician.name}` : 'Unassigned'}>
+              <Avatar size={24} src={technician?.avatar || undefined}>
+                {technician ? technician.name.split(' ').map(n => n[0]).join('') : '?'}
+              </Avatar>
+            </Tooltip>
+            <SlaCountdown slaDue={order.slaDue} status={order.status} completedAt={order.completedAt} />
           </Space>
-          <SlaCountdown slaDue={order.slaDue} status={order.status} completedAt={order.completedAt} />
-        </Space>
-
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <div onClick={stopPropagation}>
-            <Select 
-              value={order.assignedTechnicianId} 
-              onChange={(value) => onUpdateWorkOrder(order.id, { assignedTechnicianId: value })} 
-              style={{ width: 130 }} // Slightly narrower select
-              bordered={false} 
-              allowClear 
-              placeholder="Unassigned" 
-              size="small" 
-              dropdownMatchSelectWidth={false} 
-              suffixIcon={null}
-              className="kanban-card-select"
-            >
-              {allTechnicians.map(tech => (
-                <Option key={tech.id} value={tech.id}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Avatar size="small" src={tech.avatar || undefined}>{tech.name.split(' ').map(n => n[0]).join('')}</Avatar>
-                    <Text>{tech.name}</Text>
-                  </div>
-                </Option>
-              ))}
-            </Select>
-          </div>
-          <Space size={2} onClick={stopPropagation}> {/* Reduced space size */}
+          
+          <Space size={4} onClick={stopPropagation}>
             {order.status === 'On Hold' && order.onHoldReason && (
-              <Tooltip title={`On Hold: ${order.onHoldReason}`}><MessageOutlined style={{ color: token.colorWarning, cursor: 'pointer', fontSize: '14px' }} /></Tooltip>
+              <Tooltip title={`On Hold: ${order.onHoldReason}`}><MessageOutlined style={{ color: token.colorWarning, cursor: 'pointer' }} /></Tooltip>
             )}
             <Select 
               value={order.status} 
               onChange={(value) => onUpdateWorkOrder(order.id, { status: value })} 
-              style={{ width: 130 }} // Slightly narrower select
+              style={{ width: 120 }}
               bordered={false} 
               size="small" 
               dropdownMatchSelectWidth={false} 

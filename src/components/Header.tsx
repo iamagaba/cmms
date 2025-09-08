@@ -80,7 +80,6 @@ const AppHeader = () => {
           ) : (
             <FireOutlined style={{color: '#6A0DAD', fontSize: '24px'}} />
           )}
-          <span style={{color: '#6A0DAD', marginLeft: '8px', fontWeight: 'bold', fontSize: '18px'}}>GOGO Electric</span>
         </Link>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>

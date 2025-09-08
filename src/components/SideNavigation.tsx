@@ -1,6 +1,6 @@
 import React from 'react';
 import { Layout, Menu } from 'antd';
-import { NavLink, useLocation, Link } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import {
   DashboardOutlined,
   ToolOutlined,
@@ -10,12 +10,10 @@ import {
   GlobalOutlined,
   CalendarOutlined,
   SettingOutlined,
-  FireOutlined,
   CarOutlined,
   ShoppingOutlined,
   ContactsOutlined,
 } from '@ant-design/icons';
-import { useSystemSettings } from '@/context/SystemSettingsContext';
 
 const { Sider } = Layout;
 
@@ -46,27 +44,10 @@ interface SideNavigationProps {
 
 const SideNavigation = ({ collapsed, onCollapse }: SideNavigationProps) => {
   const location = useLocation();
-  const { settings } = useSystemSettings();
-  const logoUrl = settings.logo_url;
-
-  const logoContent = (
-    <Link to="/" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none', color: 'inherit' }}>
-      {logoUrl ? (
-        <img src={logoUrl} alt="System Logo" style={{ height: '32px', marginRight: collapsed ? 0 : '8px' }} />
-      ) : (
-        <FireOutlined style={{color: '#6A0DAD', fontSize: '24px'}} />
-      )}
-      {!collapsed && (
-        <span style={{color: '#6A0DAD', marginLeft: '8px', fontWeight: 'bold', fontSize: '18px'}}>GOGO</span>
-      )}
-    </Link>
-  );
 
   return (
     <Sider collapsible collapsed={collapsed} onCollapse={onCollapse} theme="light" width={200}>
-      <div style={{ height: '64px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px' }}>
-        {logoContent}
-      </div>
+      <div style={{ height: '64px' }} />
       <Menu theme="light" mode="inline" selectedKeys={[location.pathname]}>
         {navGroups.map((group, index) => (
           <React.Fragment key={index}>

@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { Avatar, Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typography, List, Skeleton, Select, DatePicker, Input, Popconfirm, Table, Tabs } from "antd";
+import { Avatar, Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typography, List, Skeleton, Select, DatePicker, Input, Popconfirm, Table, Tabs, theme } from "antd";
 import { ArrowLeftOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined, CalendarOutlined, ToolOutlined, PlusOutlined, DeleteOutlined, InfoCircleOutlined, UnorderedListOutlined, CompassOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import NotFound from "./NotFound";
@@ -17,16 +17,7 @@ import { AddPartToWorkOrderDialog } from "@/components/AddPartToWorkOrderDialog"
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
 const { TabPane } = Tabs;
-
-const statusColors: Record<string, string> = { 
-  Open: '#0052CC',
-  "Confirmation": "#13C2C2",
-  "Ready": "#595959",
-  "In Progress": "#FAAD14",
-  "On Hold": '#FA8C16',
-  Completed: '#22C55E'
-};
-const priorityColors: Record<string, string> = { High: "#FF4D4F", Medium: "#FAAD14", Low: "#52c41a" };
+const { useToken } = theme;
 
 const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "";
 
@@ -41,6 +32,17 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   const queryClient = useQueryClient();
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
   const [isAddPartDialogOpen, setIsAddPartDialogOpen] = useState(false);
+  const { token } = useToken();
+
+  const statusColors: Record<string, string> = { 
+    Open: token.colorInfo,
+    "Confirmation": token.cyan6,
+    "Ready": token.colorTextSecondary,
+    "In Progress": token.colorWarning,
+    "On Hold": token.orange6,
+    Completed: token.colorSuccess
+  };
+  const priorityColors: Record<string, string> = { High: token.colorError, Medium: token.colorWarning, Low: token.colorSuccess };
 
   const id = isDrawerMode ? searchParams.get('view') : paramId;
 

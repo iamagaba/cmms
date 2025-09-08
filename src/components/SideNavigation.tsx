@@ -47,8 +47,7 @@ const SideNavigation = ({ collapsed, onCollapse }: SideNavigationProps) => {
 
   return (
     <Sider collapsible collapsed={collapsed} onCollapse={onCollapse} theme="light" width={200}>
-      <div style={{ height: '64px' }} />
-      <Menu theme="light" mode="inline" selectedKeys={[location.pathname]}>
+      <Menu theme="light" mode="inline" selectedKeys={[location.pathname]} style={{ marginTop: '16px' }}>
         {navGroups.map((group, index) => (
           <React.Fragment key={index}>
             {index > 0 && <Menu.Divider />}

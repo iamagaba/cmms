@@ -1,18 +1,9 @@
 import { WorkOrder, Technician, Location, Customer, Vehicle } from "@/types/supabase";
 import WorkOrderCard from "./WorkOrderCard";
-import { Row, Col, Typography, Tag, Space } from "antd";
+import { Row, Col, Typography, Tag, Space, theme } from "antd";
 
 const { Title } = Typography;
-
-const statusColors: { [key: string]: string } = { 
-  Open: '#0052CC', // Professional Blue
-  "Pending Confirmation": "#13C2C2", // Cyan
-  "Confirmed & Ready": "#595959", // Dark Gray
-  "In Progress": "#FAAD14", // Amber
-  "On Hold": "#FA8C16", // Orange
-  Completed: '#22C55E' // Green
-};
-const priorityColors: { [key: string]: string } = { High: "#FF4D4F", Medium: "#FAAD14", Low: "#52c41a" };
+const { useToken } = theme;
 
 interface KanbanColumn {
     id: string | null;
@@ -32,6 +23,18 @@ interface WorkOrderKanbanProps {
 }
 
 const WorkOrderKanban = ({ workOrders, technicians, locations, customers, vehicles, groupBy, columns, onUpdateWorkOrder, onViewDetails }: WorkOrderKanbanProps) => {
+  const { token } = useToken();
+
+  const statusColors: { [key: string]: string } = { 
+    Open: token.colorInfo,
+    "Confirmation": token.cyan6,
+    "Ready": token.colorTextSecondary,
+    "In Progress": token.colorWarning,
+    "On Hold": token.orange6,
+    Completed: token.colorSuccess
+  };
+  const priorityColors: { [key: string]: string } = { High: token.colorError, Medium: token.colorWarning, Low: token.colorSuccess };
+
   const getColumnOrders = (columnId: string | null) => {
     return workOrders.filter(order => (order as any)[groupBy] === columnId);
   };
@@ -39,7 +42,7 @@ const WorkOrderKanban = ({ workOrders, technicians, locations, customers, vehicl
   const getColumnColor = (column: KanbanColumn) => {
     if (groupBy === 'status') return statusColors[column.id as string] || 'default';
     if (groupBy === 'priority') return priorityColors[column.id as string] || 'default';
-    return '#6A0DAD'; // Use GOGO Brand Purple for technician grouping
+    return token.colorPrimary;
   }
 
   const custMap = new Map(customers.map(c => [c.id, c]));

@@ -1,10 +1,11 @@
-import { Card, Tag, Avatar, Typography, Select, Tooltip } from "antd";
+import { Card, Tag, Avatar, Typography, Select, Tooltip, theme } from "antd";
 import { EnvironmentOutlined, MessageOutlined } from "@ant-design/icons";
 import { WorkOrder, Technician, Location, Customer, Vehicle } from "@/types/supabase";
 import SlaCountdown from "./SlaCountdown";
 
 const { Text, Title } = Typography;
 const { Option } = Select;
+const { useToken } = theme;
 
 interface WorkOrderCardProps {
   order: WorkOrder;
@@ -17,18 +18,20 @@ interface WorkOrderCardProps {
   onViewDetails: () => void;
 }
 
-const priorityColors: Record<string, string> = { High: "#FF4D4F", Medium: "#FAAD14", Low: "#52c41a" };
-const priorityBorderColors: Record<string, string> = { High: "#FF4D4F", Medium: "#FAAD14", Low: "transparent" };
-const statusColors: Record<string, string> = { 
-  Open: '#0052CC', // Professional Blue
-  "Confirmation": "#13C2C2", // Cyan
-  "Ready": "#595959", // Dark Gray
-  "In Progress": "#FAAD14", // Amber
-  "On Hold": "#FA8C16", // Orange
-  Completed: '#22C55E' // Green
-};
-
 const WorkOrderCard = ({ order, technician, location, customer, vehicle, allTechnicians, onUpdateWorkOrder, onViewDetails }: WorkOrderCardProps) => {
+  const { token } = useToken();
+
+  const priorityColors: Record<string, string> = { High: token.colorError, Medium: token.colorWarning, Low: token.colorSuccess };
+  const priorityBorderColors: Record<string, string> = { High: token.colorError, Medium: token.colorWarning, Low: "transparent" };
+  const statusColors: Record<string, string> = { 
+    Open: token.colorInfo,
+    "Confirmation": token.cyan6,
+    "Ready": token.colorTextSecondary,
+    "In Progress": token.colorWarning,
+    "On Hold": token.orange6,
+    Completed: token.colorSuccess
+  };
+
   const stopPropagation = (e: React.MouseEvent) => {
     e.stopPropagation();
   };

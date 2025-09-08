@@ -11,9 +11,14 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { WorkOrder, Technician, Location, Customer, Vehicle } from "@/types/supabase";
 import dayjs from "dayjs";
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import isAfter from 'dayjs/plugin/isAfter';
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
 import { useSearchParams } from "react-router-dom";
+
+dayjs.extend(isSameOrBefore);
+dayjs.extend(isAfter);
 
 const { Title } = Typography;
 

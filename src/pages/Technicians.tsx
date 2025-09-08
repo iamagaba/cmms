@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
-import { Button, Typography, Space, Skeleton, Row, Col } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Button, Typography, Space, Skeleton, Row, Col, Segmented } from "antd";
+import { PlusOutlined, AppstoreOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import { TechnicianFormDialog } from "@/components/TechnicianFormDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,7 @@ import { showSuccess, showError } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import PageHeader from "@/components/PageHeader";
 import { TechnicianCard, TechnicianCardData } from "@/components/TechnicianCard";
+import { TechnicianDataTable } from "@/components/TechnicianDataTable";
 
 const { Title } = Typography;
 
@@ -17,6 +18,7 @@ const TechniciansPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTechnician, setEditingTechnician] = useState<Technician | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [view, setView] = useState<'card' | 'list'>('card');
 
   const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({
     queryKey: ['technicians'],
@@ -100,24 +102,43 @@ const TechniciansPage = () => {
         onSearch={setSearchTerm}
         onSearchChange={(e) => !e.target.value && setSearchTerm("")}
         actions={
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingTechnician(null); setIsDialogOpen(true); }}>
-            Add Technician
-          </Button>
+          <Space>
+            <Segmented
+              options={[
+                { value: 'card', icon: <AppstoreOutlined /> },
+                { value: 'list', icon: <UnorderedListOutlined /> },
+              ]}
+              value={view}
+              onChange={(value) => setView(value as 'card' | 'list')}
+            />
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingTechnician(null); setIsDialogOpen(true); }}>
+              Add Technician
+            </Button>
+          </Space>
         }
       />
       
       {isLoading ? <Skeleton active /> : (
-        <Row gutter={[16, 16]}>
-          {filteredTechnicians.map(tech => (
-            <Col key={tech.id} xs={24} sm={12} md={8} lg={6}>
-              <TechnicianCard 
-                technician={tech}
-                onEdit={handleEdit}
-                onDelete={handleDelete}
-              />
-            </Col>
-          ))}
-        </Row>
+        view === 'card' ? (
+          <Row gutter={[16, 16]}>
+            {filteredTechnicians.map(tech => (
+              <Col key={tech.id} xs={24} sm={12} md={8} lg={6}>
+                <TechnicianCard 
+                  technician={tech}
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                />
+              </Col>
+            ))}
+          </Row>
+        ) : (
+          <TechnicianDataTable
+            technicians={filteredTechnicians}
+            workOrders={workOrders || []}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
+          />
+        )
       )}
 
       {isDialogOpen && (

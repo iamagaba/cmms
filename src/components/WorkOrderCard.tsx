@@ -12,9 +12,10 @@ interface WorkOrderCardProps {
   vehicle: Vehicle | undefined;
   onUpdateWorkOrder: (id: string, updates: Partial<WorkOrder>) => void;
   onViewDetails: () => void;
+  groupBy?: 'status' | 'priority' | 'assignedTechnicianId';
 }
 
-const WorkOrderCard = ({ order, technician, vehicle, onUpdateWorkOrder, onViewDetails }: WorkOrderCardProps) => {
+const WorkOrderCard = ({ order, technician, vehicle, onUpdateWorkOrder, onViewDetails, groupBy }: WorkOrderCardProps) => {
   const { token } = useToken();
 
   const priorityColors: Record<string, string> = { High: token.colorError, Medium: token.colorWarning, Low: token.colorSuccess };
@@ -79,16 +80,20 @@ const WorkOrderCard = ({ order, technician, vehicle, onUpdateWorkOrder, onViewDe
       {/* Footer: Tags and Assignee */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0px' }}>
         <Space size="small" onClick={stopPropagation}>
-          <Dropdown overlay={priorityMenu} trigger={['click']}>
-            <Tag color={priorityColors[order.priority || 'Low']} style={{ cursor: 'pointer' }} className="ant-tag-compact">
-              {order.priority}
-            </Tag>
-          </Dropdown>
-          <Dropdown overlay={statusMenu} trigger={['click']}>
-            <Tag color={statusColors[order.status || 'Open']} style={{ cursor: 'pointer' }} className="ant-tag-compact">
-              {order.status}
-            </Tag>
-          </Dropdown>
+          {groupBy !== 'priority' && (
+            <Dropdown overlay={priorityMenu} trigger={['click']}>
+              <Tag color={priorityColors[order.priority || 'Low']} style={{ cursor: 'pointer' }} className="ant-tag-compact">
+                {order.priority}
+              </Tag>
+            </Dropdown>
+          )}
+          {groupBy !== 'status' && (
+            <Dropdown overlay={statusMenu} trigger={['click']}>
+              <Tag color={statusColors[order.status || 'Open']} style={{ cursor: 'pointer' }} className="ant-tag-compact">
+                {order.status}
+              </Tag>
+            </Dropdown>
+          )}
         </Space>
         <Tooltip title={technician ? `Assigned to ${technician.name}` : 'Unassigned'}>
           <Avatar size={24} src={technician?.avatar || undefined}>

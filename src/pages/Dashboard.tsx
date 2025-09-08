@@ -11,11 +11,13 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { WorkOrder, Technician, Location, Customer, Vehicle } from "@/types/supabase";
 import dayjs from "dayjs";
+import isBetween from 'dayjs/plugin/isBetween';
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
 import { useSearchParams } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 
+dayjs.extend(isBetween);
 const { Title } = Typography;
 
 const Dashboard = () => {
@@ -125,54 +127,80 @@ const Dashboard = () => {
   }, [allWorkOrders, selectedLocation]);
 
   // KPI and Chart Data Calculations
-  const { kpiData, chartData } = useMemo(() => {
+  const kpiData = useMemo(() => {
     const orders = filteredWorkOrders || [];
+    if (orders.length === 0) {
+      const emptyTrend = { trend: undefined, trendDirection: undefined };
+      return { 
+        totalOrders: 0, 
+        openOrders: 0, 
+        slaPerformance: '0', 
+        avgCompletionTime: '0.0', 
+        totalOrdersTrend: emptyTrend, 
+        openOrdersTrend: emptyTrend, 
+        slaTrend: emptyTrend, 
+        avgCompletionTimeTrend: emptyTrend 
+      };
+    }
+
+    const now = dayjs();
+    const sevenDaysAgo = now.subtract(7, 'days');
+    const fourteenDaysAgo = now.subtract(14, 'days');
+
+    const calculateTrend = (current: number, previous: number) => {
+      if (previous === 0) {
+        return { trend: current > 0 ? '100%' : '0%', trendDirection: current > 0 ? 'up' : undefined };
+      }
+      const percentageChange = ((current - previous) / previous) * 100;
+      if (isNaN(percentageChange) || !isFinite(percentageChange)) {
+        return { trend: '0%', trendDirection: undefined };
+      }
+      return {
+        trend: `${Math.abs(percentageChange).toFixed(0)}%`,
+        trendDirection: percentageChange > 0 ? 'up' : (percentageChange < 0 ? 'down' : undefined),
+      };
+    };
+
+    // --- Data for periods ---
+    const createdThisWeek = orders.filter(o => dayjs(o.createdAt).isAfter(sevenDaysAgo));
+    const createdLastWeek = orders.filter(o => dayjs(o.createdAt).isBetween(fourteenDaysAgo, sevenDaysAgo));
+    const completedThisWeek = orders.filter(o => o.status === 'Completed' && o.completedAt && dayjs(o.completedAt).isAfter(sevenDaysAgo));
+    const completedLastWeek = orders.filter(o => o.status === 'Completed' && o.completedAt && dayjs(o.completedAt).isBetween(fourteenDaysAgo, sevenDaysAgo));
+
+    // --- Main KPIs ---
     const totalOrders = orders.length;
     const openOrders = orders.filter(o => o.status !== 'Completed').length;
-    const completedOrders = orders.filter(o => o.status === 'Completed');
-    const slaMet = completedOrders.filter(o => o.completedAt && o.slaDue && dayjs(o.completedAt).isBefore(dayjs(o.slaDue))).length;
-    const slaPerformance = completedOrders.length > 0 ? ((slaMet / completedOrders.length) * 100) : 0;
+    const allCompleted = orders.filter(o => o.status === 'Completed' && o.completedAt && o.createdAt);
+    const slaMet = allCompleted.filter(o => o.slaDue && dayjs(o.completedAt).isBefore(dayjs(o.slaDue))).length;
+    const slaPerformance = allCompleted.length > 0 ? ((slaMet / allCompleted.length) * 100) : 0;
+    const totalCompletionTime = allCompleted.reduce((acc, wo) => acc + dayjs(wo.completedAt).diff(dayjs(wo.createdAt), 'hour'), 0);
+    const avgCompletionTimeDays = allCompleted.length > 0 ? (totalCompletionTime / allCompleted.length / 24).toFixed(1) : '0.0';
 
-    // Chart data for the last 7 days
-    const last7Days = Array.from({ length: 7 }, (_, i) => dayjs().subtract(i, 'day')).reverse();
-    const dailyNewOrders = last7Days.map(day => ({
-      name: day.format('ddd'),
-      value: orders.filter(wo => wo.createdAt && dayjs(wo.createdAt).isSame(day, 'day')).length,
-    }));
-    const dailyOpenOrders = last7Days.map(day => ({
-        name: day.format('ddd'),
-        value: orders.filter(wo => {
-            if (!wo.createdAt) return false;
-            const wasCreatedOnOrBefore = dayjs(wo.createdAt).startOf('day').diff(day.startOf('day')) <= 0;
-            if (!wasCreatedOnOrBefore) return false;
-            
-            const isCompleted = wo.status === 'Completed';
-            if (!isCompleted) return true;
-            
-            if (!wo.completedAt) return true;
-            
-            const wasCompletedAfter = dayjs(wo.completedAt).startOf('day').diff(day.startOf('day')) > 0;
-            return wasCompletedAfter;
-        }).length,
-    }));
-    const dailySlaPerformance = last7Days.map(day => {
-        const completedOnDay = completedOrders.filter(wo => wo.completedAt && dayjs(wo.completedAt).isSame(day, 'day'));
-        const metOnDay = completedOnDay.filter(wo => wo.slaDue && dayjs(wo.completedAt).isBefore(dayjs(wo.slaDue))).length;
-        const perf = completedOnDay.length > 0 ? (metOnDay / completedOnDay.length) * 100 : 0;
-        return { name: day.format('ddd'), value: perf };
-    });
+    // --- Trend KPIs ---
+    const totalOrdersTrend = calculateTrend(createdThisWeek.length, createdLastWeek.length);
+    const openOrdersNow = openOrders;
+    const openOrdersLastWeek = orders.filter(o => dayjs(o.createdAt).isBefore(sevenDaysAgo) && (o.status !== 'Completed' || (o.completedAt && dayjs(o.completedAt).isAfter(sevenDaysAgo)))).length;
+    const openOrdersTrend = calculateTrend(openOrdersNow, openOrdersLastWeek);
+    const slaMetThisWeek = completedThisWeek.filter(o => o.slaDue && dayjs(o.completedAt).isBefore(dayjs(o.slaDue))).length;
+    const slaPerfThisWeek = completedThisWeek.length > 0 ? (slaMetThisWeek / completedThisWeek.length) * 100 : 0;
+    const slaMetLastWeek = completedLastWeek.filter(o => o.slaDue && dayjs(o.completedAt).isBefore(dayjs(o.slaDue))).length;
+    const slaPerfLastWeek = completedLastWeek.length > 0 ? (slaMetLastWeek / completedLastWeek.length) * 100 : 0;
+    const slaTrend = calculateTrend(slaPerfThisWeek, slaPerfLastWeek);
+    const totalCompletionTimeThisWeek = completedThisWeek.reduce((acc, wo) => acc + dayjs(wo.completedAt).diff(dayjs(wo.createdAt), 'hour'), 0);
+    const avgCompletionTimeThisWeek = completedThisWeek.length > 0 ? (totalCompletionTimeThisWeek / completedThisWeek.length) : 0;
+    const totalCompletionTimeLastWeek = completedLastWeek.reduce((acc, wo) => acc + dayjs(wo.completedAt).diff(dayjs(wo.createdAt), 'hour'), 0);
+    const avgCompletionTimeLastWeek = completedLastWeek.length > 0 ? (totalCompletionTimeLastWeek / completedLastWeek.length) : 0;
+    const avgCompletionTimeTrend = calculateTrend(avgCompletionTimeThisWeek, avgCompletionTimeLastWeek);
 
     return {
-      kpiData: {
-        totalOrders,
-        openOrders,
-        slaPerformance: slaPerformance.toFixed(0),
-      },
-      chartData: {
-        total: dailyNewOrders,
-        open: dailyOpenOrders,
-        sla: dailySlaPerformance,
-      }
+      totalOrders,
+      openOrders,
+      slaPerformance: slaPerformance.toFixed(0),
+      avgCompletionTime: avgCompletionTimeDays,
+      totalOrdersTrend,
+      openOrdersTrend,
+      slaTrend,
+      avgCompletionTimeTrend,
     };
   }, [filteredWorkOrders]);
 
@@ -229,10 +257,10 @@ const Dashboard = () => {
         }
       />
       <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Total Work Orders" value={kpiData.totalOrders.toString()} icon={<ToolOutlined />} chartData={chartData.total} /></Col>
-        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Open Work Orders" value={kpiData.openOrders.toString()} icon={<ExclamationCircleOutlined />} isUpGood={false} chartData={chartData.open} /></Col>
-        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="SLA Performance" value={`${kpiData.slaPerformance}%`} icon={<CheckCircleOutlined />} chartData={chartData.sla} /></Col>
-        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Avg. Completion Time" value="3.2 Days" icon={<ClockCircleOutlined />} isUpGood={false} /></Col>
+        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Total Work Orders" value={kpiData.totalOrders.toString()} icon={<ToolOutlined />} trend={kpiData.totalOrdersTrend.trend} trendDirection={kpiData.totalOrdersTrend.trendDirection} /></Col>
+        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Open Work Orders" value={kpiData.openOrders.toString()} icon={<ExclamationCircleOutlined />} isUpGood={false} trend={kpiData.openOrdersTrend.trend} trendDirection={kpiData.openOrdersTrend.trendDirection} /></Col>
+        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="SLA Performance" value={`${kpiData.slaPerformance}%`} icon={<CheckCircleOutlined />} trend={kpiData.slaTrend.trend} trendDirection={kpiData.slaTrend.trendDirection} /></Col>
+        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Avg. Completion Time" value={`${kpiData.avgCompletionTime} Days`} icon={<ClockCircleOutlined />} isUpGood={false} trend={kpiData.avgCompletionTimeTrend.trend} trendDirection={kpiData.avgCompletionTimeTrend.trendDirection} /></Col>
       </Row>
       <Row gutter={[16, 16]}>
         <Col xs={24} xl={16}>

@@ -29,29 +29,22 @@ export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed, initialVehic
   const [isLoading, setIsLoading] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleWithCustomer | null>(null);
   const [existingWorkOrders, setExistingWorkOrders] = useState<WorkOrder[]>([]);
-  const [isInitialLoad, setIsInitialLoad] = useState(true);
 
   useEffect(() => {
     if (isOpen) {
-      if (initialVehicle && isInitialLoad) {
+      if (initialVehicle) {
         setSelectedVehicle(initialVehicle);
         setSearchValue(initialVehicle.license_plate);
         fetchWorkOrdersForVehicle(initialVehicle.id);
-        setIsInitialLoad(false);
-      } else if (initialCustomerId && isInitialLoad) {
-        // If only customer ID is provided, we still need to search, but can filter
-        // No initial search value, user will type
-        setIsInitialLoad(false);
       } else {
         // Reset state when dialog opens without initial data
         setSearchValue('');
         setOptions([]);
         setSelectedVehicle(null);
         setExistingWorkOrders([]);
-        setIsInitialLoad(true); // Reset for next open
       }
     }
-  }, [isOpen, initialVehicle, initialCustomerId, isInitialLoad]);
+  }, [isOpen, initialVehicle]); // Removed isInitialLoad, rely on initialVehicle directly
 
   const fetchWorkOrdersForVehicle = async (vehicleId: string) => {
     setIsLoading(true);
@@ -138,7 +131,6 @@ export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed, initialVehic
     setOptions([]);
     setSelectedVehicle(null);
     setExistingWorkOrders([]);
-    setIsInitialLoad(true);
     onClose();
   };
 

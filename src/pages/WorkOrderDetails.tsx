@@ -21,7 +21,7 @@ const statusColors: Record<string, string> = {
   Open: '#0052CC',
   "Confirmation": "#13C2C2",
   "Ready": "#595959",
-  "In Progress": "#FAAD14',
+  "In Progress": "#FAAD14",
   "On Hold": '#FA8C16',
   Completed: '#22C55E'
 };

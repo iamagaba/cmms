@@ -7,8 +7,8 @@ import {
   UsergroupAddOutlined,
   EnvironmentOutlined,
   BarChartOutlined,
-  GlobalOutlined,
-  CalendarOutlined,
+  // GlobalOutlined, // Removed
+  // CalendarOutlined, // Removed
   SettingOutlined,
   CarOutlined,
   ShoppingOutlined,
@@ -21,8 +21,8 @@ const navGroups = [
   [
     { key: "/", label: "Dashboard", icon: <DashboardOutlined /> },
     { key: "/work-orders", label: "Work Orders", icon: <ToolOutlined /> },
-    { key: "/calendar", label: "Calendar", icon: <CalendarOutlined /> },
-    { key: "/map", label: "Map View", icon: <GlobalOutlined /> },
+    // { key: "/calendar", label: "Calendar", icon: <CalendarOutlined /> }, // Removed
+    // { key: "/map", label: "Map View", icon: <GlobalOutlined /> }, // Removed
   ],
   [
     { key: "/customers", label: "Customers", icon: <ContactsOutlined /> },

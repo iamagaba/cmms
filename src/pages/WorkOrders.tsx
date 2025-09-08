@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
-import { Button, Typography, Space, Segmented, Input, Select, Card, Row, Col, Collapse, Skeleton } from "antd";
-import { PlusOutlined, AppstoreOutlined, TableOutlined, FilterOutlined } from "@ant-design/icons";
+import { Button, Typography, Space, Segmented, Input, Select, Card, Row, Col, Collapse, Skeleton, Tabs } from "antd";
+import { PlusOutlined, AppstoreOutlined, TableOutlined, FilterOutlined, CalendarOutlined, GlobalOutlined } from "@ant-design/icons";
 import { WorkOrderDataTable } from "@/components/WorkOrderDataTable";
 import { WorkOrderFormDialog } from "@/components/WorkOrderFormDialog";
 import WorkOrderKanban from "@/components/WorkOrderKanban";
@@ -12,13 +12,17 @@ import { WorkOrder, Technician, Location, Customer, Vehicle } from "@/types/supa
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import CalendarPage from "./Calendar"; // Import CalendarPage
+import MapViewPage from "./MapView"; // Import MapViewPage
 
 const { Title } = Typography;
 const { Search } = Input;
 const { Option } = Select;
 const { Panel } = Collapse;
+const { TabPane } = Tabs;
 
 type GroupByOption = 'status' | 'priority' | 'technician';
+type WorkOrderView = 'table' | 'kanban' | 'calendar' | 'map';
 
 const WorkOrdersPage = () => {
   const queryClient = useQueryClient();
@@ -27,7 +31,7 @@ const WorkOrdersPage = () => {
 
   const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
   const [editingWorkOrder, setEditingWorkOrder] = useState<WorkOrder | null>(null);
-  const [view, setView] = useState<'table' | 'kanban'>('table');
+  const [view, setView] = useState<WorkOrderView>('table'); // Updated type
   const [groupBy, setGroupBy] = useState<GroupByOption>('status');
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
 
@@ -193,7 +197,6 @@ const WorkOrdersPage = () => {
           <Col><Title level={4}>Work Order Management</Title></Col>
           <Col>
             <Space size="middle">
-              <Segmented options={[{ label: 'Table', value: 'table', icon: <TableOutlined /> }, { label: 'Board', value: 'kanban', icon: <AppstoreOutlined /> }]} value={view} onChange={(value) => setView(value as 'table' | 'kanban')} />
               <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingWorkOrder(null); setIsFormDialogOpen(true); }}>Add Work Order</Button>
             </Space>
           </Col>
@@ -211,15 +214,28 @@ const WorkOrdersPage = () => {
           </Panel>
         </Collapse>
 
-        <Card bordered={false} bodyStyle={{ padding: view === 'kanban' ? '1' : '0' }}>
-          {isLoading ? <Skeleton active paragraph={{ rows: 5 }} /> : (
-            view === 'table' ? (
-              <WorkOrderDataTable workOrders={filteredWorkOrders} technicians={technicians || []} locations={locations || []} customers={customers || []} vehicles={vehicles || []} onEdit={(wo) => { setEditingWorkOrder(wo); setIsFormDialogOpen(true); }} onDelete={handleDelete} onUpdateWorkOrder={handleUpdateWorkOrder} onViewDetails={handleViewDetails} />
-            ) : (
-              <WorkOrderKanban workOrders={filteredWorkOrders} groupBy={groupByField} columns={kanbanColumns} onUpdateWorkOrder={handleUpdateWorkOrder} technicians={technicians || []} locations={locations || []} customers={customers || []} vehicles={vehicles || []} onViewDetails={handleViewDetails} />
-            )
-          )}
-        </Card>
+        <Tabs defaultActiveKey="table" activeKey={view} onChange={(key) => setView(key as WorkOrderView)}>
+          <TabPane tab={<span><TableOutlined /> Table</span>} key="table">
+            <Card bordered={false} bodyStyle={{ padding: '0' }}>
+              {isLoading ? <Skeleton active paragraph={{ rows: 5 }} /> : (
+                <WorkOrderDataTable workOrders={filteredWorkOrders} technicians={technicians || []} locations={locations || []} customers={customers || []} vehicles={vehicles || []} onEdit={(wo) => { setEditingWorkOrder(wo); setIsFormDialogOpen(true); }} onDelete={handleDelete} onUpdateWorkOrder={handleUpdateWorkOrder} onViewDetails={handleViewDetails} />
+              )}
+            </Card>
+          </TabPane>
+          <TabPane tab={<span><AppstoreOutlined /> Board</span>} key="kanban">
+            <Card bordered={false} bodyStyle={{ padding: '1' }}>
+              {isLoading ? <Skeleton active paragraph={{ rows: 5 }} /> : (
+                <WorkOrderKanban workOrders={filteredWorkOrders} groupBy={groupByField} columns={kanbanColumns} onUpdateWorkOrder={handleUpdateWorkOrder} technicians={technicians || []} locations={locations || []} customers={customers || []} vehicles={vehicles || []} onViewDetails={handleViewDetails} />
+              )}
+            </Card>
+          </TabPane>
+          <TabPane tab={<span><CalendarOutlined /> Calendar</span>} key="calendar">
+            <CalendarPage />
+          </TabPane>
+          <TabPane tab={<span><GlobalOutlined /> Map View</span>} key="map">
+            <MapViewPage />
+          </TabPane>
+        </Tabs>
 
         {isFormDialogOpen && <WorkOrderFormDialog isOpen={isFormDialogOpen} onClose={() => setIsFormDialogOpen(false)} onSave={handleSave} workOrder={editingWorkOrder} technicians={technicians || []} locations={locations || []} />}
       </Space>

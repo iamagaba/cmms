@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Button, Typography, Space, Segmented, Input, Select, Card, Row, Col, Collapse, Skeleton, Tabs } from "antd";
 import { PlusOutlined, AppstoreOutlined, TableOutlined, FilterOutlined, CalendarOutlined, GlobalOutlined } from "@ant-design/icons";
 import { WorkOrderDataTable } from "@/components/WorkOrderDataTable";
-import { WorkOrderFormDialog } from "@/components/WorkOrderFormDialog";
+import { WorkOrderFormDrawer } from "@/components/WorkOrderFormDrawer"; // Updated import
 import WorkOrderKanban from "@/components/WorkOrderKanban";
 import { showSuccess, showInfo, showError } from "@/utils/toast";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
@@ -115,7 +115,7 @@ const WorkOrdersPage = () => {
   });
 
   const handleSave = (workOrderData: WorkOrder) => {
-    workOrderMutation.mutate(workOrderData);
+    workOrderMutation.mutate(camelToSnakeCase(workOrderData)); // Ensure camelToSnakeCase is applied here
     setIsFormDialogOpen(false);
     setEditingWorkOrder(null);
   };
@@ -237,7 +237,7 @@ const WorkOrdersPage = () => {
           </TabPane>
         </Tabs>
 
-        {isFormDialogOpen && <WorkOrderFormDialog isOpen={isFormDialogOpen} onClose={() => setIsFormDialogOpen(false)} onSave={handleSave} workOrder={editingWorkOrder} technicians={technicians || []} locations={locations || []} />}
+        {isFormDialogOpen && <WorkOrderFormDrawer isOpen={isFormDialogOpen} onClose={() => setIsFormDialogOpen(false)} onSave={handleSave} workOrder={editingWorkOrder} technicians={technicians || []} locations={locations || []} />}
       </Space>
       {onHoldWorkOrder && <OnHoldReasonDialog isOpen={!!onHoldWorkOrder} onClose={() => setOnHoldWorkOrder(null)} onSave={handleSaveOnHoldReason} />}
       <WorkOrderDetailsDrawer workOrderId={viewingWorkOrderId} onClose={handleCloseDrawer} />

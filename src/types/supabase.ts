@@ -52,6 +52,7 @@ export interface Vehicle {
   release_date: string | null;
   motor_number: string | null;
   mileage: number | null;
+  customers?: Customer | null;
 }
 
 export interface Profile {
@@ -85,6 +86,9 @@ export interface WorkOrder {
   updatedAt?: string;
   customerId: string | null;
   vehicleId: string | null;
+  customerName?: string | null;
+  customerPhone?: string | null;
+  vehicleModel?: string | null;
 }
 
 export interface InventoryItem {

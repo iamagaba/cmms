@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Drawer, Form, Input, Select, Button, DatePicker, Col, Row, Typography, Space } from "antd";
-import { WorkOrder, Technician, Location } from "@/types/supabase";
+import { WorkOrder, Technician, Location, Customer, Vehicle } from "@/types/supabase";
 import dayjs from 'dayjs';
 import { GoogleLocationSearchInput } from "./GoogleLocationSearchInput";
 import { ExpandOutlined, ShrinkOutlined } from "@ant-design/icons";
@@ -16,9 +16,10 @@ interface WorkOrderFormDrawerProps {
   workOrder?: WorkOrder | null;
   technicians: Technician[];
   locations: Location[];
+  prefillData?: Partial<WorkOrder> | null;
 }
 
-export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, technicians, locations }: WorkOrderFormDrawerProps) => {
+export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, technicians, locations, prefillData }: WorkOrderFormDrawerProps) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [clientLocation, setClientLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -42,13 +43,18 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
         }
       } else {
         form.resetFields();
-        form.setFieldsValue({ status: 'Open', priority: 'Medium' });
+        const initialValues = {
+          status: 'Open',
+          priority: 'Medium',
+          ...prefillData,
+        };
+        form.setFieldsValue(initialValues);
         setClientLocation(null);
         setClientAddress(null);
       }
-      setIsFullScreen(false); // Reset full screen state when opening
+      setIsFullScreen(false);
     }
-  }, [isOpen, workOrder, form]);
+  }, [isOpen, workOrder, prefillData, form]);
 
   const handleLocationSelect = (location: { lat: number; lng: number; label: string }) => {
     setClientLocation({ lat: location.lat, lng: location.lng });
@@ -62,6 +68,7 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
       const values = await form.validateFields();
       const workOrderToSave: Partial<WorkOrder> = {
         id: workOrder?.id,
+        ...prefillData,
         ...values,
         slaDue: values.slaDue?.toISOString(),
         appointmentDate: values.appointmentDate ? values.appointmentDate.toISOString() : null,
@@ -115,10 +122,10 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
       <Form form={form} layout="vertical" name="work_order_form">
         <Row gutter={16}>
           <Col span={24}><Text strong>Customer & Vehicle Details</Text></Col>
-          <Col xs={24} md={12}><Form.Item name="vehicleId" label="Vehicle ID" rules={[{ required: true }]}><Input /></Form.Item></Col>
-          <Col xs={24} md={12}><Form.Item name="vehicleModel" label="Vehicle Model" rules={[{ required: true }]}><Input /></Form.Item></Col>
-          <Col xs={24} md={12}><Form.Item name="customerName" label="Customer Name" rules={[{ required: true }]}><Input /></Form.Item></Col>
-          <Col xs={24} md={12}><Form.Item name="customerPhone" label="Customer Phone" rules={[{ required: true }]}><Input /></Form.Item></Col>
+          <Col xs={24} md={12}><Form.Item name="vehicleId" label="Vehicle ID" rules={[{ required: true }]}><Input disabled /></Form.Item></Col>
+          <Col xs={24} md={12}><Form.Item name="vehicleModel" label="Vehicle Model" rules={[{ required: true }]}><Input disabled /></Form.Item></Col>
+          <Col xs={24} md={12}><Form.Item name="customerName" label="Customer Name" rules={[{ required: true }]}><Input disabled /></Form.Item></Col>
+          <Col xs={24} md={12}><Form.Item name="customerPhone" label="Customer Phone" rules={[{ required: true }]}><Input disabled /></Form.Item></Col>
           
           <Col span={24} style={{ marginTop: 24 }}><Text strong>Service Details</Text></Col>
           <Col span={24}><Form.Item name="service" label="Service Description" rules={[{ required: true }]}><TextArea rows={2} /></Form.Item></Col>

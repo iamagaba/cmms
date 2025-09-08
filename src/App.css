@@ -93,14 +93,16 @@ body {
   background-color: transparent !important; /* Ensure transparent background by default */
   border: none !important; /* Remove border */
   box-shadow: none !important; /* Remove shadow */
+  height: 24px !important; /* Match avatar size */
+  line-height: 22px !important; /* Adjust line height for text inside */
+  padding: 0 7px !important; /* Adjust padding to be more compact */
 }
 
-.kanban-card-select .ant-select-selector:hover {
-  background-color: rgba(0, 0, 0, 0.04) !important; /* Subtle background on hover */
-  border-radius: 4px; /* Match Ant Design's default border radius */
+.kanban-card-select .ant-select-selection-item {
+  line-height: 22px !important; /* Ensure selected item text aligns */
 }
 
-.kanban-card-select.ant-select-focused .ant-select-selector {
-  background-color: rgba(0, 0, 0, 0.06) !important; /* Slightly darker on focus */
-  box-shadow: none !important; /* Keep shadow removed */
+.kanban-card-select .ant-select-arrow {
+  height: 22px !important; /* Adjust arrow height */
+  line-height: 22px !important; /* Adjust arrow line height */
 }

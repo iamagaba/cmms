@@ -24,7 +24,7 @@ const SlaCountdown = ({ slaDue, status, completedAt }: SlaCountdownProps) => {
   }, [status]);
 
   if (!slaDue) {
-    return <Tag>No SLA</Tag>;
+    return <Tag className="ant-tag-compact">No SLA</Tag>; // Apply compact class
   }
 
   const dueDate = dayjs(slaDue);
@@ -35,13 +35,13 @@ const SlaCountdown = ({ slaDue, status, completedAt }: SlaCountdownProps) => {
       const wasOnTime = completionDate.isBefore(dueDate) || completionDate.isSame(dueDate);
       return (
         <Tooltip title={`Completed on ${completionDate.format('MMM D, YYYY h:mm A')}`}>
-          <Tag icon={<CheckCircleOutlined />} color={wasOnTime ? "success" : "error"}>
+          <Tag icon={<CheckCircleOutlined />} color={wasOnTime ? "success" : "error"} className="ant-tag-compact"> {/* Apply compact class */}
             {wasOnTime ? 'Completed On Time' : 'Completed Late'}
           </Tag>
         </Tooltip>
       );
     }
-    return <Tag icon={<CheckCircleOutlined />} color="success">Completed</Tag>;
+    return <Tag icon={<CheckCircleOutlined />} color="success" className="ant-tag-compact">Completed</Tag>; // Apply compact class
   }
 
   const diff = dueDate.diff(now);
@@ -64,7 +64,7 @@ const SlaCountdown = ({ slaDue, status, completedAt }: SlaCountdownProps) => {
   if (isOverdue) {
     return (
       <Tooltip title={`Overdue since ${dueDate.format('MMM D, YYYY h:mm A')}`}>
-        <Tag icon={<WarningOutlined />} color="error">Overdue by {formattedTime}</Tag>
+        <Tag icon={<WarningOutlined />} color="error" className="ant-tag-compact">Overdue by {formattedTime}</Tag> {/* Apply compact class */}
       </Tooltip>
     );
   }
@@ -73,7 +73,7 @@ const SlaCountdown = ({ slaDue, status, completedAt }: SlaCountdownProps) => {
 
   return (
     <Tooltip title={`Due on ${dueDate.format('MMM D, YYYY h:mm A')}`}>
-      <Tag icon={<ClockCircleOutlined />} color={isWarning ? 'warning' : 'processing'}>Due in {formattedTime}</Tag>
+      <Tag icon={<ClockCircleOutlined />} color={isWarning ? 'warning' : 'processing'} className="ant-tag-compact">Due in {formattedTime}</Tag> {/* Apply compact class */}
     </Tooltip>
   );
 };

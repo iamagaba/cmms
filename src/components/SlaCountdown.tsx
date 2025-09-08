@@ -61,19 +61,32 @@ const SlaCountdown = ({ slaDue, status, completedAt }: SlaCountdownProps) => {
 
   const formattedTime = formatDuration(diff);
 
-  if (isOverdue) {
-    return (
-      <Tooltip title={`Overdue since ${dueDate.format('MMM D, YYYY h:mm A')}`}>
-        <Tag icon={<WarningOutlined />} color="error" className="ant-tag-compact">Overdue by {formattedTime}</Tag> {/* Apply compact class */}
-      </Tooltip>
-    );
-  }
+  // Define warning threshold: less than 24 hours
+  const isWarning = diff < 24 * 60 * 60 * 1000 && diff >= 0; 
 
-  const isWarning = diff < 24 * 60 * 60 * 1000; // Less than 24 hours
+  let tagColor: string;
+  let tagIcon: React.ReactNode;
+  let tagText: string;
+
+  if (isOverdue) {
+    tagColor = 'error';
+    tagIcon = <WarningOutlined />;
+    tagText = `Overdue by ${formattedTime}`;
+  } else if (isWarning) {
+    tagColor = 'warning';
+    tagIcon = <ClockCircleOutlined />;
+    tagText = `Due in ${formattedTime}`;
+  } else {
+    tagColor = 'processing'; // Default blue for "due in > 24 hours"
+    tagIcon = <ClockCircleOutlined />;
+    tagText = `Due in ${formattedTime}`;
+  }
 
   return (
     <Tooltip title={`Due on ${dueDate.format('MMM D, YYYY h:mm A')}`}>
-      <Tag icon={<ClockCircleOutlined />} color={isWarning ? 'warning' : 'processing'} className="ant-tag-compact">Due in {formattedTime}</Tag> {/* Apply compact class */}
+      <Tag icon={tagIcon} color={tagColor} className="ant-tag-compact">
+        {tagText}
+      </Tag>
     </Tooltip>
   );
 };

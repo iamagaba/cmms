@@ -1,18 +1,28 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Button, Card, Col, Row, Space, Typography, Descriptions, Skeleton, Table } from "antd";
-import { ArrowLeftOutlined, MailOutlined, PhoneOutlined, EnvironmentOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, MailOutlined, PhoneOutlined, EnvironmentOutlined, PlusOutlined } from "@ant-design/icons";
 import NotFound from "./NotFound";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Customer, Vehicle, WorkOrder } from "@/types/supabase";
+import { Customer, Vehicle, WorkOrder, Technician, Location } from "@/types/supabase";
 import { Link } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
+import { useState } from "react";
+import { CreateWorkOrderDialog } from "@/components/CreateWorkOrderDialog";
+import { WorkOrderFormDrawer } from "@/components/WorkOrderFormDrawer";
 
 const { Title, Text } = Typography;
+
+type VehicleWithCustomer = Vehicle & { customers: Customer | null };
 
 const CustomerDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isFormDrawerOpen, setIsFormDrawerOpen] = useState(false);
+  const [prefillData, setPrefillData] = useState<Partial<WorkOrder> | null>(null);
 
   const { data: customer, isLoading: isLoadingCustomer } = useQuery<Customer | null>({
     queryKey: ['customer', id],
@@ -47,7 +57,10 @@ const CustomerDetailsPage = () => {
     enabled: !!id,
   });
 
-  const isLoading = isLoadingCustomer || isLoadingVehicles || isLoadingWorkOrders;
+  const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return data || []; } });
+  const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({ queryKey: ['locations'], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*'); if (error) throw new Error(error.message); return data || []; } });
+
+  const isLoading = isLoadingCustomer || isLoadingVehicles || isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations;
 
   if (isLoading) {
     return <Skeleton active />;
@@ -70,6 +83,24 @@ const CustomerDetailsPage = () => {
     { title: 'Date Created', dataIndex: 'createdAt', render: (text: string) => new Date(text).toLocaleDateString() },
   ];
 
+  const handleProceedFromCreateDialog = (selectedVehicle: VehicleWithCustomer) => {
+    setIsCreateDialogOpen(false);
+    setPrefillData({
+      vehicleId: selectedVehicle.id,
+      customerId: selectedVehicle.customer_id,
+      customerName: selectedVehicle.customers?.name,
+      customerPhone: selectedVehicle.customers?.phone,
+      vehicleModel: `${selectedVehicle.make} ${selectedVehicle.model}`,
+    });
+    setIsFormDrawerOpen(true);
+  };
+
+  const handleSaveWorkOrder = () => {
+    queryClient.invalidateQueries({ queryKey: ['work_orders', { customerId: id }] });
+    setIsFormDrawerOpen(false);
+    setPrefillData(null);
+  };
+
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
       <PageHeader
@@ -82,6 +113,11 @@ const CustomerDetailsPage = () => {
           </Space>
         }
         hideSearch
+        actions={
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsCreateDialogOpen(true)}>
+            Create Work Order
+          </Button>
+        }
       />
       <Row gutter={[16, 16]}>
         <Col xs={24} md={8}>
@@ -123,6 +159,20 @@ const CustomerDetailsPage = () => {
           </Space>
         </Col>
       </Row>
+      <CreateWorkOrderDialog
+        isOpen={isCreateDialogOpen}
+        onClose={() => setIsCreateDialogOpen(false)}
+        onProceed={handleProceedFromCreateDialog}
+        initialCustomerId={customer.id} // Pass the current customer ID for filtering
+      />
+      <WorkOrderFormDrawer
+        isOpen={isFormDrawerOpen}
+        onClose={() => { setIsFormDrawerOpen(false); setPrefillData(null); }}
+        onSave={handleSaveWorkOrder}
+        technicians={technicians || []}
+        locations={locations || []}
+        prefillData={prefillData}
+      />
     </Space>
   );
 };

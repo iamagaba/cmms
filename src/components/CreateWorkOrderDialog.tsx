@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Modal, Button, Spin, Row, Col, Card, Typography, List, Tag, Empty, AutoComplete } from 'antd';
 import { supabase } from '@/integrations/supabase/client';
 import { Vehicle, Customer, WorkOrder } from '@/types/supabase';
@@ -8,12 +8,6 @@ import debounce from 'lodash.debounce';
 
 const { Title, Text } = Typography;
 
-interface CreateWorkOrderDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onProceed: (vehicle: Vehicle) => void;
-}
-
 type VehicleWithCustomer = Vehicle & { customers: Customer | null };
 interface VehicleOption {
   value: string;
@@ -21,12 +15,43 @@ interface VehicleOption {
   vehicle: VehicleWithCustomer;
 }
 
-export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed }: CreateWorkOrderDialogProps) => {
+interface CreateWorkOrderDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onProceed: (vehicle: VehicleWithCustomer) => void;
+  initialVehicle?: VehicleWithCustomer | null; // New prop for pre-filling from asset page
+  initialCustomerId?: string | null; // New prop for filtering by customer
+}
+
+export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed, initialVehicle, initialCustomerId }: CreateWorkOrderDialogProps) => {
   const [searchValue, setSearchValue] = useState('');
   const [options, setOptions] = useState<VehicleOption[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<VehicleWithCustomer | null>(null);
   const [existingWorkOrders, setExistingWorkOrders] = useState<WorkOrder[]>([]);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
+
+  useEffect(() => {
+    if (isOpen) {
+      if (initialVehicle && isInitialLoad) {
+        setSelectedVehicle(initialVehicle);
+        setSearchValue(initialVehicle.license_plate);
+        fetchWorkOrdersForVehicle(initialVehicle.id);
+        setIsInitialLoad(false);
+      } else if (initialCustomerId && isInitialLoad) {
+        // If only customer ID is provided, we still need to search, but can filter
+        // No initial search value, user will type
+        setIsInitialLoad(false);
+      } else {
+        // Reset state when dialog opens without initial data
+        setSearchValue('');
+        setOptions([]);
+        setSelectedVehicle(null);
+        setExistingWorkOrders([]);
+        setIsInitialLoad(true); // Reset for next open
+      }
+    }
+  }, [isOpen, initialVehicle, initialCustomerId, isInitialLoad]);
 
   const fetchWorkOrdersForVehicle = async (vehicleId: string) => {
     setIsLoading(true);
@@ -55,11 +80,17 @@ export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed }: CreateWork
         }
         setIsLoading(true);
         try {
-          const { data, error } = await supabase
+          let query = supabase
             .from('vehicles')
             .select('*, customers(*)')
             .ilike('license_plate', `%${value}%`)
             .limit(10);
+
+          if (initialCustomerId) {
+            query = query.eq('customer_id', initialCustomerId);
+          }
+
+          const { data, error } = await query;
 
           if (error) throw error;
 
@@ -80,7 +111,7 @@ export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed }: CreateWork
           setIsLoading(false);
         }
       }, 300),
-    []
+    [initialCustomerId] // Re-create debounced function if initialCustomerId changes
   );
 
   const handleSearch = (value: string) => {
@@ -96,7 +127,7 @@ export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed }: CreateWork
     fetchWorkOrdersForVehicle(option.vehicle.id);
   };
 
-  const handleProceed = () => {
+  const handleProceedClick = () => {
     if (selectedVehicle) {
       onProceed(selectedVehicle);
     }
@@ -107,6 +138,7 @@ export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed }: CreateWork
     setOptions([]);
     setSelectedVehicle(null);
     setExistingWorkOrders([]);
+    setIsInitialLoad(true);
     onClose();
   };
 
@@ -119,16 +151,22 @@ export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed }: CreateWork
       width={800}
       destroyOnClose
     >
-      <Text>Type a license plate to search for a vehicle.</Text>
-      <AutoComplete
-        options={options}
-        onSelect={onSelect}
-        onSearch={handleSearch}
-        value={searchValue}
-        style={{ width: '100%', marginTop: 8 }}
-        placeholder="e.g., UBF 123X"
-        notFoundContent={isLoading ? <Spin size="small" /> : null}
-      />
+      {!initialVehicle && ( // Only show search if no initial vehicle is provided
+        <>
+          <Text>Type a license plate to search for a vehicle.</Text>
+          <AutoComplete
+            options={options}
+            onSelect={onSelect}
+            onSearch={handleSearch}
+            value={searchValue}
+            style={{ width: '100%', marginTop: 8 }}
+            placeholder="e.g., UBF 123X"
+            notFoundContent={isLoading ? <Spin size="small" /> : null}
+          />
+        </>
+      )}
+
+      {isLoading && !selectedVehicle && <div style={{ textAlign: 'center', padding: '48px 0' }}><Spin /></div>}
 
       {selectedVehicle && (
         <div style={{ marginTop: 24 }}>
@@ -139,7 +177,7 @@ export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed }: CreateWork
                 <Text strong>{selectedVehicle.year} {selectedVehicle.make} {selectedVehicle.model}</Text><br/>
                 <Text type="secondary">VIN: {selectedVehicle.vin}</Text><br/>
                 <Text type="secondary">Owner: {selectedVehicle.customers?.name || 'N/A'}</Text>
-                <Button type="primary" style={{ marginTop: 16, width: '100%' }} onClick={handleProceed}>
+                <Button type="primary" style={{ marginTop: 16, width: '100%' }} onClick={handleProceedClick}>
                   Create Work Order for this Vehicle
                 </Button>
               </Card>
@@ -167,6 +205,10 @@ export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed }: CreateWork
             </Col>
           </Row>
         </div>
+      )}
+
+      {!isLoading && !selectedVehicle && searchValue && (
+        <Empty description={`No vehicle found with license plate "${searchValue}". You can add a new asset in the Assets page.`} style={{ marginTop: 24 }} />
       )}
     </Modal>
   );

@@ -87,22 +87,3 @@ body {
   height: auto !important; /* Allow content to dictate height */
   min-height: unset !important; /* Remove minimum height */
 }
-
-/* Kanban Card Select Styles */
-.kanban-card-select .ant-select-selector {
-  background-color: transparent !important; /* Ensure transparent background by default */
-  border: none !important; /* Remove border */
-  box-shadow: none !important; /* Remove shadow */
-  height: 24px !important; /* Match avatar size */
-  line-height: 22px !important; /* Adjust line height for text inside */
-  padding: 0 7px !important; /* Adjust padding to be more compact */
-}
-
-.kanban-card-select .ant-select-selection-item {
-  line-height: 22px !important; /* Ensure selected item text aligns */
-}
-
-.kanban-card-select .ant-select-arrow {
-  height: 22px !important; /* Adjust arrow height */
-  line-height: 22px !important; /* Adjust arrow line height */
-}

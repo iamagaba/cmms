@@ -83,10 +83,8 @@ const WorkOrderKanban = ({ workOrders, technicians, locations, customers, vehicl
                         <Space direction="vertical" style={{ width: '100%' }} size="small">
                             {columnOrders.map(order => {
                                 const technician = technicians.find(t => t.id === order.assignedTechnicianId);
-                                const location = locations.find(l => l.id === order.locationId);
-                                const customer: Customer | undefined = order.customerId ? custMap.get(order.customerId) : undefined;
                                 const vehicle: Vehicle | undefined = order.vehicleId ? vehMap.get(order.vehicleId) : undefined;
-                                return <WorkOrderCard key={order.id} order={order} technician={technician} location={location} customer={customer} vehicle={vehicle} onUpdateWorkOrder={onUpdateWorkOrder} allTechnicians={technicians} onViewDetails={() => onViewDetails(order.id)} />;
+                                return <WorkOrderCard key={order.id} order={order} technician={technician} vehicle={vehicle} onUpdateWorkOrder={onUpdateWorkOrder} onViewDetails={() => onViewDetails(order.id)} />;
                             })}
                         </Space>
                     </div>

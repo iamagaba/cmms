@@ -1,4 +1,4 @@
-import { Card, List, Tag, Typography, Space, Avatar } from 'antd';
+import { Card, List, Tag, Typography, Space, Avatar, Empty } from 'antd';
 import { WarningOutlined, UserOutlined } from '@ant-design/icons';
 import { WorkOrder, Technician } from '@/types/supabase';
 import { Link } from 'react-router-dom';
@@ -23,20 +23,23 @@ const UrgentWorkOrders = ({ workOrders, technicians }: UrgentWorkOrdersProps) =>
     })
     .sort((a, b) => new Date(a.slaDue!).getTime() - new Date(b.slaDue!).getTime());
 
+  const cardTitle = (
+    <Space>
+      <WarningOutlined style={{ color: '#faad14' }} />
+      <Text>Urgent Work Orders</Text>
+    </Space>
+  );
+
   if (urgentOrders.length === 0) {
-    return null;
+    return (
+      <Card title={cardTitle} style={{ height: '100%' }}>
+        <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No urgent work orders" />
+      </Card>
+    );
   }
 
   return (
-    <Card
-      title={
-        <Space>
-          <WarningOutlined style={{ color: '#faad14' }} />
-          <Text>Urgent Work Orders</Text>
-        </Space>
-      }
-      style={{ height: '100%' }}
-    >
+    <Card title={cardTitle} style={{ height: '100%' }}>
       <List
         itemLayout="horizontal"
         dataSource={urgentOrders}

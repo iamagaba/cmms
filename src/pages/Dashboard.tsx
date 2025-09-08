@@ -262,7 +262,7 @@ const Dashboard = () => {
         <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="SLA Performance" value={`${kpiData.slaPerformance}%`} icon={<CheckCircleOutlined />} trend={kpiData.slaTrend.trend} trendDirection={kpiData.slaTrend.trendDirection} /></Col>
         <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Avg. Completion Time" value={`${kpiData.avgCompletionTime} Days`} icon={<ClockCircleOutlined />} isUpGood={false} trend={kpiData.avgCompletionTimeTrend.trend} trendDirection={kpiData.avgCompletionTimeTrend.trendDirection} /></Col>
       </Row>
-      <Row gutter={[16, 16]}>
+      <Row gutter={[16, 16]} align="stretch">
         <Col xs={24} xl={16}>
           <UrgentWorkOrders workOrders={allWorkOrders || []} technicians={technicians || []} />
         </Col>

@@ -62,12 +62,12 @@ const CalendarPage = () => {
           {listData.map(item => {
             const vehicle = vehicles?.find(v => v.id === item.vehicleId);
             return (
-              <li key={item.id} onClick={() => setViewingWorkOrderId(item.id)} style={{ cursor: 'pointer', marginBottom: '4px' }}>
-                <Tag color={priorityColors[item.priority || 'Low']} style={{ marginRight: '4px' }}>
+              <li key={item.id} onClick={() => setViewingWorkOrderId(item.id)} style={{ cursor: 'pointer', lineHeight: '1.2' }}>
+                <Tag color={priorityColors[item.priority || 'Low']} className="ant-tag-compact" style={{ marginRight: '2px' }}>
                   {dayjs(item.appointmentDate).format('HH:mm')}
                 </Tag>
-                <Text strong style={{ fontSize: '12px' }}>{item.workOrderNumber}</Text>
-                {vehicle && <Text type="secondary" style={{ fontSize: '12px', marginLeft: '4px' }}>({vehicle.license_plate})</Text>}
+                <Text strong style={{ fontSize: '11px' }}>{item.workOrderNumber}</Text>
+                {vehicle && <Text type="secondary" style={{ fontSize: '11px', marginLeft: '2px' }}>({vehicle.license_plate})</Text>}
               </li>
             );
           })}

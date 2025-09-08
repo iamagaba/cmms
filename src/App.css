@@ -70,3 +70,20 @@ body {
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari, and Opera */
 }
+
+/* Custom styles for compact calendar tags */
+.ant-tag-compact {
+  padding: 0 4px !important; /* Smaller padding */
+  line-height: 18px !important; /* Adjust line height */
+  height: 20px !important; /* Smaller height */
+  font-size: 10px !important; /* Smaller font size */
+}
+
+/* Custom styles for compact calendar cells */
+.ant-picker-cell-inner {
+  padding: 4px 2px !important; /* Reduce padding inside calendar cells */
+}
+.ant-picker-calendar-date-content {
+  height: auto !important; /* Allow content to dictate height */
+  min-height: unset !important; /* Remove minimum height */
+}

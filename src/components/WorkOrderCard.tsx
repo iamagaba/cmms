@@ -53,22 +53,22 @@ const WorkOrderCard = ({ order, technician, vehicle, onUpdateWorkOrder, onViewDe
       hoverable 
       className="lift-on-hover"
       style={{ cursor: 'pointer' }}
-      bodyStyle={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}
+      bodyStyle={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '8px' }}
       onClick={onViewDetails}
     >
       {/* Header: ID and SLA */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Text code>{order.workOrderNumber}</Text>
+        <Text code style={{ fontSize: '11px' }}>{order.workOrderNumber}</Text>
         <SlaCountdown slaDue={order.slaDue} status={order.status} completedAt={order.completedAt} />
       </div>
 
       {/* Body: Vehicle and Service */}
       <div>
-        <Title level={5} style={{ margin: 0, lineHeight: 1.3, fontSize: '15px' }}>
+        <Title level={5} style={{ margin: 0, lineHeight: 1.2, fontSize: '14px' }}>
           {vehicle ? `${vehicle.make} ${vehicle.model}` : 'N/A'}
         </Title>
         <Paragraph 
-          style={{ fontSize: '13px', margin: '4px 0 0 0' }}
+          style={{ fontSize: '12px', margin: '2px 0 0 0' }}
           ellipsis={{ rows: 2, tooltip: order.service }}
           type="secondary"
         >
@@ -77,21 +77,21 @@ const WorkOrderCard = ({ order, technician, vehicle, onUpdateWorkOrder, onViewDe
       </div>
 
       {/* Footer: Tags and Assignee */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '0px' }}>
         <Space size="small" onClick={stopPropagation}>
           <Dropdown overlay={priorityMenu} trigger={['click']}>
-            <Tag color={priorityColors[order.priority || 'Low']} style={{ cursor: 'pointer' }}>
+            <Tag color={priorityColors[order.priority || 'Low']} style={{ cursor: 'pointer' }} className="ant-tag-compact">
               {order.priority}
             </Tag>
           </Dropdown>
           <Dropdown overlay={statusMenu} trigger={['click']}>
-            <Tag color={statusColors[order.status || 'Open']} style={{ cursor: 'pointer' }}>
+            <Tag color={statusColors[order.status || 'Open']} style={{ cursor: 'pointer' }} className="ant-tag-compact">
               {order.status}
             </Tag>
           </Dropdown>
         </Space>
         <Tooltip title={technician ? `Assigned to ${technician.name}` : 'Unassigned'}>
-          <Avatar size={28} src={technician?.avatar || undefined}>
+          <Avatar size={24} src={technician?.avatar || undefined}>
             {technician ? technician.name.split(' ').map(n => n[0]).join('') : '?'}
           </Avatar>
         </Tooltip>

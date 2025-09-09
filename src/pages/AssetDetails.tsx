@@ -164,6 +164,8 @@ const AssetDetailsPage = () => {
     setPrefillData(null);
   };
 
+  const defaultVisibleColumns = ['workOrderNumber', 'licensePlate', 'service', 'status', 'priority', 'technician', 'slaStatus', 'createdAt', 'createdBy', 'actions'];
+
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
         <PageHeader
@@ -222,6 +224,7 @@ const AssetDetailsPage = () => {
                         onUpdateWorkOrder={handleUpdateWorkOrder}
                         onViewDetails={(id) => navigate(`/work-orders/${id}`)}
                         profiles={profiles || []}
+                        visibleColumns={defaultVisibleColumns}
                     />
                 </Card>
             </Col>

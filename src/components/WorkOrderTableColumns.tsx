@@ -4,7 +4,7 @@ import { WorkOrder, Technician, Location, Customer, Vehicle, Profile } from "@/t
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime';
 import SlaCountdown from "./SlaCountdown";
-import { ResizableTitle } from "./ResizableTitle"; // Import ResizableTitle
+import { ResizableTitle } from "./ResizableTitle";
 
 dayjs.extend(relativeTime);
 
@@ -30,6 +30,7 @@ interface GetColumnsProps {
   allProfiles: Profile[];
   columnWidths: Record<string, number>;
   onColumnResize: (key: string, width: number) => void;
+  visibleColumns: string[];
 }
 
 export const getColumns = ({
@@ -40,6 +41,7 @@ export const getColumns = ({
   allProfiles,
   columnWidths,
   onColumnResize,
+  visibleColumns,
 }: GetColumnsProps) => {
   const { token } = useToken();
   const priorityColors: Record<string, string> = { High: token.colorError, Medium: token.colorWarning, Low: token.colorSuccess };
@@ -52,7 +54,7 @@ export const getColumns = ({
     Completed: token.colorSuccess
   };
 
-  const defaultColumns = [
+  const allColumns = [
     {
       key: "workOrderNumber",
       title: "ID",
@@ -175,14 +177,16 @@ export const getColumns = ({
     },
   ];
 
-  return defaultColumns.map(col => ({
+  const filteredColumns = allColumns.filter(col => visibleColumns.includes(col.key as string));
+
+  return filteredColumns.map(col => ({
     ...col,
     width: columnWidths[col.key] || col.width,
     onHeaderCell: (column: any) => ({
       width: column.width,
       onResize: ((e: any, { size }: { size: { width: number } }) => {
         onColumnResize(column.key, size.width);
-      }) as any, // Cast to any here to resolve type incompatibility
+      }) as any,
     }),
   }));
 };

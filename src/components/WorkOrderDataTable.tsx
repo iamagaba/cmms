@@ -2,7 +2,7 @@ import * as React from "react";
 import { Table } from "antd";
 import { WorkOrder, Technician, Location, Customer, Vehicle, Profile } from "@/types/supabase";
 import { WorkOrderRow, getColumns } from "./WorkOrderTableColumns";
-import { ResizableTitle } from "./ResizableTitle"; // Import ResizableTitle
+import { ResizableTitle } from "./ResizableTitle";
 
 interface WorkOrderDataTableProps {
   workOrders: WorkOrder[];
@@ -15,9 +15,10 @@ interface WorkOrderDataTableProps {
   onDelete: (workOrderData: WorkOrder) => void;
   onUpdateWorkOrder: (id: string, updates: Partial<WorkOrder>) => void;
   onViewDetails: (workOrderId: string) => void;
+  visibleColumns: string[];
 }
 
-export function WorkOrderDataTable({ workOrders, technicians, locations, customers, vehicles, profiles, onEdit, onDelete, onUpdateWorkOrder, onViewDetails }: WorkOrderDataTableProps) {
+export function WorkOrderDataTable({ workOrders, technicians, locations, customers, vehicles, profiles, onEdit, onDelete, onUpdateWorkOrder, onViewDetails, visibleColumns }: WorkOrderDataTableProps) {
   const [columnWidths, setColumnWidths] = React.useState<Record<string, number>>({});
 
   const handleColumnResize = (key: string, width: number) => {
@@ -52,6 +53,7 @@ export function WorkOrderDataTable({ workOrders, technicians, locations, custome
     allProfiles: profiles,
     columnWidths,
     onColumnResize: handleColumnResize,
+    visibleColumns,
   });
 
   return (
@@ -70,7 +72,6 @@ export function WorkOrderDataTable({ workOrders, technicians, locations, custome
           cell: ResizableTitle,
         },
       }}
-      scroll={{ x: 'max-content' }} // Enable horizontal scrolling if columns exceed width
     />
   );
 }

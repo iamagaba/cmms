@@ -74,6 +74,8 @@ const LocationDetailsPage = () => {
   if (isLoading) return <Skeleton active />;
   if (!location) return <NotFound />;
 
+  const defaultVisibleColumns = ['workOrderNumber', 'licensePlate', 'service', 'status', 'priority', 'technician', 'slaStatus', 'createdAt', 'createdBy', 'actions'];
+
   return (
     <>
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
@@ -125,6 +127,7 @@ const LocationDetailsPage = () => {
             onUpdateWorkOrder={handleUpdateWorkOrder} 
             onViewDetails={handleViewDetails} 
             profiles={profiles || []}
+            visibleColumns={defaultVisibleColumns}
           />
         </Card>
       </Space>

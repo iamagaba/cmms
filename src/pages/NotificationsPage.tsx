@@ -1,22 +1,39 @@
 import React from 'react';
-import { Typography, Space, Card, Empty, List } from 'antd';
+import { Typography, Space, Card, Empty, List, Button } from 'antd';
 import PageHeader from '@/components/PageHeader';
 import { useNotifications } from '@/context/NotificationsContext';
 import { formatDistanceToNow } from 'date-fns';
 import { Link } from 'react-router-dom';
+import { CheckCircleOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
 const NotificationsPage = () => {
-  const { notifications, markAllAsRead } = useNotifications();
+  const { notifications, unreadCount, markAllAsRead } = useNotifications();
 
   React.useEffect(() => {
-    markAllAsRead(); // Mark all as read when the page is viewed
-  }, [markAllAsRead]);
+    // Mark all as read when the page is viewed, but only if there are unread notifications
+    if (unreadCount > 0) {
+      markAllAsRead();
+    }
+  }, [markAllAsRead, unreadCount]);
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <PageHeader title="Notifications" hideSearch />
+      <PageHeader 
+        title="Notifications" 
+        hideSearch 
+        actions={
+          <Button 
+            type="primary" 
+            icon={<CheckCircleOutlined />} 
+            onClick={markAllAsRead} 
+            disabled={unreadCount === 0}
+          >
+            Mark All As Read
+          </Button>
+        }
+      />
       <Card>
         {notifications.length === 0 ? (
           <Empty description="No notifications to display." />

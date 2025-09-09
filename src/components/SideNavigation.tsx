@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Menu, Typography } from 'antd';
+import { Layout, Menu, Typography, Badge } from 'antd';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   DashboardOutlined,
@@ -16,6 +16,7 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
+import { useNotifications } from '@/context/NotificationsContext'; // Import useNotifications
 
 const { Sider } = Layout;
 const { Title } = Typography;
@@ -44,6 +45,7 @@ function getItem(
 
 const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps) => {
   const location = useLocation();
+  const { unreadCount } = useNotifications(); // Get unreadCount from context
 
   // All menu items are now in a single list, which is the correct pattern.
   const menuItems: MenuItem[] = [
@@ -61,7 +63,21 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
     // This divider will be pushed to the bottom by CSS, along with the items below it.
     { type: 'divider', key: 'bottom-section-divider', className: 'menu-bottom-divider' },
     
-    getItem(<NavLink to="/notifications">Notifications</NavLink>, "/notifications", <BellOutlined />),
+    getItem(
+      <NavLink to="/notifications">
+        Notifications
+        {unreadCount > 0 && (
+          <Badge 
+            count={unreadCount} 
+            size="small" 
+            offset={[10, 0]} 
+            style={{ backgroundColor: '#6A0DAD', marginLeft: 'auto' }} 
+          />
+        )}
+      </NavLink>, 
+      "/notifications", 
+      <BellOutlined />
+    ),
     getItem(<NavLink to="/settings?tab=profile-settings">Profile</NavLink>, "/settings?tab=profile-settings", <UserOutlined />),
     getItem(<NavLink to="/settings?tab=system-settings">Settings</NavLink>, "/settings?tab=system-settings", <SettingOutlined />),
   ];

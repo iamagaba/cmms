@@ -21,7 +21,7 @@ import { getColumns } from "@/components/WorkOrderTableColumns"; // Import getCo
 
 const { Title } = Typography;
 const { Search } = Input;
-const { Option } = Select;
+const { Option = Select.Option } = Select; // Ensure Option is correctly destructured
 const { Panel } = Collapse;
 const { TabPane } = Tabs;
 
@@ -78,7 +78,16 @@ const WorkOrdersPage = () => {
 
   const handleSave = (workOrderData: WorkOrder) => { 
     const newActivityLog = workOrderData.activityLog || [{ timestamp: new Date().toISOString(), activity: 'Work order created.' }];
-    workOrderMutation.mutate(camelToSnakeCase({ ...workOrderData, activityLog: newActivityLog })); 
+    
+    const dataToMutate: Partial<WorkOrder> = { ...workOrderData, activityLog: newActivityLog };
+
+    // If it's a new work order (id is undefined), ensure 'id' key is not present
+    // This makes it explicit for Supabase to use the default UUID generation.
+    if (dataToMutate.id === undefined) {
+      delete dataToMutate.id;
+    }
+
+    workOrderMutation.mutate(camelToSnakeCase(dataToMutate)); 
     setIsFormDialogOpen(false); 
     setEditingWorkOrder(null); 
   };

@@ -156,3 +156,13 @@ body {
   max-width: 0;
   display: none; /* Hide text completely when collapsed */
 }
+
+/* Custom styles for bottom-aligned menu items */
+.ant-menu-item.menu-item-bottom {
+  margin-top: auto; /* Pushes the item to the bottom */
+}
+
+/* Ensure the divider before bottom items is also at the bottom */
+.ant-menu-item.menu-item-bottom-divider {
+  margin-top: auto; /* Pushes the divider to the bottom */
+}

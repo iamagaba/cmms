@@ -32,18 +32,20 @@ function getItem(
   label: React.ReactNode,
   key: React.Key,
   icon?: React.ReactNode,
+  className?: string, // Added className parameter
 ): MenuItem {
   return {
     key,
     icon,
     label,
+    className, // Assign className
   } as MenuItem;
 }
 
 const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps) => {
   const location = useLocation();
 
-  const mainMenuItems: MenuItem[] = [
+  const menuItems: MenuItem[] = [
     getItem(<NavLink to="/">Dashboard</NavLink>, "/", <DashboardOutlined />),
     getItem(<NavLink to="/work-orders">Work Orders</NavLink>, "/work-orders", <ToolOutlined />),
     { type: 'divider', key: 'main-divider-1' },
@@ -54,13 +56,10 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
     getItem(<NavLink to="/inventory">Inventory</NavLink>, "/inventory", <ShoppingOutlined />),
     { type: 'divider', key: 'main-divider-2' },
     getItem(<NavLink to="/analytics">Analytics</NavLink>, "/analytics", <BarChartOutlined />),
-  ];
-
-  const bottomMenuItems: MenuItem[] = [
-    { type: 'divider', key: 'bottom-section-divider' }, // This divider is now correctly part of the bottom menu's items
-    getItem(<NavLink to="/notifications">Notifications</NavLink>, "/notifications", <BellOutlined />),
-    getItem(<NavLink to="/settings?tab=profile-settings">Profile</NavLink>, "/settings?tab=profile-settings", <UserOutlined />),
-    getItem(<NavLink to="/settings?tab=system-settings">Settings</NavLink>, "/settings?tab=system-settings", <SettingOutlined />),
+    { type: 'divider', key: 'bottom-section-divider', className: 'menu-item-bottom-divider' }, // Divider for bottom section
+    getItem(<NavLink to="/notifications">Notifications</NavLink>, "/notifications", <BellOutlined />, 'menu-item-bottom'),
+    getItem(<NavLink to="/settings?tab=profile-settings">Profile</NavLink>, "/settings?tab=profile-settings", <UserOutlined />, 'menu-item-bottom'),
+    getItem(<NavLink to="/settings?tab=system-settings">Settings</NavLink>, "/settings?tab=system-settings", <SettingOutlined />, 'menu-item-bottom'),
   ];
 
   const getSelectedKey = (pathname: string, search: string) => {
@@ -118,13 +117,7 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
         mode="inline"
         selectedKeys={[selectedKey]}
         style={{ borderRight: 0, flexGrow: 1, overflowY: 'auto' }}
-        items={mainMenuItems}
-      />
-      <Menu
-        mode="inline"
-        selectedKeys={[selectedKey]}
-        style={{ borderRight: 0, flexShrink: 0 }}
-        items={bottomMenuItems}
+        items={menuItems}
       />
     </Sider>
   );

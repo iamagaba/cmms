@@ -67,7 +67,6 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
     try {
       const values = await form.validateFields();
       const rawWorkOrderData: Partial<WorkOrder> = {
-        id: workOrder?.id,
         ...prefillData,
         ...values,
         slaDue: values.slaDue?.toISOString(),
@@ -79,6 +78,11 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
         partsUsed: workOrder?.partsUsed || [],
       };
       
+      // Conditionally add the ID for existing work orders
+      if (workOrder?.id) {
+        rawWorkOrderData.id = workOrder.id;
+      }
+
       // Destructure and remove UI-only fields before saving
       const { customerName, customerPhone, vehicleModel, ...workOrderToSave } = rawWorkOrderData;
 

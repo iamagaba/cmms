@@ -54,10 +54,10 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
     getItem(<NavLink to="/inventory">Inventory</NavLink>, "/inventory", <ShoppingOutlined />),
     { type: 'divider', key: 'main-divider-2' },
     getItem(<NavLink to="/analytics">Analytics</NavLink>, "/analytics", <BarChartOutlined />),
-    { type: 'divider', key: 'bottom-section-divider' }, // Moved this divider here
   ];
 
   const bottomMenuItems: MenuItem[] = [
+    { type: 'divider', key: 'bottom-section-divider' }, // This divider is now correctly part of the bottom menu's items
     getItem(<NavLink to="/notifications">Notifications</NavLink>, "/notifications", <BellOutlined />),
     getItem(<NavLink to="/settings?tab=profile-settings">Profile</NavLink>, "/settings?tab=profile-settings", <UserOutlined />),
     getItem(<NavLink to="/settings?tab=system-settings">Settings</NavLink>, "/settings?tab=system-settings", <SettingOutlined />),

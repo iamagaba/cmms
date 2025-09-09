@@ -74,7 +74,7 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
         customerLat: clientLocation?.lat,
         customerLng: clientLocation?.lng,
         customerAddress: clientAddress,
-        activityLog: workOrder?.activityLog || [{ timestamp: new Date().toISOString(), activity: 'Work order created.' }], // Ensure initial log for new orders
+        activityLog: workOrder?.activityLog || [{ timestamp: new Date().toISOString(), activity: 'Work order created.' }],
         partsUsed: workOrder?.partsUsed || [],
       };
       

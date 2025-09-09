@@ -69,7 +69,7 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
           )}
           {!collapsed && (
             <Title level={4} style={{ margin: 0, color: '#6A0DAD', whiteSpace: 'nowrap' }}>
-              GOGO Electric
+              GOGO Maintenance
             </Title>
           )}
         </NavLink>

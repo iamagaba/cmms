@@ -28,26 +28,15 @@ function Login() {
         <div className="w-1/2 bg-[#6A0DAD] text-white p-12 flex-col justify-center items-center hidden md:flex">
           <div className="text-center">
             <Logo color="white" size="64px" />
-            <h1 className="text-4xl font-bold mt-4">GOGO Electric</h1>
-            <p className="mt-2 text-purple-200">Field Service Management Platform</p>
+            <h1 className="text-4xl font-bold mt-4">GOGO Maintenance</h1>
+            <p className="mt-2 text-purple-200">Service Platform</p>
           </div>
         </div>
 
         {/* Form Panel */}
         <div className="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
-          {/* Mobile Header */}
-          <div className="md:hidden text-center mb-8">
-            <Space direction="vertical" align="center" size="middle">
-              <Logo color="#6A0DAD" size="48px" />
-              <div>
-                <Title level={3} style={{ color: '#6A0DAD', marginBottom: 0 }}>GOGO Electric</Title>
-                <Text type="secondary">Sign in to your account</Text>
-              </div>
-            </Space>
-          </div>
-
-          {/* Desktop Header */}
-          <div className="hidden md:block mb-8">
+          {/* Unified Header */}
+          <div className="text-center md:text-left mb-8">
             <Title level={2} style={{ marginBottom: '4px' }}>Welcome Back</Title>
             <Text type="secondary">Please enter your details to sign in.</Text>
           </div>

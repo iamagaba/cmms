@@ -173,7 +173,7 @@ const WorkOrdersPage = () => {
   };
 
   const columnVisibilityMenu = (
-    <div className="ant-dropdown-menu" style={{ padding: 8, backgroundColor: 'white', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)', borderRadius: '4px' }}>
+    <div style={{ padding: 8, backgroundColor: 'white', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)', borderRadius: '4px' }}>
       <Checkbox.Group
         style={{ display: 'flex', flexDirection: 'column' }}
         options={ALL_COLUMNS}
@@ -238,7 +238,7 @@ const WorkOrdersPage = () => {
         <PageHeader title="Work Order Management" hideSearch actions={
           <Space>
             {view === 'table' && (
-              <Dropdown overlay={columnVisibilityMenu} trigger={['click']}>
+              <Dropdown dropdownRender={() => columnVisibilityMenu} trigger={['click']}>
                 <Button icon={<BarsOutlined />}>Columns</Button>
               </Dropdown>
             )}

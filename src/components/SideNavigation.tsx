@@ -54,6 +54,7 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
     getItem(<NavLink to="/inventory">Inventory</NavLink>, "/inventory", <ShoppingOutlined />),
     { type: 'divider', key: 'main-divider-2' },
     getItem(<NavLink to="/analytics">Analytics</NavLink>, "/analytics", <BarChartOutlined />),
+    { type: 'divider', key: 'bottom-section-divider' }, // Moved this divider here
   ];
 
   const bottomMenuItems: MenuItem[] = [
@@ -119,8 +120,6 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
         style={{ borderRight: 0, flexGrow: 1, overflowY: 'auto' }}
         items={mainMenuItems}
       />
-      {/* The standalone Menu.Divider here is fine as it's not part of an 'items' array */}
-      <Menu.Divider style={{ margin: '0 0 8px 0' }} /> 
       <Menu
         mode="inline"
         selectedKeys={[selectedKey]}

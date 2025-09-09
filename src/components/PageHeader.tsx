@@ -2,15 +2,12 @@ import React from "react";
 import { Row, Col, Typography, Space, Input, Badge, Dropdown, Avatar, Menu, List, Empty } from "antd";
 import {
   SearchOutlined,
-  BellOutlined,
   UserOutlined,
   SettingOutlined,
   QuestionCircleOutlined,
   LogoutOutlined,
 } from "@ant-design/icons";
 import { Link, useNavigate } from "react-router-dom";
-import { useNotifications } from "@/context/NotificationsContext";
-import { formatDistanceToNow } from 'date-fns';
 import { useSession } from "@/context/SessionContext";
 import { supabase } from "@/integrations/supabase/client";
 import { showSuccess, showError } from "@/utils/toast";
@@ -27,7 +24,6 @@ interface PageHeaderProps {
 
 const PageHeader = ({ title, actions, onSearch, onSearchChange, hideSearch = false }: PageHeaderProps) => {
   const navigate = useNavigate();
-  const { notifications, unreadCount, markAllAsRead } = useNotifications();
   const { session } = useSession();
   const user = session?.user;
 
@@ -43,36 +39,12 @@ const PageHeader = ({ title, actions, onSearch, onSearchChange, hideSearch = fal
 
   const userMenu = (
     <Menu>
-      <Menu.Item key="1" icon={<UserOutlined />}>Profile</Menu.Item>
-      <Menu.Item key="2" icon={<SettingOutlined />}>Settings</Menu.Item>
+      <Menu.Item key="1" icon={<UserOutlined />} onClick={() => navigate('/settings?tab=profile-settings')}>Profile</Menu.Item>
+      <Menu.Item key="2" icon={<SettingOutlined />} onClick={() => navigate('/settings?tab=system-settings')}>Settings</Menu.Item>
       <Menu.Item key="3" icon={<QuestionCircleOutlined />}>Support</Menu.Item>
       <Menu.Divider />
       <Menu.Item key="4" icon={<LogoutOutlined />} onClick={handleLogout}>Logout</Menu.Item>
     </Menu>
-  );
-
-  const notificationMenu = (
-    <div style={{ width: 350, backgroundColor: '#fff', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', borderRadius: '4px' }}>
-      <div style={{ padding: '12px 16px', borderBottom: '1px solid #f0f0f0' }}>
-        <Text strong>Notifications</Text>
-      </div>
-      <List
-        itemLayout="horizontal"
-        dataSource={notifications}
-        locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No new notifications" /> }}
-        renderItem={item => (
-          <List.Item style={{ padding: '12px 16px', backgroundColor: item.is_read ? 'transparent' : '#e6f7ff' }}>
-            <Link to={`/work-orders/${item.work_order_number}`} style={{ color: 'inherit', textDecoration: 'none', width: '100%' }}>
-              <List.Item.Meta
-                title={<Text>{item.message}</Text>}
-                description={<Text type="secondary">{formatDistanceToNow(new Date(item.created_at), { addSuffix: true })}</Text>}
-              />
-            </Link>
-          </List.Item>
-        )}
-        style={{ maxHeight: 400, overflowY: 'auto' }}
-      />
-    </div>
   );
 
   return (
@@ -92,11 +64,6 @@ const PageHeader = ({ title, actions, onSearch, onSearchChange, hideSearch = fal
               allowClear
             />
           )}
-          <Dropdown overlay={notificationMenu} placement="bottomRight" trigger={['click']} onOpenChange={(open) => open && markAllAsRead()}>
-            <Badge count={unreadCount}>
-              <BellOutlined style={{ fontSize: '20px', cursor: 'pointer' }} />
-            </Badge>
-          </Dropdown>
           <Dropdown overlay={userMenu} placement="bottomRight">
             <Avatar style={{ cursor: 'pointer' }} src={user?.user_metadata?.avatar_url || undefined} icon={<UserOutlined />} />
           </Dropdown>

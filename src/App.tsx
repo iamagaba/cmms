@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate, useSearchParams } from "react-router-dom";
 import { Layout, App as AntApp, ConfigProvider, theme } from "antd";
 import { LoadScript } from "@react-google-maps/api";
 import Dashboard from "./pages/Dashboard";
@@ -16,15 +16,16 @@ import { NotificationsProvider } from "./context/NotificationsContext";
 import LocationDetailsPage from "./pages/LocationDetails";
 import Login from "./pages/Login";
 import { SessionProvider, useSession } from "./context/SessionContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AssetsPage from "./pages/Assets";
 import AssetDetailsPage from "./pages/AssetDetails";
 import InventoryPage from "./pages/Inventory";
 import CustomersPage from "./pages/Customers";
 import CustomerDetailsPage from "./pages/CustomerDetails";
 import { SystemSettingsProvider, useSystemSettings } from "./context/SystemSettingsContext";
-import CalendarPage from "./pages/Calendar"; // Import CalendarPage
-import MapViewPage from "./pages/MapView"; // Import MapViewPage
+import CalendarPage from "./pages/Calendar";
+import MapViewPage from "./pages/MapView";
+import NotificationsPage from "./pages/NotificationsPage";
 
 const { Content } = Layout;
 const queryClient = new QueryClient();
@@ -44,6 +45,13 @@ const AppContent = () => {
   const { session, isLoading } = useSession();
   const { settings } = useSystemSettings();
   const [collapsed, setCollapsed] = useState(false);
+
+  // Log a warning if Google Maps API key is missing
+  useEffect(() => {
+    if (!API_KEY) {
+      console.warn("Google Maps API Key (VITE_APP_GOOGLE_MAPS_API_KEY) is missing. Map and location search features may not work.");
+    }
+  }, []);
 
   if (isLoading) return null;
   if (session && location.pathname === "/login") return <Navigate to="/" replace />;
@@ -78,8 +86,9 @@ const AppContent = () => {
             <Route path="/customers/:id" element={<ProtectedRoute><CustomerDetailsPage /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-            <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} /> {/* Added Calendar Route */}
-            <Route path="/map-view" element={<ProtectedRoute><MapViewPage /></ProtectedRoute>} /> {/* Added MapView Route */}
+            <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
+            <Route path="/map-view" element={<ProtectedRoute><MapViewPage /></ProtectedRoute>} />
+            <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Content>
@@ -130,9 +139,13 @@ const App = () => (
           <SessionProvider>
             <SystemSettingsProvider>
               <NotificationsProvider>
-                <LoadScript googleMapsApiKey={API_KEY} libraries={libraries}>
-                  <AppContent />
-                </LoadScript>
+                {API_KEY ? ( // Conditionally render LoadScript if API_KEY exists
+                  <LoadScript googleMapsApiKey={API_KEY} libraries={libraries}>
+                    <AppContent />
+                  </LoadScript>
+                ) : (
+                  <AppContent /> // Render AppContent directly if API_KEY is missing
+                )}
               </NotificationsProvider>
             </SystemSettingsProvider>
           </SessionProvider>

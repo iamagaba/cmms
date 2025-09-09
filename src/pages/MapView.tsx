@@ -1,6 +1,6 @@
 import React from 'react';
 import { GoogleMap, MarkerF, InfoWindowF } from '@react-google-maps/api';
-import { Typography, Tag, List, Card, Avatar, Skeleton } from 'antd';
+import { Typography, Tag, List, Card, Avatar, Skeleton, Empty } from 'antd';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -23,6 +23,15 @@ const MapViewPage = () => {
 
   if (isLoadingLocations || isLoadingTechnicians || isLoadingWorkOrders) {
     return <Skeleton active />;
+  }
+
+  // Check if google.maps is available
+  if (typeof google === 'undefined' || !google.maps) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 112px)', alignItems: 'center', justifyContent: 'center' }}>
+        <Empty description="Google Maps is not available. Please check your API key." />
+      </div>
+    );
   }
 
   return (

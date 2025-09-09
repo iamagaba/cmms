@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { Avatar, Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typography, List, Skeleton, Select, DatePicker, Input, Popconfirm, Table, Tabs, theme } from "antd";
+import { Avatar, Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typography, List, Skeleton, Select, DatePicker, Input, Popconfirm, Table, Tabs, theme, Empty } from "antd";
 import { ArrowLeftOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined, CalendarOutlined, ToolOutlined, PlusOutlined, DeleteOutlined, InfoCircleOutlined, UnorderedListOutlined, CompassOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import NotFound from "./NotFound";
@@ -132,7 +132,14 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   if (!workOrder) return isDrawerMode ? <div style={{ padding: 24 }}><NotFound /></div> : <NotFound />;
 
   const hasClientLocation = workOrder.customerLat != null && workOrder.customerLng != null;
-  const getMapUrl = () => { if (!API_KEY) return ""; let markers = []; if (location) markers.push(`markers=color:blue%7Clabel:S%7C${location.lat},${location.lng}`); if (hasClientLocation) markers.push(`markers=color:orange%7Clabel:C%7C${workOrder.customerLat},${workOrder.customerLng}`); if (markers.length === 0) return ""; return `https://maps.googleapis.com/maps/api/staticmap?size=600x300&maptype=roadmap&${markers.join('&')}&key=${API_KEY}`; };
+  const getMapUrl = () => {
+    if (!API_KEY) return "";
+    let markers = [];
+    if (location) markers.push(`markers=color:blue%7Clabel:S%7C${location.lat},${location.lng}`);
+    if (hasClientLocation) markers.push(`markers=color:orange%7Clabel:C%7C${workOrder.customerLat},${workOrder.customerLng}`);
+    if (markers.length === 0) return "";
+    return `https://maps.googleapis.com/maps/api/staticmap?size=600x300&maptype=roadmap&${markers.join('&')}&key=${API_KEY}`;
+  };
   const mapUrl = getMapUrl();
 
   const partsColumns = [
@@ -207,7 +214,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
 
   const partsCard = (
     <Card title="Parts & Materials" extra={<Button icon={<PlusOutlined />} onClick={() => setIsAddPartDialogOpen(true)}>Add Part</Button>}>
-      <Table columns={partsColumns} dataSource={usedParts} rowKey="id" pagination={false} size="small" summary={() => <Table.Summary.Row><Table.Summary.Cell index={0} colSpan={3}><Text strong>Total Parts Cost</Text></Table.Summary.Cell><Table.Summary.Cell index={1}><Text strong>UGX {partsTotal.toLocaleString('en-US')}</Text></Table.Summary.Cell></Table.Summary.Row>} />
+      <Table columns={partsColumns} dataSource={usedParts} rowKey="id" pagination={false} size="small" summary={() => <Table.Summary.Row><Table.Summary.Cell index={0} colSpan={3}><Text strong>Total Parts Cost</Text></Table.Summary.Cell><Table.Summary.Cell index={1}><Text strong>UGX {(partsTotal || 0).toLocaleString('en-US')}</Text></Table.Summary.Cell></Table.Summary.Row>} />
     </Card>
   );
 
@@ -222,7 +229,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
         <Descriptions.Item label="Client Location"><GoogleLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder.customerAddress || ''} /></Descriptions.Item>
       </Descriptions>
       <div style={{ marginTop: 16, borderRadius: token.borderRadius, overflow: 'hidden' }}>
-        {API_KEY ? (mapUrl ? <img src={mapUrl} alt="Map of service and client locations" style={{ width: '100%', height: 'auto', display: 'block' }} /> : <div style={{padding: '24px', textAlign: 'center'}}><Text type="secondary">No location data to display.</Text></div>) : <div style={{padding: '24px', textAlign: 'center'}}><Text type="secondary">Google Maps API Key not configured.</Text></div>}
+        {API_KEY ? (mapUrl ? <img src={mapUrl} alt="Map of service and client locations" style={{ width: '100%', height: 'auto', display: 'block' }} /> : <div style={{padding: '24px', textAlign: 'center'}}><Empty description="No location data to display." /></div>) : <div style={{padding: '24px', textAlign: 'center'}}><Empty description="Google Maps API Key not configured." /></div>}
       </div>
     </Card>
   );

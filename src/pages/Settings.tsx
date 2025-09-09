@@ -11,6 +11,7 @@ import { useSession } from '@/context/SessionContext';
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import { useSystemSettings } from '@/context/SystemSettingsContext';
 import PageHeader from '@/components/PageHeader';
+import { useSearchParams } from 'react-router-dom';
 
 const { Title } = Typography;
 const { Option } = Select;
@@ -230,15 +231,22 @@ const ProfileSettings = () => {
 };
 
 const SettingsPage = () => {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const activeTab = searchParams.get('tab') || 'user-management'; // Default to 'user-management'
+
+  const handleTabChange = (key: string) => {
+    setSearchParams({ tab: key });
+  };
+
   const tabItems = [
-    { label: <span><UserOutlined />User Management</span>, key: '1', children: <UserManagement /> },
-    { label: <span><SettingOutlined />System Settings</span>, key: '2', children: <SystemSettings /> },
-    { label: <span><BellOutlined />My Profile</span>, key: '3', children: <ProfileSettings /> },
+    { label: <span><UserOutlined />User Management</span>, key: 'user-management', children: <UserManagement /> },
+    { label: <span><SettingOutlined />System Settings</span>, key: 'system-settings', children: <SystemSettings /> },
+    { label: <span><BellOutlined />My Profile</span>, key: 'profile-settings', children: <ProfileSettings /> },
   ];
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
       <PageHeader title="Settings" hideSearch />
-      <Tabs defaultActiveKey="1" items={tabItems} />
+      <Tabs activeKey={activeTab} onChange={handleTabChange} items={tabItems} />
     </Space>
   );
 };

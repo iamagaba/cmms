@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { Avatar, Button, Card, Col, Row, Space, Typography, List, Skeleton } from "antd";
+import { Avatar, Button, Card, Col, Row, Space, Typography, List, Skeleton, Empty } from "antd";
 import { ArrowLeftOutlined, EnvironmentOutlined } from "@ant-design/icons";
 import { GoogleMap, MarkerF } from "@react-google-maps/api";
 import { WorkOrderDataTable } from "@/components/WorkOrderDataTable";
@@ -9,11 +9,11 @@ import { showSuccess, showInfo, showError } from "@/utils/toast";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Location, WorkOrder, Technician, Customer, Vehicle, Profile } from "@/types/supabase"; // Import Profile
-import { camelToSnakeCase } from "@/utils/data-helpers"; // Import the utility
+import { Location, WorkOrder, Technician, Customer, Vehicle, Profile } from "@/types/supabase";
+import { camelToSnakeCase } from "@/utils/data-helpers";
 import PageHeader from "@/components/PageHeader";
 import dayjs from "dayjs";
-import { getColumns } from "@/components/WorkOrderTableColumns"; // Import getColumns
+import { getColumns } from "@/components/WorkOrderTableColumns";
 
 const { Title, Text } = Typography;
 
@@ -25,6 +25,8 @@ const LocationDetailsPage = () => {
   const queryClient = useQueryClient();
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
 
+  const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || ""; // Re-declare API_KEY here for local use
+
   const { data: location, isLoading: isLoadingLocation } = useQuery<Location | null>({ queryKey: ['location', id], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*').eq('id', id).single(); if (error) throw new Error(error.message); return data; }, enabled: !!id });
   const { data: allWorkOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ queryKey: ['work_orders'], queryFn: async () => { const { data, error } = await supabase.from('work_orders').select('*').order('created_at', { ascending: false }); if (error) throw new Error(error.message); return data || []; } });
   const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return data || []; } });
@@ -33,7 +35,7 @@ const LocationDetailsPage = () => {
   const { data: profiles, isLoading: isLoadingProfiles } = useQuery<Profile[]>({
     queryKey: ['profiles'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('profiles').select('*'); // Select all fields for Profile type
+      const { data, error } = await supabase.from('profiles').select('*');
       if (error) throw new Error(error.message);
       return data || [];
     }
@@ -53,13 +55,13 @@ const LocationDetailsPage = () => {
     if (!workOrder) return;
     if (updates.status === 'On Hold') { setOnHoldWorkOrder(workOrder); return; }
     if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready') { updates.status = 'In Progress'; showInfo(`Work Order ${id} automatically moved to In Progress.`); }
-    workOrderMutation.mutate(camelToSnakeCase({ id, ...updates })); // Apply camelToSnakeCase here
+    workOrderMutation.mutate(camelToSnakeCase({ id, ...updates }));
   };
 
   const handleSaveOnHoldReason = (reason: string) => {
     if (!onHoldWorkOrder) return;
     const updates = { status: 'On Hold' as const, onHoldReason: reason };
-    workOrderMutation.mutate(camelToSnakeCase({ id: onHoldWorkOrder.id, ...updates })); // Apply camelToSnakeCase here
+    workOrderMutation.mutate(camelToSnakeCase({ id: onHoldWorkOrder.id, ...updates }));
     setOnHoldWorkOrder(null);
   };
 
@@ -103,11 +105,15 @@ const LocationDetailsPage = () => {
           </Col>
           <Col xs={24} lg={16}>
             <Card title="Location Map" bodyStyle={{ padding: 0 }}>
-              {location.lat && location.lng && (
+              {API_KEY && location.lat && location.lng ? (
                 <GoogleMap mapContainerStyle={containerStyle} center={{ lat: location.lat, lng: location.lng }} zoom={14}>
                   <MarkerF position={{ lat: location.lat, lng: location.lng }} />
                   {locationTechnicians.map(tech => tech.lat && tech.lng && <MarkerF key={tech.id} position={{ lat: tech.lat, lng: tech.lng }} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 5, fillColor: 'blue', fillOpacity: 1, strokeWeight: 0 }} />)}
                 </GoogleMap>
+              ) : (
+                <div style={{padding: '24px', textAlign: 'center'}}>
+                  <Empty description={API_KEY ? "No location data to display." : "Google Maps API Key not configured."} />
+                </div>
               )}
             </Card>
           </Col>
@@ -125,7 +131,7 @@ const LocationDetailsPage = () => {
             onUpdateWorkOrder={handleUpdateWorkOrder} 
             onViewDetails={handleViewDetails} 
             profiles={profiles || []}
-            visibleColumns={defaultColumnKeys} // Added visibleColumns prop
+            visibleColumns={defaultColumnKeys}
           />
         </Card>
       </Space>

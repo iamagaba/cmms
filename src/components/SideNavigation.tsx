@@ -26,10 +26,8 @@ interface SideNavigationProps {
   logoUrl: string | null;
 }
 
-// Ant Design's MenuItem type already includes DividerType
 type MenuItem = Required<MenuProps>['items'][number];
 
-// Helper function to create a MenuItem
 function getItem(
   label: React.ReactNode,
   key: React.Key,
@@ -45,17 +43,16 @@ function getItem(
 const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps) => {
   const location = useLocation();
 
-  // The type is now simply MenuItem[] because MenuItem already accounts for { type: 'divider' }
   const mainMenuItems: MenuItem[] = [
     getItem(<NavLink to="/">Dashboard</NavLink>, "/", <DashboardOutlined />),
     getItem(<NavLink to="/work-orders">Work Orders</NavLink>, "/work-orders", <ToolOutlined />),
-    { type: 'divider' },
+    { type: 'divider', key: 'main-divider-1' },
     getItem(<NavLink to="/customers">Customers</NavLink>, "/customers", <ContactsOutlined />),
     getItem(<NavLink to="/assets">Assets</NavLink>, "/assets", <CarOutlined />),
     getItem(<NavLink to="/technicians">Technicians</NavLink>, "/technicians", <UsergroupAddOutlined />),
     getItem(<NavLink to="/locations">Locations</NavLink>, "/locations", <EnvironmentOutlined />),
     getItem(<NavLink to="/inventory">Inventory</NavLink>, "/inventory", <ShoppingOutlined />),
-    { type: 'divider' },
+    { type: 'divider', key: 'main-divider-2' },
     getItem(<NavLink to="/analytics">Analytics</NavLink>, "/analytics", <BarChartOutlined />),
   ];
 
@@ -65,7 +62,6 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
     getItem(<NavLink to="/settings?tab=system-settings">Settings</NavLink>, "/settings?tab=system-settings", <SettingOutlined />),
   ];
 
-  // Determine selected key for menu items, handling query params for settings
   const getSelectedKey = (pathname: string, search: string) => {
     if (pathname === '/settings') {
       const params = new URLSearchParams(search);
@@ -74,7 +70,6 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
       if (tab === 'system-settings') return '/settings?tab=system-settings';
       if (tab === 'user-management') return '/settings?tab=user-management';
     }
-    // Match detail pages to their parent menu item
     if (pathname.startsWith('/work-orders/')) return '/work-orders';
     if (pathname.startsWith('/customers/')) return '/customers';
     if (pathname.startsWith('/assets/')) return '/assets';
@@ -124,7 +119,8 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
         style={{ borderRight: 0, flexGrow: 1, overflowY: 'auto' }}
         items={mainMenuItems}
       />
-      <Menu.Divider style={{ margin: '0 0 8px 0' }} />
+      {/* The standalone Menu.Divider here is fine as it's not part of an 'items' array */}
+      <Menu.Divider style={{ margin: '0 0 8px 0' }} /> 
       <Menu
         mode="inline"
         selectedKeys={[selectedKey]}

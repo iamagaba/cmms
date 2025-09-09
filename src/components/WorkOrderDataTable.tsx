@@ -124,6 +124,7 @@ export function WorkOrderDataTable({
           cell: ResizableTitle,
         },
       }}
+      scroll={{ x: 'max-content' }} // Enable horizontal scrolling
     />
   );
 }

@@ -5,7 +5,7 @@ import NotFound from "./NotFound";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query"; // Import useMutation
 import { supabase } from "@/integrations/supabase/client";
 import { Vehicle, Customer, WorkOrder, Technician, Location, Profile } from "@/types/supabase"; // Import Profile
-import { WorkOrderDataTable } from "@/components/WorkOrderDataTable";
+import { WorkOrderDataTable, ALL_COLUMNS } from "@/components/WorkOrderDataTable"; // Import ALL_COLUMNS
 import { formatDistanceToNow } from 'date-fns';
 import dayjs from 'dayjs';
 import PageHeader from "@/components/PageHeader";
@@ -148,13 +148,14 @@ const AssetDetailsPage = () => {
 
   const handleProceedFromCreateDialog = (selectedVehicle: VehicleWithCustomer) => {
     setIsCreateDialogOpen(false);
-    setPrefillData({
+    const prefill = {
       vehicleId: selectedVehicle.id,
       customerId: selectedVehicle.customer_id,
       customerName: selectedVehicle.customers?.name,
       customerPhone: selectedVehicle.customers?.phone,
       vehicleModel: `${selectedVehicle.make} ${selectedVehicle.model}`,
-    });
+    };
+    setPrefillData(prefill);
     setIsFormDrawerOpen(true);
   };
 
@@ -164,7 +165,7 @@ const AssetDetailsPage = () => {
     setPrefillData(null);
   };
 
-  const defaultVisibleColumns = ['workOrderNumber', 'licensePlate', 'service', 'status', 'priority', 'technician', 'slaStatus', 'createdAt', 'createdBy', 'actions'];
+  const defaultVisibleColumns = ALL_COLUMNS.map(c => c.value); // Use ALL_COLUMNS for default visibility
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
@@ -225,6 +226,7 @@ const AssetDetailsPage = () => {
                         onViewDetails={(id) => navigate(`/work-orders/${id}`)}
                         profiles={profiles || []}
                         visibleColumns={defaultVisibleColumns}
+                        onVisibleColumnsChange={() => {}} // Added missing prop
                     />
                 </Card>
             </Col>

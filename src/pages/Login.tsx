@@ -28,12 +28,12 @@ export default function Login() {
   };
 
   const Logo = () => (
-    <div className="mb-4">
-      <div className="h-16 w-16 rounded-full bg-gray-200 flex items-center justify-center mx-auto">
+    <div className="mb-6">
+      <div className="h-20 w-20 rounded-full bg-gray-200 flex items-center justify-center mx-auto">
         {isLoadingSettings ? <Spin /> : logoUrl ? (
-          <img src={logoUrl} alt="System Logo" className="h-16 w-16 rounded-full object-cover" />
+          <img src={logoUrl} alt="System Logo" className="h-20 w-20 rounded-full object-cover" />
         ) : (
-          <span className="text-xs text-gray-500">Logo</span>
+          <span className="text-sm text-gray-500">Logo</span>
         )}
       </div>
     </div>
@@ -44,56 +44,56 @@ export default function Login() {
       <Logo />
 
       {/* Title */}
-      <h1 className="mb-1 text-2xl font-bold text-gray-800">GOGO Electric</h1>
-      <p className="mb-6 text-sm text-gray-500">GOGO Maintenance Management Platform</p>
+      <h1 className="mb-2 text-3xl font-bold text-gray-800">GOGO Electric</h1>
+      <p className="mb-8 text-base text-gray-500">GOGO Maintenance Management Platform</p>
 
       {/* Login Box */}
-      <div className="w-full max-w-md rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <form className="space-y-5" onSubmit={handleLogin}>
+      <div className="w-full max-w-md rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
+        <form className="space-y-6" onSubmit={handleLogin}>
           {/* Email */}
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">
+            <label className="mb-2 block text-base font-medium text-gray-700">
               Email address
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Mail className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <input
                 type="email"
                 placeholder="Your email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full rounded border border-gray-300 pl-10 pr-3 py-2 text-sm focus:border-purple-600 focus:outline-none focus:ring-1 focus:ring-purple-600"
+                className="w-full rounded-md border border-gray-300 pl-12 pr-4 py-3 text-base focus:border-purple-600 focus:outline-none focus:ring-1 focus:ring-purple-600"
               />
             </div>
           </div>
 
           {/* Password */}
           <div>
-            <div className="flex items-center justify-between">
-              <label className="mb-1 block text-sm font-medium text-gray-700">
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-base font-medium text-gray-700">
                 Password
               </label>
-              <a href="#" className="text-sm text-purple-600 hover:underline">
+              <a href="#" className="text-base text-purple-600 hover:underline">
                 Forgot password?
               </a>
             </div>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+              <Lock className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full rounded border border-gray-300 pl-10 pr-10 py-2 text-sm focus:border-purple-600 focus:outline-none focus:ring-1 focus:ring-purple-600"
+                className="w-full rounded-md border border-gray-300 pl-12 pr-12 py-3 text-base focus:border-purple-600 focus:outline-none focus:ring-1 focus:ring-purple-600"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
               >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
           </div>
@@ -102,15 +102,15 @@ export default function Login() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded bg-purple-700 px-3 py-2 text-sm font-medium text-white hover:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-purple-400 flex items-center justify-center"
+            className="w-full rounded-md bg-purple-700 px-4 py-3 text-base font-semibold text-white hover:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-purple-400 flex items-center justify-center"
           >
-            {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {loading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
             Sign in
           </button>
         </form>
 
         {/* Sign up */}
-        <div className="mt-4 text-center text-sm">
+        <div className="mt-6 text-center text-base">
           <span className="text-gray-600">Don't have an account?</span>{" "}
           <a href="#" className="text-purple-600 hover:underline">
             Sign up
@@ -119,17 +119,17 @@ export default function Login() {
       </div>
 
       {/* Footer */}
-      <footer className="mt-6 text-xs text-gray-500">
-        <a href="#" className="px-2 hover:underline">
+      <footer className="mt-8 text-sm text-gray-500">
+        <a href="#" className="px-3 hover:underline">
           Terms
         </a>
-        <a href="#" className="px-2 hover:underline">
+        <a href="#" className="px-3 hover:underline">
           Privacy
         </a>
-        <a href="#" className="px-2 hover:underline">
+        <a href="#" className="px-3 hover:underline">
           Security
         </a>
-        <a href="#" className="px-2 hover:underline">
+        <a href="#" className="px-3 hover:underline">
           Contact
         </a>
       </footer>

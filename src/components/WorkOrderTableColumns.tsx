@@ -4,6 +4,7 @@ import { WorkOrder, Technician, Location, Customer, Vehicle, Profile } from "@/t
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime';
 import SlaCountdown from "./SlaCountdown";
+import { ResizableTitle } from "./ResizableTitle"; // Import ResizableTitle
 
 dayjs.extend(relativeTime);
 
@@ -21,13 +22,27 @@ export type WorkOrderRow = WorkOrder & {
 
 const priorityOrder: Record<string, number> = { 'High': 1, 'Medium': 2, 'Low': 3 };
 
-export const getColumns = (
-  onEdit: (record: WorkOrderRow) => void,
-  onDelete: (record: WorkOrderRow) => void,
-  onUpdateWorkOrder: (id: string, updates: Partial<WorkOrder>) => void,
-  allTechnicians: Technician[],
-  allProfiles: Profile[] // Added allProfiles
-) => {
+interface GetColumnsProps {
+  onEdit: (record: WorkOrderRow) => void;
+  onDelete: (record: WorkOrderRow) => void;
+  onUpdateWorkOrder: (id: string, updates: Partial<WorkOrder>) => void;
+  allTechnicians: Technician[];
+  allProfiles: Profile[];
+  columnWidths: Record<string, number>;
+  onColumnResize: (key: string, width: number) => void;
+  visibleColumns: string[];
+}
+
+export const getColumns = ({
+  onEdit,
+  onDelete,
+  onUpdateWorkOrder,
+  allTechnicians,
+  allProfiles,
+  columnWidths,
+  onColumnResize,
+  visibleColumns,
+}: GetColumnsProps) => {
   const { token } = useToken();
   const priorityColors: Record<string, string> = { High: token.colorError, Medium: token.colorWarning, Low: token.colorSuccess };
   const statusColors: Record<string, string> = { 
@@ -39,14 +54,18 @@ export const getColumns = (
     Completed: token.colorSuccess
   };
 
-  return [
+  const defaultColumns = [
     {
+      key: "workOrderNumber",
       title: "ID",
       dataIndex: "workOrderNumber",
-      render: (text: string, record: WorkOrderRow) => <Text code>{text || record.id.substring(0, 6)}</Text>
+      render: (text: string, record: WorkOrderRow) => <Text code>{text || record.id.substring(0, 6)}</Text>,
+      width: 100,
+      sorter: (a: WorkOrderRow, b: WorkOrderRow) => (a.workOrderNumber || "").localeCompare(b.workOrderNumber || ""),
     },
     {
-      title: "License Plate", // Renamed column
+      key: "licensePlate",
+      title: "License Plate",
       dataIndex: "vehicle",
       render: (_: any, record: WorkOrderRow) => (
         <div>
@@ -55,13 +74,18 @@ export const getColumns = (
             {record.vehicle ? `${record.vehicle.make} ${record.vehicle.model}` : 'N/A'}
           </Text>
         </div>
-      )
+      ),
+      width: 180,
     },
     {
+      key: "service",
       title: "Service",
       dataIndex: "service",
+      width: 250,
+      sorter: (a: WorkOrderRow, b: WorkOrderRow) => (a.service || "").localeCompare(b.service || ""),
     },
     {
+      key: "status",
       title: "Status",
       dataIndex: "status",
       render: (status: WorkOrder['status'], record: WorkOrderRow) => (
@@ -74,9 +98,11 @@ export const getColumns = (
           <Option value="Completed"><Tag color={statusColors["Completed"]}>Completed</Tag></Option>
         </Select>
       ),
+      width: 180,
       sorter: (a: WorkOrderRow, b: WorkOrderRow) => (a.status || "").localeCompare(b.status || ""),
     },
     {
+      key: "priority",
       title: "Priority",
       dataIndex: "priority",
       render: (priority: WorkOrder['priority'], record: WorkOrderRow) => (
@@ -86,9 +112,11 @@ export const getColumns = (
           <Option value="Low"><Tag color={priorityColors["Low"]}>Low</Tag></Option>
         </Select>
       ),
+      width: 120,
       sorter: (a: WorkOrderRow, b: WorkOrderRow) => priorityOrder[a.priority || 'Low'] - priorityOrder[b.priority || 'Low'],
     },
     {
+      key: "technician",
       title: "Technician",
       dataIndex: "technician",
       render: (_: any, record: WorkOrderRow) => (
@@ -102,27 +130,34 @@ export const getColumns = (
             </Option>
           ))}
         </Select>
-      )
+      ),
+      width: 180,
     },
     {
+      key: "slaStatus",
       title: "SLA Status",
       dataIndex: "slaDue",
       render: (_: any, record: WorkOrderRow) => <SlaCountdown slaDue={record.slaDue} status={record.status} completedAt={record.completedAt} />,
+      width: 180,
       sorter: (a: WorkOrderRow, b: WorkOrderRow) => dayjs(a.slaDue).unix() - dayjs(b.slaDue).unix(),
     },
     {
-      title: "Created At", // New column
+      key: "createdAt",
+      title: "Created At",
       dataIndex: "createdAt",
       render: (date: string) => dayjs(date).format("MMM D, YYYY HH:mm"),
+      width: 180,
       sorter: (a: WorkOrderRow, b: WorkOrderRow) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
     },
     {
-      title: "Created By", // New column
+      key: "createdBy",
+      title: "Created By",
       dataIndex: "createdByProfile",
       render: (_: any, record: WorkOrderRow) => {
         const profile = allProfiles.find(p => p.id === record.created_by);
         return profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : 'N/A';
       },
+      width: 150,
       sorter: (a: WorkOrderRow, b: WorkOrderRow) => {
         const nameA = allProfiles.find(p => p.id === a.created_by)?.first_name || '';
         const nameB = allProfiles.find(p => p.id === b.created_by)?.first_name || '';
@@ -130,14 +165,28 @@ export const getColumns = (
       },
     },
     {
-      title: "Actions",
       key: "actions",
+      title: "Actions",
       align: "right" as const,
       render: (_: any, record: WorkOrderRow) => (
         <Dropdown overlay={<Menu><Menu.Item key="edit" icon={<EditOutlined />} onClick={(e) => { e.domEvent.stopPropagation(); onEdit(record); }}>Edit Work Order</Menu.Item><Menu.Item key="delete" icon={<DeleteOutlined />} danger onClick={(e) => { e.domEvent.stopPropagation(); onDelete(record); }}>Delete Work Order</Menu.Item></Menu>} trigger={["click"]}>
           <Button type="text" icon={<MoreOutlined style={{ fontSize: '18px' }} />} onClick={(e) => e.stopPropagation()} />
         </Dropdown>
       ),
+      width: 80,
     },
   ];
-}
+
+  const filteredColumns = defaultColumns.filter(column => visibleColumns.includes(column.key));
+
+  return filteredColumns.map(col => ({
+    ...col,
+    width: columnWidths[col.key] || col.width,
+    onHeaderCell: (column: any) => ({
+      width: column.width,
+      onResize: (e: any, { size }: { size: { width: number } }) => {
+        onColumnResize(column.key, size.width);
+      },
+    }),
+  }));
+};

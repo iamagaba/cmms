@@ -71,6 +71,7 @@
     "react-dom": "latest",
     "react-hook-form": "^7.62.0",
     "react-leaflet": "latest",
+    "react-resizable": "^3.0.5",
     "react-resizable-panels": "^3.0.5",
     "react-router-dom": "latest",
     "recharts": "latest",

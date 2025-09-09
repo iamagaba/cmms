@@ -60,13 +60,7 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
         borderRight: '1px solid #f0f0f0'
       }}
     >
-      <div style={{
-        height: '64px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '0 16px',
-      }}>
+      <div className="sider-logo-area"> {/* Added class for styling */}
         <NavLink to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', gap: '12px', overflow: 'hidden' }}>
           {logoUrl ? (
             <img src={logoUrl} alt="System Logo" style={{ height: '32px', transition: 'all 0.2s' }} />
@@ -80,7 +74,7 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
           )}
         </NavLink>
       </div>
-      <Menu theme="light" mode="inline" selectedKeys={[location.pathname]} style={{ borderRight: 0 }}>
+      <Menu mode="inline" selectedKeys={[location.pathname]} style={{ borderRight: 0 }}> {/* Removed theme="light" */}
         {navGroups.map((group, index) => (
           <React.Fragment key={index}>
             {index > 0 && <Menu.Divider />}

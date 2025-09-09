@@ -23,6 +23,8 @@ import InventoryPage from "./pages/Inventory";
 import CustomersPage from "./pages/Customers";
 import CustomerDetailsPage from "./pages/CustomerDetails";
 import { SystemSettingsProvider, useSystemSettings } from "./context/SystemSettingsContext";
+import CalendarPage from "./pages/Calendar"; // Import CalendarPage
+import MapViewPage from "./pages/MapView"; // Import MapViewPage
 
 const { Content } = Layout;
 const queryClient = new QueryClient();
@@ -76,6 +78,8 @@ const AppContent = () => {
             <Route path="/customers/:id" element={<ProtectedRoute><CustomerDetailsPage /></ProtectedRoute>} />
             <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+            <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} /> {/* Added Calendar Route */}
+            <Route path="/map-view" element={<ProtectedRoute><MapViewPage /></ProtectedRoute>} /> {/* Added MapView Route */}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Content>
@@ -109,7 +113,15 @@ const App = () => (
           Card: { padding: 16 },
           Form: { itemMarginBottom: 16 },
           Layout: { headerBg: '#ffffff', headerPadding: '0 24px', headerHeight: 64, siderBg: '#ffffff' },
-          Menu: { itemBg: '#ffffff' }
+          Menu: { 
+            itemBg: '#ffffff',
+            itemSelectedBg: '#E8D9F7', // Lighter purple for selected background
+            itemSelectedColor: '#6A0DAD', // Primary color for selected text/icon
+            itemHoverBg: '#f0f0f0', // Subtle hover background
+            itemHoverColor: '#6A0DAD', // Primary color for hover text/icon
+            itemBorderRadius: 6, // Match general border radius
+            subMenuItemBg: '#ffffff', // For submenus if any
+          }
         }
       }}
     >

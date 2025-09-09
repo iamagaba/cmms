@@ -87,3 +87,67 @@ body {
   height: auto !important; /* Allow content to dictate height */
   min-height: unset !important; /* Remove minimum height */
 }
+
+/* --- Side Navigation Enhancements --- */
+
+/* Custom styles for Ant Design Sider trigger */
+.ant-layout-sider-trigger {
+  background-color: #f0f0f0 !important; /* Light background for the trigger */
+  color: var(--ant-color-text-secondary) !important; /* Icon color */
+  border-top: 1px solid var(--ant-color-border-secondary); /* Separator from menu content */
+  height: 48px !important; /* Consistent height */
+  line-height: 48px !important; /* Center icon vertically */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.ant-layout-sider-trigger:hover {
+  background-color: var(--ant-color-fill-alter) !important; /* Slightly darker on hover */
+  color: var(--ant-color-primary) !important; /* Primary color on hover */
+}
+
+/* Ensure NavLink inside Menu.Item takes full width and has smooth transitions */
+.ant-menu-item .ant-menu-title-content {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.ant-menu-item .ant-menu-title-content a {
+  display: flex;
+  align-items: center;
+  padding: 0 16px; /* Apply padding directly to NavLink */
+  height: 100%;
+  width: 100%;
+  color: inherit; /* Inherit color from parent Menu.Item */
+  transition: color 0.2s ease;
+}
+
+/* Adjust icon color for non-selected items */
+.ant-menu-item .anticon {
+  transition: color 0.2s ease;
+}
+
+.ant-menu-item:not(.ant-menu-item-selected) .anticon {
+  color: var(--ant-color-text-secondary); /* Default icon color */
+}
+
+.ant-menu-item:hover .anticon {
+  color: var(--ant-color-primary) !important; /* Primary color on hover */
+}
+
+/* Adjust logo area for better alignment */
+.sider-logo-area {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--ant-color-border-secondary); /* Add a subtle separator */
+}
+
+/* Ensure menu item text is not cut off when collapsed */
+.ant-menu-inline-collapsed .ant-menu-item .ant-menu-title-content {
+  max-width: 0;
+  display: none; /* Hide text completely when collapsed */
+}

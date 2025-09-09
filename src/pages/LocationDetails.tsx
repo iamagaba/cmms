@@ -25,7 +25,7 @@ const LocationDetailsPage = () => {
   const queryClient = useQueryClient();
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
 
-  const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || ""; // Re-declare API_KEY here for local use
+  const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "";
 
   const { data: location, isLoading: isLoadingLocation } = useQuery<Location | null>({ queryKey: ['location', id], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*').eq('id', id).single(); if (error) throw new Error(error.message); return data; }, enabled: !!id });
   const { data: allWorkOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ queryKey: ['work_orders'], queryFn: async () => { const { data, error } = await supabase.from('work_orders').select('*').order('created_at', { ascending: false }); if (error) throw new Error(error.message); return data || []; } });
@@ -76,6 +76,7 @@ const LocationDetailsPage = () => {
   }).map(col => col.key), []);
 
   const isLoading = isLoadingLocation || isLoadingWorkOrders || isLoadingTechnicians || isLoadingCustomers || isLoadingVehicles || isLoadingProfiles;
+  const isGoogleMapsLoaded = API_KEY && typeof google !== 'undefined' && google.maps;
 
   if (isLoading) return <Skeleton active />;
   if (!location) return <NotFound />;
@@ -105,7 +106,7 @@ const LocationDetailsPage = () => {
           </Col>
           <Col xs={24} lg={16}>
             <Card title="Location Map" bodyStyle={{ padding: 0 }}>
-              {API_KEY && location.lat && location.lng ? (
+              {isGoogleMapsLoaded && location.lat && location.lng ? (
                 <GoogleMap mapContainerStyle={containerStyle} center={{ lat: location.lat, lng: location.lng }} zoom={14}>
                   <MarkerF position={{ lat: location.lat, lng: location.lng }} />
                   {locationTechnicians.map(tech => tech.lat && tech.lng && <MarkerF key={tech.id} position={{ lat: tech.lat, lng: tech.lng }} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 5, fillColor: 'blue', fillOpacity: 1, strokeWeight: 0 }} />)}

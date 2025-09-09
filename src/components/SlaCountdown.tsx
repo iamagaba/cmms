@@ -54,9 +54,13 @@ const SlaCountdown = ({ slaDue, status, completedAt }: SlaCountdownProps) => {
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
 
-    if (days > 1) return `${days} days ${hours}h`;
-    if (days === 1) return `${days} day ${hours}h`;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    const pad = (num: number) => num.toString().padStart(2, '0');
+
+    if (days > 0) {
+      return `${days}d ${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
+    } else {
+      return `${pad(hours)}h ${pad(minutes)}m ${pad(seconds)}s`;
+    }
   };
 
   const formattedTime = formatDuration(diff);

@@ -89,6 +89,7 @@ export interface WorkOrder {
   customerName?: string | null;
   customerPhone?: string | null;
   vehicleModel?: string | null;
+  created_by?: string | null; // Added created_by field
 }
 
 export interface InventoryItem {

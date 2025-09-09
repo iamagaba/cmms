@@ -71,7 +71,56 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     onError: (error) => showError(error.message),
   });
 
-  const handleUpdateWorkOrder = (updates: Partial<WorkOrder>) => { if (!workOrder) return; if (updates.status === 'On Hold') { setOnHoldWorkOrder(workOrder); return; } if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready') { updates.status = 'In Progress'; showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`); } workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates })); };
+  const handleUpdateWorkOrder = (updates: Partial<WorkOrder>) => { 
+    if (!workOrder) return; 
+
+    const oldWorkOrder = { ...workOrder };
+    const newActivityLog = [...(workOrder.activityLog || [])];
+    let activityMessage = '';
+
+    if (updates.status && updates.status !== oldWorkOrder.status) {
+      activityMessage = `Status changed from '${oldWorkOrder.status || 'N/A'}' to '${updates.status}'.`;
+    } else if (updates.assignedTechnicianId && updates.assignedTechnicianId !== oldWorkOrder.assignedTechnicianId) {
+      const oldTech = allTechnicians?.find(t => t.id === oldWorkOrder.assignedTechnicianId)?.name || 'Unassigned';
+      const newTech = allTechnicians?.find(t => t.id === updates.assignedTechnicianId)?.name || 'Unassigned';
+      activityMessage = `Assigned technician changed from '${oldTech}' to '${newTech}'.`;
+    } else if (updates.slaDue && updates.slaDue !== oldWorkOrder.slaDue) {
+      activityMessage = `SLA due date updated to '${dayjs(updates.slaDue).format('MMM D, YYYY h:mm A')}'.`;
+    } else if (updates.appointmentDate && updates.appointmentDate !== oldWorkOrder.appointmentDate) {
+      activityMessage = `Appointment date updated to '${dayjs(updates.appointmentDate).format('MMM D, YYYY h:mm A')}'.`;
+    } else if (updates.service && updates.service !== oldWorkOrder.service) {
+      activityMessage = `Service description updated.`;
+    } else if (updates.serviceNotes && updates.serviceNotes !== oldWorkOrder.serviceNotes) {
+      activityMessage = `Service notes updated.`;
+    } else if (updates.priority && updates.priority !== oldWorkOrder.priority) {
+      activityMessage = `Priority changed from '${oldWorkOrder.priority || 'N/A'}' to '${updates.priority}'.`;
+    } else if (updates.locationId && updates.locationId !== oldWorkOrder.locationId) {
+      const oldLoc = allLocations?.find(l => l.id === oldWorkOrder.locationId)?.name || 'N/A';
+      const newLoc = allLocations?.find(l => l.id === updates.locationId)?.name || 'N/A';
+      activityMessage = `Service location changed from '${oldLoc}' to '${newLoc}'.`;
+    } else if (updates.customerAddress && updates.customerAddress !== oldWorkOrder.customerAddress) {
+      activityMessage = `Client address updated to '${updates.customerAddress}'.`;
+    } else if (updates.customerLat !== oldWorkOrder.customerLat || updates.customerLng !== oldWorkOrder.customerLng) {
+      activityMessage = `Client coordinates updated.`;
+    } else {
+      activityMessage = 'Work order details updated.'; // Generic message for other changes
+    }
+
+    if (activityMessage) {
+      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage });
+      updates.activityLog = newActivityLog;
+    }
+
+    if (updates.status === 'On Hold') { 
+      setOnHoldWorkOrder(workOrder); 
+      return; 
+    } 
+    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready') { 
+      updates.status = 'In Progress'; 
+      showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`); 
+    } 
+    workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates })); 
+  };
   const handleSaveOnHoldReason = (reason: string) => { if (!onHoldWorkOrder) return; const updates = { status: 'On Hold' as const, onHoldReason: reason }; workOrderMutation.mutate(camelToSnakeCase({ id: onHoldWorkOrder.id, ...updates })); setOnHoldWorkOrder(null); };
   const handleLocationSelect = (selectedLoc: { lat: number; lng: number; label: string }) => { handleUpdateWorkOrder({ customerAddress: selectedLoc.label, customerLat: selectedLoc.lat, customerLng: selectedLoc.lng }); };
   const handleAddPart = (itemId: string, quantity: number) => { addPartMutation.mutate({ itemId, quantity }); };
@@ -128,9 +177,26 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     </Card>
   );
 
-  const assignmentScheduleCard = (
-    <Card title="Assignment & Schedule">
+  const workOrderDetailsCard = ( // Renamed from assignmentScheduleCard
+    <Card title="Work Order Details">
       <Descriptions column={1}>
+        <Descriptions.Item label="Status">
+          <Select
+            value={workOrder.status || 'Open'}
+            onChange={(value) => handleUpdateWorkOrder({ status: value })}
+            style={{ width: 180 }}
+            bordered={false}
+            size="small"
+            suffixIcon={null}
+          >
+            <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
+            <Option value="Confirmation"><Tag color={statusColors["Confirmation"]}>Confirmation</Tag></Option>
+            <Option value="Ready"><Tag color={statusColors["Ready"]}>Ready</Tag></Option>
+            <Option value="In Progress"><Tag color={statusColors["In Progress"]}>In Progress</Tag></Option>
+            <Option value="On Hold"><Tag color={statusColors["On Hold"]}>On Hold</Tag></Option>
+            <Option value="Completed"><Tag color={statusColors["Completed"]}>Completed</Tag></Option>
+          </Select>
+        </Descriptions.Item>
         <Descriptions.Item label="Priority"><Select value={workOrder.priority || 'Low'} onChange={(value) => handleUpdateWorkOrder({ priority: value })} style={{ width: 100 }} bordered={false} size="small" suffixIcon={null}><Option value="High"><Tag color={priorityColors["High"]}>High</Tag></Option><Option value="Medium"><Tag color={priorityColors["Medium"]}>Medium</Tag></Option><Option value="Low"><Tag color={priorityColors["Low"]}>Low</Tag></Option></Select></Descriptions.Item>
         <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}><DatePicker showTime value={workOrder.slaDue ? dayjs(workOrder.slaDue) : null} onChange={(date) => handleUpdateWorkOrder({ slaDue: date ? date.toISOString() : null })} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
         <Descriptions.Item label="Appointment Date"><DatePicker showTime value={workOrder.appointmentDate ? dayjs(workOrder.appointmentDate) : null} onChange={(date) => handleUpdateWorkOrder({ appointmentDate: date ? date.toISOString() : null })} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
@@ -178,20 +244,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
               </Space>
             }
             hideSearch
-            actions={
-              <Select
-                value={workOrder.status || 'Open'}
-                onChange={(value) => handleUpdateWorkOrder({ status: value })}
-                style={{ width: 180 }}
-              >
-                <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
-                <Option value="Confirmation"><Tag color={statusColors["Confirmation"]}>Confirmation</Tag></Option>
-                <Option value="Ready"><Tag color={statusColors["Ready"]}>Ready</Tag></Option>
-                <Option value="In Progress"><Tag color={statusColors["In Progress"]}>In Progress</Tag></Option>
-                <Option value="On Hold"><Tag color={statusColors["On Hold"]}>On Hold</Tag></Option>
-                <Option value="Completed"><Tag color={statusColors["Completed"]}>Completed</Tag></Option>
-              </Select>
-            }
+            // Removed status dropdown from PageHeader
           />
         )}
 
@@ -200,7 +253,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
             <TabPane tab={<span><InfoCircleOutlined /> Overview</span>} key="1">
               <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                 {serviceInfoCard}
-                {assignmentScheduleCard}
+                {workOrderDetailsCard} {/* Using the renamed card */}
                 {customerVehicleCard}
               </Space>
             </TabPane>
@@ -227,7 +280,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
             </Col>
             <Col xs={24} lg={8}>
               <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                {assignmentScheduleCard}
+                {workOrderDetailsCard} {/* Using the renamed card */}
                 {customerVehicleCard}
                 {locationAndMapCard}
               </Space>

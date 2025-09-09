@@ -1,6 +1,6 @@
 import { Avatar, Button, Dropdown, Menu, Tag, Typography, Select, theme } from "antd";
 import { MoreOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
-import { WorkOrder, Technician, Location, Customer, Vehicle } from "@/types/supabase";
+import { WorkOrder, Technician, Location, Customer, Vehicle, Profile } from "@/types/supabase";
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime';
 import SlaCountdown from "./SlaCountdown";
@@ -16,6 +16,7 @@ export type WorkOrderRow = WorkOrder & {
   location?: Location;
   customer?: Customer;
   vehicle?: Vehicle;
+  createdByProfile?: Profile; // Added for created by user
 };
 
 const priorityOrder: Record<string, number> = { 'High': 1, 'Medium': 2, 'Low': 3 };
@@ -24,7 +25,8 @@ export const getColumns = (
   onEdit: (record: WorkOrderRow) => void,
   onDelete: (record: WorkOrderRow) => void,
   onUpdateWorkOrder: (id: string, updates: Partial<WorkOrder>) => void,
-  allTechnicians: Technician[]
+  allTechnicians: Technician[],
+  allProfiles: Profile[] // Added allProfiles
 ) => {
   const { token } = useToken();
   const priorityColors: Record<string, string> = { High: token.colorError, Medium: token.colorWarning, Low: token.colorSuccess };
@@ -44,11 +46,11 @@ export const getColumns = (
       render: (text: string, record: WorkOrderRow) => <Text code>{text || record.id.substring(0, 6)}</Text>
     },
     {
-      title: "Customer & Vehicle",
-      dataIndex: "customerName",
+      title: "License Plate", // Renamed column
+      dataIndex: "vehicle",
       render: (_: any, record: WorkOrderRow) => (
         <div>
-          <Text strong>{record.customer?.name || 'N/A'}</Text><br />
+          <Text strong>{record.vehicle?.license_plate || 'N/A'}</Text><br />
           <Text type="secondary" style={{ fontSize: 12 }}>
             {record.vehicle ? `${record.vehicle.make} ${record.vehicle.model}` : 'N/A'}
           </Text>
@@ -107,6 +109,25 @@ export const getColumns = (
       dataIndex: "slaDue",
       render: (_: any, record: WorkOrderRow) => <SlaCountdown slaDue={record.slaDue} status={record.status} completedAt={record.completedAt} />,
       sorter: (a: WorkOrderRow, b: WorkOrderRow) => dayjs(a.slaDue).unix() - dayjs(b.slaDue).unix(),
+    },
+    {
+      title: "Created At", // New column
+      dataIndex: "createdAt",
+      render: (date: string) => dayjs(date).format("MMM D, YYYY HH:mm"),
+      sorter: (a: WorkOrderRow, b: WorkOrderRow) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
+    },
+    {
+      title: "Created By", // New column
+      dataIndex: "createdByProfile",
+      render: (_: any, record: WorkOrderRow) => {
+        const profile = allProfiles.find(p => p.id === record.created_by);
+        return profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : 'N/A';
+      },
+      sorter: (a: WorkOrderRow, b: WorkOrderRow) => {
+        const nameA = allProfiles.find(p => p.id === a.created_by)?.first_name || '';
+        const nameB = allProfiles.find(p => p.id === b.created_by)?.first_name || '';
+        return nameA.localeCompare(nameB);
+      },
     },
     {
       title: "Actions",

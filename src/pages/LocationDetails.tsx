@@ -9,7 +9,7 @@ import { showSuccess, showInfo, showError } from "@/utils/toast";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Location, WorkOrder, Technician, Customer, Vehicle } from "@/types/supabase";
+import { Location, WorkOrder, Technician, Customer, Vehicle, Profile } from "@/types/supabase"; // Import Profile
 import { camelToSnakeCase } from "@/utils/data-helpers"; // Import the utility
 import PageHeader from "@/components/PageHeader";
 
@@ -28,6 +28,14 @@ const LocationDetailsPage = () => {
   const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return data || []; } });
   const { data: customers, isLoading: isLoadingCustomers } = useQuery<Customer[]>({ queryKey: ['customers'], queryFn: async () => { const { data, error } = await supabase.from('customers').select('*'); if (error) throw new Error(error.message); return data || []; } });
   const { data: vehicles, isLoading: isLoadingVehicles } = useQuery<Vehicle[]>({ queryKey: ['vehicles'], queryFn: async () => { const { data, error } = await supabase.from('vehicles').select('*'); if (error) throw new Error(error.message); return data || []; } });
+  const { data: profiles, isLoading: isLoadingProfiles } = useQuery<Profile[]>({
+    queryKey: ['profiles'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('profiles').select('*'); // Select all fields for Profile type
+      if (error) throw new Error(error.message);
+      return data || [];
+    }
+  });
 
   const workOrderMutation = useMutation({
     mutationFn: async (workOrderData: Partial<WorkOrder>) => { const { error } = await supabase.from('work_orders').upsert(workOrderData); if (error) throw new Error(error.message); },
@@ -57,7 +65,7 @@ const LocationDetailsPage = () => {
     navigate(`/work-orders/${workOrderId}`);
   };
 
-  const isLoading = isLoadingLocation || isLoadingWorkOrders || isLoadingTechnicians || isLoadingCustomers || isLoadingVehicles;
+  const isLoading = isLoadingLocation || isLoadingWorkOrders || isLoadingTechnicians || isLoadingCustomers || isLoadingVehicles || isLoadingProfiles;
 
   if (isLoading) return <Skeleton active />;
   if (!location) return <NotFound />;
@@ -98,7 +106,18 @@ const LocationDetailsPage = () => {
         </Row>
         <Card>
           <Title level={5}>Work Orders at {location.name.replace(' Service Center', '')}</Title>
-          <WorkOrderDataTable workOrders={locationWorkOrders} technicians={technicians || []} locations={allWorkOrders ? [location] : []} customers={customers || []} vehicles={vehicles || []} onEdit={() => {}} onDelete={() => {}} onUpdateWorkOrder={handleUpdateWorkOrder} onViewDetails={handleViewDetails} />
+          <WorkOrderDataTable 
+            workOrders={locationWorkOrders} 
+            technicians={technicians || []} 
+            locations={allWorkOrders ? [location] : []} 
+            customers={customers || []} 
+            vehicles={vehicles || []} 
+            onEdit={() => {}} 
+            onDelete={() => {}} 
+            onUpdateWorkOrder={handleUpdateWorkOrder} 
+            onViewDetails={handleViewDetails} 
+            profiles={profiles || []} // Pass profiles here
+          />
         </Card>
       </Space>
       {onHoldWorkOrder && <OnHoldReasonDialog isOpen={!!onHoldWorkOrder} onClose={() => setOnHoldWorkOrder(null)} onSave={handleSaveOnHoldReason} />}

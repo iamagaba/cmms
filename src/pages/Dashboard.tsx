@@ -9,7 +9,7 @@ import { showSuccess, showInfo, showError } from "@/utils/toast";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { WorkOrder, Technician, Location, Customer, Vehicle } from "@/types/supabase";
+import { WorkOrder, Technician, Location, Customer, Vehicle, Profile } from "@/types/supabase"; // Import Profile
 import dayjs from "dayjs";
 import isBetween from 'dayjs/plugin/isBetween';
 import { camelToSnakeCase } from "@/utils/data-helpers";
@@ -74,6 +74,15 @@ const Dashboard = () => {
     }
   });
 
+  const { data: profiles, isLoading: isLoadingProfiles } = useQuery<Profile[]>({
+    queryKey: ['profiles'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('profiles').select('*'); // Select all fields for Profile type
+      if (error) throw new Error(error.message);
+      return data || [];
+    }
+  });
+
   // Mutations
   const workOrderMutation = useMutation({
     mutationFn: async (workOrderData: Partial<WorkOrder>) => {
@@ -90,6 +99,43 @@ const Dashboard = () => {
   const handleUpdateWorkOrder = (id: string, updates: Partial<WorkOrder>) => {
     const workOrder = allWorkOrders?.find(wo => wo.id === id);
     if (!workOrder) return;
+
+    const oldWorkOrder = { ...workOrder };
+    const newActivityLog = [...(workOrder.activityLog || [])];
+    let activityMessage = '';
+
+    if (updates.status && updates.status !== oldWorkOrder.status) {
+      activityMessage = `Status changed from '${oldWorkOrder.status || 'N/A'}' to '${updates.status}'.`;
+    } else if (updates.assignedTechnicianId && updates.assignedTechnicianId !== oldWorkOrder.assignedTechnicianId) {
+      const oldTech = technicians?.find(t => t.id === oldWorkOrder.assignedTechnicianId)?.name || 'Unassigned';
+      const newTech = technicians?.find(t => t.id === updates.assignedTechnicianId)?.name || 'Unassigned';
+      activityMessage = `Assigned technician changed from '${oldTech}' to '${newTech}'.`;
+    } else if (updates.slaDue && updates.slaDue !== oldWorkOrder.slaDue) {
+      activityMessage = `SLA due date updated to '${dayjs(updates.slaDue).format('MMM D, YYYY h:mm A')}'.`;
+    } else if (updates.appointmentDate && updates.appointmentDate !== oldWorkOrder.appointmentDate) {
+      activityMessage = `Appointment date updated to '${dayjs(updates.appointmentDate).format('MMM D, YYYY h:mm A')}'.`;
+    } else if (updates.service && updates.service !== oldWorkOrder.service) {
+      activityMessage = `Service description updated.`;
+    } else if (updates.serviceNotes && updates.serviceNotes !== oldWorkOrder.serviceNotes) {
+      activityMessage = `Service notes updated.`;
+    } else if (updates.priority && updates.priority !== oldWorkOrder.priority) {
+      activityMessage = `Priority changed from '${oldWorkOrder.priority || 'N/A'}' to '${updates.priority}'.`;
+    } else if (updates.locationId && updates.locationId !== oldWorkOrder.locationId) {
+      const oldLoc = locations?.find(l => l.id === oldWorkOrder.locationId)?.name || 'N/A';
+      const newLoc = locations?.find(l => l.id === updates.locationId)?.name || 'N/A';
+      activityMessage = `Service location changed from '${oldLoc}' to '${newLoc}'.`;
+    } else if (updates.customerAddress && updates.customerAddress !== oldWorkOrder.customerAddress) {
+      activityMessage = `Client address updated to '${updates.customerAddress}'.`;
+    } else if (updates.customerLat !== oldWorkOrder.customerLat || updates.customerLng !== oldWorkOrder.customerLng) {
+      activityMessage = `Client coordinates updated.`;
+    } else {
+      activityMessage = 'Work order details updated.'; // Generic message for other changes
+    }
+
+    if (activityMessage) {
+      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage });
+      updates.activityLog = newActivityLog;
+    }
 
     if (updates.status === 'On Hold') {
       setOnHoldWorkOrder(workOrder);
@@ -176,21 +222,21 @@ const Dashboard = () => {
     const totalCompletionTime = allCompleted.reduce((acc, wo) => acc + dayjs(wo.completedAt).diff(dayjs(wo.createdAt), 'hour'), 0);
     const avgCompletionTimeDays = allCompleted.length > 0 ? (totalCompletionTime / allCompleted.length / 24).toFixed(1) : '0.0';
 
-    // --- Trend KPIs ---
+    // Calculate trends
     const totalOrdersTrend = calculateTrend(createdThisWeek.length, createdLastWeek.length);
-    const openOrdersNow = openOrders;
-    const openOrdersLastWeek = orders.filter(o => dayjs(o.createdAt).isBefore(sevenDaysAgo) && (o.status !== 'Completed' || (o.completedAt && dayjs(o.completedAt).isAfter(sevenDaysAgo)))).length;
-    const openOrdersTrend = calculateTrend(openOrdersNow, openOrdersLastWeek);
-    const slaMetThisWeek = completedThisWeek.filter(o => o.slaDue && dayjs(o.completedAt).isBefore(dayjs(o.slaDue))).length;
-    const slaPerfThisWeek = completedThisWeek.length > 0 ? (slaMetThisWeek / completedThisWeek.length) * 100 : 0;
-    const slaMetLastWeek = completedLastWeek.filter(o => o.slaDue && dayjs(o.completedAt).isBefore(dayjs(o.slaDue))).length;
-    const slaPerfLastWeek = completedLastWeek.length > 0 ? (slaMetLastWeek / completedLastWeek.length) * 100 : 0;
-    const slaTrend = calculateTrend(slaPerfThisWeek, slaPerfLastWeek);
-    const totalCompletionTimeThisWeek = completedThisWeek.reduce((acc, wo) => acc + dayjs(wo.completedAt).diff(dayjs(wo.createdAt), 'hour'), 0);
-    const avgCompletionTimeThisWeek = completedThisWeek.length > 0 ? (totalCompletionTimeThisWeek / completedThisWeek.length) : 0;
-    const totalCompletionTimeLastWeek = completedLastWeek.reduce((acc, wo) => acc + dayjs(wo.completedAt).diff(dayjs(wo.createdAt), 'hour'), 0);
-    const avgCompletionTimeLastWeek = completedLastWeek.length > 0 ? (totalCompletionTimeLastWeek / completedLastWeek.length) : 0;
-    const avgCompletionTimeTrend = calculateTrend(avgCompletionTimeThisWeek, avgCompletionTimeLastWeek);
+    const openOrdersTrend = calculateTrend(
+      createdThisWeek.filter(o => o.status !== 'Completed').length,
+      createdLastWeek.filter(o => o.status !== 'Completed').length
+    );
+    const slaTrend = calculateTrend(
+      completedThisWeek.filter(o => o.slaDue && dayjs(o.completedAt).isBefore(dayjs(o.slaDue))).length,
+      completedLastWeek.filter(o => o.slaDue && dayjs(o.completedAt).isBefore(dayjs(o.slaDue))).length
+    );
+    const avgCompletionTimeTrend = calculateTrend(
+      completedThisWeek.reduce((acc, wo) => acc + dayjs(wo.completedAt!).diff(dayjs(wo.createdAt!), 'hour'), 0) / (completedThisWeek.length || 1),
+      completedLastWeek.reduce((acc, wo) => acc + dayjs(wo.completedAt!).diff(dayjs(wo.createdAt!), 'hour'), 0) / (completedLastWeek.length || 1)
+    );
+
 
     return {
       totalOrders,
@@ -237,7 +283,7 @@ const Dashboard = () => {
     })
   ];
 
-  const isLoading = isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingCustomers || isLoadingVehicles;
+  const isLoading = isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingCustomers || isLoadingVehicles || isLoadingProfiles;
 
   if (isLoading) {
     return <Skeleton active paragraph={{ rows: 10 }} />;

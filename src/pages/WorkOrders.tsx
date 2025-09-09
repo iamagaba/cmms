@@ -169,9 +169,20 @@ const WorkOrdersPage = () => {
     visibleColumns: defaultColumnKeys
   }).map(col => ({ label: col.title, value: col.key })), [technicians, profiles, defaultColumnKeys]);
 
-  const handleVisibleColumnsChange = (checkedValues: string[]) => {
+  const handleVisibleColumnsChange = (checkedValues: any) => {
     setVisibleColumns(checkedValues);
   };
+
+  const columnVisibilityMenu = (
+    <div className="ant-dropdown-menu" style={{ padding: 8, backgroundColor: 'white', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)', borderRadius: '4px' }}>
+      <Checkbox.Group
+        style={{ display: 'flex', flexDirection: 'column' }}
+        options={allTableColumns}
+        value={visibleColumns}
+        onChange={handleVisibleColumnsChange}
+      />
+    </div>
+  );
 
   const tabItems = [
     {
@@ -229,15 +240,7 @@ const WorkOrdersPage = () => {
           <Space>
             {view === 'table' && (
               <Dropdown
-                overlay={
-                  <Menu>
-                    <Checkbox.Group
-                      options={allTableColumns}
-                      value={visibleColumns}
-                      onChange={handleVisibleColumnsChange}
-                    />
-                  </Menu>
-                }
+                overlay={columnVisibilityMenu}
                 trigger={['click']}
               >
                 <Button icon={<BarsOutlined />}>Columns</Button>

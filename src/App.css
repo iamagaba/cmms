@@ -96,8 +96,13 @@ body {
   color: var(--ant-color-text-secondary) !important; /* Icon color */
   border-top: 1px solid var(--ant-color-border-secondary); /* Separator from menu content */
   height: 48px !important; /* Consistent height */
-  line-height: 48px !important; /* Center icon vertically */
   transition: background-color 0.2s ease, color 0.2s ease;
+  
+  /* Centering the icon using flexbox */
+  display: flex;
+  align-items: center; /* Vertically center */
+  justify-content: center; /* Horizontally center */
+  line-height: normal !important; /* Reset line-height if flex is used for centering */
 }
 
 .ant-layout-sider-trigger:hover {

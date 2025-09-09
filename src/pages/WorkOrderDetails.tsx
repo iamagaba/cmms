@@ -51,10 +51,35 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     queryKey: ['work_order', id], 
     queryFn: async () => { 
       if (!id) return null; 
-      console.log('Fetching work order details for ID:', id); // Debugging log
+      console.log('Fetching work order details for ID:', id);
       const { data, error } = await supabase.from('work_orders').select('*').eq('id', id).single(); 
       if (error) throw new Error(error.message); 
-      return data; 
+      console.log('Raw fetched work order data from Supabase:', data); // Log raw data
+      if (data) {
+        // Manually map snake_case to camelCase for consistency with WorkOrder type
+        const mappedData: WorkOrder = {
+          ...data,
+          workOrderNumber: data.work_order_number,
+          assignedTechnicianId: data.assigned_technician_id,
+          locationId: data.location_id,
+          serviceNotes: data.service_notes,
+          partsUsed: data.parts_used,
+          activityLog: data.activity_log,
+          slaDue: data.sla_due, // Map sla_due to slaDue
+          completedAt: data.completed_at,
+          customerLat: data.customer_lat,
+          customerLng: data.customer_lng,
+          customerAddress: data.customer_address,
+          onHoldReason: data.on_hold_reason,
+          appointmentDate: data.appointment_date,
+          customerId: data.customer_id,
+          vehicleId: data.vehicle_id,
+          created_by: data.created_by, // Ensure created_by is also mapped if it's snake_case in DB
+        };
+        console.log('Mapped work order data (camelCase):', mappedData);
+        return mappedData;
+      }
+      return null;
     }, 
     enabled: !!id 
   });

@@ -49,7 +49,34 @@ const WorkOrdersPage = () => {
   const [technicianFilter, setTechnicianFilter] = useState<string | undefined>(undefined);
 
   // Data Fetching
-  const { data: allWorkOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ queryKey: ['work_orders'], queryFn: async () => { const { data, error } = await supabase.from('work_orders').select('*').order('created_at', { ascending: false }); if (error) throw new Error(error.message); return data; } });
+  const { data: allWorkOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ 
+    queryKey: ['work_orders'], 
+    queryFn: async () => { 
+      const { data, error } = await supabase.from('work_orders').select('*').order('created_at', { ascending: false }); 
+      if (error) throw new Error(error.message); 
+      
+      // Manually map snake_case to camelCase for consistency with WorkOrder type
+      return (data || []).map((item: any) => ({
+        ...item,
+        workOrderNumber: item.work_order_number,
+        assignedTechnicianId: item.assigned_technician_id,
+        locationId: item.location_id,
+        serviceNotes: item.service_notes,
+        partsUsed: item.parts_used,
+        activityLog: item.activity_log,
+        slaDue: item.sla_due,
+        completedAt: item.completed_at,
+        customerLat: item.customer_lat,
+        customerLng: item.customer_lng,
+        customerAddress: item.customer_address,
+        onHoldReason: item.on_hold_reason,
+        appointmentDate: item.appointment_date,
+        customerId: item.customer_id,
+        vehicleId: item.vehicle_id,
+        created_by: item.created_by,
+      })) || [];
+    } 
+  });
   const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return data; } });
   const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({ queryKey: ['locations'], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*'); if (error) throw new Error(error.message); return data; } });
   const { data: customers, isLoading: isLoadingCustomers } = useQuery<Customer[]>({ queryKey: ['customers'], queryFn: async () => { const { data, error } = await supabase.from('customers').select('*'); if (error) throw new Error(error.message); return data || []; } });

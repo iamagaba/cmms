@@ -1,135 +1,122 @@
 import React from 'react';
-import { Layout, Menu, Typography } from 'antd';
-import { NavLink, useLocation } from 'react-router-dom';
-import {
-  DashboardOutlined,
-  ToolOutlined,
-  UsergroupAddOutlined,
-  EnvironmentOutlined,
-  BarChartOutlined,
-  SettingOutlined,
-  CarOutlined,
-  ShoppingOutlined,
-  ContactsOutlined,
-  FireOutlined,
-  BellOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
+import { Menu } from 'antd';
 import type { MenuProps } from 'antd';
+import { NavLink } from 'react-router-dom';
+import {
+  LayoutDashboard,
+  MapPin,
+  Users,
+  Wrench,
+  CalendarDays,
+  FileText,
+  Settings,
+  Bell,
+  UserCircle,
+} from 'lucide-react';
 
-const { Sider } = Layout;
-const { Title } = Typography;
-
-interface SideNavigationProps {
-  collapsed: boolean;
-  onCollapse: (collapsed: boolean) => void;
-  logoUrl: string | null;
-}
-
+// Define the MenuItem type based on Ant Design's MenuProps
 type MenuItem = Required<MenuProps>['items'][number];
 
+// Helper function to create a MenuItem
 function getItem(
   label: React.ReactNode,
   key: React.Key,
   icon?: React.ReactNode,
+  children?: MenuItem[],
+  type?: 'group',
 ): MenuItem {
   return {
     key,
     icon,
+    children,
     label,
-  } as MenuItem;
+    type,
+  } as MenuItem; // Explicit cast to ensure type compatibility
 }
 
-const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps) => {
-  const location = useLocation();
+// Interface for our raw navigation item data
+interface RawNavItem {
+  key?: string; // Optional for divider type
+  icon?: React.ReactNode; // Optional for divider type
+  label?: string; // Optional for divider type
+  type?: 'divider'; // Optional for regular items
+}
 
-  const mainMenuItems: (MenuItem | { type: 'divider' })[] = [
-    getItem(<NavLink to="/">Dashboard</NavLink>, "/", <DashboardOutlined />),
-    getItem(<NavLink to="/work-orders">Work Orders</NavLink>, "/work-orders", <ToolOutlined />),
-    { type: 'divider' },
-    getItem(<NavLink to="/customers">Customers</NavLink>, "/customers", <ContactsOutlined />),
-    getItem(<NavLink to="/assets">Assets</NavLink>, "/assets", <CarOutlined />),
-    getItem(<NavLink to="/technicians">Technicians</NavLink>, "/technicians", <UsergroupAddOutlined />),
-    getItem(<NavLink to="/locations">Locations</NavLink>, "/locations", <EnvironmentOutlined />),
-    getItem(<NavLink to="/inventory">Inventory</NavLink>, "/inventory", <ShoppingOutlined />),
-    { type: 'divider' },
-    getItem(<NavLink to="/analytics">Analytics</NavLink>, "/analytics", <BarChartOutlined />),
-  ];
+// Raw data for main navigation items
+const rawMainNavigationItems: RawNavItem[] = [
+  { key: '/dashboard', icon: <LayoutDashboard />, label: 'Dashboard' },
+  { key: '/locations', icon: <MapPin />, label: 'Locations' },
+  { key: '/users', icon: <Users />, label: 'Users' },
+  { key: '/assets', icon: <Wrench />, label: 'Assets' },
+  { key: '/schedule', icon: <CalendarDays />, label: 'Schedule' },
+  { key: '/reports', icon: <FileText />, label: 'Reports' },
+  { type: 'divider' },
+  { key: '/settings', icon: <Settings />, label: 'Settings' },
+];
 
-  const bottomMenuItems: MenuItem[] = [
-    getItem(<NavLink to="/notifications">Notifications</NavLink>, "/notifications", <BellOutlined />),
-    getItem(<NavLink to="/settings?tab=profile-settings">Profile</NavLink>, "/settings?tab=profile-settings", <UserOutlined />),
-    getItem(<NavLink to="/settings?tab=system-settings">Settings</NavLink>, "/settings?tab=system-settings", <SettingOutlined />),
-  ];
+// Raw data for bottom navigation items (Notifications and Profile)
+const rawBottomNavigationItems: RawNavItem[] = [
+  { key: '/notifications', icon: <Bell />, label: 'Notifications' },
+  { key: '/profile', icon: <UserCircle />, label: 'Profile' },
+];
 
-  // Determine selected key for menu items, handling query params for settings
-  const getSelectedKey = (pathname: string, search: string) => {
-    if (pathname === '/settings') {
-      const params = new URLSearchParams(search);
-      const tab = params.get('tab');
-      if (tab === 'profile-settings') return '/settings?tab=profile-settings';
-      if (tab === 'system-settings') return '/settings?tab=system-settings';
-      if (tab === 'user-management') return '/settings?tab=user-management';
-    }
-    // Match detail pages to their parent menu item
-    if (pathname.startsWith('/work-orders/')) return '/work-orders';
-    if (pathname.startsWith('/customers/')) return '/customers';
-    if (pathname.startsWith('/assets/')) return '/assets';
-    if (pathname.startsWith('/technicians/')) return '/technicians';
-    if (pathname.startsWith('/locations/')) return '/locations';
-    
-    return pathname;
-  };
+// Process raw data into Ant Design MenuItem format for the main menu
+const mainMenuItems: MenuItem[] = rawMainNavigationItems.map((item) => {
+  if (item.type === 'divider') {
+    return { type: 'divider' };
+  }
+  // For regular items, key and label are expected to exist
+  return getItem(
+    <NavLink to={item.key!}>{item.label!}</NavLink>, // Use non-null assertion as we've checked for divider
+    item.key!,
+    item.icon,
+  );
+});
 
-  const selectedKey = getSelectedKey(location.pathname, location.search);
+// Process raw data into Ant Design MenuItem format for the bottom menu
+const bottomMenuItems: MenuItem[] = rawBottomNavigationItems.map((item) => {
+  return getItem(
+    <NavLink to={item.key!}>{item.label!}</NavLink>,
+    item.key!,
+    item.icon,
+  );
+});
 
+// Define props for SideNavigation
+interface SideNavigationProps {
+  collapsed: boolean;
+  onCollapse: React.Dispatch<React.SetStateAction<boolean>>;
+  logoUrl: string;
+}
+
+export default function SideNavigation({ collapsed, onCollapse, logoUrl }: SideNavigationProps) {
   return (
-    <Sider
-      collapsible
-      collapsed={collapsed}
-      onCollapse={onCollapse}
-      theme="light"
-      width={220}
-      style={{
-        overflow: 'hidden',
-        height: '100vh',
-        position: 'sticky',
-        top: 0,
-        left: 0,
-        borderRight: '1px solid #f0f0f0',
-        display: 'flex',
-        flexDirection: 'column',
-      }}
-    >
-      <div className="sider-logo-area">
-        <NavLink to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', gap: '12px', overflow: 'hidden' }}>
-          {logoUrl ? (
-            <img src={logoUrl} alt="System Logo" style={{ height: '32px', transition: 'all 0.2s' }} />
-          ) : (
-            <FireOutlined style={{ color: '#6A0DAD', fontSize: '28px', transition: 'all 0.2s' }} />
-          )}
-          {!collapsed && (
-            <Title level={4} style={{ margin: 0, color: '#6A0DAD', whiteSpace: 'nowrap' }}>
-              GOGO Electric
-            </Title>
-          )}
-        </NavLink>
+    <div className="flex h-full flex-col bg-white shadow-md">
+      {/* Logo Section */}
+      <div className="flex items-center justify-center p-4 mb-4">
+        <img src={logoUrl} alt="System Logo" className="h-12 w-12 rounded-full object-cover" />
+        {!collapsed && <span className="ml-3 text-xl font-semibold text-gray-800">GOGO Electric</span>}
       </div>
+
+      {/* Main Navigation Menu */}
       <Menu
         mode="inline"
-        selectedKeys={[selectedKey]}
+        theme="light"
+        inlineCollapsed={collapsed}
         style={{ borderRight: 0, flexGrow: 1, overflowY: 'auto' }}
         items={mainMenuItems}
       />
-      <Menu.Divider style={{ margin: '0 0 8px 0' }} />
-      <Menu
-        mode="inline"
-        selectedKeys={[selectedKey]}
-        style={{ borderRight: 0, flexShrink: 0 }}
-        items={bottomMenuItems}
-      />
-    </Sider>
-  );
-};
 
-export default SideNavigation;
+      {/* Bottom Navigation Menu */}
+      <div className="mt-auto border-t border-gray-200"> {/* Pushes this section to the bottom */}
+        <Menu
+          mode="inline"
+          theme="light"
+          inlineCollapsed={collapsed}
+          style={{ borderRight: 0 }}
+          items={bottomMenuItems}
+        />
+      </div>
+    </div>
+  );
+}

@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Button, Typography, Space, Segmented, Input, Select, Card, Row, Col, Collapse, Skeleton, Tabs, Dropdown, Menu, Checkbox } from "antd";
-import { PlusOutlined, AppstoreOutlined, TableOutlined, FilterOutlined, CalendarOutlined, GlobalOutlined, ColumnsOutlined } from "@ant-design/icons";
+import { PlusOutlined, AppstoreOutlined, TableOutlined, FilterOutlined, CalendarOutlined, GlobalOutlined, BarsOutlined } from "@ant-design/icons"; // Changed ColumnsOutlined to BarsOutlined
 import { WorkOrderDataTable } from "@/components/WorkOrderDataTable";
 import { WorkOrderFormDrawer } from "@/components/WorkOrderFormDrawer";
 import WorkOrderKanban from "@/components/WorkOrderKanban";
@@ -194,7 +194,7 @@ const WorkOrdersPage = () => {
                 }
                 trigger={['click']}
               >
-                <Button icon={<ColumnsOutlined />}>Columns</Button>
+                <Button icon={<BarsOutlined />}>Columns</Button> {/* Changed ColumnsOutlined to BarsOutlined */}
               </Dropdown>
             )}
             <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsCreateDialogOpen(true)}>Add Work Order</Button>

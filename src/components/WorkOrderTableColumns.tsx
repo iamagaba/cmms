@@ -184,9 +184,9 @@ export const getColumns = ({
     width: columnWidths[col.key] || col.width,
     onHeaderCell: (column: any) => ({
       width: column.width,
-      onResize: (e: any, { size }: { size: { width: number } }) => {
+      onResize: ((e: any, { size }: { size: { width: number } }) => {
         onColumnResize(column.key, size.width);
-      },
+      }) as any, // Cast to any here to resolve type incompatibility
     }),
   }));
 };

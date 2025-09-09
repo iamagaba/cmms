@@ -1,10 +1,9 @@
 import React from 'react';
-import { Resizable, ResizeCallback } from 'react-resizable';
+import { Resizable, ResizeCallback, ResizeCallbackData } from 'react-resizable';
 
-interface ResizableTitleProps {
+interface ResizableTitleProps extends React.HTMLAttributes<HTMLTableCellElement> {
   onResize: ResizeCallback;
   width: number;
-  [key: string]: any;
 }
 
 export const ResizableTitle: React.FC<ResizableTitleProps> = ({ onResize, width, ...restProps }) => {

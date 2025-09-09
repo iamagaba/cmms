@@ -14,6 +14,7 @@ import { WorkOrderFormDrawer } from "@/components/WorkOrderFormDrawer";
 import { useState } from "react";
 import { camelToSnakeCase } from "@/utils/data-helpers"; // Import camelToSnakeCase
 import { showSuccess, showInfo, showError } from "@/utils/toast"; // Import toast utilities
+import { getColumns } from "@/components/WorkOrderTableColumns"; // Import getColumns
 
 const { Title, Text } = Typography;
 
@@ -163,6 +164,12 @@ const AssetDetailsPage = () => {
     setPrefillData(null);
   };
 
+  const defaultColumnKeys = useMemo(() => getColumns({
+    onEdit: () => {}, onDelete: () => {}, onUpdateWorkOrder: () => {},
+    allTechnicians: [], allProfiles: [], columnWidths: {}, onColumnResize: () => {},
+    visibleColumns: []
+  }).map(col => col.key), []);
+
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
         <PageHeader
@@ -221,6 +228,7 @@ const AssetDetailsPage = () => {
                         onUpdateWorkOrder={handleUpdateWorkOrder}
                         onViewDetails={(id) => navigate(`/work-orders/${id}`)}
                         profiles={profiles || []}
+                        visibleColumns={defaultColumnKeys} // Added visibleColumns prop
                     />
                 </Card>
             </Col>

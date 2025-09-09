@@ -15,6 +15,7 @@ import {
   BellOutlined,
   UserOutlined,
 } from '@ant-design/icons';
+import type { MenuProps } from 'antd';
 
 const { Sider } = Layout;
 const { Title } = Typography;
@@ -25,38 +26,44 @@ interface SideNavigationProps {
   logoUrl: string | null;
 }
 
+// Ant Design's MenuItem type already includes DividerType
+type MenuItem = Required<MenuProps>['items'][number];
+
+// Helper function to create a MenuItem
+function getItem(
+  label: React.ReactNode,
+  key: React.Key,
+  icon?: React.ReactNode,
+): MenuItem {
+  return {
+    key,
+    icon,
+    label,
+  } as MenuItem;
+}
+
 const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps) => {
   const location = useLocation();
 
-  const mainMenuItems = [
-    { key: "/", label: "Dashboard", icon: <DashboardOutlined /> },
-    { key: "/work-orders", label: "Work Orders", icon: <ToolOutlined /> },
-    { type: 'divider' as const },
-    { key: "/customers", label: "Customers", icon: <ContactsOutlined /> },
-    { key: "/assets", label: "Assets", icon: <CarOutlined /> },
-    { key: "/technicians", label: "Technicians", icon: <UsergroupAddOutlined /> },
-    { key: "/locations", label: "Locations", icon: <EnvironmentOutlined /> },
-    { key: "/inventory", label: "Inventory", icon: <ShoppingOutlined /> },
-    { type: 'divider' as const },
-    { key: "/analytics", label: "Analytics", icon: <BarChartOutlined /> },
-  ].map(item => {
-    if (item.type === 'divider') return { type: 'divider' };
-    return {
-      key: item.key,
-      icon: item.icon,
-      label: <NavLink to={item.key}>{item.label}</NavLink>,
-    };
-  });
+  // The type is now simply MenuItem[] because MenuItem already accounts for { type: 'divider' }
+  const mainMenuItems: MenuItem[] = [
+    getItem(<NavLink to="/">Dashboard</NavLink>, "/", <DashboardOutlined />),
+    getItem(<NavLink to="/work-orders">Work Orders</NavLink>, "/work-orders", <ToolOutlined />),
+    { type: 'divider' },
+    getItem(<NavLink to="/customers">Customers</NavLink>, "/customers", <ContactsOutlined />),
+    getItem(<NavLink to="/assets">Assets</NavLink>, "/assets", <CarOutlined />),
+    getItem(<NavLink to="/technicians">Technicians</NavLink>, "/technicians", <UsergroupAddOutlined />),
+    getItem(<NavLink to="/locations">Locations</NavLink>, "/locations", <EnvironmentOutlined />),
+    getItem(<NavLink to="/inventory">Inventory</NavLink>, "/inventory", <ShoppingOutlined />),
+    { type: 'divider' },
+    getItem(<NavLink to="/analytics">Analytics</NavLink>, "/analytics", <BarChartOutlined />),
+  ];
 
-  const bottomMenuItems = [
-    { key: "/notifications", label: "Notifications", icon: <BellOutlined /> },
-    { key: "/settings?tab=profile-settings", label: "Profile", icon: <UserOutlined /> },
-    { key: "/settings?tab=system-settings", label: "Settings", icon: <SettingOutlined /> },
-  ].map(item => ({
-    key: item.key,
-    icon: item.icon,
-    label: <NavLink to={item.key}>{item.label}</NavLink>,
-  }));
+  const bottomMenuItems: MenuItem[] = [
+    getItem(<NavLink to="/notifications">Notifications</NavLink>, "/notifications", <BellOutlined />),
+    getItem(<NavLink to="/settings?tab=profile-settings">Profile</NavLink>, "/settings?tab=profile-settings", <UserOutlined />),
+    getItem(<NavLink to="/settings?tab=system-settings">Settings</NavLink>, "/settings?tab=system-settings", <SettingOutlined />),
+  ];
 
   // Determine selected key for menu items, handling query params for settings
   const getSelectedKey = (pathname: string, search: string) => {
@@ -65,8 +72,15 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
       const tab = params.get('tab');
       if (tab === 'profile-settings') return '/settings?tab=profile-settings';
       if (tab === 'system-settings') return '/settings?tab=system-settings';
-      if (tab === 'user-management') return '/settings?tab=user-management'; // Also handle user management tab
+      if (tab === 'user-management') return '/settings?tab=user-management';
     }
+    // Match detail pages to their parent menu item
+    if (pathname.startsWith('/work-orders/')) return '/work-orders';
+    if (pathname.startsWith('/customers/')) return '/customers';
+    if (pathname.startsWith('/assets/')) return '/assets';
+    if (pathname.startsWith('/technicians/')) return '/technicians';
+    if (pathname.startsWith('/locations/')) return '/locations';
+    
     return pathname;
   };
 

@@ -135,7 +135,7 @@ export const getColumns = ({
     },
     {
       key: "slaStatus",
-      title: "SLA Status",
+      title: "SLA", // Changed from "SLA Status" to "SLA"
       dataIndex: "slaDue",
       render: (_: any, record: WorkOrderRow) => <SlaCountdown slaDue={record.slaDue} status={record.status} completedAt={record.completedAt} />,
       width: 180,

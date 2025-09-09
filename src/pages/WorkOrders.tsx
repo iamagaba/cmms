@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
-import { Button, Typography, Space, Segmented, Input, Select, Card, Row, Col, Collapse, Skeleton, Tabs, Dropdown, Menu, Checkbox } from "antd";
-import { PlusOutlined, AppstoreOutlined, TableOutlined, FilterOutlined, CalendarOutlined, GlobalOutlined, BarsOutlined } from "@ant-design/icons";
+import { Button, Typography, Space, Segmented, Input, Select, Card, Row, Col, Collapse, Skeleton, Tabs } from "antd";
+import { PlusOutlined, AppstoreOutlined, TableOutlined, FilterOutlined, CalendarOutlined, GlobalOutlined } from "@ant-design/icons";
 import { WorkOrderDataTable } from "@/components/WorkOrderDataTable";
 import { WorkOrderFormDrawer } from "@/components/WorkOrderFormDrawer";
 import WorkOrderKanban from "@/components/WorkOrderKanban";
@@ -17,7 +17,6 @@ import MapViewPage from "./MapView";
 import PageHeader from "@/components/PageHeader";
 import { CreateWorkOrderDialog } from "@/components/CreateWorkOrderDialog";
 import dayjs from "dayjs";
-import { getColumns } from "@/components/WorkOrderTableColumns";
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -47,14 +46,6 @@ const WorkOrdersPage = () => {
   const [statusFilter, setStatusFilter] = useState<string | undefined>(undefined);
   const [priorityFilter, setPriorityFilter] = useState<string | undefined>(undefined);
   const [technicianFilter, setTechnicianFilter] = useState<string | undefined>(undefined);
-
-  // Column visibility state
-  const defaultColumnKeys = useMemo(() => getColumns({
-    onEdit: () => {}, onDelete: () => {}, onUpdateWorkOrder: () => {},
-    allTechnicians: [], allProfiles: [], columnWidths: {}, onColumnResize: () => {},
-    visibleColumns: []
-  }).map(col => col.key), []);
-  const [visibleColumns, setVisibleColumns] = useState<string[]>(defaultColumnKeys);
 
   // Data Fetching
   const { data: allWorkOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ queryKey: ['work_orders'], queryFn: async () => { const { data, error } = await supabase.from('work_orders').select('*').order('created_at', { ascending: false }); if (error) throw new Error(error.message); return data; } });
@@ -163,27 +154,6 @@ const WorkOrdersPage = () => {
   const groupByField = useMemo(() => (groupBy === 'technician' ? 'assignedTechnicianId' : groupBy), [groupBy]);
   const isLoading = isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingCustomers || isLoadingVehicles || isLoadingProfiles;
 
-  const allTableColumns = useMemo(() => getColumns({
-    onEdit: () => {}, onDelete: () => {}, onUpdateWorkOrder: () => {},
-    allTechnicians: technicians || [], allProfiles: profiles || [], columnWidths: {}, onColumnResize: () => {},
-    visibleColumns: defaultColumnKeys
-  }).map(col => ({ label: col.title, value: col.key })), [technicians, profiles, defaultColumnKeys]);
-
-  const handleVisibleColumnsChange = (checkedValues: any) => {
-    setVisibleColumns(checkedValues);
-  };
-
-  const columnVisibilityMenu = (
-    <div className="ant-dropdown-menu" style={{ padding: 8, backgroundColor: 'white', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)', borderRadius: '4px' }}>
-      <Checkbox.Group
-        style={{ display: 'flex', flexDirection: 'column' }}
-        options={allTableColumns}
-        value={visibleColumns}
-        onChange={handleVisibleColumnsChange}
-      />
-    </div>
-  );
-
   const tabItems = [
     {
       label: (<span><TableOutlined /> Table</span>),
@@ -200,7 +170,6 @@ const WorkOrdersPage = () => {
           onUpdateWorkOrder={handleUpdateWorkOrder}
           onViewDetails={handleViewDetails}
           profiles={profiles || []}
-          visibleColumns={visibleColumns}
         />
       ),
     },
@@ -237,17 +206,7 @@ const WorkOrdersPage = () => {
     <>
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
         <PageHeader title="Work Order Management" hideSearch actions={
-          <Space>
-            {view === 'table' && (
-              <Dropdown
-                overlay={columnVisibilityMenu}
-                trigger={['click']}
-              >
-                <Button icon={<BarsOutlined />}>Columns</Button>
-              </Dropdown>
-            )}
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsCreateDialogOpen(true)}>Add Work Order</Button>
-          </Space>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsCreateDialogOpen(true)}>Add Work Order</Button>
         } />
         <Collapse><Panel header={<><FilterOutlined /> Filters & View Options</>} key="1"><Row gutter={[16, 16]} align="bottom"><Col xs={24} sm={12} md={6}><Search placeholder="Filter by Vehicle ID..." allowClear onSearch={setVehicleFilter} onChange={(e) => setVehicleFilter(e.target.value)} style={{ width: '100%' }} /></Col><Col xs={24} sm={12} md={5}><Select placeholder="Filter by Status" allowClear style={{ width: '100%' }} onChange={setStatusFilter} value={statusFilter}><Option value="Open">Open</Option><Option value="Confirmation">Confirmation</Option><Option value="Ready">Ready</Option><Option value="In Progress">In Progress</Option><Option value="On Hold">On Hold</Option><Option value="Completed">Completed</Option></Select></Col><Col xs={24} sm={12} md={5}><Select placeholder="Filter by Priority" allowClear style={{ width: '100%' }} onChange={setPriorityFilter} value={priorityFilter}><Option value="High">High</Option><Option value="Medium">Medium</Option><Option value="Low">Low</Option></Select></Col><Col xs={24} sm={12} md={5}><Select placeholder="Filter by Technician" allowClear style={{ width: '100%' }} onChange={setTechnicianFilter} value={technicianFilter}>{(technicians || []).map(t => <Option key={t.id} value={t.id}>{t.name}</Option>)}</Select></Col>{view === 'kanban' && (<Col xs={24} sm={12} md={3}><Select value={groupBy} onChange={(value) => setGroupBy(value as GroupByOption)} style={{ width: '100%' }}><Option value="status">Group by: Status</Option><Option value="priority">Group by: Priority</Option><Option value="technician">Group by: Technician</Option></Select></Col>)}</Row></Panel></Collapse>
         <Tabs defaultActiveKey="table" activeKey={view} onChange={(key) => setView(key as WorkOrderView)} items={tabItems} />

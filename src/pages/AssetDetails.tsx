@@ -164,12 +164,6 @@ const AssetDetailsPage = () => {
     setPrefillData(null);
   };
 
-  const defaultColumnKeys = useMemo(() => getColumns({
-    onEdit: () => {}, onDelete: () => {}, onUpdateWorkOrder: () => {},
-    allTechnicians: [], allProfiles: [], columnWidths: {}, onColumnResize: () => {},
-    visibleColumns: []
-  }).map(col => col.key), []);
-
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
         <PageHeader
@@ -228,7 +222,6 @@ const AssetDetailsPage = () => {
                         onUpdateWorkOrder={handleUpdateWorkOrder}
                         onViewDetails={(id) => navigate(`/work-orders/${id}`)}
                         profiles={profiles || []}
-                        visibleColumns={defaultColumnKeys} // Added visibleColumns prop
                     />
                 </Card>
             </Col>

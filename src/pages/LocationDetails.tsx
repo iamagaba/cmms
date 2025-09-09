@@ -69,12 +69,6 @@ const LocationDetailsPage = () => {
     navigate(`/work-orders/${workOrderId}`);
   };
 
-  const defaultColumnKeys = useMemo(() => getColumns({
-    onEdit: () => {}, onDelete: () => {}, onUpdateWorkOrder: () => {},
-    allTechnicians: [], allProfiles: [], columnWidths: {}, onColumnResize: () => {},
-    visibleColumns: []
-  }).map(col => col.key), []);
-
   const isLoading = isLoadingLocation || isLoadingWorkOrders || isLoadingTechnicians || isLoadingCustomers || isLoadingVehicles || isLoadingProfiles;
 
   if (isLoading) return <Skeleton active />;
@@ -131,7 +125,6 @@ const LocationDetailsPage = () => {
             onUpdateWorkOrder={handleUpdateWorkOrder} 
             onViewDetails={handleViewDetails} 
             profiles={profiles || []}
-            visibleColumns={defaultColumnKeys}
           />
         </Card>
       </Space>

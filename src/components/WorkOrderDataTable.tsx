@@ -15,10 +15,9 @@ interface WorkOrderDataTableProps {
   onDelete: (workOrderData: WorkOrder) => void;
   onUpdateWorkOrder: (id: string, updates: Partial<WorkOrder>) => void;
   onViewDetails: (workOrderId: string) => void;
-  visibleColumns: string[]; // New prop for visible columns
 }
 
-export function WorkOrderDataTable({ workOrders, technicians, locations, customers, vehicles, profiles, onEdit, onDelete, onUpdateWorkOrder, onViewDetails, visibleColumns }: WorkOrderDataTableProps) {
+export function WorkOrderDataTable({ workOrders, technicians, locations, customers, vehicles, profiles, onEdit, onDelete, onUpdateWorkOrder, onViewDetails }: WorkOrderDataTableProps) {
   const [columnWidths, setColumnWidths] = React.useState<Record<string, number>>({});
 
   const handleColumnResize = (key: string, width: number) => {
@@ -53,7 +52,6 @@ export function WorkOrderDataTable({ workOrders, technicians, locations, custome
     allProfiles: profiles,
     columnWidths,
     onColumnResize: handleColumnResize,
-    visibleColumns,
   });
 
   return (

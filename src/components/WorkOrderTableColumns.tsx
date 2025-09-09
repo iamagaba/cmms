@@ -30,7 +30,6 @@ interface GetColumnsProps {
   allProfiles: Profile[];
   columnWidths: Record<string, number>;
   onColumnResize: (key: string, width: number) => void;
-  visibleColumns: string[];
 }
 
 export const getColumns = ({
@@ -41,7 +40,6 @@ export const getColumns = ({
   allProfiles,
   columnWidths,
   onColumnResize,
-  visibleColumns,
 }: GetColumnsProps) => {
   const { token } = useToken();
   const priorityColors: Record<string, string> = { High: token.colorError, Medium: token.colorWarning, Low: token.colorSuccess };
@@ -177,9 +175,7 @@ export const getColumns = ({
     },
   ];
 
-  const filteredColumns = defaultColumns.filter(column => visibleColumns.includes(column.key));
-
-  return filteredColumns.map(col => ({
+  return defaultColumns.map(col => ({
     ...col,
     width: columnWidths[col.key] || col.width,
     onHeaderCell: (column: any) => ({

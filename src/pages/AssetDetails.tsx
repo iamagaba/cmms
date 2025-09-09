@@ -11,7 +11,7 @@ import dayjs from 'dayjs';
 import PageHeader from "@/components/PageHeader";
 import { CreateWorkOrderDialog } from "@/components/CreateWorkOrderDialog";
 import { WorkOrderFormDrawer } from "@/components/WorkOrderFormDrawer";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { camelToSnakeCase } from "@/utils/data-helpers"; // Import camelToSnakeCase
 import { showSuccess, showInfo, showError } from "@/utils/toast"; // Import toast utilities
 import { getColumns } from "@/components/WorkOrderTableColumns"; // Import getColumns

@@ -4,7 +4,7 @@ import { ArrowLeftOutlined, UserOutlined, MailOutlined, PhoneOutlined, PlusOutli
 import NotFound from "./NotFound";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query"; // Import useMutation
 import { supabase } from "@/integrations/supabase/client";
-import { Vehicle, Customer, WorkOrder, Technician, Location, Profile, ServiceCategory } from "@/types/supabase"; // Import Profile and ServiceCategory
+import { Vehicle, Customer, WorkOrder, Technician, Location, Profile } from "@/types/supabase"; // Import Profile
 import { WorkOrderDataTable, ALL_COLUMNS } from "@/components/WorkOrderDataTable"; // Import ALL_COLUMNS
 import { formatDistanceToNow } from 'date-fns';
 import dayjs from 'dayjs';
@@ -72,8 +72,6 @@ const AssetDetailsPage = () => {
       return data || [];
     }
   });
-  const { data: serviceCategories, isLoading: isLoadingServiceCategories } = useQuery<ServiceCategory[]>({ queryKey: ['service_categories'], queryFn: async () => { const { data, error } = await supabase.from('service_categories').select('*'); if (error) throw new Error(error.message); return data || []; } });
-
 
   const workOrderMutation = useMutation({
     mutationFn: async (workOrderData: Partial<WorkOrder>) => {
@@ -136,7 +134,7 @@ const AssetDetailsPage = () => {
     workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates }));
   };
 
-  const isLoading = isLoadingVehicle || isLoadingCustomer || isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingAllCustomers || isLoadingProfiles || isLoadingServiceCategories;
+  const isLoading = isLoadingVehicle || isLoadingCustomer || isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingAllCustomers || isLoadingProfiles;
 
   if (isLoading) {
     return <Skeleton active />;
@@ -245,7 +243,6 @@ const AssetDetailsPage = () => {
           onSave={handleSaveWorkOrder}
           technicians={technicians || []}
           locations={locations || []}
-          serviceCategories={serviceCategories || []}
           prefillData={prefillData}
         />
     </Space>

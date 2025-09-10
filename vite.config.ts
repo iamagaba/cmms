@@ -12,6 +12,7 @@ export default defineConfig(() => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "react-map-gl": path.resolve(__dirname, "./node_modules/react-map-gl/dist/esm/index.js"),
     },
   },
 }));

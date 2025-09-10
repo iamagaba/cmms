@@ -48,6 +48,7 @@
     "@types/leaflet": "latest",
     "@types/leaflet-geosearch": "latest",
     "@types/lodash.debounce": "latest",
+    "@types/supercluster": "^7.1.3",
     "@typescript-eslint/parser": "latest",
     "acorn": "latest",
     "antd": "latest",

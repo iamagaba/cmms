@@ -1,40 +1,42 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Steps, Popover, Typography, Tag, Space } from 'antd';
+import { Steps, Popover, Typography } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
-import duration, { Duration } from 'dayjs/plugin/duration';
-import { WorkOrder, SlaPolicy } from '@/types/supabase';
-import { CheckCircleOutlined, WarningOutlined, PauseCircleOutlined, ClockCircleOutlined } from '@ant-design/icons';
+import duration from 'dayjs/plugin/duration';
+import { WorkOrder } from '@/types/supabase';
 
 dayjs.extend(duration);
 
 const { Step } = Steps;
 const { Text } = Typography;
 
+interface StageTiming {
+  start: Dayjs | null;
+  end: Dayjs | null;
+  activeDurationMs: number;
+  onHoldDurationMs: number; // Total on-hold time that occurred *during* this stage's period
+}
+
 // Helper to format milliseconds into human-readable string
-const formatDurationDisplay = (durationValue: number | Duration | null, unit: string) => {
-  if (durationValue === null) return 'N/A';
-  if (typeof durationValue === 'number') { // For raw minutes/hours
-    return `${durationValue} ${unit}${durationValue !== 1 ? 's' : ''}`;
-  }
-  const totalSeconds = durationValue.asSeconds();
-  const days = Math.floor(totalSeconds / (3600 * 24));
-  const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
+const formatDuration = (ms: number): string => {
+  if (ms < 0) return '';
+  const d = dayjs.duration(ms);
+  const days = Math.floor(d.asDays());
+  const hours = d.hours() % 24;
+  const minutes = d.minutes();
 
   let parts: string[] = [];
   if (days > 0) parts.push(`${days}d`);
   if (hours > 0) parts.push(`${hours}h`);
-  if (minutes > 0 || (days === 0 && hours === 0 && totalSeconds > 0)) parts.push(`${minutes}m`);
-  if (parts.length === 0 && totalSeconds === 0) return '0m';
+  if (minutes > 0 || (days === 0 && hours === 0 && ms > 0)) parts.push(`${minutes}m`);
+  if (parts.length === 0 && ms === 0) return '0m';
   return parts.join(' ');
 };
 
 interface WorkOrderProgressTrackerProps {
   workOrder: WorkOrder;
-  slaPolicy: SlaPolicy | null; // Added slaPolicy prop
 }
 
-const WorkOrderProgressTracker = ({ workOrder, slaPolicy }: WorkOrderProgressTrackerProps) => {
+const WorkOrderProgressTracker = ({ workOrder }: WorkOrderProgressTrackerProps) => {
   const [now, setNow] = useState(dayjs());
 
   useEffect(() => {
@@ -53,52 +55,104 @@ const WorkOrderProgressTracker = ({ workOrder, slaPolicy }: WorkOrderProgressTra
     currentStepIndex = steps.indexOf('In Progress'); // 'On Hold' is a state within 'In Progress' for the tracker
   }
 
-  // Helper to calculate active duration, excluding on-hold time
-  const calculateActiveDuration = (start: Dayjs, end: Dayjs | null): Duration => {
-    if (!end) end = now;
-    let totalDurationSeconds = end.diff(start, 'second');
+  const stageTimings = useMemo(() => {
+    const timings: Record<string, StageTiming> = {};
+    steps.forEach(step => {
+      timings[step] = { start: null, end: null, activeDurationMs: 0, onHoldDurationMs: 0 };
+    });
 
-    // Subtract paused durations that occurred within this period
-    if (workOrder.total_paused_duration_seconds && workOrder.createdAt) {
-      const createdAt = dayjs(workOrder.createdAt);
-      const totalPausedSeconds = workOrder.total_paused_duration_seconds;
-      
-      // This is a simplification. A more robust solution would iterate through activityLog
-      // to find exact pause/resume times within the specific SLA period.
-      // For now, we'll subtract total paused duration from total elapsed time if the period overlaps.
-      if (start.isBefore(createdAt.add(totalPausedSeconds, 'seconds'))) {
-        totalDurationSeconds -= totalPausedSeconds;
+    // 1. Determine the start and end times for each *sequential* stage
+    // Use specific timestamps if available, otherwise fall back to status changes
+    
+    // Open stage starts at creation
+    if (workOrder.createdAt) {
+      timings['Open'].start = dayjs(workOrder.createdAt);
+    }
+
+    // Confirmation stage starts when Open ends, or at confirmed_at
+    if (workOrder.confirmed_at) {
+      timings['Confirmation'].start = dayjs(workOrder.confirmed_at);
+      if (timings['Open'].start && !timings['Open'].end) {
+        timings['Open'].end = dayjs(workOrder.confirmed_at);
       }
     }
-    return dayjs.duration(Math.max(0, totalDurationSeconds), 'seconds');
-  };
 
-  // SLA Calculations for display in descriptions
-  const isWalkIn = workOrder.channel === 'Service Center';
+    // In Progress stage starts when Ready ends, or at work_started_at
+    if (workOrder.work_started_at) {
+      timings['In Progress'].start = dayjs(workOrder.work_started_at);
+      // If Confirmation was the last explicit step before In Progress
+      if (timings['Confirmation'].start && !timings['Confirmation'].end) {
+        timings['Confirmation'].end = dayjs(workOrder.work_started_at);
+      }
+      // If Ready was the last explicit step before In Progress (e.g., direct from Ready to In Progress)
+      // This logic needs to be more robust to handle all transitions.
+      // For simplicity, we'll assume a linear flow for now based on explicit timestamps.
+    }
 
-  // First Response SLA (Creation to Confirmation)
-  const firstResponseTargetMinutes = slaPolicy?.first_response_minutes || 0;
-  const firstResponseActualDuration = workOrder.createdAt && workOrder.confirmed_at
-    ? dayjs(workOrder.confirmed_at).diff(dayjs(workOrder.createdAt), 'minute')
-    : null;
-  const isFirstResponseMet = firstResponseActualDuration !== null && firstResponseActualDuration <= firstResponseTargetMinutes;
-  const isFirstResponseOverdue = firstResponseActualDuration === null && !isWalkIn && workOrder.createdAt && now.diff(dayjs(workOrder.createdAt), 'minute') > firstResponseTargetMinutes;
+    // Completed stage starts when In Progress ends, or at completedAt
+    if (workOrder.completedAt) {
+      timings['Completed'].start = dayjs(workOrder.completedAt);
+      if (timings['In Progress'].start && !timings['In Progress'].end) {
+        timings['In Progress'].end = dayjs(workOrder.completedAt);
+      }
+    }
 
-  // Response Time SLA (Creation to Work Started)
-  const responseTargetHours = slaPolicy?.response_hours || 0;
-  const responseActualDuration = workOrder.createdAt && workOrder.work_started_at
-    ? calculateActiveDuration(dayjs(workOrder.createdAt), dayjs(workOrder.work_started_at))
-    : null;
-  const isResponseMet = responseActualDuration !== null && responseActualDuration.asHours() <= responseTargetHours;
-  const isResponseOverdue = responseActualDuration === null && workOrder.createdAt && now.diff(dayjs(workOrder.createdAt), 'hour') > responseTargetHours && workOrder.status !== 'Completed';
+    // Fill in gaps for intermediate statuses if explicit timestamps are missing
+    // This is a simplified approach. A full solution would parse activityLog for all status changes.
+    if (timings['Open'].start && !timings['Confirmation'].start && workOrder.status === 'Confirmation') {
+      timings['Confirmation'].start = now;
+      timings['Open'].end = now;
+    }
+    if (timings['Confirmation'].start && !timings['In Progress'].start && (workOrder.status === 'Ready' || workOrder.status === 'In Progress' || workOrder.status === 'On Hold')) {
+      timings['In Progress'].start = now; // Assuming 'Ready' is a precursor to 'In Progress'
+      timings['Confirmation'].end = now;
+    }
+    if (timings['In Progress'].start && !timings['Completed'].start && workOrder.status === 'Completed') {
+      timings['Completed'].start = now;
+      timings['In Progress'].end = now;
+    }
 
-  // Resolution Time SLA (Creation to Completion)
-  const resolutionTargetHours = slaPolicy?.resolution_hours || 0;
-  const resolutionActualDuration = workOrder.createdAt && workOrder.completedAt
-    ? calculateActiveDuration(dayjs(workOrder.createdAt), dayjs(workOrder.completedAt))
-    : null;
-  const isResolutionMet = resolutionActualDuration !== null && resolutionActualDuration.asHours() <= resolutionTargetHours;
-  const isResolutionOverdue = resolutionActualDuration === null && workOrder.createdAt && now.diff(dayjs(workOrder.createdAt), 'hour') > resolutionTargetHours && workOrder.status !== 'Completed';
+    // Ensure current active stage has an end time of 'now' if not completed
+    const currentActiveStage = workOrder.status === 'On Hold' ? 'In Progress' : workOrder.status;
+    if (currentActiveStage && timings[currentActiveStage].start && !timings[currentActiveStage].end && workOrder.status !== 'Completed') {
+      timings[currentActiveStage].end = now;
+    }
+
+
+    // 2. Calculate total on-hold periods
+    // This is simplified. A robust solution would parse activityLog for all 'On Hold' entries.
+    // For now, we use total_paused_duration_seconds and sla_timers_paused_at
+    const totalPausedDuration = dayjs.duration(workOrder.total_paused_duration_seconds || 0, 'seconds');
+    let currentPauseDuration: dayjs.duration.Duration = dayjs.duration(0); // Correct type
+    if (workOrder.status === 'On Hold' && workOrder.sla_timers_paused_at) {
+      currentPauseDuration = dayjs.duration(now.diff(dayjs(workOrder.sla_timers_paused_at), 'seconds'), 'seconds'); // Corrected to return Duration
+    }
+    const effectiveTotalPausedDuration = totalPausedDuration.add(currentPauseDuration); // .add can take Duration directly
+
+
+    // 3. Distribute active and on-hold durations to stages
+    steps.forEach(step => {
+      const timing = timings[step];
+      if (timing.start && timing.end) {
+        let totalTimeInStage = timing.end.diff(timing.start);
+        
+        // This is a simplification. Ideally, we'd track specific on-hold periods
+        // and apply them to the exact timeframes they occurred within each stage.
+        // For now, we'll subtract the total paused duration from the overall active time.
+        // This might not be perfectly accurate for individual stage durations if pauses
+        // span across multiple stages, but it's a reasonable approximation given current data.
+        timing.activeDurationMs = totalTimeInStage; // Start with total elapsed
+        timing.onHoldDurationMs = 0; // Reset for this stage
+
+        // If the work order was on hold during this stage's active period,
+        // we need to account for it. This is complex without detailed pause/resume logs.
+        // For now, we'll just show the total paused duration separately.
+        // The activeDurationMs will be the wall-clock time for the stage.
+      }
+    });
+
+    return timings;
+  }, [workOrder, now]);
 
 
   const getStatusTimestamp = (stage: string): string | null => {
@@ -122,7 +176,7 @@ const WorkOrderProgressTracker = ({ workOrder, slaPolicy }: WorkOrderProgressTra
   };
 
   const totalPausedDurationSeconds = (workOrder.total_paused_duration_seconds || 0) + (workOrder.status === 'On Hold' && workOrder.sla_timers_paused_at ? now.diff(dayjs(workOrder.sla_timers_paused_at), 'second') : 0);
-  const totalPausedDurationText = formatDurationDisplay(dayjs.duration(totalPausedDurationSeconds, 'seconds'), 'second');
+  const totalPausedDurationText = formatDuration(totalPausedDurationSeconds * 1000);
 
 
   return (
@@ -144,92 +198,19 @@ const WorkOrderProgressTracker = ({ workOrder, slaPolicy }: WorkOrderProgressTra
         }
         
         const description = (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          <>
             {timestamp && <Text type="secondary" style={{ fontSize: 12 }}>{timestamp}</Text>}
-            {workOrder.status === 'On Hold' && step === 'In Progress' && (
+            {stepStatus === 'error' && workOrder.onHoldReason && (
               <Popover content={workOrder.onHoldReason} title="On Hold Reason" trigger="hover">
-                <Text type="danger" style={{ fontSize: 12, display: 'block', cursor: 'pointer' }}>
-                  <PauseCircleOutlined /> On Hold
-                </Text>
+                <Text type="danger" style={{ fontSize: 12, display: 'block', cursor: 'pointer' }}>On Hold</Text>
               </Popover>
             )}
-            {workOrder.status === 'On Hold' && step === 'In Progress' && totalPausedDurationSeconds > 0 && (
+            {workOrder.status === 'On Hold' && step === 'In Progress' && (
               <Text type="warning" style={{ fontSize: 12, display: 'block' }}>
                 (Paused: {totalPausedDurationText})
               </Text>
             )}
-
-            {/* SLA Information */}
-            {slaPolicy && (
-              <>
-                {step === 'Confirmation' && !isWalkIn && firstResponseTargetMinutes > 0 && (
-                  <Space direction="vertical" size={0} style={{ marginTop: 4 }}>
-                    <Text style={{ fontSize: 12 }}>Target: {firstResponseTargetMinutes} mins</Text>
-                    {workOrder.status === 'Completed' || firstResponseActualDuration !== null ? (
-                      <Text style={{ fontSize: 12 }}>
-                        Actual: {formatDurationDisplay(firstResponseActualDuration, 'minute')}
-                        <Tag color={isFirstResponseMet ? 'success' : 'error'} style={{ marginLeft: 4 }}>
-                          {isFirstResponseMet ? 'Met' : 'Missed'}
-                        </Tag>
-                      </Text>
-                    ) : isFirstResponseOverdue ? (
-                      <Text style={{ fontSize: 12 }} type="danger">
-                        <WarningOutlined /> Overdue
-                      </Text>
-                    ) : (
-                      <Text style={{ fontSize: 12 }} type="secondary">
-                        <ClockCircleOutlined /> Pending
-                      </Text>
-                    )}
-                  </Space>
-                )}
-
-                {step === 'In Progress' && responseTargetHours > 0 && (
-                  <Space direction="vertical" size={0} style={{ marginTop: 4 }}>
-                    <Text style={{ fontSize: 12 }}>Target: {responseTargetHours} hrs</Text>
-                    {workOrder.status === 'Completed' || responseActualDuration !== null ? (
-                      <Text style={{ fontSize: 12 }}>
-                        Actual: {formatDurationDisplay(responseActualDuration, 'hour')}
-                        <Tag color={isResponseMet ? 'success' : 'error'} style={{ marginLeft: 4 }}>
-                          {isResponseMet ? 'Met' : 'Missed'}
-                        </Tag>
-                      </Text>
-                    ) : isResponseOverdue ? (
-                      <Text style={{ fontSize: 12 }} type="danger">
-                        <WarningOutlined /> Overdue
-                      </Text>
-                    ) : (
-                      <Text style={{ fontSize: 12 }} type="secondary">
-                        <ClockCircleOutlined /> Pending
-                      </Text>
-                    )}
-                  </Space>
-                )}
-
-                {step === 'Completed' && resolutionTargetHours > 0 && (
-                  <Space direction="vertical" size={0} style={{ marginTop: 4 }}>
-                    <Text style={{ fontSize: 12 }}>Target: {resolutionTargetHours} hrs</Text>
-                    {workOrder.status === 'Completed' ? (
-                      <Text style={{ fontSize: 12 }}>
-                        Actual: {formatDurationDisplay(resolutionActualDuration, 'hour')}
-                        <Tag color={isResolutionMet ? 'success' : 'error'} style={{ marginLeft: 4 }}>
-                          {isResolutionMet ? 'Met' : 'Missed'}
-                        </Tag>
-                      </Text>
-                    ) : isResolutionOverdue ? (
-                      <Text style={{ fontSize: 12 }} type="danger">
-                        <WarningOutlined /> Overdue
-                      </Text>
-                    ) : (
-                      <Text style={{ fontSize: 12 }} type="secondary">
-                        <ClockCircleOutlined /> Pending
-                      </Text>
-                    )}
-                  </Space>
-                )}
-              </>
-            )}
-          </div>
+          </>
         );
 
         return (

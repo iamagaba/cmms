@@ -2,13 +2,9 @@ import { useState, useEffect, useMemo } from 'react';
 import { Steps, Popover, Typography } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import { default as max } from 'dayjs/plugin/max'; // Explicitly import the default export
-import { default as min } from 'dayjs/plugin/min'; // Explicitly import the default export
 import { WorkOrder } from '@/types/supabase';
 
 dayjs.extend(duration);
-dayjs.extend(max); // Extend with the imported plugin function
-dayjs.extend(min); // Extend with the imported plugin function
 
 const { Step } = Steps;
 const { Text } = Typography;
@@ -154,8 +150,8 @@ const WorkOrderProgressTracker = ({ workOrder }: WorkOrderProgressTrackerProps) 
         let onHoldTimeInThisStage = 0;
 
         for (const period of onHoldPeriods) {
-          const overlapStart = timing.start && period.start ? (dayjs as any).max(timing.start, period.start) : null;
-          const overlapEnd = timing.end && period.end ? (dayjs as any).min(timing.end, period.end) : null;
+          const overlapStart = timing.start && period.start ? dayjs(Math.max(timing.start.valueOf(), period.start.valueOf())) : null;
+          const overlapEnd = timing.end && period.end ? dayjs(Math.min(timing.end.valueOf(), period.end.valueOf())) : null;
 
           if (overlapStart && overlapEnd && overlapEnd.isAfter(overlapStart)) {
             onHoldTimeInThisStage += overlapEnd.diff(overlapStart);

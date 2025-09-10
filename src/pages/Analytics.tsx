@@ -1,4 +1,4 @@
-import { Row, Col, Card, Typography, Skeleton, DatePicker } from 'antd';
+import { Row, Col, Card, Typography, Skeleton, DatePicker, Tabs } from 'antd';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,6 +12,7 @@ import CustomReportGenerator from '@/components/CustomReportGenerator';
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
+const { TabPane } = Tabs;
 
 const AnalyticsPage = () => {
   const [dateRange, setDateRange] = useState<[dayjs.Dayjs, dayjs.Dayjs]>([dayjs().subtract(30, 'days'), dayjs()]);
@@ -24,6 +25,15 @@ const AnalyticsPage = () => {
         .select('*')
         .gte('created_at', dateRange[0].toISOString())
         .lte('created_at', dateRange[1].toISOString());
+      if (error) throw new Error(error.message);
+      return data || [];
+    }
+  });
+
+  const { data: allWorkOrdersForReports, isLoading: isLoadingAllWorkOrders } = useQuery<WorkOrder[]>({
+    queryKey: ['work_orders_all'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('work_orders').select('*');
       if (error) throw new Error(error.message);
       return data || [];
     }
@@ -47,11 +57,13 @@ const AnalyticsPage = () => {
     }
   });
 
-  if (isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations) {
+  const isLoading = isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingAllWorkOrders;
+
+  if (isLoading) {
     return <Skeleton active />;
   }
 
-  // KPI Calculations
+  // KPI Calculations (using date-ranged data)
   const completedOrders = (workOrders || []).filter(wo => wo.status === 'Completed' && wo.completedAt && wo.createdAt);
   const slaMetCount = completedOrders.filter(wo => wo.slaDue && dayjs(wo.completedAt).isBefore(dayjs(wo.slaDue))).length;
   const slaCompliance = completedOrders.length > 0 ? (slaMetCount / completedOrders.length * 100).toFixed(1) : '0.0';
@@ -62,7 +74,7 @@ const AnalyticsPage = () => {
   }, 0);
   const avgCompletionTimeHours = completedOrders.length > 0 ? (totalCompletionTime / completedOrders.length).toFixed(1) : '0.0';
 
-  // Chart Data Processing
+  // Chart Data Processing (using date-ranged data)
   const statusData = ['Open', 'In Progress', 'On Hold', 'Completed'].map(status => ({
     name: status,
     count: (workOrders || []).filter(wo => wo.status === status).length,
@@ -97,90 +109,47 @@ const AnalyticsPage = () => {
 
   const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#AF19FF'];
 
-  return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <PageHeader
-        title="Analytics Dashboard"
-        actions={
-          <RangePicker value={dateRange} onChange={(dates) => dates && setDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])} />
-        }
-      />
-      
+  const dashboardContent = (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', paddingTop: '16px' }}>
       <Row gutter={[24, 24]}>
         <Col xs={24} sm={12} lg={6}><KpiCard title="Total Work Orders" value={(workOrders || []).length.toString()} icon={<ToolOutlined />} /></Col>
         <Col xs={24} sm={12} lg={6}><KpiCard title="Avg. Completion Time" value={`${avgCompletionTimeHours} hrs`} icon={<ClockCircleOutlined />} /></Col>
         <Col xs={24} sm={12} lg={6}><KpiCard title="SLA Compliance" value={`${slaCompliance}%`} icon={<CheckCircleOutlined />} /></Col>
         <Col xs={24} sm={12} lg={6}><KpiCard title="Active Technicians" value={(technicians || []).length.toString()} icon={<UserOutlined />} /></Col>
       </Row>
-
       <Row gutter={[24, 24]}>
-        <Col xs={24} lg={16}>
-          <Card title="Work Orders Over Time">
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={workOrdersOverTimeData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Legend />
-                <Line type="monotone" dataKey="count" stroke="#8884d8" name="New Work Orders" />
-              </LineChart>
-            </ResponsiveContainer>
-          </Card>
-        </Col>
-        <Col xs={24} lg={8}>
-          <Card title="Work Orders by Status">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={statusData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis type="number" allowDecimals={false} />
-                <YAxis dataKey="name" type="category" width={80} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="count" fill="#1677ff" name="Work Orders" />
-              </BarChart>
-            </ResponsiveContainer>
-          </Card>
-        </Col>
+        <Col xs={24} lg={16}><Card title="Work Orders Over Time"><ResponsiveContainer width="100%" height={300}><LineChart data={workOrdersOverTimeData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="date" /><YAxis allowDecimals={false} /><Tooltip /><Legend /><Line type="monotone" dataKey="count" stroke="#8884d8" name="New Work Orders" /></LineChart></ResponsiveContainer></Card></Col>
+        <Col xs={24} lg={8}><Card title="Work Orders by Status"><ResponsiveContainer width="100%" height={300}><BarChart data={statusData} layout="vertical"><CartesianGrid strokeDasharray="3 3" /><XAxis type="number" allowDecimals={false} /><YAxis dataKey="name" type="category" width={80} /><Tooltip /><Legend /><Bar dataKey="count" fill="#1677ff" name="Work Orders" /></BarChart></ResponsiveContainer></Card></Col>
       </Row>
-
       <Row gutter={[24, 24]}>
-        <Col xs={24} lg={16}>
-          <Card title="Technician Performance (Completed Orders)">
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={technicianPerformance}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis allowDecimals={false} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="completed" fill="#52c41a" name="Completed Tasks" />
-              </BarChart>
-            </ResponsiveContainer>
-          </Card>
-        </Col>
-        <Col xs={24} lg={8}>
-          <Card title="Channel Distribution">
-            <ResponsiveContainer width="100%" height={400}>
-              <PieChart>
-                <Pie data={channelDistributionData} cx="50%" cy="50%" labelLine={false} outerRadius={120} fill="#8884d8" dataKey="value" nameKey="name" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
-                  {channelDistributionData.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}
-                </Pie>
-                <Tooltip />
-                <Legend layout="vertical" verticalAlign="middle" align="right" />
-              </PieChart>
-            </ResponsiveContainer>
-          </Card>
-        </Col>
+        <Col xs={24} lg={16}><Card title="Technician Performance (Completed Orders)"><ResponsiveContainer width="100%" height={400}><BarChart data={technicianPerformance}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" /><YAxis allowDecimals={false} /><Tooltip /><Legend /><Bar dataKey="completed" fill="#52c41a" name="Completed Tasks" /></BarChart></ResponsiveContainer></Card></Col>
+        <Col xs={24} lg={8}><Card title="Channel Distribution"><ResponsiveContainer width="100%" height={400}><PieChart><Pie data={channelDistributionData} cx="50%" cy="50%" labelLine={false} outerRadius={120} fill="#8884d8" dataKey="value" nameKey="name" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>{channelDistributionData.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}</Pie><Tooltip /><Legend layout="vertical" verticalAlign="middle" align="right" /></PieChart></ResponsiveContainer></Card></Col>
       </Row>
+    </div>
+  );
 
-      <Row>
-        <Col span={24}>
-          <Card title="Custom Report Generation">
-            <CustomReportGenerator workOrders={workOrders || []} technicians={technicians || []} locations={locations || []} />
-          </Card>
-        </Col>
-      </Row>
+  const reportsContent = (
+    <Card style={{ marginTop: '16px' }}>
+      <CustomReportGenerator workOrders={allWorkOrdersForReports || []} technicians={technicians || []} locations={locations || []} />
+    </Card>
+  );
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      <PageHeader
+        title="Analytics & Reports"
+        actions={
+          <RangePicker value={dateRange} onChange={(dates) => dates && setDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])} />
+        }
+      />
+      <Tabs defaultActiveKey="1">
+        <TabPane tab="Analytics Dashboard" key="1">
+          {dashboardContent}
+        </TabPane>
+        <TabPane tab="Custom Reports" key="2">
+          {reportsContent}
+        </TabPane>
+      </Tabs>
     </div>
   );
 };

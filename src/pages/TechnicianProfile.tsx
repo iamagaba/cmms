@@ -1,12 +1,13 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Avatar, Card, Col, Row, Typography, Tag, Descriptions, Table, Button, Space, Skeleton } from "antd";
-import { ArrowLeftOutlined, MailOutlined, PhoneOutlined, ToolOutlined, CalendarOutlined, EnvironmentOutlined } from "@ant-design/icons";
+import { Avatar, Card, Col, Row, Typography, Tag, Descriptions, Table, Button, Space, Skeleton, Statistic } from "antd";
+import { ArrowLeftOutlined, MailOutlined, PhoneOutlined, ToolOutlined, CalendarOutlined, EnvironmentOutlined, CheckCircleOutlined, ClockCircleOutlined, IssuesCloseOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import NotFound from "./NotFound";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Technician, WorkOrder, Location, Vehicle } from "@/types/supabase";
 import PageHeader from "@/components/PageHeader";
+import { useMemo } from "react";
 
 const { Title, Text } = Typography;
 
@@ -56,6 +57,23 @@ const TechnicianProfilePage = () => {
     }
   });
 
+  const performanceMetrics = useMemo(() => {
+    if (!assignedWorkOrders) return null;
+
+    const completedOrders = assignedWorkOrders.filter(wo => wo.status === 'Completed' && wo.createdAt && wo.completedAt);
+    const totalCompleted = completedOrders.length;
+    const activeTasks = assignedWorkOrders.length - totalCompleted;
+
+    const totalCompletionHours = completedOrders.reduce((acc, wo) => acc + dayjs(wo.completedAt).diff(dayjs(wo.createdAt), 'hour'), 0);
+    const avgResolutionTime = totalCompleted > 0 ? (totalCompletionHours / totalCompleted).toFixed(1) : '0';
+
+    const completedWithSla = completedOrders.filter(wo => wo.slaDue);
+    const slaMetCount = completedWithSla.filter(wo => dayjs(wo.completedAt).isBefore(dayjs(wo.slaDue))).length;
+    const slaCompliance = completedWithSla.length > 0 ? ((slaMetCount / completedWithSla.length) * 100).toFixed(1) : '100';
+
+    return { totalCompleted, activeTasks, avgResolutionTime, slaCompliance };
+  }, [assignedWorkOrders]);
+
   const isLoading = isLoadingTechnician || isLoadingWorkOrders || isLoadingLocations || isLoadingVehicles;
 
   if (isLoading) {
@@ -92,6 +110,14 @@ const TechnicianProfilePage = () => {
           }
           hideSearch
         />
+        {performanceMetrics && (
+          <Row gutter={[16, 16]}>
+            <Col xs={24} sm={12} lg={6}><Card><Statistic title="Completed Jobs" value={performanceMetrics.totalCompleted} prefix={<ToolOutlined />} /></Card></Col>
+            <Col xs={24} sm={12} lg={6}><Card><Statistic title="Active Tasks" value={performanceMetrics.activeTasks} prefix={<IssuesCloseOutlined />} /></Card></Col>
+            <Col xs={24} sm={12} lg={6}><Card><Statistic title="Avg. Resolution Time" value={performanceMetrics.avgResolutionTime} suffix="hrs" prefix={<ClockCircleOutlined />} /></Card></Col>
+            <Col xs={24} sm={12} lg={6}><Card><Statistic title="SLA Compliance" value={performanceMetrics.slaCompliance} suffix="%" prefix={<CheckCircleOutlined />} /></Card></Col>
+          </Row>
+        )}
         <Row gutter={[16, 16]}>
             <Col xs={24} md={8}>
                 <Card>

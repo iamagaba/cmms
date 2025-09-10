@@ -245,7 +245,7 @@ const AssetDetailsPage = () => {
           onSave={handleSaveWorkOrder}
           technicians={technicians || []}
           locations={locations || []}
-          serviceCategories={serviceCategories || []} {/* Pass serviceCategories */}
+          serviceCategories={serviceCategories || []}
           prefillData={prefillData}
         />
     </Space>

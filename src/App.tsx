@@ -118,7 +118,12 @@ const App = () => (
           colorSplit: '#f3f4f6',
         },
         components: {
-          Table: { padding: 12, paddingSM: 8 },
+          Table: { 
+            padding: 12, 
+            paddingSM: 8,
+            rowSelectedBg: '#f5f5f5',
+            rowSelectedHoverBg: '#eeeeee',
+          },
           Card: { padding: 16 },
           Form: { itemMarginBottom: 16 },
           Layout: { headerBg: '#ffffff', headerPadding: '0 24px', headerHeight: 64, siderBg: '#ffffff' },

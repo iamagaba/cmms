@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import NotFound from "./NotFound";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { WorkOrder, Technician, Location, Customer, Vehicle, WorkOrderPart } from "@/types/supabase";
+import { WorkOrder, Technician, Location, Customer, Vehicle, WorkOrderPart, ServiceCategory, SlaPolicy } from "@/types/supabase";
 import { useState } from "react";
 import { showSuccess, showError, showInfo } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
@@ -15,6 +15,7 @@ import { useSearchParams } from "react-router-dom";
 import { AddPartToWorkOrderDialog } from "@/components/AddPartToWorkOrderDialog";
 import PageHeader from "@/components/PageHeader";
 import WorkOrderProgressTracker from "@/components/WorkOrderProgressTracker";
+import SlaStatusCard from "@/components/SlaStatusCard"; // Import the new SLA Status Card
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -77,6 +78,11 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
           customerId: data.customer_id,
           vehicleId: data.vehicle_id,
           created_by: data.created_by, // Ensure created_by is also mapped if it's snake_case in DB
+          service_category_id: data.service_category_id,
+          confirmed_at: data.confirmed_at,
+          work_started_at: data.work_started_at,
+          sla_timers_paused_at: data.sla_timers_paused_at,
+          total_paused_duration_seconds: data.total_paused_duration_seconds,
         };
         console.log('Mapped work order data (camelCase):', mappedData);
         return mappedData;
@@ -92,6 +98,8 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   const { data: customer, isLoading: isLoadingCustomer } = useQuery<Customer | null>({ queryKey: ['customer', workOrder?.customerId], queryFn: async () => { if (!workOrder?.customerId) return null; const { data, error } = await supabase.from('customers').select('*').eq('id', workOrder.customerId).single(); if (error) throw new Error(error.message); return data; }, enabled: !!workOrder?.customerId });
   const { data: vehicle, isLoading: isLoadingVehicle } = useQuery<Vehicle | null>({ queryKey: ['vehicle', workOrder?.vehicleId], queryFn: async () => { if (!workOrder?.vehicleId) return null; const { data, error } = await supabase.from('vehicles').select('*').eq('id', workOrder.vehicleId).single(); if (error) throw new Error(error.message); return data; }, enabled: !!workOrder?.vehicleId });
   const { data: usedParts, isLoading: isLoadingUsedParts } = useQuery<WorkOrderPart[]>({ queryKey: ['work_order_parts', id], queryFn: async () => { if (!id) return []; const { data, error } = await supabase.from('work_order_parts').select('*, inventory_items(*)').eq('work_order_id', id); if (error) throw new Error(error.message); return data || []; }, enabled: !!id });
+  const { data: serviceCategories, isLoading: isLoadingServiceCategories } = useQuery<ServiceCategory[]>({ queryKey: ['service_categories'], queryFn: async () => { const { data, error } = await supabase.from('service_categories').select('*'); if (error) throw new Error(error.message); return data || []; } });
+  const { data: slaPolicies, isLoading: isLoadingSlaPolicies } = useQuery<SlaPolicy[]>({ queryKey: ['sla_policies'], queryFn: async () => { const { data, error } = await supabase.from('sla_policies').select('*'); if (error) throw new Error(error.message); return data || []; } });
 
   const workOrderMutation = useMutation({ 
     mutationFn: async (workOrderData: Partial<WorkOrder>) => { 
@@ -129,35 +137,37 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     const newActivityLog = [...(workOrder.activityLog || [])];
     let activityMessage = '';
 
-    if (updates.status && updates.status !== oldWorkOrder.status) {
-      activityMessage = `Status changed from '${oldWorkOrder.status || 'N/A'}' to '${updates.status}'.`;
-    } else if (updates.assignedTechnicianId && updates.assignedTechnicianId !== oldWorkOrder.assignedTechnicianId) {
-      const oldTech = allTechnicians?.find(t => t.id === oldWorkOrder.assignedTechnicianId)?.name || 'Unassigned';
-      const newTech = allTechnicians?.find(t => t.id === updates.assignedTechnicianId)?.name || 'Unassigned';
-      activityMessage = `Assigned technician changed from '${oldTech}' to '${newTech}'.`;
-    } else if (updates.slaDue && updates.slaDue !== oldWorkOrder.slaDue) {
-      activityMessage = `SLA due date updated to '${dayjs(updates.slaDue).format('MMM D, YYYY h:mm A')}'.`;
-    } else if (updates.appointmentDate && updates.appointmentDate !== oldWorkOrder.appointmentDate) {
-      activityMessage = `Appointment date updated to '${dayjs(updates.appointmentDate).format('MMM D, YYYY h:mm A')}'.`;
-    } else if (updates.service && updates.service !== oldWorkOrder.service) {
-      activityMessage = `Service description updated.`;
-    } else if (updates.serviceNotes && updates.serviceNotes !== oldWorkOrder.serviceNotes) {
-      activityMessage = `Service notes updated.`;
-    } else if (updates.priority && updates.priority !== oldWorkOrder.priority) {
-      activityMessage = `Priority changed from '${oldWorkOrder.priority || 'N/A'}' to '${updates.priority}'.`;
-    } else if (updates.channel && updates.channel !== oldWorkOrder.channel) {
-      activityMessage = `Channel changed from '${oldWorkOrder.channel || 'N/A'}' to '${updates.channel}'.`;
-    } else if (updates.locationId && updates.locationId !== oldWorkOrder.locationId) {
-      const oldLoc = allLocations?.find(l => l.id === oldWorkOrder.locationId)?.name || 'N/A';
-      const newLoc = allLocations?.find(l => l.id === updates.locationId)?.name || 'N/A';
-      activityMessage = `Service location changed from '${oldLoc}' to '${newLoc}'.`;
-    } else if (updates.customerAddress && updates.customerAddress !== oldWorkOrder.customerAddress) {
-      activityMessage = `Client address updated to '${updates.customerAddress}'.`;
-    } else if (updates.customerLat !== oldWorkOrder.customerLat || updates.customerLng !== oldWorkOrder.customerLng) {
-      activityMessage = `Client coordinates updated.`;
-    } else {
-      activityMessage = 'Work order details updated.'; // Generic message for other changes
+    // --- Timestamp & SLA Automation ---
+    const oldStatus = oldWorkOrder.status;
+    const newStatus = updates.status;
+
+    if (newStatus && newStatus !== oldStatus) {
+      activityMessage = `Status changed from '${oldStatus || 'N/A'}' to '${newStatus}'.`;
+      if (newStatus === 'Confirmation' && !oldWorkOrder.confirmed_at) updates.confirmed_at = new Date().toISOString();
+      if (newStatus === 'In Progress' && !oldWorkOrder.work_started_at) updates.work_started_at = new Date().toISOString();
+      if (newStatus === 'On Hold' && oldStatus !== 'On Hold') updates.sla_timers_paused_at = new Date().toISOString();
+      if (oldStatus === 'On Hold' && newStatus !== 'On Hold' && oldWorkOrder.sla_timers_paused_at) {
+        const pausedAt = dayjs(oldWorkOrder.sla_timers_paused_at);
+        const resumedAt = dayjs();
+        const durationPaused = resumedAt.diff(pausedAt, 'second');
+        updates.total_paused_duration_seconds = (oldWorkOrder.total_paused_duration_seconds || 0) + durationPaused;
+        updates.sla_timers_paused_at = null;
+        activityMessage += ` (SLA timers resumed after ${durationPaused}s pause).`;
+      }
     }
+
+    if (updates.service_category_id && updates.service_category_id !== oldWorkOrder.service_category_id) {
+      const policy = slaPolicies?.find(p => p.service_category_id === updates.service_category_id);
+      const category = serviceCategories?.find(c => c.id === updates.service_category_id);
+      if (policy && policy.resolution_hours) {
+        const createdAt = dayjs(oldWorkOrder.createdAt);
+        const totalPausedSeconds = updates.total_paused_duration_seconds || oldWorkOrder.total_paused_duration_seconds || 0;
+        const newSlaDue = createdAt.add(policy.resolution_hours, 'hours').add(totalPausedSeconds, 'seconds').toISOString();
+        updates.slaDue = newSlaDue;
+        activityMessage += ` Service category set to '${category?.name}'. Resolution SLA updated.`;
+      }
+    }
+    // --- End Automation ---
 
     if (activityMessage) {
       newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage });
@@ -168,10 +178,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
       setOnHoldWorkOrder(workOrder); 
       return; 
     } 
-    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready') { 
-      updates.status = 'In Progress'; 
-      showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`); 
-    } 
+    
     workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates })); 
   };
   const handleSaveOnHoldReason = (reason: string) => { if (!onHoldWorkOrder) return; const updates = { status: 'On Hold' as const, onHoldReason: reason }; workOrderMutation.mutate(camelToSnakeCase({ id: onHoldWorkOrder.id, ...updates })); setOnHoldWorkOrder(null); };
@@ -179,7 +186,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   const handleAddPart = (itemId: string, quantity: number) => { addPartMutation.mutate({ itemId, quantity }); };
   const handleRemovePart = (partId: string) => { removePartMutation.mutate(partId); };
 
-  const isLoading = isLoadingWorkOrder || isLoadingTechnician || isLoadingLocation || isLoadingAllTechnicians || isLoadingAllLocations || isLoadingCustomer || isLoadingVehicle || isLoadingUsedParts;
+  const isLoading = isLoadingWorkOrder || isLoadingTechnician || isLoadingLocation || isLoadingAllTechnicians || isLoadingAllLocations || isLoadingCustomer || isLoadingVehicle || isLoadingUsedParts || isLoadingServiceCategories || isLoadingSlaPolicies;
 
   if (isLoading) return <Skeleton active />;
   if (!workOrder) return isDrawerMode ? <div style={{ padding: 24 }}><NotFound /></div> : <NotFound />;
@@ -217,6 +224,8 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   ];
   const partsTotal = (usedParts || []).reduce((sum, part) => sum + (part.quantity_used * part.price_at_time_of_use), 0);
 
+  const currentSlaPolicy = slaPolicies?.find(p => p.service_category_id === workOrder.service_category_id) || null;
+
   // --- Reusable Content Blocks ---
   const customerVehicleCard = (
     <Card title="Customer & Vehicle Details">
@@ -234,6 +243,21 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     <Card title="Service Information">
       <Title level={5} editable={{ onChange: (value) => handleUpdateWorkOrder({ service: value }) }}>{workOrder.service}</Title>
       <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ serviceNotes: value }) }} type="secondary">{workOrder.serviceNotes}</Paragraph>
+      <Descriptions column={1} bordered style={{ marginTop: 16 }}>
+        <Descriptions.Item label="Service Category" labelStyle={{ width: '150px' }}>
+          <Select
+            value={workOrder.service_category_id}
+            onChange={(value) => handleUpdateWorkOrder({ service_category_id: value })}
+            style={{ width: '100%' }}
+            bordered={false}
+            allowClear
+            placeholder="Select category"
+            suffixIcon={null}
+          >
+            {(serviceCategories || []).map(sc => <Option key={sc.id} value={sc.id}>{sc.name}</Option>)}
+          </Select>
+        </Descriptions.Item>
+      </Descriptions>
     </Card>
   );
 
@@ -332,6 +356,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
             <Tabs defaultActiveKey="1">
               <TabPane tab={<span><InfoCircleOutlined /> Overview</span>} key="1">
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  {workOrder.service_category_id && <SlaStatusCard workOrder={workOrder} slaPolicy={currentSlaPolicy} />}
                   {serviceInfoCard}
                   {workOrderDetailsCard}
                   {customerVehicleCard}
@@ -358,6 +383,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
             <Row gutter={[16, 16]}>
               <Col xs={24} lg={16}>
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  {workOrder.service_category_id && <SlaStatusCard workOrder={workOrder} slaPolicy={currentSlaPolicy} />}
                   {serviceInfoCard}
                   {partsCard}
                   {activityLogCard}

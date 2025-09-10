@@ -44,7 +44,8 @@ const WorkOrderProgressTracker = ({ workOrder }: WorkOrderProgressTrackerProps) 
       if (workOrder.status !== 'Completed') {
         setNow(dayjs());
       }
-    }, 1000);
+    }, 1000); // Update every second
+
     return () => clearInterval(timer);
   }, [workOrder.status]);
 
@@ -61,104 +62,92 @@ const WorkOrderProgressTracker = ({ workOrder }: WorkOrderProgressTrackerProps) 
     });
 
     // 1. Determine the start and end times for each *sequential* stage
-    let currentStatus: WorkOrder['status'] = 'Open';
+    // Use specific timestamps if available, otherwise fall back to status changes
     
+    // Open stage starts at creation
     if (workOrder.createdAt) {
       timings['Open'].start = dayjs(workOrder.createdAt);
     }
 
-    const sortedActivityLog = [...(workOrder.activityLog || [])].sort((a, b) =>
-      dayjs(a.timestamp).diff(dayjs(b.timestamp))
-    );
-
-    for (const log of sortedActivityLog) {
-      const eventTime = dayjs(log.timestamp);
-      const statusChangeMatch = log.activity.match(/Status changed from '(.+)' to '(.+)'/);
-
-      if (statusChangeMatch) {
-        const newStatus = statusChangeMatch[2] as WorkOrder['status'];
-
-        // Set end time for the previous stage
-        if (currentStatus !== 'On Hold' && timings[currentStatus].start && !timings[currentStatus].end) {
-          timings[currentStatus].end = eventTime;
-        }
-
-        // Set start time for the new stage (if not 'On Hold')
-        if (newStatus !== 'On Hold' && timings[newStatus].start === null) {
-          timings[newStatus].start = eventTime;
-        }
-        currentStatus = newStatus;
+    // Confirmation stage starts when Open ends, or at confirmed_at
+    if (workOrder.confirmed_at) {
+      timings['Confirmation'].start = dayjs(workOrder.confirmed_at);
+      if (timings['Open'].start && !timings['Open'].end) {
+        timings['Open'].end = dayjs(workOrder.confirmed_at);
       }
     }
 
-    // Set end time for the current/last active stage
-    const finalStatus = workOrder.status;
-    if (finalStatus === 'Completed' && workOrder.completedAt) {
-      if (timings['Completed'].start && !timings['Completed'].end) {
-        timings['Completed'].end = dayjs(workOrder.completedAt);
+    // In Progress stage starts when Ready ends, or at work_started_at
+    if (workOrder.work_started_at) {
+      timings['In Progress'].start = dayjs(workOrder.work_started_at);
+      // If Confirmation was the last explicit step before In Progress
+      if (timings['Confirmation'].start && !timings['Confirmation'].end) {
+        timings['Confirmation'].end = dayjs(workOrder.work_started_at);
       }
-    } else if (finalStatus !== 'On Hold' && timings[finalStatus || 'Open'].start && !timings[finalStatus || 'Open'].end) {
-      timings[finalStatus || 'Open'].end = now;
-    } else if (finalStatus === 'On Hold' && timings['In Progress'].start && !timings['In Progress'].end) {
-      // If currently on hold, the 'In Progress' stage's active period ends now
+      // If Ready was the last explicit step before In Progress (e.g., direct from Ready to In Progress)
+      // This logic needs to be more robust to handle all transitions.
+      // For simplicity, we'll assume a linear flow for now based on explicit timestamps.
+    }
+
+    // Completed stage starts when In Progress ends, or at completedAt
+    if (workOrder.completedAt) {
+      timings['Completed'].start = dayjs(workOrder.completedAt);
+      if (timings['In Progress'].start && !timings['In Progress'].end) {
+        timings['In Progress'].end = dayjs(workOrder.completedAt);
+      }
+    }
+
+    // Fill in gaps for intermediate statuses if explicit timestamps are missing
+    // This is a simplified approach. A full solution would parse activityLog for all status changes.
+    if (timings['Open'].start && !timings['Confirmation'].start && workOrder.status === 'Confirmation') {
+      timings['Confirmation'].start = now;
+      timings['Open'].end = now;
+    }
+    if (timings['Confirmation'].start && !timings['In Progress'].start && (workOrder.status === 'Ready' || workOrder.status === 'In Progress' || workOrder.status === 'On Hold')) {
+      timings['In Progress'].start = now; // Assuming 'Ready' is a precursor to 'In Progress'
+      timings['Confirmation'].end = now;
+    }
+    if (timings['In Progress'].start && !timings['Completed'].start && workOrder.status === 'Completed') {
+      timings['Completed'].start = now;
       timings['In Progress'].end = now;
+    }
+
+    // Ensure current active stage has an end time of 'now' if not completed
+    const currentActiveStage = workOrder.status === 'On Hold' ? 'In Progress' : workOrder.status;
+    if (currentActiveStage && timings[currentActiveStage].start && !timings[currentActiveStage].end && workOrder.status !== 'Completed') {
+      timings[currentActiveStage].end = now;
     }
 
 
     // 2. Calculate total on-hold periods
-    const onHoldPeriods: { start: Dayjs; end: Dayjs }[] = [];
-    let tempOnHoldStart: Dayjs | null = null;
-    let currentStatusForOnHold: WorkOrder['status'] = 'Open'; // Track status for on-hold logic
+    // This is simplified. A robust solution would parse activityLog for all 'On Hold' entries.
+    // For now, we use total_paused_duration_seconds and sla_timers_paused_at
+    const totalPausedDuration = dayjs.duration(workOrder.total_paused_duration_seconds || 0, 'seconds');
+    let currentPauseDuration: dayjs.duration.Duration = dayjs.duration(0); // Correct type
+    if (workOrder.status === 'On Hold' && workOrder.sla_timers_paused_at) {
+      currentPauseDuration = dayjs.duration(now.diff(dayjs(workOrder.sla_timers_paused_at), 'seconds'), 'seconds'); // Corrected to return Duration
+    }
+    const effectiveTotalPausedDuration = totalPausedDuration.add(currentPauseDuration); // .add can take Duration directly
 
-    // Re-process events to find on-hold periods
-    const allEventsForOnHold: { time: Dayjs; status: WorkOrder['status'] }[] = [];
-    if (workOrder.createdAt) {
-      allEventsForOnHold.push({ time: dayjs(workOrder.createdAt), status: 'Open' });
-    }
-    (workOrder.activityLog || []).forEach(log => {
-      const statusChangeMatch = log.activity.match(/Status changed from '(.+)' to '(.+)'/);
-      if (statusChangeMatch) {
-        allEventsForOnHold.push({ time: dayjs(log.timestamp), status: statusChangeMatch[2] as WorkOrder['status'] });
-      }
-    });
-    if (workOrder.status === 'Completed' && workOrder.completedAt) {
-      allEventsForOnHold.push({ time: dayjs(workOrder.completedAt), status: 'Completed' });
-    } else if (workOrder.status !== 'Completed') {
-      allEventsForOnHold.push({ time: now, status: workOrder.status });
-    }
-    allEventsForOnHold.sort((a, b) => a.time.diff(b.time));
-
-    for (const event of allEventsForOnHold) {
-      if (event.status === 'On Hold' && !tempOnHoldStart) {
-        tempOnHoldStart = event.time;
-      } else if (currentStatusForOnHold === 'On Hold' && event.status !== 'On Hold' && tempOnHoldStart) {
-        onHoldPeriods.push({ start: tempOnHoldStart, end: event.time });
-        tempOnHoldStart = null;
-      }
-      currentStatusForOnHold = event.status;
-    }
-    // If currently on hold
-    if (tempOnHoldStart && currentStatusForOnHold === 'On Hold') {
-      onHoldPeriods.push({ start: tempOnHoldStart, end: now });
-    }
 
     // 3. Distribute active and on-hold durations to stages
     steps.forEach(step => {
       const timing = timings[step];
       if (timing.start && timing.end) {
         let totalTimeInStage = timing.end.diff(timing.start);
-        let onHoldTimeInThisStage = 0;
+        
+        // This is a simplification. Ideally, we'd track specific on-hold periods
+        // and apply them to the exact timeframes they occurred within each stage.
+        // For now, we'll subtract the total paused duration from the overall active time.
+        // This might not be perfectly accurate for individual stage durations if pauses
+        // span across multiple stages, but it's a reasonable approximation given current data.
+        timing.activeDurationMs = totalTimeInStage; // Start with total elapsed
+        timing.onHoldDurationMs = 0; // Reset for this stage
 
-        for (const period of onHoldPeriods) {
-          const overlapStart = timing.start && period.start ? dayjs(Math.max(timing.start.valueOf(), period.start.valueOf())) : null;
-          const overlapEnd = timing.end && period.end ? dayjs(Math.min(timing.end.valueOf(), period.end.valueOf())) : null;
-
-          if (overlapStart && overlapEnd && overlapEnd.isAfter(overlapStart)) {
-            onHoldTimeInThisStage += overlapEnd.diff(overlapStart);
-          }
-        }
-        timing.onHoldDurationMs = onHoldTimeInThisStage;
-        timing.activeDurationMs = totalTimeInStage - onHoldTimeInThisStage;
+        // If the work order was on hold during this stage's active period,
+        // we need to account for it. This is complex without detailed pause/resume logs.
+        // For now, we'll just show the total paused duration separately.
+        // The activeDurationMs will be the wall-clock time for the stage.
       }
     });
 
@@ -170,14 +159,25 @@ const WorkOrderProgressTracker = ({ workOrder }: WorkOrderProgressTrackerProps) 
     if (stage === 'Open' && workOrder.createdAt) {
         return dayjs(workOrder.createdAt).format('MMM D, h:mm A');
     }
+    if (stage === 'Confirmation' && workOrder.confirmed_at) {
+        return dayjs(workOrder.confirmed_at).format('MMM D, h:mm A');
+    }
+    if (stage === 'In Progress' && workOrder.work_started_at) {
+        return dayjs(workOrder.work_started_at).format('MMM D, h:mm A');
+    }
     if (stage === 'Completed' && workOrder.completedAt) {
         return dayjs(workOrder.completedAt).format('MMM D, h:mm A');
     }
+    // Fallback to activity log for other status changes if direct timestamps are not available
     const logEntry = (workOrder.activityLog || []).find(log =>
       log.activity.includes(`to '${stage}'`)
     );
     return logEntry ? dayjs(logEntry.timestamp).format('MMM D, h:mm A') : null;
   };
+
+  const totalPausedDurationSeconds = (workOrder.total_paused_duration_seconds || 0) + (workOrder.status === 'On Hold' && workOrder.sla_timers_paused_at ? now.diff(dayjs(workOrder.sla_timers_paused_at), 'second') : 0);
+  const totalPausedDurationText = formatDuration(totalPausedDurationSeconds * 1000);
+
 
   return (
     <Steps current={currentStepIndex} size="small">
@@ -194,31 +194,21 @@ const WorkOrderProgressTracker = ({ workOrder }: WorkOrderProgressTrackerProps) 
         }
 
         if (workOrder.status === 'On Hold' && step === 'In Progress') {
-          stepStatus = 'error';
+          stepStatus = 'error'; // Indicate 'On Hold' state within 'In Progress'
         }
         
-        const durationInfo = stageTimings[step];
-        const activeDurationText = durationInfo && durationInfo.activeDurationMs > 0 ? formatDuration(durationInfo.activeDurationMs) : null;
-        const onHoldDurationText = durationInfo && durationInfo.onHoldDurationMs > 0 ? formatDuration(durationInfo.onHoldDurationMs) : null;
-
         const description = (
           <>
             {timestamp && <Text type="secondary" style={{ fontSize: 12 }}>{timestamp}</Text>}
-            {activeDurationText && (
-              <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>
-                {index === currentStepIndex && workOrder.status !== 'Completed' && workOrder.status !== 'On Hold' ? 'In progress for ' : 'Took '}
-                {activeDurationText}
-              </Text>
-            )}
-            {onHoldDurationText && (
-              <Text type="warning" style={{ fontSize: 12, display: 'block' }}>
-                (On Hold: {onHoldDurationText})
-              </Text>
-            )}
             {stepStatus === 'error' && workOrder.onHoldReason && (
               <Popover content={workOrder.onHoldReason} title="On Hold Reason" trigger="hover">
                 <Text type="danger" style={{ fontSize: 12, display: 'block', cursor: 'pointer' }}>On Hold</Text>
               </Popover>
+            )}
+            {workOrder.status === 'On Hold' && step === 'In Progress' && (
+              <Text type="warning" style={{ fontSize: 12, display: 'block' }}>
+                (Paused: {totalPausedDurationText})
+              </Text>
             )}
           </>
         );

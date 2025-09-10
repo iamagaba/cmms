@@ -4,7 +4,7 @@ import { ArrowLeftOutlined, UserOutlined, MailOutlined, PhoneOutlined, PlusOutli
 import NotFound from "./NotFound";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query"; // Import useMutation
 import { supabase } from "@/integrations/supabase/client";
-import { Vehicle, Customer, WorkOrder, Technician, Location, Profile } from "@/types/supabase"; // Import Profile
+import { Vehicle, Customer, WorkOrder, Technician, Location, Profile, ServiceCategory, SlaPolicy } from "@/types/supabase"; // Import Profile, ServiceCategory, SlaPolicy
 import { WorkOrderDataTable, ALL_COLUMNS } from "@/components/WorkOrderDataTable"; // Import ALL_COLUMNS
 import { formatDistanceToNow } from 'date-fns';
 import dayjs from 'dayjs';
@@ -72,6 +72,9 @@ const AssetDetailsPage = () => {
       return data || [];
     }
   });
+  const { data: serviceCategories, isLoading: isLoadingServiceCategories } = useQuery<ServiceCategory[]>({ queryKey: ['service_categories'], queryFn: async () => { const { data, error } = await supabase.from('service_categories').select('*'); if (error) throw new Error(error.message); return data || []; } });
+  const { data: slaPolicies, isLoading: isLoadingSlaPolicies } = useQuery<SlaPolicy[]>({ queryKey: ['sla_policies'], queryFn: async () => { const { data, error } = await supabase.from('sla_policies').select('*'); if (error) throw new Error(error.message); return data || []; } });
+
 
   const workOrderMutation = useMutation({
     mutationFn: async (workOrderData: Partial<WorkOrder>) => {
@@ -134,7 +137,7 @@ const AssetDetailsPage = () => {
     workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates }));
   };
 
-  const isLoading = isLoadingVehicle || isLoadingCustomer || isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingAllCustomers || isLoadingProfiles;
+  const isLoading = isLoadingVehicle || isLoadingCustomer || isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingAllCustomers || isLoadingProfiles || isLoadingServiceCategories || isLoadingSlaPolicies;
 
   if (isLoading) {
     return <Skeleton active />;
@@ -244,6 +247,8 @@ const AssetDetailsPage = () => {
           technicians={technicians || []}
           locations={locations || []}
           prefillData={prefillData}
+          serviceCategories={serviceCategories || []}
+          slaPolicies={slaPolicies || []}
         />
     </Space>
   );

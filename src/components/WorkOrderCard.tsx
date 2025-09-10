@@ -60,7 +60,13 @@ const WorkOrderCard = ({ order, technician, vehicle, onUpdateWorkOrder, onViewDe
       {/* Header: ID and SLA */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Text code style={{ fontSize: '11px' }}>{order.workOrderNumber}</Text>
-        <SlaCountdown slaDue={order.slaDue} status={order.status} completedAt={order.completedAt} />
+        <SlaCountdown 
+          slaDue={order.slaDue} 
+          status={order.status} 
+          completedAt={order.completedAt} 
+          slaTimersPausedAt={order.sla_timers_paused_at} // Pass new prop
+          totalPausedDurationSeconds={order.total_paused_duration_seconds} // Pass new prop
+        />
       </div>
 
       {/* Body: Vehicle and Service */}

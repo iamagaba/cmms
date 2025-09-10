@@ -137,7 +137,15 @@ export const getColumns = ({
       key: "slaStatus",
       title: "SLA", // Changed from "SLA Status" to "SLA"
       dataIndex: "slaDue",
-      render: (_: any, record: WorkOrderRow) => <SlaCountdown slaDue={record.slaDue} status={record.status} completedAt={record.completedAt} />,
+      render: (_: any, record: WorkOrderRow) => (
+        <SlaCountdown 
+          slaDue={record.slaDue} 
+          status={record.status} 
+          completedAt={record.completedAt} 
+          slaTimersPausedAt={record.sla_timers_paused_at} // Pass new prop
+          totalPausedDurationSeconds={record.total_paused_duration_seconds} // Pass new prop
+        />
+      ),
       width: 180,
       sorter: (a: WorkOrderRow, b: WorkOrderRow) => dayjs(a.slaDue).unix() - dayjs(b.slaDue).unix(),
     },

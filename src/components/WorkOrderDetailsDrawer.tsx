@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { WorkOrder, Technician, Location } from '@/types/supabase';
 import WorkOrderDetails from '@/pages/WorkOrderDetails';
-import NotFound from '@/pages/NotFound'; // Added missing import
+import NotFound from '@/pages/NotFound';
 
 interface WorkOrderDetailsDrawerProps {
   workOrderId: string | null;
@@ -15,12 +15,14 @@ interface WorkOrderDetailsDrawerProps {
 const { Title } = Typography;
 
 const WorkOrderDetailsDrawer = ({ workOrderId, onClose }: WorkOrderDetailsDrawerProps) => {
+  console.log('WorkOrderDetailsDrawer rendering. workOrderId:', workOrderId);
   const navigate = useNavigate();
 
   const { data: workOrder, isLoading: isLoadingWorkOrder } = useQuery<WorkOrder | null>({
     queryKey: ['work_order', workOrderId],
     queryFn: async () => {
       if (!workOrderId) return null;
+      console.log('WorkOrderDetailsDrawer: Fetching work order details for ID:', workOrderId);
       const { data, error } = await supabase.from('work_orders').select('*').eq('id', workOrderId).single();
       if (error) throw new Error(error.message);
       if (data) {
@@ -77,8 +79,9 @@ const WorkOrderDetailsDrawer = ({ workOrderId, onClose }: WorkOrderDetailsDrawer
       width={800}
       destroyOnClose
     >
-      {/* Pass the fetched data to WorkOrderDetailsPage */}
-      {isLoadingWorkOrder ? <Skeleton active /> : (
+      {isLoadingWorkOrder ? (
+        <Skeleton active />
+      ) : (
         workOrder ? (
           <WorkOrderDetails isDrawerMode drawerWorkOrder={workOrder} drawerIsLoadingWorkOrder={isLoadingWorkOrder} />
         ) : (

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Drawer, Form, Input, Select, Button, DatePicker, Col, Row, Typography, Space } from "antd";
 import { WorkOrder, Technician, Location, ServiceCategory } from "@/types/supabase";
 import dayjs from 'dayjs';
-import { OSMLocationSearchInput } from "./OSMLocationSearchInput"; // Updated import
+import { OSMLocationSearchInput } from "./OSMLocationSearchInput";
 import { ExpandOutlined, ShrinkOutlined } from "@ant-design/icons";
 import { useSession } from "@/context/SessionContext";
 
@@ -24,6 +24,7 @@ interface WorkOrderFormDrawerProps {
 }
 
 export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, technicians, locations, serviceCategories, prefillData }: WorkOrderFormDrawerProps) => {
+  console.log('WorkOrderFormDrawer rendering. isOpen:', isOpen, 'workOrder (prop):', workOrder, 'prefillData:', prefillData);
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [clientLocation, setClientLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -33,6 +34,7 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
 
   useEffect(() => {
     if (isOpen) {
+      console.log('WorkOrderFormDrawer useEffect: isOpen is true. Setting form fields.');
       if (workOrder) {
         form.setFieldsValue({
           ...workOrder,
@@ -113,6 +115,8 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
       </Button>
     </div>
   );
+
+  console.log('WorkOrderFormDrawer: Rendered with form values:', form.getFieldsValue());
 
   return (
     <Drawer 

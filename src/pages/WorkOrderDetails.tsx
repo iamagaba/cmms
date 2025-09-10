@@ -32,6 +32,7 @@ interface WorkOrderDetailsProps {
 }
 
 const WorkOrderDetailsPage = ({ isDrawerMode = false, drawerWorkOrder, drawerIsLoadingWorkOrder }: WorkOrderDetailsProps) => {
+  console.log('WorkOrderDetailsPage rendering. isDrawerMode:', isDrawerMode);
   const { id: paramId } = useParams<{ id:string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -53,13 +54,14 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false, drawerWorkOrder, drawerIsL
 
   // Determine the ID to use for fetching if not in drawer mode
   const queryId = isDrawerMode ? searchParams.get('view') : paramId;
+  console.log('WorkOrderDetailsPage queryId:', queryId);
 
   // Conditional query based on isDrawerMode
   const { data: fetchedWorkOrder, isLoading: fetchedIsLoadingWorkOrder } = useQuery<WorkOrder | null>({ 
     queryKey: ['work_order', queryId], 
     queryFn: async () => { 
       if (!queryId) return null; 
-      console.log('Fetching work order details for ID:', queryId);
+      console.log('WorkOrderDetailsPage: Fetching work order details for ID:', queryId);
       const { data, error } = await supabase.from('work_orders').select('*').eq('id', queryId).single(); 
       if (error) throw new Error(error.message); 
       if (data) {
@@ -202,8 +204,15 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false, drawerWorkOrder, drawerIsL
 
   const isLoading = isLoadingWorkOrder || isLoadingTechnician || isLoadingLocation || isLoadingAllTechnicians || isLoadingAllLocations || isLoadingCustomer || isLoadingVehicle || isLoadingUsedParts || isLoadingProfiles;
 
-  if (isLoading) return <Skeleton active />;
-  if (!workOrder) return isDrawerMode ? <div style={{ padding: 24 }}><NotFound /></div> : <NotFound />;
+  if (isLoading) {
+    console.log('WorkOrderDetailsPage is loading all data...');
+    return <Skeleton active />;
+  }
+  if (!workOrder) {
+    console.log('WorkOrderDetailsPage: No work order found for ID:', queryId);
+    return isDrawerMode ? <div style={{ padding: 24 }}><NotFound /></div> : <NotFound />;
+  }
+  console.log('WorkOrderDetailsPage: Work order data loaded:', workOrder);
 
   const hasClientLocation = workOrder.customerLat != null && workOrder.customerLng != null;
   const mapCenter: [number, number] = (location?.lat && location?.lng) ? [location.lat, location.lng] : (hasClientLocation ? [workOrder.customerLat!, workOrder.customerLng!] : [0.32, 32.58]);

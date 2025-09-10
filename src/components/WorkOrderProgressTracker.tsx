@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Steps, Popover, Typography, Tag, Tooltip, Skeleton } from 'antd';
+import { Steps, Popover, Typography, Tag, Tooltip, Skeleton, Space } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import { WorkOrder, SlaPolicy } from '@/types/supabase';
@@ -250,7 +250,6 @@ const WorkOrderProgressTracker = ({ workOrder }: WorkOrderProgressTrackerProps) 
               <Tag 
                 icon={durationInfo.slaMet ? <CheckCircleOutlined /> : <WarningOutlined />} 
                 color={durationInfo.slaMet ? 'success' : 'error'} 
-                size="small"
                 style={{ marginTop: 4 }}
               >
                 SLA {durationInfo.slaMet ? 'Met' : 'Missed'}

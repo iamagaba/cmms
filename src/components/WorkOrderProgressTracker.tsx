@@ -2,10 +2,9 @@ import { useState, useEffect, useMemo } from 'react';
 import { Steps, Popover, Typography } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-// @ts-ignore
-import max from 'dayjs/plugin/max';
-// @ts-ignore
-import min from 'dayjs/plugin/min';
+// Use require to bypass module resolution issues
+const max = require('dayjs/plugin/max');
+const min = require('dayjs/plugin/min');
 import { WorkOrder } from '@/types/supabase';
 
 dayjs.extend(duration);

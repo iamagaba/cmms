@@ -6,6 +6,8 @@ import duration from 'dayjs/plugin/duration';
 
 dayjs.extend(duration);
 
+type Duration = ReturnType<typeof dayjs.duration>;
+
 const { Title, Text, Paragraph } = Typography; // Import Paragraph
 
 interface SlaStatusCardProps {
@@ -19,7 +21,7 @@ const SlaStatusCard = ({ workOrder, slaPolicy }: SlaStatusCardProps) => {
   const isWalkIn = workOrder.channel === 'Service Center'; // Corrected to 'Service Center' for walk-ins
 
   // Calculate total active duration (excluding on-hold time)
-  const calculateActiveDuration = (start: Dayjs, end: Dayjs | null): dayjs.duration.Duration => { // Corrected type
+  const calculateActiveDuration = (start: Dayjs, end: Dayjs | null): Duration => { // Corrected type
     if (!end) end = now;
     let totalDuration = end.diff(start, 'second');
 
@@ -69,7 +71,7 @@ const SlaStatusCard = ({ workOrder, slaPolicy }: SlaStatusCardProps) => {
     ? calculateActiveDuration(dayjs(workOrder.work_started_at), dayjs(workOrder.completedAt))
     : null;
 
-  const getSlaStatusTag = (met: boolean | null, overdue: boolean, target: number, actual: number | dayjs.duration.Duration | null, unit: string, isApplicable: boolean = true) => { // Corrected type
+  const getSlaStatusTag = (met: boolean | null, overdue: boolean, target: number, actual: number | Duration | null, unit: string, isApplicable: boolean = true) => { // Corrected type
     if (!isApplicable) return <Tag color="default">N/A</Tag>;
     if (workOrder.status === 'Completed') {
       return <Tag color={met ? 'success' : 'error'}>{met ? 'Met' : 'Missed'}</Tag>;
@@ -86,7 +88,7 @@ const SlaStatusCard = ({ workOrder, slaPolicy }: SlaStatusCardProps) => {
     return <Tag color="default">Pending</Tag>;
   };
 
-  const formatDurationDisplay = (durationValue: number | dayjs.duration.Duration | null, unit: string) => { // Corrected type
+  const formatDurationDisplay = (durationValue: number | Duration | null, unit: string) => { // Corrected type
     if (durationValue === null) return 'N/A';
     if (typeof durationValue === 'number') {
       return `${durationValue} ${unit}`;
@@ -104,7 +106,7 @@ const SlaStatusCard = ({ workOrder, slaPolicy }: SlaStatusCardProps) => {
     return parts.join(' ');
   };
 
-  const getProgressPercentage = (actual: number | dayjs.duration.Duration | null, target: number, unit: string) => { // Corrected type
+  const getProgressPercentage = (actual: number | Duration | null, target: number, unit: string) => { // Corrected type
     if (actual === null || target === 0) return 0;
     let actualValue = typeof actual === 'number' ? actual : actual.as(unit === 'minute' ? 'minutes' : 'hours');
     return Math.min(100, (actualValue / target) * 100);

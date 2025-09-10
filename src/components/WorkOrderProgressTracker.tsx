@@ -123,7 +123,7 @@ const WorkOrderProgressTracker = ({ workOrder }: WorkOrderProgressTrackerProps) 
     // This is simplified. A robust solution would parse activityLog for all 'On Hold' entries.
     // For now, we use total_paused_duration_seconds and sla_timers_paused_at
     const totalPausedDuration = dayjs.duration(workOrder.total_paused_duration_seconds || 0, 'seconds');
-    let currentPauseDuration: dayjs.duration.Duration = dayjs.duration(0); // Correct type
+    let currentPauseDuration = dayjs.duration(0); // Correct type
     if (workOrder.status === 'On Hold' && workOrder.sla_timers_paused_at) {
       currentPauseDuration = dayjs.duration(now.diff(dayjs(workOrder.sla_timers_paused_at), 'seconds'), 'seconds'); // Corrected to return Duration
     }

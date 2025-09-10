@@ -18,6 +18,7 @@ import WorkOrderProgressTracker from "@/components/WorkOrderProgressTracker";
 import { useSession } from "@/context/SessionContext";
 import { MapboxDisplayMap } from "@/components/MapboxDisplayMap"; // Import the new Mapbox map component
 import mapboxgl from 'mapbox-gl'; // Import mapboxgl for accessToken
+import { calculateDistance } from "@/utils/geo-helpers"; // Import the new utility
 
 const { Title, Text, Paragraph } = Typography;
 const { Option = Select.Option } = Select;
@@ -223,6 +224,19 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     }
   }
 
+  const distanceBetweenLocations = useMemo(() => {
+    if (location?.lat && location?.lng && workOrder.customerLat && workOrder.customerLng) {
+      const dist = calculateDistance(
+        location.lat,
+        location.lng,
+        workOrder.customerLat,
+        workOrder.customerLng
+      );
+      return dist.toFixed(2); // Format to 2 decimal places
+    }
+    return null;
+  }, [location, workOrder]);
+
   // --- Reusable Content Blocks ---
   const customerVehicleCard = (
     <Card title="Customer & Vehicle Details">
@@ -367,6 +381,11 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
       <Descriptions column={1}>
         <Descriptions.Item label={<><EnvironmentOutlined /> Service Location</>}><Select value={workOrder.locationId} onChange={(value) => handleUpdateWorkOrder({ locationId: value })} style={{ width: '100%' }} bordered={false} allowClear placeholder="Select location" suffixIcon={null}>{(allLocations || []).map(l => <Option key={l.id} value={l.id}>{l.name.replace(' Service Center', '')}</Option>)}</Select></Descriptions.Item>
         <Descriptions.Item label="Client Location"><MapboxLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder.customerAddress || ''} /></Descriptions.Item>
+        {distanceBetweenLocations && (
+          <Descriptions.Item label="Distance">
+            <Text strong>{distanceBetweenLocations} km</Text>
+          </Descriptions.Item>
+        )}
       </Descriptions>
       <div style={{ marginTop: 16 }}>
         {mapMarkers.length > 0 ? (

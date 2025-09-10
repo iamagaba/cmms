@@ -152,12 +152,14 @@ const AssetDetailsPage = () => {
 
   const handleProceedFromCreateDialog = (selectedVehicle: VehicleWithCustomer) => {
     setIsCreateDialogOpen(false);
+    const initialSlaDue = dayjs().add(15, 'minutes').toISOString(); // Default 15 min for first response
     const prefill = {
       vehicleId: selectedVehicle.id,
       customerId: selectedVehicle.customer_id,
-      customerName: selectedVehicle.customers?.name,
-      customerPhone: selectedVehicle.customers?.phone,
+      customerName: selectedVehicle.customers?.name || '', // Ensure it's a string
+      customerPhone: selectedVehicle.customers?.phone || '', // Ensure it's a string
       vehicleModel: `${selectedVehicle.make} ${selectedVehicle.model}`,
+      slaDue: initialSlaDue, // Add default SLA due date
     };
     setPrefillData(prefill);
     setIsFormDrawerOpen(true);

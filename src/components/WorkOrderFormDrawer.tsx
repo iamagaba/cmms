@@ -52,6 +52,9 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
           status: 'Open',
           priority: 'Medium',
           ...prefillData,
+          // Convert ISO strings to dayjs objects for DatePicker
+          slaDue: prefillData?.slaDue ? dayjs(prefillData.slaDue) : null,
+          appointmentDate: prefillData?.appointmentDate ? dayjs(prefillData.appointmentDate) : null,
         };
         form.setFieldsValue(initialValues);
         setClientLocation(null);

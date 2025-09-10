@@ -26,6 +26,7 @@ const LocationDetailsPage = () => {
   const queryClient = useQueryClient();
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
   const { session } = useSession();
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(ALL_COLUMNS.map(c => c.value));
 
   const MAPBOX_API_KEY = import.meta.env.VITE_APP_MAPBOX_API_KEY || "";
 
@@ -111,12 +112,14 @@ const LocationDetailsPage = () => {
     navigate(`/work-orders/${workOrderId}`);
   };
 
+  const handleVisibleColumnsChange = (checkedValues: string[]) => {
+    setVisibleColumns(checkedValues);
+  };
+
   const isLoading = isLoadingLocation || isLoadingWorkOrders || isLoadingTechnicians || isLoadingCustomers || isLoadingVehicles || isLoadingProfiles || isLoadingAllLocations;
 
   if (isLoading) return <Skeleton active />;
   if (!location) return <NotFound />;
-
-  const defaultVisibleColumns = ALL_COLUMNS.map(c => c.value); // Use ALL_COLUMNS for default visibility
 
   return (
     <>
@@ -178,12 +181,12 @@ const LocationDetailsPage = () => {
             customers={customers || []} 
             vehicles={vehicles || []} 
             onEdit={() => {}} 
-            onDelete={()={() => {}} 
+            onDelete={() => {}} 
             onUpdateWorkOrder={handleUpdateWorkOrder} 
             onViewDetails={handleViewDetails} 
             profiles={profiles || []}
-            visibleColumns={defaultVisibleColumns}
-            onVisibleColumnsChange={() => {}} // Added missing prop
+            visibleColumns={visibleColumns}
+            onVisibleColumnsChange={handleVisibleColumnsChange}
           />
         </Card>
       </Space>

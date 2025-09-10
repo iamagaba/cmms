@@ -17,6 +17,7 @@ export const ALL_COLUMNS = [
   { label: 'SLA Status', value: 'slaStatus' },
   { label: 'Created At', value: 'createdAt' },
   { label: 'Created By', value: 'createdBy' },
+  { label: 'Channel', value: 'channel' },
   { label: 'Actions', value: 'actions' },
 ];
 

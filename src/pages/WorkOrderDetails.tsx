@@ -22,6 +22,7 @@ const { TabPane } = Tabs;
 const { useToken } = theme;
 
 const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "";
+const channelOptions = ['Call Center', 'Service Center', 'Social Media', 'Staff', 'Swap Station'];
 
 interface WorkOrderDetailsProps {
   isDrawerMode?: boolean;
@@ -144,6 +145,8 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
       activityMessage = `Service notes updated.`;
     } else if (updates.priority && updates.priority !== oldWorkOrder.priority) {
       activityMessage = `Priority changed from '${oldWorkOrder.priority || 'N/A'}' to '${updates.priority}'.`;
+    } else if (updates.channel && updates.channel !== oldWorkOrder.channel) {
+      activityMessage = `Channel changed from '${oldWorkOrder.channel || 'N/A'}' to '${updates.channel}'.`;
     } else if (updates.locationId && updates.locationId !== oldWorkOrder.locationId) {
       const oldLoc = allLocations?.find(l => l.id === oldWorkOrder.locationId)?.name || 'N/A';
       const newLoc = allLocations?.find(l => l.id === updates.locationId)?.name || 'N/A';
@@ -255,6 +258,19 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
           </Select>
         </Descriptions.Item>
         <Descriptions.Item label="Priority"><Select value={workOrder.priority || 'Low'} onChange={(value) => handleUpdateWorkOrder({ priority: value })} style={{ width: 100 }} bordered={false} size="small" suffixIcon={null}><Option value="High"><Tag color={priorityColors["High"]}>High</Tag></Option><Option value="Medium"><Tag color={priorityColors["Medium"]}>Medium</Tag></Option><Option value="Low"><Tag color={priorityColors["Low"]}>Low</Tag></Option></Select></Descriptions.Item>
+        <Descriptions.Item label="Channel">
+          <Select
+            value={workOrder.channel}
+            onChange={(value) => handleUpdateWorkOrder({ channel: value })}
+            style={{ width: '100%' }}
+            bordered={false}
+            allowClear
+            placeholder="Select channel"
+            suffixIcon={null}
+          >
+            {channelOptions.map(c => <Option key={c} value={c}>{c}</Option>)}
+          </Select>
+        </Descriptions.Item>
         <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}><DatePicker showTime value={workOrder.slaDue ? dayjs(workOrder.slaDue) : null} onChange={(date) => { console.log("DatePicker onChange - new SLA date:", date ? date.toISOString() : null); handleUpdateWorkOrder({ slaDue: date ? date.toISOString() : null }); }} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
         <Descriptions.Item label="Appointment Date"><DatePicker showTime value={workOrder.appointmentDate ? dayjs(workOrder.appointmentDate) : null} onChange={(date) => handleUpdateWorkOrder({ appointmentDate: date ? date.toISOString() : null })} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
         <Descriptions.Item label={<><ToolOutlined /> Assigned To</>}><Select value={workOrder.assignedTechnicianId} onChange={(value) => handleUpdateWorkOrder({ assignedTechnicianId: value })} style={{ width: '100%' }} bordered={false} allowClear placeholder="Unassigned" suffixIcon={null}>{(allTechnicians || []).map(t => (<Option key={t.id} value={t.id}><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Avatar size="small" src={t.avatar || undefined}>{t.name.split(' ').map(n => n[0]).join('')}</Avatar><Text>{t.name}</Text></div></Option>))}</Select></Descriptions.Item>

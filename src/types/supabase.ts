@@ -69,6 +69,7 @@ export interface WorkOrder {
   workOrderNumber: string;
   status: 'Open' | 'Confirmation' | 'On Hold' | 'Ready' | 'In Progress' | 'Completed' | null;
   priority: 'High' | 'Medium' | 'Low' | null;
+  channel: string | null;
   assignedTechnicianId: string | null;
   locationId: string | null;
   service: string | null;

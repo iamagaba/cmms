@@ -165,6 +165,14 @@ export const getColumns = ({
       },
     },
     {
+      key: "channel",
+      title: "Channel",
+      dataIndex: "channel",
+      render: (channel: string) => channel ? <Tag>{channel}</Tag> : <Text type="secondary">N/A</Text>,
+      width: 150,
+      sorter: (a: WorkOrderRow, b: WorkOrderRow) => (a.channel || "").localeCompare(b.channel || ""),
+    },
+    {
       key: "actions",
       title: "Actions",
       align: "right" as const,

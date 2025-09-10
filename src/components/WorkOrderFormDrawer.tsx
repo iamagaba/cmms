@@ -9,6 +9,8 @@ const { Option } = Select;
 const { TextArea } = Input;
 const { Text } = Typography;
 
+const channelOptions = ['Call Center', 'Service Center', 'Social Media', 'Staff', 'Swap Station'];
+
 interface WorkOrderFormDrawerProps {
   isOpen: boolean;
   onClose: () => void;
@@ -136,8 +138,9 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
           
           <Col span={24} style={{ marginTop: 24 }}><Text strong>Service Details</Text></Col>
           <Col span={24}><Form.Item name="service" label="Service Description" rules={[{ required: true }]}><TextArea rows={2} /></Form.Item></Col>
-          <Col xs={24} md={12}><Form.Item name="status" label="Status" rules={[{ required: true }]}><Select><Option value="Open">Open</Option><Option value="Confirmation">Confirmation</Option><Option value="Ready">Ready</Option><Option value="In Progress">In Progress</Option><Option value="On Hold">On Hold</Option><Option value="Completed">Completed</Option></Select></Form.Item></Col>
-          <Col xs={24} md={12}><Form.Item name="priority" label="Priority" rules={[{ required: true }]}><Select><Option value="High">High</Option><Option value="Medium">Medium</Option><Option value="Low">Low</Option></Select></Form.Item></Col>
+          <Col xs={24} md={8}><Form.Item name="status" label="Status" rules={[{ required: true }]}><Select><Option value="Open">Open</Option><Option value="Confirmation">Confirmation</Option><Option value="Ready">Ready</Option><Option value="In Progress">In Progress</Option><Option value="On Hold">On Hold</Option><Option value="Completed">Completed</Option></Select></Form.Item></Col>
+          <Col xs={24} md={8}><Form.Item name="priority" label="Priority" rules={[{ required: true }]}><Select><Option value="High">High</Option><Option value="Medium">Medium</Option><Option value="Low">Low</Option></Select></Form.Item></Col>
+          <Col xs={24} md={8}><Form.Item name="channel" label="Channel"><Select allowClear placeholder="Select a channel">{channelOptions.map(c => <Option key={c} value={c}>{c}</Option>)}</Select></Form.Item></Col>
           <Col xs={24} md={12}><Form.Item name="locationId" label="Service Location" rules={[{ required: true }]}><Select>{locations.map(l => <Option key={l.id} value={l.id}>{l.name.replace(' Service Center', '')}</Option>)}</Select></Form.Item></Col>
           <Col xs={24} md={12}><Form.Item name="customerAddress" label="Client Location (Optional)"><GoogleLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder?.customerAddress || ''} /></Form.Item></Col>
 

@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
-import { Button, Typography, Space, Segmented, Input, Select, Card, Row, Col, Collapse, Skeleton, Tabs } from "antd";
-import { PlusOutlined, AppstoreOutlined, TableOutlined, FilterOutlined, CalendarOutlined, GlobalOutlined } from "@ant-design/icons";
+import { Button, Typography, Space, Segmented, Input, Select, Card, Row, Col, Collapse, Skeleton, Tabs, Dropdown, Menu, Avatar } from "antd";
+import { PlusOutlined, AppstoreOutlined, TableOutlined, FilterOutlined, CalendarOutlined, GlobalOutlined, DownOutlined } from "@ant-design/icons";
 import { WorkOrderDataTable, ALL_COLUMNS } from "@/components/WorkOrderDataTable";
 import { WorkOrderFormDrawer } from "@/components/WorkOrderFormDrawer";
 import WorkOrderKanban from "@/components/WorkOrderKanban";
@@ -43,6 +43,7 @@ const WorkOrdersPage = () => {
   const [groupBy, setGroupBy] = useState<GroupByOption>('status');
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
   const [visibleColumns, setVisibleColumns] = useState<string[]>(ALL_COLUMNS.map(c => c.value));
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const viewingWorkOrderId = searchParams.get('view');
 
@@ -66,6 +67,23 @@ const WorkOrdersPage = () => {
   // Mutations
   const workOrderMutation = useMutation({ mutationFn: async (workOrderData: Partial<WorkOrder>) => { const { error } = await supabase.from('work_orders').upsert([workOrderData]); if (error) throw new Error(error.message); }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['work_orders'] }); showSuccess('Work order has been saved.'); }, onError: (error) => showError(error.message) });
   const deleteMutation = useMutation({ mutationFn: async (id: string) => { const { error } = await supabase.from('work_orders').delete().eq('id', id); if (error) throw new Error(error.message); }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['work_orders'] }); showSuccess('Work order has been deleted.'); }, onError: (error) => showError(error.message) });
+  const bulkAssignMutation = useMutation({
+    mutationFn: async ({ workOrderIds, technicianId }: { workOrderIds: React.Key[], technicianId: string }) => {
+      const updates = workOrderIds.map(id => ({
+        id: id as string,
+        assigned_technician_id: technicianId,
+        status: 'In Progress' as const,
+      }));
+      const { error } = await supabase.from('work_orders').upsert(updates);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['work_orders'] });
+      showSuccess(`${selectedRowKeys.length} work orders have been assigned.`);
+      setSelectedRowKeys([]);
+    },
+    onError: (error) => showError(error.message),
+  });
 
   const handleSave = (workOrderData: WorkOrder) => { 
     const newActivityLog = workOrderData.activityLog || [{ timestamp: new Date().toISOString(), activity: 'Work order created.', userId: session?.user.id ?? null }];
@@ -150,6 +168,32 @@ const WorkOrdersPage = () => {
     setIsFormDialogOpen(true);
   };
 
+  const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
+    setSelectedRowKeys(newSelectedRowKeys);
+  };
+
+  const rowSelection = {
+    selectedRowKeys,
+    onChange: onSelectChange,
+  };
+
+  const handleBulkAssign = ({ key }: { key: string }) => {
+    bulkAssignMutation.mutate({ workOrderIds: selectedRowKeys, technicianId: key });
+  };
+
+  const bulkAssignMenu = (
+    <Menu onClick={handleBulkAssign}>
+      {(technicians || []).map(tech => (
+        <Menu.Item key={tech.id}>
+          <Space>
+            <Avatar size="small" src={tech.avatar || undefined}>{tech.name.split(' ').map(n => n[0]).join('')}</Avatar>
+            {tech.name}
+          </Space>
+        </Menu.Item>
+      ))}
+    </Menu>
+  );
+
   const filteredWorkOrders = useMemo(() => { if (!allWorkOrders) return []; return allWorkOrders.filter(wo => { const vehicleMatch = wo.vehicleId?.toLowerCase().includes(vehicleFilter.toLowerCase()) ?? true; const statusMatch = statusFilter ? wo.status === statusFilter : true; const priorityMatch = priorityFilter ? wo.priority === priorityFilter : true; const technicianMatch = technicianFilter ? wo.assignedTechnicianId === technicianFilter : true; const channelMatch = channelFilter ? wo.channel === channelFilter : true; return vehicleMatch && statusMatch && priorityMatch && technicianMatch && channelMatch; }); }, [allWorkOrders, vehicleFilter, statusFilter, priorityFilter, technicianFilter, channelFilter]);
   const kanbanColumns = useMemo(() => { switch (groupBy) { case 'priority': return [ { id: 'High', title: 'High' }, { id: 'Medium', title: 'Medium' }, { id: 'Low', title: 'Low' } ]; case 'technician': return [ { id: null, title: 'Unassigned' }, ...(technicians || []).map(t => ({ id: t.id, title: t.name })) ]; case 'status': default: return [ { id: 'Open', title: 'Open' }, { id: 'Confirmation', title: 'Confirmation' }, { id: 'Ready', title: 'Ready' }, { id: 'In Progress', title: 'In Progress' }, { id: 'On Hold', title: 'On Hold' }, { id: 'Completed', title: 'Completed' } ]; } }, [groupBy, technicians]);
   const groupByField = useMemo(() => (groupBy === 'technician' ? 'assignedTechnicianId' : groupBy), [groupBy]);
@@ -159,12 +203,26 @@ const WorkOrdersPage = () => {
     setVisibleColumns(checkedValues);
   };
 
+  const pageHeaderActions = (
+    <Space>
+      {view === 'table' && selectedRowKeys.length > 0 && (
+        <Dropdown overlay={bulkAssignMenu} disabled={selectedRowKeys.length === 0}>
+          <Button>
+            Assign to Technician ({selectedRowKeys.length}) <DownOutlined />
+          </Button>
+        </Dropdown>
+      )}
+      <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsCreateDialogOpen(true)}>Add Work Order</Button>
+    </Space>
+  );
+
   const tabItems = [
     {
       label: (<span><TableOutlined /> Table</span>),
       key: 'table',
       children: isLoading ? <Skeleton active paragraph={{ rows: 5 }} /> : (
         <WorkOrderDataTable
+          rowSelection={rowSelection}
           workOrders={filteredWorkOrders}
           technicians={technicians || []}
           locations={locations || []}
@@ -212,9 +270,7 @@ const WorkOrdersPage = () => {
   return (
     <>
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <PageHeader title="Work Order Management" hideSearch actions={
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsCreateDialogOpen(true)}>Add Work Order</Button>
-        } />
+        <PageHeader title="Work Order Management" hideSearch actions={pageHeaderActions} />
         <Collapse><Panel header={<><FilterOutlined /> Filters & View Options</>} key="1"><Row gutter={[16, 16]} align="bottom"><Col xs={24} sm={12} md={6}><Search placeholder="Filter by Vehicle ID..." allowClear onSearch={setVehicleFilter} onChange={(e) => setVehicleFilter(e.target.value)} style={{ width: '100%' }} /></Col><Col xs={24} sm={12} md={4}><Select placeholder="Filter by Status" allowClear style={{ width: '100%' }} onChange={setStatusFilter} value={statusFilter}><Option value="Open">Open</Option><Option value="Confirmation">Confirmation</Option><Option value="Ready">Ready</Option><Option value="In Progress">In Progress</Option><Option value="On Hold">On Hold</Option><Option value="Completed">Completed</Option></Select></Col><Col xs={24} sm={12} md={4}><Select placeholder="Filter by Priority" allowClear style={{ width: '100%' }} onChange={setPriorityFilter} value={priorityFilter}><Option value="High">High</Option><Option value="Medium">Medium</Option><Option value="Low">Low</Option></Select></Col><Col xs={24} sm={12} md={4}><Select placeholder="Filter by Technician" allowClear style={{ width: '100%' }} onChange={setTechnicianFilter} value={technicianFilter}>{(technicians || []).map(t => <Option key={t.id} value={t.id}>{t.name}</Option>)}</Select></Col><Col xs={24} sm={12} md={4}><Select placeholder="Filter by Channel" allowClear style={{ width: '100%' }} onChange={setChannelFilter} value={channelFilter}>{channelOptions.map(c => <Option key={c} value={c}>{c}</Option>)}</Select></Col>{view === 'kanban' && (<Col xs={24} sm={12} md={2}><Select value={groupBy} onChange={(value) => setGroupBy(value as GroupByOption)} style={{ width: '100%' }}><Option value="status">Group by: Status</Option><Option value="priority">Group by: Priority</Option><Option value="technician">Group by: Technician</Option></Select></Col>)}</Row></Panel></Collapse>
         <Tabs defaultActiveKey="table" activeKey={view} onChange={(key) => setView(key as WorkOrderView)} items={tabItems} />
       </Space>

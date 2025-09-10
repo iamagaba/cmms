@@ -1,5 +1,6 @@
 import * as React from "react";
 import { Table, Dropdown, Button, Checkbox, Row, Col, Typography } from "antd";
+import type { TableRowSelection } from 'antd/es/table/interface';
 import { BarsOutlined } from "@ant-design/icons";
 import { WorkOrder, Technician, Location, Customer, Vehicle, Profile } from "@/types/supabase";
 import { WorkOrderRow, getColumns } from "./WorkOrderTableColumns";
@@ -34,6 +35,7 @@ interface WorkOrderDataTableProps {
   onViewDetails: (workOrderId: string) => void;
   visibleColumns: string[];
   onVisibleColumnsChange: (columns: string[]) => void;
+  rowSelection?: TableRowSelection<WorkOrderRow>;
 }
 
 export function WorkOrderDataTable({ 
@@ -48,7 +50,8 @@ export function WorkOrderDataTable({
   onUpdateWorkOrder, 
   onViewDetails, 
   visibleColumns,
-  onVisibleColumnsChange
+  onVisibleColumnsChange,
+  rowSelection,
 }: WorkOrderDataTableProps) {
   const [columnWidths, setColumnWidths] = React.useState<Record<string, number>>({});
 
@@ -111,6 +114,7 @@ export function WorkOrderDataTable({
   return (
     <Table
       title={tableTitle}
+      rowSelection={rowSelection}
       dataSource={tableData}
       columns={columns}
       rowKey="id"
@@ -118,7 +122,14 @@ export function WorkOrderDataTable({
       pagination={{ pageSize: 10, hideOnSinglePage: true }}
       onRow={(record) => ({
         className: 'lift-on-hover-row',
-        onClick: () => onViewDetails(record.id),
+        onClick: (event) => {
+          // Prevent row click from triggering when clicking on interactive elements like dropdowns or selects
+          const target = event.target as HTMLElement;
+          if (target.closest('.ant-select, .ant-dropdown, .ant-btn')) {
+            return;
+          }
+          onViewDetails(record.id);
+        },
       })}
       components={{
         header: {

@@ -4,7 +4,7 @@ import { WorkOrder, Technician, Location, Customer, Vehicle, Profile } from "@/t
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime';
 import SlaCountdown from "./SlaCountdown";
-import { ResizableTitle } from "./ResizableTitle";
+import { ResizableTitle } from "./ResizableTitle"; // Import ResizableTitle
 
 dayjs.extend(relativeTime);
 
@@ -54,7 +54,7 @@ export const getColumns = ({
     Completed: token.colorSuccess
   };
 
-  const allColumns = [
+  const defaultColumns = [
     {
       key: "workOrderNumber",
       title: "ID",
@@ -135,7 +135,7 @@ export const getColumns = ({
     },
     {
       key: "slaStatus",
-      title: "SLA", // Changed from "SLA Status" to "SLA"
+      title: "SLA Status",
       dataIndex: "slaDue",
       render: (_: any, record: WorkOrderRow) => <SlaCountdown slaDue={record.slaDue} status={record.status} completedAt={record.completedAt} />,
       width: 180,
@@ -177,7 +177,7 @@ export const getColumns = ({
     },
   ];
 
-  const filteredColumns = allColumns.filter(col => visibleColumns.includes(col.key as string));
+  const filteredColumns = defaultColumns.filter(column => visibleColumns.includes(column.key));
 
   return filteredColumns.map(col => ({
     ...col,
@@ -186,7 +186,7 @@ export const getColumns = ({
       width: column.width,
       onResize: ((e: any, { size }: { size: { width: number } }) => {
         onColumnResize(column.key, size.width);
-      }) as any,
+      }) as any, // Cast to any here to resolve type incompatibility
     }),
   }));
 };

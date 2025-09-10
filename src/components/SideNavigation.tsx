@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Menu, Typography, Badge } from 'antd';
+import { Layout, Menu, Typography } from 'antd';
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   DashboardOutlined,
@@ -15,8 +15,6 @@ import {
   BellOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import type { MenuProps } from 'antd';
-import { useNotifications } from '@/context/NotificationsContext'; // Import useNotifications
 
 const { Sider } = Layout;
 const { Title } = Typography;
@@ -27,75 +25,48 @@ interface SideNavigationProps {
   logoUrl: string | null;
 }
 
-type MenuItem = Required<MenuProps>['items'][number];
-
-function getItem(
-  label: React.ReactNode,
-  key: React.Key,
-  icon?: React.ReactNode,
-  className?: string,
-): MenuItem {
-  return {
-    key,
-    icon,
-    label,
-    className,
-  } as MenuItem;
-}
-
 const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps) => {
   const location = useLocation();
-  const { unreadCount } = useNotifications(); // Get unreadCount from context
 
-  // All menu items are now in a single list, which is the correct pattern.
-  const menuItems: MenuItem[] = [
-    getItem(<NavLink to="/">Dashboard</NavLink>, "/", <DashboardOutlined />),
-    getItem(<NavLink to="/work-orders">Work Orders</NavLink>, "/work-orders", <ToolOutlined />),
-    { type: 'divider', key: 'main-divider-1' },
-    getItem(<NavLink to="/customers">Customers</NavLink>, "/customers", <ContactsOutlined />),
-    getItem(<NavLink to="/assets">Assets</NavLink>, "/assets", <CarOutlined />),
-    getItem(<NavLink to="/technicians">Technicians</NavLink>, "/technicians", <UsergroupAddOutlined />),
-    getItem(<NavLink to="/locations">Locations</NavLink>, "/locations", <EnvironmentOutlined />),
-    getItem(<NavLink to="/inventory">Inventory</NavLink>, "/inventory", <ShoppingOutlined />),
-    { type: 'divider', key: 'main-divider-2' },
-    getItem(<NavLink to="/analytics">Analytics</NavLink>, "/analytics", <BarChartOutlined />),
-    
-    // This divider will be pushed to the bottom by CSS, along with the items below it.
-    { type: 'divider', key: 'bottom-section-divider', className: 'menu-bottom-divider' },
-    
-    getItem(
-      <NavLink to="/notifications">
-        Notifications
-        {unreadCount > 0 && (
-          <Badge 
-            count={unreadCount} 
-            size="small" 
-            offset={[10, 0]} 
-            style={{ backgroundColor: '#6A0DAD', marginLeft: 'auto' }} 
-          />
-        )}
-      </NavLink>, 
-      "/notifications", 
-      <BellOutlined />
-    ),
-    getItem(<NavLink to="/settings?tab=profile-settings">Profile</NavLink>, "/settings?tab=profile-settings", <UserOutlined />),
-    getItem(<NavLink to="/settings?tab=system-settings">Settings</NavLink>, "/settings?tab=system-settings", <SettingOutlined />),
-  ];
+  const mainMenuItems = [
+    { key: "/", label: "Dashboard", icon: <DashboardOutlined /> },
+    { key: "/work-orders", label: "Work Orders", icon: <ToolOutlined /> },
+    { type: 'divider' as const },
+    { key: "/customers", label: "Customers", icon: <ContactsOutlined /> },
+    { key: "/assets", label: "Assets", icon: <CarOutlined /> },
+    { key: "/technicians", label: "Technicians", icon: <UsergroupAddOutlined /> },
+    { key: "/locations", label: "Locations", icon: <EnvironmentOutlined /> },
+    { key: "/inventory", label: "Inventory", icon: <ShoppingOutlined /> },
+    { type: 'divider' as const },
+    { key: "/analytics", label: "Analytics", icon: <BarChartOutlined /> },
+  ].map(item => {
+    if (item.type === 'divider') return { type: 'divider' };
+    return {
+      key: item.key,
+      icon: item.icon,
+      label: <NavLink to={item.key}>{item.label}</NavLink>,
+    };
+  });
 
+  const bottomMenuItems = [
+    { key: "/notifications", label: "Notifications", icon: <BellOutlined /> },
+    { key: "/settings?tab=profile-settings", label: "Profile", icon: <UserOutlined /> },
+    { key: "/settings?tab=system-settings", label: "Settings", icon: <SettingOutlined /> },
+  ].map(item => ({
+    key: item.key,
+    icon: item.icon,
+    label: <NavLink to={item.key}>{item.label}</NavLink>,
+  }));
+
+  // Determine selected key for menu items, handling query params for settings
   const getSelectedKey = (pathname: string, search: string) => {
     if (pathname === '/settings') {
       const params = new URLSearchParams(search);
       const tab = params.get('tab');
       if (tab === 'profile-settings') return '/settings?tab=profile-settings';
       if (tab === 'system-settings') return '/settings?tab=system-settings';
-      if (tab === 'user-management') return '/settings?tab=user-management';
+      if (tab === 'user-management') return '/settings?tab=user-management'; // Also handle user management tab
     }
-    if (pathname.startsWith('/work-orders/')) return '/work-orders';
-    if (pathname.startsWith('/customers/')) return '/customers';
-    if (pathname.startsWith('/assets/')) return '/assets';
-    if (pathname.startsWith('/technicians/')) return '/technicians';
-    if (pathname.startsWith('/locations/')) return '/locations';
-    
     return pathname;
   };
 
@@ -136,8 +107,15 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
       <Menu
         mode="inline"
         selectedKeys={[selectedKey]}
-        items={menuItems}
-        className="main-sider-menu"
+        style={{ borderRight: 0, flexGrow: 1, overflowY: 'auto' }}
+        items={mainMenuItems}
+      />
+      <Menu.Divider style={{ margin: '0 0 8px 0' }} />
+      <Menu
+        mode="inline"
+        selectedKeys={[selectedKey]}
+        style={{ borderRight: 0, flexShrink: 0 }}
+        items={bottomMenuItems}
       />
     </Sider>
   );

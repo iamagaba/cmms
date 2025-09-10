@@ -2,7 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Avatar, Button, Card, Col, Row, Space, Typography, List, Skeleton, Empty } from "antd";
 import { ArrowLeftOutlined, EnvironmentOutlined } from "@ant-design/icons";
 import { GoogleMap, MarkerF } from "@react-google-maps/api";
-import { WorkOrderDataTable, ALL_COLUMNS } from "@/components/WorkOrderDataTable"; // Import ALL_COLUMNS
+import { WorkOrderDataTable } from "@/components/WorkOrderDataTable";
 import NotFound from "./NotFound";
 import { useMemo, useState } from "react";
 import { showSuccess, showInfo, showError } from "@/utils/toast";
@@ -69,12 +69,16 @@ const LocationDetailsPage = () => {
     navigate(`/work-orders/${workOrderId}`);
   };
 
+  const defaultColumnKeys = useMemo(() => getColumns({
+    onEdit: () => {}, onDelete: () => {}, onUpdateWorkOrder: () => {},
+    allTechnicians: [], allProfiles: [], columnWidths: {}, onColumnResize: () => {},
+    visibleColumns: []
+  }).map(col => col.key), []);
+
   const isLoading = isLoadingLocation || isLoadingWorkOrders || isLoadingTechnicians || isLoadingCustomers || isLoadingVehicles || isLoadingProfiles;
 
   if (isLoading) return <Skeleton active />;
   if (!location) return <NotFound />;
-
-  const defaultVisibleColumns = ALL_COLUMNS.map(c => c.value); // Use ALL_COLUMNS for default visibility
 
   return (
     <>
@@ -127,8 +131,7 @@ const LocationDetailsPage = () => {
             onUpdateWorkOrder={handleUpdateWorkOrder} 
             onViewDetails={handleViewDetails} 
             profiles={profiles || []}
-            visibleColumns={defaultVisibleColumns}
-            onVisibleColumnsChange={() => {}} // Added missing prop
+            visibleColumns={defaultColumnKeys}
           />
         </Card>
       </Space>

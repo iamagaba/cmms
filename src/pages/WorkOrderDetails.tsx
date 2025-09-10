@@ -47,42 +47,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
 
   const id = isDrawerMode ? searchParams.get('view') : paramId;
 
-  const { data: workOrder, isLoading: isLoadingWorkOrder } = useQuery<WorkOrder | null>({ 
-    queryKey: ['work_order', id], 
-    queryFn: async () => { 
-      if (!id) return null; 
-      console.log('Fetching work order details for ID:', id);
-      const { data, error } = await supabase.from('work_orders').select('*').eq('id', id).single(); 
-      if (error) throw new Error(error.message); 
-      console.log('Raw fetched work order data from Supabase:', data); // Log raw data
-      if (data) {
-        // Manually map snake_case to camelCase for consistency with WorkOrder type
-        const mappedData: WorkOrder = {
-          ...data,
-          workOrderNumber: data.work_order_number,
-          assignedTechnicianId: data.assigned_technician_id,
-          locationId: data.location_id,
-          serviceNotes: data.service_notes,
-          partsUsed: data.parts_used,
-          activityLog: data.activity_log,
-          slaDue: data.sla_due, // Map sla_due to slaDue
-          completedAt: data.completed_at,
-          customerLat: data.customer_lat,
-          customerLng: data.customer_lng,
-          customerAddress: data.customer_address,
-          onHoldReason: data.on_hold_reason,
-          appointmentDate: data.appointment_date,
-          customerId: data.customer_id,
-          vehicleId: data.vehicle_id,
-          created_by: data.created_by, // Ensure created_by is also mapped if it's snake_case in DB
-        };
-        console.log('Mapped work order data (camelCase):', mappedData);
-        return mappedData;
-      }
-      return null;
-    }, 
-    enabled: !!id 
-  });
+  const { data: workOrder, isLoading: isLoadingWorkOrder } = useQuery<WorkOrder | null>({ queryKey: ['work_order', id], queryFn: async () => { if (!id) return null; const { data, error } = await supabase.from('work_orders').select('*').eq('id', id).single(); if (error) throw new Error(error.message); return data; }, enabled: !!id });
   const { data: technician, isLoading: isLoadingTechnician } = useQuery<Technician | null>({ queryKey: ['technician', workOrder?.assignedTechnicianId], queryFn: async () => { if (!workOrder?.assignedTechnicianId) return null; const { data, error } = await supabase.from('technicians').select('*').eq('id', workOrder.assignedTechnicianId).single(); if (error) throw new Error(error.message); return data; }, enabled: !!workOrder?.assignedTechnicianId });
   const { data: location, isLoading: isLoadingLocation } = useQuery<Location | null>({ queryKey: ['location', workOrder?.locationId], queryFn: async () => { if (!workOrder?.locationId) return null; const { data, error } = await supabase.from('locations').select('*').eq('id', workOrder.locationId).single(); if (error) throw new Error(error.message); return data; }, enabled: !!workOrder?.locationId });
   const { data: allTechnicians, isLoading: isLoadingAllTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return data || []; } });
@@ -91,21 +56,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   const { data: vehicle, isLoading: isLoadingVehicle } = useQuery<Vehicle | null>({ queryKey: ['vehicle', workOrder?.vehicleId], queryFn: async () => { if (!workOrder?.vehicleId) return null; const { data, error } = await supabase.from('vehicles').select('*').eq('id', workOrder.vehicleId).single(); if (error) throw new Error(error.message); return data; }, enabled: !!workOrder?.vehicleId });
   const { data: usedParts, isLoading: isLoadingUsedParts } = useQuery<WorkOrderPart[]>({ queryKey: ['work_order_parts', id], queryFn: async () => { if (!id) return []; const { data, error } = await supabase.from('work_order_parts').select('*, inventory_items(*)').eq('work_order_id', id); if (error) throw new Error(error.message); return data || []; }, enabled: !!id });
 
-  const workOrderMutation = useMutation({ 
-    mutationFn: async (workOrderData: Partial<WorkOrder>) => { 
-      const { error } = await supabase.from('work_orders').upsert([workOrderData]); 
-      if (error) throw new Error(error.message); 
-    }, 
-    onSuccess: (_, variables) => { // Get the variables passed to mutate
-      const updatedId = variables.id; // Assuming id is always present in updates
-      if (updatedId) {
-        queryClient.refetchQueries({ queryKey: ['work_order', updatedId] }); // Refetch specific work order
-      }
-      queryClient.invalidateQueries({ queryKey: ['work_orders'] }); // Invalidate all work orders for lists
-      showSuccess('Work order has been updated.'); 
-    }, 
-    onError: (error) => showError(error.message) 
-  });
+  const workOrderMutation = useMutation({ mutationFn: async (workOrderData: Partial<WorkOrder>) => { const { error } = await supabase.from('work_orders').upsert([workOrderData]); if (error) throw new Error(error.message); }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['work_order', id] }); queryClient.invalidateQueries({ queryKey: ['work_orders'] }); showSuccess('Work order has been updated.'); }, onError: (error) => showError(error.message) });
   const addPartMutation = useMutation({ mutationFn: async ({ itemId, quantity }: { itemId: string, quantity: number }) => { const { error } = await supabase.rpc('add_part_to_work_order', { p_work_order_id: id, p_item_id: itemId, p_quantity_used: quantity }); if (error) throw new Error(error.message); }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['work_order_parts', id] }); queryClient.invalidateQueries({ queryKey: ['inventory_items'] }); showSuccess('Part added to work order.'); }, onError: (error) => showError(error.message) });
   const removePartMutation = useMutation({
     mutationFn: async (partId: string) => {
@@ -254,7 +205,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
           </Select>
         </Descriptions.Item>
         <Descriptions.Item label="Priority"><Select value={workOrder.priority || 'Low'} onChange={(value) => handleUpdateWorkOrder({ priority: value })} style={{ width: 100 }} bordered={false} size="small" suffixIcon={null}><Option value="High"><Tag color={priorityColors["High"]}>High</Tag></Option><Option value="Medium"><Tag color={priorityColors["Medium"]}>Medium</Tag></Option><Option value="Low"><Tag color={priorityColors["Low"]}>Low</Tag></Option></Select></Descriptions.Item>
-        <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}><DatePicker showTime value={workOrder.slaDue ? dayjs(workOrder.slaDue) : null} onChange={(date) => { console.log("DatePicker onChange - new SLA date:", date ? date.toISOString() : null); handleUpdateWorkOrder({ slaDue: date ? date.toISOString() : null }); }} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
+        <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}><DatePicker showTime value={workOrder.slaDue ? dayjs(workOrder.slaDue) : null} onChange={(date) => handleUpdateWorkOrder({ slaDue: date ? date.toISOString() : null })} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
         <Descriptions.Item label="Appointment Date"><DatePicker showTime value={workOrder.appointmentDate ? dayjs(workOrder.appointmentDate) : null} onChange={(date) => handleUpdateWorkOrder({ appointmentDate: date ? date.toISOString() : null })} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
         <Descriptions.Item label={<><ToolOutlined /> Assigned To</>}><Select value={workOrder.assignedTechnicianId} onChange={(value) => handleUpdateWorkOrder({ assignedTechnicianId: value })} style={{ width: '100%' }} bordered={false} allowClear placeholder="Unassigned" suffixIcon={null}>{(allTechnicians || []).map(t => (<Option key={t.id} value={t.id}><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Avatar size="small" src={t.avatar || undefined}>{t.name.split(' ').map(n => n[0]).join('')}</Avatar><Text>{t.name}</Text></div></Option>))}</Select></Descriptions.Item>
       </Descriptions>

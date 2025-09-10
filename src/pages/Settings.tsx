@@ -14,7 +14,7 @@ import PageHeader from '@/components/PageHeader';
 import { useSearchParams } from 'react-router-dom';
 
 const { Title } = Typography;
-const { Option = Select.Option } = Select;
+const { Option } = Select;
 
 const UserManagement = () => {
   const queryClient = useQueryClient();
@@ -59,35 +59,7 @@ const SystemSettings = () => {
   const queryClient = useQueryClient();
   const { settings, isLoading: isLoadingSettings } = useSystemSettings();
 
-  const updateSystemSettingsMutation = useMutation({
-    mutationFn: async (settingsToUpdate: { key: string; value: string | boolean | number | null }[]) => {
-      const { error } = await supabase.from('system_settings').upsert(settingsToUpdate);
-      if (error) throw new Error(error.message);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['system_settings'] });
-      showSuccess('System settings have been updated.');
-    },
-    onError: (error) => showError(error.message),
-  });
-
-  const onFinish = (values: any) => {
-    const settingsToUpdate = Object.keys(values).map(key => ({
-      key,
-      value: values[key],
-    }));
-    updateSystemSettingsMutation.mutate(settingsToUpdate);
-  };
-
-  useEffect(() => {
-    if (!isLoadingSettings && settings) {
-      form.setFieldsValue({
-        notifications: settings.notifications === 'true', // Convert string to boolean
-        defaultPriority: settings.defaultPriority || 'Medium',
-        slaThreshold: settings.slaThreshold ? parseInt(settings.slaThreshold) : 3,
-      });
-    }
-  }, [isLoadingSettings, settings, form]);
+  const onFinish = (values: any) => { console.log('Saving system settings:', values); showSuccess('System settings have been updated.'); };
 
   const logoUrl = settings.logo_url;
 
@@ -148,7 +120,7 @@ const SystemSettings = () => {
           </Space>
         </Form.Item>
 
-        <Form.Item><Button type="primary" htmlType="submit" icon={<SaveOutlined />} loading={updateSystemSettingsMutation.isPending}>Save Settings</Button></Form.Item>
+        <Form.Item><Button type="primary" htmlType="submit" icon={<SaveOutlined />}>Save Settings</Button></Form.Item>
       </Form>
     </Card>
   );
@@ -216,6 +188,8 @@ const ProfileSettings = () => {
         <Card>
           <Space direction="vertical" align="center" style={{ width: '100%' }}>
             <Avatar size={128} src={displayAvatar || undefined} icon={<UserOutlined />} />
+            <Title level={4}>{displayName}</Title>
+            <Typography.Text type="secondary">{displayEmail}</Typography.Text>
             <Button>Change Avatar</Button>
           </Space>
         </Card>

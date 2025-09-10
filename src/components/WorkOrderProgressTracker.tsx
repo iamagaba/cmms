@@ -2,14 +2,13 @@ import { useState, useEffect, useMemo } from 'react';
 import { Steps, Popover, Typography } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-// Use require to bypass module resolution issues
-const max = require('dayjs/plugin/max');
-const min = require('dayjs/plugin/min');
+import 'dayjs/plugin/max'; // Import for side effects
+import 'dayjs/plugin/min'; // Import for side effects
 import { WorkOrder } from '@/types/supabase';
 
 dayjs.extend(duration);
-dayjs.extend(max);
-dayjs.extend(min);
+dayjs.extend(dayjs.max as any); // Extend with the plugin function directly, with type assertion
+dayjs.extend(dayjs.min as any); // Extend with the plugin function directly, with type assertion
 
 const { Step } = Steps;
 const { Text } = Typography;

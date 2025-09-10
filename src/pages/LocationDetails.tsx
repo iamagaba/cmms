@@ -178,7 +178,7 @@ const LocationDetailsPage = () => {
             customers={customers || []} 
             vehicles={vehicles || []} 
             onEdit={() => {}} 
-            onDelete={() => {}} 
+            onDelete={()={() => {}} 
             onUpdateWorkOrder={handleUpdateWorkOrder} 
             onViewDetails={handleViewDetails} 
             profiles={profiles || []}

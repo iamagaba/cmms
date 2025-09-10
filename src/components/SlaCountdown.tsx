@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Tag, Tooltip } from 'antd';
-import { ClockCircleOutlined, CheckCircleOutlined, WarningOutlined, PauseCircleOutlined } from '@ant-design/icons';
+import { ClockCircleOutlined, CheckCircleOutlined, WarningOutlined } from '@ant-design/icons';
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
 
@@ -8,11 +8,9 @@ interface SlaCountdownProps {
   slaDue: string | null;
   status: WorkOrder['status'];
   completedAt: string | null;
-  slaTimersPausedAt: string | null; // New prop
-  totalPausedDurationSeconds: number | null; // New prop
 }
 
-const SlaCountdown = ({ slaDue, status, completedAt, slaTimersPausedAt, totalPausedDurationSeconds }: SlaCountdownProps) => {
+const SlaCountdown = ({ slaDue, status, completedAt }: SlaCountdownProps) => {
   const [now, setNow] = useState(dayjs());
 
   useEffect(() => {
@@ -29,16 +27,24 @@ const SlaCountdown = ({ slaDue, status, completedAt, slaTimersPausedAt, totalPau
     return <Tag className="ant-tag-compact">No SLA</Tag>;
   }
 
-  let effectiveSlaDue = dayjs(slaDue);
+  const dueDate = dayjs(slaDue);
 
-  // If currently on hold, add the current pause duration to the SLA due date
-  if (status === 'On Hold' && slaTimersPausedAt) {
-    const pausedSince = dayjs(slaTimersPausedAt);
-    const currentPauseDuration = now.diff(pausedSince, 'second');
-    effectiveSlaDue = effectiveSlaDue.add(currentPauseDuration, 'second');
+  if (status === 'Completed') {
+    if (completedAt) {
+      const completionDate = dayjs(completedAt);
+      const wasOnTime = completionDate.isBefore(dueDate) || completionDate.isSame(dueDate);
+      return (
+        <Tooltip title={`Completed on ${completionDate.format('MMM D, YYYY h:mm A')}`}>
+          <Tag icon={<CheckCircleOutlined />} color={wasOnTime ? "success" : "error"} className="ant-tag-compact">
+            {wasOnTime ? 'Completed On Time' : 'Completed Late'}
+          </Tag>
+        </Tooltip>
+      );
+    }
+    return <Tag icon={<CheckCircleOutlined />} color="success" className="ant-tag-compact">Completed</Tag>;
   }
 
-  const diff = effectiveSlaDue.diff(now); // Difference in milliseconds
+  const diff = dueDate.diff(now); // Difference in milliseconds
   const isOverdue = diff < 0;
   const absDiff = Math.abs(diff);
 
@@ -55,26 +61,7 @@ const SlaCountdown = ({ slaDue, status, completedAt, slaTimersPausedAt, totalPau
 
   const pad = (num: number) => num.toString().padStart(2, '0');
 
-  if (status === 'Completed') {
-    if (completedAt) {
-      const completionDate = dayjs(completedAt);
-      const wasOnTime = completionDate.isBefore(dayjs(slaDue)) || completionDate.isSame(dayjs(slaDue));
-      return (
-        <Tooltip title={`Completed on ${completionDate.format('MMM D, YYYY h:mm A')}`}>
-          <Tag icon={<CheckCircleOutlined />} color={wasOnTime ? "success" : "error"} className="ant-tag-compact">
-            {wasOnTime ? 'Completed On Time' : 'Completed Late'}
-          </Tag>
-        </Tooltip>
-      );
-    }
-    return <Tag icon={<CheckCircleOutlined />} color="success" className="ant-tag-compact">Completed</Tag>;
-  }
-
-  if (status === 'On Hold') {
-    tagColor = 'warning';
-    tagIcon = <PauseCircleOutlined />;
-    tagText = 'On Hold';
-  } else if (isOverdue) {
+  if (isOverdue) {
     tagColor = 'error';
     tagIcon = <WarningOutlined />;
     if (absDiff >= oneDayInMs) { // Overdue by days
@@ -93,7 +80,7 @@ const SlaCountdown = ({ slaDue, status, completedAt, slaTimersPausedAt, totalPau
   }
 
   return (
-    <Tooltip title={`Due on ${dayjs(slaDue).format('MMM D, YYYY h:mm A')}`}>
+    <Tooltip title={`Due on ${dueDate.format('MMM D, YYYY h:mm A')}`}>
       <Tag icon={tagIcon} color={tagColor} className="ant-tag-compact">
         {tagText}
       </Tag>

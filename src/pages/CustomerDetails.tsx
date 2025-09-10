@@ -4,7 +4,7 @@ import { ArrowLeftOutlined, MailOutlined, PhoneOutlined, EnvironmentOutlined, Pl
 import NotFound from "./NotFound";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query"; // Import useMutation
 import { supabase } from "@/integrations/supabase/client";
-import { Customer, Vehicle, WorkOrder, Technician, Location, Profile, ServiceCategory, SlaPolicy } from "@/types/supabase"; // Import Profile, ServiceCategory, SlaPolicy
+import { Customer, Vehicle, WorkOrder, Technician, Location, Profile } from "@/types/supabase"; // Import Profile
 import { Link } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 import { useState } from "react";
@@ -70,9 +70,6 @@ const CustomerDetailsPage = () => {
       return data || [];
     }
   });
-  const { data: serviceCategories, isLoading: isLoadingServiceCategories } = useQuery<ServiceCategory[]>({ queryKey: ['service_categories'], queryFn: async () => { const { data, error } = await supabase.from('service_categories').select('*'); if (error) throw new Error(error.message); return data || []; } });
-  const { data: slaPolicies, isLoading: isLoadingSlaPolicies } = useQuery<SlaPolicy[]>({ queryKey: ['sla_policies'], queryFn: async () => { const { data, error } = await supabase.from('sla_policies').select('*'); if (error) throw new Error(error.message); return data || []; } });
-
 
   const workOrderMutation = useMutation({
     mutationFn: async (workOrderData: Partial<WorkOrder>) => {
@@ -135,7 +132,7 @@ const CustomerDetailsPage = () => {
     workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates }));
   };
 
-  const isLoading = isLoadingCustomer || isLoadingVehicles || isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingProfiles || isLoadingServiceCategories || isLoadingSlaPolicies;
+  const isLoading = isLoadingCustomer || isLoadingVehicles || isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingProfiles;
 
   if (isLoading) {
     return <Skeleton active />;
@@ -247,8 +244,6 @@ const CustomerDetailsPage = () => {
         technicians={technicians || []}
         locations={locations || []}
         prefillData={prefillData}
-        serviceCategories={serviceCategories || []}
-        slaPolicies={slaPolicies || []}
       />
     </Space>
   );

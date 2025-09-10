@@ -1,6 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Avatar, Card, Col, Row, Typography, Tag, Descriptions, Table, Button, Space, Skeleton } from "antd";
-import { ArrowLeftOutlined, MailOutlined, PhoneOutlined, ToolOutlined, CalendarOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, MailOutlined, PhoneOutlined, ToolOutlined, CalendarOutlined, EnvironmentOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import NotFound from "./NotFound";
 import { useQuery } from "@tanstack/react-query";
@@ -66,6 +66,8 @@ const TechnicianProfilePage = () => {
     return <NotFound />;
   }
 
+  const assignedLocation = locations?.find(loc => loc.id === technician.location_id);
+
   const workOrderColumns = [
     { title: 'ID', dataIndex: 'workOrderNumber', render: (text: string, record: WorkOrder) => <Link to={`/work-orders/${record.id}`}><Text code>{text}</Text></Link> },
     { title: 'Vehicle', dataIndex: 'vehicleId', render: (vehicleId: string) => {
@@ -102,6 +104,13 @@ const TechnicianProfilePage = () => {
                         <Descriptions.Item label={<><MailOutlined /> Email</>}><a href={`mailto:${technician.email}`}>{technician.email}</a></Descriptions.Item>
                         <Descriptions.Item label={<><PhoneOutlined /> Phone</>}><a href={`tel:${technician.phone}`}>{technician.phone}</a></Descriptions.Item>
                         <Descriptions.Item label={<><ToolOutlined /> Specialization</>}>{technician.specialization}</Descriptions.Item>
+                        <Descriptions.Item label={<><EnvironmentOutlined /> Location</>}>
+                          {assignedLocation ? (
+                            <Link to={`/locations/${assignedLocation.id}`}>{assignedLocation.name}</Link>
+                          ) : (
+                            <Text type="secondary">Not Assigned</Text>
+                          )}
+                        </Descriptions.Item>
                         <Descriptions.Item label={<><CalendarOutlined /> Member Since</>}>{dayjs(technician.joinDate).format('MMMM YYYY')}</Descriptions.Item>
                     </Descriptions>
                 </Card>

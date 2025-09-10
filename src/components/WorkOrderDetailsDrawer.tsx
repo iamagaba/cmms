@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { WorkOrder, Technician, Location } from '@/types/supabase';
-import WorkOrderDetails from '@/pages/WorkOrderDetails'; // We can reuse the details page component logic
+import WorkOrderDetails from '@/pages/WorkOrderDetails';
+import NotFound from '@/pages/NotFound'; // Added missing import
 
 interface WorkOrderDetailsDrawerProps {
   workOrderId: string | null;
@@ -22,7 +23,30 @@ const WorkOrderDetailsDrawer = ({ workOrderId, onClose }: WorkOrderDetailsDrawer
       if (!workOrderId) return null;
       const { data, error } = await supabase.from('work_orders').select('*').eq('id', workOrderId).single();
       if (error) throw new Error(error.message);
-      return data;
+      if (data) {
+        // Manually map snake_case to camelCase for consistency with WorkOrder type
+        const mappedData: WorkOrder = {
+          ...data,
+          workOrderNumber: data.work_order_number,
+          assignedTechnicianId: data.assigned_technician_id,
+          locationId: data.location_id,
+          serviceNotes: data.service_notes,
+          partsUsed: data.parts_used,
+          activityLog: data.activity_log,
+          slaDue: data.sla_due,
+          completedAt: data.completed_at,
+          customerLat: data.customer_lat,
+          customerLng: data.customer_lng,
+          customerAddress: data.customer_address,
+          onHoldReason: data.on_hold_reason,
+          appointmentDate: data.appointment_date,
+          customerId: data.customer_id,
+          vehicleId: data.vehicle_id,
+          created_by: data.created_by,
+        };
+        return mappedData;
+      }
+      return null;
     },
     enabled: !!workOrderId,
   });
@@ -53,8 +77,14 @@ const WorkOrderDetailsDrawer = ({ workOrderId, onClose }: WorkOrderDetailsDrawer
       width={800}
       destroyOnClose
     >
-      {isLoadingWorkOrder && <Skeleton active />}
-      {workOrder && <WorkOrderDetails isDrawerMode />}
+      {/* Pass the fetched data to WorkOrderDetailsPage */}
+      {isLoadingWorkOrder ? <Skeleton active /> : (
+        workOrder ? (
+          <WorkOrderDetails isDrawerMode drawerWorkOrder={workOrder} drawerIsLoadingWorkOrder={isLoadingWorkOrder} />
+        ) : (
+          <div style={{ padding: 24 }}><NotFound /></div>
+        )
+      )}
     </Drawer>
   );
 };

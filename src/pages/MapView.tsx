@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import Map, { Marker, Popup } from 'react-map-gl';
 import useSupercluster from 'use-supercluster';
 import { Typography, Tag, List, Card, Avatar, Skeleton, Empty, Space } from 'antd';
@@ -6,12 +6,18 @@ import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Location, Technician, WorkOrder } from '@/types/supabase';
+import { PointFeature } from 'supercluster';
 
 const { Title, Text } = Typography;
 
 const containerStyle = { width: '100%', height: '100%', borderRadius: '8px' };
 const statusColorMap: Record<string, string> = { available: 'success', busy: 'warning', offline: 'default' };
 const MAPBOX_API_KEY = import.meta.env.VITE_APP_MAPBOX_API_KEY || "";
+
+type MapPointProperties = {
+  point_type: 'location' | 'technician';
+  data: Location | Technician;
+};
 
 const MapViewPage = () => {
   const [viewport, setViewport] = useState({
@@ -49,18 +55,18 @@ const MapViewPage = () => {
     },
   });
 
-  const points = useMemo(() => {
+  const points: Array<PointFeature<MapPointProperties>> = useMemo(() => {
     const locationPoints = (locations || []).filter(l => l.lat && l.lng).map(l => ({
-      type: 'Feature',
-      properties: { cluster: false, point_type: 'location', data: l },
-      geometry: { type: 'Point', coordinates: [l.lng!, l.lat!] }
+      type: 'Feature' as const,
+      properties: { point_type: 'location' as const, data: l },
+      geometry: { type: 'Point' as const, coordinates: [l.lng!, l.lat!] }
     }));
     const technicianPoints = (technicians || []).filter(t => t.lat && t.lng).map(t => ({
-      type: 'Feature',
-      properties: { cluster: false, point_type: 'technician', data: t },
-      geometry: { type: 'Point', coordinates: [t.lng!, t.lat!] }
+      type: 'Feature' as const,
+      properties: { point_type: 'technician' as const, data: t },
+      geometry: { type: 'Point' as const, coordinates: [t.lng!, t.lat!] }
     }));
-    return [...locationPoints, ...technicianPoints];
+    return [...locationPoints, ...technicianPoints] as Array<PointFeature<MapPointProperties>>;
   }, [locations, technicians]);
 
   const bounds = mapRef.current ? mapRef.current.getMap().getBounds().toArray().flat() : null;
@@ -100,16 +106,16 @@ const MapViewPage = () => {
         >
           {clusters.map(cluster => {
             const [longitude, latitude] = cluster.geometry.coordinates;
-            const { cluster: isCluster, point_count: pointCount } = cluster.properties;
+            const properties = cluster.properties as any;
 
-            if (isCluster) {
+            if (properties.cluster) {
               return (
                 <Marker key={`cluster-${cluster.id}`} latitude={latitude} longitude={longitude}>
                   <div
                     className="cluster-marker"
                     style={{
-                      width: `${10 + (pointCount / points.length) * 20}px`,
-                      height: `${10 + (pointCount / points.length) * 20}px`,
+                      width: `${10 + (properties.point_count / points.length) * 20}px`,
+                      height: `${10 + (properties.point_count / points.length) * 20}px`,
                       backgroundColor: '#6A0DAD',
                       color: 'white',
                       borderRadius: '50%',
@@ -119,25 +125,25 @@ const MapViewPage = () => {
                       cursor: 'pointer'
                     }}
                     onClick={() => {
-                      const expansionZoom = Math.min(supercluster.getClusterExpansionZoom(cluster.id), 20);
+                      const expansionZoom = Math.min(supercluster.getClusterExpansionZoom(cluster.id as number), 20);
                       mapRef.current.flyTo({ center: [longitude, latitude], zoom: expansionZoom, speed: 1 });
                     }}
                   >
-                    {pointCount}
+                    {properties.point_count}
                   </div>
                 </Marker>
               );
             }
 
-            const { point_type, data } = cluster.properties;
+            const { point_type, data } = properties;
             if (point_type === 'location') {
               return (
-                <Marker key={`loc-${data.id}`} longitude={longitude} latitude={latitude} onClick={() => setSelected(cluster.properties)} />
+                <Marker key={`loc-${data.id}`} longitude={longitude} latitude={latitude} onClick={() => setSelected(properties)} />
               );
             }
             if (point_type === 'technician') {
               return (
-                <Marker key={`tech-${data.id}`} longitude={longitude} latitude={latitude} onClick={() => setSelected(cluster.properties)}>
+                <Marker key={`tech-${data.id}`} longitude={longitude} latitude={latitude} onClick={() => setSelected(properties)}>
                   <div style={{
                     width: 12,
                     height: 12,

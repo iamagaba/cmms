@@ -132,8 +132,8 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
       <Form form={form} layout="vertical" name="work_order_form">
         <Row gutter={16}>
           <Col span={24}><Text strong>Customer & Vehicle Details</Text></Col>
-          <Col xs={24} md={12}><Form.Item name="vehicleId" label="Vehicle ID" rules={[{ required: true }]}><Input disabled /></Form.Item></Col>
-          <Col xs={24} md={12}><Form.Item name="vehicleModel" label="Vehicle Model" rules={[{ required: true }]}><Input disabled /></Form.Item></Col>
+          <Col xs={24} md={12}><Form.Item name="vehicleId" label="Vehicle ID"><Input disabled /></Form.Item></Col>
+          <Col xs={24} md={12}><Form.Item name="vehicleModel" label="Vehicle Model"><Input disabled /></Form.Item></Col>
           <Col xs={24} md={12}><Form.Item name="customerName" label="Customer Name"><Input disabled /></Form.Item></Col>
           <Col xs={24} md={12}><Form.Item name="customerPhone" label="Customer Phone"><Input disabled /></Form.Item></Col>
           

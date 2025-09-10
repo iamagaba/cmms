@@ -6,53 +6,14 @@ const { Text } = Typography;
 
 mapboxgl.accessToken = import.meta.env.VITE_APP_MAPBOX_API_KEY || '';
 
-interface MapMarker {
-  lng: number;
-  lat: number;
-  iconType: 'motorbike' | 'wrench' | 'user' | 'work-order';
-  iconColor?: string;
-  popupText?: string;
-}
-
 interface MapboxDisplayMapProps {
   center: [number, number]; // [lng, lat]
   zoom?: number;
-  markers?: MapMarker[];
+  markers?: { lng: number; lat: number; color?: string; popupText?: string }[];
   height?: string;
   origin?: [number, number] | null; // [lng, lat] for route start
   destination?: [number, number] | null; // [lng, lat] for route end
 }
-
-// Helper function to get SVG string for a given icon type and color
-const getSvgIcon = (iconType: MapMarker['iconType'], color: string = '#6A0DAD') => {
-  const size = 24; // Icon size
-  const strokeWidth = 2;
-
-  let pathData = '';
-  switch (iconType) {
-    case 'motorbike':
-      pathData = `<path d="M5 17H4a2 2 0 0 0-2 2v2h12v-2a2 2 0 0 0-2-2h-1"/><path d="M18 17h1a2 2 0 0 0 2-2v-2h-12v2a2 2 0 0 0 2 2h1"/><path d="M12 15V3"/><path d="M18 8V4"/><path d="M5 8V4"/><path d="M12 7H5"/><path d="M12 7h7"/>`;
-      break;
-    case 'wrench':
-      pathData = `<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-2.46 2.46a7 7 0 0 1-11.34-2.87z"/><path d="M2 2l.07.07"/><path d="M12.12 12.12L1.4 22.8Z"/>`;
-      break;
-    case 'user':
-      pathData = `<circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/>`;
-      break;
-    case 'work-order': // Generic pin for work orders
-    default:
-      pathData = `<path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/>`;
-      break;
-  }
-
-  return `
-    <div style="background-color: white; border-radius: 50%; padding: 4px; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
-      <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round">
-        ${pathData}
-      </svg>
-    </div>
-  `;
-};
 
 export const MapboxDisplayMap = ({ center, zoom = 12, markers = [], height = '300px', origin, destination }: MapboxDisplayMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -138,10 +99,7 @@ export const MapboxDisplayMap = ({ center, zoom = 12, markers = [], height = '30
 
     // Add new markers
     markers.forEach(markerData => {
-      const el = document.createElement('div');
-      el.innerHTML = getSvgIcon(markerData.iconType, markerData.iconColor);
-      
-      const marker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+      const marker = new mapboxgl.Marker({ color: markerData.color || '#6A0DAD' })
         .setLngLat([markerData.lng, markerData.lat])
         .addTo(map.current!);
 
@@ -207,7 +165,7 @@ export const MapboxDisplayMap = ({ center, zoom = 12, markers = [], height = '30
 
     // Adjust map bounds to fit all markers and route if available
     const allPoints: mapboxgl.LngLat[] = [];
-    markers.forEach(point => allPoints.push(new mapboxgl.LngLat(point.lng, point.lat)));
+    markers.forEach(m => allPoints.push(new mapboxgl.LngLat(m.lng, m.lat)));
     if (routeData && routeData.coordinates) {
       routeData.coordinates.forEach((coord: [number, number]) => allPoints.push(new mapboxgl.LngLat(coord[0], coord[1])));
     }

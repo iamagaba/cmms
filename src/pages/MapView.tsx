@@ -46,15 +46,14 @@ const MapViewPage = () => {
   });
 
   const allMarkers = React.useMemo(() => {
-    const markers: { lng: number; lat: number; iconType: 'motorbike' | 'wrench' | 'user' | 'work-order'; iconColor?: string; popupText?: string }[] = [];
+    const markers: { lng: number; lat: number; color?: string; popupText?: string }[] = [];
 
     (locations || []).forEach(location => {
       if (location.lng && location.lat) {
         markers.push({
           lng: location.lng,
           lat: location.lat,
-          iconType: 'wrench', // Wrench icon for locations
-          iconColor: '#1677ff', // Blue for locations
+          color: '#1677ff', // Blue for locations
           popupText: `Location: ${location.name}`,
         });
       }
@@ -68,8 +67,7 @@ const MapViewPage = () => {
         markers.push({
           lng: tech.lng,
           lat: tech.lat,
-          iconType: 'user', // User icon for technicians
-          iconColor: techColor,
+          color: techColor,
           popupText: `Technician: ${tech.name} (${tech.status})`,
         });
       }
@@ -81,8 +79,7 @@ const MapViewPage = () => {
         markers.push({
           lng: wo.customerLng,
           lat: wo.customerLat,
-          iconType: 'work-order', // Generic pin for work orders
-          iconColor: '#6A0DAD', // Purple for customer locations
+          color: '#6A0DAD', // Purple for customer locations
           popupText: `Work Order: ${wo.workOrderNumber} - ${wo.service}`,
         });
       }

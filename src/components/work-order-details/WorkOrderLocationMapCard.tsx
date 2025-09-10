@@ -35,12 +35,12 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
   let destinationCoords: [number, number] | null = null;
 
   if (location?.lng && location?.lat) {
-    mapMarkers.push({ lng: location.lng, lat: location.lat, iconType: 'wrench', iconColor: '#1677ff', popupText: `Service Center: ${location.name}` });
+    mapMarkers.push({ lng: location.lng, lat: location.lat, color: '#1677ff', popupText: `Service Center: ${location.name}` });
     mapCenter = [location.lng, location.lat];
     originCoords = [location.lng, location.lat];
   }
   if (workOrder.customerLng && workOrder.customerLat) {
-    mapMarkers.push({ lng: workOrder.customerLng, lat: workOrder.customerLat, iconType: 'motorbike', iconColor: '#faad14', popupText: `Client Location: ${workOrder.customerAddress || 'N/A'}` });
+    mapMarkers.push({ lng: workOrder.customerLng, lat: workOrder.customerLat, color: '#faad14', popupText: `Client Location: ${workOrder.customerAddress || 'N/A'}` });
     if (!mapCenter[0] && !mapCenter[1]) { // If no service location, center on client
       mapCenter = [workOrder.customerLng, workOrder.customerLat];
     }

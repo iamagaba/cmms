@@ -14,6 +14,7 @@ import { GoogleLocationSearchInput } from "@/components/GoogleLocationSearchInpu
 import { useSearchParams } from "react-router-dom";
 import { AddPartToWorkOrderDialog } from "@/components/AddPartToWorkOrderDialog";
 import PageHeader from "@/components/PageHeader";
+import WorkOrderProgressTracker from "@/components/WorkOrderProgressTracker";
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -308,43 +309,53 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
         )}
 
         {isDrawerMode ? (
-          <Tabs defaultActiveKey="1">
-            <TabPane tab={<span><InfoCircleOutlined /> Overview</span>} key="1">
-              <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                {serviceInfoCard}
-                {workOrderDetailsCard} {/* Using the renamed card */}
-                {customerVehicleCard}
-              </Space>
-            </TabPane>
-            <TabPane tab={<span><UnorderedListOutlined /> Parts & Log</span>} key="2">
-              <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                {partsCard}
-                {activityLogCard}
-              </Space>
-            </TabPane>
-            <TabPane tab={<span><CompassOutlined /> Location</span>} key="3">
-              <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                {locationAndMapCard}
-              </Space>
-            </TabPane>
-          </Tabs>
+          <>
+            <div style={{ marginBottom: 16 }}>
+              <WorkOrderProgressTracker workOrder={workOrder} />
+            </div>
+            <Tabs defaultActiveKey="1">
+              <TabPane tab={<span><InfoCircleOutlined /> Overview</span>} key="1">
+                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  {serviceInfoCard}
+                  {workOrderDetailsCard}
+                  {customerVehicleCard}
+                </Space>
+              </TabPane>
+              <TabPane tab={<span><UnorderedListOutlined /> Parts & Log</span>} key="2">
+                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  {partsCard}
+                  {activityLogCard}
+                </Space>
+              </TabPane>
+              <TabPane tab={<span><CompassOutlined /> Location</span>} key="3">
+                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  {locationAndMapCard}
+                </Space>
+              </TabPane>
+            </Tabs>
+          </>
         ) : (
-          <Row gutter={[16, 16]}>
-            <Col xs={24} lg={16}>
-              <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                {serviceInfoCard}
-                {partsCard}
-                {activityLogCard}
-              </Space>
-            </Col>
-            <Col xs={24} lg={8}>
-              <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                {workOrderDetailsCard} {/* Using the renamed card */}
-                {customerVehicleCard}
-                {locationAndMapCard}
-              </Space>
-            </Col>
-          </Row>
+          <>
+            <Card>
+              <WorkOrderProgressTracker workOrder={workOrder} />
+            </Card>
+            <Row gutter={[16, 16]}>
+              <Col xs={24} lg={16}>
+                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  {serviceInfoCard}
+                  {partsCard}
+                  {activityLogCard}
+                </Space>
+              </Col>
+              <Col xs={24} lg={8}>
+                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  {workOrderDetailsCard}
+                  {customerVehicleCard}
+                  {locationAndMapCard}
+                </Space>
+              </Col>
+            </Row>
+          </>
         )}
       </Space>
       {onHoldWorkOrder && <OnHoldReasonDialog isOpen={!!onHoldWorkOrder} onClose={() => setOnHoldWorkOrder(null)} onSave={handleSaveOnHoldReason} />}

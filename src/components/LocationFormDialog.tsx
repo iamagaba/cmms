@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Modal, Form, Input, Button } from "antd";
 import { Location } from "@/types/supabase";
-import { GoogleLocationSearchInput } from "./GoogleLocationSearchInput"; // Import the component
+import { MapboxLocationSearchInput } from "./MapboxLocationSearchInput";
 
 interface LocationFormDialogProps {
   isOpen: boolean;
@@ -43,8 +43,8 @@ export const LocationFormDialog = ({ isOpen, onClose, onSave, location }: Locati
       const locationToSave: Location = {
         id: location?.id,
         ...values,
-        lat: selectedLocationData?.lat || null, // Use captured lat/lng
-        lng: selectedLocationData?.lng || null, // Use captured lat/lng
+        lat: selectedLocationData?.lat || null,
+        lng: selectedLocationData?.lng || null,
       };
       
       onSave(locationToSave);
@@ -73,7 +73,7 @@ export const LocationFormDialog = ({ isOpen, onClose, onSave, location }: Locati
           <Input placeholder="e.g. GOGO Station - Wandegeya" />
         </Form.Item>
         <Form.Item name="address" label="Address" rules={[{ required: true, message: 'Please input the address!' }]}>
-          <GoogleLocationSearchInput 
+          <MapboxLocationSearchInput 
             onLocationSelect={handleLocationSelect} 
             initialValue={location?.address || ''} 
           />

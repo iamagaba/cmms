@@ -143,6 +143,7 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
         borderRight: '1px solid #f0f0f0',
         display: 'flex',
         flexDirection: 'column', // Enable flex column for internal layout
+        borderRadius: 8, // Added rounded corners
       }}
     >
       <div className="sider-logo-area">

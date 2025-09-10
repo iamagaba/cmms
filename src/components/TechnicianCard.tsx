@@ -1,7 +1,7 @@
 import { Card, Avatar, Typography, Tag, Dropdown, Menu, Button, Space } from "antd";
 import { MoreOutlined, EditOutlined, DeleteOutlined, MailOutlined, PhoneOutlined } from "@ant-design/icons";
 import { Technician } from "@/types/supabase";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const { Title, Text } = Typography;
 
@@ -28,39 +28,35 @@ const statusTextMap: Record<string, string> = {
 };
 
 export const TechnicianCard = ({ technician, onEdit, onDelete }: TechnicianCardProps) => {
-  const navigate = useNavigate();
-
-  const handleCardClick = () => {
-    navigate(`/technicians/${technician.id}`);
-  };
-
   const menu = (
     <Menu>
-      <Menu.Item key="edit" icon={<EditOutlined />} onClick={(e) => { e.domEvent.stopPropagation(); onEdit(technician); }}>
+      <Menu.Item key="edit" icon={<EditOutlined />} onClick={() => onEdit(technician)}>
         Edit Details
       </Menu.Item>
-      <Menu.Item key="delete" icon={<DeleteOutlined />} danger onClick={(e) => { e.domEvent.stopPropagation(); onDelete(technician); }}>
+      <Menu.Item key="delete" icon={<DeleteOutlined />} danger onClick={() => onDelete(technician)}>
         Delete Technician
       </Menu.Item>
     </Menu>
   );
 
   return (
-    <Card hoverable className="lift-on-hover" style={{ height: '100%', cursor: 'pointer' }} onClick={handleCardClick}>
+    <Card hoverable className="lift-on-hover" style={{ height: '100%' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
         <Space direction="vertical">
-          <Space>
-            <Avatar size={48} src={technician.avatar || undefined}>
-              {technician.name.split(' ').map(n => n[0]).join('')}
-            </Avatar>
-            <div>
-              <Title level={5} style={{ margin: 0 }}>{technician.name}</Title>
-              <Text type="secondary">{technician.specialization}</Text>
-            </div>
-          </Space>
+          <Link to={`/technicians/${technician.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+            <Space>
+              <Avatar size={48} src={technician.avatar || undefined}>
+                {technician.name.split(' ').map(n => n[0]).join('')}
+              </Avatar>
+              <div>
+                <Title level={5} style={{ margin: 0 }}>{technician.name}</Title>
+                <Text type="secondary">{technician.specialization}</Text>
+              </div>
+            </Space>
+          </Link>
         </Space>
         <Dropdown overlay={menu} trigger={["click"]}>
-          <Button type="text" icon={<MoreOutlined />} onClick={(e) => e.stopPropagation()} />
+          <Button type="text" icon={<MoreOutlined />} />
         </Dropdown>
       </div>
       

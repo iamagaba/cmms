@@ -4,7 +4,7 @@ import { PlusOutlined, AppstoreOutlined, UnorderedListOutlined } from "@ant-desi
 import { TechnicianFormDialog } from "@/components/TechnicianFormDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Technician, WorkOrder, Location } from "@/types/supabase";
+import { Technician, WorkOrder } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import PageHeader from "@/components/PageHeader";
@@ -33,15 +33,6 @@ const TechniciansPage = () => {
     queryKey: ['work_orders'],
     queryFn: async () => {
       const { data, error } = await supabase.from('work_orders').select('*');
-      if (error) throw new Error(error.message);
-      return data || [];
-    }
-  });
-
-  const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({
-    queryKey: ['locations'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('locations').select('*');
       if (error) throw new Error(error.message);
       return data || [];
     }
@@ -102,7 +93,7 @@ const TechniciansPage = () => {
     );
   }, [technicianData, searchTerm]);
 
-  const isLoading = isLoadingTechnicians || isLoadingWorkOrders || isLoadingLocations;
+  const isLoading = isLoadingTechnicians || isLoadingWorkOrders;
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
@@ -156,7 +147,6 @@ const TechniciansPage = () => {
           onClose={() => setIsDialogOpen(false)}
           onSave={handleSave}
           technician={editingTechnician}
-          locations={locations || []}
         />
       )}
     </Space>

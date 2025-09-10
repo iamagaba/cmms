@@ -1,7 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { RealtimePostgresChangesPayload } from '@supabase/supabase-js';
-import { showInfo } from '@/utils/toast';
 
 export interface Notification {
   id: string;
@@ -48,10 +47,8 @@ export const NotificationsProvider = ({ children }: { children: ReactNode }) => 
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'notifications' },
         (payload: RealtimePostgresChangesPayload<Notification>) => {
-          const newNotification = payload.new as Notification;
-          setNotifications(prev => [newNotification, ...prev]);
+          setNotifications(prev => [payload.new as Notification, ...prev]);
           setUnreadCount(prev => prev + 1);
-          showInfo(newNotification.message); // Show a toast notification
         }
       )
       .subscribe();

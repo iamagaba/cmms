@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Modal, Form, Input, Select, Button, DatePicker } from "antd";
-import { Technician, Location } from "@/types/supabase";
+import { Technician } from "@/types/supabase";
 import dayjs from 'dayjs';
 
 const { Option } = Select;
@@ -10,10 +10,9 @@ interface TechnicianFormDialogProps {
   onClose: () => void;
   onSave: (data: Technician) => void;
   technician?: Technician | null;
-  locations: Location[];
 }
 
-export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician, locations }: TechnicianFormDialogProps) => {
+export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician }: TechnicianFormDialogProps) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
@@ -68,13 +67,6 @@ export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician, loca
         </Form.Item>
         <Form.Item name="phone" label="Phone Number" rules={[{ required: true, message: 'Please input the phone number!' }]}>
           <Input placeholder="e.g. +256 772 123456" />
-        </Form.Item>
-        <Form.Item name="location_id" label="Assigned Location">
-          <Select placeholder="Select a location" allowClear>
-            {locations.map(loc => (
-              <Option key={loc.id} value={loc.id}>{loc.name}</Option>
-            ))}
-          </Select>
         </Form.Item>
         <Form.Item name="status" label="Status" rules={[{ required: true, message: 'Please select a status!' }]}>
           <Select placeholder="Select a status">

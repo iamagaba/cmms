@@ -258,10 +258,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
         <Descriptions.Item label="Appointment Date"><DatePicker showTime value={workOrder.appointmentDate ? dayjs(workOrder.appointmentDate) : null} onChange={(date) => handleUpdateWorkOrder({ appointmentDate: date ? date.toISOString() : null })} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
         <Descriptions.Item label={<><ToolOutlined /> Assigned To</>}><Select value={workOrder.assignedTechnicianId} onChange={(value) => handleUpdateWorkOrder({ assignedTechnicianId: value })} style={{ width: '100%' }} bordered={false} allowClear placeholder="Unassigned" suffixIcon={null}>{(allTechnicians || []).map(t => (<Option key={t.id} value={t.id}><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Avatar size="small" src={t.avatar || undefined}>{t.name.split(' ').map(n => n[0]).join('')}</Avatar><Text>{t.name}</Text></div></Option>))}</Select></Descriptions.Item>
         {technician && (
-          <>
-            <Descriptions.Item label={<><MailOutlined /> Tech Email</>}><a href={`mailto:${technician.email}`}>{technician.email || 'N/A'}</a></Descriptions.Item>
-            <Descriptions.Item label={<><PhoneOutlined /> Tech Phone</>}><a href={`tel:${technician.phone}`}>{technician.phone || 'N/A'}</a></Descriptions.Item>
-          </>
+          <Descriptions.Item label={<><PhoneOutlined /> Tech Phone</>}><a href={`tel:${technician.phone}`}>{technician.phone || 'N/A'}</a></Descriptions.Item>
         )}
       </Descriptions>
     </Card>

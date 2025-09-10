@@ -24,7 +24,6 @@ interface CreateWorkOrderDialogProps {
 }
 
 export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed, initialVehicle, initialCustomerId }: CreateWorkOrderDialogProps) => {
-  console.log('CreateWorkOrderDialog rendering. isOpen:', isOpen, 'initialVehicle:', initialVehicle);
   const [searchValue, setSearchValue] = useState('');
   const [options, setOptions] = useState<VehicleOption[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -33,7 +32,6 @@ export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed, initialVehic
 
   useEffect(() => {
     if (isOpen) {
-      console.log('CreateWorkOrderDialog useEffect: isOpen is true.');
       if (initialVehicle) {
         setSelectedVehicle(initialVehicle);
         setSearchValue(initialVehicle.license_plate);
@@ -69,10 +67,8 @@ export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed, initialVehic
   const debouncedSearch = useMemo(
     () =>
       debounce(async (value: string) => {
-        console.log('CreateWorkOrderDialog: Performing search for:', value);
         if (!value || value.length < 2) {
-          setOptions([]); // Corrected from setResults
-          setIsLoading(false); // Corrected from setLoading
+          setOptions([]);
           return;
         }
         setIsLoading(true);
@@ -137,8 +133,6 @@ export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed, initialVehic
     setExistingWorkOrders([]);
     onClose();
   };
-
-  console.log('CreateWorkOrderDialog: Rendered with selectedVehicle:', selectedVehicle, 'options count:', options.length, 'isLoading:', isLoading);
 
   return (
     <Modal

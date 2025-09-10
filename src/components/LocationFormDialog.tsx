@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Modal, Form, Input, Button } from "antd";
 import { Location } from "@/types/supabase";
-import { OSMLocationSearchInput } from "./OSMLocationSearchInput"; // Updated import
+import { GoogleLocationSearchInput } from "./GoogleLocationSearchInput"; // Import the component
 
 interface LocationFormDialogProps {
   isOpen: boolean;
@@ -72,8 +72,8 @@ export const LocationFormDialog = ({ isOpen, onClose, onSave, location }: Locati
         <Form.Item name="name" label="Location Name" rules={[{ required: true, message: 'Please input the location name!' }]}>
           <Input placeholder="e.g. GOGO Station - Wandegeya" />
         </Form.Item>
-        <Form.Item name="address" label="Address" rules={[{ required: true, message: 'Please input the address!' }]} tooltip="Search for an address in Uganda.">
-          <OSMLocationSearchInput 
+        <Form.Item name="address" label="Address" rules={[{ required: true, message: 'Please input the address!' }]}>
+          <GoogleLocationSearchInput 
             onLocationSelect={handleLocationSelect} 
             initialValue={location?.address || ''} 
           />

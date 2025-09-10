@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Avatar, Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typography, List, Skeleton, Select, DatePicker, Input, Popconfirm, Table, Tabs, theme, Empty } from "antd";
-import { ArrowLeftOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined, CalendarOutlined, ToolOutlined, PlusOutlined, DeleteOutlined, InfoCircleOutlined, UnorderedListOutlined, CompassOutlined, MailOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined, CalendarOutlined, ToolOutlined, PlusOutlined, DeleteOutlined, InfoCircleOutlined, UnorderedListOutlined, CompassOutlined, MailOutlined } from "@ant-design/icons"; // Import MailOutlined
 import dayjs from "dayjs";
 import NotFound from "./NotFound";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -10,29 +10,26 @@ import { useState, useMemo } from "react";
 import { showSuccess, showError, showInfo } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
-import { OSMLocationSearchInput } from "@/components/OSMLocationSearchInput";
+import { GoogleLocationSearchInput } from "@/components/GoogleLocationSearchInput";
 import { useSearchParams } from "react-router-dom";
 import { AddPartToWorkOrderDialog } from "@/components/AddPartToWorkOrderDialog";
 import PageHeader from "@/components/PageHeader";
 import WorkOrderProgressTracker from "@/components/WorkOrderProgressTracker";
 import { useSession } from "@/context/SessionContext";
-import { OSMMap } from "@/components/OSMMap";
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
 const { TabPane } = Tabs;
 const { useToken } = theme;
 
+const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "";
 const channelOptions = ['Call Center', 'Service Center', 'Social Media', 'Staff', 'Swap Station'];
 
 interface WorkOrderDetailsProps {
   isDrawerMode?: boolean;
-  drawerWorkOrder?: WorkOrder | null; // New prop for drawer mode
-  drawerIsLoadingWorkOrder?: boolean; // New prop for drawer mode
 }
 
-const WorkOrderDetailsPage = ({ isDrawerMode = false, drawerWorkOrder, drawerIsLoadingWorkOrder }: WorkOrderDetailsProps) => {
-  console.log('WorkOrderDetailsPage rendering. isDrawerMode:', isDrawerMode);
+const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) => {
   const { id: paramId } = useParams<{ id:string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
@@ -52,19 +49,18 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false, drawerWorkOrder, drawerIsL
   };
   const priorityColors: Record<string, string> = { High: token.colorError, Medium: token.colorWarning, Low: token.colorSuccess };
 
-  // Determine the ID to use for fetching if not in drawer mode
-  const queryId = isDrawerMode ? searchParams.get('view') : paramId;
-  console.log('WorkOrderDetailsPage queryId:', queryId);
+  const id = isDrawerMode ? searchParams.get('view') : paramId;
 
-  // Conditional query based on isDrawerMode
-  const { data: fetchedWorkOrder, isLoading: fetchedIsLoadingWorkOrder } = useQuery<WorkOrder | null>({ 
-    queryKey: ['work_order', queryId], 
+  const { data: workOrder, isLoading: isLoadingWorkOrder } = useQuery<WorkOrder | null>({ 
+    queryKey: ['work_order', id], 
     queryFn: async () => { 
-      if (!queryId) return null; 
-      console.log('WorkOrderDetailsPage: Fetching work order details for ID:', queryId);
-      const { data, error } = await supabase.from('work_orders').select('*').eq('id', queryId).single(); 
+      if (!id) return null; 
+      console.log('Fetching work order details for ID:', id);
+      const { data, error } = await supabase.from('work_orders').select('*').eq('id', id).single(); 
       if (error) throw new Error(error.message); 
+      console.log('Raw fetched work order data from Supabase:', data); // Log raw data
       if (data) {
+        // Manually map snake_case to camelCase for consistency with WorkOrder type
         const mappedData: WorkOrder = {
           ...data,
           workOrderNumber: data.work_order_number,
@@ -73,7 +69,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false, drawerWorkOrder, drawerIsL
           serviceNotes: data.service_notes,
           partsUsed: data.parts_used,
           activityLog: data.activity_log,
-          slaDue: data.sla_due,
+          slaDue: data.sla_due, // Map sla_due to slaDue
           completedAt: data.completed_at,
           customerLat: data.customer_lat,
           customerLng: data.customer_lng,
@@ -82,26 +78,22 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false, drawerWorkOrder, drawerIsL
           appointmentDate: data.appointment_date,
           customerId: data.customer_id,
           vehicleId: data.vehicle_id,
-          created_by: data.created_by,
+          created_by: data.created_by, // Ensure created_by is also mapped if it's snake_case in DB
         };
+        console.log('Mapped work order data (camelCase):', mappedData);
         return mappedData;
       }
       return null;
     }, 
-    enabled: !isDrawerMode && !!queryId // Only fetch if NOT in drawer mode AND queryId exists
+    enabled: !!id 
   });
-
-  // Use prop data if in drawer mode, otherwise use fetched data
-  const workOrder = isDrawerMode ? drawerWorkOrder : fetchedWorkOrder;
-  const isLoadingWorkOrder = isDrawerMode ? drawerIsLoadingWorkOrder : fetchedIsLoadingWorkOrder;
-
   const { data: technician, isLoading: isLoadingTechnician } = useQuery<Technician | null>({ queryKey: ['technician', workOrder?.assignedTechnicianId], queryFn: async () => { if (!workOrder?.assignedTechnicianId) return null; const { data, error } = await supabase.from('technicians').select('*').eq('id', workOrder.assignedTechnicianId).single(); if (error) throw new Error(error.message); return data; }, enabled: !!workOrder?.assignedTechnicianId });
   const { data: location, isLoading: isLoadingLocation } = useQuery<Location | null>({ queryKey: ['location', workOrder?.locationId], queryFn: async () => { if (!workOrder?.locationId) return null; const { data, error } = await supabase.from('locations').select('*').eq('id', workOrder.locationId).single(); if (error) throw new Error(error.message); return data; }, enabled: !!workOrder?.locationId });
   const { data: allTechnicians, isLoading: isLoadingAllTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return data || []; } });
   const { data: allLocations, isLoading: isLoadingAllLocations } = useQuery<Location[]>({ queryKey: ['locations'], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*'); if (error) throw new Error(error.message); return data || []; } });
   const { data: customer, isLoading: isLoadingCustomer } = useQuery<Customer | null>({ queryKey: ['customer', workOrder?.customerId], queryFn: async () => { if (!workOrder?.customerId) return null; const { data, error } = await supabase.from('customers').select('*').eq('id', workOrder.customerId).single(); if (error) throw new Error(error.message); return data; }, enabled: !!workOrder?.customerId });
   const { data: vehicle, isLoading: isLoadingVehicle } = useQuery<Vehicle | null>({ queryKey: ['vehicle', workOrder?.vehicleId], queryFn: async () => { if (!workOrder?.vehicleId) return null; const { data, error } = await supabase.from('vehicles').select('*').eq('id', workOrder.vehicleId).single(); if (error) throw new Error(error.message); return data; }, enabled: !!workOrder?.vehicleId });
-  const { data: usedParts, isLoading: isLoadingUsedParts } = useQuery<WorkOrderPart[]>({ queryKey: ['work_order_parts', queryId], queryFn: async () => { if (!queryId) return []; const { data, error } = await supabase.from('work_order_parts').select('*, inventory_items(*)').eq('work_order_id', queryId); if (error) throw new Error(error.message); return data || []; }, enabled: !!queryId });
+  const { data: usedParts, isLoading: isLoadingUsedParts } = useQuery<WorkOrderPart[]>({ queryKey: ['work_order_parts', id], queryFn: async () => { if (!id) return []; const { data, error } = await supabase.from('work_order_parts').select('*, inventory_items(*)').eq('work_order_id', id); if (error) throw new Error(error.message); return data || []; }, enabled: !!id });
   const { data: profiles, isLoading: isLoadingProfiles } = useQuery<Profile[]>({
     queryKey: ['profiles'],
     queryFn: async () => {
@@ -116,25 +108,25 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false, drawerWorkOrder, drawerIsL
       const { error } = await supabase.from('work_orders').upsert([workOrderData]); 
       if (error) throw new Error(error.message); 
     }, 
-    onSuccess: (_, variables) => {
-      const updatedId = variables.id;
+    onSuccess: (_, variables) => { // Get the variables passed to mutate
+      const updatedId = variables.id; // Assuming id is always present in updates
       if (updatedId) {
-        queryClient.refetchQueries({ queryKey: ['work_order', updatedId] });
+        queryClient.refetchQueries({ queryKey: ['work_order', updatedId] }); // Refetch specific work order
       }
-      queryClient.invalidateQueries({ queryKey: ['work_orders'] });
+      queryClient.invalidateQueries({ queryKey: ['work_orders'] }); // Invalidate all work orders for lists
       showSuccess('Work order has been updated.'); 
     }, 
     onError: (error) => showError(error.message) 
   });
-  const addPartMutation = useMutation({ mutationFn: async ({ itemId, quantity }: { itemId: string, quantity: number }) => { const { error } = await supabase.rpc('add_part_to_work_order', { p_work_order_id: queryId, p_item_id: itemId, p_quantity_used: quantity }); if (error) throw new Error(error.message); }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['work_order_parts', queryId] }); queryClient.invalidateQueries({ queryKey: ['inventory_items'] }); showSuccess('Part added to work order.'); }, onError: (error) => showError(error.message) });
+  const addPartMutation = useMutation({ mutationFn: async ({ itemId, quantity }: { itemId: string, quantity: number }) => { const { error } = await supabase.rpc('add_part_to_work_order', { p_work_order_id: id, p_item_id: itemId, p_quantity_used: quantity }); if (error) throw new Error(error.message); }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['work_order_parts', id] }); queryClient.invalidateQueries({ queryKey: ['inventory_items'] }); showSuccess('Part added to work order.'); }, onError: (error) => showError(error.message) });
   const removePartMutation = useMutation({
     mutationFn: async (partId: string) => {
       const { error } = await supabase.from('work_order_parts').delete().eq('id', partId);
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['work_order_parts', queryId] });
-      queryClient.invalidateQueries({ queryKey: ['inventory_items'] });
+      queryClient.invalidateQueries({ queryKey: ['work_order_parts', id] });
+      queryClient.invalidateQueries({ queryKey: ['inventory_items'] }); // Invalidate inventory to reflect stock changes
       showSuccess('Part removed from work order.');
     },
     onError: (error) => showError(error.message),
@@ -174,7 +166,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false, drawerWorkOrder, drawerIsL
     } else if (updates.customerLat !== oldWorkOrder.customerLat || updates.customerLng !== oldWorkOrder.customerLng) {
       activityMessage = `Client coordinates updated.`;
     } else {
-      activityMessage = 'Work order details updated.';
+      activityMessage = 'Work order details updated.'; // Generic message for other changes
     }
 
     if (activityMessage) {
@@ -204,47 +196,19 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false, drawerWorkOrder, drawerIsL
 
   const isLoading = isLoadingWorkOrder || isLoadingTechnician || isLoadingLocation || isLoadingAllTechnicians || isLoadingAllLocations || isLoadingCustomer || isLoadingVehicle || isLoadingUsedParts || isLoadingProfiles;
 
-  if (isLoading) {
-    console.log('WorkOrderDetailsPage is loading all data...');
-    return <Skeleton active />;
-  }
-  if (!workOrder) {
-    console.log('WorkOrderDetailsPage: No work order found for ID:', queryId);
-    return isDrawerMode ? <div style={{ padding: 24 }}><NotFound /></div> : <NotFound />;
-  }
-  console.log('WorkOrderDetailsPage: Work order data loaded:', workOrder);
+  if (isLoading) return <Skeleton active />;
+  if (!workOrder) return isDrawerMode ? <div style={{ padding: 24 }}><NotFound /></div> : <NotFound />;
 
   const hasClientLocation = workOrder.customerLat != null && workOrder.customerLng != null;
-  const mapCenter: [number, number] = (location?.lat && location?.lng) ? [location.lat, location.lng] : (hasClientLocation ? [workOrder.customerLat!, workOrder.customerLng!] : [0.32, 32.58]);
-  
-  const mapMarkers = useMemo(() => {
-    const markers = [];
-    if (location?.lat && location?.lng) {
-      markers.push({
-        position: [location.lat, location.lng],
-        popupContent: (
-          <div>
-            <Text strong>{location.name.replace(' Service Center', '')}</Text><br />
-            <Text type="secondary">{location.address}</Text>
-          </div>
-        ),
-        color: token.colorPrimary,
-      });
-    }
-    if (hasClientLocation) {
-      markers.push({
-        position: [workOrder.customerLat!, workOrder.customerLng!],
-        popupContent: (
-          <div>
-            <Text strong>Client Location</Text><br />
-            <Text type="secondary">{workOrder.customerAddress}</Text>
-          </div>
-        ),
-        color: token.colorWarning,
-      });
-    }
-    return markers;
-  }, [location, workOrder, hasClientLocation, token]);
+  const getMapUrl = () => {
+    if (!API_KEY) return "";
+    let markers = [];
+    if (location) markers.push(`markers=color:blue%7Clabel:S%7C${location.lat},${location.lng}`);
+    if (hasClientLocation) markers.push(`markers=color:orange%7Clabel:C%7C${workOrder.customerLat},${workOrder.customerLng}`);
+    if (markers.length === 0) return "";
+    return `https://maps.googleapis.com/maps/api/staticmap?size=600x300&maptype=roadmap&${markers.join('&')}&key=${API_KEY}`;
+  };
+  const mapUrl = getMapUrl();
 
   const partsColumns = [
     { title: 'Part', dataIndex: ['inventory_items', 'name'], render: (name: string, record: WorkOrderPart) => `${name} (${record.inventory_items.sku})` },
@@ -268,6 +232,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false, drawerWorkOrder, drawerIsL
   ];
   const partsTotal = (usedParts || []).reduce((sum, part) => sum + (part.quantity_used * part.price_at_time_of_use), 0);
 
+  // --- Reusable Content Blocks ---
   const customerVehicleCard = (
     <Card title="Customer & Vehicle Details">
       <Descriptions column={1} bordered>
@@ -287,7 +252,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false, drawerWorkOrder, drawerIsL
     </Card>
   );
 
-  const workOrderDetailsCard = (
+  const workOrderDetailsCard = ( // Renamed from assignmentScheduleCard
     <Card title="Work Order Details">
       <Descriptions column={1}>
         <Descriptions.Item label="Status">
@@ -362,18 +327,15 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false, drawerWorkOrder, drawerIsL
     <Card title="Location Details">
       <Descriptions column={1}>
         <Descriptions.Item label={<><EnvironmentOutlined /> Service Location</>}><Select value={workOrder.locationId} onChange={(value) => handleUpdateWorkOrder({ locationId: value })} style={{ width: '100%' }} bordered={false} allowClear placeholder="Select location" suffixIcon={null}>{(allLocations || []).map(l => <Option key={l.id} value={l.id}>{l.name.replace(' Service Center', '')}</Option>)}</Select></Descriptions.Item>
-        <Descriptions.Item label="Client Location"><OSMLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder.customerAddress || ''} /></Descriptions.Item>
+        <Descriptions.Item label="Client Location"><GoogleLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder.customerAddress || ''} /></Descriptions.Item>
       </Descriptions>
-      <div style={{ marginTop: 16 }}>
-        {mapMarkers.length > 0 ? (
-          <OSMMap center={mapCenter} markers={mapMarkers} height="300px" />
-        ) : (
-          <div style={{padding: '24px', textAlign: 'center'}}><Empty description="No location data to display." /></div>
-        )}
+      <div style={{ marginTop: 16, borderRadius: token.borderRadius, overflow: 'hidden' }}>
+        {API_KEY ? (mapUrl ? <img src={mapUrl} alt="Map of service and client locations" style={{ width: '100%', height: 'auto', display: 'block' }} /> : <div style={{padding: '24px', textAlign: 'center'}}><Empty description="No location data to display." /></div>) : <div style={{padding: '24px', textAlign: 'center'}}><Empty description="Google Maps API Key not configured." /></div>}
       </div>
     </Card>
   );
 
+  // --- Main Render Logic ---
   return (
     <>
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
@@ -390,6 +352,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false, drawerWorkOrder, drawerIsL
               </Space>
             }
             hideSearch
+            // Removed status dropdown from PageHeader
           />
         )}
 

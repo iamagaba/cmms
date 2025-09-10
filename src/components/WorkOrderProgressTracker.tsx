@@ -4,7 +4,7 @@ import dayjs, { Dayjs } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
 import { WorkOrder } from '@/types/supabase';
 
-dayjs.extend(duration); // Ensure plugin is extended here
+dayjs.extend(duration);
 
 const { Step } = Steps;
 const { Text } = Typography;
@@ -44,8 +44,7 @@ const WorkOrderProgressTracker = ({ workOrder }: WorkOrderProgressTrackerProps) 
       if (workOrder.status !== 'Completed') {
         setNow(dayjs());
       }
-    }, 1000); // Update every second
-
+    }, 1000);
     return () => clearInterval(timer);
   }, [workOrder.status]);
 

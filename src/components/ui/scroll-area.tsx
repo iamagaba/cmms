@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 
@@ -31,9 +29,11 @@ const ScrollBar = React.forwardRef<
     ref={ref}
     orientation={orientation}
     className={cn(
-      "flex touch-none select-none transition-colors data-[orientation=vertical]:w-2.5 data-[orientation=horizontal]:h-2.5 data-[orientation=vertical]:flex-col",
-      "border-l border-l-transparent p-[1px] data-[orientation=horizontal]:border-t data-[orientation=horizontal]:border-t-transparent",
-      "data-[state=visible]:animate-in data-[state=hidden]:animate-out data-[state=hidden]:fade-out data-[state=visible]:fade-in",
+      "flex touch-none select-none transition-colors",
+      orientation === "vertical" &&
+        "h-full w-2.5 border-l border-l-transparent p-[1px]",
+      orientation === "horizontal" &&
+        "h-2.5 flex-col border-t border-t-transparent p-[1px]",
       className,
     )}
     {...props}

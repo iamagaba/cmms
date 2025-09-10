@@ -1,5 +1,3 @@
-"use client";
-
 import * as React from "react";
 import * as TogglePrimitive from "@radix-ui/react-toggle";
 import { cva, type VariantProps } from "class-variance-authority";
@@ -19,7 +17,6 @@ const toggleVariants = cva(
         default: "h-10 px-3",
         sm: "h-9 px-2.5",
         lg: "h-11 px-5",
-        icon: "h-10 w-10",
       },
     },
     defaultVariants: {

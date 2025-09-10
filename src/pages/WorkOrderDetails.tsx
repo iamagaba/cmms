@@ -351,7 +351,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
         {isDrawerMode ? (
           <>
             <div style={{ marginBottom: 16 }}>
-              <WorkOrderProgressTracker workOrder={workOrder} />
+              <WorkOrderProgressTracker workOrder={workOrder} slaPolicy={currentSlaPolicy} />
             </div>
             <Tabs defaultActiveKey="1">
               <TabPane tab={<span><InfoCircleOutlined /> Overview</span>} key="1">
@@ -378,7 +378,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
         ) : (
           <>
             <Card>
-              <WorkOrderProgressTracker workOrder={workOrder} />
+              <WorkOrderProgressTracker workOrder={workOrder} slaPolicy={currentSlaPolicy} />
             </Card>
             <Row gutter={[16, 16]}>
               <Col xs={24} lg={16}>

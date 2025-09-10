@@ -3,6 +3,8 @@
 import * as React from "react";
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
+  type EmblaOptionsType, // Import EmblaOptionsType
+  type EmblaPluginType, // Import EmblaPluginType
 } from "embla-carousel-react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
@@ -33,8 +35,8 @@ function useCarousel() {
 
 type CarouselProps = {
   orientation?: "horizontal" | "vertical";
-  opts?: React.ComponentProps<typeof useEmblaCarousel>[0];
-  plugins?: React.ComponentProps<typeof useEmblaCarousel>[1];
+  opts?: EmblaOptionsType; // Use EmblaOptionsType directly
+  plugins?: EmblaPluginType[]; // Use EmblaPluginType[] directly
   setApi?: (api: CarouselContextProps["api"]) => void;
 } & React.ComponentProps<"div">;
 
@@ -142,7 +144,7 @@ const Carousel = React.forwardRef<
 );
 Carousel.displayName = "Carousel";
 
-const CarouselItem = React.forwardRef<
+const CarouselContent = React.forwardRef< // Export CarouselContent
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => {
@@ -162,7 +164,7 @@ const CarouselItem = React.forwardRef<
     />
   );
 });
-CarouselItem.displayName = "CarouselItem";
+CarouselContent.displayName = "CarouselContent";
 
 interface CarouselButtonProps extends ButtonProps {} // Define interface extending ButtonProps
 
@@ -226,7 +228,7 @@ CarouselNext.displayName = "CarouselNext";
 
 export {
   Carousel,
-  CarouselContent,
+  CarouselContent, // Export CarouselContent here
   CarouselItem,
   CarouselPrevious,
   CarouselNext,

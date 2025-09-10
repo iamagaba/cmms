@@ -119,6 +119,8 @@ const ToastViewport = React.forwardRef<
 ));
 ToastViewport.displayName = ToastPrimitives.Viewport.displayName;
 
+type ToastActionElement = React.ElementRef<typeof ToastAction>; // Correctly define ToastActionElement
+
 export {
   type ToastProps,
   type ToastActionElement,

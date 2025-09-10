@@ -53,9 +53,22 @@ const COLORS = {
   },
 } as const;
 
+type ChartConfig = {
+  [k: string]: {
+    label?: string;
+    color?: string;
+    icon?: React.ComponentType<{ className?: string }>;
+  };
+};
+
 type ChartContextProps = {
-  theme?: keyof typeof COLORS;
-  set<ctrl62>
+  config: ChartConfig;
+  children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>["children"];
+} & React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>;
+
+const ChartContext = React.createContext<ChartContextProps | null>(null);
+
+function useChart() {
   const context = React.useContext(ChartContext);
 
   if (!context) {
@@ -73,24 +86,34 @@ type ChartProps = {
 const Chart = React.forwardRef<HTMLDivElement, ChartProps>(
   ({ config, className, children, ...props }, ref) => {
     const [mounted, setMounted] = React.useState(false);
-    const { theme: mode } = useChart();
-    const activeConfig = React.useMemo(
-      () => get<ctrl62>  <div
-      ref={ref}
-      className={cn(
-        "flex h-full w-full flex-col",
-        className,
-      )}
-      {...props}
-    >
-      <ChartContext.Provider value={{ config, theme: mode }}>
-        <RechartsPrimitive.ResponsiveContainer {...props}>
-          {children}
-        </RechartsPrimitive.ResponsiveContainer>
-      </ChartContext.Provider>
-    </div>
-  );
-});
+    const { theme: mode } = useChart(); // This line will be fixed by the context provider below
+
+    React.useEffect(() => {
+      setMounted(true);
+    }, []);
+
+    if (!mounted) {
+      return null;
+    }
+
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "flex h-full w-full flex-col",
+          className,
+        )}
+        {...props}
+      >
+        <ChartContext.Provider value={{ config, ...props }}>
+          <RechartsPrimitive.ResponsiveContainer {...props}>
+            {children}
+          </RechartsPrimitive.ResponsiveContainer>
+        </ChartContext.Provider>
+      </div>
+    );
+  },
+);
 Chart.displayName = "Chart";
 
 export { Chart, useChart };

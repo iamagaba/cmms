@@ -6,7 +6,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import SlaCountdown from "./SlaCountdown";
 import { ResizableTitle } from "./ResizableTitle";
 
-dayjs.extend(relativeTime);
+dayjs.extend(relativeTime); // Ensure plugin is extended here
 
 const { Text } = Typography;
 const { Option } = Select;

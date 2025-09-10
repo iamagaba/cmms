@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Drawer, Form, Input, Select, Button, DatePicker, Col, Row, Typography, Space } from "antd";
 import { WorkOrder, Technician, Location, ServiceCategory } from "@/types/supabase";
 import dayjs from 'dayjs';
-import { GoogleLocationSearchInput } from "./GoogleLocationSearchInput";
+import { MapboxLocationSearchInput } from "./MapboxLocationSearchInput";
 import { ExpandOutlined, ShrinkOutlined } from "@ant-design/icons";
 import { useSession } from "@/context/SessionContext";
 
@@ -144,7 +144,7 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
           <Col xs={24} md={8}><Form.Item name="priority" label="Priority" rules={[{ required: true }]}><Select><Option value="High">High</Option><Option value="Medium">Medium</Option><Option value="Low">Low</Option></Select></Form.Item></Col>
           <Col xs={24} md={8}><Form.Item name="channel" label="Channel"><Select allowClear placeholder="Select a channel">{channelOptions.map(c => <Option key={c} value={c}>{c}</Option>)}</Select></Form.Item></Col>
           <Col xs={24} md={12}><Form.Item name="locationId" label="Service Location" rules={[{ required: true }]}><Select>{locations.map(l => <Option key={l.id} value={l.id}>{l.name.replace(' Service Center', '')}</Option>)}</Select></Form.Item></Col>
-          <Col xs={24} md={12}><Form.Item name="customerAddress" label="Client Location (Optional)"><GoogleLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder?.customerAddress || ''} /></Form.Item></Col>
+          <Col xs={24} md={12}><Form.Item name="customerAddress" label="Client Location (Optional)"><MapboxLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder?.customerAddress || ''} /></Form.Item></Col>
 
           <Col span={24} style={{ marginTop: 24 }}><Text strong>Assignment & Scheduling</Text></Col>
           <Col span={24}><Text type="secondary" style={{ marginBottom: 16, display: 'block' }}>Assign a technician OR schedule an appointment to move the work order to 'In Progress'.</Text></Col>

@@ -1,8 +1,8 @@
 import React from 'react';
-import { Resizable, ResizeCallback, ResizeCallbackData } from 'react-resizable';
+import { Resizable, ResizeCallbackData } from 'react-resizable';
 
-interface ResizableTitleProps extends React.HTMLAttributes<HTMLTableCellElement> {
-  onResize: ResizeCallback;
+interface ResizableTitleProps extends Omit<React.HTMLAttributes<HTMLTableCellElement>, 'onResize'> {
+  onResize: (e: React.SyntheticEvent, data: ResizeCallbackData) => void;
   width: number;
 }
 

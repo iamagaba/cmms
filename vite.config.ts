@@ -12,10 +12,6 @@ export default defineConfig(() => ({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-      // Removed explicit alias for "react-map-gl" to allow TypeScript to resolve types naturally
     },
-  },
-  optimizeDeps: {
-    include: ['react-map-gl', 'mapbox-gl'], // Keep for pre-bundling
   },
 }));

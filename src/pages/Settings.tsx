@@ -6,7 +6,7 @@ import { TechnicianFormDialog } from '@/components/TechnicianFormDialog';
 import { showSuccess, showError } from '@/utils/toast';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Technician, WorkOrder, Profile } from '@/types/supabase';
+import { Technician, WorkOrder, Profile, Location } from '@/types/supabase';
 import { useSession } from '@/context/SessionContext';
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import { useSystemSettings } from '@/context/SystemSettingsContext';
@@ -24,6 +24,7 @@ const UserManagement = () => {
 
   const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return data || []; } });
   const { data: workOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ queryKey: ['work_orders'], queryFn: async () => { const { data, error } = await supabase.from('work_orders').select('*'); if (error) throw new Error(error.message); return data || []; } });
+  const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({ queryKey: ['locations'], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*'); if (error) throw new Error(error.message); return data || []; } });
 
   const technicianMutation = useMutation({
     mutationFn: async (technicianData: Partial<Technician>) => { const { error } = await supabase.from('technicians').upsert([technicianData]); if (error) throw new Error(error.message); },
@@ -41,7 +42,7 @@ const UserManagement = () => {
   const handleDelete = (technicianData: Technician) => { deleteMutation.mutate(technicianData.id); };
   const handleEdit = (technician: Technician) => { setEditingTechnician(technician); setIsDialogOpen(true); };
 
-  const isLoading = isLoadingTechnicians || isLoadingWorkOrders;
+  const isLoading = isLoadingTechnicians || isLoadingWorkOrders || isLoadingLocations;
 
   return (
     <Card>
@@ -50,7 +51,7 @@ const UserManagement = () => {
         <Col><Button type="primary" onClick={() => { setEditingTechnician(null); setIsDialogOpen(true); }}>Add User</Button></Col>
       </Row>
       {isLoading ? <Skeleton active /> : <TechnicianDataTable technicians={technicians || []} workOrders={workOrders || []} onEdit={handleEdit} onDelete={handleDelete} />}
-      {isDialogOpen && <TechnicianFormDialog isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)} onSave={handleSave} technician={editingTechnician} />}
+      {isDialogOpen && <TechnicianFormDialog isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)} onSave={handleSave} technician={editingTechnician} locations={locations || []} />}
     </Card>
   );
 };

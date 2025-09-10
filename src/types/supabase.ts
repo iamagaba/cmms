@@ -20,6 +20,7 @@ export interface Technician {
   lat: number | null;
   lng: number | null;
   maxConcurrentOrders: number | null;
+  location_id?: string | null;
   createdAt?: string;
   updatedAt?: string;
 }

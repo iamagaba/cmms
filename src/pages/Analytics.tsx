@@ -2,12 +2,13 @@ import { Row, Col, Card, Typography, Skeleton, DatePicker } from 'antd';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { WorkOrder, Technician } from '@/types/supabase';
+import { WorkOrder, Technician, Location } from '@/types/supabase';
 import KpiCard from '@/components/KpiCard';
 import { CheckCircleOutlined, ClockCircleOutlined, ToolOutlined, UserOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import PageHeader from '@/components/PageHeader';
+import CustomReportGenerator from '@/components/CustomReportGenerator';
 
 const { Title } = Typography;
 const { RangePicker } = DatePicker;
@@ -37,7 +38,16 @@ const AnalyticsPage = () => {
     }
   });
 
-  if (isLoadingWorkOrders || isLoadingTechnicians) {
+  const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({
+    queryKey: ['locations'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('locations').select('*');
+      if (error) throw new Error(error.message);
+      return data || [];
+    }
+  });
+
+  if (isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations) {
     return <Skeleton active />;
   }
 
@@ -69,17 +79,15 @@ const AnalyticsPage = () => {
     count: workOrdersByDate[date],
   })).sort((a, b) => dayjs(a.date).unix() - dayjs(b.date).unix());
 
-  const serviceData = (workOrders || []).reduce((acc, wo) => {
-    if (wo.service) {
-      const serviceName = wo.service.split(' - ')[0]; // Basic grouping
-      acc[serviceName] = (acc[serviceName] || 0) + 1;
-    }
+  const channelData = (workOrders || []).reduce((acc, wo) => {
+    const channel = wo.channel || 'Unknown';
+    acc[channel] = (acc[channel] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
-  const serviceDistributionData = Object.keys(serviceData).map(name => ({
+  const channelDistributionData = Object.keys(channelData).map(name => ({
     name,
-    value: serviceData[name],
+    value: channelData[name],
   }));
 
   const technicianPerformance = (technicians || []).map(tech => ({
@@ -128,7 +136,7 @@ const AnalyticsPage = () => {
                 <XAxis type="number" allowDecimals={false} />
                 <YAxis dataKey="name" type="category" width={80} />
                 <Tooltip />
-                <Legend /> {/* Added Legend */}
+                <Legend />
                 <Bar dataKey="count" fill="#1677ff" name="Work Orders" />
               </BarChart>
             </ResponsiveContainer>
@@ -145,23 +153,31 @@ const AnalyticsPage = () => {
                 <XAxis dataKey="name" />
                 <YAxis allowDecimals={false} />
                 <Tooltip />
-                <Legend /> {/* Added Legend */}
+                <Legend />
                 <Bar dataKey="completed" fill="#52c41a" name="Completed Tasks" />
               </BarChart>
             </ResponsiveContainer>
           </Card>
         </Col>
         <Col xs={24} lg={8}>
-          <Card title="Service Type Distribution">
+          <Card title="Channel Distribution">
             <ResponsiveContainer width="100%" height={400}>
               <PieChart>
-                <Pie data={serviceDistributionData} cx="50%" cy="50%" labelLine={false} outerRadius={120} fill="#8884d8" dataKey="value" nameKey="name" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
-                  {serviceDistributionData.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}
+                <Pie data={channelDistributionData} cx="50%" cy="50%" labelLine={false} outerRadius={120} fill="#8884d8" dataKey="value" nameKey="name" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
+                  {channelDistributionData.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}
                 </Pie>
                 <Tooltip />
                 <Legend layout="vertical" verticalAlign="middle" align="right" />
               </PieChart>
             </ResponsiveContainer>
+          </Card>
+        </Col>
+      </Row>
+
+      <Row>
+        <Col span={24}>
+          <Card title="Custom Report Generation">
+            <CustomReportGenerator workOrders={workOrders || []} technicians={technicians || []} locations={locations || []} />
           </Card>
         </Col>
       </Row>

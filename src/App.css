@@ -193,3 +193,30 @@ body {
   height: 100%;
   cursor: col-resize;
 }
+
+/* --- Print Styles for Reports --- */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #report-area, #report-area * {
+    visibility: visible;
+  }
+  #report-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    padding: 20px;
+  }
+  .report-generator-form, .ant-layout-sider, .ant-layout-header, .main-content > .ant-space > .ant-row:first-child {
+    display: none !important;
+  }
+  .ant-card {
+    border: none !important;
+    box-shadow: none !important;
+  }
+  .ant-table-pagination {
+    display: none !important;
+  }
+}

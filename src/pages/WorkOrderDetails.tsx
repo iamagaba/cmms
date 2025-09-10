@@ -5,8 +5,8 @@ import dayjs from "dayjs";
 import NotFound from "./NotFound";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { WorkOrder, Technician, Location, Customer, Vehicle, WorkOrderPart } from "@/types/supabase";
-import { useState } from "react";
+import { WorkOrder, Technician, Location, Customer, Vehicle, WorkOrderPart, Profile } from "@/types/supabase";
+import { useState, useMemo } from "react";
 import { showSuccess, showError, showInfo } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
@@ -15,6 +15,7 @@ import { useSearchParams } from "react-router-dom";
 import { AddPartToWorkOrderDialog } from "@/components/AddPartToWorkOrderDialog";
 import PageHeader from "@/components/PageHeader";
 import WorkOrderProgressTracker from "@/components/WorkOrderProgressTracker";
+import { useSession } from "@/context/SessionContext";
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
@@ -36,6 +37,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
   const [isAddPartDialogOpen, setIsAddPartDialogOpen] = useState(false);
   const { token } = useToken();
+  const { session } = useSession();
 
   const statusColors: Record<string, string> = { 
     Open: token.colorInfo,
@@ -92,6 +94,14 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   const { data: customer, isLoading: isLoadingCustomer } = useQuery<Customer | null>({ queryKey: ['customer', workOrder?.customerId], queryFn: async () => { if (!workOrder?.customerId) return null; const { data, error } = await supabase.from('customers').select('*').eq('id', workOrder.customerId).single(); if (error) throw new Error(error.message); return data; }, enabled: !!workOrder?.customerId });
   const { data: vehicle, isLoading: isLoadingVehicle } = useQuery<Vehicle | null>({ queryKey: ['vehicle', workOrder?.vehicleId], queryFn: async () => { if (!workOrder?.vehicleId) return null; const { data, error } = await supabase.from('vehicles').select('*').eq('id', workOrder.vehicleId).single(); if (error) throw new Error(error.message); return data; }, enabled: !!workOrder?.vehicleId });
   const { data: usedParts, isLoading: isLoadingUsedParts } = useQuery<WorkOrderPart[]>({ queryKey: ['work_order_parts', id], queryFn: async () => { if (!id) return []; const { data, error } = await supabase.from('work_order_parts').select('*, inventory_items(*)').eq('work_order_id', id); if (error) throw new Error(error.message); return data || []; }, enabled: !!id });
+  const { data: profiles, isLoading: isLoadingProfiles } = useQuery<Profile[]>({
+    queryKey: ['profiles'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('profiles').select('*');
+      if (error) throw new Error(error.message);
+      return data || [];
+    }
+  });
 
   const workOrderMutation = useMutation({ 
     mutationFn: async (workOrderData: Partial<WorkOrder>) => { 
@@ -160,7 +170,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     }
 
     if (activityMessage) {
-      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage });
+      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage, userId: session?.user.id ?? null });
       updates.activityLog = newActivityLog;
     }
 
@@ -179,7 +189,12 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   const handleAddPart = (itemId: string, quantity: number) => { addPartMutation.mutate({ itemId, quantity }); };
   const handleRemovePart = (partId: string) => { removePartMutation.mutate(partId); };
 
-  const isLoading = isLoadingWorkOrder || isLoadingTechnician || isLoadingLocation || isLoadingAllTechnicians || isLoadingAllLocations || isLoadingCustomer || isLoadingVehicle || isLoadingUsedParts;
+  const profileMap = useMemo(() => {
+    if (!profiles) return new Map();
+    return new Map(profiles.map(p => [p.id, `${p.first_name || ''} ${p.last_name || ''}`.trim()]));
+  }, [profiles]);
+
+  const isLoading = isLoadingWorkOrder || isLoadingTechnician || isLoadingLocation || isLoadingAllTechnicians || isLoadingAllLocations || isLoadingCustomer || isLoadingVehicle || isLoadingUsedParts || isLoadingProfiles;
 
   if (isLoading) return <Skeleton active />;
   if (!workOrder) return isDrawerMode ? <div style={{ padding: 24 }}><NotFound /></div> : <NotFound />;
@@ -288,7 +303,24 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   );
 
   const activityLogCard = (
-    <Card title="Activity Log"><Timeline>{(workOrder.activityLog || []).map((item: { activity: string; timestamp: string }, index: number) => (<Timeline.Item key={index}><Text strong>{item.activity}</Text><br/><Text type="secondary">{dayjs(item.timestamp).format('MMM D, YYYY h:mm A')}</Text></Timeline.Item>))}</Timeline></Card>
+    <Card title="Activity Log">
+      <Timeline>
+        {[...(workOrder.activityLog || [])]
+          .sort((a, b) => dayjs(b.timestamp).diff(dayjs(a.timestamp)))
+          .map((item, index) => {
+            const userName = profileMap.get(item.userId) || (item.userId ? 'A user' : 'System');
+            return (
+              <Timeline.Item key={index}>
+                <Text strong>{item.activity}</Text>
+                <br />
+                <Text type="secondary">
+                  by {userName} on {dayjs(item.timestamp).format('MMM D, YYYY h:mm A')}
+                </Text>
+              </Timeline.Item>
+            );
+          })}
+      </Timeline>
+    </Card>
   );
 
   const locationAndMapCard = (

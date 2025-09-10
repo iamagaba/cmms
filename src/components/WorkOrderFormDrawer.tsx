@@ -4,6 +4,7 @@ import { WorkOrder, Technician, Location, ServiceCategory } from "@/types/supaba
 import dayjs from 'dayjs';
 import { GoogleLocationSearchInput } from "./GoogleLocationSearchInput";
 import { ExpandOutlined, ShrinkOutlined } from "@ant-design/icons";
+import { useSession } from "@/context/SessionContext";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -28,6 +29,7 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
   const [clientLocation, setClientLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [clientAddress, setClientAddress] = useState<string | null>(null);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const { session } = useSession();
 
   useEffect(() => {
     if (isOpen) {
@@ -77,7 +79,7 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
         customerLat: clientLocation?.lat,
         customerLng: clientLocation?.lng,
         customerAddress: clientAddress,
-        activityLog: workOrder?.activityLog || [{ timestamp: new Date().toISOString(), activity: 'Work order created.' }],
+        activityLog: workOrder?.activityLog || [{ timestamp: new Date().toISOString(), activity: 'Work order created.', userId: session?.user.id ?? null }],
         partsUsed: workOrder?.partsUsed || [],
       };
       

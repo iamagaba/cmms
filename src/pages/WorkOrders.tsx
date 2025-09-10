@@ -17,6 +17,7 @@ import MapViewPage from "./MapView";
 import PageHeader from "@/components/PageHeader";
 import { CreateWorkOrderDialog } from "@/components/CreateWorkOrderDialog";
 import dayjs from "dayjs";
+import { useSession } from "@/context/SessionContext";
 
 const { Title } = Typography;
 const { Search } = Input;
@@ -32,6 +33,7 @@ const WorkOrdersPage = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { session } = useSession();
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
@@ -66,7 +68,7 @@ const WorkOrdersPage = () => {
   const deleteMutation = useMutation({ mutationFn: async (id: string) => { const { error } = await supabase.from('work_orders').delete().eq('id', id); if (error) throw new Error(error.message); }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['work_orders'] }); showSuccess('Work order has been deleted.'); }, onError: (error) => showError(error.message) });
 
   const handleSave = (workOrderData: WorkOrder) => { 
-    const newActivityLog = workOrderData.activityLog || [{ timestamp: new Date().toISOString(), activity: 'Work order created.' }];
+    const newActivityLog = workOrderData.activityLog || [{ timestamp: new Date().toISOString(), activity: 'Work order created.', userId: session?.user.id ?? null }];
     const dataToMutate: Partial<WorkOrder> = { ...workOrderData, activityLog: newActivityLog };
     if (dataToMutate.id === undefined) { delete dataToMutate.id; }
     workOrderMutation.mutate(camelToSnakeCase(dataToMutate)); 
@@ -116,7 +118,7 @@ const WorkOrdersPage = () => {
     // --- End Automation ---
 
     if (activityMessage) {
-      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage });
+      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage, userId: session?.user.id ?? null });
       updates.activityLog = newActivityLog;
     }
 

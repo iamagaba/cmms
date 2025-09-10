@@ -4,7 +4,7 @@ import { ArrowLeftOutlined, UserOutlined, MailOutlined, PhoneOutlined, PlusOutli
 import NotFound from "./NotFound";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query"; // Import useMutation
 import { supabase } from "@/integrations/supabase/client";
-import { Vehicle, Customer, WorkOrder, Technician, Location, Profile } from "@/types/supabase"; // Import Profile
+import { Vehicle, Customer, WorkOrder, Technician, Location, Profile, ServiceCategory } from "@/types/supabase"; // Import Profile and ServiceCategory
 import { WorkOrderDataTable, ALL_COLUMNS } from "@/components/WorkOrderDataTable"; // Import ALL_COLUMNS
 import { formatDistanceToNow } from 'date-fns';
 import dayjs from 'dayjs';
@@ -15,6 +15,7 @@ import { useState, useMemo } from "react";
 import { camelToSnakeCase } from "@/utils/data-helpers"; // Import camelToSnakeCase
 import { showSuccess, showInfo, showError } from "@/utils/toast"; // Import toast utilities
 import { getColumns } from "@/components/WorkOrderTableColumns"; // Import getColumns
+import { useSession } from "@/context/SessionContext";
 
 const { Title, Text } = Typography;
 
@@ -24,6 +25,7 @@ const AssetDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { session } = useSession();
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isFormDrawerOpen, setIsFormDrawerOpen] = useState(false);
@@ -72,6 +74,8 @@ const AssetDetailsPage = () => {
       return data || [];
     }
   });
+  const { data: serviceCategories, isLoading: isLoadingServiceCategories } = useQuery<ServiceCategory[]>({ queryKey: ['service_categories'], queryFn: async () => { const { data, error } = await supabase.from('service_categories').select('*'); if (error) throw new Error(error.message); return data || []; } });
+
 
   const workOrderMutation = useMutation({
     mutationFn: async (workOrderData: Partial<WorkOrder>) => {
@@ -122,7 +126,7 @@ const AssetDetailsPage = () => {
     }
 
     if (activityMessage) {
-      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage });
+      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage, userId: session?.user.id ?? null });
       updates.activityLog = newActivityLog;
     }
 
@@ -134,7 +138,7 @@ const AssetDetailsPage = () => {
     workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates }));
   };
 
-  const isLoading = isLoadingVehicle || isLoadingCustomer || isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingAllCustomers || isLoadingProfiles;
+  const isLoading = isLoadingVehicle || isLoadingCustomer || isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingAllCustomers || isLoadingProfiles || isLoadingServiceCategories;
 
   if (isLoading) {
     return <Skeleton active />;
@@ -243,6 +247,7 @@ const AssetDetailsPage = () => {
           onSave={handleSaveWorkOrder}
           technicians={technicians || []}
           locations={locations || []}
+          serviceCategories={serviceCategories || []}
           prefillData={prefillData}
         />
     </Space>

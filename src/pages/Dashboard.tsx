@@ -16,6 +16,7 @@ import { camelToSnakeCase } from "@/utils/data-helpers";
 import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
 import { useSearchParams } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
+import { useSession } from "@/context/SessionContext";
 
 dayjs.extend(isBetween);
 const { Title } = Typography;
@@ -25,6 +26,7 @@ const Dashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
+  const { session } = useSession();
 
   const viewingWorkOrderId = searchParams.get('view');
 
@@ -133,7 +135,7 @@ const Dashboard = () => {
     }
 
     if (activityMessage) {
-      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage });
+      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage, userId: session?.user.id ?? null });
       updates.activityLog = newActivityLog;
     }
 

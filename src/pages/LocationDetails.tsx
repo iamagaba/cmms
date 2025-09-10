@@ -14,6 +14,7 @@ import { camelToSnakeCase } from "@/utils/data-helpers";
 import PageHeader from "@/components/PageHeader";
 import dayjs from "dayjs";
 import { getColumns } from "@/components/WorkOrderTableColumns";
+import { useSession } from "@/context/SessionContext";
 
 const { Title, Text } = Typography;
 
@@ -24,6 +25,7 @@ const LocationDetailsPage = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
+  const { session } = useSession();
 
   const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || ""; // Re-declare API_KEY here for local use
 
@@ -53,6 +55,44 @@ const LocationDetailsPage = () => {
   const handleUpdateWorkOrder = (id: string, updates: Partial<WorkOrder>) => {
     const workOrder = allWorkOrders?.find(wo => wo.id === id);
     if (!workOrder) return;
+
+    const oldWorkOrder = { ...workOrder };
+    const newActivityLog = [...(workOrder.activityLog || [])];
+    let activityMessage = '';
+
+    if (updates.status && updates.status !== oldWorkOrder.status) {
+      activityMessage = `Status changed from '${oldWorkOrder.status || 'N/A'}' to '${updates.status}'.`;
+    } else if (updates.assignedTechnicianId && updates.assignedTechnicianId !== oldWorkOrder.assignedTechnicianId) {
+      const oldTech = technicians?.find(t => t.id === oldWorkOrder.assignedTechnicianId)?.name || 'Unassigned';
+      const newTech = technicians?.find(t => t.id === updates.assignedTechnicianId)?.name || 'Unassigned';
+      activityMessage = `Assigned technician changed from '${oldTech}' to '${newTech}'.`;
+    } else if (updates.slaDue && updates.slaDue !== oldWorkOrder.slaDue) {
+      activityMessage = `SLA due date updated to '${dayjs(updates.slaDue).format('MMM D, YYYY h:mm A')}'.`;
+    } else if (updates.appointmentDate && updates.appointmentDate !== oldWorkOrder.appointmentDate) {
+      activityMessage = `Appointment date updated to '${dayjs(updates.appointmentDate).format('MMM D, YYYY h:mm A')}'.`;
+    } else if (updates.service && updates.service !== oldWorkOrder.service) {
+      activityMessage = `Service description updated.`;
+    } else if (updates.serviceNotes && updates.serviceNotes !== oldWorkOrder.serviceNotes) {
+      activityMessage = `Service notes updated.`;
+    } else if (updates.priority && updates.priority !== oldWorkOrder.priority) {
+      activityMessage = `Priority changed from '${oldWorkOrder.priority || 'N/A'}' to '${updates.priority}'.`;
+    } else if (updates.locationId && updates.locationId !== oldWorkOrder.locationId) {
+      const oldLoc = allWorkOrders?.find(l => l.id === oldWorkOrder.locationId)?.location?.name || 'N/A';
+      const newLoc = allWorkOrders?.find(l => l.id === updates.locationId)?.location?.name || 'N/A';
+      activityMessage = `Service location changed from '${oldLoc}' to '${newLoc}'.`;
+    } else if (updates.customerAddress && updates.customerAddress !== oldWorkOrder.customerAddress) {
+      activityMessage = `Client address updated to '${updates.customerAddress}'.`;
+    } else if (updates.customerLat !== oldWorkOrder.customerLat || updates.customerLng !== oldWorkOrder.customerLng) {
+      activityMessage = `Client coordinates updated.`;
+    } else {
+      activityMessage = 'Work order details updated.'; // Generic message for other changes
+    }
+
+    if (activityMessage) {
+      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage, userId: session?.user.id ?? null });
+      updates.activityLog = newActivityLog;
+    }
+
     if (updates.status === 'On Hold') { setOnHoldWorkOrder(workOrder); return; }
     if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready') { updates.status = 'In Progress'; showInfo(`Work Order ${id} automatically moved to In Progress.`); }
     workOrderMutation.mutate(camelToSnakeCase({ id, ...updates }));

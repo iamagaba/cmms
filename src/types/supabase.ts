@@ -92,7 +92,7 @@ export interface WorkOrder {
   service: string | null;
   serviceNotes: string | null;
   partsUsed: { name: string; quantity: number }[] | null;
-  activityLog: { timestamp: string; activity: string }[] | null;
+  activityLog: { timestamp: string; activity: string; userId: string | null }[] | null;
   slaDue: string | null;
   completedAt: string | null;
   customerLat: number | null;

@@ -4,7 +4,7 @@ import { ArrowLeftOutlined, MailOutlined, PhoneOutlined, EnvironmentOutlined, Pl
 import NotFound from "./NotFound";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query"; // Import useMutation
 import { supabase } from "@/integrations/supabase/client";
-import { Customer, Vehicle, WorkOrder, Technician, Location, Profile } from "@/types/supabase"; // Import Profile
+import { Customer, Vehicle, WorkOrder, Technician, Location, Profile, ServiceCategory } from "@/types/supabase"; // Import Profile and ServiceCategory
 import { Link } from "react-router-dom";
 import PageHeader from "@/components/PageHeader";
 import { useState } from "react";
@@ -13,6 +13,7 @@ import { WorkOrderFormDrawer } from "@/components/WorkOrderFormDrawer";
 import { camelToSnakeCase } from "@/utils/data-helpers"; // Import camelToSnakeCase
 import { showSuccess, showInfo, showError } from "@/utils/toast"; // Import toast utilities
 import dayjs from "dayjs";
+import { useSession } from "@/context/SessionContext";
 
 const { Title, Text } = Typography;
 
@@ -22,6 +23,7 @@ const CustomerDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { session } = useSession();
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isFormDrawerOpen, setIsFormDrawerOpen] = useState(false);
@@ -70,6 +72,8 @@ const CustomerDetailsPage = () => {
       return data || [];
     }
   });
+  const { data: serviceCategories, isLoading: isLoadingServiceCategories } = useQuery<ServiceCategory[]>({ queryKey: ['service_categories'], queryFn: async () => { const { data, error } = await supabase.from('service_categories').select('*'); if (error) throw new Error(error.message); return data || []; } });
+
 
   const workOrderMutation = useMutation({
     mutationFn: async (workOrderData: Partial<WorkOrder>) => {
@@ -120,7 +124,7 @@ const CustomerDetailsPage = () => {
     }
 
     if (activityMessage) {
-      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage });
+      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage, userId: session?.user.id ?? null });
       updates.activityLog = newActivityLog;
     }
 
@@ -132,7 +136,7 @@ const CustomerDetailsPage = () => {
     workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates }));
   };
 
-  const isLoading = isLoadingCustomer || isLoadingVehicles || isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingProfiles;
+  const isLoading = isLoadingCustomer || isLoadingVehicles || isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingProfiles || isLoadingServiceCategories;
 
   if (isLoading) {
     return <Skeleton active />;
@@ -243,6 +247,7 @@ const CustomerDetailsPage = () => {
         onSave={handleSaveWorkOrder}
         technicians={technicians || []}
         locations={locations || []}
+        serviceCategories={serviceCategories || []}
         prefillData={prefillData}
       />
     </Space>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Drawer, Form, Input, Select, Button, DatePicker, Col, Row, Typography, Space } from "antd";
-import { WorkOrder, Technician, Location, Customer, Vehicle } from "@/types/supabase";
+import { WorkOrder, Technician, Location, ServiceCategory } from "@/types/supabase";
 import dayjs from 'dayjs';
 import { GoogleLocationSearchInput } from "./GoogleLocationSearchInput";
 import { ExpandOutlined, ShrinkOutlined } from "@ant-design/icons";
@@ -18,10 +18,11 @@ interface WorkOrderFormDrawerProps {
   workOrder?: WorkOrder | null;
   technicians: Technician[];
   locations: Location[];
+  serviceCategories: ServiceCategory[];
   prefillData?: Partial<WorkOrder> | null;
 }
 
-export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, technicians, locations, prefillData }: WorkOrderFormDrawerProps) => {
+export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, technicians, locations, serviceCategories, prefillData }: WorkOrderFormDrawerProps) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [clientLocation, setClientLocation] = useState<{ lat: number; lng: number } | null>(null);
@@ -80,12 +81,10 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
         partsUsed: workOrder?.partsUsed || [],
       };
       
-      // Conditionally add the ID for existing work orders
       if (workOrder?.id) {
         rawWorkOrderData.id = workOrder.id;
       }
 
-      // Destructure and remove UI-only fields before saving
       const { customerName, customerPhone, vehicleModel, ...workOrderToSave } = rawWorkOrderData;
 
       onSave(workOrderToSave);
@@ -138,6 +137,7 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
           
           <Col span={24} style={{ marginTop: 24 }}><Text strong>Service Details</Text></Col>
           <Col span={24}><Form.Item name="service" label="Service Description" rules={[{ required: true }]}><TextArea rows={2} /></Form.Item></Col>
+          <Col span={24}><Form.Item name="service_category_id" label="Service Category" rules={[{ required: true }]}><Select showSearch placeholder="Select a service category">{serviceCategories.map(sc => <Option key={sc.id} value={sc.id}>{sc.name}</Option>)}</Select></Form.Item></Col>
           <Col xs={24} md={8}><Form.Item name="status" label="Status" rules={[{ required: true }]}><Select><Option value="Open">Open</Option><Option value="Confirmation">Confirmation</Option><Option value="Ready">Ready</Option><Option value="In Progress">In Progress</Option><Option value="On Hold">On Hold</Option><Option value="Completed">Completed</Option></Select></Form.Item></Col>
           <Col xs={24} md={8}><Form.Item name="priority" label="Priority" rules={[{ required: true }]}><Select><Option value="High">High</Option><Option value="Medium">Medium</Option><Option value="Low">Low</Option></Select></Form.Item></Col>
           <Col xs={24} md={8}><Form.Item name="channel" label="Channel"><Select allowClear placeholder="Select a channel">{channelOptions.map(c => <Option key={c} value={c}>{c}</Option>)}</Select></Form.Item></Col>

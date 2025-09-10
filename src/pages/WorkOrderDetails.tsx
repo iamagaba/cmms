@@ -6,7 +6,7 @@ import NotFound from "./NotFound";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { WorkOrder, Technician, Location, Customer, Vehicle, WorkOrderPart, Profile } from "@/types/supabase";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react"; // Added useEffect
 import { showSuccess, showError, showInfo } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
@@ -17,6 +17,7 @@ import PageHeader from "@/components/PageHeader";
 import WorkOrderProgressTracker from "@/components/WorkOrderProgressTracker";
 import { useSession } from "@/context/SessionContext";
 import { MapboxDisplayMap } from "@/components/MapboxDisplayMap"; // Import the new Mapbox map component
+import mapboxgl from 'mapbox-gl'; // Import mapboxgl for accessToken
 
 const { Title, Text, Paragraph } = Typography;
 const { Option = Select.Option } = Select;
@@ -38,6 +39,9 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   const [isAddPartDialogOpen, setIsAddPartDialogOpen] = useState(false);
   const { token } = useToken();
   const { session } = useSession();
+
+  const [showInteractiveMap, setShowInteractiveMap] = useState(false); // New state for interactive map
+  const [activeTabKey, setActiveTabKey] = useState('1'); // State to track active tab in drawer mode
 
   const statusColors: Record<string, string> = { 
     Open: token.colorInfo,
@@ -99,6 +103,15 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
       return data || [];
     }
   });
+
+  // Effect to show interactive map when Location tab is active in drawer mode
+  useEffect(() => {
+    if (isDrawerMode && activeTabKey === '3') { // '3' is the key for the Location tab
+      setShowInteractiveMap(true);
+    } else {
+      setShowInteractiveMap(false); // Reset when switching away from Location tab
+    }
+  }, [isDrawerMode, activeTabKey]);
 
   const workOrderMutation = useMutation({ 
     mutationFn: async (workOrderData: Partial<WorkOrder>) => { 
@@ -357,7 +370,37 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
       </Descriptions>
       <div style={{ marginTop: 16 }}>
         {mapMarkers.length > 0 ? (
-          <MapboxDisplayMap center={mapCenter} markers={mapMarkers} height="300px" />
+          showInteractiveMap ? ( // Conditionally render interactive map
+            <MapboxDisplayMap center={mapCenter} markers={mapMarkers} height="300px" />
+          ) : (
+            <div
+              style={{
+                height: '300px',
+                backgroundColor: '#f0f2f5',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                position: 'relative',
+                overflow: 'hidden',
+              }}
+              onClick={() => setShowInteractiveMap(true)} // Click to show interactive map
+            >
+              {mapboxgl.accessToken && mapCenter[0] !== 0 && mapCenter[1] !== 0 ? (
+                <img
+                  src={`https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${mapCenter[0]},${mapCenter[1]},${12},0,0/600x300?access_token=${mapboxgl.accessToken}&logo=false&attribution=false`}
+                  alt="Static map preview"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
+                />
+              ) : (
+                <Empty description="No map preview available" image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ zIndex: 1 }} />
+              )}
+              <Button type="primary" icon={<CompassOutlined />} style={{ zIndex: 1 }}>
+                View Interactive Map
+              </Button>
+            </div>
+          )
         ) : (
           <div style={{padding: '24px', textAlign: 'center'}}><Empty description="No location data to display." /></div>
         )}
@@ -390,7 +433,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
             <div style={{ marginBottom: 16 }}>
               <WorkOrderProgressTracker workOrder={workOrder} />
             </div>
-            <Tabs defaultActiveKey="1" destroyInactiveTabPane={false}> {/* Added destroyInactiveTabPane={false} */}
+            <Tabs defaultActiveKey="1" destroyInactiveTabPane={false} onChange={setActiveTabKey}> {/* Added onChange */}
               <TabPane tab={<span><InfoCircleOutlined /> Overview</span>} key="1">
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                   {serviceInfoCard}
@@ -428,7 +471,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                   {workOrderDetailsCard}
                   {customerVehicleCard}
-                  {locationAndMapCard}
+                  {locationAndMapCard} {/* This will now use the interactive on demand logic */}
                 </Space>
               </Col>
             </Row>

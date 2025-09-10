@@ -109,14 +109,28 @@ const AnalyticsPage = () => {
         <Col xs={24} lg={16}>
           <Card title="Work Orders Over Time">
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={workOrdersOverTimeData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="date" /><YAxis allowDecimals={false} /><Tooltip /><Legend /><Line type="monotone" dataKey="count" stroke="#8884d8" name="New Work Orders" /></LineChart>
+              <LineChart data={workOrdersOverTimeData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="date" />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Legend />
+                <Line type="monotone" dataKey="count" stroke="#8884d8" name="New Work Orders" />
+              </LineChart>
             </ResponsiveContainer>
           </Card>
         </Col>
         <Col xs={24} lg={8}>
           <Card title="Work Orders by Status">
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={statusData} layout="vertical"><CartesianGrid strokeDasharray="3 3" /><XAxis type="number" allowDecimals={false} /><YAxis dataKey="name" type="category" width={80} /><Tooltip /><Bar dataKey="count" fill="#1677ff" name="Work Orders" /></BarChart>
+              <BarChart data={statusData} layout="vertical">
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" allowDecimals={false} />
+                <YAxis dataKey="name" type="category" width={80} />
+                <Tooltip />
+                <Legend /> {/* Added Legend */}
+                <Bar dataKey="count" fill="#1677ff" name="Work Orders" />
+              </BarChart>
             </ResponsiveContainer>
           </Card>
         </Col>
@@ -126,7 +140,14 @@ const AnalyticsPage = () => {
         <Col xs={24} lg={16}>
           <Card title="Technician Performance (Completed Orders)">
             <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={technicianPerformance}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" /><YAxis allowDecimals={false} /><Tooltip /><Legend /><Bar dataKey="completed" fill="#52c41a" name="Completed Tasks" /></BarChart>
+              <BarChart data={technicianPerformance}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="name" />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Legend /> {/* Added Legend */}
+                <Bar dataKey="completed" fill="#52c41a" name="Completed Tasks" />
+              </BarChart>
             </ResponsiveContainer>
           </Card>
         </Col>
@@ -137,7 +158,8 @@ const AnalyticsPage = () => {
                 <Pie data={serviceDistributionData} cx="50%" cy="50%" labelLine={false} outerRadius={120} fill="#8884d8" dataKey="value" nameKey="name" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>
                   {serviceDistributionData.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}
                 </Pie>
-                <Tooltip /><Legend layout="vertical" verticalAlign="middle" align="right" />
+                <Tooltip />
+                <Legend layout="vertical" verticalAlign="middle" align="right" />
               </PieChart>
             </ResponsiveContainer>
           </Card>

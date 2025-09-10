@@ -24,7 +24,7 @@ const SlaCountdown = ({ slaDue, status, completedAt }: SlaCountdownProps) => {
   }, [status]);
 
   if (!slaDue) {
-    return <Tag className="ant-tag-compact">No SLA</Tag>; // Apply compact class
+    return <Tag className="ant-tag-compact">No SLA</Tag>;
   }
 
   const dueDate = dayjs(slaDue);
@@ -35,51 +35,48 @@ const SlaCountdown = ({ slaDue, status, completedAt }: SlaCountdownProps) => {
       const wasOnTime = completionDate.isBefore(dueDate) || completionDate.isSame(dueDate);
       return (
         <Tooltip title={`Completed on ${completionDate.format('MMM D, YYYY h:mm A')}`}>
-          <Tag icon={<CheckCircleOutlined />} color={wasOnTime ? "success" : "error"} className="ant-tag-compact"> {/* Apply compact class */}
+          <Tag icon={<CheckCircleOutlined />} color={wasOnTime ? "success" : "error"} className="ant-tag-compact">
             {wasOnTime ? 'Completed On Time' : 'Completed Late'}
           </Tag>
         </Tooltip>
       );
     }
-    return <Tag icon={<CheckCircleOutlined />} color="success" className="ant-tag-compact">Completed</Tag>; // Apply compact class
+    return <Tag icon={<CheckCircleOutlined />} color="success" className="ant-tag-compact">Completed</Tag>;
   }
 
-  const diff = dueDate.diff(now);
+  const diff = dueDate.diff(now); // Difference in milliseconds
   const isOverdue = diff < 0;
+  const absDiff = Math.abs(diff);
 
-  const formatDuration = (milliseconds: number) => {
-    const totalSeconds = Math.abs(Math.floor(milliseconds / 1000));
-    const days = Math.floor(totalSeconds / (3600 * 24));
-    const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
-
-    if (days > 1) return `${days} days ${hours}h`;
-    if (days === 1) return `${days} day ${hours}h`;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-  };
-
-  const formattedTime = formatDuration(diff);
-
-  // Define warning threshold: less than 24 hours
-  const isWarning = diff < 24 * 60 * 60 * 1000 && diff >= 0; 
+  const oneDayInMs = 24 * 60 * 60 * 1000;
 
   let tagColor: string;
   let tagIcon: React.ReactNode;
   let tagText: string;
 
+  const totalSeconds = Math.floor(absDiff / 1000);
+  const days = Math.floor(totalSeconds / (3600 * 24));
+  const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+
+  const pad = (num: number) => num.toString().padStart(2, '0');
+
   if (isOverdue) {
     tagColor = 'error';
     tagIcon = <WarningOutlined />;
-    tagText = `Overdue by ${formattedTime}`;
-  } else if (isWarning) {
+    if (absDiff >= oneDayInMs) { // Overdue by days
+      tagText = `${days}d ${pad(hours)}h`;
+    } else { // Overdue by hours/minutes
+      tagText = `${pad(hours)}h ${pad(minutes)}m`;
+    }
+  } else if (absDiff < oneDayInMs) { // Due within 24 hours
     tagColor = 'warning';
     tagIcon = <ClockCircleOutlined />;
-    tagText = `Due in ${formattedTime}`;
-  } else {
-    tagColor = 'processing'; // Default blue for "due in > 24 hours"
+    tagText = `${pad(hours)}h ${pad(minutes)}m`;
+  } else { // Due in more than 24 hours
+    tagColor = 'processing';
     tagIcon = <ClockCircleOutlined />;
-    tagText = `Due in ${formattedTime}`;
+    tagText = `${days}d ${pad(hours)}h`;
   }
 
   return (

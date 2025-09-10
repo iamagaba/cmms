@@ -90,6 +90,23 @@ body {
 
 /* --- Side Navigation Enhancements --- */
 
+/* Make the menu a flex container to push bottom items down */
+.main-sider-menu.ant-menu-inline {
+  display: flex;
+  flex-direction: column;
+  height: 100%; /* Fill the available space in the Sider */
+  border-right: 0 !important; /* Remove default border */
+  overflow-y: auto; /* Allow scrolling for main items */
+  overflow-x: hidden;
+}
+
+/* The key part: push this divider (and everything after it) to the bottom */
+.ant-menu-item.menu-bottom-divider,
+.ant-menu-divider.menu-bottom-divider { /* Target both item and divider types */
+  margin-top: auto !important;
+}
+
+
 /* Custom styles for Ant Design Sider trigger */
 .ant-layout-sider-trigger {
   background-color: #f0f0f0 !important; /* Light background for the trigger */
@@ -155,4 +172,20 @@ body {
 .ant-menu-inline-collapsed .ant-menu-item .ant-menu-title-content {
   max-width: 0;
   display: none; /* Hide text completely when collapsed */
+}
+
+/* --- Styles for Resizable Table Columns --- */
+.react-resizable {
+  position: relative;
+  background-clip: padding-box;
+}
+
+.react-resizable-handle {
+  position: absolute;
+  right: -5px;
+  bottom: 0;
+  z-index: 1;
+  width: 10px;
+  height: 100%;
+  cursor: col-resize;
 }

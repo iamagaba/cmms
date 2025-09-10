@@ -1,8 +1,24 @@
 import * as React from "react";
-import { Table } from "antd";
+import { Table, Dropdown, Button, Checkbox, Row, Col, Typography } from "antd";
+import { BarsOutlined } from "@ant-design/icons";
 import { WorkOrder, Technician, Location, Customer, Vehicle, Profile } from "@/types/supabase";
 import { WorkOrderRow, getColumns } from "./WorkOrderTableColumns";
-import { ResizableTitle } from "./ResizableTitle"; // Import ResizableTitle
+import { ResizableTitle } from "./ResizableTitle";
+
+const { Title } = Typography;
+
+export const ALL_COLUMNS = [
+  { label: 'ID', value: 'workOrderNumber' },
+  { label: 'License Plate', value: 'licensePlate' },
+  { label: 'Service', value: 'service' },
+  { label: 'Status', value: 'status' },
+  { label: 'Priority', value: 'priority' },
+  { label: 'Technician', value: 'technician' },
+  { label: 'SLA Status', value: 'slaStatus' },
+  { label: 'Created At', value: 'createdAt' },
+  { label: 'Created By', value: 'createdBy' },
+  { label: 'Actions', value: 'actions' },
+];
 
 interface WorkOrderDataTableProps {
   workOrders: WorkOrder[];
@@ -15,10 +31,24 @@ interface WorkOrderDataTableProps {
   onDelete: (workOrderData: WorkOrder) => void;
   onUpdateWorkOrder: (id: string, updates: Partial<WorkOrder>) => void;
   onViewDetails: (workOrderId: string) => void;
-  visibleColumns: string[]; // New prop for visible columns
+  visibleColumns: string[];
+  onVisibleColumnsChange: (columns: string[]) => void;
 }
 
-export function WorkOrderDataTable({ workOrders, technicians, locations, customers, vehicles, profiles, onEdit, onDelete, onUpdateWorkOrder, onViewDetails, visibleColumns }: WorkOrderDataTableProps) {
+export function WorkOrderDataTable({ 
+  workOrders, 
+  technicians, 
+  locations, 
+  customers, 
+  vehicles, 
+  profiles, 
+  onEdit, 
+  onDelete, 
+  onUpdateWorkOrder, 
+  onViewDetails, 
+  visibleColumns,
+  onVisibleColumnsChange
+}: WorkOrderDataTableProps) {
   const [columnWidths, setColumnWidths] = React.useState<Record<string, number>>({});
 
   const handleColumnResize = (key: string, width: number) => {
@@ -56,8 +86,30 @@ export function WorkOrderDataTable({ workOrders, technicians, locations, custome
     visibleColumns,
   });
 
+  const columnVisibilityMenu = (
+    <div style={{ padding: 8, backgroundColor: 'white', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)', borderRadius: '4px' }}>
+      <Checkbox.Group
+        style={{ display: 'flex', flexDirection: 'column' }}
+        options={ALL_COLUMNS}
+        value={visibleColumns}
+        onChange={(checkedValues) => onVisibleColumnsChange(checkedValues as string[])}
+      />
+    </div>
+  );
+
+  const tableTitle = () => (
+    <Row justify="end" align="middle">
+      <Col>
+        <Dropdown dropdownRender={() => columnVisibilityMenu} trigger={['click']}>
+          <Button icon={<BarsOutlined />}>Columns</Button>
+        </Dropdown>
+      </Col>
+    </Row>
+  );
+
   return (
     <Table
+      title={tableTitle}
       dataSource={tableData}
       columns={columns}
       rowKey="id"
@@ -72,7 +124,7 @@ export function WorkOrderDataTable({ workOrders, technicians, locations, custome
           cell: ResizableTitle,
         },
       }}
-      scroll={{ x: 'max-content' }} // Enable horizontal scrolling if columns exceed width
+      scroll={{ x: 'max-content' }} // Enable horizontal scrolling
     />
   );
 }

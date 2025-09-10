@@ -1,7 +1,7 @@
 import { useState, useMemo } from "react";
-import { Button, Typography, Space, Segmented, Input, Select, Card, Row, Col, Collapse, Skeleton, Tabs, Dropdown, Menu, Checkbox } from "antd";
-import { PlusOutlined, AppstoreOutlined, TableOutlined, FilterOutlined, CalendarOutlined, GlobalOutlined, BarsOutlined } from "@ant-design/icons"; // Changed ColumnsOutlined to BarsOutlined
-import { WorkOrderDataTable } from "@/components/WorkOrderDataTable";
+import { Button, Typography, Space, Segmented, Input, Select, Card, Row, Col, Collapse, Skeleton, Tabs } from "antd";
+import { PlusOutlined, AppstoreOutlined, TableOutlined, FilterOutlined, CalendarOutlined, GlobalOutlined } from "@ant-design/icons";
+import { WorkOrderDataTable, ALL_COLUMNS } from "@/components/WorkOrderDataTable";
 import { WorkOrderFormDrawer } from "@/components/WorkOrderFormDrawer";
 import WorkOrderKanban from "@/components/WorkOrderKanban";
 import { showSuccess, showInfo, showError } from "@/utils/toast";
@@ -17,13 +17,11 @@ import MapViewPage from "./MapView";
 import PageHeader from "@/components/PageHeader";
 import { CreateWorkOrderDialog } from "@/components/CreateWorkOrderDialog";
 import dayjs from "dayjs";
-import { getColumns } from "@/components/WorkOrderTableColumns"; // Import getColumns to get default keys
 
 const { Title } = Typography;
 const { Search } = Input;
-const { Option = Select.Option } = Select; // Ensure Option is correctly destructured
+const { Option = Select.Option } = Select;
 const { Panel } = Collapse;
-const { TabPane } = Tabs;
 
 type GroupByOption = 'status' | 'priority' | 'technician';
 type WorkOrderView = 'table' | 'kanban' | 'calendar' | 'map';
@@ -40,6 +38,7 @@ const WorkOrdersPage = () => {
   const [view, setView] = useState<WorkOrderView>('table');
   const [groupBy, setGroupBy] = useState<GroupByOption>('status');
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(ALL_COLUMNS.map(c => c.value));
 
   const viewingWorkOrderId = searchParams.get('view');
 
@@ -49,16 +48,35 @@ const WorkOrdersPage = () => {
   const [priorityFilter, setPriorityFilter] = useState<string | undefined>(undefined);
   const [technicianFilter, setTechnicianFilter] = useState<string | undefined>(undefined);
 
-  // Column visibility state
-  const defaultColumnKeys = useMemo(() => getColumns({
-    onEdit: () => {}, onDelete: () => {}, onUpdateWorkOrder: () => {},
-    allTechnicians: [], allProfiles: [], columnWidths: {}, onColumnResize: () => {},
-    visibleColumns: [] // Pass empty array to get all default keys
-  }).map(col => col.key), []);
-  const [visibleColumns, setVisibleColumns] = useState<string[]>(defaultColumnKeys);
-
   // Data Fetching
-  const { data: allWorkOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ queryKey: ['work_orders'], queryFn: async () => { const { data, error } = await supabase.from('work_orders').select('*').order('created_at', { ascending: false }); if (error) throw new Error(error.message); return data; } });
+  const { data: allWorkOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ 
+    queryKey: ['work_orders'], 
+    queryFn: async () => { 
+      const { data, error } = await supabase.from('work_orders').select('*').order('created_at', { ascending: false }); 
+      if (error) throw new Error(error.message); 
+      
+      // Manually map snake_case to camelCase for consistency with WorkOrder type
+      return (data || []).map((item: any) => ({
+        ...item,
+        workOrderNumber: item.work_order_number,
+        assignedTechnicianId: item.assigned_technician_id,
+        locationId: item.location_id,
+        serviceNotes: item.service_notes,
+        partsUsed: item.parts_used,
+        activityLog: item.activity_log,
+        slaDue: item.sla_due,
+        completedAt: item.completed_at,
+        customerLat: item.customer_lat,
+        customerLng: item.customer_lng,
+        customerAddress: item.customer_address,
+        onHoldReason: item.on_hold_reason,
+        appointmentDate: item.appointment_date,
+        customerId: item.customer_id,
+        vehicleId: item.vehicle_id,
+        created_by: item.created_by,
+      })) || [];
+    } 
+  });
   const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return data; } });
   const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({ queryKey: ['locations'], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*'); if (error) throw new Error(error.message); return data; } });
   const { data: customers, isLoading: isLoadingCustomers } = useQuery<Customer[]>({ queryKey: ['customers'], queryFn: async () => { const { data, error } = await supabase.from('customers').select('*'); if (error) throw new Error(error.message); return data || []; } });
@@ -81,8 +99,6 @@ const WorkOrdersPage = () => {
     
     const dataToMutate: Partial<WorkOrder> = { ...workOrderData, activityLog: newActivityLog };
 
-    // If it's a new work order (id is undefined), ensure 'id' key is not present
-    // This makes it explicit for Supabase to use the default UUID generation.
     if (dataToMutate.id === undefined) {
       delete dataToMutate.id;
     }
@@ -125,7 +141,7 @@ const WorkOrdersPage = () => {
     } else if (updates.customerLat !== oldWorkOrder.customerLat || updates.customerLng !== oldWorkOrder.customerLng) {
       activityMessage = `Client coordinates updated.`;
     } else {
-      activityMessage = 'Work order details updated.'; // Generic message for other changes
+      activityMessage = 'Work order details updated.';
     }
 
     if (activityMessage) {
@@ -166,47 +182,68 @@ const WorkOrdersPage = () => {
   const groupByField = useMemo(() => (groupBy === 'technician' ? 'assignedTechnicianId' : groupBy), [groupBy]);
   const isLoading = isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingCustomers || isLoadingVehicles || isLoadingProfiles;
 
-  const allTableColumns = useMemo(() => getColumns({
-    onEdit: () => {}, onDelete: () => {}, onUpdateWorkOrder: () => {},
-    allTechnicians: technicians || [], allProfiles: profiles || [], columnWidths: {}, onColumnResize: () => {},
-    visibleColumns: defaultColumnKeys // Get all columns initially
-  }).map(col => ({ label: col.title, value: col.key })), [technicians, profiles, defaultColumnKeys]);
-
-  const handleVisibleColumnsChange = (checkedValues: string[]) => {
+  const handleVisibleColumnsChange = (checkedValues: any) => {
     setVisibleColumns(checkedValues);
   };
+
+  const tabItems = [
+    {
+      label: (<span><TableOutlined /> Table</span>),
+      key: 'table',
+      children: isLoading ? <Skeleton active paragraph={{ rows: 5 }} /> : (
+        <WorkOrderDataTable
+          workOrders={filteredWorkOrders}
+          technicians={technicians || []}
+          locations={locations || []}
+          customers={customers || []}
+          vehicles={vehicles || []}
+          onEdit={(wo) => { setEditingWorkOrder(wo); setIsFormDialogOpen(true); }}
+          onDelete={handleDelete}
+          onUpdateWorkOrder={handleUpdateWorkOrder}
+          onViewDetails={handleViewDetails}
+          profiles={profiles || []}
+          visibleColumns={visibleColumns}
+          onVisibleColumnsChange={handleVisibleColumnsChange}
+        />
+      ),
+    },
+    {
+      label: (<span><AppstoreOutlined /> Board</span>),
+      key: 'kanban',
+      children: isLoading ? <Skeleton active paragraph={{ rows: 5 }} /> : (
+        <WorkOrderKanban
+          workOrders={filteredWorkOrders}
+          groupBy={groupByField}
+          columns={kanbanColumns}
+          onUpdateWorkOrder={handleUpdateWorkOrder}
+          technicians={technicians || []}
+          locations={locations || []}
+          customers={customers || []}
+          vehicles={vehicles || []}
+          onViewDetails={handleViewDetails}
+        />
+      ),
+    },
+    {
+      label: (<span><CalendarOutlined /> Calendar</span>),
+      key: 'calendar',
+      children: <CalendarPage />,
+    },
+    {
+      label: (<span><GlobalOutlined /> Map View</span>),
+      key: 'map',
+      children: <MapViewPage />,
+    },
+  ];
 
   return (
     <>
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
         <PageHeader title="Work Order Management" hideSearch actions={
-          <Space>
-            {view === 'table' && (
-              <Dropdown
-                overlay={
-                  <Menu>
-                    <Checkbox.Group
-                      options={allTableColumns}
-                      value={visibleColumns}
-                      onChange={handleVisibleColumnsChange}
-                    />
-                  </Menu>
-                }
-                trigger={['click']}
-              >
-                <Button icon={<BarsOutlined />}>Columns</Button> {/* Changed ColumnsOutlined to BarsOutlined */}
-              </Dropdown>
-            )}
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsCreateDialogOpen(true)}>Add Work Order</Button>
-          </Space>
+          <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsCreateDialogOpen(true)}>Add Work Order</Button>
         } />
         <Collapse><Panel header={<><FilterOutlined /> Filters & View Options</>} key="1"><Row gutter={[16, 16]} align="bottom"><Col xs={24} sm={12} md={6}><Search placeholder="Filter by Vehicle ID..." allowClear onSearch={setVehicleFilter} onChange={(e) => setVehicleFilter(e.target.value)} style={{ width: '100%' }} /></Col><Col xs={24} sm={12} md={5}><Select placeholder="Filter by Status" allowClear style={{ width: '100%' }} onChange={setStatusFilter} value={statusFilter}><Option value="Open">Open</Option><Option value="Confirmation">Confirmation</Option><Option value="Ready">Ready</Option><Option value="In Progress">In Progress</Option><Option value="On Hold">On Hold</Option><Option value="Completed">Completed</Option></Select></Col><Col xs={24} sm={12} md={5}><Select placeholder="Filter by Priority" allowClear style={{ width: '100%' }} onChange={setPriorityFilter} value={priorityFilter}><Option value="High">High</Option><Option value="Medium">Medium</Option><Option value="Low">Low</Option></Select></Col><Col xs={24} sm={12} md={5}><Select placeholder="Filter by Technician" allowClear style={{ width: '100%' }} onChange={setTechnicianFilter} value={technicianFilter}>{(technicians || []).map(t => <Option key={t.id} value={t.id}>{t.name}</Option>)}</Select></Col>{view === 'kanban' && (<Col xs={24} sm={12} md={3}><Select value={groupBy} onChange={(value) => setGroupBy(value as GroupByOption)} style={{ width: '100%' }}><Option value="status">Group by: Status</Option><Option value="priority">Group by: Priority</Option><Option value="technician">Group by: Technician</Option></Select></Col>)}</Row></Panel></Collapse>
-        <Tabs defaultActiveKey="table" activeKey={view} onChange={(key) => setView(key as WorkOrderView)}>
-          <TabPane tab={<span><TableOutlined /> Table</span>} key="table"><Card bordered={false} bodyStyle={{ padding: '0' }}>{isLoading ? <Skeleton active paragraph={{ rows: 5 }} /> : (<WorkOrderDataTable workOrders={filteredWorkOrders} technicians={technicians || []} locations={locations || []} customers={customers || []} vehicles={vehicles || []} onEdit={(wo) => { setEditingWorkOrder(wo); setIsFormDialogOpen(true); }} onDelete={handleDelete} onUpdateWorkOrder={handleUpdateWorkOrder} onViewDetails={handleViewDetails} profiles={profiles || []} visibleColumns={visibleColumns} />)}</Card></TabPane>
-          <TabPane tab={<span><AppstoreOutlined /> Board</span>} key="kanban"><Card bordered={false} bodyStyle={{ padding: '1' }}>{isLoading ? <Skeleton active paragraph={{ rows: 5 }} /> : (<WorkOrderKanban workOrders={filteredWorkOrders} groupBy={groupByField} columns={kanbanColumns} onUpdateWorkOrder={handleUpdateWorkOrder} technicians={technicians || []} locations={locations || []} customers={customers || []} vehicles={vehicles || []} onViewDetails={handleViewDetails} />)}</Card></TabPane>
-          <TabPane tab={<span><CalendarOutlined /> Calendar</span>} key="calendar"><CalendarPage /></TabPane>
-          <TabPane tab={<span><GlobalOutlined /> Map View</span>} key="map"><MapViewPage /></TabPane>
-        </Tabs>
+        <Tabs defaultActiveKey="table" activeKey={view} onChange={(key) => setView(key as WorkOrderView)} items={tabItems} />
       </Space>
       {isCreateDialogOpen && <CreateWorkOrderDialog isOpen={isCreateDialogOpen} onClose={() => setIsCreateDialogOpen(false)} onProceed={handleProceedToCreate} />}
       {isFormDialogOpen && <WorkOrderFormDrawer isOpen={isFormDialogOpen} onClose={() => { setIsFormDialogOpen(false); setPrefillData(null); }} onSave={handleSave} workOrder={editingWorkOrder} prefillData={prefillData} technicians={technicians || []} locations={locations || []} />}

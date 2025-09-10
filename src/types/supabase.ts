@@ -64,6 +64,23 @@ export interface Profile {
   is_admin: boolean | null; // Added is_admin field
 }
 
+export interface ServiceCategory {
+  id: string;
+  name: string;
+  description: string | null;
+  created_at?: string;
+}
+
+export interface SlaPolicy {
+  id: string;
+  service_category_id: string;
+  first_response_minutes: number | null;
+  response_hours: number | null;
+  resolution_hours: number | null;
+  expected_repair_hours: number | null;
+  created_at?: string;
+}
+
 export interface WorkOrder {
   id: string;
   workOrderNumber: string;
@@ -90,7 +107,12 @@ export interface WorkOrder {
   customerName?: string | null;
   customerPhone?: string | null;
   vehicleModel?: string | null;
-  created_by?: string | null; // Added created_by field
+  created_by?: string | null;
+  service_category_id: string | null;
+  confirmed_at: string | null;
+  work_started_at: string | null;
+  sla_timers_paused_at: string | null;
+  total_paused_duration_seconds: number | null;
 }
 
 export interface InventoryItem {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Card, Tabs, Form, Input, Button, Select, Switch, Avatar, Typography, Space, Row, Col, Skeleton, Upload } from 'antd';
-import { UserOutlined, SettingOutlined, BellOutlined, LockOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons';
+import { UserOutlined, SettingOutlined, BellOutlined, LockOutlined, SaveOutlined, UploadOutlined, ToolOutlined } from '@ant-design/icons';
 import { TechnicianDataTable } from '@/components/TechnicianDataTable';
 import { TechnicianFormDialog } from '@/components/TechnicianFormDialog';
 import { showSuccess, showError } from '@/utils/toast';
@@ -12,6 +12,7 @@ import { camelToSnakeCase } from "@/utils/data-helpers";
 import { useSystemSettings } from '@/context/SystemSettingsContext';
 import PageHeader from '@/components/PageHeader';
 import { useSearchParams } from 'react-router-dom';
+import ServiceSlaManagement from '@/components/ServiceSlaManagement';
 
 const { Title } = Typography;
 const { Option = Select.Option } = Select;
@@ -266,6 +267,7 @@ const SettingsPage = () => {
 
   const tabItems = [
     { label: <span><UserOutlined />User Management</span>, key: 'user-management', children: <UserManagement /> },
+    { label: <span><ToolOutlined />Service & SLA</span>, key: 'service-sla', children: <ServiceSlaManagement /> },
     { label: <span><SettingOutlined />System Settings</span>, key: 'system-settings', children: <SystemSettings /> },
     { label: <span><BellOutlined />My Profile</span>, key: 'profile-settings', children: <ProfileSettings /> },
   ];

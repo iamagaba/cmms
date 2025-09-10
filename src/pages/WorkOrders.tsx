@@ -208,7 +208,7 @@ const WorkOrdersPage = () => {
       {view === 'table' && selectedRowKeys.length > 0 && (
         <Dropdown overlay={bulkAssignMenu} disabled={selectedRowKeys.length === 0}>
           <Button>
-            Assign to Technician ({selectedRowKeys.length}) <DownOutlined />
+            Assign ({selectedRowKeys.length}) <DownOutlined />
           </Button>
         </Dropdown>
       )}

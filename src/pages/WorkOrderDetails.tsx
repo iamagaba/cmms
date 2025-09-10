@@ -1,31 +1,31 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { Avatar, Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typography, List, Skeleton, Select, DatePicker, Input, Popconfirm, Table, Tabs, theme, Empty } from "antd";
-import { ArrowLeftOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined, CalendarOutlined, ToolOutlined, PlusOutlined, DeleteOutlined, InfoCircleOutlined, UnorderedListOutlined, CompassOutlined, MailOutlined } from "@ant-design/icons"; // Import MailOutlined
+import { Button, Card, Col, Row, Space, Typography, Skeleton, Tabs } from "antd";
+import { ArrowLeftOutlined, InfoCircleOutlined, UnorderedListOutlined, CompassOutlined } from "@ant-design/icons";
 import dayjs from "dayjs";
 import NotFound from "./NotFound";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { WorkOrder, Technician, Location, Customer, Vehicle, WorkOrderPart, Profile } from "@/types/supabase";
-import { useState, useMemo, useEffect } from "react"; // Added useEffect
+import { useState, useMemo, useEffect } from "react";
 import { showSuccess, showError, showInfo } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
-import { MapboxLocationSearchInput } from "@/components/MapboxLocationSearchInput";
 import { useSearchParams } from "react-router-dom";
-import { AddPartToWorkOrderDialog } from "@/components/AddPartToWorkOrderDialog";
 import PageHeader from "@/components/PageHeader";
 import WorkOrderProgressTracker from "@/components/WorkOrderProgressTracker";
 import { useSession } from "@/context/SessionContext";
-import { MapboxDisplayMap } from "@/components/MapboxDisplayMap"; // Import the new Mapbox map component
-import mapboxgl from 'mapbox-gl'; // Import mapboxgl for accessToken
-import { calculateDistance } from "@/utils/geo-helpers"; // Import the new utility
+import { calculateDistance } from "@/utils/geo-helpers";
 
-const { Title, Text, Paragraph } = Typography;
-const { Option = Select.Option } = Select;
+// Import new modular components
+import { WorkOrderCustomerVehicleCard } from "@/components/work-order-details/WorkOrderCustomerVehicleCard.tsx";
+import { WorkOrderServiceInfoCard } from "@/components/work-order-details/WorkOrderServiceInfoCard.tsx";
+import { WorkOrderDetailsInfoCard } from "@/components/work-order-details/WorkOrderDetailsInfoCard.tsx";
+import { WorkOrderPartsUsedCard } from "@/components/work-order-details/WorkOrderPartsUsedCard.tsx";
+import { WorkOrderActivityLogCard } from "@/components/work-order-details/WorkOrderActivityLogCard.tsx";
+import { WorkOrderLocationMapCard } from "@/components/work-order-details/WorkOrderLocationMapCard.tsx";
+
+const { Title } = Typography;
 const { TabPane } = Tabs;
-const { useToken } = theme;
-
-const channelOptions = ['Call Center', 'Service Center', 'Social Media', 'Staff', 'Swap Station'];
 
 interface WorkOrderDetailsProps {
   isDrawerMode?: boolean;
@@ -38,21 +38,10 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   const queryClient = useQueryClient();
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
   const [isAddPartDialogOpen, setIsAddPartDialogOpen] = useState(false);
-  const { token } = useToken();
   const { session } = useSession();
 
-  const [showInteractiveMap, setShowInteractiveMap] = useState(false); // New state for interactive map
-  const [activeTabKey, setActiveTabKey] = useState('1'); // State to track active tab in drawer mode
-
-  const statusColors: Record<string, string> = { 
-    Open: token.colorInfo,
-    "Confirmation": token.cyan6,
-    "Ready": token.colorTextSecondary,
-    "In Progress": token.colorWarning,
-    "On Hold": token.orange6,
-    Completed: token.colorSuccess
-  };
-  const priorityColors: Record<string, string> = { High: token.colorError, Medium: token.colorWarning, Low: token.colorSuccess };
+  const [showInteractiveMap, setShowInteractiveMap] = useState(false);
+  const [activeTabKey, setActiveTabKey] = useState('1');
 
   const id = isDrawerMode ? searchParams.get('view') : paramId;
 
@@ -105,12 +94,11 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     }
   });
 
-  // Effect to show interactive map when Location tab is active in drawer mode
   useEffect(() => {
-    if (isDrawerMode && activeTabKey === '3') { // '3' is the key for the Location tab
+    if (isDrawerMode && activeTabKey === '3') {
       setShowInteractiveMap(true);
     } else {
-      setShowInteractiveMap(false); // Reset when switching away from Location tab
+      setShowInteractiveMap(false);
     }
   }, [isDrawerMode, activeTabKey]);
 
@@ -210,223 +198,6 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   if (isLoading) return <Skeleton active />;
   if (!workOrder) return isDrawerMode ? <div style={{ padding: 24 }}><NotFound /></div> : <NotFound />;
 
-  const mapMarkers = [];
-  let mapCenter: [number, number] = [0, 0]; // Default center
-
-  if (location?.lng && location?.lat) {
-    mapMarkers.push({ lng: location.lng, lat: location.lat, color: '#1677ff', popupText: `Service Center: ${location.name}` });
-    mapCenter = [location.lng, location.lat];
-  }
-  if (workOrder.customerLng && workOrder.customerLat) {
-    mapMarkers.push({ lng: workOrder.customerLng, lat: workOrder.customerLat, color: '#faad14', popupText: `Client Location: ${workOrder.customerAddress || 'N/A'}` });
-    if (!mapCenter[0] && !mapCenter[1]) { // If no service location, center on client
-      mapCenter = [workOrder.customerLng, workOrder.customerLat];
-    }
-  }
-
-  const distanceBetweenLocations = useMemo(() => {
-    if (location?.lat && location?.lng && workOrder.customerLat && workOrder.customerLng) {
-      const dist = calculateDistance(
-        location.lat,
-        location.lng,
-        workOrder.customerLat,
-        workOrder.customerLng
-      );
-      return dist.toFixed(2); // Format to 2 decimal places
-    }
-    return null;
-  }, [location, workOrder]);
-
-  // --- Reusable Content Blocks ---
-  const customerVehicleCard = (
-    <Card title="Customer & Vehicle Details">
-      <Descriptions column={1} bordered>
-        <Descriptions.Item label="Customer" labelStyle={{ width: '150px' }}><Text>{customer?.name || 'N/A'}</Text></Descriptions.Item>
-        <Descriptions.Item label={<><PhoneOutlined /> Phone</>} labelStyle={{ width: '150px' }}><Text>{customer?.phone || 'N/A'}</Text></Descriptions.Item>
-        <Descriptions.Item label="Vehicle" labelStyle={{ width: '150px' }}><Text>{vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : 'N/A'}</Text></Descriptions.Item>
-        <Descriptions.Item label="VIN" labelStyle={{ width: '150px' }}><Text code>{vehicle?.vin || 'N/A'}</Text></Descriptions.Item>
-        <Descriptions.Item label="License Plate" labelStyle={{ width: '150px' }}><Text>{vehicle?.license_plate || 'N/A'}</Text></Descriptions.Item>
-      </Descriptions>
-    </Card>
-  );
-
-  const serviceInfoCard = (
-    <Card title="Service Information">
-      <Title level={5} editable={{ onChange: (value) => handleUpdateWorkOrder({ service: value }) }}>{workOrder.service}</Title>
-      <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ serviceNotes: value }) }} type="secondary">{workOrder.serviceNotes}</Paragraph>
-    </Card>
-  );
-
-  const workOrderDetailsCard = (
-    <Card title="Work Order Details">
-      <Descriptions column={1}>
-        <Descriptions.Item label="Status">
-          <Select
-            value={workOrder.status || 'Open'}
-            onChange={(value) => handleUpdateWorkOrder({ status: value })}
-            style={{ width: 180 }}
-            bordered={false}
-            size="small"
-            suffixIcon={null}
-          >
-            <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
-            <Option value="Confirmation"><Tag color={statusColors["Confirmation"]}>Confirmation</Tag></Option>
-            <Option value="Ready"><Tag color={statusColors["Ready"]}>Ready</Tag></Option>
-            <Option value="In Progress"><Tag color={statusColors["In Progress"]}>In Progress</Tag></Option>
-            <Option value="On Hold"><Tag color={statusColors["On Hold"]}>On Hold</Tag></Option>
-            <Option value="Completed"><Tag color={statusColors["Completed"]}>Completed</Tag></Option>
-          </Select>
-        </Descriptions.Item>
-        <Descriptions.Item label="Priority"><Select value={workOrder.priority || 'Low'} onChange={(value) => handleUpdateWorkOrder({ priority: value })} style={{ width: 100 }} bordered={false} size="small" suffixIcon={null}><Option value="High"><Tag color={priorityColors["High"]}>High</Tag></Option><Option value="Medium"><Tag color={priorityColors["Medium"]}>Medium</Tag></Option><Option value="Low"><Tag color={priorityColors["Low"]}>Low</Tag></Option></Select></Descriptions.Item>
-        <Descriptions.Item label="Channel">
-          <Select
-            value={workOrder.channel}
-            onChange={(value) => handleUpdateWorkOrder({ channel: value })}
-            style={{ width: '100%' }}
-            bordered={false}
-            allowClear
-            placeholder="Select channel"
-            suffixIcon={null}
-          >
-            {channelOptions.map(c => <Option key={c} value={c}>{c}</Option>)}
-          </Select>
-        </Descriptions.Item>
-        <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}><DatePicker showTime value={workOrder.slaDue ? dayjs(workOrder.slaDue) : null} onChange={(date) => { handleUpdateWorkOrder({ slaDue: date ? date.toISOString() : null }); }} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
-        <Descriptions.Item label="Appointment Date"><DatePicker showTime value={workOrder.appointmentDate ? dayjs(workOrder.appointmentDate) : null} onChange={(date) => handleUpdateWorkOrder({ appointmentDate: date ? date.toISOString() : null })} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
-        <Descriptions.Item label={<><ToolOutlined /> Assigned To</>}><Select value={workOrder.assignedTechnicianId} onChange={(value) => handleUpdateWorkOrder({ assignedTechnicianId: value })} style={{ width: '100%' }} bordered={false} allowClear placeholder="Unassigned" suffixIcon={null}>{(allTechnicians || []).map(t => (<Option key={t.id} value={t.id}><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Avatar size="small" src={t.avatar || undefined}>{t.name.split(' ').map(n => n[0]).join('')}</Avatar><Text>{t.name}</Text></div></Option>))}</Select></Descriptions.Item>
-        {technician && (
-          <Descriptions.Item label={<><PhoneOutlined /> Tech Phone</>}><a href={`tel:${technician.phone}`}>{technician.phone || 'N/A'}</a></Descriptions.Item>
-        )}
-      </Descriptions>
-    </Card>
-  );
-
-  const partsColumns = [
-    { title: 'Part', dataIndex: ['inventory_items', 'name'], render: (name: string, record: WorkOrderPart) => `${name} (${record.inventory_items.sku})` },
-    { title: 'Qty', dataIndex: 'quantity_used' },
-    { title: 'Unit Price', dataIndex: 'price_at_time_of_use', render: (price: number) => `UGX ${price.toLocaleString('en-US')}` },
-    { title: 'Total', render: (_: any, record: WorkOrderPart) => `UGX ${(record.quantity_used * record.price_at_time_of_use).toLocaleString('en-US')}` },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_: any, record: WorkOrderPart) => (
-        <Popconfirm
-          title="Are you sure to delete this part?"
-          onConfirm={() => handleRemovePart(record.id)}
-          okText="Yes"
-          cancelText="No"
-        >
-          <Button type="text" danger icon={<DeleteOutlined />} size="small" />
-        </Popconfirm>
-      ),
-    },
-  ];
-  const partsTotal = (usedParts || []).reduce((sum, part) => sum + (part.quantity_used * part.price_at_time_of_use), 0);
-
-  // Define partsCard here
-  const partsCard = (
-    <Card
-      title="Parts Used"
-      extra={
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsAddPartDialogOpen(true)}>
-          Add Part
-        </Button>
-      }
-    >
-      <Table
-        dataSource={usedParts || []}
-        columns={partsColumns}
-        rowKey="id"
-        pagination={false}
-        size="small"
-        summary={() => (
-          <Table.Summary.Row>
-            <Table.Summary.Cell index={0} colSpan={3}>
-              <Text strong>Total Cost</Text>
-            </Table.Summary.Cell>
-            <Table.Summary.Cell index={3}>
-              <Text strong>UGX {partsTotal.toLocaleString('en-US')}</Text>
-            </Table.Summary.Cell>
-            <Table.Summary.Cell index={4}></Table.Summary.Cell> {/* Empty cell for actions column */}
-          </Table.Summary.Row>
-        )}
-        locale={{ emptyText: <Empty description="No parts used yet." image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
-      />
-    </Card>
-  );
-
-  const activityLogCard = (
-    <Card title="Activity Log">
-      <Timeline>
-        {[...(workOrder.activityLog || [])]
-          .sort((a, b) => dayjs(b.timestamp).diff(dayjs(a.timestamp)))
-          .map((item, index) => {
-            const userName = profileMap.get(item.userId) || (item.userId ? 'A user' : 'System');
-            return (
-              <Timeline.Item key={index}>
-                <Text strong>{item.activity}</Text>
-                <br />
-                <Text type="secondary">
-                  by {userName} on {dayjs(item.timestamp).format('MMM D, YYYY h:mm A')}
-                </Text>
-              </Timeline.Item>
-            );
-          })}
-      </Timeline>
-    </Card>
-  );
-
-  const locationAndMapCard = (
-    <Card title="Location Details">
-      <Descriptions column={1}>
-        <Descriptions.Item label={<><EnvironmentOutlined /> Service Location</>}><Select value={workOrder.locationId} onChange={(value) => handleUpdateWorkOrder({ locationId: value })} style={{ width: '100%' }} bordered={false} allowClear placeholder="Select location" suffixIcon={null}>{(allLocations || []).map(l => <Option key={l.id} value={l.id}>{l.name.replace(' Service Center', '')}</Option>)}</Select></Descriptions.Item>
-        <Descriptions.Item label="Client Location"><MapboxLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder.customerAddress || ''} /></Descriptions.Item>
-        {distanceBetweenLocations && (
-          <Descriptions.Item label="Distance">
-            <Text strong>{distanceBetweenLocations} km</Text>
-          </Descriptions.Item>
-        )}
-      </Descriptions>
-      <div style={{ marginTop: 16 }}>
-        {mapMarkers.length > 0 ? (
-          showInteractiveMap ? ( // Conditionally render interactive map
-            <MapboxDisplayMap center={mapCenter} markers={mapMarkers} height="300px" />
-          ) : (
-            <div
-              style={{
-                height: '300px',
-                backgroundColor: '#f0f2f5',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-              onClick={() => setShowInteractiveMap(true)} // Click to show interactive map
-            >
-              {mapboxgl.accessToken && mapCenter[0] !== 0 && mapCenter[1] !== 0 ? (
-                <img
-                  src={`https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${mapCenter[0]},${mapCenter[1]},${12},0,0/600x300?access_token=${mapboxgl.accessToken}&logo=false&attribution=false`}
-                  alt="Static map preview"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
-                />
-              ) : (
-                <Empty description="No map preview available" image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ zIndex: 1 }} />
-              )}
-              <Button type="primary" icon={<CompassOutlined />} style={{ zIndex: 1 }}>
-                View Interactive Map
-              </Button>
-            </div>
-          )
-        ) : (
-          <div style={{padding: '24px', textAlign: 'center'}}><Empty description="No location data to display." /></div>
-        )}
-      </div>
-    </Card>
-  );
-
   // --- Main Render Logic ---
   return (
     <>
@@ -452,23 +223,44 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
             <div style={{ marginBottom: 16 }}>
               <WorkOrderProgressTracker workOrder={workOrder} />
             </div>
-            <Tabs defaultActiveKey="1" destroyInactiveTabPane={false} onChange={setActiveTabKey}> {/* Added onChange */}
+            <Tabs defaultActiveKey="1" destroyInactiveTabPane={false} onChange={setActiveTabKey}>
               <TabPane tab={<span><InfoCircleOutlined /> Overview</span>} key="1">
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                  {serviceInfoCard}
-                  {workOrderDetailsCard}
-                  {customerVehicleCard}
+                  <WorkOrderServiceInfoCard workOrder={workOrder} handleUpdateWorkOrder={handleUpdateWorkOrder} />
+                  <WorkOrderDetailsInfoCard
+                    workOrder={workOrder}
+                    technician={technician}
+                    allTechnicians={allTechnicians || []}
+                    allLocations={allLocations || []}
+                    handleUpdateWorkOrder={handleUpdateWorkOrder}
+                  />
+                  <WorkOrderCustomerVehicleCard workOrder={workOrder} customer={customer} vehicle={vehicle} />
                 </Space>
               </TabPane>
               <TabPane tab={<span><UnorderedListOutlined /> Parts & Log</span>} key="2">
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                  {partsCard}
-                  {activityLogCard}
+                  <WorkOrderPartsUsedCard
+                    workOrder={workOrder}
+                    usedParts={usedParts || []}
+                    isAddPartDialogOpen={isAddPartDialogOpen}
+                    setIsAddPartDialogOpen={setIsAddPartDialogOpen}
+                    handleAddPart={handleAddPart}
+                    handleRemovePart={handleRemovePart}
+                  />
+                  <WorkOrderActivityLogCard workOrder={workOrder} profileMap={profileMap} />
                 </Space>
               </TabPane>
               <TabPane tab={<span><CompassOutlined /> Location</span>} key="3">
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                  {locationAndMapCard}
+                  <WorkOrderLocationMapCard
+                    workOrder={workOrder}
+                    location={location}
+                    allLocations={allLocations || []}
+                    handleUpdateWorkOrder={handleUpdateWorkOrder}
+                    handleLocationSelect={handleLocationSelect}
+                    showInteractiveMap={showInteractiveMap}
+                    setShowInteractiveMap={setShowInteractiveMap}
+                  />
                 </Space>
               </TabPane>
             </Tabs>
@@ -481,16 +273,37 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
             <Row gutter={[16, 16]}>
               <Col xs={24} lg={16}>
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                  {serviceInfoCard}
-                  {partsCard}
-                  {activityLogCard}
+                  <WorkOrderServiceInfoCard workOrder={workOrder} handleUpdateWorkOrder={handleUpdateWorkOrder} />
+                  <WorkOrderPartsUsedCard
+                    workOrder={workOrder}
+                    usedParts={usedParts || []}
+                    isAddPartDialogOpen={isAddPartDialogOpen}
+                    setIsAddPartDialogOpen={setIsAddPartDialogOpen}
+                    handleAddPart={handleAddPart}
+                    handleRemovePart={handleRemovePart}
+                  />
+                  <WorkOrderActivityLogCard workOrder={workOrder} profileMap={profileMap} />
                 </Space>
               </Col>
               <Col xs={24} lg={8}>
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                  {workOrderDetailsCard}
-                  {customerVehicleCard}
-                  {locationAndMapCard} {/* This will now use the interactive on demand logic */}
+                  <WorkOrderDetailsInfoCard
+                    workOrder={workOrder}
+                    technician={technician}
+                    allTechnicians={allTechnicians || []}
+                    allLocations={allLocations || []}
+                    handleUpdateWorkOrder={handleUpdateWorkOrder}
+                  />
+                  <WorkOrderCustomerVehicleCard workOrder={workOrder} customer={customer} vehicle={vehicle} />
+                  <WorkOrderLocationMapCard
+                    workOrder={workOrder}
+                    location={location}
+                    allLocations={allLocations || []}
+                    handleUpdateWorkOrder={handleUpdateWorkOrder}
+                    handleLocationSelect={handleLocationSelect}
+                    showInteractiveMap={showInteractiveMap}
+                    setShowInteractiveMap={setShowInteractiveMap}
+                  />
                 </Space>
               </Col>
             </Row>
@@ -498,7 +311,6 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
         )}
       </Space>
       {onHoldWorkOrder && <OnHoldReasonDialog isOpen={!!onHoldWorkOrder} onClose={() => setOnHoldWorkOrder(null)} onSave={handleSaveOnHoldReason} />}
-      {isAddPartDialogOpen && <AddPartToWorkOrderDialog isOpen={isAddPartDialogOpen} onClose={() => setIsAddPartDialogOpen(false)} onSave={handleAddPart} />}
     </>
   );
 };

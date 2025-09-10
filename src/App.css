@@ -123,6 +123,8 @@ body {
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s ease, color 0.2s ease;
+  border-bottom-left-radius: 8px; /* Match sider border radius */
+  border-bottom-right-radius: 8px; /* Match sider border radius */
 }
 
 .sider-custom-trigger .ant-btn {
@@ -170,6 +172,8 @@ body {
   padding: 0 16px;
   border-bottom: 1px solid var(--ant-color-border-secondary); /* Add a subtle separator */
   flex-shrink: 0; /* Prevent logo area from shrinking */
+  border-top-left-radius: 8px; /* Match sider border radius */
+  border-top-right-radius: 8px; /* Match sider border radius */
 }
 
 /* Ensure menu item text is not cut off when collapsed */

@@ -136,11 +136,14 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
       width={220}
       style={{
         overflow: 'hidden', // Keep overflow hidden for the sider itself
-        height: '100vh',
+        height: 'calc(100vh - 32px)', // Adjusted height to allow for margin
         position: 'sticky',
-        top: 0,
-        left: 0,
-        borderRight: '1px solid #f0f0f0',
+        top: 16, // Added top margin
+        left: 16, // Added left margin
+        marginRight: 16, // Added right margin for floating effect
+        borderRadius: 8, // Rounded corners
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)', // Subtle shadow for floating effect
+        borderRight: 'none', // Removed default border
         display: 'flex',
         flexDirection: 'column', // Enable flex column for internal layout
       }}

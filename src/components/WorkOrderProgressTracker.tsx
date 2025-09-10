@@ -2,8 +2,8 @@ import { useState, useEffect, useMemo } from 'react';
 import { Steps, Popover, Typography } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import max from 'dayjs/plugin/max'; // Explicitly import the plugin function
-import min from 'dayjs/plugin/min'; // Explicitly import the plugin function
+import { default as max } from 'dayjs/plugin/max'; // Explicitly import the default export
+import { default as min } from 'dayjs/plugin/min'; // Explicitly import the default export
 import { WorkOrder } from '@/types/supabase';
 
 dayjs.extend(duration);

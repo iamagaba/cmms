@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import NotFound from "./NotFound";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { WorkOrder, Technician, Location, Customer, Vehicle, WorkOrderPart } from "@/types/supabase";
+import { WorkOrder, Technician, Location, Customer, Vehicle, WorkOrderPart, ServiceCategory, SlaPolicy } from "@/types/supabase";
 import { useState } from "react";
 import { showSuccess, showError, showInfo } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
@@ -22,7 +22,7 @@ const { TabPane } = Tabs;
 const { useToken } = theme;
 
 const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "";
-const channelOptions = ['Call Center', 'Service Center', 'Social Media', 'Staff', 'Swap Station'];
+const channelOptions = ['Call Center', 'Service Center', 'Social Media', 'Staff', 'Swap Station', 'Walk in']; // Added 'Walk in'
 
 interface WorkOrderDetailsProps {
   isDrawerMode?: boolean;
@@ -77,6 +77,11 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
           customerId: data.customer_id,
           vehicleId: data.vehicle_id,
           created_by: data.created_by, // Ensure created_by is also mapped if it's snake_case in DB
+          service_category_id: data.service_category_id,
+          confirmed_at: data.confirmed_at,
+          work_started_at: data.work_started_at,
+          sla_timers_paused_at: data.sla_timers_paused_at,
+          total_paused_duration_seconds: data.total_paused_duration_seconds,
         };
         console.log('Mapped work order data (camelCase):', mappedData);
         return mappedData;
@@ -92,6 +97,9 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   const { data: customer, isLoading: isLoadingCustomer } = useQuery<Customer | null>({ queryKey: ['customer', workOrder?.customerId], queryFn: async () => { if (!workOrder?.customerId) return null; const { data, error } = await supabase.from('customers').select('*').eq('id', workOrder.customerId).single(); if (error) throw new Error(error.message); return data; }, enabled: !!workOrder?.customerId });
   const { data: vehicle, isLoading: isLoadingVehicle } = useQuery<Vehicle | null>({ queryKey: ['vehicle', workOrder?.vehicleId], queryFn: async () => { if (!workOrder?.vehicleId) return null; const { data, error } = await supabase.from('vehicles').select('*').eq('id', workOrder.vehicleId).single(); if (error) throw new Error(error.message); return data; }, enabled: !!workOrder?.vehicleId });
   const { data: usedParts, isLoading: isLoadingUsedParts } = useQuery<WorkOrderPart[]>({ queryKey: ['work_order_parts', id], queryFn: async () => { if (!id) return []; const { data, error } = await supabase.from('work_order_parts').select('*, inventory_items(*)').eq('work_order_id', id); if (error) throw new Error(error.message); return data || []; }, enabled: !!id });
+  const { data: serviceCategories, isLoading: isLoadingServiceCategories } = useQuery<ServiceCategory[]>({ queryKey: ['service_categories'], queryFn: async () => { const { data, error } = await supabase.from('service_categories').select('*'); if (error) throw new Error(error.message); return data || []; } });
+  const { data: slaPolicies, isLoading: isLoadingSlaPolicies } = useQuery<SlaPolicy[]>({ queryKey: ['sla_policies'], queryFn: async () => { const { data, error } = await supabase.from('sla_policies').select('*'); if (error) throw new Error(error.message); return data || []; } });
+
 
   const workOrderMutation = useMutation({ 
     mutationFn: async (workOrderData: Partial<WorkOrder>) => { 
@@ -155,9 +163,42 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
       activityMessage = `Client address updated to '${updates.customerAddress}'.`;
     } else if (updates.customerLat !== oldWorkOrder.customerLat || updates.customerLng !== oldWorkOrder.customerLng) {
       activityMessage = `Client coordinates updated.`;
+    } else if (updates.service_category_id && updates.service_category_id !== oldWorkOrder.service_category_id) {
+      const category = serviceCategories?.find(c => c.id === updates.service_category_id);
+      activityMessage = `Service category changed to '${category?.name || 'N/A'}'.`;
     } else {
       activityMessage = 'Work order details updated.'; // Generic message for other changes
     }
+
+    // --- Timestamp & SLA Automation ---
+    const oldStatus = oldWorkOrder.status;
+    const newStatus = updates.status;
+
+    if (newStatus && newStatus !== oldStatus) {
+      if (newStatus === 'Confirmation' && !oldWorkOrder.confirmed_at) updates.confirmed_at = new Date().toISOString();
+      if (newStatus === 'In Progress' && !oldWorkOrder.work_started_at) updates.work_started_at = new Date().toISOString();
+      if (newStatus === 'On Hold' && oldStatus !== 'On Hold') updates.sla_timers_paused_at = new Date().toISOString();
+      if (oldStatus === 'On Hold' && newStatus !== 'On Hold' && oldWorkOrder.sla_timers_paused_at) {
+        const pausedAt = dayjs(oldWorkOrder.sla_timers_paused_at);
+        const resumedAt = dayjs();
+        const durationPaused = resumedAt.diff(pausedAt, 'second');
+        updates.total_paused_duration_seconds = (oldWorkOrder.total_paused_duration_seconds || 0) + durationPaused;
+        updates.sla_timers_paused_at = null;
+        activityMessage += ` (SLA timers resumed after ${durationPaused}s pause).`;
+      }
+    }
+
+    if (updates.service_category_id && updates.service_category_id !== oldWorkOrder.service_category_id) {
+      const policy = slaPolicies?.find(p => p.service_category_id === updates.service_category_id);
+      if (policy && policy.resolution_hours) {
+        const createdAt = dayjs(oldWorkOrder.createdAt);
+        const totalPausedSeconds = updates.total_paused_duration_seconds || oldWorkOrder.total_paused_duration_seconds || 0;
+        const newSlaDue = createdAt.add(policy.resolution_hours, 'hours').add(totalPausedSeconds, 'seconds').toISOString();
+        updates.slaDue = newSlaDue;
+        activityMessage += ` Resolution SLA updated based on new service category.`;
+      }
+    }
+    // --- End Automation ---
 
     if (activityMessage) {
       newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage });
@@ -179,7 +220,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   const handleAddPart = (itemId: string, quantity: number) => { addPartMutation.mutate({ itemId, quantity }); };
   const handleRemovePart = (partId: string) => { removePartMutation.mutate(partId); };
 
-  const isLoading = isLoadingWorkOrder || isLoadingTechnician || isLoadingLocation || isLoadingAllTechnicians || isLoadingAllLocations || isLoadingCustomer || isLoadingVehicle || isLoadingUsedParts;
+  const isLoading = isLoadingWorkOrder || isLoadingTechnician || isLoadingLocation || isLoadingAllTechnicians || isLoadingAllLocations || isLoadingCustomer || isLoadingVehicle || isLoadingUsedParts || isLoadingServiceCategories || isLoadingSlaPolicies;
 
   if (isLoading) return <Skeleton active />;
   if (!workOrder) return isDrawerMode ? <div style={{ padding: 24 }}><NotFound /></div> : <NotFound />;
@@ -269,6 +310,19 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
             suffixIcon={null}
           >
             {channelOptions.map(c => <Option key={c} value={c}>{c}</Option>)}
+          </Select>
+        </Descriptions.Item>
+        <Descriptions.Item label="Service Category">
+          <Select
+            value={workOrder.service_category_id}
+            onChange={(value) => handleUpdateWorkOrder({ service_category_id: value })}
+            style={{ width: '100%' }}
+            bordered={false}
+            allowClear
+            placeholder="Select category"
+            suffixIcon={null}
+          >
+            {(serviceCategories || []).map(sc => <Option key={sc.id} value={sc.id}>{sc.name}</Option>)}
           </Select>
         </Descriptions.Item>
         <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}><DatePicker showTime value={workOrder.slaDue ? dayjs(workOrder.slaDue) : null} onChange={(date) => { console.log("DatePicker onChange - new SLA date:", date ? date.toISOString() : null); handleUpdateWorkOrder({ slaDue: date ? date.toISOString() : null }); }} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>

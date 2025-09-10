@@ -124,7 +124,7 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
       destroyOnClose 
       footer={
         <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-          <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>
+          <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>,
           <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save Work Order</Button>
         </Space>
       }
@@ -134,8 +134,8 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
           <Col span={24}><Text strong>Customer & Vehicle Details</Text></Col>
           <Col xs={24} md={12}><Form.Item name="vehicleId" label="Vehicle ID" rules={[{ required: true }]}><Input disabled /></Form.Item></Col>
           <Col xs={24} md={12}><Form.Item name="vehicleModel" label="Vehicle Model" rules={[{ required: true }]}><Input disabled /></Form.Item></Col>
-          <Col xs={24} md={12}><Form.Item name="customerName" label="Customer Name" rules={[{ required: true }]}><Input disabled /></Form.Item></Col>
-          <Col xs={24} md={12}><Form.Item name="customerPhone" label="Customer Phone" rules={[{ required: true }]}><Input disabled /></Form.Item></Col>
+          <Col xs={24} md={12}><Form.Item name="customerName" label="Customer Name"><Input disabled /></Form.Item></Col>
+          <Col xs={24} md={12}><Form.Item name="customerPhone" label="Customer Phone"><Input disabled /></Form.Item></Col>
           
           <Col span={24} style={{ marginTop: 24 }}><Text strong>Service Details</Text></Col>
           <Col span={24}><Form.Item name="service" label="Service Description" rules={[{ required: true }]}><TextArea rows={2} /></Form.Item></Col>

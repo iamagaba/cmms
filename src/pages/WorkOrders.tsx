@@ -158,8 +158,8 @@ const WorkOrdersPage = () => {
     const prefill = {
       vehicleId: vehicle.id,
       customerId: vehicle.customer_id,
-      customerName: vehicle.customers?.name,
-      customerPhone: vehicle.customers?.phone,
+      customerName: vehicle.customers?.name || '', // Ensure customerName is always a string
+      customerPhone: vehicle.customers?.phone || '', // Ensure customerPhone is always a string
       vehicleModel: `${vehicle.make} ${vehicle.model}`,
       slaDue: initialSlaDue,
     };

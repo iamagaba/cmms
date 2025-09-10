@@ -2,6 +2,7 @@ import * as React from "react";
 import { Table } from "antd";
 import { Location, WorkOrder } from "@/types/supabase";
 import { LocationRow, getColumns } from "./LocationTableColumns";
+import { useNavigate } from "react-router-dom";
 
 interface LocationDataTableProps {
   locations: Location[];
@@ -11,6 +12,8 @@ interface LocationDataTableProps {
 }
 
 export function LocationDataTable({ locations, workOrders, onEdit, onDelete }: LocationDataTableProps) {
+  const navigate = useNavigate();
+  
   const tableData: LocationRow[] = React.useMemo(() => {
     return locations.map(loc => ({
       ...loc,
@@ -29,7 +32,7 @@ export function LocationDataTable({ locations, workOrders, onEdit, onDelete }: L
       pagination={{ pageSize: 10, hideOnSinglePage: true }}
       onRow={(record) => ({
         className: 'lift-on-hover-row',
-        onClick: () => onEdit(record),
+        onClick: () => navigate(`/locations/${record.id}`),
       })}
     />
   );

@@ -10,19 +10,19 @@ import { useState, useMemo } from "react";
 import { showSuccess, showError, showInfo } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
-import { MapboxLocationSearchInput } from "@/components/MapboxLocationSearchInput"; // Updated import
+import { MapboxLocationSearchInput } from "@/components/MapboxLocationSearchInput";
 import { useSearchParams } from "react-router-dom";
 import { AddPartToWorkOrderDialog } from "@/components/AddPartToWorkOrderDialog";
 import PageHeader from "@/components/PageHeader";
 import WorkOrderProgressTracker from "@/components/WorkOrderProgressTracker";
 import { useSession } from "@/context/SessionContext";
+import { MapboxDisplayMap } from "@/components/MapboxDisplayMap"; // Import the new Mapbox map component
 
 const { Title, Text, Paragraph } = Typography;
 const { Option = Select.Option } = Select;
 const { TabPane } = Tabs;
 const { useToken } = theme;
 
-const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "";
 const channelOptions = ['Call Center', 'Service Center', 'Social Media', 'Staff', 'Swap Station'];
 
 interface WorkOrderDetailsProps {
@@ -55,22 +55,19 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     queryKey: ['work_order', id], 
     queryFn: async () => { 
       if (!id) return null; 
-      console.log('Fetching work order details for ID:', id);
       const { data, error } = await supabase.from('work_orders').select('*').eq('id', id).single(); 
       if (error) throw new Error(error.message); 
-      console.log('Raw fetched work order data from Supabase:', data); // Log raw data
       if (data) {
-        // Manually map snake_case to camelCase for consistency with WorkOrder type
         const mappedData: WorkOrder = {
           ...data,
-          createdAt: data.created_at, // Explicitly map created_at to createdAt
+          createdAt: data.created_at,
           workOrderNumber: data.work_order_number,
           assignedTechnicianId: data.assigned_technician_id,
           locationId: data.location_id,
           serviceNotes: data.service_notes,
           partsUsed: data.parts_used,
           activityLog: data.activity_log,
-          slaDue: data.sla_due, // Map sla_due to slaDue
+          slaDue: data.sla_due,
           completedAt: data.completed_at,
           customerLat: data.customer_lat,
           customerLng: data.customer_lng,
@@ -79,9 +76,8 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
           appointmentDate: data.appointment_date,
           customerId: data.customer_id,
           vehicleId: data.vehicle_id,
-          created_by: data.created_by, // Ensure created_by is also mapped if it's snake_case in DB
+          created_by: data.created_by,
         };
-        console.log('Mapped work order data (camelCase):', mappedData);
         return mappedData;
       }
       return null;
@@ -106,15 +102,15 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
 
   const workOrderMutation = useMutation({ 
     mutationFn: async (workOrderData: Partial<WorkOrder>) => { 
-      const { error } = await supabase.from('work_orders').upsert([workOrderData]); 
+      const { error } = await supabase.from('work_orders').upsert([camelToSnakeCase(workOrderData)]); 
       if (error) throw new Error(error.message); 
     }, 
-    onSuccess: (_, variables) => { // Get the variables passed to mutate
-      const updatedId = variables.id; // Assuming id is always present in updates
+    onSuccess: (_, variables) => {
+      const updatedId = variables.id;
       if (updatedId) {
-        queryClient.refetchQueries({ queryKey: ['work_order', updatedId] }); // Refetch specific work order
+        queryClient.refetchQueries({ queryKey: ['work_order', updatedId] });
       }
-      queryClient.invalidateQueries({ queryKey: ['work_orders'] }); // Invalidate all work orders for lists
+      queryClient.invalidateQueries({ queryKey: ['work_orders'] });
       showSuccess('Work order has been updated.'); 
     }, 
     onError: (error) => showError(error.message) 
@@ -127,7 +123,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['work_order_parts', id] });
-      queryClient.invalidateQueries({ queryKey: ['inventory_items'] }); // Invalidate inventory to reflect stock changes
+      queryClient.invalidateQueries({ queryKey: ['inventory_items'] });
       showSuccess('Part removed from work order.');
     },
     onError: (error) => showError(error.message),
@@ -167,7 +163,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     } else if (updates.customerLat !== oldWorkOrder.customerLat || updates.customerLng !== oldWorkOrder.customerLng) {
       activityMessage = `Client coordinates updated.`;
     } else {
-      activityMessage = 'Work order details updated.'; // Generic message for other changes
+      activityMessage = 'Work order details updated.';
     }
 
     if (activityMessage) {
@@ -183,9 +179,9 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
       updates.status = 'In Progress'; 
       showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`); 
     } 
-    workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates })); 
+    workOrderMutation.mutate({ id: workOrder.id, ...updates }); 
   };
-  const handleSaveOnHoldReason = (reason: string) => { if (!onHoldWorkOrder) return; const updates = { status: 'On Hold' as const, onHoldReason: reason }; workOrderMutation.mutate(camelToSnakeCase({ id: onHoldWorkOrder.id, ...updates })); setOnHoldWorkOrder(null); };
+  const handleSaveOnHoldReason = (reason: string) => { if (!onHoldWorkOrder) return; const updates = { status: 'On Hold' as const, onHoldReason: reason }; workOrderMutation.mutate({ id: onHoldWorkOrder.id, ...updates }); setOnHoldWorkOrder(null); };
   const handleLocationSelect = (selectedLoc: { lat: number; lng: number; label: string }) => { handleUpdateWorkOrder({ customerAddress: selectedLoc.label, customerLat: selectedLoc.lat, customerLng: selectedLoc.lng }); };
   const handleAddPart = (itemId: string, quantity: number) => { addPartMutation.mutate({ itemId, quantity }); };
   const handleRemovePart = (partId: string) => { removePartMutation.mutate(partId); };
@@ -200,38 +196,19 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   if (isLoading) return <Skeleton active />;
   if (!workOrder) return isDrawerMode ? <div style={{ padding: 24 }}><NotFound /></div> : <NotFound />;
 
-  const hasClientLocation = workOrder.customerLat != null && workOrder.customerLng != null;
-  const getMapUrl = () => {
-    if (!API_KEY) return "";
-    let markers = [];
-    if (location) markers.push(`markers=color:blue%7Clabel:S%7C${location.lat},${location.lng}`);
-    if (hasClientLocation) markers.push(`markers=color:orange%7Clabel:C%7C${workOrder.customerLat},${workOrder.customerLng}`);
-    if (markers.length === 0) return "";
-    return `https://maps.googleapis.com/maps/api/staticmap?size=600x300&maptype=roadmap&${markers.join('&')}&key=${API_KEY}`;
-  };
-  const mapUrl = getMapUrl();
+  const mapMarkers = [];
+  let mapCenter: [number, number] = [0, 0]; // Default center
 
-  const partsColumns = [
-    { title: 'Part', dataIndex: ['inventory_items', 'name'], render: (name: string, record: WorkOrderPart) => `${name} (${record.inventory_items.sku})` },
-    { title: 'Qty', dataIndex: 'quantity_used' },
-    { title: 'Unit Price', dataIndex: 'price_at_time_of_use', render: (price: number) => `UGX ${price.toLocaleString('en-US')}` },
-    { title: 'Total', render: (_: any, record: WorkOrderPart) => `UGX ${(record.quantity_used * record.price_at_time_of_use).toLocaleString('en-US')}` },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_: any, record: WorkOrderPart) => (
-        <Popconfirm
-          title="Are you sure to delete this part?"
-          onConfirm={() => handleRemovePart(record.id)}
-          okText="Yes"
-          cancelText="No"
-        >
-          <Button type="text" danger icon={<DeleteOutlined />} size="small" />
-        </Popconfirm>
-      ),
-    },
-  ];
-  const partsTotal = (usedParts || []).reduce((sum, part) => sum + (part.quantity_used * part.price_at_time_of_use), 0);
+  if (location?.lng && location?.lat) {
+    mapMarkers.push({ lng: location.lng, lat: location.lat, color: '#1677ff', popupText: `Service Center: ${location.name}` });
+    mapCenter = [location.lng, location.lat];
+  }
+  if (workOrder.customerLng && workOrder.customerLat) {
+    mapMarkers.push({ lng: workOrder.customerLng, lat: workOrder.customerLat, color: '#faad14', popupText: `Client Location: ${workOrder.customerAddress || 'N/A'}` });
+    if (!mapCenter[0] && !mapCenter[1]) { // If no service location, center on client
+      mapCenter = [workOrder.customerLng, workOrder.customerLat];
+    }
+  }
 
   // --- Reusable Content Blocks ---
   const customerVehicleCard = (
@@ -253,7 +230,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     </Card>
   );
 
-  const workOrderDetailsCard = ( // Renamed from assignmentScheduleCard
+  const workOrderDetailsCard = (
     <Card title="Work Order Details">
       <Descriptions column={1}>
         <Descriptions.Item label="Status">
@@ -287,7 +264,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
             {channelOptions.map(c => <Option key={c} value={c}>{c}</Option>)}
           </Select>
         </Descriptions.Item>
-        <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}><DatePicker showTime value={workOrder.slaDue ? dayjs(workOrder.slaDue) : null} onChange={(date) => { console.log("DatePicker onChange - new SLA date:", date ? date.toISOString() : null); handleUpdateWorkOrder({ slaDue: date ? date.toISOString() : null }); }} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
+        <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}><DatePicker showTime value={workOrder.slaDue ? dayjs(workOrder.slaDue) : null} onChange={(date) => { handleUpdateWorkOrder({ slaDue: date ? date.toISOString() : null }); }} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
         <Descriptions.Item label="Appointment Date"><DatePicker showTime value={workOrder.appointmentDate ? dayjs(workOrder.appointmentDate) : null} onChange={(date) => handleUpdateWorkOrder({ appointmentDate: date ? date.toISOString() : null })} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
         <Descriptions.Item label={<><ToolOutlined /> Assigned To</>}><Select value={workOrder.assignedTechnicianId} onChange={(value) => handleUpdateWorkOrder({ assignedTechnicianId: value })} style={{ width: '100%' }} bordered={false} allowClear placeholder="Unassigned" suffixIcon={null}>{(allTechnicians || []).map(t => (<Option key={t.id} value={t.id}><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Avatar size="small" src={t.avatar || undefined}>{t.name.split(' ').map(n => n[0]).join('')}</Avatar><Text>{t.name}</Text></div></Option>))}</Select></Descriptions.Item>
         {technician && (
@@ -297,9 +274,57 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     </Card>
   );
 
+  const partsColumns = [
+    { title: 'Part', dataIndex: ['inventory_items', 'name'], render: (name: string, record: WorkOrderPart) => `${name} (${record.inventory_items.sku})` },
+    { title: 'Qty', dataIndex: 'quantity_used' },
+    { title: 'Unit Price', dataIndex: 'price_at_time_of_use', render: (price: number) => `UGX ${price.toLocaleString('en-US')}` },
+    { title: 'Total', render: (_: any, record: WorkOrderPart) => `UGX ${(record.quantity_used * record.price_at_time_of_use).toLocaleString('en-US')}` },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_: any, record: WorkOrderPart) => (
+        <Popconfirm
+          title="Are you sure to delete this part?"
+          onConfirm={() => handleRemovePart(record.id)}
+          okText="Yes"
+          cancelText="No"
+        >
+          <Button type="text" danger icon={<DeleteOutlined />} size="small" />
+        </Popconfirm>
+      ),
+    },
+  ];
+  const partsTotal = (usedParts || []).reduce((sum, part) => sum + (part.quantity_used * part.price_at_time_of_use), 0);
+
+  // Define partsCard here
   const partsCard = (
-    <Card title="Parts & Materials" extra={<Button icon={<PlusOutlined />} onClick={() => setIsAddPartDialogOpen(true)}>Add Part</Button>}>
-      <Table columns={partsColumns} dataSource={usedParts} rowKey="id" pagination={false} size="small" summary={() => <Table.Summary.Row><Table.Summary.Cell index={0} colSpan={3}><Text strong>Total Parts Cost</Text></Table.Summary.Cell><Table.Summary.Cell index={1}><Text strong>UGX {(partsTotal || 0).toLocaleString('en-US')}</Text></Table.Summary.Cell></Table.Summary.Row>} />
+    <Card
+      title="Parts Used"
+      extra={
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsAddPartDialogOpen(true)}>
+          Add Part
+        </Button>
+      }
+    >
+      <Table
+        dataSource={usedParts || []}
+        columns={partsColumns}
+        rowKey="id"
+        pagination={false}
+        size="small"
+        summary={() => (
+          <Table.Summary.Row>
+            <Table.Summary.Cell index={0} colSpan={3}>
+              <Text strong>Total Cost</Text>
+            </Table.Summary.Cell>
+            <Table.Summary.Cell index={3}>
+              <Text strong>UGX {partsTotal.toLocaleString('en-US')}</Text>
+            </Table.Summary.Cell>
+            <Table.Summary.Cell index={4}></Table.Summary.Cell> {/* Empty cell for actions column */}
+          </Table.Summary.Row>
+        )}
+        locale={{ emptyText: <Empty description="No parts used yet." image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
+      />
     </Card>
   );
 
@@ -330,8 +355,12 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
         <Descriptions.Item label={<><EnvironmentOutlined /> Service Location</>}><Select value={workOrder.locationId} onChange={(value) => handleUpdateWorkOrder({ locationId: value })} style={{ width: '100%' }} bordered={false} allowClear placeholder="Select location" suffixIcon={null}>{(allLocations || []).map(l => <Option key={l.id} value={l.id}>{l.name.replace(' Service Center', '')}</Option>)}</Select></Descriptions.Item>
         <Descriptions.Item label="Client Location"><MapboxLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder.customerAddress || ''} /></Descriptions.Item>
       </Descriptions>
-      <div style={{ marginTop: 16, borderRadius: token.borderRadius, overflow: 'hidden' }}>
-        {API_KEY ? (mapUrl ? <img src={mapUrl} alt="Map of service and client locations" style={{ width: '100%', height: 'auto', display: 'block' }} /> : <div style={{padding: '24px', textAlign: 'center'}}><Empty description="No location data to display." /></div>) : <div style={{padding: '24px', textAlign: 'center'}}><Empty description="Google Maps API Key not configured." /></div>}
+      <div style={{ marginTop: 16 }}>
+        {mapMarkers.length > 0 ? (
+          <MapboxDisplayMap center={mapCenter} markers={mapMarkers} height="300px" />
+        ) : (
+          <div style={{padding: '24px', textAlign: 'center'}}><Empty description="No location data to display." /></div>
+        )}
       </div>
     </Card>
   );
@@ -353,7 +382,6 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
               </Space>
             }
             hideSearch
-            // Removed status dropdown from PageHeader
           />
         )}
 

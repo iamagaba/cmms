@@ -1,8 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Avatar, Button, Card, Col, Row, Space, Typography, List, Skeleton, Empty } from "antd";
 import { ArrowLeftOutlined, EnvironmentOutlined } from "@ant-design/icons";
-import { GoogleMap, MarkerF } from "@react-google-maps/api";
-import { WorkOrderDataTable, ALL_COLUMNS } from "@/components/WorkOrderDataTable"; // Import ALL_COLUMNS
+import { WorkOrderDataTable, ALL_COLUMNS } from "@/components/WorkOrderDataTable";
 import NotFound from "./NotFound";
 import { useMemo, useState } from "react";
 import { showSuccess, showInfo, showError } from "@/utils/toast";
@@ -13,12 +12,10 @@ import { Location, WorkOrder, Technician, Customer, Vehicle, Profile } from "@/t
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import PageHeader from "@/components/PageHeader";
 import dayjs from "dayjs";
-import { getColumns } from "@/components/WorkOrderTableColumns";
 import { useSession } from "@/context/SessionContext";
+import { MapboxDisplayMap } from "@/components/MapboxDisplayMap"; // Import the new Mapbox map component
 
 const { Title, Text } = Typography;
-
-const containerStyle = { width: '100%', height: '300px', borderRadius: '8px' };
 
 const LocationDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -26,8 +23,6 @@ const LocationDetailsPage = () => {
   const queryClient = useQueryClient();
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
   const { session } = useSession();
-
-  const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || ""; // Re-declare API_KEY here for local use
 
   const { data: location, isLoading: isLoadingLocation } = useQuery<Location | null>({ queryKey: ['location', id], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*').eq('id', id).single(); if (error) throw new Error(error.message); return data; }, enabled: !!id });
   const { data: allWorkOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ queryKey: ['work_orders'], queryFn: async () => { const { data, error } = await supabase.from('work_orders').select('*').order('created_at', { ascending: false }); if (error) throw new Error(error.message); return (data || []).map((item: any) => ({ ...item, createdAt: item.created_at, workOrderNumber: item.work_order_number, assignedTechnicianId: item.assigned_technician_id, locationId: item.location_id, serviceNotes: item.service_notes, partsUsed: item.parts_used, activityLog: item.activity_log, slaDue: item.sla_due, completedAt: item.completed_at, customerLat: item.customer_lat, customerLng: item.customer_lng, customerAddress: item.customer_address, onHoldReason: item.on_hold_reason, appointmentDate: item.appointment_date, customerId: item.customer_id, vehicleId: item.vehicle_id, created_by: item.created_by, service_category_id: item.service_category_id, confirmed_at: item.confirmed_at, work_started_at: item.work_started_at, sla_timers_paused_at: item.sla_timers_paused_at, total_paused_duration_seconds: item.total_paused_duration_seconds })) || []; } });
@@ -46,7 +41,7 @@ const LocationDetailsPage = () => {
 
 
   const workOrderMutation = useMutation({
-    mutationFn: async (workOrderData: Partial<WorkOrder>) => { const { error } = await supabase.from('work_orders').upsert(workOrderData); if (error) throw new Error(error.message); },
+    mutationFn: async (workOrderData: Partial<WorkOrder>) => { const { error } = await supabase.from('work_orders').upsert([camelToSnakeCase(workOrderData)]); if (error) throw new Error(error.message); },
     onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['work_orders'] }); showSuccess('Work order has been updated.'); },
     onError: (error) => showError(error.message),
   });
@@ -66,7 +61,7 @@ const LocationDetailsPage = () => {
       activityMessage = `Status changed from '${oldWorkOrder.status || 'N/A'}' to '${updates.status}'.`;
     } else if (updates.assignedTechnicianId && updates.assignedTechnicianId !== oldWorkOrder.assignedTechnicianId) {
       const oldTech = technicians?.find(t => t.id === oldWorkOrder.assignedTechnicianId)?.name || 'Unassigned';
-      const newTech = technicians?.find(t => t.id === updates.assignedTechnicianId)?.name || 'Unassigned';
+      const newTech = technicians?.find(t => t.id === updates.assignedTechnicianId)?.name || 'N/A';
       activityMessage = `Assigned technician changed from '${oldTech}' to '${newTech}'.`;
     } else if (updates.slaDue && updates.slaDue !== oldWorkOrder.slaDue) {
       activityMessage = `SLA due date updated to '${dayjs(updates.slaDue).format('MMM D, YYYY h:mm A')}'.`;
@@ -79,15 +74,15 @@ const LocationDetailsPage = () => {
     } else if (updates.priority && updates.priority !== oldWorkOrder.priority) {
       activityMessage = `Priority changed from '${oldWorkOrder.priority || 'N/A'}' to '${updates.priority}'.`;
     } else if (updates.locationId && updates.locationId !== oldWorkOrder.locationId) {
-      const oldLoc = allLocations?.find(l => l.id === oldWorkOrder.locationId)?.name || 'N/A'; // Fixed here
-      const newLoc = allLocations?.find(l => l.id === updates.locationId)?.name || 'N/A'; // Fixed here
+      const oldLoc = allLocations?.find(l => l.id === oldWorkOrder.locationId)?.name || 'N/A';
+      const newLoc = allLocations?.find(l => l.id === updates.locationId)?.name || 'N/A';
       activityMessage = `Service location changed from '${oldLoc}' to '${newLoc}'.`;
     } else if (updates.customerAddress && updates.customerAddress !== oldWorkOrder.customerAddress) {
       activityMessage = `Client address updated to '${updates.customerAddress}'.`;
     } else if (updates.customerLat !== oldWorkOrder.customerLat || updates.customerLng !== oldWorkOrder.customerLng) {
       activityMessage = `Client coordinates updated.`;
     } else {
-      activityMessage = 'Work order details updated.'; // Generic message for other changes
+      activityMessage = 'Work order details updated.';
     }
 
     if (activityMessage) {
@@ -97,13 +92,13 @@ const LocationDetailsPage = () => {
 
     if (updates.status === 'On Hold') { setOnHoldWorkOrder(workOrder); return; }
     if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready') { updates.status = 'In Progress'; showInfo(`Work Order ${id} automatically moved to In Progress.`); }
-    workOrderMutation.mutate(camelToSnakeCase({ id, ...updates }));
+    workOrderMutation.mutate({ id, ...updates });
   };
 
   const handleSaveOnHoldReason = (reason: string) => {
     if (!onHoldWorkOrder) return;
     const updates = { status: 'On Hold' as const, onHoldReason: reason };
-    workOrderMutation.mutate(camelToSnakeCase({ id: onHoldWorkOrder.id, ...updates }));
+    workOrderMutation.mutate({ id: onHoldWorkOrder.id, ...updates });
     setOnHoldWorkOrder(null);
   };
 
@@ -116,7 +111,17 @@ const LocationDetailsPage = () => {
   if (isLoading) return <Skeleton active />;
   if (!location) return <NotFound />;
 
-  const defaultVisibleColumns = ALL_COLUMNS.map(c => c.value); // Use ALL_COLUMNS for default visibility
+  const defaultVisibleColumns = ALL_COLUMNS.map(c => c.value);
+
+  const mapMarkers = [];
+  if (location.lng && location.lat) {
+    mapMarkers.push({ lng: location.lng, lat: location.lat, color: '#1677ff', popupText: `Service Center: ${location.name}` });
+  }
+  locationTechnicians.forEach(tech => {
+    if (tech.lng && tech.lat) {
+      mapMarkers.push({ lng: tech.lng, lat: tech.lat, color: '#faad14', popupText: `Technician: ${tech.name}` });
+    }
+  });
 
   return (
     <>
@@ -142,15 +147,12 @@ const LocationDetailsPage = () => {
             </Space>
           </Col>
           <Col xs={24} lg={16}>
-            <Card title="Location Map" bodyStyle={{ padding: 0 }}>
-              {API_KEY && location.lat && location.lng ? (
-                <GoogleMap mapContainerStyle={containerStyle} center={{ lat: location.lat, lng: location.lng }} zoom={14}>
-                  <MarkerF position={{ lat: location.lat, lng: location.lng }} />
-                  {locationTechnicians.map(tech => tech.lat && tech.lng && <MarkerF key={tech.id} position={{ lat: tech.lat, lng: tech.lng }} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 5, fillColor: 'blue', fillOpacity: 1, strokeWeight: 0 }} />)}
-                </GoogleMap>
+            <Card title="Location Map">
+              {location.lat && location.lng ? (
+                <MapboxDisplayMap center={[location.lng, location.lat]} markers={mapMarkers} height="300px" />
               ) : (
                 <div style={{padding: '24px', textAlign: 'center'}}>
-                  <Empty description={API_KEY ? "No location data to display." : "Google Maps API Key not configured."} />
+                  <Empty description="No location data to display." />
                 </div>
               )}
             </Card>
@@ -170,7 +172,7 @@ const LocationDetailsPage = () => {
             onViewDetails={handleViewDetails} 
             profiles={profiles || []}
             visibleColumns={defaultVisibleColumns}
-            onVisibleColumnsChange={() => {}} // Added missing prop
+            onVisibleColumnsChange={() => {}}
           />
         </Card>
       </Space>

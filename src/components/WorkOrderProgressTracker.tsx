@@ -2,13 +2,13 @@ import { useState, useEffect, useMemo } from 'react';
 import { Steps, Popover, Typography } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import duration from 'dayjs/plugin/duration';
-import max from 'dayjs/plugin/max'; // Corrected import
-import min from 'dayjs/plugin/min'; // Corrected import
-import { WorkOrder } from '@/types/supabase'; // Added missing import
+import * as maxPlugin from 'dayjs/plugin/max'; // Changed to namespace import
+import * as minPlugin from 'dayjs/plugin/min'; // Changed to namespace import
+import { WorkOrder } from '@/types/supabase';
 
 dayjs.extend(duration);
-dayjs.extend(max); // Extend dayjs with the max plugin
-dayjs.extend(min); // Extend dayjs with the min plugin
+dayjs.extend(maxPlugin.default); // Extend with the default export of the plugin
+dayjs.extend(minPlugin.default); // Extend with the default export of the plugin
 
 const { Step } = Steps;
 const { Text } = Typography;
@@ -154,8 +154,8 @@ const WorkOrderProgressTracker = ({ workOrder }: WorkOrderProgressTrackerProps) 
         let onHoldTimeInThisStage = 0;
 
         for (const period of onHoldPeriods) {
-          const overlapStart = timing.start && period.start ? dayjs.max(timing.start, period.start) : null;
-          const overlapEnd = timing.end && period.end ? dayjs.min(timing.end, period.end) : null;
+          const overlapStart = timing.start && period.start ? (dayjs as any).max(timing.start, period.start) : null;
+          const overlapEnd = timing.end && period.end ? (dayjs as any).min(timing.end, period.end) : null;
 
           if (overlapStart && overlapEnd && overlapEnd.isAfter(overlapStart)) {
             onHoldTimeInThisStage += overlapEnd.diff(overlapStart);

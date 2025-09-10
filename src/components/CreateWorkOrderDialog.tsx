@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Modal, Button, Spin, Row, Col, Card, Typography, List, Tag, Empty, AutoComplete } from 'antd';
+import { Drawer, Button, Spin, Row, Col, Card, Typography, List, Tag, Empty, AutoComplete, Space } from 'antd';
 import { supabase } from '@/integrations/supabase/client';
 import { Vehicle, Customer, WorkOrder } from '@/types/supabase';
 import { showError } from '@/utils/toast';
@@ -44,7 +44,7 @@ export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed, initialVehic
         setExistingWorkOrders([]);
       }
     }
-  }, [isOpen, initialVehicle]); // Removed isInitialLoad, rely on initialVehicle directly
+  }, [isOpen, initialVehicle]);
 
   const fetchWorkOrdersForVehicle = async (vehicleId: string) => {
     setIsLoading(true);
@@ -104,7 +104,7 @@ export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed, initialVehic
           setIsLoading(false);
         }
       }, 300),
-    [initialCustomerId] // Re-create debounced function if initialCustomerId changes
+    [initialCustomerId]
   );
 
   const handleSearch = (value: string) => {
@@ -135,13 +135,19 @@ export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed, initialVehic
   };
 
   return (
-    <Modal
+    <Drawer
       title="Create New Work Order: Step 1"
+      placement="right"
+      onClose={handleClose}
       open={isOpen}
-      onCancel={handleClose}
-      footer={null}
-      width={800}
+      width={800} // Default width for the drawer
       destroyOnClose
+      footer={
+        <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+          <Button key="back" onClick={handleClose} disabled={isLoading}>Cancel</Button>
+          <Button key="submit" type="primary" onClick={handleProceedClick} disabled={!selectedVehicle || isLoading}>Proceed</Button>
+        </Space>
+      }
     >
       {!initialVehicle && ( // Only show search if no initial vehicle is provided
         <>
@@ -169,9 +175,7 @@ export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed, initialVehic
                 <Text strong>{selectedVehicle.year} {selectedVehicle.make} {selectedVehicle.model}</Text><br/>
                 <Text type="secondary">VIN: {selectedVehicle.vin}</Text><br/>
                 <Text type="secondary">Owner: {selectedVehicle.customers?.name || 'N/A'}</Text>
-                <Button type="primary" style={{ marginTop: 16, width: '100%' }} onClick={handleProceedClick}>
-                  Create Work Order for this Vehicle
-                </Button>
+                {/* The "Create Work Order for this Vehicle" button is now in the footer */}
               </Card>
             </Col>
             <Col xs={24} md={14}>
@@ -202,6 +206,6 @@ export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed, initialVehic
       {!isLoading && !selectedVehicle && searchValue && (
         <Empty description={`No vehicle found with license plate "${searchValue}". You can add a new asset in the Assets page.`} style={{ marginTop: 24 }} />
       )}
-    </Modal>
+    </Drawer>
   );
 };

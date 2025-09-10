@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Avatar, Button, Card, Col, Descriptions, Row, Space, Tag, Timeline, Typography, List, Skeleton, Select, DatePicker, Input, Popconfirm, Table, Tabs, theme, Empty } from "antd";
-import { ArrowLeftOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined, CalendarOutlined, ToolOutlined, PlusOutlined, DeleteOutlined, InfoCircleOutlined, UnorderedListOutlined, CompassOutlined, MailOutlined, DashboardOutlined, ShoppingOutlined } from "@ant-design/icons"; // Import MailOutlined, DashboardOutlined, ShoppingOutlined
+import { ArrowLeftOutlined, UserOutlined, EnvironmentOutlined, PhoneOutlined, CalendarOutlined, ToolOutlined, PlusOutlined, DeleteOutlined, InfoCircleOutlined, UnorderedListOutlined, CompassOutlined, MailOutlined } from "@ant-design/icons"; // Import MailOutlined
 import dayjs from "dayjs";
 import NotFound from "./NotFound";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -54,9 +54,12 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     queryKey: ['work_order', id], 
     queryFn: async () => { 
       if (!id) return null; 
+      console.log('Fetching work order details for ID:', id);
       const { data, error } = await supabase.from('work_orders').select('*').eq('id', id).single(); 
       if (error) throw new Error(error.message); 
+      console.log('Raw fetched work order data from Supabase:', data); // Log raw data
       if (data) {
+        // Manually map snake_case to camelCase for consistency with WorkOrder type
         const mappedData: WorkOrder = {
           ...data,
           workOrderNumber: data.work_order_number,
@@ -65,7 +68,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
           serviceNotes: data.service_notes,
           partsUsed: data.parts_used,
           activityLog: data.activity_log,
-          slaDue: data.sla_due,
+          slaDue: data.sla_due, // Map sla_due to slaDue
           completedAt: data.completed_at,
           customerLat: data.customer_lat,
           customerLng: data.customer_lng,
@@ -74,13 +77,14 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
           appointmentDate: data.appointment_date,
           customerId: data.customer_id,
           vehicleId: data.vehicle_id,
-          created_by: data.created_by,
+          created_by: data.created_by, // Ensure created_by is also mapped if it's snake_case in DB
           service_category_id: data.service_category_id,
           confirmed_at: data.confirmed_at,
           work_started_at: data.work_started_at,
           sla_timers_paused_at: data.sla_timers_paused_at,
           total_paused_duration_seconds: data.total_paused_duration_seconds,
         };
+        console.log('Mapped work order data (camelCase):', mappedData);
         return mappedData;
       }
       return null;
@@ -102,12 +106,12 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
       const { error } = await supabase.from('work_orders').upsert([workOrderData]); 
       if (error) throw new Error(error.message); 
     }, 
-    onSuccess: (_, variables) => {
-      const updatedId = variables.id;
+    onSuccess: (_, variables) => { // Get the variables passed to mutate
+      const updatedId = variables.id; // Assuming id is always present in updates
       if (updatedId) {
-        queryClient.refetchQueries({ queryKey: ['work_order', updatedId] });
+        queryClient.refetchQueries({ queryKey: ['work_order', updatedId] }); // Refetch specific work order
       }
-      queryClient.invalidateQueries({ queryKey: ['work_orders'] });
+      queryClient.invalidateQueries({ queryKey: ['work_orders'] }); // Invalidate all work orders for lists
       showSuccess('Work order has been updated.'); 
     }, 
     onError: (error) => showError(error.message) 
@@ -120,7 +124,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['work_order_parts', id] });
-      queryClient.invalidateQueries({ queryKey: ['inventory_items'] });
+      queryClient.invalidateQueries({ queryKey: ['inventory_items'] }); // Invalidate inventory to reflect stock changes
       showSuccess('Part removed from work order.');
     },
     onError: (error) => showError(error.message),
@@ -133,6 +137,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     const newActivityLog = [...(workOrder.activityLog || [])];
     let activityMessage = '';
 
+    // --- Timestamp & SLA Automation ---
     const oldStatus = oldWorkOrder.status;
     const newStatus = updates.status;
 
@@ -162,6 +167,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
         activityMessage += ` Service category set to '${category?.name}'. Resolution SLA updated.`;
       }
     }
+    // --- End Automation ---
 
     if (activityMessage) {
       newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage });
@@ -220,6 +226,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
 
   const currentSlaPolicy = slaPolicies?.find(p => p.service_category_id === workOrder.service_category_id) || null;
 
+  // --- Reusable Content Blocks ---
   const customerVehicleCard = (
     <Card title="Customer & Vehicle Details">
       <Descriptions column={1} bordered>
@@ -254,7 +261,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     </Card>
   );
 
-  const workOrderDetailsCard = (
+  const workOrderDetailsCard = ( // Renamed from assignmentScheduleCard
     <Card title="Work Order Details">
       <Descriptions column={1}>
         <Descriptions.Item label="Status">
@@ -288,7 +295,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
             {channelOptions.map(c => <Option key={c} value={c}>{c}</Option>)}
           </Select>
         </Descriptions.Item>
-        <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}><DatePicker showTime value={workOrder.slaDue ? dayjs(workOrder.slaDue) : null} onChange={(date) => { handleUpdateWorkOrder({ slaDue: date ? date.toISOString() : null }); }} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
+        <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}><DatePicker showTime value={workOrder.slaDue ? dayjs(workOrder.slaDue) : null} onChange={(date) => { console.log("DatePicker onChange - new SLA date:", date ? date.toISOString() : null); handleUpdateWorkOrder({ slaDue: date ? date.toISOString() : null }); }} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
         <Descriptions.Item label="Appointment Date"><DatePicker showTime value={workOrder.appointmentDate ? dayjs(workOrder.appointmentDate) : null} onChange={(date) => handleUpdateWorkOrder({ appointmentDate: date ? date.toISOString() : null })} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
         <Descriptions.Item label={<><ToolOutlined /> Assigned To</>}><Select value={workOrder.assignedTechnicianId} onChange={(value) => handleUpdateWorkOrder({ assignedTechnicianId: value })} style={{ width: '100%' }} bordered={false} allowClear placeholder="Unassigned" suffixIcon={null}>{(allTechnicians || []).map(t => (<Option key={t.id} value={t.id}><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Avatar size="small" src={t.avatar || undefined}>{t.name.split(' ').map(n => n[0]).join('')}</Avatar><Text>{t.name}</Text></div></Option>))}</Select></Descriptions.Item>
         {technician && (
@@ -320,45 +327,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     </Card>
   );
 
-  const tabbedContent = (
-    <Tabs defaultActiveKey="1" style={{ marginTop: isDrawerMode ? 0 : 16 }}>
-      <TabPane tab={<span><InfoCircleOutlined /> Overview</span>} key="1">
-        <Row gutter={[16, 16]}>
-          <Col xs={24} lg={16}>
-            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-              {serviceInfoCard}
-              {customerVehicleCard}
-            </Space>
-          </Col>
-          <Col xs={24} lg={8}>
-            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-              {workOrderDetailsCard}
-            </Space>
-          </Col>
-        </Row>
-      </TabPane>
-      <TabPane tab={<span><DashboardOutlined /> SLA & Progress</span>} key="2">
-        <Row gutter={[16, 16]}>
-          <Col xs={24} lg={8}>
-            {workOrder.service_category_id && <SlaStatusCard workOrder={workOrder} slaPolicy={currentSlaPolicy} />}
-          </Col>
-          <Col xs={24} lg={16}>
-            <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-              <Card><WorkOrderProgressTracker workOrder={workOrder} /></Card>
-              {activityLogCard}
-            </Space>
-          </Col>
-        </Row>
-      </TabPane>
-      <TabPane tab={<span><ShoppingOutlined /> Parts & Costs</span>} key="3">
-        {partsCard}
-      </TabPane>
-      <TabPane tab={<span><CompassOutlined /> Location</span>} key="4">
-        {locationAndMapCard}
-      </TabPane>
-    </Tabs>
-  );
-
+  // --- Main Render Logic ---
   return (
     <>
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
@@ -375,9 +344,61 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
               </Space>
             }
             hideSearch
+            // Removed status dropdown from PageHeader
           />
         )}
-        {tabbedContent}
+
+        {isDrawerMode ? (
+          <>
+            <div style={{ marginBottom: 16 }}>
+              <WorkOrderProgressTracker workOrder={workOrder} />
+            </div>
+            <Tabs defaultActiveKey="1">
+              <TabPane tab={<span><InfoCircleOutlined /> Overview</span>} key="1">
+                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  {workOrder.service_category_id && <SlaStatusCard workOrder={workOrder} slaPolicy={currentSlaPolicy} />}
+                  {serviceInfoCard}
+                  {workOrderDetailsCard}
+                  {customerVehicleCard}
+                </Space>
+              </TabPane>
+              <TabPane tab={<span><UnorderedListOutlined /> Parts & Log</span>} key="2">
+                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  {partsCard}
+                  {activityLogCard}
+                </Space>
+              </TabPane>
+              <TabPane tab={<span><CompassOutlined /> Location</span>} key="3">
+                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  {locationAndMapCard}
+                </Space>
+              </TabPane>
+            </Tabs>
+          </>
+        ) : (
+          <>
+            <Card>
+              <WorkOrderProgressTracker workOrder={workOrder} />
+            </Card>
+            <Row gutter={[16, 16]}>
+              <Col xs={24} lg={16}>
+                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  {workOrder.service_category_id && <SlaStatusCard workOrder={workOrder} slaPolicy={currentSlaPolicy} />}
+                  {serviceInfoCard}
+                  {partsCard}
+                  {activityLogCard}
+                </Space>
+              </Col>
+              <Col xs={24} lg={8}>
+                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  {workOrderDetailsCard}
+                  {customerVehicleCard}
+                  {locationAndMapCard}
+                </Space>
+              </Col>
+            </Row>
+          </>
+        )}
       </Space>
       {onHoldWorkOrder && <OnHoldReasonDialog isOpen={!!onHoldWorkOrder} onClose={() => setOnHoldWorkOrder(null)} onSave={handleSaveOnHoldReason} />}
       {isAddPartDialogOpen && <AddPartToWorkOrderDialog isOpen={isAddPartDialogOpen} onClose={() => setIsAddPartDialogOpen(false)} onSave={handleAddPart} />}

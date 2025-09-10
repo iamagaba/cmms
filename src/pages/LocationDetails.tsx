@@ -42,6 +42,8 @@ const LocationDetailsPage = () => {
       return data || [];
     }
   });
+  const { data: allLocations, isLoading: isLoadingAllLocations } = useQuery<Location[]>({ queryKey: ['locations'], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*'); if (error) throw new Error(error.message); return data || []; } });
+
 
   const workOrderMutation = useMutation({
     mutationFn: async (workOrderData: Partial<WorkOrder>) => { const { error } = await supabase.from('work_orders').upsert(workOrderData); if (error) throw new Error(error.message); },
@@ -77,8 +79,8 @@ const LocationDetailsPage = () => {
     } else if (updates.priority && updates.priority !== oldWorkOrder.priority) {
       activityMessage = `Priority changed from '${oldWorkOrder.priority || 'N/A'}' to '${updates.priority}'.`;
     } else if (updates.locationId && updates.locationId !== oldWorkOrder.locationId) {
-      const oldLoc = allWorkOrders?.find(l => l.id === oldWorkOrder.locationId)?.location?.name || 'N/A';
-      const newLoc = allWorkOrders?.find(l => l.id === updates.locationId)?.location?.name || 'N/A';
+      const oldLoc = allLocations?.find(l => l.id === oldWorkOrder.locationId)?.name || 'N/A'; // Fixed here
+      const newLoc = allLocations?.find(l => l.id === updates.locationId)?.name || 'N/A'; // Fixed here
       activityMessage = `Service location changed from '${oldLoc}' to '${newLoc}'.`;
     } else if (updates.customerAddress && updates.customerAddress !== oldWorkOrder.customerAddress) {
       activityMessage = `Client address updated to '${updates.customerAddress}'.`;
@@ -109,7 +111,7 @@ const LocationDetailsPage = () => {
     navigate(`/work-orders/${workOrderId}`);
   };
 
-  const isLoading = isLoadingLocation || isLoadingWorkOrders || isLoadingTechnicians || isLoadingCustomers || isLoadingVehicles || isLoadingProfiles;
+  const isLoading = isLoadingLocation || isLoadingWorkOrders || isLoadingTechnicians || isLoadingCustomers || isLoadingVehicles || isLoadingProfiles || isLoadingAllLocations;
 
   if (isLoading) return <Skeleton active />;
   if (!location) return <NotFound />;
@@ -159,7 +161,7 @@ const LocationDetailsPage = () => {
           <WorkOrderDataTable 
             workOrders={locationWorkOrders} 
             technicians={technicians || []} 
-            locations={allWorkOrders ? [location] : []} 
+            locations={allLocations || []} 
             customers={customers || []} 
             vehicles={vehicles || []} 
             onEdit={() => {}} 

@@ -1,6 +1,6 @@
 import React from 'react';
-import { Layout, Menu, Typography, Badge, Button } from 'antd'; // Import Button
-import { NavLink, useLocation } from 'react-router-dom';
+import { Layout, Menu, Typography, Badge, Button } from 'antd';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   DashboardOutlined,
   ToolOutlined,
@@ -14,11 +14,14 @@ import {
   FireOutlined,
   BellOutlined,
   UserOutlined,
-  MenuFoldOutlined, // Import new icons
-  MenuUnfoldOutlined, // Import new icons
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  LogoutOutlined,
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
 import { useNotifications } from '@/context/NotificationsContext';
+import { supabase } from '@/integrations/supabase/client';
+import { showSuccess, showError } from '@/utils/toast';
 
 const { Sider } = Layout;
 const { Title } = Typography;
@@ -47,7 +50,18 @@ function getItem(
 
 const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { unreadCount } = useNotifications();
+
+  const handleLogout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      showError('Failed to log out: ' + error.message);
+    } else {
+      showSuccess('You have been logged out.');
+      navigate('/login');
+    }
+  };
 
   const menuItems: MenuItem[] = [
     getItem(<NavLink to="/">Dashboard</NavLink>, "/", <DashboardOutlined />),
@@ -84,6 +98,13 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
         ),
         getItem(<NavLink to="/settings?tab=profile-settings">Profile</NavLink>, "/settings?tab=profile-settings", <UserOutlined />),
         getItem(<NavLink to="/settings?tab=system-settings">Settings</NavLink>, "/settings?tab=system-settings", <SettingOutlined />),
+        {
+          key: 'logout',
+          icon: <LogoutOutlined />,
+          label: 'Logout',
+          onClick: handleLogout,
+          danger: true,
+        },
       ]
     },
   ];

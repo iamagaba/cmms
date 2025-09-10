@@ -1,18 +1,8 @@
 import React from "react";
-import { Row, Col, Typography, Space, Input, Badge, Dropdown, Avatar, Menu, List, Empty } from "antd";
-import {
-  SearchOutlined,
-  UserOutlined,
-  SettingOutlined,
-  QuestionCircleOutlined,
-  LogoutOutlined,
-} from "@ant-design/icons";
-import { Link, useNavigate } from "react-router-dom";
-import { useSession } from "@/context/SessionContext";
-import { supabase } from "@/integrations/supabase/client";
-import { showSuccess, showError } from "@/utils/toast";
+import { Row, Col, Typography, Space, Input } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 interface PageHeaderProps {
   title: React.ReactNode;
@@ -23,30 +13,6 @@ interface PageHeaderProps {
 }
 
 const PageHeader = ({ title, actions, onSearch, onSearchChange, hideSearch = false }: PageHeaderProps) => {
-  const navigate = useNavigate();
-  const { session } = useSession();
-  const user = session?.user;
-
-  const handleLogout = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      showError('Failed to log out: ' + error.message);
-    } else {
-      showSuccess('You have been logged out.');
-      navigate('/login');
-    }
-  };
-
-  const userMenu = (
-    <Menu>
-      <Menu.Item key="1" icon={<UserOutlined />} onClick={() => navigate('/settings?tab=profile-settings')}>Profile</Menu.Item>
-      <Menu.Item key="2" icon={<SettingOutlined />} onClick={() => navigate('/settings?tab=system-settings')}>Settings</Menu.Item>
-      <Menu.Item key="3" icon={<QuestionCircleOutlined />}>Support</Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key="4" icon={<LogoutOutlined />} onClick={handleLogout}>Logout</Menu.Item>
-    </Menu>
-  );
-
   return (
     <Row justify="space-between" align="middle" style={{ marginBottom: '24px' }}>
       <Col>
@@ -64,9 +30,6 @@ const PageHeader = ({ title, actions, onSearch, onSearchChange, hideSearch = fal
               allowClear
             />
           )}
-          <Dropdown overlay={userMenu} placement="bottomRight">
-            <Avatar style={{ cursor: 'pointer' }} src={user?.user_metadata?.avatar_url || undefined} icon={<UserOutlined />} />
-          </Dropdown>
           {actions && <>{actions}</>}
         </Space>
       </Col>

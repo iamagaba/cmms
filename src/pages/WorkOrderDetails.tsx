@@ -390,7 +390,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
             <div style={{ marginBottom: 16 }}>
               <WorkOrderProgressTracker workOrder={workOrder} />
             </div>
-            <Tabs defaultActiveKey="1">
+            <Tabs defaultActiveKey="1" destroyInactiveTabPane={false}> {/* Added destroyInactiveTabPane={false} */}
               <TabPane tab={<span><InfoCircleOutlined /> Overview</span>} key="1">
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                   {serviceInfoCard}

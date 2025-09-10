@@ -21,7 +21,8 @@ interface OptionType {
 }
 
 export const MapboxLocationSearchInput = ({ onLocationSelect, initialValue }: MapboxLocationSearchInputProps) => {
-  const [options, setOptions] = useState<OptionType[]>([]);
+  const [options, setOptions] = useState<OptionType[]>([]
+  );
   const [loading, setLoading] = useState(false);
 
   const fetchSuggestions = async (searchText: string) => {

@@ -63,8 +63,8 @@ type ChartConfig = {
 
 type ChartContextProps = {
   config: ChartConfig;
-  children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>["children"];
-} & React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>;
+  theme: keyof typeof COLORS;
+};
 
 const ChartContext = React.createContext<ChartContextProps | null>(null);
 
@@ -81,16 +81,21 @@ function useChart() {
 type ChartProps = {
   config: ChartConfig;
   children: React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>["children"];
-} & React.ComponentProps<typeof RechartsPrimitive.ResponsiveContainer>;
+  theme?: keyof typeof COLORS; // Allow theme to be passed as a prop
+} & React.ComponentProps<"div">;
 
 const Chart = React.forwardRef<HTMLDivElement, ChartProps>(
-  ({ config, className, children, ...props }, ref) => {
+  ({ config, className, children, theme = "light", ...props }, ref) => { // Default theme to "light"
     const [mounted, setMounted] = React.useState(false);
-    const { theme: mode } = useChart(); // This line will be fixed by the context provider below
 
     React.useEffect(() => {
       setMounted(true);
     }, []);
+
+    const activeConfig = React.useMemo(
+      () => getActiveConfig(config, theme), // Use theme prop
+      [config, theme],
+    );
 
     if (!mounted) {
       return null;
@@ -105,7 +110,7 @@ const Chart = React.forwardRef<HTMLDivElement, ChartProps>(
         )}
         {...props}
       >
-        <ChartContext.Provider value={{ config, ...props }}>
+        <ChartContext.Provider value={{ config, theme }}>
           <RechartsPrimitive.ResponsiveContainer {...props}>
             {children}
           </RechartsPrimitive.ResponsiveContainer>
@@ -115,5 +120,17 @@ const Chart = React.forwardRef<HTMLDivElement, ChartProps>(
   },
 );
 Chart.displayName = "Chart";
+
+function getActiveConfig(config: ChartConfig, theme: keyof typeof COLORS) {
+  return Object.entries(config).reduce((acc, [key, value]) => {
+    return {
+      ...acc,
+      [key]: {
+        ...value,
+        color: COLORS[theme][value.color as keyof typeof COLORS["light"]] || value.color,
+      },
+    };
+  }, {});
+}
 
 export { Chart, useChart };

@@ -3,8 +3,8 @@
 import * as React from "react";
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
-  type EmblaOptionsType, // Import EmblaOptionsType
-  type EmblaPluginType, // Import EmblaPluginType
+  type EmblaOptionsType, // Correct type import
+  type EmblaPluginType, // Correct type import
 } from "embla-carousel-react";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
@@ -35,8 +35,8 @@ function useCarousel() {
 
 type CarouselProps = {
   orientation?: "horizontal" | "vertical";
-  opts?: EmblaOptionsType; // Use EmblaOptionsType directly
-  plugins?: EmblaPluginType[]; // Use EmblaPluginType[] directly
+  opts?: EmblaOptionsType; // Use EmblaOptionsType
+  plugins?: EmblaPluginType[]; // Use EmblaPluginType
   setApi?: (api: CarouselContextProps["api"]) => void;
 } & React.ComponentProps<"div">;
 
@@ -144,7 +144,7 @@ const Carousel = React.forwardRef<
 );
 Carousel.displayName = "Carousel";
 
-const CarouselContent = React.forwardRef< // Export CarouselContent
+const CarouselContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => {
@@ -166,11 +166,11 @@ const CarouselContent = React.forwardRef< // Export CarouselContent
 });
 CarouselContent.displayName = "CarouselContent";
 
-interface CarouselButtonProps extends ButtonProps {} // Define interface extending ButtonProps
+interface CarouselButtonProps extends ButtonProps {}
 
 const CarouselPrevious = React.forwardRef<
   HTMLButtonElement,
-  CarouselButtonProps // Use the new interface
+  CarouselButtonProps
 >(({ className, variant = "outline", size = "icon", ...props }, ref) => {
   const { orientation, scrollPrev, canScrollPrev } = useCarousel();
 
@@ -199,7 +199,7 @@ CarouselPrevious.displayName = "CarouselPrevious";
 
 const CarouselNext = React.forwardRef<
   HTMLButtonElement,
-  CarouselButtonProps // Use the new interface
+  CarouselButtonProps
 >(({ className, variant = "outline", size = "icon", ...props }, ref) => {
   const { orientation, scrollNext, canScrollNext } = useCarousel();
 
@@ -228,8 +228,8 @@ CarouselNext.displayName = "CarouselNext";
 
 export {
   Carousel,
-  CarouselContent, // Export CarouselContent here
-  CarouselItem,
+  CarouselContent,
+  CarouselItem, // Export CarouselItem here
   CarouselPrevious,
   CarouselNext,
 };

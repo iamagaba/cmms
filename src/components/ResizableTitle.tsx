@@ -1,8 +1,8 @@
 import React from 'react';
-import { Resizable, ResizableProps } from 'react-resizable'; // Import ResizableProps to get ResizeCallback
+import { Resizable, ResizeCallback } from 'react-resizable';
 
-interface ResizableTitleProps extends React.HTMLAttributes<HTMLTableCellElement> {
-  onResize: ResizableProps['onResize']; // Correctly reference the type from ResizableProps
+interface ResizableTitleProps extends Omit<React.HTMLAttributes<HTMLTableCellElement>, 'onResize'> {
+  onResize: ResizeCallback;
   width: number;
 }
 
@@ -14,13 +14,15 @@ export const ResizableTitle: React.FC<ResizableTitleProps> = ({ onResize, width,
   return (
     <Resizable
       width={width}
-      height={0} // Height is 0 for column resizing
+      height={0}
       onResize={onResize}
-      axis="x" // Only allow horizontal resizing
-      handle={<span className="react-resizable-handle" />} // Custom handle for better styling
+      axis="x"
+      handle={<span className="react-resizable-handle" />}
       draggableOpts={{ enableUserSelectHack: false }}
     >
-      <th {...restProps} />
+      {({ ref, style }) => (
+        <th ref={ref} style={{ ...style, ...restProps.style }} {...restProps} />
+      )}
     </Resizable>
   );
 };

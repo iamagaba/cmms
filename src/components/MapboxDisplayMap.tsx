@@ -1,6 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
-import { Empty, Typography } from 'antd';
+import { Empty, Typography, Spin } from 'antd'; // Import Spin from antd
 
 const { Text } = Typography;
 
@@ -26,6 +26,7 @@ export const MapboxDisplayMap = ({ center, zoom = 12, markers = [], height = '30
 
     if (map.current || !mapContainer.current) return; // Initialize map only once
 
+    setMapInitialized(false); // Reset loading state when component mounts
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v11', // You can choose other styles like 'mapbox/satellite-v9'
@@ -35,6 +36,12 @@ export const MapboxDisplayMap = ({ center, zoom = 12, markers = [], height = '30
 
     map.current.on('load', () => {
       setMapInitialized(true);
+    });
+
+    // Handle map errors
+    map.current.on('error', (e) => {
+      console.error('Mapbox GL JS Error:', e.error);
+      setMapInitialized(false); // Indicate error state
     });
 
     return () => {
@@ -85,5 +92,26 @@ export const MapboxDisplayMap = ({ center, zoom = 12, markers = [], height = '30
     );
   }
 
-  return <div ref={mapContainer} style={{ width: '100%', height, borderRadius: '8px' }} />;
+  return (
+    <div style={{ position: 'relative', width: '100%', height, borderRadius: '8px' }}>
+      {!mapInitialized && (
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          zIndex: 1,
+          borderRadius: '8px',
+        }}>
+          <Spin size="large" tip="Loading map..." />
+        </div>
+      )}
+      <div ref={mapContainer} style={{ width: '100%', height: '100%', borderRadius: '8px' }} />
+    </div>
+  );
 };

@@ -1,8 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { Avatar, Button, Card, Col, Row, Space, Typography, List, Skeleton, Empty } from "antd";
+import { Avatar, Button, Card, Col, Row, Space, Typography, List, Skeleton, Empty, theme } from "antd";
 import { ArrowLeftOutlined, EnvironmentOutlined } from "@ant-design/icons";
-import { GoogleMap, MarkerF } from "@react-google-maps/api";
-import { WorkOrderDataTable, ALL_COLUMNS } from "@/components/WorkOrderDataTable"; // Import ALL_COLUMNS
+import { WorkOrderDataTable, ALL_COLUMNS } from "@/components/WorkOrderDataTable";
 import NotFound from "./NotFound";
 import { useMemo, useState } from "react";
 import { showSuccess, showInfo, showError } from "@/utils/toast";
@@ -15,10 +14,10 @@ import PageHeader from "@/components/PageHeader";
 import dayjs from "dayjs";
 import { getColumns } from "@/components/WorkOrderTableColumns";
 import { useSession } from "@/context/SessionContext";
+import { OSMMap } from "@/components/OSMMap"; // Updated import
 
 const { Title, Text } = Typography;
-
-const containerStyle = { width: '100%', height: '300px', borderRadius: '8px' };
+const { useToken } = theme;
 
 const LocationDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -26,8 +25,7 @@ const LocationDetailsPage = () => {
   const queryClient = useQueryClient();
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
   const { session } = useSession();
-
-  const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || ""; // Re-declare API_KEY here for local use
+  const { token } = useToken();
 
   const { data: location, isLoading: isLoadingLocation } = useQuery<Location | null>({ queryKey: ['location', id], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*').eq('id', id).single(); if (error) throw new Error(error.message); return data; }, enabled: !!id });
   const { data: allWorkOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ queryKey: ['work_orders'], queryFn: async () => { const { data, error } = await supabase.from('work_orders').select('*').order('created_at', { ascending: false }); if (error) throw new Error(error.message); return data || []; } });
@@ -118,6 +116,39 @@ const LocationDetailsPage = () => {
 
   const defaultVisibleColumns = ALL_COLUMNS.map(c => c.value); // Use ALL_COLUMNS for default visibility
 
+  const mapMarkers = useMemo(() => {
+    const markers = [];
+    if (location.lat && location.lng) {
+      markers.push({
+        position: [location.lat, location.lng],
+        popupContent: (
+          <div>
+            <Text strong>{location.name.replace(' Service Center', '')}</Text><br />
+            <Text type="secondary">{location.address}</Text>
+          </div>
+        ),
+        color: token.colorPrimary,
+      });
+    }
+    locationTechnicians.forEach(tech => {
+      if (tech.lat && tech.lng) {
+        markers.push({
+          position: [tech.lat, tech.lng],
+          popupContent: (
+            <div>
+              <Text strong>{tech.name}</Text><br />
+              <Text type="secondary">{tech.specialization}</Text>
+            </div>
+          ),
+          color: token.colorInfo, // Different color for technicians at this location
+        });
+      }
+    });
+    return markers;
+  }, [location, locationTechnicians, token]);
+
+  const mapCenter: [number, number] = (location.lat && location.lng) ? [location.lat, location.lng] : [0.32, 32.58]; // Default to Kampala, Uganda
+
   return (
     <>
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
@@ -143,14 +174,11 @@ const LocationDetailsPage = () => {
           </Col>
           <Col xs={24} lg={16}>
             <Card title="Location Map" bodyStyle={{ padding: 0 }}>
-              {API_KEY && location.lat && location.lng ? (
-                <GoogleMap mapContainerStyle={containerStyle} center={{ lat: location.lat, lng: location.lng }} zoom={14}>
-                  <MarkerF position={{ lat: location.lat, lng: location.lng }} />
-                  {locationTechnicians.map(tech => tech.lat && tech.lng && <MarkerF key={tech.id} position={{ lat: tech.lat, lng: tech.lng }} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 5, fillColor: 'blue', fillOpacity: 1, strokeWeight: 0 }} />)}
-                </GoogleMap>
+              {mapMarkers.length > 0 ? (
+                <OSMMap center={mapCenter} markers={mapMarkers} height="300px" />
               ) : (
                 <div style={{padding: '24px', textAlign: 'center'}}>
-                  <Empty description={API_KEY ? "No location data to display." : "Google Maps API Key not configured."} />
+                  <Empty description="No location data to display." />
                 </div>
               )}
             </Card>

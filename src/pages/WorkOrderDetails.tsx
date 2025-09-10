@@ -10,19 +10,19 @@ import { useState, useMemo } from "react";
 import { showSuccess, showError, showInfo } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
-import { GoogleLocationSearchInput } from "@/components/GoogleLocationSearchInput";
+import { OSMLocationSearchInput } from "@/components/OSMLocationSearchInput"; // Updated import
 import { useSearchParams } from "react-router-dom";
 import { AddPartToWorkOrderDialog } from "@/components/AddPartToWorkOrderDialog";
 import PageHeader from "@/components/PageHeader";
 import WorkOrderProgressTracker from "@/components/WorkOrderProgressTracker";
 import { useSession } from "@/context/SessionContext";
+import { OSMMap } from "@/components/OSMMap"; // Updated import
 
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
 const { TabPane } = Tabs;
 const { useToken } = theme;
 
-const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "";
 const channelOptions = ['Call Center', 'Service Center', 'Social Media', 'Staff', 'Swap Station'];
 
 interface WorkOrderDetailsProps {
@@ -200,15 +200,36 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   if (!workOrder) return isDrawerMode ? <div style={{ padding: 24 }}><NotFound /></div> : <NotFound />;
 
   const hasClientLocation = workOrder.customerLat != null && workOrder.customerLng != null;
-  const getMapUrl = () => {
-    if (!API_KEY) return "";
-    let markers = [];
-    if (location) markers.push(`markers=color:blue%7Clabel:S%7C${location.lat},${location.lng}`);
-    if (hasClientLocation) markers.push(`markers=color:orange%7Clabel:C%7C${workOrder.customerLat},${workOrder.customerLng}`);
-    if (markers.length === 0) return "";
-    return `https://maps.googleapis.com/maps/api/staticmap?size=600x300&maptype=roadmap&${markers.join('&')}&key=${API_KEY}`;
-  };
-  const mapUrl = getMapUrl();
+  const mapCenter: [number, number] = (location?.lat && location?.lng) ? [location.lat, location.lng] : (hasClientLocation ? [workOrder.customerLat!, workOrder.customerLng!] : [0.32, 32.58]); // Default to Kampala, Uganda
+  
+  const mapMarkers = useMemo(() => {
+    const markers = [];
+    if (location?.lat && location?.lng) {
+      markers.push({
+        position: [location.lat, location.lng],
+        popupContent: (
+          <div>
+            <Text strong>{location.name.replace(' Service Center', '')}</Text><br />
+            <Text type="secondary">{location.address}</Text>
+          </div>
+        ),
+        color: token.colorPrimary, // Use primary color for service location
+      });
+    }
+    if (hasClientLocation) {
+      markers.push({
+        position: [workOrder.customerLat!, workOrder.customerLng!],
+        popupContent: (
+          <div>
+            <Text strong>Client Location</Text><br />
+            <Text type="secondary">{workOrder.customerAddress}</Text>
+          </div>
+        ),
+        color: token.colorWarning, // Use warning color for client location
+      });
+    }
+    return markers;
+  }, [location, workOrder, hasClientLocation, token]);
 
   const partsColumns = [
     { title: 'Part', dataIndex: ['inventory_items', 'name'], render: (name: string, record: WorkOrderPart) => `${name} (${record.inventory_items.sku})` },
@@ -327,10 +348,14 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     <Card title="Location Details">
       <Descriptions column={1}>
         <Descriptions.Item label={<><EnvironmentOutlined /> Service Location</>}><Select value={workOrder.locationId} onChange={(value) => handleUpdateWorkOrder({ locationId: value })} style={{ width: '100%' }} bordered={false} allowClear placeholder="Select location" suffixIcon={null}>{(allLocations || []).map(l => <Option key={l.id} value={l.id}>{l.name.replace(' Service Center', '')}</Option>)}</Select></Descriptions.Item>
-        <Descriptions.Item label="Client Location"><GoogleLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder.customerAddress || ''} /></Descriptions.Item>
+        <Descriptions.Item label="Client Location"><OSMLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder.customerAddress || ''} /></Descriptions.Item>
       </Descriptions>
-      <div style={{ marginTop: 16, borderRadius: token.borderRadius, overflow: 'hidden' }}>
-        {API_KEY ? (mapUrl ? <img src={mapUrl} alt="Map of service and client locations" style={{ width: '100%', height: 'auto', display: 'block' }} /> : <div style={{padding: '24px', textAlign: 'center'}}><Empty description="No location data to display." /></div>) : <div style={{padding: '24px', textAlign: 'center'}}><Empty description="Google Maps API Key not configured." /></div>}
+      <div style={{ marginTop: 16 }}>
+        {mapMarkers.length > 0 ? (
+          <OSMMap center={mapCenter} markers={mapMarkers} height="300px" />
+        ) : (
+          <div style={{padding: '24px', textAlign: 'center'}}><Empty description="No location data to display." /></div>
+        )}
       </div>
     </Card>
   );

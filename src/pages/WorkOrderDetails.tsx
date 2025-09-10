@@ -63,6 +63,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
         // Manually map snake_case to camelCase for consistency with WorkOrder type
         const mappedData: WorkOrder = {
           ...data,
+          createdAt: data.created_at, // Explicitly map created_at to createdAt
           workOrderNumber: data.work_order_number,
           assignedTechnicianId: data.assigned_technician_id,
           locationId: data.location_id,

@@ -47,7 +47,6 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
   const location = useLocation();
   const { unreadCount } = useNotifications(); // Get unreadCount from context
 
-  // All menu items are now in a single list, which is the correct pattern.
   const menuItems: MenuItem[] = [
     getItem(<NavLink to="/">Dashboard</NavLink>, "/", <DashboardOutlined />),
     getItem(<NavLink to="/work-orders">Work Orders</NavLink>, "/work-orders", <ToolOutlined />),
@@ -60,26 +59,31 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
     { type: 'divider', key: 'main-divider-2' },
     getItem(<NavLink to="/analytics">Analytics</NavLink>, "/analytics", <BarChartOutlined />),
     
-    // This divider will be pushed to the bottom by CSS, along with the items below it.
-    { type: 'divider', key: 'bottom-section-divider', className: 'menu-bottom-divider' },
-    
-    getItem(
-      <NavLink to="/notifications">
-        Notifications
-        {unreadCount > 0 && (
-          <Badge 
-            count={unreadCount} 
-            size="small" 
-            offset={[10, 0]} 
-            style={{ backgroundColor: '#6A0DAD', marginLeft: 'auto' }} 
-          />
-        )}
-      </NavLink>, 
-      "/notifications", 
-      <BellOutlined />
-    ),
-    getItem(<NavLink to="/settings?tab=profile-settings">Profile</NavLink>, "/settings?tab=profile-settings", <UserOutlined />),
-    getItem(<NavLink to="/settings?tab=system-settings">Settings</NavLink>, "/settings?tab=system-settings", <SettingOutlined />),
+    {
+      type: 'group',
+      label: 'User & System', // Title for the group
+      key: 'user-system-group',
+      className: 'menu-bottom-group', // Custom class to apply margin-top: auto
+      children: [
+        getItem(
+          <NavLink to="/notifications">
+            Notifications
+            {unreadCount > 0 && (
+              <Badge 
+                count={unreadCount} 
+                size="small" 
+                offset={[10, 0]} 
+                style={{ backgroundColor: '#6A0DAD', marginLeft: 'auto' }} 
+              />
+            )}
+          </NavLink>, 
+          "/notifications", 
+          <BellOutlined />
+        ),
+        getItem(<NavLink to="/settings?tab=profile-settings">Profile</NavLink>, "/settings?tab=profile-settings", <UserOutlined />),
+        getItem(<NavLink to="/settings?tab=system-settings">Settings</NavLink>, "/settings?tab=system-settings", <SettingOutlined />),
+      ]
+    },
   ];
 
   const getSelectedKey = (pathname: string, search: string) => {

@@ -102,7 +102,8 @@ body {
 
 /* The key part: push this divider (and everything after it) to the bottom */
 .ant-menu-item.menu-bottom-divider,
-.ant-menu-divider.menu-bottom-divider { /* Target both item and divider types */
+.ant-menu-divider.menu-bottom-divider,
+.ant-menu-item-group.menu-bottom-group { /* Added .ant-menu-item-group.menu-bottom-group */
   margin-top: auto !important;
 }
 
@@ -146,10 +147,6 @@ body {
 }
 
 /* Adjust icon color for non-selected items */
-.ant-menu-item .anticon {
-  transition: color 0.2s ease;
-}
-
 .ant-menu-item:not(.ant-menu-item-selected) .anticon {
   color: var(--ant-color-text-secondary); /* Default icon color */
 }

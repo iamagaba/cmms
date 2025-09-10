@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Button, Typography, Space, Row, Col, Skeleton } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { LocationFormDialog } from "@/components/LocationFormDialog";
@@ -10,6 +10,7 @@ import { showSuccess, showError, showInfo } from "@/utils/toast"; // Import show
 import { camelToSnakeCase } from "@/utils/data-helpers"; // Import the utility
 import PageHeader from "@/components/PageHeader";
 import dayjs from "dayjs";
+import { useSession } from "@/context/SessionContext"; // Import useSession
 
 const { Title } = Typography;
 
@@ -17,6 +18,7 @@ const LocationsPage = () => {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingLocation, setEditingLocation] = useState<Location | null>(null);
+  const { session } = useSession(); // Get session for userId
 
   const { data: allLocations, isLoading: isLoadingLocations } = useQuery<Location[]>({
     queryKey: ['locations'],
@@ -115,7 +117,7 @@ const LocationsPage = () => {
     }
 
     if (activityMessage) {
-      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage });
+      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage, userId: session?.user.id ?? null });
       updates.activityLog = newActivityLog;
     }
 

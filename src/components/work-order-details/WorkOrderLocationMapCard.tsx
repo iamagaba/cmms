@@ -31,30 +31,24 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
 }) => {
   const mapMarkers = [];
   let mapCenter: [number, number] = [0, 0]; // Default center
+  let originCoords: [number, number] | null = null;
+  let destinationCoords: [number, number] | null = null;
 
   if (location?.lng && location?.lat) {
     mapMarkers.push({ lng: location.lng, lat: location.lat, color: '#1677ff', popupText: `Service Center: ${location.name}` });
     mapCenter = [location.lng, location.lat];
+    originCoords = [location.lng, location.lat];
   }
   if (workOrder.customerLng && workOrder.customerLat) {
     mapMarkers.push({ lng: workOrder.customerLng, lat: workOrder.customerLat, color: '#faad14', popupText: `Client Location: ${workOrder.customerAddress || 'N/A'}` });
     if (!mapCenter[0] && !mapCenter[1]) { // If no service location, center on client
       mapCenter = [workOrder.customerLng, workOrder.customerLat];
     }
+    destinationCoords = [workOrder.customerLng, workOrder.customerLat];
   }
 
-  const distanceBetweenLocations = React.useMemo(() => {
-    if (location?.lat && location?.lng && workOrder.customerLat && workOrder.customerLng) {
-      const dist = calculateDistance(
-        location.lat,
-        location.lng,
-        workOrder.customerLat,
-        workOrder.customerLng
-      );
-      return dist.toFixed(2); // Format to 2 decimal places
-    }
-    return null;
-  }, [location, workOrder]);
+  // The distance calculation and display is now handled by MapboxDisplayMap
+  // so we remove the local calculation and Descriptions.Item for it.
 
   return (
     <Card title="Location Details">
@@ -77,16 +71,17 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
         <Descriptions.Item label="Client Location">
           <MapboxLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder.customerAddress || ''} />
         </Descriptions.Item>
-        {distanceBetweenLocations && (
-          <Descriptions.Item label="Distance">
-            <Text strong>{distanceBetweenLocations} km</Text>
-          </Descriptions.Item>
-        )}
       </Descriptions>
       <div style={{ marginTop: 16 }}>
         {mapMarkers.length > 0 ? (
           showInteractiveMap ? (
-            <MapboxDisplayMap center={mapCenter} markers={mapMarkers} height="300px" />
+            <MapboxDisplayMap 
+              center={mapCenter} 
+              markers={mapMarkers} 
+              height="300px" 
+              origin={originCoords} 
+              destination={destinationCoords} 
+            />
           ) : (
             <div
               style={{

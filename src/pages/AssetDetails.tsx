@@ -95,73 +95,47 @@ const AssetDetailsPage = () => {
 
     const oldWorkOrder = { ...workOrder };
     const newActivityLog = [...(workOrder.activityLog || [])];
+    let activityMessage = '';
 
-    const addActivity = (activity: string, userId: string | null = session?.user.id ?? null) => {
-      newActivityLog.push({ timestamp: new Date().toISOString(), activity, userId });
-    };
-
-    // Status change
     if (updates.status && updates.status !== oldWorkOrder.status) {
-      addActivity(`Status changed from '${oldWorkOrder.status || 'N/A'}' to '${updates.status}'.`);
-    }
-
-    // Assigned technician change
-    if (updates.assignedTechnicianId && updates.assignedTechnicianId !== oldWorkOrder.assignedTechnicianId) {
+      activityMessage = `Status changed from '${oldWorkOrder.status || 'N/A'}' to '${updates.status}'.`;
+    } else if (updates.assignedTechnicianId && updates.assignedTechnicianId !== oldWorkOrder.assignedTechnicianId) {
       const oldTech = technicians?.find(t => t.id === oldWorkOrder.assignedTechnicianId)?.name || 'Unassigned';
       const newTech = technicians?.find(t => t.id === updates.assignedTechnicianId)?.name || 'Unassigned';
-      addActivity(`Assigned technician changed from '${oldTech}' to '${newTech}'.`);
-    }
-
-    // SLA Due date update
-    if (updates.slaDue && updates.slaDue !== oldWorkOrder.slaDue) {
-      addActivity(`SLA due date updated to '${dayjs(updates.slaDue).format('MMM D, YYYY h:mm A')}'.`);
-    }
-
-    // Appointment date update
-    if (updates.appointmentDate && updates.appointmentDate !== oldWorkOrder.appointmentDate) {
-      addActivity(`Appointment date updated to '${dayjs(updates.appointmentDate).format('MMM D, YYYY h:mm A')}'.`);
-    }
-
-    // Service description update
-    if (updates.service && updates.service !== oldWorkOrder.service) {
-      addActivity(`Service description updated.`);
-    }
-
-    // Service notes update
-    if (updates.serviceNotes && updates.serviceNotes !== oldWorkOrder.serviceNotes) {
-      addActivity(`Service notes updated.`);
-    }
-
-    // Priority change
-    if (updates.priority && updates.priority !== oldWorkOrder.priority) {
-      addActivity(`Priority changed from '${oldWorkOrder.priority || 'N/A'}' to '${updates.priority}'.`);
-    }
-
-    // Location change
-    if (updates.locationId && updates.locationId !== oldWorkOrder.locationId) {
+      activityMessage = `Assigned technician changed from '${oldTech}' to '${newTech}'.`;
+    } else if (updates.slaDue && updates.slaDue !== oldWorkOrder.slaDue) {
+      activityMessage = `SLA due date updated to '${dayjs(updates.slaDue).format('MMM D, YYYY h:mm A')}'.`;
+    } else if (updates.appointmentDate && updates.appointmentDate !== oldWorkOrder.appointmentDate) {
+      activityMessage = `Appointment date updated to '${dayjs(updates.appointmentDate).format('MMM D, YYYY h:mm A')}'.`;
+    } else if (updates.service && updates.service !== oldWorkOrder.service) {
+      activityMessage = `Service description updated.`;
+    } else if (updates.serviceNotes && updates.serviceNotes !== oldWorkOrder.serviceNotes) {
+      activityMessage = `Service notes updated.`;
+    } else if (updates.priority && updates.priority !== oldWorkOrder.priority) {
+      activityMessage = `Priority changed from '${oldWorkOrder.priority || 'N/A'}' to '${updates.priority}'.`;
+    } else if (updates.locationId && updates.locationId !== oldWorkOrder.locationId) {
       const oldLoc = locations?.find(l => l.id === oldWorkOrder.locationId)?.name || 'N/A';
       const newLoc = locations?.find(l => l.id === updates.locationId)?.name || 'N/A';
-      addActivity(`Service location changed from '${oldLoc}' to '${newLoc}'.`);
-    }
-
-    // Customer address/coordinates update
-    if (updates.customerAddress && updates.customerAddress !== oldWorkOrder.customerAddress) {
-      addActivity(`Client address updated to '${updates.customerAddress}'.`);
+      activityMessage = `Service location changed from '${oldLoc}' to '${newLoc}'.`;
+    } else if (updates.customerAddress && updates.customerAddress !== oldWorkOrder.customerAddress) {
+      activityMessage = `Client address updated to '${updates.customerAddress}'.`;
     } else if (updates.customerLat !== oldWorkOrder.customerLat || updates.customerLng !== oldWorkOrder.customerLng) {
-      addActivity(`Client coordinates updated.`);
+      activityMessage = `Client coordinates updated.`;
+    } else {
+      activityMessage = 'Work order details updated.'; // Generic message for other changes
     }
 
-    // System-triggered status change from 'Ready' to 'In Progress'
+    if (activityMessage) {
+      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage, userId: session?.user.id ?? null });
+      updates.activityLog = newActivityLog;
+    }
+
     if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready') {
       updates.status = 'In Progress';
-      addActivity(`Work order automatically moved to In Progress due to assignment/appointment.`, null); // System action
       showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`);
     }
     
-    // This page doesn't directly handle 'On Hold' status changes, but the logic should be consistent.
-    // If it were to, the logic would be similar to Dashboard/WorkOrders.
-
-    workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates, activityLog: newActivityLog }));
+    workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates }));
   };
 
   const isLoading = isLoadingVehicle || isLoadingCustomer || isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingAllCustomers || isLoadingProfiles || isLoadingServiceCategories;
@@ -219,7 +193,7 @@ const AssetDetailsPage = () => {
             <Col xs={24} md={8}>
                 <Card>
                     <Title level={4}>{vehicle.license_plate}</Title>
-                    <Text type="secondary">{vehicle.year} ${vehicle.make} ${vehicle.model}</Text>
+                    <Text type="secondary">{vehicle.year} {vehicle.make} {vehicle.model}</Text>
                     <Descriptions column={1} bordered style={{ marginTop: 16 }}>
                         <Descriptions.Item label="VIN / Chassis Number">{vehicle.vin}</Descriptions.Item>
                         <Descriptions.Item label="Motor Number">{vehicle.motor_number || 'N/A'}</Descriptions.Item>

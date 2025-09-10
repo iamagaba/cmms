@@ -30,14 +30,6 @@ const LocationDetailsPage = () => {
   const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || ""; // Re-declare API_KEY here for local use
 
   const { data: location, isLoading: isLoadingLocation } = useQuery<Location | null>({ queryKey: ['location', id], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*').eq('id', id).single(); if (error) throw new Error(error.message); return data; }, enabled: !!id });
-  const { data: allLocations, isLoading: isLoadingAllLocations } = useQuery<Location[]>({ // Fetch all locations
-    queryKey: ['all_locations'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('locations').select('*');
-      if (error) throw new Error(error.message);
-      return data || [];
-    }
-  });
   const { data: allWorkOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ queryKey: ['work_orders'], queryFn: async () => { const { data, error } = await supabase.from('work_orders').select('*').order('created_at', { ascending: false }); if (error) throw new Error(error.message); return data || []; } });
   const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return data || []; } });
   const { data: customers, isLoading: isLoadingCustomers } = useQuery<Customer[]>({ queryKey: ['customers'], queryFn: async () => { const { data, error } = await supabase.from('customers').select('*'); if (error) throw new Error(error.message); return data || []; } });
@@ -66,77 +58,44 @@ const LocationDetailsPage = () => {
 
     const oldWorkOrder = { ...workOrder };
     const newActivityLog = [...(workOrder.activityLog || [])];
+    let activityMessage = '';
 
-    const addActivity = (activity: string, userId: string | null = session?.user.id ?? null) => {
-      newActivityLog.push({ timestamp: new Date().toISOString(), activity, userId });
-    };
-
-    // Status change
     if (updates.status && updates.status !== oldWorkOrder.status) {
-      addActivity(`Status changed from '${oldWorkOrder.status || 'N/A'}' to '${updates.status}'.`);
-    }
-
-    // Assigned technician change
-    if (updates.assignedTechnicianId && updates.assignedTechnicianId !== oldWorkOrder.assignedTechnicianId) {
+      activityMessage = `Status changed from '${oldWorkOrder.status || 'N/A'}' to '${updates.status}'.`;
+    } else if (updates.assignedTechnicianId && updates.assignedTechnicianId !== oldWorkOrder.assignedTechnicianId) {
       const oldTech = technicians?.find(t => t.id === oldWorkOrder.assignedTechnicianId)?.name || 'Unassigned';
       const newTech = technicians?.find(t => t.id === updates.assignedTechnicianId)?.name || 'Unassigned';
-      addActivity(`Assigned technician changed from '${oldTech}' to '${newTech}'.`);
-    }
-
-    // SLA Due date update
-    if (updates.slaDue && updates.slaDue !== oldWorkOrder.slaDue) {
-      addActivity(`SLA due date updated to '${dayjs(updates.slaDue).format('MMM D, YYYY h:mm A')}'.`);
-    }
-
-    // Appointment date update
-    if (updates.appointmentDate && updates.appointmentDate !== oldWorkOrder.appointmentDate) {
-      addActivity(`Appointment date updated to '${dayjs(updates.appointmentDate).format('MMM D, YYYY h:mm A')}'.`);
-    }
-
-    // Service description update
-    if (updates.service && updates.service !== oldWorkOrder.service) {
-      addActivity(`Service description updated.`);
-    }
-
-    // Service notes update
-    if (updates.serviceNotes && updates.serviceNotes !== oldWorkOrder.serviceNotes) {
-      addActivity(`Service notes updated.`);
-    }
-
-    // Priority change
-    if (updates.priority && updates.priority !== oldWorkOrder.priority) {
-      addActivity(`Priority changed from '${oldWorkOrder.priority || 'N/A'}' to '${updates.priority}'.`);
-    }
-
-    // Location change
-    if (updates.locationId && updates.locationId !== oldWorkOrder.locationId) {
-      const oldLoc = allLocations?.find(l => l.id === oldWorkOrder.locationId)?.name || 'N/A';
-      const newLoc = allLocations?.find(l => l.id === updates.locationId)?.name || 'N/A';
-      addActivity(`Service location changed from '${oldLoc}' to '${newLoc}'.`);
-    }
-
-    // Customer address/coordinates update
-    if (updates.customerAddress && updates.customerAddress !== oldWorkOrder.customerAddress) {
-      addActivity(`Client address updated to '${updates.customerAddress}'.`);
+      activityMessage = `Assigned technician changed from '${oldTech}' to '${newTech}'.`;
+    } else if (updates.slaDue && updates.slaDue !== oldWorkOrder.slaDue) {
+      activityMessage = `SLA due date updated to '${dayjs(updates.slaDue).format('MMM D, YYYY h:mm A')}'.`;
+    } else if (updates.appointmentDate && updates.appointmentDate !== oldWorkOrder.appointmentDate) {
+      activityMessage = `Appointment date updated to '${dayjs(updates.appointmentDate).format('MMM D, YYYY h:mm A')}'.`;
+    } else if (updates.service && updates.service !== oldWorkOrder.service) {
+      activityMessage = `Service description updated.`;
+    } else if (updates.serviceNotes && updates.serviceNotes !== oldWorkOrder.serviceNotes) {
+      activityMessage = `Service notes updated.`;
+    } else if (updates.priority && updates.priority !== oldWorkOrder.priority) {
+      activityMessage = `Priority changed from '${oldWorkOrder.priority || 'N/A'}' to '${updates.priority}'.`;
+    } else if (updates.locationId && updates.locationId !== oldWorkOrder.locationId) {
+      const oldLoc = allWorkOrders?.find(l => l.id === oldWorkOrder.locationId)?.location?.name || 'N/A';
+      const newLoc = allWorkOrders?.find(l => l.id === updates.locationId)?.location?.name || 'N/A';
+      activityMessage = `Service location changed from '${oldLoc}' to '${newLoc}'.`;
+    } else if (updates.customerAddress && updates.customerAddress !== oldWorkOrder.customerAddress) {
+      activityMessage = `Client address updated to '${updates.customerAddress}'.`;
     } else if (updates.customerLat !== oldWorkOrder.customerLat || updates.customerLng !== oldWorkOrder.customerLng) {
-      addActivity(`Client coordinates updated.`);
+      activityMessage = `Client coordinates updated.`;
+    } else {
+      activityMessage = 'Work order details updated.'; // Generic message for other changes
     }
 
-    // System-triggered status change from 'Ready' to 'In Progress'
-    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready') {
-      updates.status = 'In Progress';
-      addActivity(`Work order automatically moved to In Progress due to assignment/appointment.`, null); // System action
-      showInfo(`Work Order ${id} automatically moved to In Progress.`);
+    if (activityMessage) {
+      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage, userId: session?.user.id ?? null });
+      updates.activityLog = newActivityLog;
     }
 
-    // If the status is being set to 'On Hold' by a user action, we need to intercept it
-    // and open the dialog. The actual update will happen after the reason is provided.
-    if (updates.status === 'On Hold' && oldWorkOrder.status !== 'On Hold') {
-      setOnHoldWorkOrder(workOrder);
-      return; // Don't mutate yet, wait for dialog
-    }
-
-    workOrderMutation.mutate(camelToSnakeCase({ id, ...updates, activityLog: newActivityLog }));
+    if (updates.status === 'On Hold') { setOnHoldWorkOrder(workOrder); return; }
+    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready') { updates.status = 'In Progress'; showInfo(`Work Order ${id} automatically moved to In Progress.`); }
+    workOrderMutation.mutate(camelToSnakeCase({ id, ...updates }));
   };
 
   const handleSaveOnHoldReason = (reason: string) => {
@@ -150,7 +109,7 @@ const LocationDetailsPage = () => {
     navigate(`/work-orders/${workOrderId}`);
   };
 
-  const isLoading = isLoadingLocation || isLoadingAllLocations || isLoadingWorkOrders || isLoadingTechnicians || isLoadingCustomers || isLoadingVehicles || isLoadingProfiles;
+  const isLoading = isLoadingLocation || isLoadingWorkOrders || isLoadingTechnicians || isLoadingCustomers || isLoadingVehicles || isLoadingProfiles;
 
   if (isLoading) return <Skeleton active />;
   if (!location) return <NotFound />;
@@ -200,7 +159,7 @@ const LocationDetailsPage = () => {
           <WorkOrderDataTable 
             workOrders={locationWorkOrders} 
             technicians={technicians || []} 
-            locations={allLocations || []} // Pass allLocations here
+            locations={allWorkOrders ? [location] : []} 
             customers={customers || []} 
             vehicles={vehicles || []} 
             onEdit={() => {}} 

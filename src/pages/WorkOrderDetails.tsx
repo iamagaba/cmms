@@ -20,234 +20,396 @@ import { useSession } from "@/context/SessionContext";
 const { Title, Text, Paragraph } = Typography;
 const { Option } = Select;
 const { TabPane } = Tabs;
-const { use<dyad-problem-report summary="3 problems">
-<problem file="src/pages/Locations.tsx" line="118" column="27" code="2345">Argument of type '{ timestamp: string; activity: string; }' is not assignable to parameter of type '{ timestamp: string; activity: string; userId: string; }'.
-  Property 'userId' is missing in type '{ timestamp: string; activity: string; }' but required in type '{ timestamp: string; activity: string; userId: string; }'.</problem>
-<problem file="src/pages/LocationDetails.tsx" line="105" column="22" code="2552">Cannot find name 'allLocations'. Did you mean 'location'?</problem>
-<problem file="src/pages/LocationDetails.tsx" line="106" column="22" code="2552">Cannot find name 'allLocations'. Did you mean 'location'?</problem>
-</dyad-problem-report><dyad-problem-report summary="3 problems">
-<problem file="src/pages/Locations.tsx" line="118" column="27" code="2345">Argument of type '{ timestamp: string; activity: string; }' is not assignable to parameter of type '{ timestamp: string; activity: string; userId: string; }'.
-  Property 'userId' is missing in type '{ timestamp: string; activity: string; }' but required in type '{ timestamp: string; activity: string; userId: string; }'.</problem>
-<problem file="src/pages/LocationDetails.tsx" line="105" column="22" code="2552">Cannot find name 'allLocations'. Did you mean 'location'?</problem>
-<problem file="src/pages/LocationDetails.tsx" line="106" column="22" code="2552">Cannot find name 'allLocations'. Did you mean 'location'?</problem>
-</dyad-problem-report><think>**Addressing TypeScript Errors**
+const { useToken } = theme;
 
-I've pinpointed a missing `userId` property within the `activityLog` entry, crucial for fulfilling the `WorkOrder` interface's requirements. To resolve this, I'm integrating `userId: session?.user.id ?? null` directly into the `newActivityLog.push` call. Now I need to tackle the remaining errors.
+const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "";
+const channelOptions = ['Call Center', 'Service Center', 'Social Media', 'Staff', 'Swap Station'];
 
+interface WorkOrderDetailsProps {
+  isDrawerMode?: boolean;
+}
 
-**Analyzing Data Dependencies**
-
-I've resolved the `userId` error in `Locations.tsx` by including the necessary property. Now, I'm focusing on the `LocationDetails.tsx` errors. I'll integrate a `useQuery` hook to fetch `allLocations` to provide the required data. This will allow the `handleUpdateWorkOrder` function to correctly compare locations.
-
-
-</think>You're right, my apologies for those lingering issues! I'll fix these TypeScript errors right away.
-
-Here's how I'll address them:
-
-1.  **`src/pages/Locations.tsx`**: I'll ensure that when a new activity log entry is pushed, it includes the `userId` from the current session, or `null` if the user is not available.
-2.  **`src/pages/LocationDetails.tsx`**: I'll add a `useQuery` hook to fetch all available locations, which is necessary for correctly logging changes to a work order's location. Then, I'll update the `handleUpdateWorkOrder` function to use this fetched list of `allLocations`.
-
-Here are the corrected files:
-
-<dyad-write path="src/pages/Locations.tsx" description="Adding userId to activity log entries.">
-import { useState, useMemo } from "react";
-import { Button, Typography, Space, Row, Col, Skeleton } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
-import { LocationFormDialog } from "@/components/LocationFormDialog";
-import { LocationCard } from "@/components/LocationCard";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { Location, WorkOrder, Technician, Profile } from "@/types/supabase"; // Import Profile
-import { showSuccess, showError, showInfo } from "@/utils/toast"; // Import showInfo
-import { camelToSnakeCase } from "@/utils/data-helpers"; // Import the utility
-import PageHeader from "@/components/PageHeader";
-import dayjs from "dayjs";
-import { useSession } from "@/context/SessionContext"; // Import useSession
-
-const { Title } = Typography;
-
-const LocationsPage = () => {
+const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) => {
+  const { id: paramId } = useParams<{ id:string }>();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingLocation, setEditingLocation] = useState<Location | null>(null);
-  const { session } = useSession(); // Get session for userId
+  const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
+  const [isAddPartDialogOpen, setIsAddPartDialogOpen] = useState(false);
+  const { token } = useToken();
+  const { session } = useSession();
 
-  const { data: allLocations, isLoading: isLoadingLocations } = useQuery<Location[]>({
-    queryKey: ['locations'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('locations').select('*');
-      if (error) throw new Error(error.message);
-      return data || [];
-    }
+  const statusColors: Record<string, string> = { 
+    Open: token.colorInfo,
+    "Confirmation": token.cyan6,
+    "Ready": token.colorTextSecondary,
+    "In Progress": token.colorWarning,
+    "On Hold": token.orange6,
+    Completed: token.colorSuccess
+  };
+  const priorityColors: Record<string, string> = { High: token.colorError, Medium: token.colorWarning, Low: token.colorSuccess };
+
+  const id = isDrawerMode ? searchParams.get('view') : paramId;
+
+  const { data: workOrder, isLoading: isLoadingWorkOrder } = useQuery<WorkOrder | null>({ 
+    queryKey: ['work_order', id], 
+    queryFn: async () => { 
+      if (!id) return null; 
+      console.log('Fetching work order details for ID:', id);
+      const { data, error } = await supabase.from('work_orders').select('*').eq('id', id).single(); 
+      if (error) throw new Error(error.message); 
+      console.log('Raw fetched work order data from Supabase:', data); // Log raw data
+      if (data) {
+        // Manually map snake_case to camelCase for consistency with WorkOrder type
+        const mappedData: WorkOrder = {
+          ...data,
+          workOrderNumber: data.work_order_number,
+          assignedTechnicianId: data.assigned_technician_id,
+          locationId: data.location_id,
+          serviceNotes: data.service_notes,
+          partsUsed: data.parts_used,
+          activityLog: data.activity_log,
+          slaDue: data.sla_due, // Map sla_due to slaDue
+          completedAt: data.completed_at,
+          customerLat: data.customer_lat,
+          customerLng: data.customer_lng,
+          customerAddress: data.customer_address,
+          onHoldReason: data.on_hold_reason,
+          appointmentDate: data.appointment_date,
+          customerId: data.customer_id,
+          vehicleId: data.vehicle_id,
+          created_by: data.created_by, // Ensure created_by is also mapped if it's snake_case in DB
+        };
+        console.log('Mapped work order data (camelCase):', mappedData);
+        return mappedData;
+      }
+      return null;
+    }, 
+    enabled: !!id 
   });
-
-  const { data: workOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({
-    queryKey: ['work_orders'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('work_orders').select('*');
-      if (error) throw new Error(error.message);
-      return data || [];
-    }
-  });
-
-  const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({
-    queryKey: ['technicians'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('technicians').select('*');
-      if (error) throw new Error(error.message);
-      return data || [];
-    }
-  });
-
+  const { data: technician, isLoading: isLoadingTechnician } = useQuery<Technician | null>({ queryKey: ['technician', workOrder?.assignedTechnicianId], queryFn: async () => { if (!workOrder?.assignedTechnicianId) return null; const { data, error } = await supabase.from('technicians').select('*').eq('id', workOrder.assignedTechnicianId).single(); if (error) throw new Error(error.message); return data; }, enabled: !!workOrder?.assignedTechnicianId });
+  const { data: location, isLoading: isLoadingLocation } = useQuery<Location | null>({ queryKey: ['location', workOrder?.locationId], queryFn: async () => { if (!workOrder?.locationId) return null; const { data, error } = await supabase.from('locations').select('*').eq('id', workOrder.locationId).single(); if (error) throw new Error(error.message); return data; }, enabled: !!workOrder?.locationId });
+  const { data: allTechnicians, isLoading: isLoadingAllTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return data || []; } });
+  const { data: allLocations, isLoading: isLoadingAllLocations } = useQuery<Location[]>({ queryKey: ['locations'], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*'); if (error) throw new Error(error.message); return data || []; } });
+  const { data: customer, isLoading: isLoadingCustomer } = useQuery<Customer | null>({ queryKey: ['customer', workOrder?.customerId], queryFn: async () => { if (!workOrder?.customerId) return null; const { data, error } = await supabase.from('customers').select('*').eq('id', workOrder.customerId).single(); if (error) throw new Error(error.message); return data; }, enabled: !!workOrder?.customerId });
+  const { data: vehicle, isLoading: isLoadingVehicle } = useQuery<Vehicle | null>({ queryKey: ['vehicle', workOrder?.vehicleId], queryFn: async () => { if (!workOrder?.vehicleId) return null; const { data, error } = await supabase.from('vehicles').select('*').eq('id', workOrder.vehicleId).single(); if (error) throw new Error(error.message); return data; }, enabled: !!workOrder?.vehicleId });
+  const { data: usedParts, isLoading: isLoadingUsedParts } = useQuery<WorkOrderPart[]>({ queryKey: ['work_order_parts', id], queryFn: async () => { if (!id) return []; const { data, error } = await supabase.from('work_order_parts').select('*, inventory_items(*)').eq('work_order_id', id); if (error) throw new Error(error.message); return data || []; }, enabled: !!id });
   const { data: profiles, isLoading: isLoadingProfiles } = useQuery<Profile[]>({
     queryKey: ['profiles'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('profiles').select('*'); // Select all fields for Profile type
+      const { data, error } = await supabase.from('profiles').select('*');
       if (error) throw new Error(error.message);
       return data || [];
     }
   });
 
-  const locationMutation = useMutation({
-    mutationFn: async (locationData: Partial<Location>) => {
-      const { error } = await supabase.from('locations').upsert([locationData]);
+  const workOrderMutation = useMutation({ 
+    mutationFn: async (workOrderData: Partial<WorkOrder>) => { 
+      const { error } = await supabase.from('work_orders').upsert([workOrderData]); 
+      if (error) throw new Error(error.message); 
+    }, 
+    onSuccess: (_, variables) => { // Get the variables passed to mutate
+      const updatedId = variables.id; // Assuming id is always present in updates
+      if (updatedId) {
+        queryClient.refetchQueries({ queryKey: ['work_order', updatedId] }); // Refetch specific work order
+      }
+      queryClient.invalidateQueries({ queryKey: ['work_orders'] }); // Invalidate all work orders for lists
+      showSuccess('Work order has been updated.'); 
+    }, 
+    onError: (error) => showError(error.message) 
+  });
+  const addPartMutation = useMutation({ mutationFn: async ({ itemId, quantity }: { itemId: string, quantity: number }) => { const { error } = await supabase.rpc('add_part_to_work_order', { p_work_order_id: id, p_item_id: itemId, p_quantity_used: quantity }); if (error) throw new Error(error.message); }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['work_order_parts', id] }); queryClient.invalidateQueries({ queryKey: ['inventory_items'] }); showSuccess('Part added to work order.'); }, onError: (error) => showError(error.message) });
+  const removePartMutation = useMutation({
+    mutationFn: async (partId: string) => {
+      const { error } = await supabase.from('work_order_parts').delete().eq('id', partId);
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['locations'] });
-      showSuccess('Location has been saved.');
+      queryClient.invalidateQueries({ queryKey: ['work_order_parts', id] });
+      queryClient.invalidateQueries({ queryKey: ['inventory_items'] }); // Invalidate inventory to reflect stock changes
+      showSuccess('Part removed from work order.');
     },
     onError: (error) => showError(error.message),
   });
 
-  const workOrderMutation = useMutation({
-    mutationFn: async (workOrderData: Partial<WorkOrder>) => {
-      const { error } = await supabase.from('work_orders').upsert([workOrderData]);
-      if (error) throw new Error(error.message);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['work_orders'] });
-      showSuccess('Work order has been updated.');
-    },
-    onError: (error) => showError(error.message),
-  });
-
-  const handleUpdateWorkOrder = (id: string, updates: Partial<WorkOrder>) => {
-    const workOrder = workOrders?.find(wo => wo.id === id);
-    if (!workOrder) return;
+  const handleUpdateWorkOrder = (updates: Partial<WorkOrder>) => { 
+    if (!workOrder) return; 
 
     const oldWorkOrder = { ...workOrder };
     const newActivityLog = [...(workOrder.activityLog || [])];
+    let activityMessage = '';
 
-    const addActivity = (activity: string, userId: string | null = session?.user.id ?? null) => {
-      newActivityLog.push({ timestamp: new Date().toISOString(), activity, userId });
-    };
-
-    // Status change
     if (updates.status && updates.status !== oldWorkOrder.status) {
-      addActivity(`Status changed from '${oldWorkOrder.status || 'N/A'}' to '${updates.status}'.`);
-    }
-
-    // Assigned technician change
-    if (updates.assignedTechnicianId && updates.assignedTechnicianId !== oldWorkOrder.assignedTechnicianId) {
-      const oldTech = technicians?.find(t => t.id === oldWorkOrder.assignedTechnicianId)?.name || 'Unassigned';
-      const newTech = technicians?.find(t => t.id === updates.assignedTechnicianId)?.name || 'Unassigned';
-      addActivity(`Assigned technician changed from '${oldTech}' to '${newTech}'.`);
-    }
-
-    // SLA Due date update
-    if (updates.slaDue && updates.slaDue !== oldWorkOrder.slaDue) {
-      addActivity(`SLA due date updated to '${dayjs(updates.slaDue).format('MMM D, YYYY h:mm A')}'.`);
-    }
-
-    // Appointment date update
-    if (updates.appointmentDate && updates.appointmentDate !== oldWorkOrder.appointmentDate) {
-      addActivity(`Appointment date updated to '${dayjs(updates.appointmentDate).format('MMM D, YYYY h:mm A')}'.`);
-    }
-
-    // Service description update
-    if (updates.service && updates.service !== oldWorkOrder.service) {
-      addActivity(`Service description updated.`);
-    }
-
-    // Service notes update
-    if (updates.serviceNotes && updates.serviceNotes !== oldWorkOrder.serviceNotes) {
-      addActivity(`Service notes updated.`);
-    }
-
-    // Priority change
-    if (updates.priority && updates.priority !== oldWorkOrder.priority) {
-      addActivity(`Priority changed from '${oldWorkOrder.priority || 'N/A'}' to '${updates.priority}'.`);
-    }
-
-    // Location change
-    if (updates.locationId && updates.locationId !== oldWorkOrder.locationId) {
+      activityMessage = `Status changed from '${oldWorkOrder.status || 'N/A'}' to '${updates.status}'.`;
+    } else if (updates.assignedTechnicianId && updates.assignedTechnicianId !== oldWorkOrder.assignedTechnicianId) {
+      const oldTech = allTechnicians?.find(t => t.id === oldWorkOrder.assignedTechnicianId)?.name || 'Unassigned';
+      const newTech = allTechnicians?.find(t => t.id === updates.assignedTechnicianId)?.name || 'Unassigned';
+      activityMessage = `Assigned technician changed from '${oldTech}' to '${newTech}'.`;
+    } else if (updates.slaDue && updates.slaDue !== oldWorkOrder.slaDue) {
+      activityMessage = `SLA due date updated to '${dayjs(updates.slaDue).format('MMM D, YYYY h:mm A')}'.`;
+    } else if (updates.appointmentDate && updates.appointmentDate !== oldWorkOrder.appointmentDate) {
+      activityMessage = `Appointment date updated to '${dayjs(updates.appointmentDate).format('MMM D, YYYY h:mm A')}'.`;
+    } else if (updates.service && updates.service !== oldWorkOrder.service) {
+      activityMessage = `Service description updated.`;
+    } else if (updates.serviceNotes && updates.serviceNotes !== oldWorkOrder.serviceNotes) {
+      activityMessage = `Service notes updated.`;
+    } else if (updates.priority && updates.priority !== oldWorkOrder.priority) {
+      activityMessage = `Priority changed from '${oldWorkOrder.priority || 'N/A'}' to '${updates.priority}'.`;
+    } else if (updates.channel && updates.channel !== oldWorkOrder.channel) {
+      activityMessage = `Channel changed from '${oldWorkOrder.channel || 'N/A'}' to '${updates.channel}'.`;
+    } else if (updates.locationId && updates.locationId !== oldWorkOrder.locationId) {
       const oldLoc = allLocations?.find(l => l.id === oldWorkOrder.locationId)?.name || 'N/A';
       const newLoc = allLocations?.find(l => l.id === updates.locationId)?.name || 'N/A';
-      addActivity(`Service location changed from '${oldLoc}' to '${newLoc}'.`);
-    }
-
-    // Customer address/coordinates update
-    if (updates.customerAddress && updates.customerAddress !== oldWorkOrder.customerAddress) {
-      addActivity(`Client address updated to '${updates.customerAddress}'.`);
+      activityMessage = `Service location changed from '${oldLoc}' to '${newLoc}'.`;
+    } else if (updates.customerAddress && updates.customerAddress !== oldWorkOrder.customerAddress) {
+      activityMessage = `Client address updated to '${updates.customerAddress}'.`;
     } else if (updates.customerLat !== oldWorkOrder.customerLat || updates.customerLng !== oldWorkOrder.customerLng) {
-      addActivity(`Client coordinates updated.`);
+      activityMessage = `Client coordinates updated.`;
+    } else {
+      activityMessage = 'Work order details updated.'; // Generic message for other changes
     }
 
-    // System-triggered status change from 'Ready' to 'In Progress'
-    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready') {
-      updates.status = 'In Progress';
-      addActivity(`Work order automatically moved to In Progress due to assignment/appointment.`, null); // System action
-      showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`);
+    if (activityMessage) {
+      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage, userId: session?.user.id ?? null });
+      updates.activityLog = newActivityLog;
     }
 
-    // If the status is being set to 'On Hold' by a user action, we need to intercept it
-    // and open the dialog. The actual update will happen after the reason is provided.
-    // This page doesn't directly handle 'On Hold' status changes, but the logic should be consistent.
-    // If it were to, the logic would be similar to Dashboard/WorkOrders.
-
-    workOrderMutation.mutate(camelToSnakeCase({ id, ...updates, activityLog: newActivityLog }));
+    if (updates.status === 'On Hold') { 
+      setOnHoldWorkOrder(workOrder); 
+      return; 
+    } 
+    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready') { 
+      updates.status = 'In Progress'; 
+      showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`); 
+    } 
+    workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates })); 
   };
+  const handleSaveOnHoldReason = (reason: string) => { if (!onHoldWorkOrder) return; const updates = { status: 'On Hold' as const, onHoldReason: reason }; workOrderMutation.mutate(camelToSnakeCase({ id: onHoldWorkOrder.id, ...updates })); setOnHoldWorkOrder(null); };
+  const handleLocationSelect = (selectedLoc: { lat: number; lng: number; label: string }) => { handleUpdateWorkOrder({ customerAddress: selectedLoc.label, customerLat: selectedLoc.lat, customerLng: selectedLoc.lng }); };
+  const handleAddPart = (itemId: string, quantity: number) => { addPartMutation.mutate({ itemId, quantity }); };
+  const handleRemovePart = (partId: string) => { removePartMutation.mutate(partId); };
 
-  const handleSave = (locationData: Location) => {
-    locationMutation.mutate(camelToSnakeCase(locationData)); // Apply camelToSnakeCase here
-    setIsDialogOpen(false);
-    setEditingLocation(null);
+  const profileMap = useMemo(() => {
+    if (!profiles) return new Map();
+    return new Map(profiles.map(p => [p.id, `${p.first_name || ''} ${p.last_name || ''}`.trim()]));
+  }, [profiles]);
+
+  const isLoading = isLoadingWorkOrder || isLoadingTechnician || isLoadingLocation || isLoadingAllTechnicians || isLoadingAllLocations || isLoadingCustomer || isLoadingVehicle || isLoadingUsedParts || isLoadingProfiles;
+
+  if (isLoading) return <Skeleton active />;
+  if (!workOrder) return isDrawerMode ? <div style={{ padding: 24 }}><NotFound /></div> : <NotFound />;
+
+  const hasClientLocation = workOrder.customerLat != null && workOrder.customerLng != null;
+  const getMapUrl = () => {
+    if (!API_KEY) return "";
+    let markers = [];
+    if (location) markers.push(`markers=color:blue%7Clabel:S%7C${location.lat},${location.lng}`);
+    if (hasClientLocation) markers.push(`markers=color:orange%7Clabel:C%7C${workOrder.customerLat},${workOrder.customerLng}`);
+    if (markers.length === 0) return "";
+    return `https://maps.googleapis.com/maps/api/staticmap?size=600x300&maptype=roadmap&${markers.join('&')}&key=${API_KEY}`;
   };
+  const mapUrl = getMapUrl();
 
-  const isLoading = isLoadingLocations || isLoadingWorkOrders || isLoadingTechnicians || isLoadingProfiles;
+  const partsColumns = [
+    { title: 'Part', dataIndex: ['inventory_items', 'name'], render: (name: string, record: WorkOrderPart) => `${name} (${record.inventory_items.sku})` },
+    { title: 'Qty', dataIndex: 'quantity_used' },
+    { title: 'Unit Price', dataIndex: 'price_at_time_of_use', render: (price: number) => `UGX ${price.toLocaleString('en-US')}` },
+    { title: 'Total', render: (_: any, record: WorkOrderPart) => `UGX ${(record.quantity_used * record.price_at_time_of_use).toLocaleString('en-US')}` },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_: any, record: WorkOrderPart) => (
+        <Popconfirm
+          title="Are you sure to delete this part?"
+          onConfirm={() => handleRemovePart(record.id)}
+          okText="Yes"
+          cancelText="No"
+        >
+          <Button type="text" danger icon={<DeleteOutlined />} size="small" />
+        </Popconfirm>
+      ),
+    },
+  ];
+  const partsTotal = (usedParts || []).reduce((sum, part) => sum + (part.quantity_used * part.price_at_time_of_use), 0);
 
+  // --- Reusable Content Blocks ---
+  const customerVehicleCard = (
+    <Card title="Customer & Vehicle Details">
+      <Descriptions column={1} bordered>
+        <Descriptions.Item label="Customer" labelStyle={{ width: '150px' }}><Text>{customer?.name || 'N/A'}</Text></Descriptions.Item>
+        <Descriptions.Item label={<><PhoneOutlined /> Phone</>} labelStyle={{ width: '150px' }}><Text>{customer?.phone || 'N/A'}</Text></Descriptions.Item>
+        <Descriptions.Item label="Vehicle" labelStyle={{ width: '150px' }}><Text>{vehicle ? `${vehicle.year} ${vehicle.make} ${vehicle.model}` : 'N/A'}</Text></Descriptions.Item>
+        <Descriptions.Item label="VIN" labelStyle={{ width: '150px' }}><Text code>{vehicle?.vin || 'N/A'}</Text></Descriptions.Item>
+        <Descriptions.Item label="License Plate" labelStyle={{ width: '150px' }}><Text>{vehicle?.license_plate || 'N/A'}</Text></Descriptions.Item>
+      </Descriptions>
+    </Card>
+  );
+
+  const serviceInfoCard = (
+    <Card title="Service Information">
+      <Title level={5} editable={{ onChange: (value) => handleUpdateWorkOrder({ service: value }) }}>{workOrder.service}</Title>
+      <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ serviceNotes: value }) }} type="secondary">{workOrder.serviceNotes}</Paragraph>
+    </Card>
+  );
+
+  const workOrderDetailsCard = ( // Renamed from assignmentScheduleCard
+    <Card title="Work Order Details">
+      <Descriptions column={1}>
+        <Descriptions.Item label="Status">
+          <Select
+            value={workOrder.status || 'Open'}
+            onChange={(value) => handleUpdateWorkOrder({ status: value })}
+            style={{ width: 180 }}
+            bordered={false}
+            size="small"
+            suffixIcon={null}
+          >
+            <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
+            <Option value="Confirmation"><Tag color={statusColors["Confirmation"]}>Confirmation</Tag></Option>
+            <Option value="Ready"><Tag color={statusColors["Ready"]}>Ready</Tag></Option>
+            <Option value="In Progress"><Tag color={statusColors["In Progress"]}>In Progress</Tag></Option>
+            <Option value="On Hold"><Tag color={statusColors["On Hold"]}>On Hold</Tag></Option>
+            <Option value="Completed"><Tag color={statusColors["Completed"]}>Completed</Tag></Option>
+          </Select>
+        </Descriptions.Item>
+        <Descriptions.Item label="Priority"><Select value={workOrder.priority || 'Low'} onChange={(value) => handleUpdateWorkOrder({ priority: value })} style={{ width: 100 }} bordered={false} size="small" suffixIcon={null}><Option value="High"><Tag color={priorityColors["High"]}>High</Tag></Option><Option value="Medium"><Tag color={priorityColors["Medium"]}>Medium</Tag></Option><Option value="Low"><Tag color={priorityColors["Low"]}>Low</Tag></Option></Select></Descriptions.Item>
+        <Descriptions.Item label="Channel">
+          <Select
+            value={workOrder.channel}
+            onChange={(value) => handleUpdateWorkOrder({ channel: value })}
+            style={{ width: '100%' }}
+            bordered={false}
+            allowClear
+            placeholder="Select channel"
+            suffixIcon={null}
+          >
+            {channelOptions.map(c => <Option key={c} value={c}>{c}</Option>)}
+          </Select>
+        </Descriptions.Item>
+        <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}><DatePicker showTime value={workOrder.slaDue ? dayjs(workOrder.slaDue) : null} onChange={(date) => { console.log("DatePicker onChange - new SLA date:", date ? date.toISOString() : null); handleUpdateWorkOrder({ slaDue: date ? date.toISOString() : null }); }} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
+        <Descriptions.Item label="Appointment Date"><DatePicker showTime value={workOrder.appointmentDate ? dayjs(workOrder.appointmentDate) : null} onChange={(date) => handleUpdateWorkOrder({ appointmentDate: date ? date.toISOString() : null })} bordered={false} style={{ width: '100%' }} /></Descriptions.Item>
+        <Descriptions.Item label={<><ToolOutlined /> Assigned To</>}><Select value={workOrder.assignedTechnicianId} onChange={(value) => handleUpdateWorkOrder({ assignedTechnicianId: value })} style={{ width: '100%' }} bordered={false} allowClear placeholder="Unassigned" suffixIcon={null}>{(allTechnicians || []).map(t => (<Option key={t.id} value={t.id}><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><Avatar size="small" src={t.avatar || undefined}>{t.name.split(' ').map(n => n[0]).join('')}</Avatar><Text>{t.name}</Text></div></Option>))}</Select></Descriptions.Item>
+        {technician && (
+          <Descriptions.Item label={<><PhoneOutlined /> Tech Phone</>}><a href={`tel:${technician.phone}`}>{technician.phone || 'N/A'}</a></Descriptions.Item>
+        )}
+      </Descriptions>
+    </Card>
+  );
+
+  const partsCard = (
+    <Card title="Parts & Materials" extra={<Button icon={<PlusOutlined />} onClick={() => setIsAddPartDialogOpen(true)}>Add Part</Button>}>
+      <Table columns={partsColumns} dataSource={usedParts} rowKey="id" pagination={false} size="small" summary={() => <Table.Summary.Row><Table.Summary.Cell index={0} colSpan={3}><Text strong>Total Parts Cost</Text></Table.Summary.Cell><Table.Summary.Cell index={1}><Text strong>UGX {(partsTotal || 0).toLocaleString('en-US')}</Text></Table.Summary.Cell></Table.Summary.Row>} />
+    </Card>
+  );
+
+  const activityLogCard = (
+    <Card title="Activity Log">
+      <Timeline>
+        {[...(workOrder.activityLog || [])]
+          .sort((a, b) => dayjs(b.timestamp).diff(dayjs(a.timestamp)))
+          .map((item, index) => {
+            const userName = profileMap.get(item.userId) || (item.userId ? 'A user' : 'System');
+            return (
+              <Timeline.Item key={index}>
+                <Text strong>{item.activity}</Text>
+                <br />
+                <Text type="secondary">
+                  by {userName} on {dayjs(item.timestamp).format('MMM D, YYYY h:mm A')}
+                </Text>
+              </Timeline.Item>
+            );
+          })}
+      </Timeline>
+    </Card>
+  );
+
+  const locationAndMapCard = (
+    <Card title="Location Details">
+      <Descriptions column={1}>
+        <Descriptions.Item label={<><EnvironmentOutlined /> Service Location</>}><Select value={workOrder.locationId} onChange={(value) => handleUpdateWorkOrder({ locationId: value })} style={{ width: '100%' }} bordered={false} allowClear placeholder="Select location" suffixIcon={null}>{(allLocations || []).map(l => <Option key={l.id} value={l.id}>{l.name.replace(' Service Center', '')}</Option>)}</Select></Descriptions.Item>
+        <Descriptions.Item label="Client Location"><GoogleLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder.customerAddress || ''} /></Descriptions.Item>
+      </Descriptions>
+      <div style={{ marginTop: 16, borderRadius: token.borderRadius, overflow: 'hidden' }}>
+        {API_KEY ? (mapUrl ? <img src={mapUrl} alt="Map of service and client locations" style={{ width: '100%', height: 'auto', display: 'block' }} /> : <div style={{padding: '24px', textAlign: 'center'}}><Empty description="No location data to display." /></div>) : <div style={{padding: '24px', textAlign: 'center'}}><Empty description="Google Maps API Key not configured." /></div>}
+      </div>
+    </Card>
+  );
+
+  // --- Main Render Logic ---
   return (
-    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <PageHeader
-        title="Service Locations"
-        actions={
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingLocation(null); setIsDialogOpen(true); }}>
-            Add Location
-          </Button>
-        }
-      />
-      
-      {isLoading ? <Skeleton active /> : (
-        <Row gutter={[16, 16]}>
-          {(allLocations || []).map(location => (
-            <Col key={location.id} xs={24} sm={12} md={8} lg={6}>
-              <LocationCard location={location} workOrders={workOrders || []} />
-            </Col>
-          ))}
-        </Row>
-      )}
+    <>
+      <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+        {!isDrawerMode && (
+          <PageHeader
+            title={
+              <Space align="center">
+                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/work-orders')}>
+                  Back to Work Orders
+                </Button>
+                <Title level={4} style={{ margin: 0 }}>
+                  Work Order: {workOrder.workOrderNumber}
+                </Title>
+              </Space>
+            }
+            hideSearch
+            // Removed status dropdown from PageHeader
+          />
+        )}
 
-      {isDialogOpen && (
-        <LocationFormDialog 
-          isOpen={isDialogOpen}
-          onClose={() => setIsDialogOpen(false)}
-          onSave={handleSave}
-          location={editingLocation}
-        />
-      )}
-    </Space>
+        {isDrawerMode ? (
+          <>
+            <div style={{ marginBottom: 16 }}>
+              <WorkOrderProgressTracker workOrder={workOrder} />
+            </div>
+            <Tabs defaultActiveKey="1">
+              <TabPane tab={<span><InfoCircleOutlined /> Overview</span>} key="1">
+                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  {serviceInfoCard}
+                  {workOrderDetailsCard}
+                  {customerVehicleCard}
+                </Space>
+              </TabPane>
+              <TabPane tab={<span><UnorderedListOutlined /> Parts & Log</span>} key="2">
+                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  {partsCard}
+                  {activityLogCard}
+                </Space>
+              </TabPane>
+              <TabPane tab={<span><CompassOutlined /> Location</span>} key="3">
+                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  {locationAndMapCard}
+                </Space>
+              </TabPane>
+            </Tabs>
+          </>
+        ) : (
+          <>
+            <Card>
+              <WorkOrderProgressTracker workOrder={workOrder} />
+            </Card>
+            <Row gutter={[16, 16]}>
+              <Col xs={24} lg={16}>
+                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  {serviceInfoCard}
+                  {partsCard}
+                  {activityLogCard}
+                </Space>
+              </Col>
+              <Col xs={24} lg={8}>
+                <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  {workOrderDetailsCard}
+                  {customerVehicleCard}
+                  {locationAndMapCard}
+                </Space>
+              </Col>
+            </Row>
+          </>
+        )}
+      </Space>
+      {onHoldWorkOrder && <OnHoldReasonDialog isOpen={!!onHoldWorkOrder} onClose={() => setOnHoldWorkOrder(null)} onSave={handleSaveOnHoldReason} />}
+      {isAddPartDialogOpen && <AddPartToWorkOrderDialog isOpen={isAddPartDialogOpen} onClose={() => setIsAddPartDialogOpen(false)} onSave={handleAddPart} />}
+    </>
   );
 };
 
-export default LocationsPage;
+export default WorkOrderDetailsPage;

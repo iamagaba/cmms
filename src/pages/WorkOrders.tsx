@@ -83,38 +83,27 @@ const WorkOrdersPage = () => {
 
     const oldWorkOrder = { ...workOrder };
     const newActivityLog = [...(workOrder.activityLog || [])];
+    let activityMessage = '';
 
-    const addActivity = (activity: string, userId: string | null = session?.user.id ?? null) => {
-      newActivityLog.push({ timestamp: new Date().toISOString(), activity, userId });
-    };
+    // --- Timestamp & SLA Automation ---
+    const oldStatus = oldWorkOrder.status;
+    const newStatus = updates.status;
 
-    // Status change
-    if (updates.status && updates.status !== oldWorkOrder.status) {
-      addActivity(`Status changed from '${oldWorkOrder.status || 'N/A'}' to '${updates.status}'.`);
-      // SLA timer automation based on status change
-      if (updates.status === 'Confirmation' && !oldWorkOrder.confirmed_at) {
-        updates.confirmed_at = new Date().toISOString();
-        addActivity(`Work order confirmed.`, null); // System action
-      }
-      if (updates.status === 'In Progress' && !oldWorkOrder.work_started_at) {
-        updates.work_started_at = new Date().toISOString();
-        addActivity(`Work started.`, null); // System action
-      }
-      if (updates.status === 'On Hold' && oldWorkOrder.status !== 'On Hold') {
-        updates.sla_timers_paused_at = new Date().toISOString();
-        addActivity(`SLA timers paused.`, null); // System action
-      }
-      if (oldWorkOrder.status === 'On Hold' && updates.status !== 'On Hold' && oldWorkOrder.sla_timers_paused_at) {
+    if (newStatus && newStatus !== oldStatus) {
+      activityMessage = `Status changed from '${oldStatus || 'N/A'}' to '${newStatus}'.`;
+      if (newStatus === 'Confirmation' && !oldWorkOrder.confirmed_at) updates.confirmed_at = new Date().toISOString();
+      if (newStatus === 'In Progress' && !oldWorkOrder.work_started_at) updates.work_started_at = new Date().toISOString();
+      if (newStatus === 'On Hold' && oldStatus !== 'On Hold') updates.sla_timers_paused_at = new Date().toISOString();
+      if (oldStatus === 'On Hold' && newStatus !== 'On Hold' && oldWorkOrder.sla_timers_paused_at) {
         const pausedAt = dayjs(oldWorkOrder.sla_timers_paused_at);
         const resumedAt = dayjs();
         const durationPaused = resumedAt.diff(pausedAt, 'second');
         updates.total_paused_duration_seconds = (oldWorkOrder.total_paused_duration_seconds || 0) + durationPaused;
         updates.sla_timers_paused_at = null;
-        addActivity(`SLA timers resumed after ${durationPaused}s pause.`, null); // System action
+        activityMessage += ` (SLA timers resumed after ${durationPaused}s pause).`;
       }
     }
 
-    // Service category and SLA update
     if (updates.service_category_id && updates.service_category_id !== oldWorkOrder.service_category_id) {
       const policy = slaPolicies?.find(p => p.service_category_id === updates.service_category_id);
       const category = serviceCategories?.find(c => c.id === updates.service_category_id);
@@ -123,77 +112,22 @@ const WorkOrdersPage = () => {
         const totalPausedSeconds = updates.total_paused_duration_seconds || oldWorkOrder.total_paused_duration_seconds || 0;
         const newSlaDue = createdAt.add(policy.resolution_hours, 'hours').add(totalPausedSeconds, 'seconds').toISOString();
         updates.slaDue = newSlaDue;
-        addActivity(`Service category set to '${category?.name}'. Resolution SLA updated.`, null); // System action
+        activityMessage += ` Service category set to '${category?.name}'. Resolution SLA updated.`;
       }
     }
+    // --- End Automation ---
 
-    // Assigned technician change
-    if (updates.assignedTechnicianId && updates.assignedTechnicianId !== oldWorkOrder.assignedTechnicianId) {
-      const oldTech = technicians?.find(t => t.id === oldWorkOrder.assignedTechnicianId)?.name || 'Unassigned';
-      const newTech = technicians?.find(t => t.id === updates.assignedTechnicianId)?.name || 'Unassigned';
-      addActivity(`Assigned technician changed from '${oldTech}' to '${newTech}'.`);
+    if (activityMessage) {
+      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage, userId: session?.user.id ?? null });
+      updates.activityLog = newActivityLog;
     }
 
-    // SLA Due date update
-    if (updates.slaDue && updates.slaDue !== oldWorkOrder.slaDue) {
-      addActivity(`SLA due date updated to '${dayjs(updates.slaDue).format('MMM D, YYYY h:mm A')}'.`);
-    }
-
-    // Appointment date update
-    if (updates.appointmentDate && updates.appointmentDate !== oldWorkOrder.appointmentDate) {
-      addActivity(`Appointment date updated to '${dayjs(updates.appointmentDate).format('MMM D, YYYY h:mm A')}'.`);
-    }
-
-    // Service description update
-    if (updates.service && updates.service !== oldWorkOrder.service) {
-      addActivity(`Service description updated.`);
-    }
-
-    // Service notes update
-    if (updates.serviceNotes && updates.serviceNotes !== oldWorkOrder.serviceNotes) {
-      addActivity(`Service notes updated.`);
-    }
-
-    // Priority change
-    if (updates.priority && updates.priority !== oldWorkOrder.priority) {
-      addActivity(`Priority changed from '${oldWorkOrder.priority || 'N/A'}' to '${updates.priority}'.`);
-    }
-
-    // Channel change
-    if (updates.channel && updates.channel !== oldWorkOrder.channel) {
-      addActivity(`Channel changed from '${oldWorkOrder.channel || 'N/A'}' to '${updates.channel}'.`);
-    }
-
-    // Location change
-    if (updates.locationId && updates.locationId !== oldWorkOrder.locationId) {
-      const oldLoc = locations?.find(l => l.id === oldWorkOrder.locationId)?.name || 'N/A';
-      const newLoc = locations?.find(l => l.id === updates.locationId)?.name || 'N/A';
-      addActivity(`Service location changed from '${oldLoc}' to '${newLoc}'.`);
-    }
-
-    // Customer address/coordinates update
-    if (updates.customerAddress && updates.customerAddress !== oldWorkOrder.customerAddress) {
-      addActivity(`Client address updated to '${updates.customerAddress}'.`);
-    } else if (updates.customerLat !== oldWorkOrder.customerLat || updates.customerLng !== oldWorkOrder.customerLng) {
-      addActivity(`Client coordinates updated.`);
-    }
-
-    // System-triggered status change from 'Ready' to 'In Progress'
-    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready') {
-      updates.status = 'In Progress';
-      addActivity(`Work order automatically moved to In Progress due to assignment/appointment.`, null); // System action
-      showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`);
-    }
-
-    // If the status is being set to 'On Hold' by a user action, we need to intercept it
-    // and open the dialog. The actual update will happen after the reason is provided.
-    if (updates.status === 'On Hold' && oldWorkOrder.status !== 'On Hold') {
-      setOnHoldWorkOrder(workOrder);
-      return; // Don't mutate yet, wait for dialog
-    }
-
-    updates.activityLog = newActivityLog; // Update the activity log in the main updates object
-    workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates }));
+    if (updates.status === 'On Hold') { 
+      setOnHoldWorkOrder(workOrder); 
+      return; 
+    } 
+    
+    workOrderMutation.mutate(camelToSnakeCase({ id, ...updates })); 
   };
 
   const handleSaveOnHoldReason = (reason: string) => { if (!onHoldWorkOrder) return; const updates = { status: 'On Hold' as const, onHoldReason: reason }; handleUpdateWorkOrder(onHoldWorkOrder.id, updates); setOnHoldWorkOrder(null); };

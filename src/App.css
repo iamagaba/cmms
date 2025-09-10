@@ -197,3 +197,30 @@ body {
   height: 100%;
   cursor: col-resize;
 }
+
+/* Global styles for consistent floating/fluid effect */
+.ant-card {
+  border-radius: 8px !important; /* Consistent rounded corners */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Subtle default shadow */
+  border: none !important; /* Remove default border */
+}
+
+.ant-table-wrapper {
+  border-radius: 8px !important; /* Consistent rounded corners */
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05); /* Subtle default shadow */
+  overflow: hidden; /* Ensures shadow and border radius apply correctly */
+  border: none !important; /* Remove default border */
+}
+
+.ant-modal-content {
+  border-radius: 8px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.ant-drawer-content {
+  border-radius: 8px 0 0 8px !important; /* Rounded on left side for right drawer */
+  box-shadow: -4px 0 12px rgba(0, 0, 0, 0.15) !important;
+}
+.ant-drawer-header {
+  border-top-left-radius: 8px !important;
+}

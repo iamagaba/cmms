@@ -2,7 +2,6 @@ import { lazy, Suspense, useState, useEffect } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { Layout, App as AntApp, ConfigProvider, theme, Spin } from "antd";
-import { LoadScript } from "@react-google-maps/api";
 import SideNavigation from "./components/SideNavigation";
 import { NotificationsProvider } from "./context/NotificationsContext";
 import { SessionProvider, useSession } from "./context/SessionContext";
@@ -32,9 +31,6 @@ const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
 const { Content } = Layout;
 const queryClient = new QueryClient();
 
-const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "";
-const libraries: ("places")[] = ['places'];
-
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, isLoading } = useSession();
   if (isLoading) return null;
@@ -47,12 +43,6 @@ const AppContent = () => {
   const { session, isLoading } = useSession();
   const { settings } = useSystemSettings();
   const [collapsed, setCollapsed] = useState(false);
-
-  useEffect(() => {
-    if (!API_KEY) {
-      console.warn("Google Maps API Key (VITE_APP_GOOGLE_MAPS_API_KEY) is missing. Map and location search features may not work.");
-    }
-  }, []);
 
   if (isLoading) return null;
   if (session && location.pathname === "/login") return <Navigate to="/" replace />;
@@ -155,13 +145,7 @@ const App = () => (
           <SessionProvider>
             <SystemSettingsProvider>
               <NotificationsProvider>
-                {API_KEY ? (
-                  <LoadScript googleMapsApiKey={API_KEY} libraries={libraries}>
-                    <AppContent />
-                  </LoadScript>
-                ) : (
-                  <AppContent />
-                )}
+                <AppContent />
               </NotificationsProvider>
             </SystemSettingsProvider>
           </SessionProvider>

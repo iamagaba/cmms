@@ -10,7 +10,7 @@ import { useState, useMemo } from "react";
 import { showSuccess, showError, showInfo } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
-import { GoogleLocationSearchInput } from "@/components/GoogleLocationSearchInput";
+import { MapboxLocationSearchInput } from "@/components/MapboxLocationSearchInput";
 import { useSearchParams } from "react-router-dom";
 import { AddPartToWorkOrderDialog } from "@/components/AddPartToWorkOrderDialog";
 import PageHeader from "@/components/PageHeader";
@@ -22,7 +22,7 @@ const { Option } = Select;
 const { TabPane } = Tabs;
 const { useToken } = theme;
 
-const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || "";
+const MAPBOX_API_KEY = import.meta.env.VITE_APP_MAPBOX_API_KEY || "";
 const channelOptions = ['Call Center', 'Service Center', 'Social Media', 'Staff', 'Swap Station'];
 
 interface WorkOrderDetailsProps {
@@ -201,12 +201,20 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
 
   const hasClientLocation = workOrder.customerLat != null && workOrder.customerLng != null;
   const getMapUrl = () => {
-    if (!API_KEY) return "";
-    let markers = [];
-    if (location) markers.push(`markers=color:blue%7Clabel:S%7C${location.lat},${location.lng}`);
-    if (hasClientLocation) markers.push(`markers=color:orange%7Clabel:C%7C${workOrder.customerLat},${workOrder.customerLng}`);
+    if (!MAPBOX_API_KEY) return "";
+    const markers = [];
+    // Mapbox format: pin-s-l+0079c2(longitude,latitude)
+    if (location && location.lng && location.lat) {
+      markers.push(`pin-s-l+0079c2(${location.lng},${location.lat})`);
+    }
+    if (hasClientLocation && workOrder.customerLng && workOrder.customerLat) {
+      markers.push(`pin-s-s+f74e4e(${workOrder.customerLng},${workOrder.customerLat})`);
+    }
     if (markers.length === 0) return "";
-    return `https://maps.googleapis.com/maps/api/staticmap?size=600x300&maptype=roadmap&${markers.join('&')}&key=${API_KEY}`;
+
+    // Auto-fit the map to the markers
+    const overlay = markers.join(',');
+    return `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${overlay}/auto/600x300?access_token=${MAPBOX_API_KEY}`;
   };
   const mapUrl = getMapUrl();
 
@@ -327,10 +335,10 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     <Card title="Location Details">
       <Descriptions column={1}>
         <Descriptions.Item label={<><EnvironmentOutlined /> Service Location</>}><Select value={workOrder.locationId} onChange={(value) => handleUpdateWorkOrder({ locationId: value })} style={{ width: '100%' }} bordered={false} allowClear placeholder="Select location" suffixIcon={null}>{(allLocations || []).map(l => <Option key={l.id} value={l.id}>{l.name.replace(' Service Center', '')}</Option>)}</Select></Descriptions.Item>
-        <Descriptions.Item label="Client Location"><GoogleLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder.customerAddress || ''} /></Descriptions.Item>
+        <Descriptions.Item label="Client Location"><MapboxLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder.customerAddress || ''} /></Descriptions.Item>
       </Descriptions>
       <div style={{ marginTop: 16, borderRadius: token.borderRadius, overflow: 'hidden' }}>
-        {API_KEY ? (mapUrl ? <img src={mapUrl} alt="Map of service and client locations" style={{ width: '100%', height: 'auto', display: 'block' }} /> : <div style={{padding: '24px', textAlign: 'center'}}><Empty description="No location data to display." /></div>) : <div style={{padding: '24px', textAlign: 'center'}}><Empty description="Google Maps API Key not configured." /></div>}
+        {MAPBOX_API_KEY ? (mapUrl ? <img src={mapUrl} alt="Map of service and client locations" style={{ width: '100%', height: 'auto', display: 'block' }} /> : <div style={{padding: '24px', textAlign: 'center'}}><Empty description="No location data to display." /></div>) : <div style={{padding: '24px', textAlign: 'center'}}><Empty description="Mapbox API Key not configured." /></div>}
       </div>
     </Card>
   );

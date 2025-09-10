@@ -1,7 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Avatar, Button, Card, Col, Row, Space, Typography, List, Skeleton, Empty } from "antd";
 import { ArrowLeftOutlined, EnvironmentOutlined } from "@ant-design/icons";
-import { GoogleMap, MarkerF } from "@react-google-maps/api";
+import Map, { Marker } from 'react-map-gl';
 import { WorkOrderDataTable, ALL_COLUMNS } from "@/components/WorkOrderDataTable"; // Import ALL_COLUMNS
 import NotFound from "./NotFound";
 import { useMemo, useState } from "react";
@@ -27,7 +27,7 @@ const LocationDetailsPage = () => {
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
   const { session } = useSession();
 
-  const API_KEY = import.meta.env.VITE_APP_GOOGLE_MAPS_API_KEY || ""; // Re-declare API_KEY here for local use
+  const MAPBOX_API_KEY = import.meta.env.VITE_APP_MAPBOX_API_KEY || "";
 
   const { data: location, isLoading: isLoadingLocation } = useQuery<Location | null>({ queryKey: ['location', id], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*').eq('id', id).single(); if (error) throw new Error(error.message); return data; }, enabled: !!id });
   const { data: allWorkOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ queryKey: ['work_orders'], queryFn: async () => { const { data, error } = await supabase.from('work_orders').select('*').order('created_at', { ascending: false }); if (error) throw new Error(error.message); return data || []; } });
@@ -143,14 +143,27 @@ const LocationDetailsPage = () => {
           </Col>
           <Col xs={24} lg={16}>
             <Card title="Location Map" bodyStyle={{ padding: 0 }}>
-              {API_KEY && location.lat && location.lng ? (
-                <GoogleMap mapContainerStyle={containerStyle} center={{ lat: location.lat, lng: location.lng }} zoom={14}>
-                  <MarkerF position={{ lat: location.lat, lng: location.lng }} />
-                  {locationTechnicians.map(tech => tech.lat && tech.lng && <MarkerF key={tech.id} position={{ lat: tech.lat, lng: tech.lng }} icon={{ path: google.maps.SymbolPath.CIRCLE, scale: 5, fillColor: 'blue', fillOpacity: 1, strokeWeight: 0 }} />)}
-                </GoogleMap>
+              {MAPBOX_API_KEY && location.lat && location.lng ? (
+                <Map
+                  initialViewState={{
+                    longitude: location.lng,
+                    latitude: location.lat,
+                    zoom: 14
+                  }}
+                  style={containerStyle}
+                  mapStyle="mapbox://styles/mapbox/streets-v11"
+                  mapboxAccessToken={MAPBOX_API_KEY}
+                >
+                  <Marker longitude={location.lng} latitude={location.lat} color="#0052CC" />
+                  {locationTechnicians.map(tech => tech.lng && tech.lat && (
+                    <Marker key={tech.id} longitude={tech.lng} latitude={tech.lat}>
+                      <div style={{ width: 12, height: 12, backgroundColor: '#6A0DAD', borderRadius: '50%', border: '2px solid white', boxShadow: '0 0 5px rgba(0,0,0,0.5)' }} />
+                    </Marker>
+                  ))}
+                </Map>
               ) : (
                 <div style={{padding: '24px', textAlign: 'center'}}>
-                  <Empty description={API_KEY ? "No location data to display." : "Google Maps API Key not configured."} />
+                  <Empty description={MAPBOX_API_KEY ? "No location data to display." : "Mapbox API Key not configured."} />
                 </div>
               )}
             </Card>

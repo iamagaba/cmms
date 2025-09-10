@@ -31,10 +31,14 @@ export const MapboxLocationSearchInput = ({ onLocationSelect, initialValue }: Ma
     }
     setLoading(true);
     try {
+      // Default proximity to Kampala, Uganda (longitude, latitude)
+      const proximity = '32.5825,0.3475'; 
+      const countryCode = 'UG'; // ISO 3166-1 alpha-2 code for Uganda
+
       const response = await fetch(
         `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
           searchText
-        )}.json?access_token=${MAPBOX_API_KEY}&autocomplete=true`
+        )}.json?access_token=${MAPBOX_API_KEY}&autocomplete=true&country=${countryCode}&proximity=${proximity}`
       );
       const data = await response.json();
       const newOptions = (data.features || []).map((feature: MapboxFeature) => ({

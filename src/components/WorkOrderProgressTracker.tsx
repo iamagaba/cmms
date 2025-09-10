@@ -22,11 +22,8 @@ const formatDuration = (ms: number): string => {
   
   const totalSeconds = Math.floor(ms / 1000);
 
-  if (totalSeconds === 0 && ms > 0) {
-    return 'less than 1m'; // For durations less than 1 second but positive
-  }
-  if (totalSeconds === 0) { // For exactly 0ms
-    return '0m';
+  if (totalSeconds < 60) { // If less than 1 minute
+    return '0m'; // Show 0 minutes
   }
 
   const days = Math.floor(totalSeconds / (3600 * 24));
@@ -37,11 +34,6 @@ const formatDuration = (ms: number): string => {
   if (days > 0) parts.push(`${days}d`);
   if (hours > 0) parts.push(`${hours}h`);
   if (minutes > 0) parts.push(`${minutes}m`);
-
-  // If it's less than a minute but positive, show "less than 1m"
-  if (parts.length === 0 && totalSeconds > 0) {
-    return 'less than 1m';
-  }
   
   return parts.join(' ');
 };
@@ -134,7 +126,8 @@ const WorkOrderProgressTracker = ({ workOrder }: WorkOrderProgressTrackerProps) 
       if (statusChangeMatch) {
         allEventsForOnHold.push({ time: dayjs(log.timestamp), status: statusChangeMatch[2] as WorkOrder['status'] });
       }
-    });
+    }
+    );
     if (workOrder.status === 'Completed' && workOrder.completedAt) {
       allEventsForOnHold.push({ time: dayjs(workOrder.completedAt), status: 'Completed' });
     } else if (workOrder.status !== 'Completed') {

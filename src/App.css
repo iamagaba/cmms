@@ -94,7 +94,7 @@ body {
 .main-sider-menu.ant-menu-inline {
   display: flex;
   flex-direction: column;
-  height: 100%; /* Fill the available space in the Sider */
+  flex-grow: 1; /* Allow menu to grow and take available space */
   border-right: 0 !important; /* Remove default border */
   overflow-y: auto; /* Allow scrolling for main items */
   overflow-x: hidden;
@@ -103,29 +103,35 @@ body {
 /* The key part: push this divider (and everything after it) to the bottom */
 .ant-menu-item.menu-bottom-divider,
 .ant-menu-divider.menu-bottom-divider,
-.ant-menu-item-group.menu-bottom-group { /* Added .ant-menu-item-group.menu-bottom-group */
+.ant-menu-item-group.menu-bottom-group {
   margin-top: auto !important;
 }
 
-
-/* Custom styles for Ant Design Sider trigger */
+/* Hide the default Ant Design sider trigger */
 .ant-layout-sider-trigger {
-  background-color: #f0f0f0 !important; /* Light background for the trigger */
-  color: var(--ant-color-text-secondary) !important; /* Icon color */
-  border-top: 1px solid var(--ant-color-border-secondary); /* Separator from menu content */
-  height: 48px !important; /* Consistent height */
-  transition: background-color 0.2s ease, color 0.2s ease;
-  
-  /* Centering the icon using flexbox */
-  display: flex;
-  align-items: center; /* Vertically center */
-  justify-content: center; /* Horizontally center */
-  line-height: normal !important; /* Reset line-height if flex is used for centering */
+  display: none;
 }
 
-.ant-layout-sider-trigger:hover {
-  background-color: var(--ant-color-fill-alter) !important; /* Slightly darker on hover */
-  color: var(--ant-color-primary) !important; /* Primary color on hover */
+/* Custom styles for the new custom trigger */
+.sider-custom-trigger {
+  flex-shrink: 0; /* Prevent the trigger from shrinking */
+  border-top: 1px solid var(--ant-color-border-secondary);
+  background-color: #f0f0f0; /* Light background for the trigger */
+  color: var(--ant-color-text-secondary); /* Icon color */
+  height: 48px; /* Consistent height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sider-custom-trigger .ant-btn {
+  color: var(--ant-color-text-secondary);
+}
+
+.sider-custom-trigger .ant-btn:hover {
+  background-color: var(--ant-color-fill-alter);
+  color: var(--ant-color-primary);
 }
 
 /* Ensure NavLink inside Menu.Item takes full width and has smooth transitions */
@@ -163,6 +169,7 @@ body {
   justify-content: center;
   padding: 0 16px;
   border-bottom: 1px solid var(--ant-color-border-secondary); /* Add a subtle separator */
+  flex-shrink: 0; /* Prevent logo area from shrinking */
 }
 
 /* Ensure menu item text is not cut off when collapsed */

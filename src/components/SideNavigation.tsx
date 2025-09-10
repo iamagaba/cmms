@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Menu, Typography, Badge } from 'antd';
+import { Layout, Menu, Typography, Badge, Button } from 'antd'; // Import Button
 import { NavLink, useLocation } from 'react-router-dom';
 import {
   DashboardOutlined,
@@ -14,9 +14,11 @@ import {
   FireOutlined,
   BellOutlined,
   UserOutlined,
+  MenuFoldOutlined, // Import new icons
+  MenuUnfoldOutlined, // Import new icons
 } from '@ant-design/icons';
 import type { MenuProps } from 'antd';
-import { useNotifications } from '@/context/NotificationsContext'; // Import useNotifications
+import { useNotifications } from '@/context/NotificationsContext';
 
 const { Sider } = Layout;
 const { Title } = Typography;
@@ -45,7 +47,7 @@ function getItem(
 
 const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps) => {
   const location = useLocation();
-  const { unreadCount } = useNotifications(); // Get unreadCount from context
+  const { unreadCount } = useNotifications();
 
   const menuItems: MenuItem[] = [
     getItem(<NavLink to="/">Dashboard</NavLink>, "/", <DashboardOutlined />),
@@ -61,9 +63,9 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
     
     {
       type: 'group',
-      label: 'User & System', // Title for the group
+      label: 'User & System',
       key: 'user-system-group',
-      className: 'menu-bottom-group', // Custom class to apply margin-top: auto
+      className: 'menu-bottom-group',
       children: [
         getItem(
           <NavLink to="/notifications">
@@ -107,20 +109,19 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
 
   return (
     <Sider
-      collapsible
+      // Removed collapsible and onCollapse from Sider to use a custom trigger
       collapsed={collapsed}
-      onCollapse={onCollapse}
       theme="light"
       width={220}
       style={{
-        overflow: 'hidden',
+        overflow: 'hidden', // Keep overflow hidden for the sider itself
         height: '100vh',
         position: 'sticky',
         top: 0,
         left: 0,
         borderRight: '1px solid #f0f0f0',
         display: 'flex',
-        flexDirection: 'column',
+        flexDirection: 'column', // Enable flex column for internal layout
       }}
     >
       <div className="sider-logo-area">
@@ -143,6 +144,15 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
         items={menuItems}
         className="main-sider-menu"
       />
+      {/* Custom trigger button */}
+      <div className="sider-custom-trigger">
+        <Button
+          type="text"
+          icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          onClick={() => onCollapse(!collapsed)}
+          style={{ width: '100%', height: '48px', borderRadius: 0 }}
+        />
+      </div>
     </Sider>
   );
 };

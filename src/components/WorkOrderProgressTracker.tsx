@@ -19,16 +19,30 @@ interface StageTiming {
 // Helper to format milliseconds into human-readable string
 const formatDuration = (ms: number): string => {
   if (ms < 0) return '';
-  const d = dayjs.duration(ms);
-  const days = Math.floor(d.asDays());
-  const hours = d.hours() % 24;
-  const minutes = d.minutes();
+  
+  const totalSeconds = Math.floor(ms / 1000);
+
+  if (totalSeconds === 0 && ms > 0) {
+    return 'less than 1m'; // For durations less than 1 second but positive
+  }
+  if (totalSeconds === 0) { // For exactly 0ms
+    return '0m';
+  }
+
+  const days = Math.floor(totalSeconds / (3600 * 24));
+  const hours = Math.floor((totalSeconds % (3600 * 24)) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
 
   let parts: string[] = [];
   if (days > 0) parts.push(`${days}d`);
   if (hours > 0) parts.push(`${hours}h`);
-  if (minutes > 0 || (days === 0 && hours === 0 && ms > 0)) parts.push(`${minutes}m`);
-  if (parts.length === 0 && ms === 0) return '0m';
+  if (minutes > 0) parts.push(`${minutes}m`);
+
+  // If it's less than a minute but positive, show "less than 1m"
+  if (parts.length === 0 && totalSeconds > 0) {
+    return 'less than 1m';
+  }
+  
   return parts.join(' ');
 };
 

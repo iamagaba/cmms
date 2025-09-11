@@ -22,38 +22,80 @@ const UserManagement = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTechnician, setEditingTechnician] = useState<Technician | null>(null);
 
-  const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return data || []; } });
+  const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*').order('name'); if (error) throw new Error(error.message); return data || []; } });
   const { data: workOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ queryKey: ['work_orders'], queryFn: async () => { const { data, error } = await supabase.from('work_orders').select('*'); if (error) throw new Error(error.message); return data || []; } });
   const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({ queryKey: ['locations'], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*'); if (error) throw new Error(error.message); return data || []; } });
 
   const technicianMutation = useMutation({
-    mutationFn: async (technicianData: Partial<Technician>) => { const { error } = await supabase.from('technicians').upsert([technicianData]); if (error) throw new Error(error.message); },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['technicians'] }); showSuccess('Technician has been saved.'); },
-    onError: (error) => showError(error.message),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => { const { error } = await supabase.from('technicians').delete().eq('id', id); if (error) throw new Error(error.message); },
-    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['technicians'] }); showSuccess('Technician has been deleted.'); },
-    onError: (error) => showError(error.message),
-  });
-
-  const updateTechnicianStatusMutation = useMutation({
-    mutationFn: async ({ id, status }: { id: string; status: Technician['status'] }) => {
-      const { error } = await supabase.from('technicians').update({ status }).eq('id', id);
+    mutationFn: async (technicianData: Partial<Technician>) => {
+      // Ensure camelCase to snake_case conversion for all fields in technicianData
+      const snakeCaseData = camelToSnakeCase(technicianData);
+      const { error } = await supabase.from('technicians').upsert([snakeCaseData]);
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['technicians'] });
-      showSuccess('Technician status updated successfully!');
+      showSuccess('Technician has been saved.');
+      setIsDialogOpen(false); // Close dialog on success for both add/edit
+      setEditingTechnician(null); // Clear editing state
     },
-    onError: (error) => showError(`Failed to update status: ${error.message}`),
+    onError: (error) => showError(error.message),
   });
 
-  const handleSave = (technicianData: Technician) => { technicianMutation.mutate(camelToSnakeCase(technicianData)); setIsDialogOpen(false); setEditingTechnician(null); };
-  const handleDelete = (technicianData: Technician) => { deleteMutation.mutate(technicianData.id); };
-  const handleEdit = (technician: Technician) => { setEditingTechnician(technician); setIsDialogOpen(true); };
-  const handleUpdateStatus = (id: string, status: Technician['status']) => { updateTechnicianStatusMutation.mutate({ id, status }); };
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('technicians').delete().eq('id', id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['technicians'] });
+      showSuccess('Technician has been deleted.');
+    },
+    onError: (error) => showError(error.message),
+  });
+
+  // Removed updateTechnicianStatusMutation as it's now handled by technicianMutation
+
+  const handleSave = (technicianData: Technician) => {
+    technicianMutation.mutate(technicianData); // technicianData is already a full object from form
+  };
+
+  const handleDelete = (technicianData: Technician) => {
+    deleteMutation.mutate(technicianData.id);
+  };
+
+  const handleEdit = (technician: Technician) => {
+    setEditingTechnician(technician);
+    setIsDialogOpen(true);
+  };
+
+  // Modified handleUpdateStatus to fetch full data and use general technicianMutation
+  const handleUpdateStatus = async (id: string, status: Technician['status']) => {
+    // Fetch the current technician data to ensure all NOT NULL fields are present
+    const { data: currentTechnician, error: fetchError } = await supabase
+      .from('technicians')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (fetchError) {
+      showError(`Failed to fetch technician data: ${fetchError.message}`);
+      return;
+    }
+    if (!currentTechnician) {
+      showError("Technician not found.");
+      return;
+    }
+
+    // Create a new object with the updated status, preserving all other fields
+    const updatedTechnicianData: Partial<Technician> = {
+      ...currentTechnician, // Spread existing data
+      status: status,       // Apply the new status
+    };
+
+    // Use the general technicianMutation to perform the update
+    technicianMutation.mutate(updatedTechnicianData);
+  };
 
   const isLoading = isLoadingTechnicians || isLoadingWorkOrders || isLoadingLocations;
 

@@ -220,27 +220,3 @@ body {
     display: none !important;
   }
 }
-
-/* Custom CSS for WorkOrderServiceLifecycleCard Timeline */
-.ant-timeline.ant-timeline-left {
-  padding-left: 0 !important; /* Remove default left padding */
-}
-
-.ant-timeline-left .ant-timeline-item-content {
-  margin-left: 20px !important; /* Adjust content margin to be closer to the line */
-}
-
-.ant-timeline-left .ant-timeline-item-label {
-  width: auto !important; /* Allow label to take natural width */
-  right: calc(100% + 10px) !important; /* Position label to the left of the content, with a small gap */
-  text-align: right !important; /* Align label text to the right */
-  padding-right: 10px; /* Add some padding to the right of the label */
-}
-
-.ant-timeline-item-head {
-  left: -4px !important; /* Adjust head position to align with the line */
-}
-
-.ant-timeline-item-tail {
-  left: 0px !important; /* Align the line to the very left */
-}

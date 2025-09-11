@@ -38,9 +38,22 @@ const UserManagement = () => {
     onError: (error) => showError(error.message),
   });
 
+  const updateTechnicianStatusMutation = useMutation({
+    mutationFn: async ({ id, status }: { id: string; status: Technician['status'] }) => {
+      const { error } = await supabase.from('technicians').update({ status }).eq('id', id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['technicians'] });
+      showSuccess('Technician status updated successfully!');
+    },
+    onError: (error) => showError(`Failed to update status: ${error.message}`),
+  });
+
   const handleSave = (technicianData: Technician) => { technicianMutation.mutate(camelToSnakeCase(technicianData)); setIsDialogOpen(false); setEditingTechnician(null); };
   const handleDelete = (technicianData: Technician) => { deleteMutation.mutate(technicianData.id); };
   const handleEdit = (technician: Technician) => { setEditingTechnician(technician); setIsDialogOpen(true); };
+  const handleUpdateStatus = (id: string, status: Technician['status']) => { updateTechnicianStatusMutation.mutate({ id, status }); };
 
   const isLoading = isLoadingTechnicians || isLoadingWorkOrders || isLoadingLocations;
 
@@ -50,7 +63,7 @@ const UserManagement = () => {
         <Col><Title level={5}>Manage Users</Title></Col>
         <Col><Button type="primary" onClick={() => { setEditingTechnician(null); setIsDialogOpen(true); }}>Add User</Button></Col>
       </Row>
-      {isLoading ? <Skeleton active /> : <TechnicianDataTable technicians={technicians || []} workOrders={workOrders || []} onEdit={handleEdit} onDelete={handleDelete} />}
+      {isLoading ? <Skeleton active /> : <TechnicianDataTable technicians={technicians || []} workOrders={workOrders || []} onEdit={handleEdit} onDelete={handleDelete} onUpdateStatus={handleUpdateStatus} />}
       {isDialogOpen && <TechnicianFormDialog isOpen={isDialogOpen} onClose={() => setIsDialogOpen(false)} onSave={handleSave} technician={editingTechnician} locations={locations || []} />}
     </Card>
   );

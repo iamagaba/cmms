@@ -86,6 +86,10 @@ const TechniciansPage = () => {
     setIsDialogOpen(true);
   };
 
+  const handleUpdateStatus = (id: string, status: Technician['status']) => {
+    technicianMutation.mutate({ id, status });
+  };
+
   const technicianData: TechnicianCardData[] = useMemo(() => {
     if (!technicians || !workOrders) return [];
     return technicians.map(tech => ({
@@ -150,6 +154,7 @@ const TechniciansPage = () => {
             workOrders={workOrders || []}
             onEdit={handleEdit}
             onDelete={handleDelete}
+            onUpdateStatus={handleUpdateStatus} // Pass the handler here
           />
         )
       )}

@@ -9,9 +9,10 @@ interface TechnicianDataTableProps {
   workOrders: WorkOrder[];
   onEdit: (technician: Technician) => void;
   onDelete: (technician: Technician) => void;
+  onUpdateStatus: (id: string, status: Technician['status']) => void; // New prop
 }
 
-export function TechnicianDataTable({ technicians, workOrders, onEdit, onDelete }: TechnicianDataTableProps) {
+export function TechnicianDataTable({ technicians, workOrders, onEdit, onDelete, onUpdateStatus }: TechnicianDataTableProps) {
   const navigate = useNavigate();
   
   const tableData: TechnicianRow[] = React.useMemo(() => {
@@ -21,7 +22,7 @@ export function TechnicianDataTable({ technicians, workOrders, onEdit, onDelete 
     }));
   }, [technicians, workOrders]);
 
-  const columns = getColumns(onEdit, onDelete);
+  const columns = getColumns({ onEdit, onDelete, onUpdateStatus }); // Pass new prop
 
   return (
     <Table

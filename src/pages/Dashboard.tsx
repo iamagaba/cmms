@@ -162,9 +162,26 @@ const Dashboard = () => {
     const newActivityLog = [...(workOrder.activityLog || [])];
     let activityMessage = '';
 
-    if (updates.status && updates.status !== oldWorkOrder.status) {
-      activityMessage = `Status changed from '${oldWorkOrder.status || 'N/A'}' to '${updates.status}'.`;
-    } else if (updates.assignedTechnicianId && updates.assignedTechnicianId !== oldWorkOrder.assignedTechnicianId) {
+    // --- Timestamp & SLA Automation ---
+    const oldStatus = oldWorkOrder.status;
+    const newStatus = updates.status;
+
+    if (newStatus && newStatus !== oldStatus) {
+      activityMessage = `Status changed from '${oldStatus || 'N/A'}' to '${newStatus}'.`;
+      if (newStatus === 'Confirmation' && !oldWorkOrder.confirmed_at) updates.confirmed_at = new Date().toISOString();
+      if (newStatus === 'In Progress' && !oldWorkOrder.work_started_at) updates.work_started_at = new Date().toISOString();
+      if (newStatus === 'On Hold' && oldStatus !== 'On Hold') updates.sla_timers_paused_at = new Date().toISOString();
+      if (oldStatus === 'On Hold' && newStatus !== 'On Hold' && oldWorkOrder.sla_timers_paused_at) {
+        const pausedAt = dayjs(oldWorkOrder.sla_timers_paused_at);
+        const resumedAt = dayjs();
+        const durationPaused = resumedAt.diff(pausedAt, 'second');
+        updates.total_paused_duration_seconds = (oldWorkOrder.total_paused_duration_seconds || 0) + durationPaused;
+        updates.sla_timers_paused_at = null;
+        activityMessage += ` (SLA timers resumed after ${durationPaused}s pause).`;
+      }
+    }
+
+    if (updates.assignedTechnicianId && updates.assignedTechnicianId !== oldWorkOrder.assignedTechnicianId) {
       const oldTech = technicians?.find(t => t.id === oldWorkOrder.assignedTechnicianId)?.name || 'Unassigned';
       const newTech = technicians?.find(t => t.id === updates.assignedTechnicianId)?.name || 'Unassigned';
       activityMessage = `Assigned technician changed from '${oldTech}' to '${newTech}'.`;

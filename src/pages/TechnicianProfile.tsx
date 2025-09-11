@@ -1,15 +1,19 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Avatar, Card, Col, Row, Typography, Tag, Descriptions, Table, Button, Space, Skeleton, Statistic } from "antd";
+import { Avatar, Card, Col, Row, Typography, Tag, Descriptions, Table, Button, Space, Skeleton, Statistic, Select } from "antd";
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import dayjs from "dayjs";
 import NotFound from "./NotFound";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Technician, WorkOrder, Location, Vehicle } from "@/types/supabase";
 import { useMemo } from "react";
 import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
+import { useSession } from "@/context/SessionContext"; // Import useSession
+import { showSuccess, showError } from "@/utils/toast"; // Import toast utilities
+import { camelToSnakeCase } from "@/utils/data-helpers"; // Import camelToSnakeCase
 
 const { Title, Text } = Typography;
+const { Option } = Select;
 
 const statusColorMap: Record<string, string> = { available: 'success', busy: 'warning', offline: 'default' };
 const statusTextMap: Record<string, string> = { available: 'Available', busy: 'Busy', offline: 'Offline' };
@@ -18,6 +22,9 @@ const priorityColors: Record<string, string> = { High: "red", Medium: "gold", Lo
 const TechnicianProfilePage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const { session } = useSession();
+  const currentUserId = session?.user?.id;
 
   const { data: technician, isLoading: isLoadingTechnician } = useQuery<Technician | null>({
     queryKey: ['technician', id],
@@ -57,6 +64,22 @@ const TechnicianProfilePage = () => {
     }
   });
 
+  const updateTechnicianStatusMutation = useMutation({
+    mutationFn: async (newStatus: Technician['status']) => {
+      if (!id) throw new Error("Technician ID is missing.");
+      const { error } = await supabase
+        .from('technicians')
+        .update({ status: newStatus })
+        .eq('id', id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['technician', id] });
+      showSuccess('Technician status updated successfully!');
+    },
+    onError: (error) => showError(`Failed to update status: ${error.message}`),
+  });
+
   const performanceMetrics = useMemo(() => {
     if (!assignedWorkOrders) return null;
 
@@ -68,7 +91,7 @@ const TechnicianProfilePage = () => {
     const avgResolutionTime = totalCompleted > 0 ? (totalCompletionHours / totalCompleted).toFixed(1) : '0';
 
     const completedWithSla = completedOrders.filter(wo => wo.slaDue);
-    const slaMetCount = completedWithSla.filter(wo => dayjs(wo.completedAt).isBefore(dayjs(wo.slaDue))).length;
+    const slaMetCount = completedWithSla.filter(wo => wo.slaDue && dayjs(wo.completedAt).isBefore(dayjs(wo.slaDue))).length;
     const slaCompliance = completedWithSla.length > 0 ? ((slaMetCount / completedWithSla.length) * 100).toFixed(1) : '100';
 
     return { totalCompleted, activeTasks, avgResolutionTime, slaCompliance };
@@ -85,6 +108,7 @@ const TechnicianProfilePage = () => {
   }
 
   const assignedLocation = locations?.find(loc => loc.id === technician.location_id);
+  const isCurrentUserTechnician = currentUserId === technician.id;
 
   const workOrderColumns = [
     { title: 'ID', dataIndex: 'workOrderNumber', render: (text: string, record: WorkOrder) => <Link to={`/work-orders/${record.id}`}><Text code>{text}</Text></Link> },
@@ -118,7 +142,20 @@ const TechnicianProfilePage = () => {
                     <div style={{ textAlign: 'center', marginBottom: 24 }}>
                         <Avatar size={128} src={technician.avatar || undefined}>{technician.name.split(' ').map(n => n[0]).join('')}</Avatar>
                         <Title level={4} style={{ marginTop: 16 }}>{technician.name}</Title>
-                        <Tag color={statusColorMap[technician.status || 'offline']}>{statusTextMap[technician.status || 'offline']}</Tag>
+                        {isCurrentUserTechnician ? (
+                          <Select
+                            value={technician.status || 'offline'}
+                            onChange={(value) => updateTechnicianStatusMutation.mutate(value)}
+                            style={{ width: 120, marginTop: 8 }}
+                            loading={updateTechnicianStatusMutation.isPending}
+                          >
+                            <Option value="available"><Tag color={statusColorMap["available"]}>Available</Tag></Option>
+                            <Option value="busy"><Tag color={statusColorMap["busy"]}>Busy</Tag></Option>
+                            <Option value="offline"><Tag color={statusColorMap["offline"]}>Offline</Tag></Option>
+                          </Select>
+                        ) : (
+                          <Tag color={statusColorMap[technician.status || 'offline']} style={{ marginTop: 8 }}>{statusTextMap[technician.status || 'offline']}</Tag>
+                        )}
                     </div>
                     <Descriptions column={1} bordered>
                         <Descriptions.Item label={<><Icon icon="ph:envelope-fill" /> Email</>}><a href={`mailto:${technician.email}`}>{technician.email}</a></Descriptions.Item>

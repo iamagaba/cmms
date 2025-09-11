@@ -1,0 +1,1 @@
+DROP POLICY IF EXISTS "Allow authenticated users to manage data" ON public.technicians;

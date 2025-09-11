@@ -291,6 +291,9 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
 
   const hasActiveEmergencyBike = workOrder.active_emergency_bike_assignment && !workOrder.active_emergency_bike_assignment.returned_at;
 
+  // Conditional rendering for the Emergency Bike Status card
+  const shouldShowEmergencyBikeCard = hasActiveEmergencyBike || workOrder.is_emergency_bike_eligible;
+
   // --- Main Render Logic ---
   return (
     <>
@@ -375,33 +378,35 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
               </Col>
               <Col xs={24} lg={8}>
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                  <Card title="Emergency Bike Status">
-                    {hasActiveEmergencyBike ? (
-                      <Space direction="vertical" style={{ width: '100%' }}>
-                        <Tag color="green" icon={<BikeIcon size={14} />}>Assigned</Tag>
-                        <Typography.Text strong>Bike: {workOrder.active_emergency_bike_assignment?.vehicles?.license_plate}</Typography.Text>
-                        <Typography.Text type="secondary">Assigned on: {dayjs(workOrder.active_emergency_bike_assignment?.assigned_at).format('MMM D, YYYY h:mm A')}</Typography.Text>
-                        {workOrder.active_emergency_bike_assignment?.assignment_notes && (
-                          <Typography.Paragraph type="secondary" ellipsis={{ rows: 2, expandable: true, symbol: 'more' }}>
-                            Notes: {workOrder.active_emergency_bike_assignment.assignment_notes}
-                          </Typography.Paragraph>
-                        )}
-                        <Button type="default" icon={<BikeIcon size={16} />} onClick={() => setIsReturnEmergencyBikeDialogOpen(true)} style={{ marginTop: 8 }}>
-                          Return Emergency Bike
-                        </Button>
-                      </Space>
-                    ) : workOrder.is_emergency_bike_eligible ? (
-                      <Space direction="vertical" style={{ width: '100%' }}>
-                        <Tag color="purple" icon={<BikeIcon size={14} />}>Emergency Bike Needed</Tag>
-                        <Typography.Text type="secondary">This work order has been in progress for over {EMERGENCY_BIKE_THRESHOLD_HOURS} hours. Consider assigning an emergency bike.</Typography.Text>
-                        <Button type="primary" icon={<BikeIcon size={16} />} onClick={() => setIsAssignEmergencyBikeDialogOpen(true)} style={{ marginTop: 8 }}>
-                          Assign Emergency Bike
-                        </Button>
-                      </Space>
-                    ) : (
-                      <Tag color="default">No Emergency Bike Assigned</Tag>
-                    )}
-                  </Card>
+                  {shouldShowEmergencyBikeCard && ( // Conditional rendering for the entire card
+                    <Card title="Emergency Bike Status">
+                      {hasActiveEmergencyBike ? (
+                        <Space direction="vertical" style={{ width: '100%' }}>
+                          <Tag color="green" icon={<BikeIcon size={14} />}>Assigned</Tag>
+                          <Typography.Text strong>Bike: {workOrder.active_emergency_bike_assignment?.vehicles?.license_plate}</Typography.Text>
+                          <Typography.Text type="secondary">Assigned on: {dayjs(workOrder.active_emergency_bike_assignment?.assigned_at).format('MMM D, YYYY h:mm A')}</Typography.Text>
+                          {workOrder.active_emergency_bike_assignment?.assignment_notes && (
+                            <Typography.Paragraph type="secondary" ellipsis={{ rows: 2, expandable: true, symbol: 'more' }}>
+                              Notes: {workOrder.active_emergency_bike_assignment.assignment_notes}
+                            </Typography.Paragraph>
+                          )}
+                          <Button type="default" icon={<BikeIcon size={16} />} onClick={() => setIsReturnEmergencyBikeDialogOpen(true)} style={{ marginTop: 8 }}>
+                            Return Emergency Bike
+                          </Button>
+                        </Space>
+                      ) : workOrder.is_emergency_bike_eligible ? (
+                        <Space direction="vertical" style={{ width: '100%' }}>
+                          <Tag color="purple" icon={<BikeIcon size={14} />}>Emergency Bike Needed</Tag>
+                          <Typography.Text type="secondary">This work order has been in progress for over {EMERGENCY_BIKE_THRESHOLD_HOURS} hours. Consider assigning an emergency bike.</Typography.Text>
+                          <Button type="primary" icon={<BikeIcon size={16} />} onClick={() => setIsAssignEmergencyBikeDialogOpen(true)} style={{ marginTop: 8 }}>
+                            Assign Emergency Bike
+                          </Button>
+                        </Space>
+                      ) : (
+                        <Tag color="default">No Emergency Bike Assigned</Tag>
+                      )}
+                    </Card>
+                  )}
                   <WorkOrderDetailsInfoCard
                     workOrder={workOrder}
                     technician={technician}

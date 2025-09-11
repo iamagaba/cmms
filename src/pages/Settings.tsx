@@ -28,10 +28,19 @@ const UserManagement = () => {
 
   const technicianMutation = useMutation({
     mutationFn: async (technicianData: Partial<Technician>) => {
-      // Ensure camelCase to snake_case conversion for all fields in technicianData
       const snakeCaseData = camelToSnakeCase(technicianData);
-      const { error } = await supabase.from('technicians').upsert([snakeCaseData]);
-      if (error) throw new Error(error.message);
+      if (technicianData.id) {
+        // If ID exists, it's an update operation
+        const { error } = await supabase
+          .from('technicians')
+          .update(snakeCaseData) // Use update for existing records
+          .eq('id', technicianData.id);
+        if (error) throw new Error(error.message);
+      } else {
+        // If no ID, it's an insert operation
+        const { error } = await supabase.from('technicians').insert([snakeCaseData]);
+        if (error) throw new Error(error.message);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['technicians'] });
@@ -54,8 +63,6 @@ const UserManagement = () => {
     onError: (error) => showError(error.message),
   });
 
-  // Removed updateTechnicianStatusMutation as it's now handled by technicianMutation
-
   const handleSave = (technicianData: Technician) => {
     technicianMutation.mutate(technicianData); // technicianData is already a full object from form
   };
@@ -69,7 +76,6 @@ const UserManagement = () => {
     setIsDialogOpen(true);
   };
 
-  // Modified handleUpdateStatus to fetch full data and use general technicianMutation
   const handleUpdateStatus = async (id: string, status: Technician['status']) => {
     // Fetch the current technician data to ensure all NOT NULL fields are present
     const { data: currentTechnician, error: fetchError } = await supabase

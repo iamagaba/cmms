@@ -18,11 +18,13 @@ import { calculateDistance } from "@/utils/geo-helpers";
 
 // Import new modular components
 import { WorkOrderCustomerVehicleCard } from "@/components/work-order-details/WorkOrderCustomerVehicleCard.tsx";
-import { WorkOrderServiceInfoCard } from "@/components/work-order-details/WorkOrderServiceInfoCard.tsx";
+import { WorkOrderServiceLifecycleCard } from "@/components/work-order-details/WorkOrderServiceLifecycleCard.tsx"; // Renamed and refactored
 import { WorkOrderDetailsInfoCard } from "@/components/work-order-details/WorkOrderDetailsInfoCard.tsx";
 import { WorkOrderPartsUsedCard } from "@/components/work-order-details/WorkOrderPartsUsedCard.tsx";
 import { WorkOrderActivityLogCard } from "@/components/work-order-details/WorkOrderActivityLogCard.tsx";
 import { WorkOrderLocationMapCard } from "@/components/work-order-details/WorkOrderLocationMapCard.tsx";
+import { IssueConfirmationDialog } from "@/components/IssueConfirmationDialog.tsx"; // New dialog
+import { MaintenanceCompletionDialog } from "@/components/MaintenanceCompletionDialog.tsx"; // New dialog
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -38,6 +40,8 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   const queryClient = useQueryClient();
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
   const [isAddPartDialogOpen, setIsAddPartDialogOpen] = useState(false);
+  const [isIssueConfirmationDialogOpen, setIsIssueConfirmationDialogOpen] = useState(false); // New state
+  const [isMaintenanceCompletionDialogOpen, setIsMaintenanceCompletionDialogOpen] = useState(false); // New state
   const { session } = useSession();
 
   const [showInteractiveMap, setShowInteractiveMap] = useState(false);
@@ -58,7 +62,14 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
           workOrderNumber: data.work_order_number,
           assignedTechnicianId: data.assigned_technician_id,
           locationId: data.location_id,
-          serviceNotes: data.service_notes,
+          // Map old 'service' to new 'clientReport' if clientReport is null
+          clientReport: data.client_report || data.service,
+          // Map old 'serviceNotes' to new 'maintenanceNotes' if maintenanceNotes is null
+          maintenanceNotes: data.maintenance_notes || data.service_notes,
+          issueType: data.issue_type,
+          faultCode: data.fault_code,
+          service: data.service, // Keep original service for now
+          serviceNotes: data.service_notes, // Keep original serviceNotes for now
           partsUsed: data.parts_used,
           activityLog: data.activity_log,
           slaDue: data.sla_due,
@@ -138,9 +149,26 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     const newActivityLog = [...(workOrder.activityLog || [])];
     let activityMessage = '';
 
+    // Check for status change to trigger dialogs
     if (updates.status && updates.status !== oldWorkOrder.status) {
       activityMessage = `Status changed from '${oldWorkOrder.status || 'N/A'}' to '${updates.status}'.`;
-    } else if (updates.assignedTechnicianId && updates.assignedTechnicianId !== oldWorkOrder.assignedTechnicianId) {
+      
+      // Trigger Issue Confirmation Dialog when status changes to 'Ready'
+      if (updates.status === 'Ready' && oldWorkOrder.channel !== 'Service Center' && !oldWorkOrder.issueType) {
+        setIsIssueConfirmationDialogOpen(true);
+        // Do not proceed with mutation yet, wait for dialog to save
+        return;
+      }
+      
+      // Trigger Maintenance Completion Dialog when status changes to 'Completed'
+      if (updates.status === 'Completed' && (!oldWorkOrder.faultCode || !oldWorkOrder.maintenanceNotes)) {
+        setIsMaintenanceCompletionDialogOpen(true);
+        // Do not proceed with mutation yet, wait for dialog to save
+        return;
+      }
+    }
+
+    if (updates.assignedTechnicianId && updates.assignedTechnicianId !== oldWorkOrder.assignedTechnicianId) {
       const oldTech = allTechnicians?.find(t => t.id === oldWorkOrder.assignedTechnicianId)?.name || 'Unassigned';
       const newTech = allTechnicians?.find(t => t.id === updates.assignedTechnicianId)?.name || 'Unassigned';
       activityMessage = `Assigned technician changed from '${oldTech}' to '${newTech}'.`;
@@ -148,10 +176,14 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
       activityMessage = `SLA due date updated to '${dayjs(updates.slaDue).format('MMM D, YYYY h:mm A')}'.`;
     } else if (updates.appointmentDate && updates.appointmentDate !== oldWorkOrder.appointmentDate) {
       activityMessage = `Appointment date updated to '${dayjs(updates.appointmentDate).format('MMM D, YYYY h:mm A')}'.`;
-    } else if (updates.service && updates.service !== oldWorkOrder.service) {
-      activityMessage = `Service description updated.`;
-    } else if (updates.serviceNotes && updates.serviceNotes !== oldWorkOrder.serviceNotes) {
-      activityMessage = `Service notes updated.`;
+    } else if (updates.clientReport && updates.clientReport !== oldWorkOrder.clientReport) { // Updated field
+      activityMessage = `Client report updated.`;
+    } else if (updates.issueType && updates.issueType !== oldWorkOrder.issueType) { // New field
+      activityMessage = `Confirmed issue type updated to '${updates.issueType}'.`;
+    } else if (updates.faultCode && updates.faultCode !== oldWorkOrder.faultCode) { // New field
+      activityMessage = `Fault code updated to '${updates.faultCode}'.`;
+    } else if (updates.maintenanceNotes && updates.maintenanceNotes !== oldWorkOrder.maintenanceNotes) { // Updated field
+      activityMessage = `Maintenance notes updated.`;
     } else if (updates.priority && updates.priority !== oldWorkOrder.priority) {
       activityMessage = `Priority changed from '${oldWorkOrder.priority || 'N/A'}' to '${updates.priority}'.`;
     } else if (updates.channel && updates.channel !== oldWorkOrder.channel) {
@@ -183,7 +215,28 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     } 
     workOrderMutation.mutate({ id: workOrder.id, ...updates }); 
   };
-  const handleSaveOnHoldReason = (reason: string) => { if (!onHoldWorkOrder) return; const updates = { status: 'On Hold' as const, onHoldReason: reason }; workOrderMutation.mutate({ id: onHoldWorkOrder.id, ...updates }); setOnHoldWorkOrder(null); };
+
+  const handleSaveOnHoldReason = (reason: string) => { 
+    if (!onHoldWorkOrder) return; 
+    const updates = { status: 'On Hold' as const, onHoldReason: reason }; 
+    workOrderMutation.mutate({ id: onHoldWorkOrder.id, ...updates }); 
+    setOnHoldWorkOrder(null); 
+  };
+
+  const handleSaveIssueConfirmation = (issueType: string, notes: string | null) => {
+    if (!workOrder) return;
+    const updates: Partial<WorkOrder> = { status: 'Ready', issueType: issueType, serviceNotes: notes }; // Use serviceNotes for confirmation notes
+    workOrderMutation.mutate({ id: workOrder.id, ...updates });
+    setIsIssueConfirmationDialogOpen(false);
+  };
+
+  const handleSaveMaintenanceCompletion = (faultCode: string, maintenanceNotes: string | null) => {
+    if (!workOrder) return;
+    const updates: Partial<WorkOrder> = { status: 'Completed', faultCode: faultCode, maintenanceNotes: maintenanceNotes, completedAt: new Date().toISOString() };
+    workOrderMutation.mutate({ id: workOrder.id, ...updates });
+    setIsMaintenanceCompletionDialogOpen(false);
+  };
+
   const handleLocationSelect = (selectedLoc: { lat: number; lng: number; label: string }) => { handleUpdateWorkOrder({ customerAddress: selectedLoc.label, customerLat: selectedLoc.lat, customerLng: selectedLoc.lng }); };
   const handleAddPart = (itemId: string, quantity: number) => { addPartMutation.mutate({ itemId, quantity }); };
   const handleRemovePart = (partId: string) => { removePartMutation.mutate(partId); };
@@ -197,6 +250,8 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
 
   if (isLoading) return <Skeleton active />;
   if (!workOrder) return isDrawerMode ? <div style={{ padding: 24 }}><NotFound /></div> : <NotFound />;
+
+  const usedPartsCount = usedParts?.length || 0;
 
   // --- Main Render Logic ---
   return (
@@ -226,7 +281,11 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
             <Tabs defaultActiveKey="1" destroyInactiveTabPane={false} onChange={setActiveTabKey}>
               <TabPane tab={<span><InfoCircleOutlined /> Overview</span>} key="1">
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                  <WorkOrderServiceInfoCard workOrder={workOrder} handleUpdateWorkOrder={handleUpdateWorkOrder} />
+                  <WorkOrderServiceLifecycleCard // Replaced old component
+                    workOrder={workOrder}
+                    handleUpdateWorkOrder={handleUpdateWorkOrder}
+                    usedPartsCount={usedPartsCount}
+                  />
                   <WorkOrderDetailsInfoCard
                     workOrder={workOrder}
                     technician={technician}
@@ -273,7 +332,11 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
             <Row gutter={[16, 16]}>
               <Col xs={24} lg={16}>
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                  <WorkOrderServiceInfoCard workOrder={workOrder} handleUpdateWorkOrder={handleUpdateWorkOrder} />
+                  <WorkOrderServiceLifecycleCard // Replaced old component
+                    workOrder={workOrder}
+                    handleUpdateWorkOrder={handleUpdateWorkOrder}
+                    usedPartsCount={usedPartsCount}
+                  />
                   <WorkOrderPartsUsedCard
                     workOrder={workOrder}
                     usedParts={usedParts || []}
@@ -311,6 +374,25 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
         )}
       </Space>
       {onHoldWorkOrder && <OnHoldReasonDialog isOpen={!!onHoldWorkOrder} onClose={() => setOnHoldWorkOrder(null)} onSave={handleSaveOnHoldReason} />}
+      {isIssueConfirmationDialogOpen && (
+        <IssueConfirmationDialog
+          isOpen={isIssueConfirmationDialogOpen}
+          onClose={() => setIsIssueConfirmationDialogOpen(false)}
+          onSave={handleSaveIssueConfirmation}
+          initialIssueType={workOrder.issueType}
+          initialNotes={workOrder.serviceNotes} // Using serviceNotes for confirmation notes
+        />
+      )}
+      {isMaintenanceCompletionDialogOpen && (
+        <MaintenanceCompletionDialog
+          isOpen={isMaintenanceCompletionDialogOpen}
+          onClose={() => setIsMaintenanceCompletionDialogOpen(false)}
+          onSave={handleSaveMaintenanceCompletion}
+          usedPartsCount={usedPartsCount}
+          initialFaultCode={workOrder.faultCode}
+          initialMaintenanceNotes={workOrder.maintenanceNotes}
+        />
+      )}
     </>
   );
 };

@@ -90,8 +90,8 @@ export interface WorkOrder {
   channel: string | null;
   assignedTechnicianId: string | null;
   locationId: string | null;
-  service: string | null;
-  serviceNotes: string | null;
+  service: string | null; // Keep for now for backward compatibility, will map to clientReport
+  serviceNotes: string | null; // Keep for now for backward compatibility, will map to maintenanceNotes
   partsUsed: { name: string; quantity: number }[] | null;
   activityLog: { timestamp: string; activity: string; userId: string | null }[] | null;
   slaDue: string | null;
@@ -114,6 +114,11 @@ export interface WorkOrder {
   work_started_at: string | null;
   sla_timers_paused_at: string | null;
   total_paused_duration_seconds: number | null;
+  // New fields for service lifecycle
+  clientReport: string | null;
+  issueType: string | null;
+  faultCode: string | null;
+  maintenanceNotes: string | null;
 }
 
 export interface InventoryItem {

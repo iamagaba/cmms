@@ -33,47 +33,30 @@ const CalendarPage = () => {
     const listData = getListData(value);
     if (listData.length === 0) return null;
 
-    const popoverContent = (
-      <List
-        size="small"
-        dataSource={listData}
-        renderItem={(item: WorkOrder) => {
+    return (
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', justifyContent: 'center', marginTop: '4px' }}>
+        {listData.map(item => {
           const technician = technicians?.find(t => t.id === item.assignedTechnicianId);
           const vehicle = vehicles?.find(v => v.id === item.vehicleId);
-          return (
-            <List.Item
-              key={item.id}
-              onClick={() => setViewingWorkOrderId(item.id)}
-              style={{ cursor: 'pointer' }}
-            >
-              <List.Item.Meta
-                avatar={<Tag color={priorityColors[item.priority || 'Low']}>{item.priority}</Tag>}
-                title={<Text strong>{item.workOrderNumber}</Text>}
-                description={<><Text>{item.service}</Text><br/>{vehicle && <Text type="secondary">{vehicle.license_plate}</Text>}</>}
-              />
-            </List.Item>
-          );
-        }}
-      />
-    );
+          const priorityColor = priorityColors[item.priority || 'Low'];
 
-    return (
-      <Popover content={popoverContent} title={`Appointments for ${value.format('MMM D')}`} trigger="hover">
-        <ul className="events" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-          {listData.map(item => {
-            const vehicle = vehicles?.find(v => v.id === item.vehicleId);
-            return (
-              <li key={item.id} onClick={() => setViewingWorkOrderId(item.id)} style={{ cursor: 'pointer', lineHeight: '1.2' }}>
-                <Tag color={priorityColors[item.priority || 'Low']} className="ant-tag-compact" style={{ marginRight: '2px' }}>
-                  {dayjs(item.appointmentDate).format('HH:mm')}
-                </Tag>
-                <Text strong style={{ fontSize: '11px' }}>{item.workOrderNumber}</Text>
-                {vehicle && <Text type="secondary" style={{ fontSize: '11px', marginLeft: '2px' }}>({vehicle.license_plate})</Text>}
-              </li>
-            );
-          })}
-        </ul>
-      </Popover>
+          const popoverContent = (
+            <Space direction="vertical" size={4}>
+              <Text strong>{item.workOrderNumber}</Text>
+              <Text>{item.service}</Text>
+              {vehicle && <Text type="secondary">{vehicle.license_plate}</Text>}
+              {technician && <Text type="secondary">Assigned to: {technician.name}</Text>}
+              <Text type="secondary">Due: {dayjs(item.slaDue).format('MMM D, h:mm A')}</Text>
+            </Space>
+          );
+
+          return (
+            <Popover key={item.id} content={popoverContent} title="Work Order Details" trigger="hover">
+              <Badge dot color={priorityColor} style={{ cursor: 'pointer' }} />
+            </Popover>
+          );
+        })}
+      </div>
     );
   };
 

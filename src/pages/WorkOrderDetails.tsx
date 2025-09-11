@@ -24,8 +24,7 @@ import { WorkOrderPartsUsedCard } from "@/components/work-order-details/WorkOrde
 import { WorkOrderActivityLogCard } from "@/components/work-order-details/WorkOrderActivityLogCard.tsx";
 import { WorkOrderLocationMapCard } from "@/components/work-order-details/WorkOrderLocationMapCard.tsx";
 import { IssueConfirmationDialog } from "@/components/IssueConfirmationDialog.tsx"; // New dialog
-import { MaintenanceCompletionDialog } from "@/components/MaintenanceCompletionDialog.tsx"; // New dialog
-import { AddPartToWorkOrderDialog } from "@/components/AddPartToWorkOrderDialog"; // Import AddPartToWorkOrderDialog
+import { MaintenanceCompletionDrawer } from "@/components/MaintenanceCompletionDrawer.tsx"; // Changed to Drawer
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -40,9 +39,8 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
-  const [isAddPartDialogOpen, setIsAddPartDialogOpen] = useState(false);
   const [isIssueConfirmationDialogOpen, setIsIssueConfirmationDialogOpen] = useState(false); // New state
-  const [isMaintenanceCompletionDialogOpen, setIsMaintenanceCompletionDialogOpen] = useState(false); // New state
+  const [isMaintenanceCompletionDrawerOpen, setIsMaintenanceCompletionDrawerOpen] = useState(false); // Changed to Drawer
   const { session } = useSession();
 
   const [showInteractiveMap, setShowInteractiveMap] = useState(false);
@@ -163,7 +161,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
       
       // Trigger Maintenance Completion Dialog when status changes to 'Completed'
       if (updates.status === 'Completed' && (!oldWorkOrder.faultCode || !oldWorkOrder.maintenanceNotes)) {
-        setIsMaintenanceCompletionDialogOpen(true);
+        setIsMaintenanceCompletionDrawerOpen(true); // Changed to Drawer
         // Do not proceed with mutation yet, wait for dialog to save
         return;
       }
@@ -235,12 +233,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     if (!workOrder) return;
     const updates: Partial<WorkOrder> = { status: 'Completed', faultCode: faultCode, maintenanceNotes: maintenanceNotes, completedAt: new Date().toISOString() };
     workOrderMutation.mutate({ id: workOrder.id, ...updates });
-    setIsMaintenanceCompletionDialogOpen(false);
-  };
-
-  const handleAddPartsFromCompletionDialog = () => {
-    setIsMaintenanceCompletionDialogOpen(false); // Close completion dialog
-    setIsAddPartDialogOpen(true); // Open add part dialog
+    setIsMaintenanceCompletionDrawerOpen(false); // Changed to Drawer
   };
 
   const handleLocationSelect = (selectedLoc: { lat: number; lng: number; label: string }) => { handleUpdateWorkOrder({ customerAddress: selectedLoc.label, customerLat: selectedLoc.lat, customerLng: selectedLoc.lng }); };
@@ -307,8 +300,8 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
                   <WorkOrderPartsUsedCard
                     workOrder={workOrder}
                     usedParts={usedParts || []}
-                    isAddPartDialogOpen={isAddPartDialogOpen}
-                    setIsAddPartDialogOpen={setIsAddPartDialogOpen}
+                    isAddPartDialogOpen={false} // This dialog is no longer needed here
+                    setIsAddPartDialogOpen={() => {}} // No-op
                     handleAddPart={handleAddPart}
                     handleRemovePart={handleRemovePart}
                   />
@@ -346,8 +339,8 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
                   <WorkOrderPartsUsedCard
                     workOrder={workOrder}
                     usedParts={usedParts || []}
-                    isAddPartDialogOpen={isAddPartDialogOpen}
-                    setIsAddPartDialogOpen={setIsAddPartDialogOpen}
+                    isAddPartDialogOpen={false} // This dialog is no longer needed here
+                    setIsAddPartDialogOpen={() => {}} // No-op
                     handleAddPart={handleAddPart}
                     handleRemovePart={handleRemovePart}
                   />
@@ -389,22 +382,16 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
           initialNotes={workOrder.serviceNotes} // Using serviceNotes for confirmation notes
         />
       )}
-      {isMaintenanceCompletionDialogOpen && (
-        <MaintenanceCompletionDialog
-          isOpen={isMaintenanceCompletionDialogOpen}
-          onClose={() => setIsMaintenanceCompletionDialogOpen(false)}
+      {isMaintenanceCompletionDrawerOpen && (
+        <MaintenanceCompletionDrawer
+          isOpen={isMaintenanceCompletionDrawerOpen}
+          onClose={() => setIsMaintenanceCompletionDrawerOpen(false)}
           onSave={handleSaveMaintenanceCompletion}
-          usedPartsCount={usedPartsCount}
-          onAddPartsClick={handleAddPartsFromCompletionDialog} // Pass the new callback
+          usedParts={usedParts || []}
+          onAddPart={handleAddPart}
+          onRemovePart={handleRemovePart}
           initialFaultCode={workOrder.faultCode}
           initialMaintenanceNotes={workOrder.maintenanceNotes}
-        />
-      )}
-      {isAddPartDialogOpen && (
-        <AddPartToWorkOrderDialog
-          isOpen={isAddPartDialogOpen}
-          onClose={() => setIsAddPartDialogOpen(false)}
-          onSave={handleAddPart}
         />
       )}
     </>

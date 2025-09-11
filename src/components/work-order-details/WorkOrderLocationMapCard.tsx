@@ -52,8 +52,8 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
 
   return (
     <Card title="Location Details">
-      <Descriptions column={1}>
-        <Descriptions.Item label={<><Icon icon="ph:map-pin-fill" /> Service Location</>}>
+      <Descriptions column={1} bordered> {/* Added bordered prop here */}
+        <Descriptions.Item label={<><Icon icon="ph:map-pin-fill" /> Service Location</>} labelStyle={{ width: '150px' }}>
           <Select
             value={workOrder.locationId}
             onChange={(value) => handleUpdateWorkOrder({ locationId: value })}
@@ -68,7 +68,7 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
             ))}
           </Select>
         </Descriptions.Item>
-        <Descriptions.Item label="Client Location">
+        <Descriptions.Item label="Client Location" labelStyle={{ width: '150px' }}>
           <MapboxLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder.customerAddress || ''} />
         </Descriptions.Item>
       </Descriptions>

@@ -39,8 +39,8 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
 
   return (
     <Card title="Work Order Details">
-      <Descriptions column={1}>
-        <Descriptions.Item label="Status">
+      <Descriptions column={1} bordered> {/* Added bordered prop here */}
+        <Descriptions.Item label="Status" labelStyle={{ width: '150px' }}>
           <Select
             value={workOrder.status || 'Open'}
             onChange={(value) => handleUpdateWorkOrder({ status: value })}
@@ -57,7 +57,7 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
             <Option value="Completed"><Tag color={statusColors["Completed"]}>Completed</Tag></Option>
           </Select>
         </Descriptions.Item>
-        <Descriptions.Item label="Priority">
+        <Descriptions.Item label="Priority" labelStyle={{ width: '150px' }}>
           <Select
             value={workOrder.priority || 'Low'}
             onChange={(value) => handleUpdateWorkOrder({ priority: value })}
@@ -71,7 +71,7 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
             <Option value="Low"><Tag color={priorityColors["Low"]}>Low</Tag></Option>
           </Select>
         </Descriptions.Item>
-        <Descriptions.Item label="Channel">
+        <Descriptions.Item label="Channel" labelStyle={{ width: '150px' }}>
           <Select
             value={workOrder.channel}
             onChange={(value) => handleUpdateWorkOrder({ channel: value })}
@@ -84,7 +84,7 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
             {channelOptions.map(c => <Option key={c} value={c}>{c}</Option>)}
           </Select>
         </Descriptions.Item>
-        <Descriptions.Item label={<><Icon icon="ph:calendar-fill" /> SLA Due</>}>
+        <Descriptions.Item label={<><Icon icon="ph:calendar-fill" /> SLA Due</>} labelStyle={{ width: '150px' }}>
           <DatePicker
             showTime
             value={workOrder.slaDue ? dayjs(workOrder.slaDue) : null}
@@ -93,7 +93,7 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
             style={{ width: '100%' }}
           />
         </Descriptions.Item>
-        <Descriptions.Item label="Appointment Date">
+        <Descriptions.Item label="Appointment Date" labelStyle={{ width: '150px' }}>
           <DatePicker
             showTime
             value={workOrder.appointmentDate ? dayjs(workOrder.appointmentDate) : null}
@@ -102,7 +102,7 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
             style={{ width: '100%' }}
           />
         </Descriptions.Item>
-        <Descriptions.Item label={<><Icon icon="ph:wrench-fill" /> Assigned To</>}>
+        <Descriptions.Item label={<><Icon icon="ph:wrench-fill" /> Assigned To</>} labelStyle={{ width: '150px' }}>
           <Select
             value={workOrder.assignedTechnicianId}
             onChange={(value) => handleUpdateWorkOrder({ assignedTechnicianId: value })}
@@ -123,7 +123,7 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
           </Select>
         </Descriptions.Item>
         {technician && (
-          <Descriptions.Item label={<><Icon icon="ph:phone-fill" /> Tech Phone</>}>
+          <Descriptions.Item label={<><Icon icon="ph:phone-fill" /> Tech Phone</>} labelStyle={{ width: '150px' }}>
             <a href={`tel:${technician.phone}`}>{technician.phone || 'N/A'}</a>
           </Descriptions.Item>
         )}

@@ -6,10 +6,12 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 import SlaCountdown from "./SlaCountdown";
 import { ResizableTitle } from "./ResizableTitle";
 import { EmergencyBikeTag } from "./EmergencyBikeTag"; // Import the new tag component
+import { Popover } from "antd"; // Import Popover
+import { showSuccess } from "@/utils/toast"; // Import showSuccess
 
 dayjs.extend(relativeTime);
 
-const { Text } = Typography;
+const { Text, Paragraph } = Typography; // Added Paragraph
 const { Option } = Select;
 const { useToken } = theme;
 
@@ -60,8 +62,56 @@ export const getColumns = ({
       key: "workOrderNumber",
       title: "ID",
       dataIndex: "workOrderNumber",
-      render: (text: string, record: WorkOrderRow) => <Text code>{text || record.id.substring(0, 6)}</Text>,
-      width: 100,
+      render: (text: string, record: WorkOrderRow) => {
+        const workOrderLink = `/work-orders/${record.id}`;
+        const fullUrl = `${window.location.origin}${workOrderLink}`;
+
+        const popoverContent = (
+          <Space direction="vertical" size="small" style={{ width: '200px' }}>
+            <Text strong>{text || record.id.substring(0, 6)}</Text>
+            <Button
+              type="link"
+              icon={<Icon icon="ph:eye-fill" />}
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(workOrderLink, '_blank');
+              }}
+              style={{ padding: 0, height: 'auto', textAlign: 'left' }}
+            >
+              View Details
+            </Button>
+            <Button
+              type="link"
+              icon={<Icon icon="ph:copy-fill" />}
+              onClick={(e) => {
+                e.stopPropagation();
+                navigator.clipboard.writeText(fullUrl);
+                showSuccess('Link copied to clipboard!');
+              }}
+              style={{ padding: 0, height: 'auto', textAlign: 'left' }}
+            >
+              Copy Link
+            </Button>
+          </Space>
+        );
+
+        return (
+          <Space size={4}>
+            <Typography.Text code ellipsis={{ tooltip: text || record.id.substring(0, 6) }} style={{ maxWidth: '80px' }}>
+              {text || record.id.substring(0, 6)}
+            </Typography.Text>
+            <Popover content={popoverContent} trigger="click" placement="rightTop" overlayInnerStyle={{ padding: 8 }}>
+              <Button
+                type="text"
+                icon={<Icon icon="ph:dots-three-vertical-fill" style={{ fontSize: '14px' }} />}
+                size="small"
+                onClick={(e) => e.stopPropagation()}
+              />
+            </Popover>
+          </Space>
+        );
+      },
+      width: 150, // Adjust width to accommodate the button
       sorter: (a: WorkOrderRow, b: WorkOrderRow) => (a.workOrderNumber || "").localeCompare(b.workOrderNumber || ""),
     },
     {
@@ -70,10 +120,12 @@ export const getColumns = ({
       dataIndex: "vehicle",
       render: (_: any, record: WorkOrderRow) => (
         <div>
-          <Text strong>{record.vehicle?.license_plate || 'N/A'}</Text><br />
-          <Text type="secondary" style={{ fontSize: 12 }}>
+          <Typography.Text strong ellipsis={{ tooltip: record.vehicle?.license_plate || 'N/A' }} style={{ maxWidth: '100%' }}>
+            {record.vehicle?.license_plate || 'N/A'}
+          </Typography.Text><br />
+          <Typography.Text type="secondary" style={{ fontSize: 12 }} ellipsis={{ tooltip: record.vehicle ? `${record.vehicle.make} ${record.vehicle.model}` : 'N/A' }}>
             {record.vehicle ? `${record.vehicle.make} ${record.vehicle.model}` : 'N/A'}
-          </Text>
+          </Typography.Text>
         </div>
       ),
       width: 180,
@@ -81,9 +133,14 @@ export const getColumns = ({
     {
       key: "service",
       title: "Service",
-      dataIndex: "service",
+      dataIndex: "initialDiagnosis", // Use initialDiagnosis as the data source
+      render: (text: string) => (
+        <Paragraph ellipsis={{ rows: 1, tooltip: text }} style={{ margin: 0 }}>
+          {text || 'N/A'}
+        </Paragraph>
+      ),
       width: 250,
-      sorter: (a: WorkOrderRow, b: WorkOrderRow) => (a.service || "").localeCompare(b.service || ""),
+      sorter: (a: WorkOrderRow, b: WorkOrderRow) => (a.initialDiagnosis || "").localeCompare(b.initialDiagnosis || ""),
     },
     {
       key: "status",

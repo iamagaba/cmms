@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Typography, Space, Timeline } from 'antd';
+import { Card, Typography, Space } from 'antd';
 import { MessageOutlined, QuestionCircleOutlined, ToolOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { WorkOrder } from '@/types/supabase';
@@ -21,76 +21,79 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
 
   return (
     <Card title="Service Information">
-      <Timeline mode="left" className="work-order-lifecycle-timeline">
-        {/* Client Report */}
-        <Timeline.Item
-          label={<Text type="secondary" style={{ fontSize: 12 }}>{formatDate(workOrder.createdAt)}</Text>}
-          dot={<MessageOutlined />}
+      <Space direction="vertical" style={{ width: '100%' }} size="middle">
+        {/* Client Report Card */}
+        <Card
+          size="small"
+          title={
+            <Space>
+              <MessageOutlined />
+              <Text strong>Client Report</Text>
+              <Text type="secondary" style={{ fontSize: 12 }}>{formatDate(workOrder.createdAt)}</Text>
+            </Space>
+          }
+          bordered
+          style={{ width: '100%' }}
         >
-          <Card
-            size="small"
-            title={<Text strong>Client Report</Text>}
-            bordered
-            style={{ width: '100%' }}
-          >
-            <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ clientReport: value }) }} style={{ margin: 0, textAlign: 'left' }}>
-              {workOrder.clientReport || <Text type="secondary">No client report provided.</Text>}
-            </Paragraph>
-          </Card>
-        </Timeline.Item>
+          <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ clientReport: value }) }} style={{ margin: 0, textAlign: 'left' }}>
+            {workOrder.clientReport || <Text type="secondary">No client report provided.</Text>}
+          </Paragraph>
+        </Card>
 
-        {/* Confirmed Issue (Conditional) */}
+        {/* Confirmed Issue Card (Conditional) */}
         {!isServiceCenterChannel && (
-          <Timeline.Item
-            label={<Text type="secondary" style={{ fontSize: 12 }}>{formatDate(workOrder.confirmed_at || workOrder.work_started_at || workOrder.createdAt)}</Text>}
-            dot={<QuestionCircleOutlined />}
-          >
-            <Card
-              size="small"
-              title={<Text strong>Confirmed Issue</Text>}
-              bordered
-              style={{ width: '100%' }}
-            >
-              <Space direction="vertical" style={{ width: '100%', textAlign: 'left' }} size={0}>
-                <Text strong>Issue Type:</Text>
-                <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ issueType: value }) }} style={{ margin: 0 }}>
-                  {workOrder.issueType || <Text type="secondary">No issue confirmed yet.</Text>}
-                </Paragraph>
-                <Text strong>Confirmation Notes:</Text>
-                <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ serviceNotes: value }) }} type="secondary" style={{ margin: 0 }}>
-                  {workOrder.serviceNotes || <Text type="secondary">No confirmation notes recorded.</Text>}
-                </Paragraph>
-              </Space>
-            </Card>
-          </Timeline.Item>
-        )}
-
-        {/* Maintenance Decision */}
-        <Timeline.Item
-          label={<Text type="secondary" style={{ fontSize: 12 }}>{formatDate(workOrder.completedAt)}</Text>}
-          dot={<ToolOutlined />}
-        >
           <Card
             size="small"
-            title={<Text strong>Maintenance Decision</Text>}
+            title={
+              <Space>
+                <QuestionCircleOutlined />
+                <Text strong>Confirmed Issue</Text>
+                <Text type="secondary" style={{ fontSize: 12 }}>{formatDate(workOrder.confirmed_at || workOrder.work_started_at || workOrder.createdAt)}</Text>
+              </Space>
+            }
             bordered
             style={{ width: '100%' }}
           >
             <Space direction="vertical" style={{ width: '100%', textAlign: 'left' }} size={0}>
-              <Text strong>Fault Code:</Text>
-              <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ faultCode: value }) }} style={{ margin: 0 }}>
-                {workOrder.faultCode || <Text type="secondary">No fault code recorded.</Text>}
+              <Text strong>Issue Type:</Text>
+              <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ issueType: value }) }} style={{ margin: 0 }}>
+                {workOrder.issueType || <Text type="secondary">No issue confirmed yet.</Text>}
               </Paragraph>
-              <Text strong>Repair Notes:</Text>
-              <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ maintenanceNotes: value }) }} type="secondary" style={{ margin: 0 }}>
-                {workOrder.maintenanceNotes || <Text type="secondary">No maintenance notes recorded.</Text>}
+              <Text strong>Confirmation Notes:</Text>
+              <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ serviceNotes: value }) }} type="secondary" style={{ margin: 0 }}>
+                {workOrder.serviceNotes || <Text type="secondary">No confirmation notes recorded.</Text>}
               </Paragraph>
-              <Text strong>Parts Used:</Text>
-              <Text>{usedPartsCount} items recorded</Text>
             </Space>
           </Card>
-        </Timeline.Item>
-      </Timeline>
+        )}
+
+        {/* Maintenance Decision Card */}
+        <Card
+          size="small"
+          title={
+            <Space>
+              <ToolOutlined />
+              <Text strong>Maintenance Decision</Text>
+              <Text type="secondary" style={{ fontSize: 12 }}>{formatDate(workOrder.completedAt)}</Text>
+            </Space>
+          }
+          bordered
+          style={{ width: '100%' }}
+        >
+          <Space direction="vertical" style={{ width: '100%', textAlign: 'left' }} size={0}>
+            <Text strong>Fault Code:</Text>
+            <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ faultCode: value }) }} style={{ margin: 0 }}>
+              {workOrder.faultCode || <Text type="secondary">No fault code recorded.</Text>}
+            </Paragraph>
+            <Text strong>Repair Notes:</Text>
+            <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ maintenanceNotes: value }) }} type="secondary" style={{ margin: 0 }}>
+              {workOrder.maintenanceNotes || <Text type="secondary">No maintenance notes recorded.</Text>}
+            </Paragraph>
+            <Text strong>Parts Used:</Text>
+            <Text>{usedPartsCount} items recorded</Text>
+          </Space>
+        </Card>
+      </Space>
     </Card>
   );
 };

@@ -52,7 +52,7 @@ const Sidebar = React.forwardRef<HTMLDivElement, SidebarProps>(
             onClick={() => onCollapse(!isCollapsed)}
             className="p-2 rounded-md hover:bg-accent hover:text-accent-foreground"
           >
-            <Icon icon={isCollapsed ? "si:menu-unfold" : "si:menu-fold"} className="h-5 w-5" />
+            <Icon icon={isCollapsed ? "ph:arrows-out-line-horizontal-fill" : "ph:arrows-in-line-horizontal-fill"} className="h-5 w-5" />
           </button>
         </div>
       </div>

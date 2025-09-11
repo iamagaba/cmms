@@ -152,7 +152,7 @@ export const DiagnosticFlowInput: React.FC<DiagnosticFlowInputProps> = ({ onDiag
       extra={
         <Space>
           <Button
-            icon={<Icon icon="si:arrow-left" />}
+            icon={<Icon icon="ph:arrow-left-fill" />}
             onClick={handleBack}
             disabled={flowHistory.length === 0 || isFlowEnded}
             size="small"
@@ -160,7 +160,7 @@ export const DiagnosticFlowInput: React.FC<DiagnosticFlowInputProps> = ({ onDiag
             Back
           </Button>
           <Button
-            icon={<Icon icon="si:refresh-cw" />}
+            icon={<Icon icon="ph:rotate-clockwise-fill" />}
             onClick={handleReset}
             disabled={currentQuestionId === 'start' && answeredOptions.length === 0}
             size="small"

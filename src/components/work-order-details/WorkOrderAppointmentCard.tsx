@@ -21,17 +21,17 @@ export const WorkOrderAppointmentCard: React.FC<WorkOrderAppointmentCardProps> =
   return (
     <Card title="Appointment Details">
       <Descriptions column={1} bordered>
-        <Descriptions.Item label={<><Icon icon="si:calendar" /> Date & Time</>} labelStyle={{ width: '150px' }}>
+        <Descriptions.Item label={<><Icon icon="ph:calendar-fill" /> Date & Time</>} labelStyle={{ width: '150px' }}>
           <Text strong>{dayjs(workOrder.appointmentDate).format('MMM D, YYYY h:mm A')}</Text>
         </Descriptions.Item>
-        <Descriptions.Item label={<><Icon icon="si:user" /> Assigned Technician</>} labelStyle={{ width: '150px' }}>
+        <Descriptions.Item label={<><Icon icon="ph:user-fill" /> Assigned Technician</>} labelStyle={{ width: '150px' }}>
           {technician ? (
             <Link to={`/technicians/${technician.id}`}>{technician.name}</Link>
           ) : (
             <Text type="secondary">Unassigned</Text>
           )}
         </Descriptions.Item>
-        <Descriptions.Item label={<><Icon icon="si:map-pin" /> Service Location</>} labelStyle={{ width: '150px' }}>
+        <Descriptions.Item label={<><Icon icon="ph:map-pin-fill" /> Service Location</>} labelStyle={{ width: '150px' }}>
           {location ? (
             <Link to={`/locations/${location.id}`}>{location.name.replace(' Service Center', '')}</Link>
           ) : (

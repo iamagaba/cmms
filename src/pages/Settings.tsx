@@ -145,12 +145,12 @@ const SystemSettings = () => {
               showUploadList={false}
               accept=".png,.jpg,.jpeg,.svg"
             >
-              <Button icon={<Icon icon="si:upload" />}>Change Logo</Button>
+              <Button icon={<Icon icon="ph:upload-fill" />}>Change Logo</Button>
             </Upload>
           </Space>
         </Form.Item>
 
-        <Form.Item><Button type="primary" htmlType="submit" icon={<Icon icon="si:save" />} loading={updateSystemSettingsMutation.isPending}>Save Settings</Button></Form.Item>
+        <Form.Item><Button type="primary" htmlType="submit" icon={<Icon icon="ph:floppy-disk-fill" />} loading={updateSystemSettingsMutation.isPending}>Save Settings</Button></Form.Item>
       </Form>
     </Card>
   );
@@ -217,7 +217,7 @@ const ProfileSettings = () => {
       <Col xs={24} md={8}>
         <Card>
           <Space direction="vertical" align="center" style={{ width: '100%' }}>
-            <Avatar size={128} src={displayAvatar || undefined} icon={<Icon icon="si:user" />} />
+            <Avatar size={128} src={displayAvatar || undefined} icon={<Icon icon="ph:user-fill" />} />
             <Button>Change Avatar</Button>
           </Space>
         </Card>
@@ -226,10 +226,10 @@ const ProfileSettings = () => {
         <Card title="Edit Profile Information">
           <Form layout="vertical" form={form} onFinish={onFinish}>
             <Form.Item name="name" label="Full Name" rules={[{ required: true, message: 'Please enter your full name!' }]}>
-              <Input prefix={<Icon icon="si:user" />} />
+              <Input prefix={<Icon icon="ph:user-fill" />} />
             </Form.Item>
             <Form.Item name="email" label="Email Address" rules={[{ required: true, type: 'email', message: 'Please enter a valid email!' }]}>
-              <Input prefix={<Icon icon="si:user" />} disabled />
+              <Input prefix={<Icon icon="ph:envelope-fill" />} disabled />
             </Form.Item>
             {user?.id === 'df02bbc5-167b-4a8c-a3f8-de0eb4d9db47' && (
               <Form.Item name="is_admin" label="Admin Access" valuePropName="checked" tooltip="Toggle your administrative privileges.">
@@ -242,16 +242,15 @@ const ProfileSettings = () => {
         <Card title="Change Password" style={{ marginTop: 16 }}>
           <Form layout="vertical">
             <Form.Item name="currentPassword" label="Current Password">
-              <Input.Password prefix={<Icon icon="si:lock" />} />
+              <Input.Password prefix={<Icon icon="ph:lock-fill" />} />
             </Form.Item>
             <Form.Item name="newPassword" label="New Password">
-              <Input.Password prefix={<Icon icon="si:lock" />} />
+              <Input.Password prefix={<Icon icon="ph:lock-fill" />} />
             </Form.Item>
             <Form.Item name="confirmPassword" label="Confirm New Password">
-              <Input.Password prefix={<Icon icon="si:lock" />} />
+              <Input.Password prefix={<Icon icon="ph:lock-fill" />} />
             </Form.Item>
-            <Form.Item><Button type="primary">Update Password</Button></Form.Item>
-          </Form>
+            <Form.Item><Button type="primary">Update Password</Button></Form.Item></Form>
         </Card>
       </Col>
     </Row>
@@ -267,10 +266,10 @@ const SettingsPage = () => {
   };
 
   const tabItems = [
-    { label: <span><Icon icon="si:user" />User Management</span>, key: 'user-management', children: <UserManagement /> },
-    { label: <span><Icon icon="si:wrench" />Service & SLA</span>, key: 'service-sla', children: <ServiceSlaManagement /> },
-    { label: <span><Icon icon="si:settings" />System Settings</span>, key: 'system-settings', children: <SystemSettings /> },
-    { label: <span><Icon icon="si:bell" />My Profile</span>, key: 'profile-settings', children: <ProfileSettings /> },
+    { label: <span><Icon icon="ph:users-fill" />User Management</span>, key: 'user-management', children: <UserManagement /> },
+    { label: <span><Icon icon="ph:wrench-fill" />Service & SLA</span>, key: 'service-sla', children: <ServiceSlaManagement /> },
+    { label: <span><Icon icon="ph:gear-fill" />System Settings</span>, key: 'system-settings', children: <SystemSettings /> },
+    { label: <span><Icon icon="ph:bell-fill" />My Profile</span>, key: 'profile-settings', children: <ProfileSettings /> },
   ];
 
   return (

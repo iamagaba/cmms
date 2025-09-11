@@ -78,7 +78,7 @@ const CustomersPage = () => {
         style={{ width: 250 }}
         allowClear
       />
-      <Button type="primary" icon={<Icon icon="si:plus" />} onClick={() => { setEditingCustomer(null); setIsDialogOpen(true); }}>
+      <Button type="primary" icon={<Icon icon="ph:plus-fill" />} onClick={() => { setEditingCustomer(null); setIsDialogOpen(true); }}>
         Add Customer
       </Button>
     </Space>

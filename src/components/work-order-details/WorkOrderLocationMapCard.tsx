@@ -53,7 +53,7 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
   return (
     <Card title="Location Details">
       <Descriptions column={1}>
-        <Descriptions.Item label={<><Icon icon="si:map-pin" /> Service Location</>}>
+        <Descriptions.Item label={<><Icon icon="ph:map-pin-fill" /> Service Location</>}>
           <Select
             value={workOrder.locationId}
             onChange={(value) => handleUpdateWorkOrder({ locationId: value })}
@@ -106,7 +106,7 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
               ) : (
                 <Empty description="No map preview available" image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ zIndex: 1 }} />
               )}
-              <Button type="primary" icon={<Icon icon="si:compass" />} style={{ zIndex: 1 }}>
+              <Button type="primary" icon={<Icon icon="ph:compass-fill" />} style={{ zIndex: 1 }}>
                 View Interactive Map
               </Button>
             </div>

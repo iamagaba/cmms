@@ -18,7 +18,7 @@ export const WorkOrderCustomerVehicleCard: React.FC<WorkOrderCustomerVehicleCard
         <Descriptions.Item label="Customer" labelStyle={{ width: '150px' }}>
           <Text>{customer?.name || 'N/A'}</Text>
         </Descriptions.Item>
-        <Descriptions.Item label={<><Icon icon="si:phone" /> Phone</>} labelStyle={{ width: '150px' }}>
+        <Descriptions.Item label={<><Icon icon="ph:phone-fill" /> Phone</>} labelStyle={{ width: '150px' }}>
           <Text>{customer?.phone || 'N/A'}</Text>
         </Descriptions.Item>
         <Descriptions.Item label="Vehicle" labelStyle={{ width: '150px' }}>

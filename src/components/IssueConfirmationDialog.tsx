@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Modal, Form, Select, Input, Button } from 'antd';
 
 const { Option } = Select;
-const { TextArea } = Input;
+const { TextArea = Input.TextArea } = Input; // Ensure TextArea is correctly imported
 
 const predefinedIssueTypes = [
   'Battery Degradation',

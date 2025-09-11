@@ -89,26 +89,26 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
   const displayAvatar = profile?.avatar_url || user?.user_metadata?.avatar_url;
 
   const menuItems: MenuItem[] = [
-    getItem(<NavLink to="/">Dashboard</NavLink>, "/", <Icon icon="si:dashboard" />),
-    getItem(<NavLink to="/work-orders">Work Orders</NavLink>, "/work-orders", <Icon icon="si:wrench" />),
+    getItem(<NavLink to="/">Dashboard</NavLink>, "/", <Icon icon="ph:gauge-fill" />),
+    getItem(<NavLink to="/work-orders">Work Orders</NavLink>, "/work-orders", <Icon icon="ph:wrench-fill" />),
     { type: 'divider', key: 'main-divider-1' },
-    getItem(<NavLink to="/customers">Customers</NavLink>, "/customers", <Icon icon="si:address-book" />),
-    getItem(<NavLink to="/assets">Assets</NavLink>, "/assets", <Icon icon="si:car" />),
-    getItem(<NavLink to="/technicians">Technicians</NavLink>, "/technicians", <Icon icon="si:users" />),
-    getItem(<NavLink to="/locations">Locations</NavLink>, "/locations", <Icon icon="si:map-pin" />),
-    getItem(<NavLink to="/inventory">Inventory</NavLink>, "/inventory", <Icon icon="si:shopping-bag" />),
+    getItem(<NavLink to="/customers">Customers</NavLink>, "/customers", <Icon icon="ph:address-book-fill" />),
+    getItem(<NavLink to="/assets">Assets</NavLink>, "/assets", <Icon icon="ph:car-fill" />),
+    getItem(<NavLink to="/technicians">Technicians</NavLink>, "/technicians", <Icon icon="ph:users-fill" />),
+    getItem(<NavLink to="/locations">Locations</NavLink>, "/locations", <Icon icon="ph:map-pin-fill" />),
+    getItem(<NavLink to="/inventory">Inventory</NavLink>, "/inventory", <Icon icon="ph:shopping-bag-fill" />),
     { type: 'divider', key: 'main-divider-2' },
-    getItem(<NavLink to="/analytics">Analytics</NavLink>, "/analytics", <Icon icon="si:bar-chart" />),
+    getItem(<NavLink to="/analytics">Analytics</NavLink>, "/analytics", <Icon icon="ph:chart-bar-fill" />),
 
     // Settings SubMenu
-    getItem('Settings', 'settings', <Icon icon="si:settings" />, [
+    getItem('Settings', 'settings', <Icon icon="ph:gear-fill" />, [
       getItem(<NavLink to="/settings?tab=user-management">User Management</NavLink>, "/settings?tab=user-management"),
       getItem(<NavLink to="/settings?tab=service-sla">Service & SLA</NavLink>, "/settings?tab=service-sla"),
       getItem(<NavLink to="/settings?tab=system-settings">System Settings</NavLink>, "/settings?tab=system-settings"),
     ]),
 
     // Profile SubMenu - now includes Notifications and Logout
-    getItem('Profile', 'profile-section', <Icon icon="si:user" />, [
+    getItem('Profile', 'profile-section', <Icon icon="ph:user-fill" />, [
       getItem(<NavLink to="/settings?tab=profile-settings">My Profile</NavLink>, "/settings?tab=profile-settings"),
       getItem(
         <NavLink to="/notifications">
@@ -121,7 +121,7 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
       { type: 'divider', key: 'profile-divider' },
       {
         key: 'logout',
-        icon: <Icon icon="si:logout" />,
+        icon: <Icon icon="ph:sign-out-fill" />,
         label: 'Logout',
         danger: true,
         onClick: handleLogout,
@@ -151,7 +151,7 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
         {logoUrl ? (
           <img src={logoUrl} alt="System Logo" style={{ height: '32px' }} />
         ) : (
-          <Icon icon="si:fire" style={{ color: '#6A0DAD', fontSize: '28px' }} />
+          <Icon icon="ph:fire-fill" style={{ color: '#6A0DAD', fontSize: '28px' }} />
         )}
         {!collapsed && (
           <Typography.Title level={4} style={{ margin: 0, color: '#6A0DAD', whiteSpace: 'nowrap' }}>
@@ -173,7 +173,7 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
       <div className={`sider-custom-trigger ${!collapsed ? 'sider-custom-trigger-expanded' : ''}`} style={{ order: -1 }}> {/* order: -1 pushes it to the top of the flex-end group */}
         <Button
           type="text"
-          icon={collapsed ? <Icon icon="si:menu-unfold" /> : <Icon icon="si:menu-fold" />}
+          icon={collapsed ? <Icon icon="ph:arrows-out-line-horizontal-fill" /> : <Icon icon="ph:arrows-in-line-horizontal-fill" />}
           onClick={() => onCollapse(!collapsed)}
           style={{ width: '100%', height: '48px', borderRadius: 0 }}
         />

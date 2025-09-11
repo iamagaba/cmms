@@ -180,7 +180,7 @@ const CustomerDetailsPage = () => {
   };
 
   const backButton = (
-    <Button icon={<Icon icon="si:arrow-left" />} onClick={() => navigate('/customers')} />
+    <Button icon={<Icon icon="ph:arrow-left-fill" />} onClick={() => navigate('/customers')} />
   );
 
   return (
@@ -191,13 +191,13 @@ const CustomerDetailsPage = () => {
           <Card>
             <Title level={4}>{customer.name}</Title>
             <Descriptions column={1} bordered>
-              <Descriptions.Item label={<Icon icon="si:mail" />}>
+              <Descriptions.Item label={<Icon icon="ph:envelope-fill" />}>
                 <a href={`mailto:${customer.email}`}>{customer.email}</a>
               </Descriptions.Item>
-              <Descriptions.Item label={<Icon icon="si:phone" />}>
+              <Descriptions.Item label={<Icon icon="ph:phone-fill" />}>
                 <a href={`tel:${customer.phone}`}>{customer.phone || 'N/A'}</a>
               </Descriptions.Item>
-              <Descriptions.Item label={<Icon icon="si:map-pin" />}>
+              <Descriptions.Item label={<Icon icon="ph:map-pin-fill" />}>
                 {customer.address || 'N/A'}
                 <br />
                 {customer.city && `${customer.city}, `}{customer.state && `${customer.state} `}{customer.zip_code}

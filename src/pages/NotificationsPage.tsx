@@ -21,7 +21,7 @@ const NotificationsPage = () => {
   const pageActions = (
     <Button 
       type="primary" 
-      icon={<Icon icon="si:check-circle" />} 
+      icon={<Icon icon="ph:check-circle-fill" />} 
       onClick={markAllAsRead} 
       disabled={unreadCount === 0}
     >

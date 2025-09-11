@@ -69,7 +69,7 @@ const PaginationPrevious = React.forwardRef<
     aria-label="Go to previous page"
     {...props}
   >
-    <Icon icon="si:chevron-left" className="h-4 w-4" />
+    <Icon icon="ph:caret-left-fill" className="h-4 w-4" />
     <span>Previous</span>
   </PaginationLink>
 ));
@@ -87,7 +87,7 @@ const PaginationNext = React.forwardRef<
     {...props}
   >
     <span>Next</span>
-    <Icon icon="si:chevron-right" className="h-4 w-4" />
+    <Icon icon="ph:caret-right-fill" className="h-4 w-4" />
   </PaginationLink>
 ));
 PaginationNext.displayName = "PaginationNext";
@@ -102,7 +102,7 @@ const PaginationEllipsis = React.forwardRef<
     className={cn("flex h-9 w-9 items-center justify-center", className)}
     {...props}
   >
-    <Icon icon="si:more-horizontal" className="h-4 w-4" />
+    <Icon icon="ph:dots-three-horizontal-fill" className="h-4 w-4" />
     <span className="sr-only">More pages</span>
   </span>
 ));

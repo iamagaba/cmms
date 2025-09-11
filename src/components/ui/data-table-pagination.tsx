@@ -74,7 +74,7 @@ export function DataTablePagination<TData>({
             disabled={!table.getCanPreviousPage()}
           >
             <span className="sr-only">Go to first page</span>
-            <Icon icon="si:chevrons-left" className="h-4 w-4" />
+            <Icon icon="ph:caret-double-left-fill" className="h-4 w-4" />
           </DataTablePaginationButton>
           <DataTablePaginationButton
             className="h-8 w-8 p-0"
@@ -82,7 +82,7 @@ export function DataTablePagination<TData>({
             disabled={!table.getCanPreviousPage()}
           >
             <span className="sr-only">Go to previous page</span>
-            <Icon icon="si:chevron-left" className="h-4 w-4" />
+            <Icon icon="ph:caret-left-fill" className="h-4 w-4" />
           </DataTablePaginationButton>
           <DataTablePaginationButton
             className="h-8 w-8 p-0"
@@ -90,7 +90,7 @@ export function DataTablePagination<TData>({
             disabled={!table.getCanNextPage()}
           >
             <span className="sr-only">Go to next page</span>
-            <Icon icon="si:chevron-right" className="h-4 w-4" />
+            <Icon icon="ph:caret-right-fill" className="h-4 w-4" />
           </DataTablePaginationButton>
           <DataTablePaginationButton
             className="h-8 w-8 p-0"
@@ -98,7 +98,7 @@ export function DataTablePagination<TData>({
             disabled={!table.getCanNextPage()}
           >
             <span className="sr-only">Go to last page</span>
-            <Icon icon="si:chevrons-right" className="h-4 w-4" />
+            <Icon icon="ph:caret-double-right-fill" className="h-4 w-4" />
           </DataTablePaginationButton>
         </div>
       </div>

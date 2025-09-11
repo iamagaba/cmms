@@ -25,7 +25,7 @@ const UrgentWorkOrders = ({ workOrders, technicians }: UrgentWorkOrdersProps) =>
 
   const cardTitle = (
     <Space>
-      <Icon icon="si:alert-triangle" style={{ color: '#faad14' }} />
+      <Icon icon="ph:warning-fill" style={{ color: '#faad14' }} />
       <Text>Urgent Work Orders</Text>
     </Space>
   );
@@ -56,7 +56,7 @@ const UrgentWorkOrders = ({ workOrders, technicians }: UrgentWorkOrdersProps) =>
                   <Space>
                     {technician ? (
                       <>
-                        <Avatar size="small" src={technician.avatar || undefined} icon={<Icon icon="si:user" />} />
+                        <Avatar size="small" src={technician.avatar || undefined} icon={<Icon icon="ph:user-fill" />} />
                         <Text type="secondary">{technician.name}</Text>
                       </>
                     ) : (

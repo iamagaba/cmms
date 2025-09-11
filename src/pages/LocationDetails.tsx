@@ -124,7 +124,7 @@ const LocationDetailsPage = () => {
   });
 
   const backButton = (
-    <Button icon={<Icon icon="si:arrow-left" />} onClick={() => navigate('/locations')} />
+    <Button icon={<Icon icon="ph:arrow-left-fill" />} onClick={() => navigate('/locations')} />
   );
 
   return (
@@ -134,7 +134,7 @@ const LocationDetailsPage = () => {
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={8}>
             <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-              <Card><Title level={4}>{location.name.replace(' Service Center', '')}</Title><Text type="secondary"><Icon icon="si:map-pin" /> {location.address}</Text></Card>
+              <Card><Title level={4}>{location.name.replace(' Service Center', '')}</Title><Text type="secondary"><Icon icon="ph:map-pin-fill" /> {location.address}</Text></Card>
               <Card title="Technicians On-Site">
                 <List itemLayout="horizontal" dataSource={locationTechnicians} renderItem={(tech: Technician) => (<List.Item><List.Item.Meta avatar={<Avatar src={tech.avatar || undefined} />} title={<a href={`/technicians/${tech.id}`}>{tech.name}</a>} description={tech.specialization} /></List.Item>)} />
               </Card>

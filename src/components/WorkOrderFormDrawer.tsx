@@ -117,7 +117,7 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
         {workOrder ? "Edit Work Order" : "Create Work Order"}
       </Typography.Title>
       <Button 
-        icon={isFullScreen ? <Icon icon="si:minimize" /> : <Icon icon="si:maximize" />} 
+        icon={isFullScreen ? <Icon icon="ph:arrows-in-line-horizontal-fill" /> : <Icon icon="ph:arrows-out-line-horizontal-fill" />} 
         onClick={() => setIsFullScreen(!isFullScreen)}
       >
         {isFullScreen ? 'Shrink' : 'Expand'}

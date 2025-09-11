@@ -23,7 +23,7 @@ const PageHeader = ({ title, actions, onSearch, onSearchChange, hideSearch = fal
           {!hideSearch && (
             <Input
               placeholder="Search..."
-              prefix={<Icon icon="si:search" />}
+              prefix={<Icon icon="ph:magnifying-glass-fill" />}
               style={{ width: 250 }}
               onPressEnter={(e) => onSearch && onSearch(e.currentTarget.value)}
               onChange={onSearchChange}

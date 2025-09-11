@@ -49,17 +49,17 @@ export const getColumns = (
       <Dropdown
         overlay={
           <Menu>
-            <Menu.Item key="edit" icon={<Icon icon="si:edit" />} onClick={() => onEdit(record)}>
+            <Menu.Item key="edit" icon={<Icon icon="ph:pencil-fill" />} onClick={() => onEdit(record)}>
               Edit Item
             </Menu.Item>
-            <Menu.Item key="delete" icon={<Icon icon="si:trash" />} danger onClick={() => onDelete(record)}>
+            <Menu.Item key="delete" icon={<Icon icon="ph:trash-fill" />} danger onClick={() => onDelete(record)}>
               Delete Item
             </Menu.Item>
           </Menu>
         }
         trigger={["click"]}
       >
-        <Button type="text" icon={<Icon icon="si:more-horizontal" style={{ fontSize: '18px' }} />} />
+        <Button type="text" icon={<Icon icon="ph:dots-three-horizontal-fill" style={{ fontSize: '18px' }} />} />
       </Dropdown>
     ),
   },

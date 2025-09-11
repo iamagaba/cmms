@@ -32,7 +32,7 @@ export default function Login() {
         {isLoadingSettings ? <Spin /> : logoUrl ? (
           <img src={logoUrl} alt="System Logo" className="h-20 w-20 rounded-full object-cover" />
         ) : (
-          <span className="text-sm text-gray-500">Logo</span>
+          <Icon icon="ph:fire-fill" className="h-12 w-12 text-gray-500" />
         )}
       </div>
     </div>
@@ -55,7 +55,7 @@ export default function Login() {
               Email address
             </label>
             <Input
-              prefix={<Icon icon="si:mail" className="h-5 w-5 text-gray-400" />}
+              prefix={<Icon icon="ph:envelope-fill" className="h-5 w-5 text-gray-400" />}
               placeholder="Your email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -75,13 +75,13 @@ export default function Login() {
               </a>
             </div>
             <Input.Password
-              prefix={<Icon icon="si:lock" className="h-5 w-5 text-gray-400" />}
+              prefix={<Icon icon="ph:lock-fill" className="h-5 w-5 text-gray-400" />}
               placeholder="Your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               size="large" // Use Ant Design size prop
-              iconRender={(visible) => (visible ? <Icon icon="si:eye" width={20} height={20} /> : <Icon icon="si:eye-off" width={20} height={20} />)}
+              iconRender={(visible) => (visible ? <Icon icon="ph:eye-fill" width={20} height={20} /> : <Icon icon="ph:eye-slash-fill" width={20} height={20} />)}
             />
           </div>
 
@@ -93,7 +93,7 @@ export default function Login() {
             className="w-full flex items-center justify-center" // Keep Tailwind for flex layout
             size="large" // Use Ant Design size prop
           >
-            {loading && <Icon icon="si:loader" className="mr-2 h-5 w-5 animate-spin" />}
+            {loading && <Icon icon="ph:spinner-gap-fill" className="mr-2 h-5 w-5 animate-spin" />}
             Sign in
           </Button>
         </form>

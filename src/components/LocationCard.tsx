@@ -18,7 +18,7 @@ export const LocationCard = ({ location, workOrders }: LocationCardProps) => {
       <Card hoverable className="lift-on-hover">
         <Title level={5}>{location.name.replace(' Service Center', '')}</Title>
         <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
-          <Icon icon="si:map-pin" style={{ marginRight: 8 }} />
+          <Icon icon="ph:map-pin-fill" style={{ marginRight: 8 }} />
           {location.address}
         </Text>
         <Space>

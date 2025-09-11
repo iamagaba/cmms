@@ -76,7 +76,7 @@ const InventoryPage = () => {
         style={{ width: 250 }}
         allowClear
       />
-      <Button type="primary" icon={<Icon icon="si:plus" />} onClick={() => { setEditingItem(null); setIsDialogOpen(true); }}>
+      <Button type="primary" icon={<Icon icon="ph:plus-fill" />} onClick={() => { setEditingItem(null); setIsDialogOpen(true); }}>
         Add Item
       </Button>
     </Space>

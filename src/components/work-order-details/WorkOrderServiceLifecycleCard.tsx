@@ -27,7 +27,7 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
           size="small"
           title={
             <Space>
-              <Icon icon="si:message-square" />
+              <Icon icon="ph:chat-centered-text-fill" />
               <Text strong>Initial Diagnosis</Text>
               <Text type="secondary" style={{ fontSize: 12 }}>{formatDate(workOrder.createdAt)}</Text>
             </Space>
@@ -50,7 +50,7 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
             size="small"
             title={
               <Space>
-                <Icon icon="si:help-circle" />
+                <Icon icon="ph:question-fill" />
                 <Text strong>Confirmed Issue</Text>
                 <Text type="secondary" style={{ fontSize: 12 }}>{formatDate(workOrder.confirmed_at || workOrder.work_started_at || workOrder.createdAt)}</Text>
               </Space>
@@ -87,7 +87,7 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
           size="small"
           title={
             <Space>
-              <Icon icon="si:wrench" />
+              <Icon icon="ph:wrench-fill" />
               <Text strong>Maintenance Decision</Text>
               <Text type="secondary" style={{ fontSize: 12 }}>{formatDate(workOrder.completedAt)}</Text>
             </Space>

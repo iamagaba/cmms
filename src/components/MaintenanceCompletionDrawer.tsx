@@ -111,7 +111,7 @@ export const MaintenanceCompletionDrawer = ({
     { title: 'Part', dataIndex: ['inventory_items', 'name'], render: (name: string, record: WorkOrderPart) => `${name} (${record.inventory_items.sku})` },
     { title: 'Qty', dataIndex: 'quantity_used' },
     { title: 'Unit Price', dataIndex: 'price_at_at_time_of_use', render: (price: number) => `UGX ${price.toLocaleString('en-US')}` },
-    { title: 'Total', render: (_: any, record: WorkOrderPart) => `UGX ${(record.quantity_used * record.price_at_at_time_of_use).toLocaleString('en-US')}` },
+    { title: 'Total', render: (_: any, record: WorkOrderPart) => `UGX ${(record.quantity_used * record.price_at_at_of_use).toLocaleString('en-US')}` },
     {
       title: 'Actions',
       key: 'actions',
@@ -122,7 +122,7 @@ export const MaintenanceCompletionDrawer = ({
           okText="Yes"
           cancelText="No"
         >
-          <Button type="text" danger icon={<Icon icon="si:trash" />} size="small" />
+          <Button type="text" danger icon={<Icon icon="ph:trash-fill" />} size="small" />
         </Popconfirm>
       ),
     },
@@ -141,7 +141,7 @@ export const MaintenanceCompletionDrawer = ({
         <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
           <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>
           <Button key="submit" type="primary" onClick={handleSubmit} loading={loading} disabled={loading || usedPartsCount === 0}>
-            <Icon icon="si:check-circle" /> Mark as Completed
+            <Icon icon="ph:check-circle-fill" /> Mark as Completed
           </Button>
         </Space>
       }
@@ -180,7 +180,7 @@ export const MaintenanceCompletionDrawer = ({
           <Text strong>Parts Used ({usedPartsCount} items)</Text>
           <Button
             type="dashed"
-            icon={showPartSelection ? <Icon icon="si:x" /> : <Icon icon="si:plus" />}
+            icon={showPartSelection ? <Icon icon="ph:x-fill" /> : <Icon icon="ph:plus-fill" />}
             onClick={() => setShowPartSelection(!showPartSelection)}
             size="small"
           >

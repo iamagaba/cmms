@@ -73,7 +73,7 @@ const InputOTPSeparator = React.forwardRef<
   React.ComponentPropsWithoutRef<"div">
 >(({ ...props }, ref) => (
   <div ref={ref} role="separator" {...props}>
-    <Icon icon="si:circle" className="h-3 w-3" />
+    <Icon icon="ph:circle-fill" className="h-3 w-3" />
   </div>
 ));
 InputOTPSeparator.displayName = "InputOTPSeparator";

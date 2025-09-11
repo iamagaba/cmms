@@ -90,7 +90,7 @@ const AssetsPage = () => {
         style={{ width: 250 }}
         allowClear
       />
-      <Button type="primary" icon={<Icon icon="si:plus" />} onClick={() => { setEditingVehicle(null); setIsDialogOpen(true); }}>
+      <Button type="primary" icon={<Icon icon="ph:plus-fill" />} onClick={() => { setEditingVehicle(null); setIsDialogOpen(true); }}>
         Add Asset
       </Button>
     </Space>

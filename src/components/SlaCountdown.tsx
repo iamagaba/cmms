@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Tag, Tooltip } from 'antd';
-import { Icon } from '@iconify/react'; // Import Icon from Iconify
+import { Icon } from '@iconify/react'; // Using Iconify for the icon
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
 
@@ -35,13 +35,13 @@ const SlaCountdown = ({ slaDue, status, completedAt }: SlaCountdownProps) => {
       const wasOnTime = completionDate.isBefore(dueDate) || completionDate.isSame(dueDate);
       return (
         <Tooltip title={`Completed on ${completionDate.format('MMM D, YYYY h:mm A')}`}>
-          <Tag icon={<Icon icon="si:check-circle" />} color={wasOnTime ? "success" : "error"} className="ant-tag-compact">
+          <Tag icon={<Icon icon="ph:check-circle-fill" />} color={wasOnTime ? "success" : "error"} className="ant-tag-compact">
             {wasOnTime ? 'Completed On Time' : 'Completed Late'}
           </Tag>
         </Tooltip>
       );
     }
-    return <Tag icon={<Icon icon="si:check-circle" />} color="success" className="ant-tag-compact">Completed</Tag>;
+    return <Tag icon={<Icon icon="ph:check-circle-fill" />} color="success" className="ant-tag-compact">Completed</Tag>;
   }
 
   const diff = dueDate.diff(now); // Difference in milliseconds
@@ -63,7 +63,7 @@ const SlaCountdown = ({ slaDue, status, completedAt }: SlaCountdownProps) => {
 
   if (isOverdue) {
     tagColor = 'error';
-    tagIcon = <Icon icon="si:alert-triangle" />;
+    tagIcon = <Icon icon="ph:warning-fill" />;
     if (absDiff >= oneDayInMs) { // Overdue by days
       tagText = `${days}d ${pad(hours)}h`;
     } else { // Overdue by hours/minutes
@@ -71,11 +71,11 @@ const SlaCountdown = ({ slaDue, status, completedAt }: SlaCountdownProps) => {
     }
   } else if (absDiff < oneDayInMs) { // Due within 24 hours
     tagColor = 'warning';
-    tagIcon = <Icon icon="si:clock" />;
+    tagIcon = <Icon icon="ph:hourglass-fill" />;
     tagText = `${pad(hours)}h ${pad(minutes)}m`;
   } else { // Due in more than 24 hours
     tagColor = 'processing';
-    tagIcon = <Icon icon="si:clock" />;
+    tagIcon = <Icon icon="ph:hourglass-fill" />;
     tagText = `${days}d ${pad(hours)}h`;
   }
 

@@ -103,13 +103,13 @@ const LocationsPage = () => {
       />
       <Segmented
         options={[
-          { value: 'card', icon: <Icon icon="si:grid" /> },
-          { value: 'list', icon: <Icon icon="si:list" /> },
+          { value: 'card', icon: <Icon icon="ph:grid-four-fill" /> },
+          { value: 'list', icon: <Icon icon="ph:list-fill" /> },
         ]}
         value={view}
         onChange={(value) => setView(value as 'card' | 'list')}
       />
-      <Button type="primary" icon={<Icon icon="si:plus" />} onClick={() => { setEditingLocation(null); setIsDialogOpen(true); }}>
+      <Button type="primary" icon={<Icon icon="ph:plus-fill" />} onClick={() => { setEditingLocation(null); setIsDialogOpen(true); }}>
         Add Location
       </Button>
     </Space>

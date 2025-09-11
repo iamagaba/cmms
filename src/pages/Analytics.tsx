@@ -111,10 +111,10 @@ const AnalyticsPage = () => {
   const dashboardContent = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px', paddingTop: '16px' }}>
       <Row gutter={[24, 24]}>
-        <Col xs={24} sm={12} lg={6}><KpiCard title="Total Work Orders" value={(workOrders || []).length.toString()} icon={<Icon icon="si:wrench" />} /></Col>
-        <Col xs={24} sm={12} lg={6}><KpiCard title="Avg. Completion Time" value={`${avgCompletionTimeHours} hrs`} icon={<Icon icon="si:clock" />} /></Col>
-        <Col xs={24} sm={12} lg={6}><KpiCard title="SLA Compliance" value={`${slaCompliance}%`} icon={<Icon icon="si:check-circle" />} /></Col>
-        <Col xs={24} sm={12} lg={6}><KpiCard title="Active Technicians" value={(technicians || []).length.toString()} icon={<Icon icon="si:user" />} /></Col>
+        <Col xs={24} sm={12} lg={6}><KpiCard title="Total Work Orders" value={(workOrders || []).length.toString()} icon={<Icon icon="ph:wrench-fill" />} /></Col>
+        <Col xs={24} sm={12} lg={6}><KpiCard title="Avg. Completion Time" value={`${avgCompletionTimeHours} hrs`} icon={<Icon icon="ph:hourglass-fill" />} /></Col>
+        <Col xs={24} sm={12} lg={6}><KpiCard title="SLA Compliance" value={`${slaCompliance}%`} icon={<Icon icon="ph:check-circle-fill" />} /></Col>
+        <Col xs={24} sm={12} lg={6}><KpiCard title="Active Technicians" value={(technicians || []).length.toString()} icon={<Icon icon="ph:user-fill" />} /></Col>
       </Row>
       <Row gutter={[24, 24]}>
         <Col xs={24} lg={16}><Card title="Work Orders Over Time"><ResponsiveContainer width="100%" height={300}><LineChart data={workOrdersOverTimeData}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="date" /><YAxis allowDecimals={false} /><Tooltip /><Legend /><Line type="monotone" dataKey="count" stroke="#8884d8" name="New Work Orders" /></LineChart></ResponsiveContainer></Card></Col>

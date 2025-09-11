@@ -183,8 +183,8 @@ export const getColumns = ({
       title: "Actions",
       align: "right" as const,
       render: (_: any, record: WorkOrderRow) => (
-        <Dropdown overlay={<Menu><Menu.Item key="edit" icon={<Icon icon="si:edit" />} onClick={(e) => { e.domEvent.stopPropagation(); onEdit(record); }}>Edit Work Order</Menu.Item><Menu.Item key="delete" icon={<Icon icon="si:trash" />} danger onClick={(e) => { e.domEvent.stopPropagation(); onDelete(record); }}>Delete Work Order</Menu.Item></Menu>} trigger={["click"]}>
-          <Button type="text" icon={<Icon icon="si:more-horizontal" style={{ fontSize: '18px' }} />} onClick={(e) => e.stopPropagation()} />
+        <Dropdown overlay={<Menu><Menu.Item key="edit" icon={<Icon icon="ph:pencil-fill" />} onClick={(e) => { e.domEvent.stopPropagation(); onEdit(record); }}>Edit Work Order</Menu.Item><Menu.Item key="delete" icon={<Icon icon="ph:trash-fill" />} danger onClick={(e) => { e.domEvent.stopPropagation(); onDelete(record); }}>Delete Work Order</Menu.Item></Menu>} trigger={["click"]}>
+          <Button type="text" icon={<Icon icon="ph:dots-three-horizontal-fill" style={{ fontSize: '18px' }} />} onClick={(e) => e.stopPropagation()} />
         </Dropdown>
       ),
       width: 80,

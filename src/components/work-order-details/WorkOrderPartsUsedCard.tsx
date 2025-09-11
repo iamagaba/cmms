@@ -38,7 +38,7 @@ export const WorkOrderPartsUsedCard: React.FC<WorkOrderPartsUsedCardProps> = ({
           okText="Yes"
           cancelText="No"
         >
-          <Button type="text" danger icon={<Icon icon="si:trash" />} size="small" />
+          <Button type="text" danger icon={<Icon icon="ph:trash-fill" />} size="small" />
         </Popconfirm>
       ),
     },
@@ -49,7 +49,7 @@ export const WorkOrderPartsUsedCard: React.FC<WorkOrderPartsUsedCardProps> = ({
     <Card
       title="Parts Used"
       extra={
-        <Button type="primary" icon={<Icon icon="si:plus" />} onClick={() => setIsAddPartDialogOpen(true)}>
+        <Button type="primary" icon={<Icon icon="ph:plus-fill" />} onClick={() => setIsAddPartDialogOpen(true)}>
           Add Part
         </Button>
       }

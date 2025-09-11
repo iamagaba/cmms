@@ -70,7 +70,7 @@ const BreadcrumbSeparator = React.forwardRef<
     className={cn("[&>svg]:size-3.5", className)}
     {...props}
   >
-    {children ?? <Icon icon="si:chevron-right" />}
+    {children ?? <Icon icon="ph:caret-right-fill" />}
   </li>
 ));
 BreadcrumbSeparator.displayName = "BreadcrumbSeparator";
@@ -101,7 +101,7 @@ const BreadcrumbEllipsis = React.forwardRef<
     className={cn("flex h-9 w-9 items-center justify-center", className)}
     {...props}
   >
-    <Icon icon="si:more-horizontal" className="h-4 w-4" />
+    <Icon icon="ph:dots-three-horizontal-fill" className="h-4 w-4" />
     <span className="sr-only">More</span>
   </span>
 ));

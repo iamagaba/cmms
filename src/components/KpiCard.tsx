@@ -24,7 +24,7 @@ const KpiCard = ({ title, value, icon, trend, trendDirection, isUpGood = true }:
           <Statistic title={title} value={value} />
           {trend && trendDirection && (
             <Space size={4} style={{ marginTop: 8 }}>
-              {trendDirection === 'up' ? <Icon icon="si:arrow-up" style={{ color: trendColor }} /> : <Icon icon="si:arrow-down" style={{ color: trendColor }} />}
+              {trendDirection === 'up' ? <Icon icon="ph:arrow-fat-up-fill" style={{ color: trendColor }} /> : <Icon icon="ph:arrow-fat-down-fill" style={{ color: trendColor }} />}
               <Text style={{ color: trendColor, fontSize: 12 }}>{trend}</Text>
               <Text type="secondary" style={{ fontSize: 12 }}>vs last week</Text>
             </Space>

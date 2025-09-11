@@ -104,7 +104,7 @@ export function WorkOrderDataTable({
     <Row justify="end" align="middle">
       <Col>
         <Dropdown dropdownRender={() => columnVisibilityMenu} trigger={['click']}>
-          <Button icon={<Icon icon="si:columns" />}>Columns</Button>
+          <Button icon={<Icon icon="ph:columns-fill" />}>Columns</Button>
         </Dropdown>
       </Col>
     </Row>

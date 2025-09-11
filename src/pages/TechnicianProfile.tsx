@@ -98,7 +98,7 @@ const TechnicianProfilePage = () => {
   ];
 
   const backButton = (
-    <Button icon={<Icon icon="si:arrow-left" />} onClick={() => navigate('/technicians')} />
+    <Button icon={<Icon icon="ph:arrow-left-fill" />} onClick={() => navigate('/technicians')} />
   );
 
   return (
@@ -106,10 +106,10 @@ const TechnicianProfilePage = () => {
         <Breadcrumbs backButton={backButton} />
         {performanceMetrics && (
           <Row gutter={[16, 16]}>
-            <Col xs={24} sm={12} lg={6}><Card><Statistic title="Completed Jobs" value={performanceMetrics.totalCompleted} prefix={<Icon icon="si:wrench" />} /></Card></Col>
-            <Col xs={24} sm={12} lg={6}><Card><Statistic title="Active Tasks" value={performanceMetrics.activeTasks} prefix={<Icon icon="si:clipboard" />} /></Card></Col>
-            <Col xs={24} sm={12} lg={6}><Card><Statistic title="Avg. Resolution Time" value={performanceMetrics.avgResolutionTime} suffix="hrs" prefix={<Icon icon="si:clock" />} /></Card></Col>
-            <Col xs={24} sm={12} lg={6}><Card><Statistic title="SLA Compliance" value={performanceMetrics.slaCompliance} suffix="%" prefix={<Icon icon="si:check-circle" />} /></Card></Col>
+            <Col xs={24} sm={12} lg={6}><Card><Statistic title="Completed Jobs" value={performanceMetrics.totalCompleted} prefix={<Icon icon="ph:wrench-fill" />} /></Card></Col>
+            <Col xs={24} sm={12} lg={6}><Card><Statistic title="Active Tasks" value={performanceMetrics.activeTasks} prefix={<Icon icon="ph:clipboard-text-fill" />} /></Card></Col>
+            <Col xs={24} sm={12} lg={6}><Card><Statistic title="Avg. Resolution Time" value={performanceMetrics.avgResolutionTime} suffix="hrs" prefix={<Icon icon="ph:hourglass-fill" />} /></Card></Col>
+            <Col xs={24} sm={12} lg={6}><Card><Statistic title="SLA Compliance" value={performanceMetrics.slaCompliance} suffix="%" prefix={<Icon icon="ph:check-circle-fill" />} /></Card></Col>
           </Row>
         )}
         <Row gutter={[16, 16]}>
@@ -121,17 +121,17 @@ const TechnicianProfilePage = () => {
                         <Tag color={statusColorMap[technician.status || 'offline']}>{statusTextMap[technician.status || 'offline']}</Tag>
                     </div>
                     <Descriptions column={1} bordered>
-                        <Descriptions.Item label={<><Icon icon="si:mail" /> Email</>}><a href={`mailto:${technician.email}`}>{technician.email}</a></Descriptions.Item>
-                        <Descriptions.Item label={<><Icon icon="si:phone" /> Phone</>}><a href={`tel:${technician.phone}`}>{technician.phone}</a></Descriptions.Item>
-                        <Descriptions.Item label={<><Icon icon="si:wrench" /> Specialization</>}>{technician.specialization}</Descriptions.Item>
-                        <Descriptions.Item label={<><Icon icon="si:map-pin" /> Location</>}>
+                        <Descriptions.Item label={<><Icon icon="ph:envelope-fill" /> Email</>}><a href={`mailto:${technician.email}`}>{technician.email}</a></Descriptions.Item>
+                        <Descriptions.Item label={<><Icon icon="ph:phone-fill" /> Phone</>}><a href={`tel:${technician.phone}`}>{technician.phone}</a></Descriptions.Item>
+                        <Descriptions.Item label={<><Icon icon="ph:wrench-fill" /> Specialization</>}>{technician.specialization}</Descriptions.Item>
+                        <Descriptions.Item label={<><Icon icon="ph:map-pin-fill" /> Location</>}>
                           {assignedLocation ? (
                             <Link to={`/locations/${assignedLocation.id}`}>{assignedLocation.name}</Link>
                           ) : (
                             <Text type="secondary">Not Assigned</Text>
                           )}
                         </Descriptions.Item>
-                        <Descriptions.Item label={<><Icon icon="si:calendar" /> Member Since</>}>{dayjs(technician.joinDate).format('MMMM YYYY')}</Descriptions.Item>
+                        <Descriptions.Item label={<><Icon icon="ph:calendar-fill" /> Member Since</>}>{dayjs(technician.joinDate).format('MMMM YYYY')}</Descriptions.Item>
                     </Descriptions>
                 </Card>
             </Col>

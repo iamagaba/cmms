@@ -161,7 +161,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ actions, backButton }) => {
   }
 
   return (
-    <Row justify="space-between" align="middle" style={{ marginBottom: '24px' }}>
+    <Row justify="space-between" align="middle"> {/* Removed marginBottom */}
       <Col>
         <Space size="small">
           {backButton}

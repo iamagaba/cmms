@@ -31,10 +31,9 @@ const CalendarPage = () => {
 
   const dateCellRender = (value: Dayjs) => {
     const listData = getListData(value);
-    if (listData.length === 0) return null;
 
     return (
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', justifyContent: 'center', marginTop: '4px' }}>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', justifyContent: 'center', marginTop: '4px', minHeight: '20px' }}> {/* Added minHeight for stability */}
         {listData.map(item => {
           const technician = technicians?.find(t => t.id === item.assignedTechnicianId);
           const vehicle = vehicles?.find(v => v.id === item.vehicleId);
@@ -105,30 +104,30 @@ const CalendarPage = () => {
   }
 
   return (
-    <Row gutter={[24, 24]} style={{ height: 'calc(100vh - 112px)' }}> {/* Adjust height to fit within layout */}
-      <Col span={24}>
-        <Breadcrumbs />
-      </Col>
-      <Col xs={24} lg={16}> {/* Calendar column */}
-        <Card title="Work Order Calendar" style={{ height: '100%' }}>
-          <Calendar
-            dateCellRender={dateCellRender}
-            onSelect={handleDateSelect}
-            value={selectedDate || dayjs()} // Highlight selected date or current day
-          />
-        </Card>
-      </Col>
-      <Col xs={24} lg={8}> {/* Preview column */}
-        <Card title={selectedDate ? `Work Orders for ${selectedDate.format('MMM D, YYYY')}` : 'Select a Date'} style={{ height: '100%', overflowY: 'auto' }}>
-          {selectedDate ? (
-            <WorkOrdersForSelectedDate />
-          ) : (
-            <Empty description="Select a date on the calendar to view scheduled work orders." />
-          )}
-        </Card>
-      </Col>
+    <Space direction="vertical" size="middle" style={{ width: '100%' }}> {/* Use Space for vertical layout */}
+      <Breadcrumbs />
+      <Row gutter={[24, 24]} style={{ height: 'calc(100vh - 112px - 24px)' }}> {/* Adjusted height calculation */}
+        <Col xs={24} lg={16}> {/* Calendar column */}
+          <Card title="Work Order Calendar" style={{ height: '100%' }}>
+            <Calendar
+              dateCellRender={dateCellRender}
+              onSelect={handleDateSelect}
+              value={selectedDate || dayjs()} // Highlight selected date or current day
+            />
+          </Card>
+        </Col>
+        <Col xs={24} lg={8}> {/* Preview column */}
+          <Card title={selectedDate ? `Work Orders for ${selectedDate.format('MMM D, YYYY')}` : 'Select a Date'} style={{ height: '100%', overflowY: 'auto' }}>
+            {selectedDate ? (
+              <WorkOrdersForSelectedDate />
+            ) : (
+              <Empty description="Select a date on the calendar to view scheduled work orders." />
+            )}
+          </Card>
+        </Col>
+      </Row>
       <WorkOrderDetailsDrawer workOrderId={viewingWorkOrderId} onClose={() => setViewingWorkOrderId(null)} />
-    </Row>
+    </Space>
   );
 };
 

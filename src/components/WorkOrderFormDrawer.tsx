@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import { MapboxLocationSearchInput } from "./MapboxLocationSearchInput";
 import { ExpandOutlined, ShrinkOutlined } from "@ant-design/icons";
 import { useSession } from "@/context/SessionContext";
+import { DiagnosticFlowInput } from "./DiagnosticFlowInput"; // Import the new component
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -31,35 +32,34 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
   const [isFullScreen, setIsFullScreen] = useState(false);
   const { session } = useSession();
 
+  // State for diagnostic flow
+  const [isDiagnosing, setIsDiagnosing] = useState(false);
+  const [generatedClientReport, setGeneratedClientReport] = useState<string>('');
+
   useEffect(() => {
     if (isOpen) {
-      if (workOrder) {
-        form.setFieldsValue({
-          ...workOrder,
-          slaDue: workOrder.slaDue ? dayjs(workOrder.slaDue) : null,
-          appointmentDate: workOrder.appointmentDate ? dayjs(workOrder.appointmentDate) : null,
-          customerAddress: workOrder.customerAddress,
-          clientReport: workOrder.clientReport, // Populate new field
-        });
-        if (workOrder.customerLat && workOrder.customerLng) {
-          setClientLocation({ lat: workOrder.customerLat, lng: workOrder.customerLng });
-        }
-        if (workOrder.customerAddress) {
-          setClientAddress(workOrder.customerAddress);
-        }
+      const initialClientReportValue = workOrder?.clientReport || prefillData?.clientReport || '';
+      form.setFieldsValue({
+        ...workOrder,
+        slaDue: workOrder?.slaDue ? dayjs(workOrder.slaDue) : null,
+        appointmentDate: workOrder?.appointmentDate ? dayjs(workOrder.appointmentDate) : null,
+        customerAddress: workOrder?.customerAddress,
+        clientReport: initialClientReportValue, // Populate clientReport field
+      });
+      if (workOrder?.customerLat && workOrder?.customerLng) {
+        setClientLocation({ lat: workOrder.customerLat, lng: workOrder.customerLng });
+      }
+      if (workOrder?.customerAddress) {
+        setClientAddress(workOrder.customerAddress);
+      }
+
+      // Determine if starting with diagnostic flow or manual input
+      if (initialClientReportValue) {
+        setIsDiagnosing(false); // If there's existing data, start with manual input view
+        setGeneratedClientReport(initialClientReportValue);
       } else {
-        form.resetFields();
-        const initialValues = {
-          status: 'Open',
-          priority: 'Medium',
-          ...prefillData,
-          // Convert ISO strings to dayjs objects for DatePicker
-          slaDue: prefillData?.slaDue ? dayjs(prefillData.slaDue) : null,
-          appointmentDate: prefillData?.appointmentDate ? dayjs(prefillData.appointmentDate) : null,
-        };
-        form.setFieldsValue(initialValues);
-        setClientLocation(null);
-        setClientAddress(null);
+        setIsDiagnosing(true); // If no existing data, start with diagnostic flow
+        setGeneratedClientReport('');
       }
       setIsFullScreen(false);
     }
@@ -69,6 +69,11 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
     setClientLocation({ lat: location.lat, lng: location.lng });
     setClientAddress(location.label);
     form.setFieldsValue({ customerAddress: location.label });
+  };
+
+  const handleDiagnosisComplete = (summary: string) => {
+    setGeneratedClientReport(summary);
+    form.setFieldsValue({ clientReport: summary }); // Update form field with generated summary
   };
 
   const handleSubmit = async () => {
@@ -85,8 +90,8 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
         customerAddress: clientAddress,
         activityLog: workOrder?.activityLog || [{ timestamp: new Date().toISOString(), activity: 'Work order created.', userId: session?.user.id ?? null }],
         partsUsed: workOrder?.partsUsed || [],
-        clientReport: values.clientReport, // Map to new field
-        service: values.clientReport, // Keep for backward compatibility with old 'service' column
+        clientReport: isDiagnosing ? generatedClientReport : values.clientReport, // Use generated or manual report
+        service: isDiagnosing ? generatedClientReport : values.clientReport, // Keep for backward compatibility with old 'service' column
       };
       
       if (workOrder?.id) {
@@ -144,7 +149,35 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
           <Col xs={24} md={12}><Form.Item name="customerPhone" label="Customer Phone"><Input disabled /></Form.Item></Col>
           
           <Col span={24} style={{ marginTop: 24 }}><Text strong>Service Details</Text></Col>
-          <Col span={24}><Form.Item name="clientReport" label="Client Report" rules={[{ required: true }]}><TextArea rows={2} placeholder="What did the client initially report?" /></Form.Item></Col>
+          <Col span={24}>
+            <Form.Item label="Client Report" required>
+              {isDiagnosing ? (
+                <DiagnosticFlowInput 
+                  onDiagnosisComplete={handleDiagnosisComplete} 
+                  initialClientReport={workOrder?.clientReport || prefillData?.clientReport}
+                />
+              ) : (
+                <>
+                  <TextArea 
+                    rows={4} 
+                    placeholder="What did the client initially report?" 
+                    value={form.getFieldValue('clientReport')}
+                    onChange={(e) => {
+                      form.setFieldsValue({ clientReport: e.target.value });
+                      setGeneratedClientReport(e.target.value); // Keep generated report in sync for manual edits
+                    }}
+                  />
+                  <Button 
+                    type="link" 
+                    onClick={() => setIsDiagnosing(true)} 
+                    style={{ paddingLeft: 0, marginTop: 8 }}
+                  >
+                    Start Diagnostic Flow
+                  </Button>
+                </>
+              )}
+            </Form.Item>
+          </Col>
           <Col span={24}><Form.Item name="service_category_id" label="Service Category" rules={[{ required: true }]}><Select showSearch placeholder="Select a service category">{serviceCategories.map(sc => <Option key={sc.id} value={sc.id}>{sc.name}</Option>)}</Select></Form.Item></Col>
           <Col xs={24} md={8}><Form.Item name="status" label="Status" rules={[{ required: true }]}><Select><Option value="Open">Open</Option><Option value="Confirmation">Confirmation</Option><Option value="Ready">Ready</Option><Option value="In Progress">In Progress</Option><Option value="On Hold">On Hold</Option><Option value="Completed">Completed</Option></Select></Form.Item></Col>
           <Col xs={24} md={8}><Form.Item name="priority" label="Priority" rules={[{ required: true }]}><Select><Option value="High">High</Option><Option value="Medium">Medium</Option><Option value="Low">Low</Option></Select></Form.Item></Col>

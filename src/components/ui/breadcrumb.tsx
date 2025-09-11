@@ -1,3 +1,5 @@
+"use client";
+
 import { Slot } from "@radix-ui/react-slot";
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import * as React from "react";
@@ -58,7 +60,7 @@ const BreadcrumbLink = React.forwardRef<
 BreadcrumbLink.displayName = "BreadcrumbLink";
 
 const BreadcrumbSeparator = React.forwardRef<
-  HTMLElement,
+  HTMLLIElement, // Corrected type from HTMLElement to HTMLLIElement
   React.ComponentPropsWithoutRef<"li">
 >(({ className, children, ...props }, ref) => (
   <li

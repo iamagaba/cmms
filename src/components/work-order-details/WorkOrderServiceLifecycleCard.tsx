@@ -112,8 +112,12 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
                 </Paragraph>
               </>
             )}
-            <Text strong>Parts Used:</Text>
-            <Text>{usedPartsCount} items recorded</Text>
+            {(workOrder.faultCode || workOrder.maintenanceNotes) && (
+              <>
+                <Text strong>Parts Used:</Text>
+                <Text>{usedPartsCount} items recorded</Text>
+              </>
+            )}
             {!workOrder.faultCode && !workOrder.maintenanceNotes && (
               <Text type="secondary">No maintenance decision recorded.</Text>
             )}

@@ -61,8 +61,8 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
           workOrderNumber: data.work_order_number,
           assignedTechnicianId: data.assigned_technician_id,
           locationId: data.location_id,
-          // Map old 'service' to new 'clientReport' if clientReport is null
-          clientReport: data.client_report || data.service,
+          // Map old 'service' to new 'initialDiagnosis' if initialDiagnosis is null
+          initialDiagnosis: data.client_report || data.service, // Renamed from clientReport
           // Map old 'serviceNotes' to new 'maintenanceNotes' if maintenanceNotes is null
           maintenanceNotes: data.maintenance_notes || data.service_notes,
           issueType: data.issue_type,
@@ -175,8 +175,8 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
       activityMessage = `SLA due date updated to '${dayjs(updates.slaDue).format('MMM D, YYYY h:mm A')}'.`;
     } else if (updates.appointmentDate && updates.appointmentDate !== oldWorkOrder.appointmentDate) {
       activityMessage = `Appointment date updated to '${dayjs(updates.appointmentDate).format('MMM D, YYYY h:mm A')}'.`;
-    } else if (updates.clientReport && updates.clientReport !== oldWorkOrder.clientReport) { // Updated field
-      activityMessage = `Client report updated.`;
+    } else if (updates.initialDiagnosis && updates.initialDiagnosis !== oldWorkOrder.initialDiagnosis) { // Updated field
+      activityMessage = `Initial diagnosis updated.`; // Changed message
     } else if (updates.issueType && updates.issueType !== oldWorkOrder.issueType) { // New field
       activityMessage = `Confirmed issue type updated to '${updates.issueType}'.`;
     } else if (updates.faultCode && updates.faultCode !== oldWorkOrder.faultCode) { // New field

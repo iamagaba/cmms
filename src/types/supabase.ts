@@ -90,7 +90,7 @@ export interface WorkOrder {
   channel: string | null;
   assignedTechnicianId: string | null;
   locationId: string | null;
-  service: string | null; // Keep for now for backward compatibility, will map to clientReport
+  service: string | null; // Keep for now for backward compatibility, will map to initialDiagnosis
   serviceNotes: string | null; // Keep for now for backward compatibility, will map to maintenanceNotes
   partsUsed: { name: string; quantity: number }[] | null;
   activityLog: { timestamp: string; activity: string; userId: string | null }[] | null;
@@ -115,7 +115,7 @@ export interface WorkOrder {
   sla_timers_paused_at: string | null;
   total_paused_duration_seconds: number | null;
   // New fields for service lifecycle
-  clientReport: string | null;
+  initialDiagnosis: string | null; // Renamed from clientReport
   issueType: string | null;
   faultCode: string | null;
   maintenanceNotes: string | null;
@@ -138,7 +138,7 @@ export interface WorkOrderPart {
   work_order_id: string;
   item_id: string;
   quantity_used: number;
-  price_at_time_of_use: number;
+  price_at_at_time_of_use: number;
   created_at?: string;
   inventory_items: InventoryItem; // For joined queries
 }

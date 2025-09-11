@@ -94,10 +94,10 @@ const diagnosticFlow: DiagnosticQuestion[] = [
 
 interface DiagnosticFlowInputProps {
   onDiagnosisComplete: (summary: string) => void;
-  initialClientReport?: string | null;
+  initialInitialDiagnosis?: string | null; // Changed prop name
 }
 
-export const DiagnosticFlowInput: React.FC<DiagnosticFlowInputProps> = ({ onDiagnosisComplete, initialClientReport }) => {
+export const DiagnosticFlowInput: React.FC<DiagnosticFlowInputProps> = ({ onDiagnosisComplete, initialInitialDiagnosis }) => { // Changed prop name
   const [currentQuestionId, setCurrentQuestionId] = useState<string>('start');
   const [answeredOptions, setAnsweredOptions] = useState<string[]>([]);
   const [flowHistory, setFlowHistory] = useState<string[]>([]); // Stores previous question IDs
@@ -110,13 +110,13 @@ export const DiagnosticFlowInput: React.FC<DiagnosticFlowInputProps> = ({ onDiag
     // If there's an initial client report, we assume it's a manual entry or from a previous flow.
     // For now, we'll just display it as the summary and disable the flow.
     // A more advanced implementation might try to parse it back into flow answers.
-    if (initialClientReport) {
-      setAnsweredOptions([initialClientReport]);
+    if (initialInitialDiagnosis) { // Changed prop name
+      setAnsweredOptions([initialInitialDiagnosis]); // Changed prop name
       setCurrentQuestionId('END_FLOW'); // Effectively ends the flow
     } else {
       handleReset(); // Ensure clean state if no initial report
     }
-  }, [initialClientReport]);
+  }, [initialInitialDiagnosis]); // Changed prop name
 
   useEffect(() => {
     const summary = answeredOptions.map(text => `- ${text}`).join('\n');

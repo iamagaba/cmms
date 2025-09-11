@@ -22,25 +22,25 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
   return (
     <Card title="Service Information">
       <Space direction="vertical" style={{ width: '100%' }} size="middle">
-        {/* Client Report Card */}
+        {/* Initial Diagnosis Card */}
         <Card
           size="small"
           title={
             <Space>
               <MessageOutlined />
-              <Text strong>Client Report</Text>
+              <Text strong>Initial Diagnosis</Text>
               <Text type="secondary" style={{ fontSize: 12 }}>{formatDate(workOrder.createdAt)}</Text>
             </Space>
           }
           bordered
           style={{ width: '100%' }}
         >
-          {workOrder.clientReport ? (
+          {workOrder.initialDiagnosis ? (
             <Paragraph style={{ margin: 0, textAlign: 'left' }}>
-              {workOrder.clientReport}
+              {workOrder.initialDiagnosis}
             </Paragraph>
           ) : (
-            <Text type="secondary">No client report provided.</Text>
+            <Text type="secondary">No initial diagnosis provided.</Text>
           )}
         </Card>
 

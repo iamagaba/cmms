@@ -34,17 +34,17 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
 
   // State for diagnostic flow
   const [isDiagnosing, setIsDiagnosing] = useState(false);
-  const [generatedClientReport, setGeneratedClientReport] = useState<string>('');
+  const [generatedInitialDiagnosis, setGeneratedInitialDiagnosis] = useState<string>(''); // Renamed from generatedClientReport
 
   useEffect(() => {
     if (isOpen) {
-      const initialClientReportValue = workOrder?.clientReport || prefillData?.clientReport || '';
+      const initialDiagnosisValue = workOrder?.initialDiagnosis || prefillData?.initialDiagnosis || ''; // Renamed from clientReport
       form.setFieldsValue({
         ...workOrder,
         slaDue: workOrder?.slaDue ? dayjs(workOrder.slaDue) : null,
         appointmentDate: workOrder?.appointmentDate ? dayjs(workOrder.appointmentDate) : null,
         customerAddress: workOrder?.customerAddress,
-        clientReport: initialClientReportValue, // Populate clientReport field
+        initialDiagnosis: initialDiagnosisValue, // Populate initialDiagnosis field
       });
       if (workOrder?.customerLat && workOrder?.customerLng) {
         setClientLocation({ lat: workOrder.customerLat, lng: workOrder.customerLng });
@@ -54,12 +54,12 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
       }
 
       // Determine if starting with diagnostic flow or manual input
-      if (initialClientReportValue) {
+      if (initialDiagnosisValue) {
         setIsDiagnosing(false); // If there's existing data, start with manual input view
-        setGeneratedClientReport(initialClientReportValue);
+        setGeneratedInitialDiagnosis(initialDiagnosisValue);
       } else {
         setIsDiagnosing(true); // If no existing data, start with diagnostic flow
-        setGeneratedClientReport('');
+        setGeneratedInitialDiagnosis('');
       }
       setIsFullScreen(false);
     }
@@ -72,8 +72,8 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
   };
 
   const handleDiagnosisComplete = (summary: string) => {
-    setGeneratedClientReport(summary);
-    form.setFieldsValue({ clientReport: summary }); // Update form field with generated summary
+    setGeneratedInitialDiagnosis(summary);
+    form.setFieldsValue({ initialDiagnosis: summary }); // Update form field with generated summary
   };
 
   const handleSubmit = async () => {
@@ -90,8 +90,8 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
         customerAddress: clientAddress,
         activityLog: workOrder?.activityLog || [{ timestamp: new Date().toISOString(), activity: 'Work order created.', userId: session?.user.id ?? null }],
         partsUsed: workOrder?.partsUsed || [],
-        clientReport: isDiagnosing ? generatedClientReport : values.clientReport, // Use generated or manual report
-        service: isDiagnosing ? generatedClientReport : values.clientReport, // Keep for backward compatibility with old 'service' column
+        initialDiagnosis: isDiagnosing ? generatedInitialDiagnosis : values.initialDiagnosis, // Use generated or manual report (renamed)
+        service: isDiagnosing ? generatedInitialDiagnosis : values.initialDiagnosis, // Keep for backward compatibility with old 'service' column (renamed)
       };
       
       if (workOrder?.id) {
@@ -150,21 +150,21 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
           
           <Col span={24} style={{ marginTop: 24 }}><Text strong>Service Details</Text></Col>
           <Col span={24}>
-            <Form.Item label="Client Report" required>
+            <Form.Item label="Initial Diagnosis" required> {/* Changed label */}
               {isDiagnosing ? (
                 <DiagnosticFlowInput 
                   onDiagnosisComplete={handleDiagnosisComplete} 
-                  initialClientReport={workOrder?.clientReport || prefillData?.clientReport}
+                  initialInitialDiagnosis={workOrder?.initialDiagnosis || prefillData?.initialDiagnosis} // Changed prop name
                 />
               ) : (
                 <>
                   <TextArea 
                     rows={4} 
-                    placeholder="What did the client initially report?" 
-                    value={form.getFieldValue('clientReport')}
+                    placeholder="What is the initial diagnosis?" // Changed placeholder
+                    value={form.getFieldValue('initialDiagnosis')} // Changed field name
                     onChange={(e) => {
-                      form.setFieldsValue({ clientReport: e.target.value });
-                      setGeneratedClientReport(e.target.value); // Keep generated report in sync for manual edits
+                      form.setFieldsValue({ initialDiagnosis: e.target.value }); // Changed field name
+                      setGeneratedInitialDiagnosis(e.target.value); // Keep generated report in sync for manual edits
                     }}
                   />
                   <Button 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Modal, Form, Select, Button, InputNumber, Skeleton } from "antd";
+import { Drawer, Form, Select, Button, InputNumber, Skeleton, Space } from "antd";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { InventoryItem } from "@/types/supabase";
@@ -39,16 +39,19 @@ export const AddPartToWorkOrderDialog = ({ isOpen, onClose, onSave }: AddPartToW
   };
 
   return (
-    <Modal
+    <Drawer
       title="Add Part to Work Order"
+      placement="right"
+      onClose={onClose}
       open={isOpen}
-      onOk={handleSubmit}
-      onCancel={onClose}
+      width={720}
       destroyOnClose
-      footer={[
-        <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Add Part</Button>,
-      ]}
+      footer={
+        <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+          <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>
+          <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Add Part</Button>
+        </Space>
+      }
     >
       {isLoading ? <Skeleton active /> : (
         <Form form={form} layout="vertical" name="add_part_form">
@@ -66,6 +69,6 @@ export const AddPartToWorkOrderDialog = ({ isOpen, onClose, onSave }: AddPartToW
           </Form.Item>
         </Form>
       )}
-    </Modal>
+    </Drawer>
   );
 };

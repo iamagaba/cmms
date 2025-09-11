@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Modal, Form, Input, Button, InputNumber, Row, Col } from "antd";
+import { Drawer, Form, Input, Button, InputNumber, Row, Col, Space } from "antd";
 import { InventoryItem } from "@/types/supabase";
 
 const { TextArea } = Input;
@@ -16,10 +16,12 @@ export const InventoryItemFormDialog = ({ isOpen, onClose, onSave, item }: Inven
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (item) {
-      form.setFieldsValue(item);
-    } else {
-      form.resetFields();
+    if (isOpen) {
+      if (item) {
+        form.setFieldsValue(item);
+      } else {
+        form.resetFields();
+      }
     }
   }, [isOpen, item, form]);
 
@@ -41,16 +43,19 @@ export const InventoryItemFormDialog = ({ isOpen, onClose, onSave, item }: Inven
   };
 
   return (
-    <Modal
+    <Drawer
       title={item ? "Edit Inventory Item" : "Add Inventory Item"}
+      placement="right"
+      onClose={onClose}
       open={isOpen}
-      onOk={handleSubmit}
-      onCancel={onClose}
+      width={720}
       destroyOnClose
-      footer={[
-        <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save</Button>,
-      ]}
+      footer={
+        <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+          <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>
+          <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save</Button>
+        </Space>
+      }
     >
       <Form form={form} layout="vertical" name="inventory_item_form">
         <Row gutter={16}>
@@ -62,6 +67,6 @@ export const InventoryItemFormDialog = ({ isOpen, onClose, onSave, item }: Inven
           <Col span={8}><Form.Item name="unit_price" label="Unit Price (UGX)" rules={[{ required: true }]}><InputNumber style={{ width: '100%' }} min={0} /></Form.Item></Col>
         </Row>
       </Form>
-    </Modal>
+    </Drawer>
   );
 };

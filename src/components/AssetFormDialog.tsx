@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Modal, Form, Input, Select, Button, InputNumber, DatePicker, Row, Col } from "antd";
+import { Drawer, Form, Input, Select, Button, InputNumber, DatePicker, Row, Col, Space } from "antd";
 import { Vehicle, Customer } from "@/types/supabase";
 import dayjs from 'dayjs';
 
@@ -18,14 +18,16 @@ export const AssetFormDialog = ({ isOpen, onClose, onSave, vehicle, customers }:
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (vehicle) {
-      form.setFieldsValue({
-        ...vehicle,
-        date_of_manufacture: vehicle.date_of_manufacture ? dayjs(vehicle.date_of_manufacture) : null,
-        release_date: vehicle.release_date ? dayjs(vehicle.release_date) : null,
-      });
-    } else {
-      form.resetFields();
+    if (isOpen) {
+      if (vehicle) {
+        form.setFieldsValue({
+          ...vehicle,
+          date_of_manufacture: vehicle.date_of_manufacture ? dayjs(vehicle.date_of_manufacture) : null,
+          release_date: vehicle.release_date ? dayjs(vehicle.release_date) : null,
+        });
+      } else {
+        form.resetFields();
+      }
     }
   }, [isOpen, vehicle, form]);
 
@@ -50,16 +52,19 @@ export const AssetFormDialog = ({ isOpen, onClose, onSave, vehicle, customers }:
   };
 
   return (
-    <Modal
+    <Drawer
       title={vehicle ? "Edit Asset" : "Add Asset"}
+      placement="right"
+      onClose={onClose}
       open={isOpen}
-      onOk={handleSubmit}
-      onCancel={onClose}
+      width={720}
       destroyOnClose
-      footer={[
-        <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save</Button>,
-      ]}
+      footer={
+        <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+          <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>
+          <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save</Button>
+        </Space>
+      }
     >
       <Form form={form} layout="vertical" name="asset_form">
         <Row gutter={16}>
@@ -85,6 +90,6 @@ export const AssetFormDialog = ({ isOpen, onClose, onSave, vehicle, customers }:
           <Col span={12}><Form.Item name="release_date" label="Release Date to Customer"><DatePicker style={{ width: '100%' }} /></Form.Item></Col>
         </Row>
       </Form>
-    </Modal>
+    </Drawer>
   );
 };

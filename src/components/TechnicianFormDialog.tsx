@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Modal, Form, Input, Select, Button, DatePicker } from "antd";
+import { Drawer, Form, Input, Select, Button, DatePicker, Space } from "antd";
 import { Technician, Location } from "@/types/supabase";
 import dayjs from 'dayjs';
 
@@ -18,13 +18,15 @@ export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician, loca
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (technician) {
-      form.setFieldsValue({
-        ...technician,
-        joinDate: technician.joinDate ? dayjs(technician.joinDate) : null,
-      });
-    } else {
-      form.resetFields();
+    if (isOpen) {
+      if (technician) {
+        form.setFieldsValue({
+          ...technician,
+          joinDate: technician.joinDate ? dayjs(technician.joinDate) : null,
+        });
+      } else {
+        form.resetFields();
+      }
     }
   }, [isOpen, technician, form]);
 
@@ -48,16 +50,19 @@ export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician, loca
   };
 
   return (
-    <Modal
+    <Drawer
       title={technician ? "Edit Technician" : "Add Technician"}
+      placement="right"
+      onClose={onClose}
       open={isOpen}
-      onOk={handleSubmit}
-      onCancel={onClose}
+      width={720}
       destroyOnClose
-      footer={[
-        <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save</Button>,
-      ]}
+      footer={
+        <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+          <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>
+          <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save</Button>
+        </Space>
+      }
     >
       <Form form={form} layout="vertical" name="technician_form">
         <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Please input the name!' }]}>
@@ -94,6 +99,6 @@ export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician, loca
           <DatePicker style={{ width: '100%' }} />
         </Form.Item>
       </Form>
-    </Modal>
+    </Drawer>
   );
 };

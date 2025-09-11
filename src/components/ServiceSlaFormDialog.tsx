@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Modal, Form, Input, Button, Row, Col, InputNumber, Typography } from "antd";
+import { Drawer, Form, Input, Button, Row, Col, InputNumber, Typography, Space } from "antd";
 import { ServiceCategory, SlaPolicy } from "@/types/supabase";
 
 const { TextArea } = Input;
@@ -49,6 +49,7 @@ export const ServiceSlaFormDialog = ({ isOpen, onClose, onSave, serviceSlaData }
         expected_repair_hours: values.expected_repair_hours,
       };
       onSave(categoryData, slaData);
+      onClose(); // Close on successful save
     } catch (info) {
       console.log('Validate Failed:', info);
     } finally {
@@ -57,16 +58,19 @@ export const ServiceSlaFormDialog = ({ isOpen, onClose, onSave, serviceSlaData }
   };
 
   return (
-    <Modal
+    <Drawer
       title={serviceSlaData ? "Edit Service & SLA" : "Add Service & SLA"}
+      placement="right"
+      onClose={onClose}
       open={isOpen}
-      onOk={handleSubmit}
-      onCancel={onClose}
+      width={720}
       destroyOnClose
-      footer={[
-        <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save</Button>,
-      ]}
+      footer={
+        <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+          <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>
+          <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save</Button>
+        </Space>
+      }
     >
       <Form form={form} layout="vertical" name="service_sla_form">
         <Row gutter={16}>
@@ -103,6 +107,6 @@ export const ServiceSlaFormDialog = ({ isOpen, onClose, onSave, serviceSlaData }
           </Col>
         </Row>
       </Form>
-    </Modal>
+    </Drawer>
   );
 };

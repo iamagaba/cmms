@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Modal, Form, Input, Button, Row, Col } from "antd";
+import { Drawer, Form, Input, Button, Row, Col, Space } from "antd";
 import { Customer } from "@/types/supabase";
 
 interface CustomerFormDialogProps {
@@ -14,10 +14,12 @@ export const CustomerFormDialog = ({ isOpen, onClose, onSave, customer }: Custom
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (customer) {
-      form.setFieldsValue(customer);
-    } else {
-      form.resetFields();
+    if (isOpen) {
+      if (customer) {
+        form.setFieldsValue(customer);
+      } else {
+        form.resetFields();
+      }
     }
   }, [isOpen, customer, form]);
 
@@ -40,16 +42,19 @@ export const CustomerFormDialog = ({ isOpen, onClose, onSave, customer }: Custom
   };
 
   return (
-    <Modal
+    <Drawer
       title={customer ? "Edit Customer" : "Add Customer"}
+      placement="right"
+      onClose={onClose}
       open={isOpen}
-      onOk={handleSubmit}
-      onCancel={onClose}
+      width={720}
       destroyOnClose
-      footer={[
-        <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save</Button>,
-      ]}
+      footer={
+        <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+          <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>
+          <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save</Button>
+        </Space>
+      }
     >
       <Form form={form} layout="vertical" name="customer_form">
         <Row gutter={16}>
@@ -78,6 +83,6 @@ export const CustomerFormDialog = ({ isOpen, onClose, onSave, customer }: Custom
           <Col span={8}><Form.Item name="zip_code" label="Zip/Postal Code"><Input placeholder="e.g. 10101" /></Form.Item></Col>
         </Row>
       </Form>
-    </Modal>
+    </Drawer>
   );
 };

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Modal, Form, Input, Button } from "antd";
+import { Drawer, Form, Input, Button, Space } from "antd";
 import { Location } from "@/types/supabase";
 import { MapboxLocationSearchInput } from "./MapboxLocationSearchInput";
 
@@ -57,16 +57,19 @@ export const LocationFormDialog = ({ isOpen, onClose, onSave, location }: Locati
   };
 
   return (
-    <Modal
+    <Drawer
       title={location ? "Edit Location" : "Add Location"}
+      placement="right"
+      onClose={onClose}
       open={isOpen}
-      onOk={handleSubmit}
-      onCancel={onClose}
+      width={720}
       destroyOnClose
-      footer={[
-        <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save</Button>,
-      ]}
+      footer={
+        <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
+          <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>
+          <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save</Button>
+        </Space>
+      }
     >
       <Form form={form} layout="vertical" name="location_form">
         <Form.Item name="name" label="Location Name" rules={[{ required: true, message: 'Please input the location name!' }]}>
@@ -79,6 +82,6 @@ export const LocationFormDialog = ({ isOpen, onClose, onSave, location }: Locati
           />
         </Form.Item>
       </Form>
-    </Modal>
+    </Drawer>
   );
 };

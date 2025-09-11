@@ -36,7 +36,7 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
           style={{ width: '100%' }}
         >
           <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ clientReport: value }) }} style={{ margin: 0, textAlign: 'left' }}>
-            {workOrder.clientReport || <Text type="secondary">No client report provided.</Text>}
+            {workOrder.clientReport} {/* Only render content if it exists */}
           </Paragraph>
         </Card>
 
@@ -57,11 +57,11 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
             <Space direction="vertical" style={{ width: '100%', textAlign: 'left' }} size={0}>
               <Text strong>Issue Type:</Text>
               <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ issueType: value }) }} style={{ margin: 0 }}>
-                {workOrder.issueType || <Text type="secondary">No issue confirmed yet.</Text>}
+                {workOrder.issueType} {/* Only render content if it exists */}
               </Paragraph>
               <Text strong>Confirmation Notes:</Text>
               <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ serviceNotes: value }) }} type="secondary" style={{ margin: 0 }}>
-                {workOrder.serviceNotes || <Text type="secondary">No confirmation notes recorded.</Text>}
+                {workOrder.serviceNotes} {/* Only render content if it exists */}
               </Paragraph>
             </Space>
           </Card>
@@ -83,11 +83,11 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
           <Space direction="vertical" style={{ width: '100%', textAlign: 'left' }} size={0}>
             <Text strong>Fault Code:</Text>
             <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ faultCode: value }) }} style={{ margin: 0 }}>
-              {workOrder.faultCode || <Text type="secondary">No fault code recorded.</Text>}
+              {workOrder.faultCode} {/* Only render content if it exists */}
             </Paragraph>
             <Text strong>Repair Notes:</Text>
             <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ maintenanceNotes: value }) }} type="secondary" style={{ margin: 0 }}>
-              {workOrder.maintenanceNotes || <Text type="secondary">No maintenance notes recorded.</Text>}
+              {workOrder.maintenanceNotes} {/* Only render content if it exists */}
             </Paragraph>
             <Text strong>Parts Used:</Text>
             <Text>{usedPartsCount} items recorded</Text>

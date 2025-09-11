@@ -40,22 +40,28 @@ const toastVariants = cva(
   }
 );
 
+type ToastActionElement = React.ElementRef<typeof ToastPrimitives.Action>;
+
 interface ToastProps
   extends React.ComponentPropsWithoutRef<typeof ToastPrimitives.Root>,
-    VariantProps<typeof toastVariants> {}
-
-type ToastActionElement = React.ElementRef<typeof ToastPrimitives.Action>;
+    VariantProps<typeof toastVariants> {
+  children?: React.ReactNode; // Added children prop
+  action?: ToastActionElement; // Added action prop
+}
 
 const Toast = React.forwardRef<
   React.ElementRef<typeof ToastPrimitives.Root>,
   ToastProps
->(({ className, variant, ...props }, ref) => {
+>(({ className, variant, children, action, ...props }, ref) => { // Destructure children and action
   return (
     <ToastPrimitives.Root
       ref={ref}
       className={cn(toastVariants({ variant }), className)}
       {...props}
-    />
+    >
+      {children} {/* Render children */}
+      {action} {/* Render action */}
+    </ToastPrimitives.Root>
   );
 });
 Toast.displayName = ToastPrimitives.Root.displayName;

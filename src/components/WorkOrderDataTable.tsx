@@ -1,6 +1,5 @@
 import * as React from "react";
-import { Table, Dropdown, Button, Checkbox, Row, Col, Typography, Card } from "antd"; // Import Card
-import type { TableRowSelection } from 'antd/es/table/interface';
+import { Table, Dropdown, Button, Checkbox, Row, Col, Typography, Card, TableProps } from "antd"; // Import Card and TableProps
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { WorkOrder, Technician, Location, Customer, Vehicle, Profile } from "@/types/supabase";
 import { WorkOrderRow, getColumns } from "./WorkOrderTableColumns";
@@ -35,7 +34,7 @@ interface WorkOrderDataTableProps {
   onViewDetails: (workOrderId: string) => void;
   visibleColumns: string[];
   onVisibleColumnsChange: (columns: string[]) => void;
-  rowSelection?: TableRowSelection<WorkOrderRow>;
+  rowSelection?: TableProps<WorkOrderRow>['rowSelection']; // Corrected type import
 }
 
 export function WorkOrderDataTable({ 

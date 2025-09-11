@@ -5,7 +5,7 @@ import {
 } from "@tanstack/react-table";
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
 
-import { Button } from "@/components/ui/button";
+import { Button, ButtonProps } from "@/components/ui/button"; // Import ButtonProps
 import {
   Select,
   SelectContent,
@@ -17,6 +17,21 @@ import {
 interface DataTablePaginationProps<TData> {
   table: ReactTable<TData>;
 }
+
+const DataTablePaginationButton = React.forwardRef<
+  HTMLButtonElement,
+  React.ComponentPropsWithoutRef<typeof Button>
+>(({ className, variant = "outline", size = "icon", ...props }, ref) => (
+  <Button
+    ref={ref}
+    variant={variant}
+    size={size}
+    className={className}
+    {...props}
+  />
+));
+DataTablePaginationButton.displayName = "DataTablePaginationButton";
+
 
 export function DataTablePagination<TData>({
   table,
@@ -53,42 +68,38 @@ export function DataTablePagination<TData>({
           {table.getPageCount()}
         </div>
         <div className="flex items-center space-x-2">
-          <Button
-            variant="outline"
+          <DataTablePaginationButton
             className="h-8 w-8 p-0"
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
           >
             <span className="sr-only">Go to first page</span>
             <Icon icon="si:chevrons-left" className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
+          </DataTablePaginationButton>
+          <DataTablePaginationButton
             className="h-8 w-8 p-0"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
           >
             <span className="sr-only">Go to previous page</span>
             <Icon icon="si:chevron-left" className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
+          </DataTablePaginationButton>
+          <DataTablePaginationButton
             className="h-8 w-8 p-0"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
           >
             <span className="sr-only">Go to next page</span>
             <Icon icon="si:chevron-right" className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="outline"
+          </DataTablePaginationButton>
+          <DataTablePaginationButton
             className="h-8 w-8 p-0"
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
           >
             <span className="sr-only">Go to last page</span>
             <Icon icon="si:chevrons-right" className="h-4 w-4" />
-          </Button>
+          </DataTablePaginationButton>
         </div>
       </div>
     </div>

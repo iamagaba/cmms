@@ -7,7 +7,7 @@ import useEmblaCarousel, {
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
 
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Button, ButtonProps } from "@/components/ui/button"; // Import ButtonProps
 
 type CarouselContextProps = {
   carouselRef: UseEmblaCarouselType[0];
@@ -16,7 +16,8 @@ type CarouselContextProps = {
   scrollNext: () => void;
   canScrollPrev: boolean;
   canScrollNext: boolean;
-} & React.ComponentPropsWithoutRef<'div'>; // Corrected to 'div'
+  orientation: "horizontal" | "vertical"; // Added orientation
+} & React.ComponentPropsWithoutRef<'div'>;
 
 const CarouselContext = React.createContext<CarouselContextProps | null>(null);
 
@@ -33,7 +34,7 @@ function useCarousel() {
 type CarouselProps = {
   opts?: Parameters<typeof useEmblaCarousel>[0];
   orientation?: "horizontal" | "vertical";
-} & React.ComponentPropsWithoutRef<'div'>; // Corrected to 'div'
+} & React.ComponentPropsWithoutRef<'div'>;
 
 const Carousel = React.forwardRef<
   HTMLDivElement,
@@ -92,7 +93,7 @@ const Carousel = React.forwardRef<
           scrollNext,
           canScrollPrev,
           canScrollNext,
-          orientation,
+          orientation, // Pass orientation to context
         }),
       [
         carouselRef,
@@ -164,7 +165,7 @@ CarouselItem.displayName = "CarouselItem";
 
 const CarouselPrevious = React.forwardRef<
   HTMLButtonElement,
-  React.ComponentPropsWithoutRef<typeof Button>
+  React.ComponentPropsWithoutRef<typeof Button> // Extend ButtonProps
 >(
   (
     { className, variant = "outline", size = "icon", ...props },
@@ -198,7 +199,7 @@ CarouselPrevious.displayName = "CarouselPrevious";
 
 const CarouselNext = React.forwardRef<
   HTMLButtonElement,
-  React.ComponentPropsWithoutRef<typeof Button>
+  React.ComponentPropsWithoutRef<typeof Button> // Extend ButtonProps
 >(
   (
     { className, variant = "outline", size = "icon", ...props },

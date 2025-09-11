@@ -28,7 +28,7 @@ const sidebarVariants = cva(
 
 interface SidebarProps
   extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof sidebarVariants> {
+    VariantProps<typeof sidebarVariants> { // Extend VariantProps
   isCollapsed: boolean;
   onCollapse: (collapsed: boolean) => void;
 }

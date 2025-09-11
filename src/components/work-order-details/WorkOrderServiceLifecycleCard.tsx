@@ -35,9 +35,13 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
           bordered
           style={{ width: '100%' }}
         >
-          <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ clientReport: value }) }} style={{ margin: 0, textAlign: 'left' }}>
-            {workOrder.clientReport} {/* Only render content if it exists */}
-          </Paragraph>
+          {workOrder.clientReport ? (
+            <Paragraph style={{ margin: 0, textAlign: 'left' }}>
+              {workOrder.clientReport}
+            </Paragraph>
+          ) : (
+            <Text type="secondary">No client report provided.</Text>
+          )}
         </Card>
 
         {/* Confirmed Issue Card (Conditional) */}
@@ -55,14 +59,25 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
             style={{ width: '100%' }}
           >
             <Space direction="vertical" style={{ width: '100%', textAlign: 'left' }} size={0}>
-              <Text strong>Issue Type:</Text>
-              <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ issueType: value }) }} style={{ margin: 0 }}>
-                {workOrder.issueType} {/* Only render content if it exists */}
-              </Paragraph>
-              <Text strong>Confirmation Notes:</Text>
-              <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ serviceNotes: value }) }} type="secondary" style={{ margin: 0 }}>
-                {workOrder.serviceNotes} {/* Only render content if it exists */}
-              </Paragraph>
+              {workOrder.issueType && (
+                <>
+                  <Text strong>Issue Type:</Text>
+                  <Paragraph style={{ margin: 0 }}>
+                    {workOrder.issueType}
+                  </Paragraph>
+                </>
+              )}
+              {workOrder.serviceNotes && (
+                <>
+                  <Text strong>Confirmation Notes:</Text>
+                  <Paragraph type="secondary" style={{ margin: 0 }}>
+                    {workOrder.serviceNotes}
+                  </Paragraph>
+                </>
+              )}
+              {!workOrder.issueType && !workOrder.serviceNotes && (
+                <Text type="secondary">No issue confirmed yet.</Text>
+              )}
             </Space>
           </Card>
         )}
@@ -81,16 +96,27 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
           style={{ width: '100%' }}
         >
           <Space direction="vertical" style={{ width: '100%', textAlign: 'left' }} size={0}>
-            <Text strong>Fault Code:</Text>
-            <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ faultCode: value }) }} style={{ margin: 0 }}>
-              {workOrder.faultCode} {/* Only render content if it exists */}
-            </Paragraph>
-            <Text strong>Repair Notes:</Text>
-            <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ maintenanceNotes: value }) }} type="secondary" style={{ margin: 0 }}>
-              {workOrder.maintenanceNotes} {/* Only render content if it exists */}
-            </Paragraph>
+            {workOrder.faultCode && (
+              <>
+                <Text strong>Fault Code:</Text>
+                <Paragraph style={{ margin: 0 }}>
+                  {workOrder.faultCode}
+                </Paragraph>
+              </>
+            )}
+            {workOrder.maintenanceNotes && (
+              <>
+                <Text strong>Repair Notes:</Text>
+                <Paragraph type="secondary" style={{ margin: 0 }}>
+                  {workOrder.maintenanceNotes}
+                </Paragraph>
+              </>
+            )}
             <Text strong>Parts Used:</Text>
             <Text>{usedPartsCount} items recorded</Text>
+            {!workOrder.faultCode && !workOrder.maintenanceNotes && (
+              <Text type="secondary">No maintenance decision recorded.</Text>
+            )}
           </Space>
         </Card>
       </Space>

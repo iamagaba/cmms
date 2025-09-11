@@ -13,6 +13,7 @@ import { camelToSnakeCase } from "@/utils/data-helpers"; // Import camelToSnakeC
 import { showSuccess, showInfo, showError } from "@/utils/toast"; // Import toast utilities
 import dayjs from "dayjs";
 import { useSession } from "@/context/SessionContext";
+import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
 
 const { Title, Text } = Typography;
 
@@ -178,13 +179,13 @@ const CustomerDetailsPage = () => {
     setPrefillData(null);
   };
 
+  const backButton = (
+    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/customers')} />
+  );
+
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Row justify="start" align="middle" style={{ marginBottom: '24px' }}>
-        <Col>
-          <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/customers')} />
-        </Col>
-      </Row>
+      <Breadcrumbs backButton={backButton} />
       <Row gutter={[16, 16]}>
         <Col xs={24} md={8}>
           <Card>

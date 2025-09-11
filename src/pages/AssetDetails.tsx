@@ -15,6 +15,7 @@ import { camelToSnakeCase } from "@/utils/data-helpers"; // Import camelToSnakeC
 import { showSuccess, showInfo, showError } from "@/utils/toast"; // Import toast utilities
 import { getColumns } from "@/components/WorkOrderTableColumns"; // Import getColumns
 import { useSession } from "@/context/SessionContext";
+import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
 
 const { Title, Text } = Typography;
 
@@ -172,13 +173,13 @@ const AssetDetailsPage = () => {
 
   const defaultVisibleColumns = ALL_COLUMNS.map(c => c.value); // Use ALL_COLUMNS for default visibility
 
+  const backButton = (
+    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/assets')} />
+  );
+
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <Row justify="start" align="middle" style={{ marginBottom: '24px' }}>
-          <Col>
-            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/assets')} />
-          </Col>
-        </Row>
+        <Breadcrumbs backButton={backButton} />
         <Row gutter={[16, 16]}>
             <Col xs={24} md={8}>
                 <Card>

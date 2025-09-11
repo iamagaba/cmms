@@ -7,6 +7,7 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Technician, WorkOrder, Location, Vehicle } from "@/types/supabase";
 import { useMemo } from "react";
+import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
 
 const { Title, Text } = Typography;
 
@@ -96,13 +97,13 @@ const TechnicianProfilePage = () => {
     { title: 'Due Date', dataIndex: 'slaDue', render: (date: string) => dayjs(date).format('MMM D, YYYY') },
   ];
 
+  const backButton = (
+    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/technicians')} />
+  );
+
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <Row justify="start" align="middle" style={{ marginBottom: '24px' }}>
-          <Col>
-            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/technicians')} />
-          </Col>
-        </Row>
+        <Breadcrumbs backButton={backButton} />
         {performanceMetrics && (
           <Row gutter={[16, 16]}>
             <Col xs={24} sm={12} lg={6}><Card><Statistic title="Completed Jobs" value={performanceMetrics.totalCompleted} prefix={<ToolOutlined />} /></Card></Col>

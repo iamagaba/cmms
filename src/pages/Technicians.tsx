@@ -9,6 +9,7 @@ import { showSuccess, showError } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import { TechnicianCard, TechnicianCardData } from "@/components/TechnicianCard";
 import { TechnicianDataTable } from "@/components/TechnicianDataTable";
+import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
 
 const { Search } = Input;
 
@@ -103,32 +104,32 @@ const TechniciansPage = () => {
 
   const isLoading = isLoadingTechnicians || isLoadingWorkOrders || isLoadingLocations;
 
+  const pageActions = (
+    <Space size="middle" align="center">
+      <Search
+        placeholder="Search technicians..."
+        onSearch={setSearchTerm}
+        onChange={(e) => !e.target.value && setSearchTerm("")}
+        style={{ width: 250 }}
+        allowClear
+      />
+      <Segmented
+        options={[
+          { value: 'card', icon: <AppstoreOutlined /> },
+          { value: 'list', icon: <UnorderedListOutlined /> },
+        ]}
+        value={view}
+        onChange={(value) => setView(value as 'card' | 'list')}
+      />
+      <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingTechnician(null); setIsDialogOpen(true); }}>
+        Add Technician
+      </Button>
+    </Space>
+  );
+
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Row justify="end" align="middle" style={{ marginBottom: '24px' }}>
-        <Col>
-          <Space size="middle" align="center">
-            <Search
-              placeholder="Search technicians..."
-              onSearch={setSearchTerm}
-              onChange={(e) => !e.target.value && setSearchTerm("")}
-              style={{ width: 250 }}
-              allowClear
-            />
-            <Segmented
-              options={[
-                { value: 'card', icon: <AppstoreOutlined /> },
-                { value: 'list', icon: <UnorderedListOutlined /> },
-              ]}
-              value={view}
-              onChange={(value) => setView(value as 'card' | 'list')}
-            />
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingTechnician(null); setIsDialogOpen(true); }}>
-              Add Technician
-            </Button>
-          </Space>
-        </Col>
-      </Row>
+      <Breadcrumbs actions={pageActions} />
       
       {isLoading ? <Skeleton active /> : (
         view === 'card' ? (

@@ -7,6 +7,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Customer } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
+import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
 
 const { Search } = Input;
 
@@ -68,24 +69,24 @@ const CustomersPage = () => {
     setIsDialogOpen(true);
   };
 
+  const pageActions = (
+    <Space size="middle" align="center">
+      <Search
+        placeholder="Search customers..."
+        onSearch={setSearchTerm}
+        onChange={(e) => !e.target.value && setSearchTerm("")}
+        style={{ width: 250 }}
+        allowClear
+      />
+      <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingCustomer(null); setIsDialogOpen(true); }}>
+        Add Customer
+      </Button>
+    </Space>
+  );
+
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Row justify="end" align="middle" style={{ marginBottom: '24px' }}>
-        <Col>
-          <Space size="middle" align="center">
-            <Search
-              placeholder="Search customers..."
-              onSearch={setSearchTerm}
-              onChange={(e) => !e.target.value && setSearchTerm("")}
-              style={{ width: 250 }}
-              allowClear
-            />
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingCustomer(null); setIsDialogOpen(true); }}>
-              Add Customer
-            </Button>
-          </Space>
-        </Col>
-      </Row>
+      <Breadcrumbs actions={pageActions} />
       
       {isLoading ? <Skeleton active /> : (
         <CustomerDataTable 

@@ -8,6 +8,7 @@ import { CheckCircleOutlined, ClockCircleOutlined, ToolOutlined, UserOutlined } 
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import CustomReportGenerator from '@/components/CustomReportGenerator';
+import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
 
 const { RangePicker } = DatePicker;
 const { TabPane } = Tabs;
@@ -132,13 +133,13 @@ const AnalyticsPage = () => {
     </Card>
   );
 
+  const pageActions = (
+    <RangePicker value={dateRange} onChange={(dates) => dates && setDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])} />
+  );
+
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Row justify="end" align="middle" style={{ marginBottom: '24px' }}>
-        <Col>
-          <RangePicker value={dateRange} onChange={(dates) => dates && setDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])} />
-        </Col>
-      </Row>
+      <Breadcrumbs actions={pageActions} />
       <Tabs defaultActiveKey="1">
         <TabPane tab="Analytics Dashboard" key="1">
           {dashboardContent}

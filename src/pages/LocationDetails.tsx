@@ -13,6 +13,7 @@ import { camelToSnakeCase } from "@/utils/data-helpers";
 import dayjs from "dayjs";
 import { useSession } from "@/context/SessionContext";
 import { MapboxDisplayMap } from "@/components/MapboxDisplayMap"; // Import the new Mapbox map component
+import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
 
 const { Title, Text } = Typography;
 
@@ -122,14 +123,14 @@ const LocationDetailsPage = () => {
     }
   });
 
+  const backButton = (
+    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/locations')} />
+  );
+
   return (
     <>
+      <Breadcrumbs backButton={backButton} />
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <Row justify="start" align="middle" style={{ marginBottom: '24px' }}>
-          <Col>
-            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/locations')} />
-          </Col>
-        </Row>
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={8}>
             <Space direction="vertical" size="middle" style={{ width: '100%' }}>

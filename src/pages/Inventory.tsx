@@ -7,6 +7,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { InventoryItem } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
+import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
 
 const { Search } = Input;
 
@@ -66,24 +67,24 @@ const InventoryPage = () => {
     setIsDialogOpen(true);
   };
 
+  const pageActions = (
+    <Space size="middle" align="center">
+      <Search
+        placeholder="Search inventory..."
+        onSearch={setSearchTerm}
+        onChange={(e) => !e.target.value && setSearchTerm("")}
+        style={{ width: 250 }}
+        allowClear
+      />
+      <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingItem(null); setIsDialogOpen(true); }}>
+        Add Item
+      </Button>
+    </Space>
+  );
+
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Row justify="end" align="middle" style={{ marginBottom: '24px' }}>
-        <Col>
-          <Space size="middle" align="center">
-            <Search
-              placeholder="Search inventory..."
-              onSearch={setSearchTerm}
-              onChange={(e) => !e.target.value && setSearchTerm("")}
-              style={{ width: 250 }}
-              allowClear
-            />
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingItem(null); setIsDialogOpen(true); }}>
-              Add Item
-            </Button>
-          </Space>
-        </Col>
-      </Row>
+      <Breadcrumbs actions={pageActions} />
       
       {isLoading ? <Skeleton active /> : (
         <InventoryDataTable 

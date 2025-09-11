@@ -9,6 +9,7 @@ import { showSuccess, showError } from "@/utils/toast";
 import { LocationCard } from "@/components/LocationCard";
 import { LocationDataTable } from "@/components/LocationDataTable";
 import { useNavigate } from "react-router-dom";
+import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
 
 const { Search } = Input;
 
@@ -91,32 +92,32 @@ const LocationsPage = () => {
 
   const isLoading = isLoadingLocations || isLoadingWorkOrders;
 
+  const pageActions = (
+    <Space size="middle" align="center">
+      <Search
+        placeholder="Search locations..."
+        onSearch={setSearchTerm}
+        onChange={(e) => !e.target.value && setSearchTerm("")}
+        style={{ width: 250 }}
+        allowClear
+      />
+      <Segmented
+        options={[
+          { value: 'card', icon: <AppstoreOutlined /> },
+          { value: 'list', icon: <UnorderedListOutlined /> },
+        ]}
+        value={view}
+        onChange={(value) => setView(value as 'card' | 'list')}
+      />
+      <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingLocation(null); setIsDialogOpen(true); }}>
+        Add Location
+      </Button>
+    </Space>
+  );
+
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Row justify="end" align="middle" style={{ marginBottom: '24px' }}>
-        <Col>
-          <Space size="middle" align="center">
-            <Search
-              placeholder="Search locations..."
-              onSearch={setSearchTerm}
-              onChange={(e) => !e.target.value && setSearchTerm("")}
-              style={{ width: 250 }}
-              allowClear
-            />
-            <Segmented
-              options={[
-                { value: 'card', icon: <AppstoreOutlined /> },
-                { value: 'list', icon: <UnorderedListOutlined /> },
-              ]}
-              value={view}
-              onChange={(value) => setView(value as 'card' | 'list')}
-            />
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingLocation(null); setIsDialogOpen(true); }}>
-              Add Location
-            </Button>
-          </Space>
-        </Col>
-      </Row>
+      <Breadcrumbs actions={pageActions} />
       
       {isLoading ? <Skeleton active /> : (
         view === 'card' ? (

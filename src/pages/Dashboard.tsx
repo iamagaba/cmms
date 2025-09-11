@@ -16,6 +16,7 @@ import { camelToSnakeCase } from "@/utils/data-helpers";
 import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
 import { useSearchParams } from "react-router-dom";
 import { useSession } from "@/context/SessionContext";
+import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
 
 dayjs.extend(isBetween);
 const { TabPane } = Tabs;
@@ -328,17 +329,17 @@ const Dashboard = () => {
     { label: 'Work Order Board', key: '2', children: workOrderBoardTab },
   ];
 
+  const pageActions = (
+    <Segmented
+      options={locationOptions}
+      value={selectedLocation}
+      onChange={(value) => setSelectedLocation(value as string)}
+    />
+  );
+
   return (
     <>
-      <Row justify="end" align="middle" style={{ marginBottom: '24px' }}>
-        <Col>
-          <Segmented
-            options={locationOptions}
-            value={selectedLocation}
-            onChange={(value) => setSelectedLocation(value as string)}
-          />
-        </Col>
-      </Row>
+      <Breadcrumbs actions={pageActions} />
       <Tabs defaultActiveKey="1" items={tabItems} />
       {onHoldWorkOrder && (
         <OnHoldReasonDialog

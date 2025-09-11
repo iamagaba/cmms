@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Breadcrumb, Typography, Skeleton } from 'antd';
+import { Breadcrumb, Typography, Skeleton, Row, Col, Button, Space } from 'antd';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { WorkOrder, Technician, Location, Customer, Vehicle } from '@/types/supabase';
+import { ArrowLeftOutlined } from '@ant-design/icons';
 
 const { Text } = Typography;
 
@@ -12,7 +13,12 @@ interface BreadcrumbItem {
   breadcrumbName: string | React.ReactNode;
 }
 
-const Breadcrumbs: React.FC = () => {
+interface BreadcrumbsProps {
+  actions?: React.ReactNode;
+  backButton?: React.ReactNode;
+}
+
+const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ actions, backButton }) => {
   const location = useLocation();
   const params = useParams();
   const [breadcrumbItems, setBreadcrumbItems] = useState<BreadcrumbItem[]>([]);
@@ -120,19 +126,27 @@ const Breadcrumbs: React.FC = () => {
   }
 
   return (
-    <div style={{ margin: '16px 0' }}>
-      <Breadcrumb>
-        {breadcrumbItems.map((item, index) => (
-          <Breadcrumb.Item key={item.path}>
-            {index === breadcrumbItems.length - 1 ? (
-              item.breadcrumbName
-            ) : (
-              <Link to={item.path}>{item.breadcrumbName}</Link>
-            )}
-          </Breadcrumb.Item>
-        ))}
-      </Breadcrumb>
-    </div>
+    <Row justify="space-between" align="middle" style={{ marginBottom: '24px' }}>
+      <Col>
+        <Space size="small">
+          {backButton}
+          <Breadcrumb>
+            {breadcrumbItems.map((item, index) => (
+              <Breadcrumb.Item key={item.path}>
+                {index === breadcrumbItems.length - 1 ? (
+                  item.breadcrumbName
+                ) : (
+                  <Link to={item.path}>{item.breadcrumbName}</Link>
+                )}
+              </Breadcrumb.Item>
+            ))}
+          </Breadcrumb>
+        </Space>
+      </Col>
+      <Col>
+        {actions}
+      </Col>
+    </Row>
   );
 };
 

@@ -4,6 +4,7 @@ import { useNotifications } from '@/context/NotificationsContext';
 import { formatDistanceToNow } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { CheckCircleOutlined } from '@ant-design/icons';
+import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
 
 const { Text } = Typography;
 
@@ -17,20 +18,20 @@ const NotificationsPage = () => {
     }
   }, [markAllAsRead, unreadCount]);
 
+  const pageActions = (
+    <Button 
+      type="primary" 
+      icon={<CheckCircleOutlined />} 
+      onClick={markAllAsRead} 
+      disabled={unreadCount === 0}
+    >
+      Mark All As Read
+    </Button>
+  );
+
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Row justify="end" align="middle" style={{ marginBottom: '24px' }}>
-        <Col>
-          <Button 
-            type="primary" 
-            icon={<CheckCircleOutlined />} 
-            onClick={markAllAsRead} 
-            disabled={unreadCount === 0}
-          >
-            Mark All As Read
-          </Button>
-        </Col>
-      </Row>
+      <Breadcrumbs actions={pageActions} />
       <Card>
         {notifications.length === 0 ? (
           <Empty description="No notifications to display." />

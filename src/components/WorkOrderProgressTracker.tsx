@@ -69,8 +69,8 @@ const WorkOrderProgressTracker = ({ workOrder }: WorkOrderProgressTrackerProps) 
     // 1. Determine the start and end times for each *sequential* stage
     let currentStatus: WorkOrder['status'] = 'Open';
     
-    if (workOrder.createdAt) {
-      timings['Open'].start = dayjs(workOrder.createdAt);
+    if (workOrder.created_at) {
+      timings['Open'].start = dayjs(workOrder.created_at);
     }
 
     const sortedActivityLog = [...(workOrder.activityLog || [])].sort((a, b) =>
@@ -118,8 +118,8 @@ const WorkOrderProgressTracker = ({ workOrder }: WorkOrderProgressTrackerProps) 
 
     // Re-process events to find on-hold periods
     const allEventsForOnHold: { time: Dayjs; status: WorkOrder['status'] }[] = [];
-    if (workOrder.createdAt) {
-      allEventsForOnHold.push({ time: dayjs(workOrder.createdAt), status: 'Open' });
+    if (workOrder.created_at) {
+      allEventsForOnHold.push({ time: dayjs(workOrder.created_at), status: 'Open' });
     }
     (workOrder.activityLog || []).forEach(log => {
       const statusChangeMatch = log.activity.match(/Status changed from '(.+)' to '(.+)'/);
@@ -174,8 +174,8 @@ const WorkOrderProgressTracker = ({ workOrder }: WorkOrderProgressTrackerProps) 
 
 
   const getStatusTimestamp = (stage: string): string | null => {
-    if (stage === 'Open' && workOrder.createdAt) {
-        return dayjs(workOrder.createdAt).format('MMM D, h:mm A');
+    if (stage === 'Open' && workOrder.created_at) {
+        return dayjs(workOrder.created_at).format('MMM D, h:mm A');
     }
     if (stage === 'Completed' && workOrder.completedAt) {
         return dayjs(workOrder.completedAt).format('MMM D, h:mm A');

@@ -63,12 +63,11 @@ const AnalyticsPage = () => {
   }
 
   // KPI Calculations (using date-ranged data)
-  const completedOrders = (workOrders || []).filter(wo => wo.status === 'Completed' && wo.completedAt && wo.createdAt);
+  const completedOrders = (workOrders || []).filter(wo => wo.status === 'Completed' && wo.completedAt && wo.created_at);
   const slaMetCount = completedOrders.filter(wo => wo.slaDue && dayjs(wo.completedAt).isBefore(dayjs(wo.slaDue))).length;
-  const slaCompliance = completedOrders.length > 0 ? (slaMetCount / completedOrders.length * 100).toFixed(1) : '0.0';
   
   const totalCompletionTime = completedOrders.reduce((acc, wo) => {
-    const completionTime = dayjs(wo.completedAt).diff(dayjs(wo.createdAt), 'hour');
+    const completionTime = dayjs(wo.completedAt).diff(dayjs(wo.created_at), 'hour');
     return acc + completionTime;
   }, 0);
   const avgCompletionTimeHours = completedOrders.length > 0 ? (totalCompletionTime / completedOrders.length).toFixed(1) : '0.0';
@@ -80,7 +79,7 @@ const AnalyticsPage = () => {
   }));
 
   const workOrdersByDate = (workOrders || []).reduce((acc, wo) => {
-    const date = dayjs(wo.createdAt).format('YYYY-MM-DD');
+    const date = dayjs(wo.created_at).format('YYYY-MM-DD');
     acc[date] = (acc[date] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);

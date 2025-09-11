@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, Typography, Space } from 'antd';
+import { Card, Descriptions, Typography, Space } from 'antd';
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import dayjs from 'dayjs';
 import { WorkOrder } from '@/types/supabase';
@@ -29,7 +29,7 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
             <Space>
               <Icon icon="ph:chat-centered-text-fill" />
               <Text strong>Initial Diagnosis</Text>
-              <Text type="secondary" style={{ fontSize: 12 }}>{formatDate(workOrder.createdAt)}</Text>
+              <Text type="secondary" style={{ fontSize: 12 }}>{formatDate(workOrder.created_at)}</Text>
             </Space>
           }
           bordered
@@ -52,7 +52,7 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
               <Space>
                 <Icon icon="ph:question-fill" />
                 <Text strong>Confirmed Issue</Text>
-                <Text type="secondary" style={{ fontSize: 12 }}>{formatDate(workOrder.confirmed_at || workOrder.work_started_at || workOrder.createdAt)}</Text>
+                <Text type="secondary" style={{ fontSize: 12 }}>{formatDate(workOrder.confirmed_at || workOrder.work_started_at || workOrder.created_at)}</Text>
               </Space>
             }
             bordered

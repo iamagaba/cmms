@@ -136,7 +136,7 @@ const LocationDetailsPage = () => {
             <Space direction="vertical" size="middle" style={{ width: '100%' }}>
               <Card><Title level={4}>{location.name.replace(' Service Center', '')}</Title><Text type="secondary"><Icon icon="ph:map-pin-fill" /> {location.address}</Text></Card>
               <Card title="Technicians On-Site">
-                <List itemLayout="horizontal" dataSource={locationTechnicians} renderItem={(tech: Technician) => (<List.Item><List.Item.Meta avatar={<Avatar src={tech.avatar || undefined} />} title={<a href={`/technicians/${tech.id}`}>{tech.name}</a>} description={tech.specialization} /></List.Item>)} />
+                <List itemLayout="horizontal" dataSource={locationTechnicians} renderItem={(tech: Technician) => (<List.Item><List.Item.Meta avatar={<Avatar src={tech.avatar || undefined} />} title={<a href={`/technicians/${tech.id}`}>{tech.name}</a>} description={tech.specializations?.join(', ') || 'N/A'} /></List.Item>)} />
               </Card>
             </Space>
           </Col>

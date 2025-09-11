@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { WorkOrder, Technician, Location, Customer, Vehicle, Profile, EmergencyBikeAssignment, ServiceCategory, SlaPolicy } from "@/types/supabase"; // Import Profile, EmergencyBikeAssignment, ServiceCategory, SlaPolicy
 import dayjs from "dayjs";
 import isBetween from 'dayjs/plugin/isBetween';
-import { camelToSnakeCase } from "@/utils/data-helpers";
+import { camelToSnakeCase, snakeToCamelCase } from "@/utils/data-helpers"; // Import snakeToCamelCase
 import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
 import { useSearchParams } from "react-router-dom";
 import { useSession } from "@/context/SessionContext";
@@ -101,7 +101,7 @@ const Dashboard = () => {
     queryFn: async () => {
       const { data, error } = await supabase.from('technicians').select('*');
       if (error) throw new Error(error.message);
-      return data || [];
+      return (data || []).map(snakeToCamelCase) as Technician[]; // Apply snakeToCamelCase
     }
   });
 
@@ -283,18 +283,18 @@ const Dashboard = () => {
     };
 
     // --- Data for periods ---
-    const createdThisWeek = orders.filter(o => dayjs(o.createdAt).isAfter(sevenDaysAgo));
-    const createdLastWeek = orders.filter(o => dayjs(o.createdAt).isBetween(fourteenDaysAgo, sevenDaysAgo));
+    const createdThisWeek = orders.filter(o => dayjs(o.created_at).isAfter(sevenDaysAgo));
+    const createdLastWeek = orders.filter(o => dayjs(o.created_at).isBetween(fourteenDaysAgo, sevenDaysAgo));
     const completedThisWeek = orders.filter(o => o.status === 'Completed' && o.completedAt && dayjs(o.completedAt).isAfter(sevenDaysAgo));
     const completedLastWeek = orders.filter(o => o.status === 'Completed' && o.completedAt && dayjs(o.completedAt).isBetween(fourteenDaysAgo, sevenDaysAgo));
 
     // --- Main KPIs ---
     const totalOrders = orders.length;
     const openOrders = orders.filter(o => o.status !== 'Completed').length;
-    const allCompleted = orders.filter(o => o.status === 'Completed' && o.completedAt && o.createdAt);
+    const allCompleted = orders.filter(o => o.status === 'Completed' && o.completedAt && o.created_at);
     const slaMet = allCompleted.filter(o => o.slaDue && dayjs(o.completedAt).isBefore(dayjs(o.slaDue))).length;
     const slaPerformance = allCompleted.length > 0 ? ((slaMet / allCompleted.length) * 100) : 0;
-    const totalCompletionTime = allCompleted.reduce((acc, wo) => acc + dayjs(wo.completedAt).diff(dayjs(wo.createdAt), 'hour'), 0);
+    const totalCompletionTime = allCompleted.reduce((acc, wo) => acc + dayjs(wo.completedAt).diff(dayjs(wo.created_at), 'hour'), 0);
     const avgCompletionTimeDays = allCompleted.length > 0 ? (totalCompletionTime / allCompleted.length / 24).toFixed(1) : '0.0';
 
     // Calculate trends
@@ -308,8 +308,8 @@ const Dashboard = () => {
       completedLastWeek.filter(o => o.slaDue && dayjs(o.completedAt).isBefore(dayjs(o.slaDue))).length
     );
     const avgCompletionTimeTrend = calculateTrend(
-      completedThisWeek.reduce((acc, wo) => acc + dayjs(wo.completedAt!).diff(dayjs(wo.createdAt!), 'hour'), 0) / (completedThisWeek.length || 1),
-      completedLastWeek.reduce((acc, wo) => acc + dayjs(wo.completedAt!).diff(dayjs(wo.createdAt!), 'hour'), 0) / (completedLastWeek.length || 1)
+      completedThisWeek.reduce((acc, wo) => acc + dayjs(wo.completedAt!).diff(dayjs(wo.created_at!), 'hour'), 0) / (completedThisWeek.length || 1),
+      completedLastWeek.reduce((acc, wo) => acc + dayjs(wo.completedAt!).diff(dayjs(wo.created_at!), 'hour'), 0) / (completedLastWeek.length || 1)
     );
 
 

@@ -205,12 +205,12 @@ export const getColumns = ({
       sorter: (a: WorkOrderRow, b: WorkOrderRow) => dayjs(a.slaDue).unix() - dayjs(b.slaDue).unix(),
     },
     {
-      key: "createdAt",
+      key: "created_at",
       title: "Created At",
-      dataIndex: "createdAt",
+      dataIndex: "created_at",
       render: (date: string) => dayjs(date).format("MMM D, YYYY HH:mm"),
       width: 180,
-      sorter: (a: WorkOrderRow, b: WorkOrderRow) => dayjs(a.createdAt).unix() - dayjs(b.createdAt).unix(),
+      sorter: (a: WorkOrderRow, b: WorkOrderRow) => dayjs(a.created_at).unix() - dayjs(b.created_at).unix(),
     },
     {
       key: "createdBy",

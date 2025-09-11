@@ -16,13 +16,12 @@ import CalendarPage from "./Calendar";
 import MapViewPage from "./MapView";
 import { CreateWorkOrderDialog } from "@/components/CreateWorkOrderDialog";
 import dayjs from "dayjs";
+import isBetween from 'dayjs/plugin/isBetween';
 import { useSession } from "@/context/SessionContext";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
-const { Title } = Typography;
-const { Search } = Input;
-const { Option = Select.Option } = Select;
-const { Panel } = Collapse;
+dayjs.extend(isBetween);
+const { TabPane } = Tabs;
 
 type GroupByOption = 'status' | 'priority' | 'assignedTechnicianId';
 type WorkOrderView = 'table' | 'kanban' | 'calendar' | 'map';
@@ -122,17 +121,81 @@ const WorkOrdersPage = () => {
       }) || [];
     }
   });
-  const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return data; } });
-  const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({ queryKey: ['locations'], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*'); if (error) throw new Error(error.message); return data; } });
-  const { data: customers, isLoading: isLoadingCustomers } = useQuery<Customer[]>({ queryKey: ['customers'], queryFn: async () => { const { data, error } = await supabase.from('customers').select('*'); if (error) throw new Error(error.message); return data || []; } });
-  const { data: vehicles, isLoading: isLoadingVehicles } = useQuery<Vehicle[]>({ queryKey: ['vehicles'], queryFn: async () => { const { data, error } = await supabase.from('vehicles').select('*'); if (error) throw new Error(error.message); return data || []; } });
-  const { data: profiles, isLoading: isLoadingProfiles } = useQuery<Profile[]>({ queryKey: ['profiles'], queryFn: async () => { const { data, error } = await supabase.from('profiles').select('*'); if (error) throw new Error(error.message); return data || []; } });
+
+  const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({
+    queryKey: ['technicians'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('technicians').select('*');
+      if (error) throw new Error(error.message);
+      return (data || []).map(snakeToCamelCase) as Technician[]; // Apply snakeToCamelCase
+    }
+  });
+
+  const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({
+    queryKey: ['locations'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('locations').select('*');
+      if (error) throw new Error(error.message);
+      return data || [];
+    }
+  });
+
+  const { data: customers, isLoading: isLoadingCustomers } = useQuery<Customer[]>({
+    queryKey: ['customers'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('customers').select('*');
+      if (error) throw new Error(error.message);
+      return data || [];
+    }
+  });
+
+  const { data: vehicles, isLoading: isLoadingVehicles } = useQuery<Vehicle[]>({
+    queryKey: ['vehicles'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('vehicles').select('*');
+      if (error) throw new Error(error.message);
+      return data || [];
+    }
+  });
+
+  const { data: profiles, isLoading: isLoadingProfiles } = useQuery<Profile[]>({
+    queryKey: ['profiles'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('profiles').select('*');
+      if (error) throw new Error(error.message);
+      return data || [];
+    }
+  });
+
   const { data: serviceCategories, isLoading: isLoadingServiceCategories } = useQuery<ServiceCategory[]>({ queryKey: ['service_categories'], queryFn: async () => { const { data, error } = await supabase.from('service_categories').select('*'); if (error) throw new Error(error.message); return data || []; } });
   const { data: slaPolicies, isLoading: isLoadingSlaPolicies } = useQuery<SlaPolicy[]>({ queryKey: ['sla_policies'], queryFn: async () => { const { data, error } = await supabase.from('sla_policies').select('*'); if (error) throw new Error(error.message); return data || []; } });
 
+
   // Mutations
-  const workOrderMutation = useMutation({ mutationFn: async (workOrderData: Partial<WorkOrder>) => { const { error } = await supabase.from('work_orders').upsert([workOrderData]); if (error) throw new Error(error.message); }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['work_orders'] }); showSuccess('Work order has been saved.'); }, onError: (error) => showError(error.message) });
-  const deleteMutation = useMutation({ mutationFn: async (id: string) => { const { error } = await supabase.from('work_orders').delete().eq('id', id); if (error) throw new Error(error.message); }, onSuccess: () => { queryClient.invalidateQueries({ queryKey: ['work_orders'] }); showSuccess('Work order has been deleted.'); }, onError: (error) => showError(error.message) });
+  const workOrderMutation = useMutation({
+    mutationFn: async (workOrderData: Partial<WorkOrder>) => {
+      const { error } = await supabase.from('work_orders').upsert([workOrderData]);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['work_orders'] });
+      showSuccess('Work order has been saved.');
+    },
+    onError: (error) => showError(error.message),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from('work_orders').delete().eq('id', id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['work_orders'] });
+      showSuccess('Work order has been deleted.');
+    },
+    onError: (error) => showError(error.message),
+  });
+
   const bulkAssignMutation = useMutation({
     mutationFn: async ({ workOrderIds, technicianId }: { workOrderIds: React.Key[], technicianId: string }) => {
       const updates = workOrderIds.map(id => ({
@@ -166,13 +229,52 @@ const WorkOrdersPage = () => {
     if (!workOrder) return; 
 
     const oldWorkOrder = { ...workOrder };
+    const newStatus = updates.status;
+    const oldStatus = oldWorkOrder.status;
+
+    // Status transition validation
+    if (newStatus && newStatus !== oldStatus) {
+      const isServiceCenter = oldWorkOrder.channel === 'Service Center';
+      let isValidTransition = false;
+
+      if (oldStatus === 'Open') {
+        if (newStatus === 'Confirmation') {
+          isValidTransition = true;
+        } else if (newStatus === 'In Progress' && isServiceCenter) {
+          isValidTransition = true;
+        }
+      } else if (oldStatus === 'Confirmation') {
+        if (newStatus === 'Ready') {
+          isValidTransition = true;
+        }
+      } else if (oldStatus === 'Ready') {
+        if (newStatus === 'In Progress') {
+          isValidTransition = true;
+        }
+      } else if (oldStatus === 'In Progress') {
+        if (newStatus === 'On Hold' || newStatus === 'Completed') {
+          isValidTransition = true;
+        }
+      } else if (oldStatus === 'On Hold') {
+        if (newStatus === 'In Progress') {
+          isValidTransition = true;
+        }
+      } else if (oldStatus === 'Completed') {
+        showError('Cannot change status of a completed work order.');
+        return;
+      }
+
+      if (!isValidTransition) {
+        showError(`Invalid status transition from '${oldStatus}' to '${newStatus}'.`);
+        return;
+      }
+    }
+
     const newActivityLog = [...(workOrder.activityLog || [])];
     let activityMessage = '';
 
     // --- Timestamp & SLA Automation ---
-    const oldStatus = oldWorkOrder.status;
-    const newStatus = updates.status;
-
+    // The oldStatus and newStatus are already validated above.
     if (newStatus && newStatus !== oldStatus) {
       activityMessage = `Status changed from '${oldStatus || 'N/A'}' to '${newStatus}'.`;
       if (newStatus === 'Confirmation' && !oldWorkOrder.confirmed_at) updates.confirmed_at = new Date().toISOString();
@@ -210,6 +312,13 @@ const WorkOrdersPage = () => {
       setOnHoldWorkOrder(workOrder); 
       return; 
     } 
+    
+    // This automatic status change should happen after validation, but before the final mutation.
+    // The validation above already ensures 'Ready' -> 'In Progress' is a valid transition.
+    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready' && updates.status !== 'On Hold' && updates.status !== 'Completed') {
+      updates.status = 'In Progress';
+      showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`);
+    }
     
     workOrderMutation.mutate(camelToSnakeCase({ id, ...updates })); 
   };
@@ -336,7 +445,7 @@ const WorkOrdersPage = () => {
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
       <Breadcrumbs actions={pageActions} />
-      <Collapse><Panel header={<><Icon icon="si:filter" /> Filters & View Options</>} key="1"><Row gutter={[16, 16]} align="bottom"><Col xs={24} sm={12} md={6}><Search placeholder="Filter by Vehicle ID..." allowClear onSearch={setVehicleFilter} onChange={(e) => setVehicleFilter(e.target.value)} style={{ width: '100%' }} /></Col><Col xs={24} sm={12} md={4}><Select placeholder="Filter by Status" allowClear style={{ width: '100%' }} onChange={setStatusFilter} value={statusFilter}><Option value="Open">Open</Option><Option value="Confirmation">Confirmation</Option><Option value="Ready">Ready</Option><Option value="In Progress">In Progress</Option><Option value="On Hold">On Hold</Option><Option value="Completed">Completed</Option></Select></Col><Col xs={24} sm={12} md={4}><Form.Item name="priority" label="Priority"><Select allowClear><Option value="High">High</Option><Option value="Medium">Medium</Option><Option value="Low">Low</Option></Select></Form.Item></Col><Col xs={24} sm={12} md={5}><Form.Item name="technicianId" label="Technician"><Select allowClear>{technicians.map(t => <Option key={t.id} value={t.id}>{t.name}</Option>)}</Select></Form.Item></Col><Col xs={24} sm={12} md={5}><Form.Item name="locationId" label="Location"><Select allowClear>{locations.map(l => <Option key={l.id} value={l.id}>{l.name}</Option>)}</Select></Form.Item></Col>{view === 'kanban' && (<Col xs={24} sm={12} md={2}><Select value={groupBy} onChange={(value) => setGroupBy(value as GroupByOption)} style={{ width: '100%' }}><Option value="status">Group by: Status</Option><Option value="priority">Group by: Priority</Option><Option value="technician">Group by: Technician</Option></Select></Col>)}</Row></Panel></Collapse>
+      <Collapse><Panel header={<><Icon icon="si:filter" /> Filters & View Options</>} key="1"><Row gutter={[16, 16]} align="bottom"><Col xs={24} sm={12} md={6}><Search placeholder="Filter by Vehicle ID..." allowClear onSearch={setVehicleFilter} onChange={(e) => setVehicleFilter(e.target.value)} style={{ width: '100%' }} /></Col><Col xs={24} sm={12} md={4}><Select placeholder="Filter by Status" allowClear style={{ width: '100%' }} onChange={setStatusFilter} value={statusFilter}><Option value="Open">Open</Option><Option value="Confirmation">Confirmation</Option><Option value="Ready">Ready</Option><Option value="In Progress">In Progress</Option><Option value="On Hold">On Hold</Option><Option value="Completed">Completed</Option></Select></Col><Col xs={24} sm={12} md={4}><Select placeholder="Filter by Priority" allowClear style={{ width: '100%' }} onChange={setPriorityFilter} value={priorityFilter}><Option value="High">High</Option><Option value="Medium">Medium</Option><Option value="Low">Low</Option></Select></Col><Col xs={24} sm={12} md={5}><Select placeholder="Filter by Technician" allowClear style={{ width: '100%' }} onChange={setTechnicianFilter} value={technicianFilter}>{technicians?.map(t => <Option key={t.id} value={t.id}>{t.name}</Option>)}</Select></Col><Col xs={24} sm={12} md={5}><Select placeholder="Filter by Location" allowClear style={{ width: '100%' }} onChange={setChannelFilter} value={channelFilter}>{locations?.map(l => <Option key={l.id} value={l.id}>{l.name}</Option>)}</Select></Col>{view === 'kanban' && (<Col xs={24} sm={12} md={2}><Select value={groupBy} onChange={(value) => setGroupBy(value as GroupByOption)} style={{ width: '100%' }}><Option value="status">Group by: Status</Option><Option value="priority">Group by: Priority</Option><Option value="technician">Group by: Technician</Option></Select></Col>)}</Row></Panel></Collapse>
       <Tabs defaultActiveKey="table" activeKey={view} onChange={(key) => setView(key as WorkOrderView)} items={tabItems} />
       {isCreateDialogOpen && <CreateWorkOrderDialog isOpen={isCreateDialogOpen} onClose={() => setIsCreateDialogOpen(false)} onProceed={handleProceedToCreate} />}
       {isFormDialogOpen && <WorkOrderFormDrawer isOpen={isFormDialogOpen} onClose={() => { setIsFormDialogOpen(false); setPrefillData(null); }} onSave={handleSave} workOrder={editingWorkOrder} prefillData={prefillData} technicians={technicians || []} locations={locations || []} serviceCategories={serviceCategories || []} />}

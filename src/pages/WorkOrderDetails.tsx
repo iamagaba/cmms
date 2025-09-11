@@ -178,13 +178,68 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     if (!workOrder) return; 
 
     const oldWorkOrder = { ...workOrder };
+    const newStatus = updates.status;
+    const oldStatus = oldWorkOrder.status;
+
+    // Status transition validation
+    if (newStatus && newStatus !== oldStatus) {
+      const isServiceCenter = oldWorkOrder.channel === 'Service Center';
+      let isValidTransition = false;
+
+      if (oldStatus === 'Open') {
+        if (newStatus === 'Confirmation') {
+          isValidTransition = true;
+        } else if (newStatus === 'In Progress' && isServiceCenter) {
+          isValidTransition = true;
+        }
+      } else if (oldStatus === 'Confirmation') {
+        if (newStatus === 'Ready') {
+          isValidTransition = true;
+        }
+      } else if (oldStatus === 'Ready') {
+        if (newStatus === 'In Progress') {
+          isValidTransition = true;
+        }
+      } else if (oldStatus === 'In Progress') {
+        if (newStatus === 'On Hold' || newStatus === 'Completed') {
+          isValidTransition = true;
+        }
+      } else if (oldStatus === 'On Hold') {
+        if (newStatus === 'In Progress') {
+          isValidTransition = true;
+        }
+      } else if (oldStatus === 'Completed') {
+        showError('Cannot change status of a completed work order.');
+        return;
+      }
+
+      if (!isValidTransition) {
+        showError(`Invalid status transition from '${oldStatus}' to '${newStatus}'.`);
+        return;
+      }
+
+      // Special handling for 'On Hold' to open dialog
+      if (newStatus === 'On Hold') { 
+        setOnHoldWorkOrder(oldWorkOrder); 
+        return; 
+      } 
+      // Special handling for 'Ready' to open Issue Confirmation Dialog
+      if (newStatus === 'Ready' && oldWorkOrder.channel !== 'Service Center' && !oldWorkOrder.issueType) {
+        setIsIssueConfirmationDialogOpen(true);
+        return; // Stop here, the dialog's save will trigger the actual update
+      }
+      // Special handling for 'Completed' to open Maintenance Completion Drawer
+      if (newStatus === 'Completed' && (!oldWorkOrder.faultCode || !oldWorkOrder.maintenanceNotes)) {
+        setIsMaintenanceCompletionDrawerOpen(true);
+        return; // Stop here, the drawer's save will trigger the actual update
+      }
+    }
+
     const newActivityLog = [...(workOrder.activityLog || [])];
     let activityMessage = '';
 
     // --- Timestamp & SLA Automation ---
-    const oldStatus = oldWorkOrder.status;
-    const newStatus = updates.status;
-
+    // The oldStatus and newStatus are already validated above.
     if (newStatus && newStatus !== oldStatus) {
       activityMessage = `Status changed from '${oldStatus || 'N/A'}' to '${newStatus}'.`;
       if (newStatus === 'Confirmation' && !oldWorkOrder.confirmed_at) updates.confirmed_at = new Date().toISOString();
@@ -197,20 +252,6 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
         updates.total_paused_duration_seconds = (oldWorkOrder.total_paused_duration_seconds || 0) + durationPaused;
         updates.sla_timers_paused_at = null;
         activityMessage += ` (SLA timers resumed after ${durationPaused}s pause).`;
-      }
-      
-      // Trigger Issue Confirmation Dialog when status changes to 'Ready'
-      if (updates.status === 'Ready' && oldWorkOrder.channel !== 'Service Center' && !oldWorkOrder.issueType) {
-        setIsIssueConfirmationDialogOpen(true);
-        // Do not proceed with mutation yet, wait for dialog to save
-        return;
-      }
-      
-      // Trigger Maintenance Completion Dialog when status changes to 'Completed'
-      if (updates.status === 'Completed' && (!oldWorkOrder.faultCode || !oldWorkOrder.maintenanceNotes)) {
-        setIsMaintenanceCompletionDrawerOpen(true);
-        // Do not proceed with mutation yet, wait for dialog to save
-        return;
       }
     }
 
@@ -251,35 +292,38 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
       updates.activityLog = newActivityLog;
     }
 
-    if (updates.status === 'On Hold') { 
-      setOnHoldWorkOrder(workOrder); 
-      return; 
-    } 
-    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready') { 
+    // This automatic status change should happen after validation, but before the final mutation.
+    // The validation above already ensures 'Ready' -> 'In Progress' is a valid transition.
+    if ((updates.assignedTechnicianId || updates.appointmentDate) && oldStatus === 'Ready' && newStatus !== 'On Hold' && newStatus !== 'Completed') { 
       updates.status = 'In Progress'; 
       showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`); 
     } 
-    workOrderMutation.mutate({ id: workOrder.id, ...updates }); 
+    
+    const finalUpdates = { ...updates };
+    if (workOrder.id) {
+      finalUpdates.id = workOrder.id; // Ensure ID is present for update
+    }
+    workOrderMutation.mutate(camelToSnakeCase(finalUpdates)); 
   };
 
   const handleSaveOnHoldReason = (reason: string) => { 
     if (!onHoldWorkOrder) return; 
     const updates = { status: 'On Hold' as const, onHoldReason: reason }; 
-    workOrderMutation.mutate({ id: onHoldWorkOrder.id, ...updates }); 
+    workOrderMutation.mutate(camelToSnakeCase({ id: onHoldWorkOrder.id, ...updates })); 
     setOnHoldWorkOrder(null); 
   };
 
   const handleSaveIssueConfirmation = (issueType: string, notes: string | null) => {
     if (!workOrder) return;
     const updates: Partial<WorkOrder> = { status: 'Ready', issueType: issueType, serviceNotes: notes };
-    workOrderMutation.mutate({ id: workOrder.id, ...updates });
+    workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates }));
     setIsIssueConfirmationDialogOpen(false);
   };
 
   const handleSaveMaintenanceCompletion = (faultCode: string, maintenanceNotes: string | null) => {
     if (!workOrder) return;
     const updates: Partial<WorkOrder> = { status: 'Completed', faultCode: faultCode, maintenanceNotes: maintenanceNotes, completedAt: new Date().toISOString() };
-    workOrderMutation.mutate({ id: workOrder.id, ...updates });
+    workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates }));
     setIsMaintenanceCompletionDrawerOpen(false);
   };
 

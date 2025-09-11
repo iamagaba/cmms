@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { Modal, Form, Select, Input, Button, Typography, Space } from 'antd';
-import { WorkOrderPart } from '@/types/supabase';
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -22,11 +21,12 @@ interface MaintenanceCompletionDialogProps {
   onClose: () => void;
   onSave: (faultCode: string, maintenanceNotes: string | null) => void;
   usedPartsCount: number;
+  onAddPartsClick: () => void; // New prop to handle opening the AddPartToWorkOrderDialog
   initialFaultCode?: string | null;
   initialMaintenanceNotes?: string | null;
 }
 
-export const MaintenanceCompletionDialog = ({ isOpen, onClose, onSave, usedPartsCount, initialFaultCode, initialMaintenanceNotes }: MaintenanceCompletionDialogProps) => {
+export const MaintenanceCompletionDialog = ({ isOpen, onClose, onSave, usedPartsCount, onAddPartsClick, initialFaultCode, initialMaintenanceNotes }: MaintenanceCompletionDialogProps) => {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [showCustomFaultCode, setShowCustomFaultCode] = useState(false);
@@ -68,6 +68,11 @@ export const MaintenanceCompletionDialog = ({ isOpen, onClose, onSave, usedParts
     }
   };
 
+  const handleAddParts = () => {
+    onAddPartsClick(); // Trigger the parent's function to open AddPartToWorkOrderDialog
+    onClose(); // Close this dialog
+  };
+
   return (
     <Modal
       title="Complete Work Order"
@@ -76,7 +81,8 @@ export const MaintenanceCompletionDialog = ({ isOpen, onClose, onSave, usedParts
       destroyOnClose
       footer={[
         <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>,
-        <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Mark as Completed</Button>,
+        <Button key="add-parts" onClick={handleAddParts} disabled={loading}>Add Parts</Button>,
+        <Button key="submit" type="primary" onClick={handleSubmit} loading={loading} disabled={loading || usedPartsCount === 0}>Mark as Completed</Button>,
       ]}
     >
       <Form form={form} layout="vertical" name="maintenance_completion_form">
@@ -111,7 +117,7 @@ export const MaintenanceCompletionDialog = ({ isOpen, onClose, onSave, usedParts
         <Space style={{ marginTop: 16 }}>
           <Text strong>Parts Used:</Text>
           <Text>{usedPartsCount} items recorded</Text>
-          {usedPartsCount === 0 && <Text type="warning">(Remember to add all parts used before completing)</Text>}
+          {usedPartsCount === 0 && <Text type="warning">(Please add all parts used before completing)</Text>}
         </Space>
       </Form>
     </Modal>

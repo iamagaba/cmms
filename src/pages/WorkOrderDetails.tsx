@@ -25,6 +25,7 @@ import { WorkOrderActivityLogCard } from "@/components/work-order-details/WorkOr
 import { WorkOrderLocationMapCard } from "@/components/work-order-details/WorkOrderLocationMapCard.tsx";
 import { IssueConfirmationDialog } from "@/components/IssueConfirmationDialog.tsx"; // New dialog
 import { MaintenanceCompletionDialog } from "@/components/MaintenanceCompletionDialog.tsx"; // New dialog
+import { AddPartToWorkOrderDialog } from "@/components/AddPartToWorkOrderDialog"; // Import AddPartToWorkOrderDialog
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -237,6 +238,11 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     setIsMaintenanceCompletionDialogOpen(false);
   };
 
+  const handleAddPartsFromCompletionDialog = () => {
+    setIsMaintenanceCompletionDialogOpen(false); // Close completion dialog
+    setIsAddPartDialogOpen(true); // Open add part dialog
+  };
+
   const handleLocationSelect = (selectedLoc: { lat: number; lng: number; label: string }) => { handleUpdateWorkOrder({ customerAddress: selectedLoc.label, customerLat: selectedLoc.lat, customerLng: selectedLoc.lng }); };
   const handleAddPart = (itemId: string, quantity: number) => { addPartMutation.mutate({ itemId, quantity }); };
   const handleRemovePart = (partId: string) => { removePartMutation.mutate(partId); };
@@ -389,8 +395,16 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
           onClose={() => setIsMaintenanceCompletionDialogOpen(false)}
           onSave={handleSaveMaintenanceCompletion}
           usedPartsCount={usedPartsCount}
+          onAddPartsClick={handleAddPartsFromCompletionDialog} // Pass the new callback
           initialFaultCode={workOrder.faultCode}
           initialMaintenanceNotes={workOrder.maintenanceNotes}
+        />
+      )}
+      {isAddPartDialogOpen && (
+        <AddPartToWorkOrderDialog
+          isOpen={isAddPartDialogOpen}
+          onClose={() => setIsAddPartDialogOpen(false)}
+          onSave={handleAddPart}
         />
       )}
     </>

@@ -6,6 +6,7 @@ import { useSession } from "@/context/SessionContext"; // Import useSession
 import { useQuery } from "@tanstack/react-query"; // Import useQuery
 import { supabase } from "@/integrations/supabase/client"; // Import supabase client
 import { Profile } from "@/types/supabase"; // Import Profile type
+import { snakeToCamelCase } from "@/utils/data-helpers"; // Import snakeToCamelCase
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -95,6 +96,11 @@ export const getColumns = ({
       title: "Open Tasks",
       dataIndex: "openTasks",
       sorter: (a: TechnicianRow, b: TechnicianRow) => a.openTasks - b.openTasks,
+    },
+    {
+      title: "Specializations", // Changed title
+      dataIndex: "specializations", // Changed dataIndex
+      render: (specializations: string[] | null) => (specializations || []).map(s => <Tag key={s}>{s}</Tag>),
     },
     {
       title: "Actions",

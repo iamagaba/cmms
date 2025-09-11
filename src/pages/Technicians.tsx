@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Technician, WorkOrder, Location } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
-import { camelToSnakeCase } from "@/utils/data-helpers";
+import { camelToSnakeCase, snakeToCamelCase } from "@/utils/data-helpers"; // Import snakeToCamelCase
 import { TechnicianCard, TechnicianCardData } from "@/components/TechnicianCard";
 import { TechnicianDataTable } from "@/components/TechnicianDataTable";
 import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
@@ -25,7 +25,7 @@ const TechniciansPage = () => {
     queryFn: async () => {
       const { data, error } = await supabase.from('technicians').select('*').order('name');
       if (error) throw new Error(error.message);
-      return data || [];
+      return (data || []).map(snakeToCamelCase) as Technician[]; // Apply snakeToCamelCase
     }
   });
 
@@ -49,7 +49,8 @@ const TechniciansPage = () => {
 
   const technicianMutation = useMutation({
     mutationFn: async (technicianData: Partial<Technician>) => {
-      const { error } = await supabase.from('technicians').upsert(technicianData);
+      const snakeCaseData = camelToSnakeCase(technicianData); // Convert to snake_case for Supabase
+      const { error } = await supabase.from('technicians').upsert(snakeCaseData);
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
@@ -72,7 +73,7 @@ const TechniciansPage = () => {
   });
 
   const handleSave = (technicianData: Technician) => {
-    technicianMutation.mutate(camelToSnakeCase(technicianData));
+    technicianMutation.mutate(technicianData); // Pass camelCase data directly
     setIsDialogOpen(false);
     setEditingTechnician(null);
   };
@@ -87,7 +88,7 @@ const TechniciansPage = () => {
   };
 
   const handleUpdateStatus = (id: string, status: Technician['status']) => {
-    technicianMutation.mutate({ id, status });
+    technicianMutation.mutate({ id, status }); // Pass camelCase data directly
   };
 
   const technicianData: TechnicianCardData[] = useMemo(() => {
@@ -102,7 +103,7 @@ const TechniciansPage = () => {
     if (!technicianData) return [];
     return technicianData.filter(tech =>
       tech.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (tech.specialization && tech.specialization.toLowerCase().includes(searchTerm.toLowerCase()))
+      (tech.specializations && tech.specializations.some(s => s.toLowerCase().includes(searchTerm.toLowerCase()))) // Adjust for specializations array
     );
   }, [technicianData, searchTerm]);
 

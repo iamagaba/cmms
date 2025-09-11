@@ -10,7 +10,7 @@ import { useMemo } from "react";
 import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
 import { useSession } from "@/context/SessionContext"; // Import useSession
 import { showSuccess, showError } from "@/utils/toast"; // Import toast utilities
-import { camelToSnakeCase } from "@/utils/data-helpers"; // Import camelToSnakeCase
+import { camelToSnakeCase, snakeToCamelCase } from "@/utils/data-helpers"; // Import camelToSnakeCase and snakeToCamelCase
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -29,9 +29,10 @@ const TechnicianProfilePage = () => {
   const { data: technician, isLoading: isLoadingTechnician } = useQuery<Technician | null>({
     queryKey: ['technician', id],
     queryFn: async () => {
+      if (!id) return null;
       const { data, error } = await supabase.from('technicians').select('*').eq('id', id).single();
       if (error) throw new Error(error.message);
-      return data;
+      return snakeToCamelCase(data) as Technician; // Apply snakeToCamelCase
     },
     enabled: !!id,
   });
@@ -39,6 +40,7 @@ const TechnicianProfilePage = () => {
   const { data: assignedWorkOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({
     queryKey: ['work_orders', { technicianId: id }],
     queryFn: async () => {
+      if (!id) return [];
       const { data, error } = await supabase.from('work_orders').select('*').eq('assigned_technician_id', id);
       if (error) throw new Error(error.message);
       return data || [];
@@ -69,7 +71,7 @@ const TechnicianProfilePage = () => {
       if (!id) throw new Error("Technician ID is missing.");
       const { error } = await supabase
         .from('technicians')
-        .update({ status: newStatus })
+        .update(camelToSnakeCase({ status: newStatus })) // Convert to snake_case
         .eq('id', id);
       if (error) throw new Error(error.message);
     },
@@ -83,11 +85,11 @@ const TechnicianProfilePage = () => {
   const performanceMetrics = useMemo(() => {
     if (!assignedWorkOrders) return null;
 
-    const completedOrders = assignedWorkOrders.filter(wo => wo.status === 'Completed' && wo.createdAt && wo.completedAt);
+    const completedOrders = assignedWorkOrders.filter(wo => wo.status === 'Completed' && wo.created_at && wo.completedAt); // Use created_at
     const totalCompleted = completedOrders.length;
     const activeTasks = assignedWorkOrders.length - totalCompleted;
 
-    const totalCompletionHours = completedOrders.reduce((acc, wo) => acc + dayjs(wo.completedAt).diff(dayjs(wo.createdAt), 'hour'), 0);
+    const totalCompletionHours = completedOrders.reduce((acc, wo) => acc + dayjs(wo.completedAt).diff(dayjs(wo.created_at), 'hour'), 0); // Use created_at
     const avgResolutionTime = totalCompleted > 0 ? (totalCompletionHours / totalCompleted).toFixed(1) : '0';
 
     const completedWithSla = completedOrders.filter(wo => wo.slaDue);
@@ -160,7 +162,7 @@ const TechnicianProfilePage = () => {
                     <Descriptions column={1} bordered>
                         <Descriptions.Item label={<><Icon icon="ph:envelope-fill" /> Email</>}><a href={`mailto:${technician.email}`}>{technician.email}</a></Descriptions.Item>
                         <Descriptions.Item label={<><Icon icon="ph:phone-fill" /> Phone</>}><a href={`tel:${technician.phone}`}>{technician.phone}</a></Descriptions.Item>
-                        <Descriptions.Item label={<><Icon icon="ph:wrench-fill" /> Specialization</>}>{technician.specialization}</Descriptions.Item>
+                        <Descriptions.Item label={<><Icon icon="ph:wrench-fill" /> Specialization</>}>{technician.specializations?.join(', ') || 'N/A'}</Descriptions.Item>
                         <Descriptions.Item label={<><Icon icon="ph:map-pin-fill" /> Location</>}>
                           {assignedLocation ? (
                             <Link to={`/locations/${assignedLocation.id}`}>{assignedLocation.name}</Link>
@@ -168,7 +170,7 @@ const TechnicianProfilePage = () => {
                             <Text type="secondary">Not Assigned</Text>
                           )}
                         </Descriptions.Item>
-                        <Descriptions.Item label={<><Icon icon="ph:calendar-fill" /> Member Since</>}>{dayjs(technician.joinDate).format('MMMM YYYY')}</Descriptions.Item>
+                        <Descriptions.Item label={<><Icon icon="ph:calendar-fill" /> Member Since</>}>{dayjs(technician.join_date).format('MMMM YYYY')}</Descriptions.Item>
                     </Descriptions>
                 </Card>
             </Col>

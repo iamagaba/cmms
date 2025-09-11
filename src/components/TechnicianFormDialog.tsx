@@ -22,7 +22,8 @@ export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician, loca
       if (technician) {
         form.setFieldsValue({
           ...technician,
-          joinDate: technician.joinDate ? dayjs(technician.joinDate) : null,
+          join_date: technician.join_date ? dayjs(technician.join_date) : null, // Use join_date
+          specializations: technician.specializations || [], // Use specializations array
         });
       } else {
         form.resetFields();
@@ -37,7 +38,8 @@ export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician, loca
       const technicianToSave: Technician = {
         id: technician?.id,
         ...values,
-        joinDate: values.joinDate.toISOString(),
+        join_date: values.join_date.toISOString(), // Use join_date
+        specializations: values.specializations || [], // Ensure specializations is an array
       };
       
       onSave(technicianToSave);
@@ -88,14 +90,14 @@ export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician, loca
             <Option value="offline">Offline</Option>
           </Select>
         </Form.Item>
-        <Form.Item name="specialization" label="Specialization" rules={[{ required: true, message: 'Please select a specialization!' }]}>
-          <Select placeholder="Select a specialization">
+        <Form.Item name="specializations" label="Specialization" rules={[{ required: true, message: 'Please select a specialization!' }]}>
+          <Select mode="multiple" placeholder="Select specializations"> {/* Changed to multiple select */}
             <Option value="Electrical">Electrical</Option>
             <Option value="Mechanical">Mechanical</Option>
             <Option value="Diagnostics">Diagnostics</Option>
           </Select>
         </Form.Item>
-        <Form.Item name="joinDate" label="Join Date" rules={[{ required: true, message: 'Please select a join date!' }]}>
+        <Form.Item name="join_date" label="Join Date" rules={[{ required: true, message: 'Please select a join date!' }]}> {/* Use join_date */}
           <DatePicker style={{ width: '100%' }} />
         </Form.Item>
       </Form>

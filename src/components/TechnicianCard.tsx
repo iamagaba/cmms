@@ -55,7 +55,7 @@ export const TechnicianCard = ({ technician, onEdit, onDelete }: TechnicianCardP
             </Avatar>
             <div>
               <Title level={5} style={{ margin: 0 }}>{technician.name}</Title>
-              <Text type="secondary">{technician.specialization}</Text>
+              <Text type="secondary">{technician.specializations?.join(', ') || 'N/A'}</Text>
             </div>
           </Space>
         </Space>

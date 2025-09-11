@@ -8,7 +8,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Technician, WorkOrder, Profile, Location } from '@/types/supabase';
 import { useSession } from '@/context/SessionContext';
-import { camelToSnakeCase } from "@/utils/data-helpers";
+import { camelToSnakeCase, snakeToCamelCase } from "@/utils/data-helpers"; // Import snakeToCamelCase
 import { useSystemSettings } from '@/context/SystemSettingsContext';
 import { useSearchParams } from 'react-router-dom';
 import ServiceSlaManagement from '@/components/ServiceSlaManagement';
@@ -22,22 +22,27 @@ const UserManagement = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTechnician, setEditingTechnician] = useState<Technician | null>(null);
 
-  const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*').order('name'); if (error) throw new Error(error.message); return data || []; } });
+  const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({
+    queryKey: ['technicians'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('technicians').select('*').order('name');
+      if (error) throw new Error(error.message);
+      return (data || []).map(snakeToCamelCase) as Technician[]; // Apply snakeToCamelCase
+    }
+  });
   const { data: workOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ queryKey: ['work_orders'], queryFn: async () => { const { data, error } = await supabase.from('work_orders').select('*'); if (error) throw new Error(error.message); return data || []; } });
   const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({ queryKey: ['locations'], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*'); if (error) throw new Error(error.message); return data || []; } });
 
   const technicianMutation = useMutation({
     mutationFn: async (technicianData: Partial<Technician>) => {
-      const snakeCaseData = camelToSnakeCase(technicianData);
+      const snakeCaseData = camelToSnakeCase(technicianData); // Convert to snake_case for Supabase
       if (technicianData.id) {
-        // If ID exists, it's an update operation
         const { error } = await supabase
           .from('technicians')
-          .update(snakeCaseData) // Use update for existing records
+          .update(snakeCaseData)
           .eq('id', technicianData.id);
         if (error) throw new Error(error.message);
       } else {
-        // If no ID, it's an insert operation
         const { error } = await supabase.from('technicians').insert([snakeCaseData]);
         if (error) throw new Error(error.message);
       }
@@ -45,8 +50,8 @@ const UserManagement = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['technicians'] });
       showSuccess('Technician has been saved.');
-      setIsDialogOpen(false); // Close dialog on success for both add/edit
-      setEditingTechnician(null); // Clear editing state
+      setIsDialogOpen(false);
+      setEditingTechnician(null);
     },
     onError: (error) => showError(error.message),
   });
@@ -64,7 +69,7 @@ const UserManagement = () => {
   });
 
   const handleSave = (technicianData: Technician) => {
-    technicianMutation.mutate(technicianData); // technicianData is already a full object from form
+    technicianMutation.mutate(technicianData); // Pass camelCase data directly
   };
 
   const handleDelete = (technicianData: Technician) => {
@@ -77,8 +82,7 @@ const UserManagement = () => {
   };
 
   const handleUpdateStatus = async (id: string, status: Technician['status']) => {
-    // Fetch the current technician data to ensure all NOT NULL fields are present
-    const { data: currentTechnician, error: fetchError } = await supabase
+    const { data: currentTechnicianRaw, error: fetchError } = await supabase
       .from('technicians')
       .select('*')
       .eq('id', id)
@@ -88,19 +92,21 @@ const UserManagement = () => {
       showError(`Failed to fetch technician data: ${fetchError.message}`);
       return;
     }
-    if (!currentTechnician) {
+    if (!currentTechnicianRaw) {
       showError("Technician not found.");
       return;
     }
 
+    // Convert raw snake_case data to camelCase Technician object
+    const currentTechnician = snakeToCamelCase(currentTechnicianRaw) as Technician;
+
     // Create a new object with the updated status, preserving all other fields
     const updatedTechnicianData: Partial<Technician> = {
-      ...currentTechnician, // Spread existing data
-      status: status,       // Apply the new status
+      ...currentTechnician,
+      status: status,
     };
 
-    // Use the general technicianMutation to perform the update
-    technicianMutation.mutate(updatedTechnicianData);
+    technicianMutation.mutate(updatedTechnicianData); // Pass camelCase data
   };
 
   const isLoading = isLoadingTechnicians || isLoadingWorkOrders || isLoadingLocations;

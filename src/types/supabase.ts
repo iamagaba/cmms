@@ -4,8 +4,8 @@ export interface Location {
   address: string | null;
   lat: number | null;
   lng: number | null;
-  createdAt?: string;
-  updatedAt?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Technician {
@@ -15,14 +15,14 @@ export interface Technician {
   status: 'available' | 'busy' | 'offline' | null;
   email: string | null;
   phone: string | null;
-  specialization: string | null;
-  joinDate: string | null;
+  specializations: string[] | null; // Changed from 'specialization' to 'specializations' (array)
+  join_date: string | null; // Changed from 'joinDate' to 'join_date' (snake_case)
   lat: number | null;
   lng: number | null;
-  maxConcurrentOrders: number | null;
+  max_concurrent_orders: number | null; // Changed from 'maxConcurrentOrders' to 'max_concurrent_orders' (snake_case)
   location_id?: string | null;
-  createdAt?: string;
-  updatedAt?: string;
+  created_at?: string; // Changed from 'createdAt' to 'created_at' (snake_case)
+  updated_at?: string; // Changed from 'updatedAt' to 'updated_at' (snake_case)
 }
 
 export interface Customer {
@@ -34,8 +34,8 @@ export interface Customer {
   city: string | null;
   state: string | null;
   zip_code: string | null;
-  createdAt?: string;
-  updatedAt?: string;
+  created_at?: string;
+  updated_at?: string;
 }
 
 export interface Vehicle {
@@ -47,8 +47,8 @@ export interface Vehicle {
   license_plate: string;
   battery_capacity: number | null;
   customer_id: string | null;
-  createdAt?: string;
-  updatedAt?: string;
+  created_at?: string;
+  updated_at?: string;
   date_of_manufacture: string | null;
   release_date: string | null;
   motor_number: string | null;
@@ -102,8 +102,8 @@ export interface WorkOrder {
   customerAddress: string | null;
   onHoldReason: string | null;
   appointmentDate: string | null;
-  createdAt?: string;
-  updatedAt?: string;
+  created_at?: string;
+  updated_at?: string;
   customerId: string | null;
   vehicleId: string | null;
   customerName?: string | null;

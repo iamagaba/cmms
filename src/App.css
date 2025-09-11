@@ -103,7 +103,8 @@ body {
 /* The key part: push this divider (and everything after it) to the bottom */
 .ant-menu-item.menu-bottom-divider,
 .ant-menu-divider.menu-bottom-divider,
-.ant-menu-item-group.menu-bottom-group {
+.ant-menu-item-group.menu-bottom-group,
+.ant-menu-submenu.menu-bottom-group { /* Added .ant-menu-submenu for the new Profile SubMenu */
   margin-top: auto !important;
 }
 
@@ -121,8 +122,14 @@ body {
   height: 48px; /* Consistent height */
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: center; /* Default to center when collapsed */
   transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Right align the trigger when expanded */
+.sider-custom-trigger.sider-custom-trigger-expanded {
+  justify-content: flex-end;
+  padding-right: 16px; /* Add some padding for visual balance */
 }
 
 .sider-custom-trigger .ant-btn {

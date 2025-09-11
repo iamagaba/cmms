@@ -28,7 +28,6 @@ import { Profile } from '@/types/supabase';
 
 const { Sider } = Layout;
 const { Title, Text } = Typography;
-const { SubMenu } = Menu;
 
 interface SideNavigationProps {
   collapsed: boolean;
@@ -82,29 +81,7 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
     }
   };
 
-  const menuItems: MenuItem[] = [
-    getItem(
-      <NavLink to="/notifications">
-        <Badge count={unreadCount} size="small" offset={[5, 0]} style={{ backgroundColor: '#6A0DAD' }}>
-          <BellOutlined style={{ fontSize: '20px' }} />
-        </Badge>
-        {!collapsed && <span style={{ marginLeft: 12 }}>Notifications</span>}
-      </NavLink>,
-      "/notifications",
-      <BellOutlined />,
-    ),
-    getItem(<NavLink to="/">Dashboard</NavLink>, "/", <DashboardOutlined />),
-    getItem(<NavLink to="/work-orders">Work Orders</NavLink>, "/work-orders", <ToolOutlined />),
-    { type: 'divider', key: 'main-divider-1' },
-    getItem(<NavLink to="/customers">Customers</NavLink>, "/customers", <ContactsOutlined />),
-    getItem(<NavLink to="/assets">Assets</NavLink>, "/assets", <CarOutlined />),
-    getItem(<NavLink to="/technicians">Technicians</NavLink>, "/technicians", <UsergroupAddOutlined />),
-    getItem(<NavLink to="/locations">Locations</NavLink>, "/locations", <EnvironmentOutlined />),
-    getItem(<NavLink to="/inventory">Inventory</NavLink>, "/inventory", <ShoppingOutlined />),
-    { type: 'divider', key: 'main-divider-2' },
-    getItem(<NavLink to="/analytics">Analytics</NavLink>, "/analytics", <BarChartOutlined />),
-  ];
-
+  // Helper to determine selected key for menu highlighting
   const getSelectedKey = (pathname: string, search: string) => {
     if (pathname === '/settings') {
       const params = new URLSearchParams(search);
@@ -117,6 +94,7 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
     if (pathname.startsWith('/assets/')) return '/assets';
     if (pathname.startsWith('/technicians/')) return '/technicians';
     if (pathname.startsWith('/locations/')) return '/locations';
+    if (pathname.startsWith('/notifications')) return '/notifications'; // Handle notifications directly
     
     return pathname;
   };
@@ -125,6 +103,58 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
 
   const displayName = profile?.first_name || user?.email || 'Guest';
   const displayAvatar = profile?.avatar_url || user?.user_metadata?.avatar_url;
+
+  const menuItems: MenuItem[] = [
+    getItem(<NavLink to="/">Dashboard</NavLink>, "/", <DashboardOutlined />),
+    getItem(<NavLink to="/work-orders">Work Orders</NavLink>, "/work-orders", <ToolOutlined />),
+    { type: 'divider', key: 'main-divider-1' },
+    getItem(<NavLink to="/customers">Customers</NavLink>, "/customers", <ContactsOutlined />),
+    getItem(<NavLink to="/assets">Assets</NavLink>, "/assets", <CarOutlined />),
+    getItem(<NavLink to="/technicians">Technicians</NavLink>, "/technicians", <UsergroupAddOutlined />),
+    getItem(<NavLink to="/locations">Locations</NavLink>, "/locations", <EnvironmentOutlined />),
+    getItem(<NavLink to="/inventory">Inventory</NavLink>, "/inventory", <ShoppingOutlined />),
+    { type: 'divider', key: 'main-divider-2' },
+    getItem(<NavLink to="/analytics">Analytics</NavLink>, "/analytics", <BarChartOutlined />),
+
+    // Settings SubMenu
+    {
+      key: 'settings',
+      icon: <SettingOutlined />,
+      label: 'Settings',
+      children: [
+        getItem(<NavLink to="/settings?tab=user-management">User Management</NavLink>, "/settings?tab=user-management"),
+        getItem(<NavLink to="/settings?tab=service-sla">Service & SLA</NavLink>, "/settings?tab=service-sla"),
+        getItem(<NavLink to="/settings?tab=system-settings">System Settings</NavLink>, "/settings?tab=system-settings"),
+      ],
+    },
+
+    // Profile SubMenu - now includes Notifications and Logout
+    {
+      key: 'profile-section',
+      icon: <UserOutlined />,
+      label: 'Profile',
+      className: 'menu-bottom-group', // Apply class here to push to bottom
+      children: [
+        getItem(<NavLink to="/settings?tab=profile-settings">My Profile</NavLink>, "/settings?tab=profile-settings"),
+        getItem(
+          <NavLink to="/notifications">
+            <Badge count={unreadCount} size="small" offset={[5, 0]} style={{ backgroundColor: '#6A0DAD' }}>
+              Notifications
+            </Badge>
+          </NavLink>,
+          "/notifications",
+        ),
+        { type: 'divider', key: 'profile-divider' },
+        {
+          key: 'logout',
+          icon: <LogoutOutlined />,
+          label: 'Logout',
+          danger: true,
+          onClick: handleLogout,
+        },
+      ],
+    },
+  ];
 
   return (
     <Sider
@@ -160,44 +190,14 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
       <Menu
         mode="inline"
         selectedKeys={[selectedKey]}
-        items={menuItems}
+        items={menuItems} // All items are now passed via the 'items' prop
         className="main-sider-menu"
       >
-        {/* Settings SubMenu with Logout */}
-        <SubMenu key="/settings" icon={<SettingOutlined />} title="Settings">
-          <Menu.Item key="/settings?tab=user-management">
-            <NavLink to="/settings?tab=user-management">User Management</NavLink>
-          </Menu.Item>
-          <Menu.Item key="/settings?tab=service-sla">
-            <NavLink to="/settings?tab=service-sla">Service & SLA</NavLink>
-          </Menu.Item>
-          <Menu.Item key="/settings?tab=system-settings">
-            <NavLink to="/settings?tab=system-settings">System Settings</NavLink>
-          </Menu.Item>
-          <Menu.Item key="/settings?tab=profile-settings">
-            <NavLink to="/settings?tab=profile-settings">My Profile</NavLink>
-          </Menu.Item>
-          <Menu.Divider key="settings-divider" />
-          <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout} danger>
-            Logout
-          </Menu.Item>
-        </SubMenu>
+        {/* No direct <SubMenu> children here anymore */}
       </Menu>
 
-      {/* Persistent User Info at the bottom */}
-      <div style={{ padding: '12px 16px', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
-        {isLoadingProfile ? (
-          <Spin size="small" />
-        ) : (
-          <>
-            <Avatar size="default" src={displayAvatar || undefined} icon={<UserOutlined />} />
-            {!collapsed && <Text strong style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{displayName}</Text>}
-          </>
-        )}
-      </div>
-
       {/* Custom trigger button */}
-      <div className="sider-custom-trigger">
+      <div className={`sider-custom-trigger ${!collapsed ? 'sider-custom-trigger-expanded' : ''}`}>
         <Button
           type="text"
           icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}

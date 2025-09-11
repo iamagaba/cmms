@@ -1,13 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { Row, Col, Typography, Space, Button, Skeleton, Empty } from 'antd';
-import { SettingOutlined } from '@ant-design/icons'; // Corrected import from SettingsOutlined
+import { SettingOutlined } from '@ant-design/icons';
 import PageHeader from '@/components/PageHeader';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useSession } from '@/context/SessionContext';
 import { Profile } from '@/types/supabase';
 import { DashboardCustomizationDialog } from '@/components/DashboardCustomizationDialog';
-import { getWidgetComponent, widgetRegistry } from '@/components/dashboard-widgets/widgetRegistry';
+import { getWidgetComponent, widgetRegistry } from '@/components/dashboard-widgets/widgetRegistry'; // Updated import path
 
 const { Title, Text } = Typography;
 
@@ -20,7 +20,7 @@ const CustomDashboard: React.FC = () => {
     queryKey: ['profile', userId],
     queryFn: async () => {
       if (!userId) return null;
-      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single(); // Select all fields
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
       if (error) throw new Error(error.message);
       return data;
     },

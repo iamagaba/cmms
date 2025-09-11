@@ -5,8 +5,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useSession } from '@/context/SessionContext';
 import { Profile } from '@/types/supabase';
 import { showSuccess, showError } from '@/utils/toast';
-import { widgetRegistry, WidgetConfig } from '@/components/dashboard-widgets/widgetRegistry';
-import { CheckboxChangeEvent } from 'antd/lib/checkbox'; // Import CheckboxChangeEvent
+import { widgetRegistry, WidgetConfig } from '@/components/dashboard-widgets/widgetRegistry'; // Updated import path
+import { CheckboxChangeEvent } from 'antd/lib/checkbox';
 
 const { Title, Text } = Typography;
 
@@ -24,7 +24,7 @@ export const DashboardCustomizationDialog: React.FC<DashboardCustomizationDialog
     queryKey: ['profile', userId],
     queryFn: async () => {
       if (!userId) return null;
-      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single(); // Select all fields
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', userId).single();
       if (error) throw new Error(error.message);
       return data;
     },
@@ -63,7 +63,7 @@ export const DashboardCustomizationDialog: React.FC<DashboardCustomizationDialog
   const handleSave = () => {
     const newLayout = selectedWidgets.map(widgetId => {
       const widgetConfig = widgetRegistry.find(w => w.id === widgetId);
-      return { id: widgetId, config: widgetConfig?.props }; // Save default props
+      return { id: widgetId, config: widgetConfig?.props };
     });
     updateDashboardLayoutMutation.mutate(newLayout);
   };

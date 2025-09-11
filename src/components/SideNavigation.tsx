@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, Menu, Typography, Badge, Button } from 'antd';
+import { Layout, Menu, Typography, Badge, Button, Space, Avatar, Spin } from 'antd';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import {
   DashboardOutlined,
@@ -22,14 +22,17 @@ import type { MenuProps } from 'antd';
 import { useNotifications } from '@/context/NotificationsContext';
 import { supabase } from '@/integrations/supabase/client';
 import { showSuccess, showError } from '@/utils/toast';
+import { useSession } from '@/context/SessionContext';
+import { useQuery } from '@tanstack/react-query';
+import { Profile } from '@/types/supabase';
 
 const { Sider } = Layout;
-const { Title } = Typography;
+const { Title, Text } = Typography;
+const { SubMenu } = Menu; // Destructure SubMenu
 
 interface SideNavigationProps {
   collapsed: boolean;
   onCollapse: (collapsed: boolean) => void;
-  logoUrl: string | null;
 }
 
 type MenuItem = Required<MenuProps>['items'][number];
@@ -38,20 +41,34 @@ function getItem(
   label: React.ReactNode,
   key: React.Key,
   icon?: React.ReactNode,
-  className?: string,
+  children?: MenuItem[],
+  type?: 'group',
 ): MenuItem {
   return {
     key,
     icon,
+    children,
     label,
-    className,
+    type,
   } as MenuItem;
 }
 
-const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps) => {
+const SideNavigation = ({ collapsed, onCollapse }: SideNavigationProps) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { unreadCount } = useNotifications();
+  const { session } = useSession();
+  const user = session?.user;
+
+  const { data: profile, isLoading: isLoadingProfile } = useQuery<Profile | null>({
+    queryKey: ['profile', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return null;
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', user.id).single();
+      if (error) throw new Error(error.message);
+      return data;
+    },
+    enabled: !!user?.id,
+  });
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -74,48 +91,14 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
     getItem(<NavLink to="/inventory">Inventory</NavLink>, "/inventory", <ShoppingOutlined />),
     { type: 'divider', key: 'main-divider-2' },
     getItem(<NavLink to="/analytics">Analytics</NavLink>, "/analytics", <BarChartOutlined />),
-    
-    {
-      type: 'group',
-      label: 'User & System',
-      key: 'user-system-group',
-      className: 'menu-bottom-group',
-      children: [
-        getItem(
-          <NavLink to="/notifications">
-            Notifications
-            {unreadCount > 0 && (
-              <Badge 
-                count={unreadCount} 
-                size="small" 
-                offset={[10, 0]} 
-                style={{ backgroundColor: '#6A0DAD', marginLeft: 'auto' }} 
-              />
-            )}
-          </NavLink>, 
-          "/notifications", 
-          <BellOutlined />
-        ),
-        getItem(<NavLink to="/settings?tab=profile-settings">Profile</NavLink>, "/settings?tab=profile-settings", <UserOutlined />),
-        getItem(<NavLink to="/settings?tab=system-settings">Settings</NavLink>, "/settings?tab=system-settings", <SettingOutlined />),
-        {
-          key: 'logout',
-          icon: <LogoutOutlined />,
-          label: 'Logout',
-          onClick: handleLogout,
-          danger: true,
-        },
-      ]
-    },
   ];
 
   const getSelectedKey = (pathname: string, search: string) => {
     if (pathname === '/settings') {
       const params = new URLSearchParams(search);
       const tab = params.get('tab');
-      if (tab === 'profile-settings') return '/settings?tab=profile-settings';
-      if (tab === 'system-settings') return '/settings?tab=system-settings';
-      if (tab === 'user-management') return '/settings?tab=user-management';
+      if (tab) return `/settings?tab=${tab}`;
+      return '/settings?tab=user-management'; // Default settings tab
     }
     if (pathname.startsWith('/work-orders/')) return '/work-orders';
     if (pathname.startsWith('/customers/')) return '/customers';
@@ -128,44 +111,62 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
 
   const selectedKey = getSelectedKey(location.pathname, location.search);
 
+  const displayName = profile?.first_name || user?.email || 'Guest';
+  const displayAvatar = profile?.avatar_url || user?.user_metadata?.avatar_url;
+
   return (
     <Sider
-      // Removed collapsible and onCollapse from Sider to use a custom trigger
       collapsed={collapsed}
       theme="light"
       width={220}
       style={{
-        overflow: 'hidden', // Keep overflow hidden for the sider itself
+        overflow: 'hidden',
         height: '100vh',
         position: 'sticky',
         top: 0,
         left: 0,
         borderRight: '1px solid #f0f0f0',
         display: 'flex',
-        flexDirection: 'column', // Enable flex column for internal layout
-        borderRadius: 8, // Added rounded corners
+        flexDirection: 'column',
+        borderRadius: 8,
       }}
     >
-      <div className="sider-logo-area">
-        <NavLink to="/" style={{ display: 'flex', alignItems: 'center', textDecoration: 'none', gap: '12px', overflow: 'hidden' }}>
-          {logoUrl ? (
-            <img src={logoUrl} alt="System Logo" style={{ height: '32px', transition: 'all 0.2s' }} />
-          ) : (
-            <FireOutlined style={{ color: '#6A0DAD', fontSize: '28px', transition: 'all 0.2s' }} />
-          )}
-          {!collapsed && (
-            <Title level={4} style={{ margin: 0, color: '#6A0DAD', whiteSpace: 'nowrap' }}>
-              GOGO Electric
-            </Title>
-          )}
-        </NavLink>
-      </div>
+      {/* Removed logo area from here, now in GlobalHeader */}
       <Menu
         mode="inline"
         selectedKeys={[selectedKey]}
         items={menuItems}
         className="main-sider-menu"
-      />
+      >
+        {/* Add the Settings SubMenu */}
+        <SubMenu key="/settings" icon={<SettingOutlined />} title="Settings">
+          <Menu.Item key="/settings?tab=user-management">
+            <NavLink to="/settings?tab=user-management">User Management</NavLink>
+          </Menu.Item>
+          <Menu.Item key="/settings?tab=service-sla">
+            <NavLink to="/settings?tab=service-sla">Service & SLA</NavLink>
+          </Menu.Item>
+          <Menu.Item key="/settings?tab=system-settings">
+            <NavLink to="/settings?tab=system-settings">System Settings</NavLink>
+          </Menu.Item>
+          <Menu.Item key="/settings?tab=profile-settings">
+            <NavLink to="/settings?tab=profile-settings">My Profile</NavLink>
+          </Menu.Item>
+        </SubMenu>
+      </Menu>
+
+      {/* Persistent User Info at the bottom */}
+      <div style={{ padding: '12px 16px', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '12px', flexShrink: 0 }}>
+        {isLoadingProfile ? (
+          <Spin size="small" />
+        ) : (
+          <>
+            <Avatar size="default" src={displayAvatar || undefined} icon={<UserOutlined />} />
+            {!collapsed && <Text strong style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{displayName}</Text>}
+          </>
+        )}
+      </div>
+
       {/* Custom trigger button */}
       <div className="sider-custom-trigger">
         <Button

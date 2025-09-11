@@ -266,6 +266,13 @@ const SettingsPage = () => {
     setSearchParams({ tab: key });
   };
 
+  const tabItems = [
+    { label: <span><UserOutlined />User Management</span>, key: 'user-management', children: <UserManagement /> },
+    { label: <span><ToolOutlined />Service & SLA</span>, key: 'service-sla', children: <ServiceSlaManagement /> },
+    { label: <span><SettingOutlined />System Settings</span>, key: 'system-settings', children: <SystemSettings /> },
+    { label: <span><BellOutlined />My Profile</span>, key: 'profile-settings', children: <ProfileSettings /> },
+  ];
+
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
       <Breadcrumbs /> {/* No actions needed here, tabs are below */}

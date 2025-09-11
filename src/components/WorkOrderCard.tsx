@@ -2,6 +2,7 @@ import { Card, Tag, Avatar, Typography, Tooltip, theme, Space, Dropdown, Menu } 
 import { WorkOrder, Technician, Vehicle } from "@/types/supabase";
 import SlaCountdown from "./SlaCountdown";
 import { EllipsisOutlined } from "@ant-design/icons";
+import { EmergencyBikeTag } from "./EmergencyBikeTag"; // Import the new tag component
 
 const { Text, Title, Paragraph } = Typography;
 const { useToken } = theme;
@@ -60,13 +61,16 @@ const WorkOrderCard = ({ order, technician, vehicle, onUpdateWorkOrder, onViewDe
       {/* Header: ID and SLA */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Text code style={{ fontSize: '11px' }}>{order.workOrderNumber}</Text>
-        <SlaCountdown slaDue={order.slaDue} status={order.status} completedAt={order.completedAt} />
+        <Space size={4}>
+          <EmergencyBikeTag workOrder={order} /> {/* New Emergency Bike Tag */}
+          <SlaCountdown slaDue={order.slaDue} status={order.status} completedAt={order.completedAt} />
+        </Space>
       </div>
 
       {/* Body: Vehicle and Service */}
       <div>
         <Title level={5} style={{ margin: 0, lineHeight: 1.2, fontSize: '14px' }}>
-          {vehicle ? `${vehicle.make} ${vehicle.license_plate}` : 'N/A'} {/* Changed to license_plate and removed model */}
+          {vehicle ? `${vehicle.make} ${vehicle.license_plate}` : 'N/A'}
         </Title>
         <Paragraph 
           style={{ fontSize: '12px', margin: '2px 0 0 0' }}

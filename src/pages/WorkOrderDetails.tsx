@@ -1,11 +1,12 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { Button, Card, Col, Row, Space, Typography, Skeleton, Tabs } from "antd";
-import { ArrowLeftOutlined, InfoCircleOutlined, UnorderedListOutlined, CompassOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Row, Space, Typography, Skeleton, Tabs, Tag } from "antd";
+import { ArrowLeftOutlined, InfoCircleOutlined, UnorderedListOutlined, CompassOutlined } from "@ant-design/icons"; 
+import { BikeIcon } from "lucide-react"; // Corrected import for BikeIcon
 import dayjs from "dayjs";
 import NotFound from "./NotFound";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { WorkOrder, Technician, Location, Customer, Vehicle, WorkOrderPart, Profile } from "@/types/supabase";
+import { WorkOrder, Technician, Location, Customer, Vehicle, WorkOrderPart, Profile, EmergencyBikeAssignment } from "@/types/supabase"; // Added EmergencyBikeAssignment
 import { useState, useMemo, useEffect } from "react";
 import { showSuccess, showError, showInfo } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
@@ -14,17 +15,22 @@ import { useSearchParams } from "react-router-dom";
 import WorkOrderProgressTracker from "@/components/WorkOrderProgressTracker";
 import { useSession } from "@/context/SessionContext";
 import { calculateDistance } from "@/utils/geo-helpers";
-import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 // Import new modular components
 import { WorkOrderCustomerVehicleCard } from "@/components/work-order-details/WorkOrderCustomerVehicleCard.tsx";
-import { WorkOrderServiceLifecycleCard } from "@/components/work-order-details/WorkOrderServiceLifecycleCard.tsx"; // Renamed and refactored
+import { WorkOrderServiceLifecycleCard } from "@/components/work-order-details/WorkOrderServiceLifecycleCard.tsx";
 import { WorkOrderDetailsInfoCard } from "@/components/work-order-details/WorkOrderDetailsInfoCard.tsx";
 import { WorkOrderPartsUsedCard } from "@/components/work-order-details/WorkOrderPartsUsedCard.tsx";
 import { WorkOrderActivityLogCard } from "@/components/work-order-details/WorkOrderActivityLogCard.tsx";
 import { WorkOrderLocationMapCard } from "@/components/work-order-details/WorkOrderLocationMapCard.tsx";
-import { IssueConfirmationDialog } from "@/components/IssueConfirmationDialog.tsx"; // New dialog
-import { MaintenanceCompletionDrawer } from "@/components/MaintenanceCompletionDrawer.tsx"; // Changed to Drawer
+import { IssueConfirmationDialog } from "@/components/IssueConfirmationDialog.tsx";
+import { MaintenanceCompletionDrawer } from "@/components/MaintenanceCompletionDrawer.tsx";
+
+// New Emergency Bike components
+import { EmergencyBikeAssignmentDialog } from "@/components/EmergencyBikeAssignmentDialog.tsx";
+import { EmergencyBikeReturnDialog } from "@/components/EmergencyBikeReturnDialog.tsx";
+import { EmergencyBikeTag } from "@/components/EmergencyBikeTag.tsx"; // Reusing the tag for consistency
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -33,14 +39,18 @@ interface WorkOrderDetailsProps {
   isDrawerMode?: boolean;
 }
 
+const EMERGENCY_BIKE_THRESHOLD_HOURS = 6;
+
 const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) => {
   const { id: paramId } = useParams<{ id:string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
-  const [isIssueConfirmationDialogOpen, setIsIssueConfirmationDialogOpen] = useState(false); // New state
-  const [isMaintenanceCompletionDrawerOpen, setIsMaintenanceCompletionDrawerOpen] = useState(false); // Changed to Drawer
+  const [isIssueConfirmationDialogOpen, setIsIssueConfirmationDialogOpen] = useState(false);
+  const [isMaintenanceCompletionDrawerOpen, setIsMaintenanceCompletionDrawerOpen] = useState(false);
+  const [isAssignEmergencyBikeDialogOpen, setIsAssignEmergencyBikeDialogOpen] = useState(false); // New state
+  const [isReturnEmergencyBikeDialogOpen, setIsReturnEmergencyBikeDialogOpen] = useState(false); // New state
   const { session } = useSession();
 
   const [showInteractiveMap, setShowInteractiveMap] = useState(false);
@@ -52,7 +62,17 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     queryKey: ['work_order', id], 
     queryFn: async () => { 
       if (!id) return null; 
-      const { data, error } = await supabase.from('work_orders').select('*').eq('id', id).single(); 
+      const { data, error } = await supabase
+        .from('work_orders')
+        .select(`
+          *,
+          active_emergency_bike_assignment:emergency_bike_assignments!left(
+            *,
+            vehicles(*)
+          )
+        `)
+        .eq('id', id)
+        .single(); 
       if (error) throw new Error(error.message); 
       if (data) {
         const mappedData: WorkOrder = {
@@ -61,14 +81,12 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
           workOrderNumber: data.work_order_number,
           assignedTechnicianId: data.assigned_technician_id,
           locationId: data.location_id,
-          // Map old 'service' to new 'initialDiagnosis' if initialDiagnosis is null
-          initialDiagnosis: data.client_report || data.service, // Renamed from clientReport
-          // Map old 'serviceNotes' to new 'maintenanceNotes' if maintenanceNotes is null
+          initialDiagnosis: data.client_report || data.service,
           maintenanceNotes: data.maintenance_notes || data.service_notes,
           issueType: data.issue_type,
           faultCode: data.fault_code,
-          service: data.service, // Keep original service for now
-          serviceNotes: data.service_notes, // Keep original serviceNotes for now
+          service: data.service,
+          serviceNotes: data.service_notes,
           partsUsed: data.parts_used,
           activityLog: data.activity_log,
           slaDue: data.sla_due,
@@ -81,7 +99,22 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
           customerId: data.customer_id,
           vehicleId: data.vehicle_id,
           created_by: data.created_by,
+          emergency_bike_notified_at: data.emergency_bike_notified_at,
+          active_emergency_bike_assignment: data.active_emergency_bike_assignment.length > 0 ? data.active_emergency_bike_assignment[0] : null,
         };
+
+        // Calculate is_emergency_bike_eligible on the frontend
+        if (mappedData.status === 'In Progress' && mappedData.work_started_at) {
+          const workStartedAt = dayjs(mappedData.work_started_at);
+          const now = dayjs();
+          const totalPausedSeconds = mappedData.total_paused_duration_seconds || 0;
+          const elapsedActiveTimeSeconds = now.diff(workStartedAt, 'second') - totalPausedSeconds;
+          const thresholdSeconds = EMERGENCY_BIKE_THRESHOLD_HOURS * 3600;
+          mappedData.is_emergency_bike_eligible = elapsedActiveTimeSeconds >= thresholdSeconds && !mappedData.active_emergency_bike_assignment;
+        } else {
+          mappedData.is_emergency_bike_eligible = false;
+        }
+
         return mappedData;
       }
       return null;
@@ -161,7 +194,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
       
       // Trigger Maintenance Completion Dialog when status changes to 'Completed'
       if (updates.status === 'Completed' && (!oldWorkOrder.faultCode || !oldWorkOrder.maintenanceNotes)) {
-        setIsMaintenanceCompletionDrawerOpen(true); // Changed to Drawer
+        setIsMaintenanceCompletionDrawerOpen(true);
         // Do not proceed with mutation yet, wait for dialog to save
         return;
       }
@@ -175,13 +208,13 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
       activityMessage = `SLA due date updated to '${dayjs(updates.slaDue).format('MMM D, YYYY h:mm A')}'.`;
     } else if (updates.appointmentDate && updates.appointmentDate !== oldWorkOrder.appointmentDate) {
       activityMessage = `Appointment date updated to '${dayjs(updates.appointmentDate).format('MMM D, YYYY h:mm A')}'.`;
-    } else if (updates.initialDiagnosis && updates.initialDiagnosis !== oldWorkOrder.initialDiagnosis) { // Updated field
-      activityMessage = `Initial diagnosis updated.`; // Changed message
-    } else if (updates.issueType && updates.issueType !== oldWorkOrder.issueType) { // New field
+    } else if (updates.initialDiagnosis && updates.initialDiagnosis !== oldWorkOrder.initialDiagnosis) {
+      activityMessage = `Initial diagnosis updated.`;
+    } else if (updates.issueType && updates.issueType !== oldWorkOrder.issueType) {
       activityMessage = `Confirmed issue type updated to '${updates.issueType}'.`;
-    } else if (updates.faultCode && updates.faultCode !== oldWorkOrder.faultCode) { // New field
+    } else if (updates.faultCode && updates.faultCode !== oldWorkOrder.faultCode) {
       activityMessage = `Fault code updated to '${updates.faultCode}'.`;
-    } else if (updates.maintenanceNotes && updates.maintenanceNotes !== oldWorkOrder.maintenanceNotes) { // Updated field
+    } else if (updates.maintenanceNotes && updates.maintenanceNotes !== oldWorkOrder.maintenanceNotes) {
       activityMessage = `Maintenance notes updated.`;
     } else if (updates.priority && updates.priority !== oldWorkOrder.priority) {
       activityMessage = `Priority changed from '${oldWorkOrder.priority || 'N/A'}' to '${updates.priority}'.`;
@@ -224,7 +257,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
 
   const handleSaveIssueConfirmation = (issueType: string, notes: string | null) => {
     if (!workOrder) return;
-    const updates: Partial<WorkOrder> = { status: 'Ready', issueType: issueType, serviceNotes: notes }; // Use serviceNotes for confirmation notes
+    const updates: Partial<WorkOrder> = { status: 'Ready', issueType: issueType, serviceNotes: notes };
     workOrderMutation.mutate({ id: workOrder.id, ...updates });
     setIsIssueConfirmationDialogOpen(false);
   };
@@ -233,7 +266,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     if (!workOrder) return;
     const updates: Partial<WorkOrder> = { status: 'Completed', faultCode: faultCode, maintenanceNotes: maintenanceNotes, completedAt: new Date().toISOString() };
     workOrderMutation.mutate({ id: workOrder.id, ...updates });
-    setIsMaintenanceCompletionDrawerOpen(false); // Changed to Drawer
+    setIsMaintenanceCompletionDrawerOpen(false);
   };
 
   const handleLocationSelect = (selectedLoc: { lat: number; lng: number; label: string }) => { handleUpdateWorkOrder({ customerAddress: selectedLoc.label, customerLat: selectedLoc.lat, customerLng: selectedLoc.lng }); };
@@ -256,6 +289,8 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/work-orders')} />
   );
 
+  const hasActiveEmergencyBike = workOrder.active_emergency_bike_assignment && !workOrder.active_emergency_bike_assignment.returned_at;
+
   // --- Main Render Logic ---
   return (
     <>
@@ -269,7 +304,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
             <Tabs defaultActiveKey="1" destroyInactiveTabPane={false} onChange={setActiveTabKey}>
               <TabPane tab={<span><InfoCircleOutlined /> Overview</span>} key="1">
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                  <WorkOrderServiceLifecycleCard // Replaced old component
+                  <WorkOrderServiceLifecycleCard
                     workOrder={workOrder}
                     handleUpdateWorkOrder={handleUpdateWorkOrder}
                     usedPartsCount={usedPartsCount}
@@ -289,8 +324,8 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
                   <WorkOrderPartsUsedCard
                     workOrder={workOrder}
                     usedParts={usedParts || []}
-                    isAddPartDialogOpen={false} // This dialog is no longer needed here
-                    setIsAddPartDialogOpen={() => {}} // No-op
+                    isAddPartDialogOpen={false}
+                    setIsAddPartDialogOpen={() => {}}
                     handleAddPart={handleAddPart}
                     handleRemovePart={handleRemovePart}
                   />
@@ -315,12 +350,28 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
         ) : (
           <>
             <Card>
-              <WorkOrderProgressTracker workOrder={workOrder} />
+              <Space direction="vertical" style={{ width: '100%' }}>
+                <WorkOrderProgressTracker workOrder={workOrder} />
+                <Row justify="end" gutter={[8, 8]} style={{ marginTop: 16 }}>
+                  <Col>
+                    {workOrder.is_emergency_bike_eligible && !hasActiveEmergencyBike && (
+                      <Button type="primary" icon={<BikeIcon size={16} />} onClick={() => setIsAssignEmergencyBikeDialogOpen(true)}>
+                        Assign Emergency Bike
+                      </Button>
+                    )}
+                    {hasActiveEmergencyBike && (
+                      <Button type="default" icon={<BikeIcon size={16} />} onClick={() => setIsReturnEmergencyBikeDialogOpen(true)}>
+                        Return Emergency Bike
+                      </Button>
+                    )}
+                  </Col>
+                </Row>
+              </Space>
             </Card>
             <Row gutter={[16, 16]}>
               <Col xs={24} lg={16}>
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-                  <WorkOrderServiceLifecycleCard // Replaced old component
+                  <WorkOrderServiceLifecycleCard
                     workOrder={workOrder}
                     handleUpdateWorkOrder={handleUpdateWorkOrder}
                     usedPartsCount={usedPartsCount}
@@ -328,8 +379,8 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
                   <WorkOrderPartsUsedCard
                     workOrder={workOrder}
                     usedParts={usedParts || []}
-                    isAddPartDialogOpen={false} // This dialog is no longer needed here
-                    setIsAddPartDialogOpen={() => {}} // No-op
+                    isAddPartDialogOpen={false}
+                    setIsAddPartDialogOpen={() => {}}
                     handleAddPart={handleAddPart}
                     handleRemovePart={handleRemovePart}
                   />
@@ -338,6 +389,22 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
               </Col>
               <Col xs={24} lg={8}>
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+                  <Card title="Emergency Bike Status">
+                    {hasActiveEmergencyBike ? (
+                      <Space direction="vertical" style={{ width: '100%' }}>
+                        <Tag color="green" icon={<BikeIcon size={14} />} >Assigned</Tag>
+                        <Typography.Text strong>Bike: {workOrder.active_emergency_bike_assignment?.vehicles?.license_plate}</Typography.Text>
+                        <Typography.Text type="secondary">Assigned on: {dayjs(workOrder.active_emergency_bike_assignment?.assigned_at).format('MMM D, YYYY h:mm A')}</Typography.Text>
+                        {workOrder.active_emergency_bike_assignment?.assignment_notes && (
+                          <Typography.Paragraph type="secondary" ellipsis={{ rows: 2, expandable: true, symbol: 'more' }}>
+                            Notes: {workOrder.active_emergency_bike_assignment.assignment_notes}
+                          </Typography.Paragraph>
+                        )}
+                      </Space>
+                    ) : (
+                      <Tag color="default">No Emergency Bike Assigned</Tag>
+                    )}
+                  </Card>
                   <WorkOrderDetailsInfoCard
                     workOrder={workOrder}
                     technician={technician}
@@ -368,7 +435,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
           onClose={() => setIsIssueConfirmationDialogOpen(false)}
           onSave={handleSaveIssueConfirmation}
           initialIssueType={workOrder.issueType}
-          initialNotes={workOrder.serviceNotes} // Using serviceNotes for confirmation notes
+          initialNotes={workOrder.serviceNotes}
         />
       )}
       {isMaintenanceCompletionDrawerOpen && (
@@ -381,6 +448,21 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
           onRemovePart={handleRemovePart}
           initialFaultCode={workOrder.faultCode}
           initialMaintenanceNotes={workOrder.maintenanceNotes}
+        />
+      )}
+      {isAssignEmergencyBikeDialogOpen && workOrder.workOrderNumber && (
+        <EmergencyBikeAssignmentDialog
+          isOpen={isAssignEmergencyBikeDialogOpen}
+          onClose={() => setIsAssignEmergencyBikeDialogOpen(false)}
+          workOrderId={workOrder.id}
+          workOrderNumber={workOrder.workOrderNumber}
+        />
+      )}
+      {isReturnEmergencyBikeDialogOpen && workOrder.active_emergency_bike_assignment && (
+        <EmergencyBikeReturnDialog
+          isOpen={isReturnEmergencyBikeDialogOpen}
+          onClose={() => setIsReturnEmergencyBikeDialogOpen(false)}
+          assignment={workOrder.active_emergency_bike_assignment}
         />
       )}
     </>

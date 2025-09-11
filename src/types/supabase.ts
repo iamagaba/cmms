@@ -54,6 +54,7 @@ export interface Vehicle {
   motor_number: string | null;
   mileage: number | null;
   customers?: Customer | null;
+  is_emergency_bike?: boolean; // New field
 }
 
 export interface Profile {
@@ -119,6 +120,9 @@ export interface WorkOrder {
   issueType: string | null;
   faultCode: string | null;
   maintenanceNotes: string | null;
+  emergency_bike_notified_at?: string | null; // New field for notification tracking
+  active_emergency_bike_assignment?: EmergencyBikeAssignment | null; // For joined queries
+  is_emergency_bike_eligible?: boolean; // Frontend calculated flag
 }
 
 export interface InventoryItem {
@@ -141,4 +145,18 @@ export interface WorkOrderPart {
   price_at_at_time_of_use: number;
   created_at?: string;
   inventory_items: InventoryItem; // For joined queries
+}
+
+export interface EmergencyBikeAssignment {
+  id: string;
+  work_order_id: string;
+  emergency_bike_id: string;
+  assigned_at: string;
+  returned_at: string | null;
+  assignment_notes: string | null;
+  return_notes: string | null;
+  created_by: string | null;
+  returned_by: string | null;
+  created_at?: string;
+  vehicles?: Vehicle; // For joined queries to get bike details
 }

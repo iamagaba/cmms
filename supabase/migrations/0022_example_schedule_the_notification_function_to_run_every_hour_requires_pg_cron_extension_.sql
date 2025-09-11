@@ -1,0 +1,2 @@
+-- This is an example and needs to be run in the Supabase SQL Editor after enabling pg_cron
+-- SELECT cron.schedule('check-emergency-bike-eligibility', '0 * * * *', 'SELECT public.notify_overdue_emergency_bike_eligibility();');

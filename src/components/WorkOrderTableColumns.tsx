@@ -1,10 +1,11 @@
-import { Avatar, Button, Dropdown, Menu, Tag, Typography, Select, theme } from "antd";
+import { Avatar, Button, Dropdown, Menu, Tag, Typography, Select, theme, Space } from "antd"; // Added Space
 import { MoreOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { WorkOrder, Technician, Location, Customer, Vehicle, Profile } from "@/types/supabase";
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime';
 import SlaCountdown from "./SlaCountdown";
 import { ResizableTitle } from "./ResizableTitle";
+import { EmergencyBikeTag } from "./EmergencyBikeTag"; // Import the new tag component
 
 dayjs.extend(relativeTime);
 
@@ -135,9 +136,14 @@ export const getColumns = ({
     },
     {
       key: "slaStatus",
-      title: "SLA", // Changed from "SLA Status" to "SLA"
+      title: "SLA",
       dataIndex: "slaDue",
-      render: (_: any, record: WorkOrderRow) => <SlaCountdown slaDue={record.slaDue} status={record.status} completedAt={record.completedAt} />,
+      render: (_: any, record: WorkOrderRow) => (
+        <Space size={4}>
+          <EmergencyBikeTag workOrder={record} /> {/* New Emergency Bike Tag */}
+          <SlaCountdown slaDue={record.slaDue} status={record.status} completedAt={record.completedAt} />
+        </Space>
+      ),
       width: 180,
       sorter: (a: WorkOrderRow, b: WorkOrderRow) => dayjs(a.slaDue).unix() - dayjs(b.slaDue).unix(),
     },

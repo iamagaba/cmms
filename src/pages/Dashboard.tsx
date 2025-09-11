@@ -9,21 +9,23 @@ import { showSuccess, showInfo, showError } from "@/utils/toast";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { WorkOrder, Technician, Location, Customer, Vehicle, Profile } from "@/types/supabase"; // Import Profile
+import { WorkOrder, Technician, Location, Customer, Vehicle, Profile, EmergencyBikeAssignment, ServiceCategory, SlaPolicy } from "@/types/supabase"; // Import Profile, EmergencyBikeAssignment, ServiceCategory, SlaPolicy
 import dayjs from "dayjs";
 import isBetween from 'dayjs/plugin/isBetween';
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
 import { useSearchParams } from "react-router-dom";
 import { useSession } from "@/context/SessionContext";
-import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 dayjs.extend(isBetween);
 const { TabPane } = Tabs;
 
+const EMERGENCY_BIKE_THRESHOLD_HOURS = 6;
+
 const Dashboard = () => {
   const queryClient = useQueryClient();
-  const [searchParams, setSearchParams] = useSearchParams(); // Corrected initialization
+  const [searchParams, setSearchParams] = useSearchParams();
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
   const { session } = useSession();
@@ -34,9 +36,63 @@ const Dashboard = () => {
   const { data: allWorkOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({
     queryKey: ['work_orders'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('work_orders').select('*').order('created_at', { ascending: false });
+      const { data, error } = await supabase
+        .from('work_orders')
+        .select(`
+          *,
+          active_emergency_bike_assignment:emergency_bike_assignments!left(
+            *,
+            vehicles(*)
+          ),
+          service_categories(
+            sla_policies(*)
+          )
+        `)
+        .order('created_at', { ascending: false });
       if (error) throw new Error(error.message);
-      return (data || []).map((item: any) => ({ ...item, createdAt: item.created_at, workOrderNumber: item.work_order_number, assignedTechnicianId: item.assigned_technician_id, locationId: item.location_id, serviceNotes: item.service_notes, partsUsed: item.parts_used, activityLog: item.activity_log, slaDue: item.sla_due, completedAt: item.completed_at, customerLat: item.customer_lat, customerLng: item.customer_lng, customerAddress: item.customer_address, onHoldReason: item.on_hold_reason, appointmentDate: item.appointment_date, customerId: item.customer_id, vehicleId: item.vehicle_id, created_by: item.created_by, service_category_id: item.service_category_id, confirmed_at: item.confirmed_at, work_started_at: item.work_started_at, sla_timers_paused_at: item.sla_timers_paused_at, total_paused_duration_seconds: item.total_paused_duration_seconds })) || [];
+      return (data || []).map((item: any) => {
+        const mappedData: WorkOrder = {
+          ...item,
+          createdAt: item.created_at,
+          workOrderNumber: item.work_order_number,
+          assignedTechnicianId: item.assigned_technician_id,
+          locationId: item.location_id,
+          serviceNotes: item.service_notes,
+          partsUsed: item.parts_used,
+          activityLog: item.activity_log,
+          slaDue: item.sla_due,
+          completedAt: item.completed_at,
+          customerLat: item.customer_lat,
+          customerLng: item.customer_lng,
+          customerAddress: item.customer_address,
+          onHoldReason: item.on_hold_reason,
+          appointmentDate: item.appointment_date,
+          customerId: item.customer_id,
+          vehicleId: item.vehicle_id,
+          created_by: item.created_by,
+          service_category_id: item.service_category_id,
+          confirmed_at: item.confirmed_at,
+          work_started_at: item.work_started_at,
+          sla_timers_paused_at: item.sla_timers_paused_at,
+          total_paused_duration_seconds: item.total_paused_duration_seconds,
+          emergency_bike_notified_at: item.emergency_bike_notified_at,
+          active_emergency_bike_assignment: item.active_emergency_bike_assignment.length > 0 ? item.active_emergency_bike_assignment[0] : null,
+        };
+
+        // Calculate is_emergency_bike_eligible on the frontend
+        if (mappedData.status === 'In Progress' && mappedData.work_started_at) {
+          const workStartedAt = dayjs(mappedData.work_started_at);
+          const now = dayjs();
+          const totalPausedSeconds = mappedData.total_paused_duration_seconds || 0;
+          const elapsedActiveTimeSeconds = now.diff(workStartedAt, 'second') - totalPausedSeconds;
+          const thresholdSeconds = EMERGENCY_BIKE_THRESHOLD_HOURS * 3600;
+          mappedData.is_emergency_bike_eligible = elapsedActiveTimeSeconds >= thresholdSeconds && !mappedData.active_emergency_bike_assignment;
+        } else {
+          mappedData.is_emergency_bike_eligible = false;
+        }
+
+        return mappedData;
+      }) || [];
     }
   });
 
@@ -79,7 +135,7 @@ const Dashboard = () => {
   const { data: profiles, isLoading: isLoadingProfiles } = useQuery<Profile[]>({
     queryKey: ['profiles'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('profiles').select('*'); // Select all fields for Profile type
+      const { data, error } = await supabase.from('profiles').select('*');
       if (error) throw new Error(error.message);
       return data || [];
     }

@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Calendar, Badge, Popover, List, Typography, Tag, Skeleton, Row, Col, Empty, Card, Space } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
-import { Link, useSearchParams } from 'react-router-dom'; // Import useSearchParams
+import { Link, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { WorkOrder, Technician, Vehicle } from '@/types/supabase';
@@ -14,7 +14,7 @@ const priorityColors: Record<string, string> = { High: "red", Medium: "gold", Lo
 
 const CalendarPage = () => {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
-  const [searchParams, setSearchParams] = useSearchParams(); // Initialize useSearchParams
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const { data: workOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ queryKey: ['work_orders'], queryFn: async () => { const { data, error } = await supabase.from('work_orders').select('*'); if (error) throw new Error(error.message); return data || []; } });
   const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return data || []; } });
@@ -31,7 +31,6 @@ const CalendarPage = () => {
 
   const dateCellRender = (value: Dayjs) => {
     const listData = getListData(value);
-    if (listData.length === 0) return null;
 
     return (
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', justifyContent: 'center', marginTop: '4px', minHeight: '20px' }}>
@@ -52,7 +51,7 @@ const CalendarPage = () => {
 
           return (
             <Popover key={item.id} content={popoverContent} title="Work Order Details" trigger="hover">
-              <Badge dot color={priorityColor} style={{ cursor: 'pointer' }} />
+              <Badge dot color={priorityColor} style={{ cursor: 'pointer' }} className="calendar-badge-dot" />
             </Popover>
           );
         })}
@@ -65,7 +64,7 @@ const CalendarPage = () => {
     const dailyOrders = getListData(selectedDate);
 
     if (dailyOrders.length === 0) {
-      return <Empty description="No work orders scheduled for this day." />;
+      return <Empty description="No appointments scheduled for this day." />;
     }
 
     return (
@@ -78,7 +77,7 @@ const CalendarPage = () => {
           return (
             <List.Item
               key={item.id}
-              onClick={() => setSearchParams({ view: item.id })} // Update search params to open drawer
+              onClick={() => setSearchParams({ view: item.id })}
               style={{ cursor: 'pointer', padding: '12px 0' }}
             >
               <List.Item.Meta
@@ -109,7 +108,7 @@ const CalendarPage = () => {
       <Breadcrumbs />
       <Row gutter={[24, 24]} style={{ height: 'calc(100vh - 112px - 24px)' }}>
         <Col xs={24} lg={16}>
-          <Card title="Work Order Calendar" style={{ height: '100%' }}>
+          <Card title="Appointments Calendar" style={{ height: '100%' }}>
             <Calendar
               dateCellRender={dateCellRender}
               onSelect={handleDateSelect}
@@ -118,16 +117,16 @@ const CalendarPage = () => {
           </Card>
         </Col>
         <Col xs={24} lg={8}>
-          <Card title={selectedDate ? `Work Orders for ${selectedDate.format('MMM D, YYYY')}` : 'Select a Date'} style={{ height: '100%', overflowY: 'auto' }}>
+          <Card title={selectedDate ? `Appointments for ${selectedDate.format('MMM D, YYYY')}` : 'Select a Date'} style={{ height: '100%', overflowY: 'auto' }}>
             {selectedDate ? (
               <WorkOrdersForSelectedDate />
             ) : (
-              <Empty description="Select a date on the calendar to view scheduled work orders." />
+              <Empty description="Select a date on the calendar to view scheduled appointments." />
             )}
           </Card>
         </Col>
       </Row>
-      <WorkOrderDetailsDrawer onClose={() => setSearchParams({})} /> {/* Pass onClose to clear search params */}
+      <WorkOrderDetailsDrawer onClose={() => setSearchParams({})} />
     </Space>
   );
 };

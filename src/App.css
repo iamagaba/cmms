@@ -88,6 +88,15 @@ body {
   min-height: unset !important; /* Remove minimum height */
 }
 
+/* Custom styles for calendar badge dots */
+.calendar-badge-dot .ant-badge-dot {
+  width: 8px; /* Make dot slightly larger */
+  height: 8px; /* Make dot slightly larger */
+  border-radius: 50%; /* Ensure it's a circle */
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1); /* Add a subtle border for visibility */
+}
+
+
 /* --- Side Navigation Enhancements --- */
 
 /* Make the menu a flex container to push bottom items down */

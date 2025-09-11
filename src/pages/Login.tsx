@@ -1,9 +1,12 @@
 import React, { useState, FormEvent } from "react";
-import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
+import { Mail, Lock, Loader2 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useSystemSettings } from '@/context/SystemSettingsContext';
-import { Spin, Input, Button } from 'antd'; // Import Input and Button from antd
+import { Spin, Input, Button, Typography, Space, Flex, Card, theme } from 'antd';
 import { showError } from "@/utils/toast";
+
+const { Title, Text, Link } = Typography;
+const { useToken } = theme;
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -11,6 +14,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { settings, isLoading: isLoadingSettings } = useSystemSettings();
   const logoUrl = settings.logo_url;
+  const { token } = useToken();
 
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
@@ -22,12 +26,11 @@ export default function Login() {
     if (error) {
       showError(error.message);
     }
-    // The SessionProvider will handle the redirect on success
     setLoading(false);
   };
 
   const Logo = () => (
-    <div className="mb-6">
+    <div style={{ marginBottom: token.marginLG }}>
       <div className="h-20 w-20 rounded-full bg-gray-200 flex items-center justify-center mx-auto">
         {isLoadingSettings ? <Spin /> : logoUrl ? (
           <img src={logoUrl} alt="System Logo" className="h-20 w-20 rounded-full object-cover" />
@@ -39,89 +42,75 @@ export default function Login() {
   );
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-4">
-      <Logo />
+    <Flex align="center" justify="center" className="min-h-screen bg-gray-50 p-4">
+      <Flex align="center" style={{ flexDirection: 'column', maxWidth: 480, width: '100%' }}> {/* Fixed: Replaced 'direction' prop with inline style */}
+        <Logo />
 
-      {/* Title */}
-      <h1 className="mb-2 text-3xl font-bold text-gray-800">GOGO Electric</h1>
-      <p className="mb-8 text-base text-gray-500">GOGO Maintenance Management Platform</p>
+        <Title level={1} style={{ marginBottom: token.marginXS, color: token.colorTextHeading }}>GOGO Electric</Title>
+        <Text type="secondary" style={{ marginBottom: token.marginXL }}>GOGO Maintenance Management Platform</Text>
 
-      {/* Login Box */}
-      <div className="w-full max-w-md rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
-        <form className="space-y-6" onSubmit={handleLogin}>
-          {/* Email */}
-          <div>
-            <label className="mb-2 block text-base font-medium text-gray-700">
-              Email address
-            </label>
-            <Input
-              prefix={<Mail className="h-5 w-5 text-gray-400" />}
-              placeholder="Your email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              size="large" // Use Ant Design size prop
-            />
-          </div>
-
-          {/* Password */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-base font-medium text-gray-700">
-                Password
+        <Card className="w-full max-w-md" style={{ padding: token.paddingLG, boxShadow: token.boxShadowSecondary }}>
+          <form className="space-y-6" onSubmit={handleLogin}>
+            <div>
+              <label style={{ marginBottom: token.marginXS, display: 'block', color: token.colorText }}>
+                Email address
               </label>
-              <a href="#" className="text-base text-purple-600 hover:underline">
-                Forgot password?
-              </a>
+              <Input
+                prefix={<Mail size={20} className="text-gray-400" />}
+                placeholder="Your email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                size="large"
+              />
             </div>
-            <Input.Password
-              prefix={<Lock className="h-5 w-5 text-gray-400" />}
-              placeholder="Your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              size="large" // Use Ant Design size prop
-              iconRender={(visible) => (visible ? <Eye size={20} /> : <EyeOff size={20} />)}
-            />
-          </div>
 
-          {/* Submit */}
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={loading}
-            className="w-full flex items-center justify-center" // Keep Tailwind for flex layout
-            size="large" // Use Ant Design size prop
-          >
-            {loading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
-            Sign in
-          </Button>
-        </form>
+            <div>
+              <Flex justify="space-between" align="center" style={{ marginBottom: token.marginXS }}>
+                <label style={{ display: 'block', color: token.colorText }}>
+                  Password
+                </label>
+                <Link href="#" style={{ color: token.colorPrimary }}>
+                  Forgot password?
+                </Link>
+              </Flex>
+              <Input.Password
+                prefix={<Lock size={20} className="text-gray-400" />}
+                placeholder="Your password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                size="large"
+              />
+            </div>
 
-        {/* Sign up */}
-        <div className="mt-6 text-center text-base">
-          <span className="text-gray-600">Don't have an account?</span>{" "}
-          <a href="#" className="text-purple-600 hover:underline">
-            Sign up
-          </a>
-        </div>
-      </div>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={loading}
+              block
+              size="large"
+              icon={loading ? <Loader2 size={20} className="animate-spin" /> : null}
+            >
+              Sign in
+            </Button>
+          </form>
 
-      {/* Footer */}
-      <footer className="mt-8 text-sm text-gray-500">
-        <a href="#" className="px-3 hover:underline">
-          Terms
-        </a>
-        <a href="#" className="px-3 hover:underline">
-          Privacy
-        </a>
-        <a href="#" className="px-3 hover:underline">
-          Security
-        </a>
-        <a href="#" className="px-3 hover:underline">
-          Contact
-        </a>
-      </footer>
-    </div>
+          <Flex justify="center" style={{ marginTop: token.marginLG }}>
+            <Text type="secondary">Don't have an account?</Text>{" "}
+            <Link href="#" style={{ color: token.colorPrimary, marginLeft: token.marginXXS }}>
+              Sign up
+            </Link>
+          </Flex>
+        </Card>
+
+        <Space size="middle" style={{ marginTop: token.marginXL }}>
+          <Link href="#" type="secondary">Terms</Link>
+          <Link href="#" type="secondary">Privacy</Link>
+          <Link href="#" type="secondary">Security</Link>
+          <Link href="#" type="secondary">Contact</Link>
+        </Space>
+      </Flex>
+    </Flex>
   );
 }

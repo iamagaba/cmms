@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Descriptions, Typography } from 'antd';
-import { PhoneOutlined } from '@ant-design/icons';
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { WorkOrder, Customer, Vehicle } from '@/types/supabase';
 
 const { Text } = Typography;
@@ -18,7 +18,7 @@ export const WorkOrderCustomerVehicleCard: React.FC<WorkOrderCustomerVehicleCard
         <Descriptions.Item label="Customer" labelStyle={{ width: '150px' }}>
           <Text>{customer?.name || 'N/A'}</Text>
         </Descriptions.Item>
-        <Descriptions.Item label={<><PhoneOutlined /> Phone</>} labelStyle={{ width: '150px' }}>
+        <Descriptions.Item label={<><Icon icon="si:phone" /> Phone</>} labelStyle={{ width: '150px' }}>
           <Text>{customer?.phone || 'N/A'}</Text>
         </Descriptions.Item>
         <Descriptions.Item label="Vehicle" labelStyle={{ width: '150px' }}>

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Typography, Space, Skeleton, Input, Row, Col } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { CustomerDataTable } from "@/components/CustomerDataTable";
 import { CustomerFormDialog } from "@/components/CustomerFormDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -78,7 +78,7 @@ const CustomersPage = () => {
         style={{ width: 250 }}
         allowClear
       />
-      <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingCustomer(null); setIsDialogOpen(true); }}>
+      <Button type="primary" icon={<Icon icon="si:plus" />} onClick={() => { setEditingCustomer(null); setIsDialogOpen(true); }}>
         Add Customer
       </Button>
     </Space>

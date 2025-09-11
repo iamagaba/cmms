@@ -1,5 +1,5 @@
 import { Avatar, Button, Dropdown, Menu, Tag, Typography, Select, theme, Space } from "antd"; // Added Space
-import { MoreOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { WorkOrder, Technician, Location, Customer, Vehicle, Profile } from "@/types/supabase";
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -183,8 +183,8 @@ export const getColumns = ({
       title: "Actions",
       align: "right" as const,
       render: (_: any, record: WorkOrderRow) => (
-        <Dropdown overlay={<Menu><Menu.Item key="edit" icon={<EditOutlined />} onClick={(e) => { e.domEvent.stopPropagation(); onEdit(record); }}>Edit Work Order</Menu.Item><Menu.Item key="delete" icon={<DeleteOutlined />} danger onClick={(e) => { e.domEvent.stopPropagation(); onDelete(record); }}>Delete Work Order</Menu.Item></Menu>} trigger={["click"]}>
-          <Button type="text" icon={<MoreOutlined style={{ fontSize: '18px' }} />} onClick={(e) => e.stopPropagation()} />
+        <Dropdown overlay={<Menu><Menu.Item key="edit" icon={<Icon icon="si:edit" />} onClick={(e) => { e.domEvent.stopPropagation(); onEdit(record); }}>Edit Work Order</Menu.Item><Menu.Item key="delete" icon={<Icon icon="si:trash" />} danger onClick={(e) => { e.domEvent.stopPropagation(); onDelete(record); }}>Delete Work Order</Menu.Item></Menu>} trigger={["click"]}>
+          <Button type="text" icon={<Icon icon="si:more-horizontal" style={{ fontSize: '18px' }} />} onClick={(e) => e.stopPropagation()} />
         </Dropdown>
       ),
       width: 80,

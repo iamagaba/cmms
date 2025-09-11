@@ -1,5 +1,5 @@
 import { Card, Typography, Space, Badge } from 'antd';
-import { EnvironmentOutlined } from '@ant-design/icons';
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { Link } from 'react-router-dom';
 import { Location, WorkOrder } from '@/types/supabase';
 
@@ -18,7 +18,7 @@ export const LocationCard = ({ location, workOrders }: LocationCardProps) => {
       <Card hoverable className="lift-on-hover">
         <Title level={5}>{location.name.replace(' Service Center', '')}</Title>
         <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
-          <EnvironmentOutlined style={{ marginRight: 8 }} />
+          <Icon icon="si:map-pin" style={{ marginRight: 8 }} />
           {location.address}
         </Text>
         <Space>

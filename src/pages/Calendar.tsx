@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Calendar, Badge, Popover, List, Typography, Tag, Skeleton, Row, Col, Empty, Card, Space } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom'; // Import useSearchParams
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { WorkOrder, Technician, Vehicle } from '@/types/supabase';
@@ -14,7 +14,7 @@ const priorityColors: Record<string, string> = { High: "red", Medium: "gold", Lo
 
 const CalendarPage = () => {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams(); // Initialize useSearchParams
 
   const { data: workOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ queryKey: ['work_orders'], queryFn: async () => { const { data, error } = await supabase.from('work_orders').select('*'); if (error) throw new Error(error.message); return data || []; } });
   const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return data || []; } });
@@ -77,7 +77,7 @@ const CalendarPage = () => {
           return (
             <List.Item
               key={item.id}
-              onClick={() => setSearchParams({ view: item.id })}
+              onClick={() => setSearchParams({ view: item.id })} // Update search params to open drawer
               style={{ cursor: 'pointer', padding: '12px 0' }}
             >
               <List.Item.Meta

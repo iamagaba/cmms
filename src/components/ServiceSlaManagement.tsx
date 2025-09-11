@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Card, Col, Row, Typography, Table, Space, Popconfirm, Skeleton } from "antd";
-import { PlusOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { ServiceCategory, SlaPolicy } from "@/types/supabase";
@@ -86,9 +86,9 @@ const ServiceSlaManagement = () => {
       key: 'actions',
       render: (_: any, record: ServiceSlaRow) => (
         <Space size="middle">
-          <Button icon={<EditOutlined />} onClick={() => handleEdit(record)} size="small">Edit</Button>
+          <Button icon={<Icon icon="si:edit" />} onClick={() => handleEdit(record)} size="small">Edit</Button>
           <Popconfirm title="Are you sure?" onConfirm={() => handleDelete(record.id)}>
-            <Button icon={<DeleteOutlined />} danger size="small">Delete</Button>
+            <Button icon={<Icon icon="si:trash" />} danger size="small">Delete</Button>
           </Popconfirm>
         </Space>
       ),
@@ -103,7 +103,7 @@ const ServiceSlaManagement = () => {
     <Card>
       <Row justify="space-between" align="middle" style={{ marginBottom: 24 }}>
         <Col><Title level={5}>Manage Service Categories & SLAs</Title></Col>
-        <Col><Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingData(null); setIsDialogOpen(true); }}>Add Service</Button></Col>
+        <Col><Button type="primary" icon={<Icon icon="si:plus" />} onClick={() => { setEditingData(null); setIsDialogOpen(true); }}>Add Service</Button></Col>
       </Row>
       <Table columns={columns} dataSource={services} rowKey="id" size="small" />
       {isDialogOpen && (

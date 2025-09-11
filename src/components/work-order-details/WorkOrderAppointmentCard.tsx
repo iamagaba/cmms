@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Descriptions, Typography, Space } from 'antd';
-import { CalendarOutlined, UserOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import dayjs from 'dayjs';
 import { WorkOrder, Technician, Location } from '@/types/supabase';
 import { Link } from 'react-router-dom';
@@ -21,17 +21,17 @@ export const WorkOrderAppointmentCard: React.FC<WorkOrderAppointmentCardProps> =
   return (
     <Card title="Appointment Details">
       <Descriptions column={1} bordered>
-        <Descriptions.Item label={<><CalendarOutlined /> Date & Time</>} labelStyle={{ width: '150px' }}>
+        <Descriptions.Item label={<><Icon icon="si:calendar" /> Date & Time</>} labelStyle={{ width: '150px' }}>
           <Text strong>{dayjs(workOrder.appointmentDate).format('MMM D, YYYY h:mm A')}</Text>
         </Descriptions.Item>
-        <Descriptions.Item label={<><UserOutlined /> Assigned Technician</>} labelStyle={{ width: '150px' }}>
+        <Descriptions.Item label={<><Icon icon="si:user" /> Assigned Technician</>} labelStyle={{ width: '150px' }}>
           {technician ? (
             <Link to={`/technicians/${technician.id}`}>{technician.name}</Link>
           ) : (
             <Text type="secondary">Unassigned</Text>
           )}
         </Descriptions.Item>
-        <Descriptions.Item label={<><EnvironmentOutlined /> Service Location</>} labelStyle={{ width: '150px' }}>
+        <Descriptions.Item label={<><Icon icon="si:map-pin" /> Service Location</>} labelStyle={{ width: '150px' }}>
           {location ? (
             <Link to={`/locations/${location.id}`}>{location.name.replace(' Service Center', '')}</Link>
           ) : (

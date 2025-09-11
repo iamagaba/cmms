@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Typography, Space, Skeleton, Row, Col, Input } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { AssetDataTable } from "@/components/AssetDataTable";
 import { AssetFormDialog } from "@/components/AssetFormDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -90,7 +90,7 @@ const AssetsPage = () => {
         style={{ width: 250 }}
         allowClear
       />
-      <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingVehicle(null); setIsDialogOpen(true); }}>
+      <Button type="primary" icon={<Icon icon="si:plus" />} onClick={() => { setEditingVehicle(null); setIsDialogOpen(true); }}>
         Add Asset
       </Button>
     </Space>

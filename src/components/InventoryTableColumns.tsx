@@ -1,5 +1,5 @@
 import { Button, Dropdown, Menu, Tag, Typography } from "antd";
-import { MoreOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { InventoryItem } from "@/types/supabase";
 import dayjs from "dayjs";
 
@@ -49,17 +49,17 @@ export const getColumns = (
       <Dropdown
         overlay={
           <Menu>
-            <Menu.Item key="edit" icon={<EditOutlined />} onClick={() => onEdit(record)}>
+            <Menu.Item key="edit" icon={<Icon icon="si:edit" />} onClick={() => onEdit(record)}>
               Edit Item
             </Menu.Item>
-            <Menu.Item key="delete" icon={<DeleteOutlined />} danger onClick={() => onDelete(record)}>
+            <Menu.Item key="delete" icon={<Icon icon="si:trash" />} danger onClick={() => onDelete(record)}>
               Delete Item
             </Menu.Item>
           </Menu>
         }
         trigger={["click"]}
       >
-        <Button type="text" icon={<MoreOutlined style={{ fontSize: '18px' }} />} />
+        <Button type="text" icon={<Icon icon="si:more-horizontal" style={{ fontSize: '18px' }} />} />
       </Dropdown>
     ),
   },

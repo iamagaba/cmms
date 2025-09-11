@@ -1,6 +1,6 @@
 import React from 'react';
 import { Tag, Tooltip } from 'antd';
-import { BikeIcon } from 'lucide-react'; // Using lucide-react for the icon
+import { Icon } from '@iconify/react'; // Using Iconify for the icon
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
 
@@ -37,7 +37,7 @@ export const EmergencyBikeTag: React.FC<EmergencyBikeTagProps> = ({ workOrder })
 
   return (
     <Tooltip title={`Work order in progress for over ${EMERGENCY_BIKE_THRESHOLD_HOURS} hours. Consider assigning an emergency bike.`}>
-      <Tag icon={<BikeIcon size={14} />} color="purple" className="ant-tag-compact">
+      <Tag icon={<Icon icon="si:bike" width={14} height={14} />} color="purple" className="ant-tag-compact">
         Emergency Bike Needed
       </Tag>
     </Tooltip>

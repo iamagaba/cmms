@@ -1,5 +1,5 @@
 import { Card, Avatar, Typography, Tag, Dropdown, Menu, Button, Space } from "antd";
-import { MoreOutlined, EditOutlined, DeleteOutlined, MailOutlined, PhoneOutlined } from "@ant-design/icons";
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { Technician } from "@/types/supabase";
 import { useNavigate } from "react-router-dom";
 
@@ -36,10 +36,10 @@ export const TechnicianCard = ({ technician, onEdit, onDelete }: TechnicianCardP
 
   const menu = (
     <Menu>
-      <Menu.Item key="edit" icon={<EditOutlined />} onClick={(e) => { e.domEvent.stopPropagation(); onEdit(technician); }}>
+      <Menu.Item key="edit" icon={<Icon icon="si:edit" />} onClick={(e) => { e.domEvent.stopPropagation(); onEdit(technician); }}>
         Edit Details
       </Menu.Item>
-      <Menu.Item key="delete" icon={<DeleteOutlined />} danger onClick={(e) => { e.domEvent.stopPropagation(); onDelete(technician); }}>
+      <Menu.Item key="delete" icon={<Icon icon="si:trash" />} danger onClick={(e) => { e.domEvent.stopPropagation(); onDelete(technician); }}>
         Delete Technician
       </Menu.Item>
     </Menu>
@@ -60,7 +60,7 @@ export const TechnicianCard = ({ technician, onEdit, onDelete }: TechnicianCardP
           </Space>
         </Space>
         <Dropdown overlay={menu} trigger={["click"]}>
-          <Button type="text" icon={<MoreOutlined />} onClick={(e) => e.stopPropagation()} />
+          <Button type="text" icon={<Icon icon="si:more-horizontal" />} onClick={(e) => e.stopPropagation()} />
         </Dropdown>
       </div>
       
@@ -74,8 +74,8 @@ export const TechnicianCard = ({ technician, onEdit, onDelete }: TechnicianCardP
           <Title level={4} style={{ margin: 0 }}>{technician.openTasks}</Title>
         </div>
         <Space direction="vertical" align="end">
-            <Text type="secondary" style={{ fontSize: 12 }}><MailOutlined /> {technician.email}</Text>
-            <Text type="secondary" style={{ fontSize: 12 }}><PhoneOutlined /> {technician.phone}</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}><Icon icon="si:mail" /> {technician.email}</Text>
+            <Text type="secondary" style={{ fontSize: 12 }}><Icon icon="si:phone" /> {technician.phone}</Text>
         </Space>
       </div>
     </Card>

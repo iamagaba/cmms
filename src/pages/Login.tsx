@@ -1,5 +1,5 @@
 import React, { useState, FormEvent } from "react";
-import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { supabase } from '@/integrations/supabase/client';
 import { useSystemSettings } from '@/context/SystemSettingsContext';
 import { Spin, Input, Button } from 'antd'; // Import Input and Button from antd
@@ -55,7 +55,7 @@ export default function Login() {
               Email address
             </label>
             <Input
-              prefix={<Mail className="h-5 w-5 text-gray-400" />}
+              prefix={<Icon icon="si:mail" className="h-5 w-5 text-gray-400" />}
               placeholder="Your email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -75,13 +75,13 @@ export default function Login() {
               </a>
             </div>
             <Input.Password
-              prefix={<Lock className="h-5 w-5 text-gray-400" />}
+              prefix={<Icon icon="si:lock" className="h-5 w-5 text-gray-400" />}
               placeholder="Your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
               size="large" // Use Ant Design size prop
-              iconRender={(visible) => (visible ? <Eye size={20} /> : <EyeOff size={20} />)}
+              iconRender={(visible) => (visible ? <Icon icon="si:eye" width={20} height={20} /> : <Icon icon="si:eye-off" width={20} height={20} />)}
             />
           </div>
 
@@ -93,7 +93,7 @@ export default function Login() {
             className="w-full flex items-center justify-center" // Keep Tailwind for flex layout
             size="large" // Use Ant Design size prop
           >
-            {loading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+            {loading && <Icon icon="si:loader" className="mr-2 h-5 w-5 animate-spin" />}
             Sign in
           </Button>
         </form>

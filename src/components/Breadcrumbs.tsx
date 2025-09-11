@@ -4,19 +4,7 @@ import { Link, useLocation, useParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { WorkOrder, Technician, Location, Customer, Vehicle } from '@/types/supabase';
-import { 
-  ArrowLeftOutlined, 
-  HomeOutlined, 
-  ToolOutlined, 
-  UsergroupAddOutlined, 
-  EnvironmentOutlined, 
-  CarOutlined, 
-  ContactsOutlined, 
-  ShoppingOutlined, 
-  BarChartOutlined, 
-  SettingOutlined, 
-  BellOutlined 
-} from '@ant-design/icons';
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 
 const { Text } = Typography;
 
@@ -91,7 +79,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ actions, backButton }) => {
     const items: any[] = [
       {
         href: '/',
-        title: <HomeOutlined />,
+        title: <Icon icon="si:home" />,
       },
     ];
 
@@ -103,34 +91,36 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ actions, backButton }) => {
       let icon: React.ReactNode | null = null;
 
       // Determine icon based on path segment
-      if (name === 'work-orders') icon = <ToolOutlined />;
-      else if (name === 'technicians') icon = <UsergroupAddOutlined />;
-      else if (name === 'locations') icon = <EnvironmentOutlined />;
-      else if (name === 'assets') icon = <CarOutlined />;
-      else if (name === 'customers') icon = <ContactsOutlined />;
-      else if (name === 'inventory') icon = <ShoppingOutlined />;
-      else if (name === 'analytics') icon = <BarChartOutlined />;
-      else if (name === 'settings') icon = <SettingOutlined />;
-      else if (name === 'notifications') icon = <BellOutlined />;
+      if (name === 'work-orders') icon = <Icon icon="si:wrench" />;
+      else if (name === 'technicians') icon = <Icon icon="si:users" />;
+      else if (name === 'locations') icon = <Icon icon="si:map-pin" />;
+      else if (name === 'assets') icon = <Icon icon="si:car" />;
+      else if (name === 'customers') icon = <Icon icon="si:address-book" />;
+      else if (name === 'inventory') icon = <Icon icon="si:shopping-bag" />;
+      else if (name === 'analytics') icon = <Icon icon="si:bar-chart" />;
+      else if (name === 'settings') icon = <Icon icon="si:settings" />;
+      else if (name === 'notifications') icon = <Icon icon="si:bell" />;
+      else if (name === 'calendar') icon = <Icon icon="si:calendar" />; // Added for calendar
+      else if (name === 'map-view') icon = <Icon icon="si:map" />; // Added for map-view
       // Add more conditions for other top-level routes if needed
 
       // Handle dynamic segments
       if (params.id && name === params.id) {
         if (location.pathname.startsWith('/work-orders/')) {
           breadcrumbName = isLoadingWorkOrder ? <Skeleton.Input active size="small" style={{ width: 100 }} /> : (workOrder?.workOrderNumber || 'Details');
-          icon = <ToolOutlined />;
+          icon = <Icon icon="si:wrench" />;
         } else if (location.pathname.startsWith('/technicians/')) {
           breadcrumbName = isLoadingTechnician ? <Skeleton.Input active size="small" style={{ width: 100 }} /> : (technician?.name || 'Details');
-          icon = <UsergroupAddOutlined />;
+          icon = <Icon icon="si:users" />;
         } else if (location.pathname.startsWith('/assets/')) {
           breadcrumbName = isLoadingAsset ? <Skeleton.Input active size="small" style={{ width: 100 }} /> : (asset?.license_plate || 'Details');
-          icon = <CarOutlined />;
+          icon = <Icon icon="si:car" />;
         } else if (location.pathname.startsWith('/customers/')) {
           breadcrumbName = isLoadingCustomer ? <Skeleton.Input active size="small" style={{ width: 100 }} /> : (customer?.name || 'Details');
-          icon = <ContactsOutlined />;
+          icon = <Icon icon="si:address-book" />;
         } else if (location.pathname.startsWith('/locations/')) {
           breadcrumbName = isLoadingLoc ? <Skeleton.Input active size="small" style={{ width: 100 }} /> : (loc?.name || 'Details');
-          icon = <EnvironmentOutlined />;
+          icon = <Icon icon="si:map-pin" />;
         } else {
           breadcrumbName = 'Details'; // Fallback for other dynamic IDs
         }

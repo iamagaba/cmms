@@ -1,23 +1,7 @@
 import React from 'react';
 import { Layout, Menu, Typography, Badge, Button, Space, Avatar, Spin } from 'antd';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import {
-  DashboardOutlined,
-  ToolOutlined,
-  UsergroupAddOutlined,
-  EnvironmentOutlined,
-  BarChartOutlined,
-  SettingOutlined,
-  CarOutlined,
-  ShoppingOutlined,
-  ContactsOutlined,
-  FireOutlined, // For the logo
-  BellOutlined, // For notifications
-  UserOutlined,
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  LogoutOutlined,
-} from '@ant-design/icons';
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import type { MenuProps } from 'antd';
 import { useNotifications } from '@/context/NotificationsContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -105,26 +89,26 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
   const displayAvatar = profile?.avatar_url || user?.user_metadata?.avatar_url;
 
   const menuItems: MenuItem[] = [
-    getItem(<NavLink to="/">Dashboard</NavLink>, "/", <DashboardOutlined />),
-    getItem(<NavLink to="/work-orders">Work Orders</NavLink>, "/work-orders", <ToolOutlined />),
+    getItem(<NavLink to="/">Dashboard</NavLink>, "/", <Icon icon="si:dashboard" />),
+    getItem(<NavLink to="/work-orders">Work Orders</NavLink>, "/work-orders", <Icon icon="si:wrench" />),
     { type: 'divider', key: 'main-divider-1' },
-    getItem(<NavLink to="/customers">Customers</NavLink>, "/customers", <ContactsOutlined />),
-    getItem(<NavLink to="/assets">Assets</NavLink>, "/assets", <CarOutlined />),
-    getItem(<NavLink to="/technicians">Technicians</NavLink>, "/technicians", <UsergroupAddOutlined />),
-    getItem(<NavLink to="/locations">Locations</NavLink>, "/locations", <EnvironmentOutlined />),
-    getItem(<NavLink to="/inventory">Inventory</NavLink>, "/inventory", <ShoppingOutlined />),
+    getItem(<NavLink to="/customers">Customers</NavLink>, "/customers", <Icon icon="si:address-book" />),
+    getItem(<NavLink to="/assets">Assets</NavLink>, "/assets", <Icon icon="si:car" />),
+    getItem(<NavLink to="/technicians">Technicians</NavLink>, "/technicians", <Icon icon="si:users" />),
+    getItem(<NavLink to="/locations">Locations</NavLink>, "/locations", <Icon icon="si:map-pin" />),
+    getItem(<NavLink to="/inventory">Inventory</NavLink>, "/inventory", <Icon icon="si:shopping-bag" />),
     { type: 'divider', key: 'main-divider-2' },
-    getItem(<NavLink to="/analytics">Analytics</NavLink>, "/analytics", <BarChartOutlined />),
+    getItem(<NavLink to="/analytics">Analytics</NavLink>, "/analytics", <Icon icon="si:bar-chart" />),
 
     // Settings SubMenu
-    getItem('Settings', 'settings', <SettingOutlined />, [
+    getItem('Settings', 'settings', <Icon icon="si:settings" />, [
       getItem(<NavLink to="/settings?tab=user-management">User Management</NavLink>, "/settings?tab=user-management"),
       getItem(<NavLink to="/settings?tab=service-sla">Service & SLA</NavLink>, "/settings?tab=service-sla"),
       getItem(<NavLink to="/settings?tab=system-settings">System Settings</NavLink>, "/settings?tab=system-settings"),
     ]),
 
     // Profile SubMenu - now includes Notifications and Logout
-    getItem('Profile', 'profile-section', <UserOutlined />, [
+    getItem('Profile', 'profile-section', <Icon icon="si:user" />, [
       getItem(<NavLink to="/settings?tab=profile-settings">My Profile</NavLink>, "/settings?tab=profile-settings"),
       getItem(
         <NavLink to="/notifications">
@@ -137,7 +121,7 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
       { type: 'divider', key: 'profile-divider' },
       {
         key: 'logout',
-        icon: <LogoutOutlined />,
+        icon: <Icon icon="si:logout" />,
         label: 'Logout',
         danger: true,
         onClick: handleLogout,
@@ -167,7 +151,7 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
         {logoUrl ? (
           <img src={logoUrl} alt="System Logo" style={{ height: '32px' }} />
         ) : (
-          <FireOutlined style={{ color: '#6A0DAD', fontSize: '28px' }} />
+          <Icon icon="si:fire" style={{ color: '#6A0DAD', fontSize: '28px' }} />
         )}
         {!collapsed && (
           <Typography.Title level={4} style={{ margin: 0, color: '#6A0DAD', whiteSpace: 'nowrap' }}>
@@ -189,7 +173,7 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
       <div className={`sider-custom-trigger ${!collapsed ? 'sider-custom-trigger-expanded' : ''}`} style={{ order: -1 }}> {/* order: -1 pushes it to the top of the flex-end group */}
         <Button
           type="text"
-          icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+          icon={collapsed ? <Icon icon="si:menu-unfold" /> : <Icon icon="si:menu-fold" />}
           onClick={() => onCollapse(!collapsed)}
           style={{ width: '100%', height: '48px', borderRadius: 0 }}
         />

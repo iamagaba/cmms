@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Button, Card, Col, Row, Space, Typography, Descriptions, Skeleton } from "antd";
-import { ArrowLeftOutlined, UserOutlined, MailOutlined, PhoneOutlined, PlusOutlined } from "@ant-design/icons";
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import NotFound from "./NotFound";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query"; // Import useMutation
 import { supabase } from "@/integrations/supabase/client";
@@ -174,7 +174,7 @@ const AssetDetailsPage = () => {
   const defaultVisibleColumns = ALL_COLUMNS.map(c => c.value); // Use ALL_COLUMNS for default visibility
 
   const backButton = (
-    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/assets')} />
+    <Button icon={<Icon icon="si:arrow-left" />} onClick={() => navigate('/assets')} />
   );
 
   return (
@@ -199,9 +199,9 @@ const AssetDetailsPage = () => {
                     <Card style={{ marginTop: 16 }}>
                         <Title level={5}>Owner Information</Title>
                         <Descriptions column={1} bordered>
-                            <Descriptions.Item label={<UserOutlined />}>{customer.name}</Descriptions.Item>
-                            <Descriptions.Item label={<MailOutlined />}><a href={`mailto:${customer.email}`}>{customer.email}</a></Descriptions.Item>
-                            <Descriptions.Item label={<PhoneOutlined />}><a href={`tel:${customer.phone}`}>{customer.phone}</a></Descriptions.Item>
+                            <Descriptions.Item label={<Icon icon="si:user" />}>{customer.name}</Descriptions.Item>
+                            <Descriptions.Item label={<Icon icon="si:mail" />}><a href={`mailto:${customer.email}`}>{customer.email}</a></Descriptions.Item>
+                            <Descriptions.Item label={<Icon icon="si:phone" />}><a href={`tel:${customer.phone}`}>{customer.phone}</a></Descriptions.Item>
                         </Descriptions>
                     </Card>
                 )}

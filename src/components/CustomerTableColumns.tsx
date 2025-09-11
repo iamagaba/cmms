@@ -1,5 +1,5 @@
 import { Button, Dropdown, Menu, Typography } from "antd";
-import { MoreOutlined, DeleteOutlined, EditOutlined } from "@ant-design/icons";
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { Customer } from "@/types/supabase";
 import { Link } from "react-router-dom";
 
@@ -35,17 +35,17 @@ export const getColumns = (
       <Dropdown
         overlay={
           <Menu>
-            <Menu.Item key="edit" icon={<EditOutlined />} onClick={(e) => { e.domEvent.stopPropagation(); onEdit(record); }}>
+            <Menu.Item key="edit" icon={<Icon icon="si:edit" />} onClick={(e) => { e.domEvent.stopPropagation(); onEdit(record); }}>
               Edit Details
             </Menu.Item>
-            <Menu.Item key="delete" icon={<DeleteOutlined />} danger onClick={(e) => { e.domEvent.stopPropagation(); onDelete(record); }}>
+            <Menu.Item key="delete" icon={<Icon icon="si:trash" />} danger onClick={(e) => { e.domEvent.stopPropagation(); onDelete(record); }}>
               Delete Customer
             </Menu.Item>
           </Menu>
         }
         trigger={["click"]}
       >
-        <Button type="text" icon={<MoreOutlined style={{ fontSize: '18px' }} />} onClick={(e) => e.stopPropagation()} />
+        <Button type="text" icon={<Icon icon="si:more-horizontal" style={{ fontSize: '18px' }} />} onClick={(e) => e.stopPropagation()} />
       </Dropdown>
     ),
   },

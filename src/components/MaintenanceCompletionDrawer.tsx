@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Drawer, Form, Select, Input, Button, Typography, Space, Table, InputNumber, Popconfirm, Empty, Row, Col, Spin } from 'antd';
-import { PlusOutlined, DeleteOutlined, CheckCircleOutlined, CloseOutlined } from '@ant-design/icons';
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { InventoryItem, WorkOrderPart } from '@/types/supabase';
@@ -122,7 +122,7 @@ export const MaintenanceCompletionDrawer = ({
           okText="Yes"
           cancelText="No"
         >
-          <Button type="text" danger icon={<DeleteOutlined />} size="small" />
+          <Button type="text" danger icon={<Icon icon="si:trash" />} size="small" />
         </Popconfirm>
       ),
     },
@@ -141,7 +141,7 @@ export const MaintenanceCompletionDrawer = ({
         <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
           <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>
           <Button key="submit" type="primary" onClick={handleSubmit} loading={loading} disabled={loading || usedPartsCount === 0}>
-            <CheckCircleOutlined /> Mark as Completed
+            <Icon icon="si:check-circle" /> Mark as Completed
           </Button>
         </Space>
       }
@@ -180,55 +180,13 @@ export const MaintenanceCompletionDrawer = ({
           <Text strong>Parts Used ({usedPartsCount} items)</Text>
           <Button
             type="dashed"
-            icon={showPartSelection ? <CloseOutlined /> : <PlusOutlined />}
+            icon={showPartSelection ? <Icon icon="si:x" /> : <Icon icon="si:plus" />}
             onClick={() => setShowPartSelection(!showPartSelection)}
             size="small"
           >
             {showPartSelection ? 'Cancel Add Part' : 'Add Part'}
           </Button>
         </Space>
-
-        {showPartSelection && (
-          <Row gutter={8} style={{ marginBottom: 16 }}>
-            <Col span={14}>
-              <Select
-                showSearch
-                placeholder="Search for a part by name or SKU"
-                filterOption={(input, option) => String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())}
-                value={selectedPartId}
-                onChange={(value) => setSelectedPartId(value)}
-                loading={isLoadingInventory}
-                style={{ width: '100%' }}
-              >
-                {(inventoryItems || []).map(item => (
-                  <Option key={item.id} value={item.id} label={`${item.name} (${item.sku})`}>
-                    {item.name} ({item.sku}) - <span style={{ color: '#888' }}>{item.quantity_on_hand} in stock</span>
-                  </Option>
-                ))}
-              </Select>
-            </Col>
-            <Col span={6}>
-              <InputNumber
-                style={{ width: '100%' }}
-                placeholder="Qty"
-                min={1}
-                value={selectedPartQuantity}
-                onChange={(value) => setSelectedPartQuantity(value || undefined)}
-              />
-            </Col>
-            <Col span={4}>
-              <Button
-                type="primary"
-                icon={<PlusOutlined />}
-                onClick={handleConfirmAddPart}
-                disabled={!selectedPartId || !selectedPartQuantity || selectedPartQuantity <= 0 || loading}
-                style={{ width: '100%' }}
-              >
-                Add
-              </Button>
-            </Col>
-          </Row>
-        )}
 
         {isLoadingInventory ? <Spin /> : (
           <Table

@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { Button, Typography, Space, Skeleton, Row, Col, Segmented, Input } from "antd";
-import { PlusOutlined, AppstoreOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { LocationFormDialog } from "@/components/LocationFormDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -103,13 +103,13 @@ const LocationsPage = () => {
       />
       <Segmented
         options={[
-          { value: 'card', icon: <AppstoreOutlined /> },
-          { value: 'list', icon: <UnorderedListOutlined /> },
+          { value: 'card', icon: <Icon icon="si:grid" /> },
+          { value: 'list', icon: <Icon icon="si:list" /> },
         ]}
         value={view}
         onChange={(value) => setView(value as 'card' | 'list')}
       />
-      <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingLocation(null); setIsDialogOpen(true); }}>
+      <Button type="primary" icon={<Icon icon="si:plus" />} onClick={() => { setEditingLocation(null); setIsDialogOpen(true); }}>
         Add Location
       </Button>
     </Space>

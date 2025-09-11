@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Descriptions, Select, DatePicker, Avatar, Tag, Typography, theme } from 'antd';
-import { CalendarOutlined, ToolOutlined, PhoneOutlined } from '@ant-design/icons';
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import dayjs from 'dayjs';
 import { WorkOrder, Technician, Location } from '@/types/supabase';
 
@@ -84,7 +84,7 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
             {channelOptions.map(c => <Option key={c} value={c}>{c}</Option>)}
           </Select>
         </Descriptions.Item>
-        <Descriptions.Item label={<><CalendarOutlined /> SLA Due</>}>
+        <Descriptions.Item label={<><Icon icon="si:calendar" /> SLA Due</>}>
           <DatePicker
             showTime
             value={workOrder.slaDue ? dayjs(workOrder.slaDue) : null}
@@ -102,7 +102,7 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
             style={{ width: '100%' }}
           />
         </Descriptions.Item>
-        <Descriptions.Item label={<><ToolOutlined /> Assigned To</>}>
+        <Descriptions.Item label={<><Icon icon="si:wrench" /> Assigned To</>}>
           <Select
             value={workOrder.assignedTechnicianId}
             onChange={(value) => handleUpdateWorkOrder({ assignedTechnicianId: value })}
@@ -123,7 +123,7 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
           </Select>
         </Descriptions.Item>
         {technician && (
-          <Descriptions.Item label={<><PhoneOutlined /> Tech Phone</>}>
+          <Descriptions.Item label={<><Icon icon="si:phone" /> Tech Phone</>}>
             <a href={`tel:${technician.phone}`}>{technician.phone || 'N/A'}</a>
           </Descriptions.Item>
         )}

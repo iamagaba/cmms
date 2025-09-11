@@ -6,7 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Location, Technician, WorkOrder } from '@/types/supabase';
 import { MapboxDisplayMap } from '@/components/MapboxDisplayMap'; // Import the new Mapbox map component
 import mapboxgl from 'mapbox-gl'; // Import mapboxgl for types
-import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 const { Title, Text } = Typography;
 

@@ -3,7 +3,7 @@ import { Row, Col, Typography, Segmented, Badge, Space, Skeleton, Tabs } from "a
 import KpiCard from "@/components/KpiCard";
 import TechnicianStatusList from "@/components/TechnicianStatusList";
 import WorkOrderKanban from "@/components/WorkOrderKanban";
-import { CheckCircleOutlined, ClockCircleOutlined, ExclamationCircleOutlined, ToolOutlined } from "@ant-design/icons";
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import UrgentWorkOrders from "@/components/UrgentWorkOrders";
 import { showSuccess, showInfo, showError } from "@/utils/toast";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
@@ -367,10 +367,10 @@ const Dashboard = () => {
   const overviewTab = (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
       <Row gutter={[16, 16]}>
-        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Total Work Orders" value={kpiData.totalOrders.toString()} icon={<ToolOutlined />} trend={kpiData.totalOrdersTrend.trend} trendDirection={kpiData.totalOrdersTrend.trendDirection} /></Col>
-        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Open Work Orders" value={kpiData.openOrders.toString()} icon={<ExclamationCircleOutlined />} isUpGood={false} trend={kpiData.openOrdersTrend.trend} trendDirection={kpiData.openOrdersTrend.trendDirection} /></Col>
-        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="SLA Performance" value={`${kpiData.slaPerformance}%`} icon={<CheckCircleOutlined />} trend={kpiData.slaTrend.trend} trendDirection={kpiData.slaTrend.trendDirection} /></Col>
-        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Avg. Completion Time" value={`${kpiData.avgCompletionTime} Days`} icon={<ClockCircleOutlined />} isUpGood={false} trend={kpiData.avgCompletionTimeTrend.trend} trendDirection={kpiData.avgCompletionTimeTrend.trendDirection} /></Col>
+        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Total Work Orders" value={kpiData.totalOrders.toString()} icon={<Icon icon="si:wrench" />} trend={kpiData.totalOrdersTrend.trend} trendDirection={kpiData.totalOrdersTrend.trendDirection} /></Col>
+        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Open Work Orders" value={kpiData.openOrders.toString()} icon={<Icon icon="si:alert-circle" />} isUpGood={false} trend={kpiData.openOrdersTrend.trend} trendDirection={kpiData.openOrdersTrend.trendDirection} /></Col>
+        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="SLA Performance" value={`${kpiData.slaPerformance}%`} icon={<Icon icon="si:check-circle" />} trend={kpiData.slaTrend.trend} trendDirection={kpiData.slaTrend.trendDirection} /></Col>
+        <Col xs={24} sm={12} md={12} lg={6}><KpiCard title="Avg. Completion Time" value={`${kpiData.avgCompletionTime} Days`} icon={<Icon icon="si:clock" />} isUpGood={false} trend={kpiData.avgCompletionTimeTrend.trend} trendDirection={kpiData.avgCompletionTimeTrend.trendDirection} /></Col>
       </Row>
       <Row gutter={[16, 16]} align="stretch">
         <Col xs={24} xl={16}>

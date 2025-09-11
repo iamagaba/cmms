@@ -1,6 +1,6 @@
 import React from "react";
 import { Row, Col, Typography, Space, Input } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 
 const { Title } = Typography;
 
@@ -23,7 +23,7 @@ const PageHeader = ({ title, actions, onSearch, onSearchChange, hideSearch = fal
           {!hideSearch && (
             <Input
               placeholder="Search..."
-              prefix={<SearchOutlined />}
+              prefix={<Icon icon="si:search" />}
               style={{ width: 250 }}
               onPressEnter={(e) => onSearch && onSearch(e.currentTarget.value)}
               onChange={onSearchChange}

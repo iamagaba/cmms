@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Descriptions, Select, Button, Empty, Typography, Space } from 'antd';
-import { EnvironmentOutlined, CompassOutlined } from '@ant-design/icons';
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { WorkOrder, Location } from '@/types/supabase';
 import { MapboxLocationSearchInput } from '@/components/MapboxLocationSearchInput';
 import { MapboxDisplayMap } from '@/components/MapboxDisplayMap';
@@ -53,7 +53,7 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
   return (
     <Card title="Location Details">
       <Descriptions column={1}>
-        <Descriptions.Item label={<><EnvironmentOutlined /> Service Location</>}>
+        <Descriptions.Item label={<><Icon icon="si:map-pin" /> Service Location</>}>
           <Select
             value={workOrder.locationId}
             onChange={(value) => handleUpdateWorkOrder({ locationId: value })}
@@ -106,7 +106,7 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
               ) : (
                 <Empty description="No map preview available" image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ zIndex: 1 }} />
               )}
-              <Button type="primary" icon={<CompassOutlined />} style={{ zIndex: 1 }}>
+              <Button type="primary" icon={<Icon icon="si:compass" />} style={{ zIndex: 1 }}>
                 View Interactive Map
               </Button>
             </div>

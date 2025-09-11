@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Button, Table, Popconfirm, Empty, Typography } from 'antd';
-import { PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { WorkOrder, WorkOrderPart } from '@/types/supabase';
 import { AddPartToWorkOrderDialog } from '@/components/AddPartToWorkOrderDialog';
 
@@ -38,7 +38,7 @@ export const WorkOrderPartsUsedCard: React.FC<WorkOrderPartsUsedCardProps> = ({
           okText="Yes"
           cancelText="No"
         >
-          <Button type="text" danger icon={<DeleteOutlined />} size="small" />
+          <Button type="text" danger icon={<Icon icon="si:trash" />} size="small" />
         </Popconfirm>
       ),
     },
@@ -49,7 +49,7 @@ export const WorkOrderPartsUsedCard: React.FC<WorkOrderPartsUsedCardProps> = ({
     <Card
       title="Parts Used"
       extra={
-        <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsAddPartDialogOpen(true)}>
+        <Button type="primary" icon={<Icon icon="si:plus" />} onClick={() => setIsAddPartDialogOpen(true)}>
           Add Part
         </Button>
       }

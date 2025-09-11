@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Table, Dropdown, Button, Checkbox, Row, Col, Typography, Card } from "antd"; // Import Card
 import type { TableRowSelection } from 'antd/es/table/interface';
-import { BarsOutlined } from "@ant-design/icons";
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { WorkOrder, Technician, Location, Customer, Vehicle, Profile } from "@/types/supabase";
 import { WorkOrderRow, getColumns } from "./WorkOrderTableColumns";
 import { ResizableTitle } from "./ResizableTitle";
@@ -105,7 +105,7 @@ export function WorkOrderDataTable({
     <Row justify="end" align="middle">
       <Col>
         <Dropdown dropdownRender={() => columnVisibilityMenu} trigger={['click']}>
-          <Button icon={<BarsOutlined />}>Columns</Button>
+          <Button icon={<Icon icon="si:columns" />}>Columns</Button>
         </Dropdown>
       </Col>
     </Row>

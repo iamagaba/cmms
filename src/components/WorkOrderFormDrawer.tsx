@@ -3,7 +3,7 @@ import { Drawer, Form, Input, Select, Button, DatePicker, Col, Row, Typography, 
 import { WorkOrder, Technician, Location, ServiceCategory } from "@/types/supabase";
 import dayjs from 'dayjs';
 import { MapboxLocationSearchInput } from "./MapboxLocationSearchInput";
-import { ExpandOutlined, ShrinkOutlined } from "@ant-design/icons";
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { useSession } from "@/context/SessionContext";
 import { DiagnosticFlowInput } from "./DiagnosticFlowInput"; // Import the new component
 
@@ -117,7 +117,7 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
         {workOrder ? "Edit Work Order" : "Create Work Order"}
       </Typography.Title>
       <Button 
-        icon={isFullScreen ? <ShrinkOutlined /> : <ExpandOutlined />} 
+        icon={isFullScreen ? <Icon icon="si:minimize" /> : <Icon icon="si:maximize" />} 
         onClick={() => setIsFullScreen(!isFullScreen)}
       >
         {isFullScreen ? 'Shrink' : 'Expand'}

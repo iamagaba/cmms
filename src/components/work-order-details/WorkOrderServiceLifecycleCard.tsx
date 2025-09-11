@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, Typography, Space } from 'antd';
-import { MessageOutlined, QuestionCircleOutlined, ToolOutlined } from '@ant-design/icons';
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import dayjs from 'dayjs';
 import { WorkOrder } from '@/types/supabase';
 
@@ -27,7 +27,7 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
           size="small"
           title={
             <Space>
-              <MessageOutlined />
+              <Icon icon="si:message-square" />
               <Text strong>Initial Diagnosis</Text>
               <Text type="secondary" style={{ fontSize: 12 }}>{formatDate(workOrder.createdAt)}</Text>
             </Space>
@@ -50,7 +50,7 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
             size="small"
             title={
               <Space>
-                <QuestionCircleOutlined />
+                <Icon icon="si:help-circle" />
                 <Text strong>Confirmed Issue</Text>
                 <Text type="secondary" style={{ fontSize: 12 }}>{formatDate(workOrder.confirmed_at || workOrder.work_started_at || workOrder.createdAt)}</Text>
               </Space>
@@ -87,7 +87,7 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
           size="small"
           title={
             <Space>
-              <ToolOutlined />
+              <Icon icon="si:wrench" />
               <Text strong>Maintenance Decision</Text>
               <Text type="secondary" style={{ fontSize: 12 }}>{formatDate(workOrder.completedAt)}</Text>
             </Space>

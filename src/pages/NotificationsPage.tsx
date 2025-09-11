@@ -3,7 +3,7 @@ import { Typography, Space, Card, Empty, List, Button, Row, Col } from 'antd';
 import { useNotifications } from '@/context/NotificationsContext';
 import { formatDistanceToNow } from 'date-fns';
 import { Link } from 'react-router-dom';
-import { CheckCircleOutlined } from '@ant-design/icons';
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
 
 const { Text } = Typography;
@@ -21,7 +21,7 @@ const NotificationsPage = () => {
   const pageActions = (
     <Button 
       type="primary" 
-      icon={<CheckCircleOutlined />} 
+      icon={<Icon icon="si:check-circle" />} 
       onClick={markAllAsRead} 
       disabled={unreadCount === 0}
     >

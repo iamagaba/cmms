@@ -1,6 +1,6 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Button, Card, Col, Row, Space, Typography, Descriptions, Skeleton, Table } from "antd";
-import { ArrowLeftOutlined, MailOutlined, PhoneOutlined, EnvironmentOutlined, PlusOutlined } from "@ant-design/icons";
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import NotFound from "./NotFound";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query"; // Import useMutation
 import { supabase } from "@/integrations/supabase/client";
@@ -180,7 +180,7 @@ const CustomerDetailsPage = () => {
   };
 
   const backButton = (
-    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/customers')} />
+    <Button icon={<Icon icon="si:arrow-left" />} onClick={() => navigate('/customers')} />
   );
 
   return (
@@ -191,13 +191,13 @@ const CustomerDetailsPage = () => {
           <Card>
             <Title level={4}>{customer.name}</Title>
             <Descriptions column={1} bordered>
-              <Descriptions.Item label={<MailOutlined />}>
+              <Descriptions.Item label={<Icon icon="si:mail" />}>
                 <a href={`mailto:${customer.email}`}>{customer.email}</a>
               </Descriptions.Item>
-              <Descriptions.Item label={<PhoneOutlined />}>
+              <Descriptions.Item label={<Icon icon="si:phone" />}>
                 <a href={`tel:${customer.phone}`}>{customer.phone || 'N/A'}</a>
               </Descriptions.Item>
-              <Descriptions.Item label={<EnvironmentOutlined />}>
+              <Descriptions.Item label={<Icon icon="si:map-pin" />}>
                 {customer.address || 'N/A'}
                 <br />
                 {customer.city && `${customer.city}, `}{customer.state && `${customer.state} `}{customer.zip_code}

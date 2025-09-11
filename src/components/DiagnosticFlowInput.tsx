@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Button, Radio, Space, Typography, List, Card, Empty, Row, Col } from 'antd';
-import { ArrowLeftOutlined, RedoOutlined } from '@ant-design/icons';
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 
 const { Text, Title, Paragraph } = Typography;
 
@@ -152,7 +152,7 @@ export const DiagnosticFlowInput: React.FC<DiagnosticFlowInputProps> = ({ onDiag
       extra={
         <Space>
           <Button
-            icon={<ArrowLeftOutlined />}
+            icon={<Icon icon="si:arrow-left" />}
             onClick={handleBack}
             disabled={flowHistory.length === 0 || isFlowEnded}
             size="small"
@@ -160,7 +160,7 @@ export const DiagnosticFlowInput: React.FC<DiagnosticFlowInputProps> = ({ onDiag
             Back
           </Button>
           <Button
-            icon={<RedoOutlined />}
+            icon={<Icon icon="si:refresh-cw" />}
             onClick={handleReset}
             disabled={currentQuestionId === 'start' && answeredOptions.length === 0}
             size="small"

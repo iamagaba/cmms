@@ -1,5 +1,5 @@
 import { Card, List, Tag, Typography, Space, Avatar, Empty } from 'antd';
-import { WarningOutlined, UserOutlined } from '@ant-design/icons';
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { WorkOrder, Technician } from '@/types/supabase';
 import { Link } from 'react-router-dom';
 import { formatDistanceToNow, isPast } from 'date-fns';
@@ -25,7 +25,7 @@ const UrgentWorkOrders = ({ workOrders, technicians }: UrgentWorkOrdersProps) =>
 
   const cardTitle = (
     <Space>
-      <WarningOutlined style={{ color: '#faad14' }} />
+      <Icon icon="si:alert-triangle" style={{ color: '#faad14' }} />
       <Text>Urgent Work Orders</Text>
     </Space>
   );
@@ -56,7 +56,7 @@ const UrgentWorkOrders = ({ workOrders, technicians }: UrgentWorkOrdersProps) =>
                   <Space>
                     {technician ? (
                       <>
-                        <Avatar size="small" src={technician.avatar || undefined} icon={<UserOutlined />} />
+                        <Avatar size="small" src={technician.avatar || undefined} icon={<Icon icon="si:user" />} />
                         <Text type="secondary">{technician.name}</Text>
                       </>
                     ) : (

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button, Typography, Space, Skeleton, Input, Row, Col } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { InventoryDataTable } from "@/components/InventoryDataTable";
 import { InventoryItemFormDialog } from "@/components/InventoryItemFormDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -76,7 +76,7 @@ const InventoryPage = () => {
         style={{ width: 250 }}
         allowClear
       />
-      <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingItem(null); setIsDialogOpen(true); }}>
+      <Button type="primary" icon={<Icon icon="si:plus" />} onClick={() => { setEditingItem(null); setIsDialogOpen(true); }}>
         Add Item
       </Button>
     </Space>

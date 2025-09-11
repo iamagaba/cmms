@@ -26,6 +26,7 @@ import { WorkOrderActivityLogCard } from "@/components/work-order-details/WorkOr
 import { WorkOrderLocationMapCard } from "@/components/work-order-details/WorkOrderLocationMapCard.tsx";
 import { IssueConfirmationDialog } from "@/components/IssueConfirmationDialog.tsx";
 import { MaintenanceCompletionDrawer } from "@/components/MaintenanceCompletionDrawer.tsx";
+import { WorkOrderAppointmentCard } from "@/components/work-order-details/WorkOrderAppointmentCard.tsx"; // New import
 
 // New Emergency Bike components
 import { EmergencyBikeAssignmentDialog } from "@/components/EmergencyBikeAssignmentDialog.tsx";
@@ -333,6 +334,13 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
                     allLocations={allLocations || []}
                     handleUpdateWorkOrder={handleUpdateWorkOrder}
                   />
+                  {workOrder.appointmentDate && (
+                    <WorkOrderAppointmentCard
+                      workOrder={workOrder}
+                      technician={technician}
+                      location={location}
+                    />
+                  )}
                   <WorkOrderCustomerVehicleCard workOrder={workOrder} customer={customer} vehicle={vehicle} />
                 </Space>
               </TabPane>
@@ -428,6 +436,13 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
                     allLocations={allLocations || []}
                     handleUpdateWorkOrder={handleUpdateWorkOrder}
                   />
+                  {workOrder.appointmentDate && (
+                    <WorkOrderAppointmentCard
+                      workOrder={workOrder}
+                      technician={technician}
+                      location={location}
+                    />
+                  )}
                   <WorkOrderCustomerVehicleCard workOrder={workOrder} customer={customer} vehicle={vehicle} />
                   <WorkOrderLocationMapCard
                     workOrder={workOrder}

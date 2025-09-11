@@ -1,0 +1,44 @@
+import React from 'react';
+import { Card, Descriptions, Typography, Space } from 'antd';
+import { CalendarOutlined, UserOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import dayjs from 'dayjs';
+import { WorkOrder, Technician, Location } from '@/types/supabase';
+import { Link } from 'react-router-dom';
+
+const { Text } = Typography;
+
+interface WorkOrderAppointmentCardProps {
+  workOrder: WorkOrder;
+  technician: Technician | null;
+  location: Location | null;
+}
+
+export const WorkOrderAppointmentCard: React.FC<WorkOrderAppointmentCardProps> = ({ workOrder, technician, location }) => {
+  if (!workOrder.appointmentDate) {
+    return null; // Only show this card if an appointment date is set
+  }
+
+  return (
+    <Card title="Appointment Details">
+      <Descriptions column={1} bordered>
+        <Descriptions.Item label={<><CalendarOutlined /> Date & Time</>} labelStyle={{ width: '150px' }}>
+          <Text strong>{dayjs(workOrder.appointmentDate).format('MMM D, YYYY h:mm A')}</Text>
+        </Descriptions.Item>
+        <Descriptions.Item label={<><UserOutlined /> Assigned Technician</>} labelStyle={{ width: '150px' }}>
+          {technician ? (
+            <Link to={`/technicians/${technician.id}`}>{technician.name}</Link>
+          ) : (
+            <Text type="secondary">Unassigned</Text>
+          )}
+        </Descriptions.Item>
+        <Descriptions.Item label={<><EnvironmentOutlined /> Service Location</>} labelStyle={{ width: '150px' }}>
+          {location ? (
+            <Link to={`/locations/${location.id}`}>{location.name.replace(' Service Center', '')}</Link>
+          ) : (
+            <Text type="secondary">N/A</Text>
+          )}
+        </Descriptions.Item>
+      </Descriptions>
+    </Card>
+  );
+};

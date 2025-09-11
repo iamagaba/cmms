@@ -223,24 +223,37 @@ body {
 
 /* Custom CSS for WorkOrderServiceLifecycleCard Timeline */
 .ant-timeline.ant-timeline-left {
-  padding-left: 0 !important; /* Remove default left padding */
+  padding-left: 0 !important; /* Remove default left padding of the timeline container */
 }
 
-.ant-timeline-left .ant-timeline-item-content {
-  margin-left: 20px !important; /* Adjust content margin to be closer to the line */
+.ant-timeline-item-left {
+  /* This is the container for the timestamp */
+  width: 100px !important; /* Fixed width for the timestamp area */
+  left: 0 !important; /* Position it at the very left of the timeline item */
+  transform: translateX(0) !important; /* Remove any default transforms */
 }
 
-.ant-timeline-left .ant-timeline-item-label {
-  width: auto !important; /* Allow label to take natural width */
-  right: calc(100% + 10px) !important; /* Position label to the left of the content, with a small gap */
-  text-align: right !important; /* Align label text to the right */
-  padding-right: 10px; /* Add some padding to the right of the label */
-}
-
-.ant-timeline-item-head {
-  left: -4px !important; /* Adjust head position to align with the line */
+.ant-timeline-item-label {
+  /* The timestamp text itself */
+  width: 100% !important; /* Take full width of its container */
+  text-align: right !important; /* Align text to the right */
+  padding-right: 10px; /* Space between timestamp and line */
+  left: 0 !important; /* Ensure it starts from the left of its container */
+  right: auto !important; /* Override default right positioning */
 }
 
 .ant-timeline-item-tail {
-  left: 0px !important; /* Align the line to the very left */
+  /* The vertical line */
+  left: 100px !important; /* Position the line after the timestamp area */
+}
+
+.ant-timeline-item-head {
+  /* The dot/icon */
+  left: 100px !important; /* Position the dot after the timestamp area */
+  margin-left: -4px !important; /* Center the dot on the line */
+}
+
+.ant-timeline-item-content {
+  /* The content (inner Card) */
+  margin-left: 116px !important; /* Start content after timestamp area + line + small gap */
 }

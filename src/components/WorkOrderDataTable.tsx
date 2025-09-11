@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Table, Dropdown, Button, Checkbox, Row, Col, Typography } from "antd";
+import { Table, Dropdown, Button, Checkbox, Row, Col, Typography, Card } from "antd"; // Import Card
 import type { TableRowSelection } from 'antd/es/table/interface';
 import { BarsOutlined } from "@ant-design/icons";
 import { WorkOrder, Technician, Location, Customer, Vehicle, Profile } from "@/types/supabase";
@@ -91,14 +91,14 @@ export function WorkOrderDataTable({
   });
 
   const columnVisibilityMenu = (
-    <div style={{ padding: 8, backgroundColor: 'white', boxShadow: '0 2px 8px rgba(0, 0, 0, 0.15)', borderRadius: '4px' }}>
+    <Card size="small" style={{ width: 200 }}> {/* Wrap in Card */}
       <Checkbox.Group
         style={{ display: 'flex', flexDirection: 'column' }}
         options={ALL_COLUMNS}
         value={visibleColumns}
         onChange={(checkedValues) => onVisibleColumnsChange(checkedValues as string[])}
       />
-    </div>
+    </Card>
   );
 
   const tableTitle = () => (

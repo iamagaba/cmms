@@ -2,11 +2,10 @@ import React, { useState, FormEvent } from "react";
 import { Eye, EyeOff, Mail, Lock, Loader2 } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useSystemSettings } from '@/context/SystemSettingsContext';
-import { Spin } from 'antd';
+import { Spin, Input, Button } from 'antd'; // Import Input and Button from antd
 import { showError } from "@/utils/toast";
 
 export default function Login() {
-  const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -55,17 +54,14 @@ export default function Login() {
             <label className="mb-2 block text-base font-medium text-gray-700">
               Email address
             </label>
-            <div className="relative">
-              <Mail className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-              <input
-                type="email"
-                placeholder="Your email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full rounded-md border border-gray-300 pl-12 pr-4 py-3 text-base focus:border-purple-600 focus:outline-none focus:ring-1 focus:ring-purple-600"
-              />
-            </div>
+            <Input
+              prefix={<Mail className="h-5 w-5 text-gray-400" />}
+              placeholder="Your email address"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              size="large" // Use Ant Design size prop
+            />
           </div>
 
           {/* Password */}
@@ -78,35 +74,28 @@ export default function Login() {
                 Forgot password?
               </a>
             </div>
-            <div className="relative">
-              <Lock className="absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-              <input
-                type={showPassword ? "text" : "password"}
-                placeholder="Your password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full rounded-md border border-gray-300 pl-12 pr-12 py-3 text-base focus:border-purple-600 focus:outline-none focus:ring-1 focus:ring-purple-600"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
-              >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </button>
-            </div>
+            <Input.Password
+              prefix={<Lock className="h-5 w-5 text-gray-400" />}
+              placeholder="Your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              size="large" // Use Ant Design size prop
+              iconRender={(visible) => (visible ? <Eye size={20} /> : <EyeOff size={20} />)}
+            />
           </div>
 
           {/* Submit */}
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-md bg-purple-700 px-4 py-3 text-base font-semibold text-white hover:bg-purple-800 focus:outline-none focus:ring-2 focus:ring-purple-500 disabled:bg-purple-400 flex items-center justify-center"
+          <Button
+            type="primary"
+            htmlType="submit"
+            loading={loading}
+            className="w-full flex items-center justify-center" // Keep Tailwind for flex layout
+            size="large" // Use Ant Design size prop
           >
             {loading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
             Sign in
-          </button>
+          </Button>
         </form>
 
         {/* Sign up */}

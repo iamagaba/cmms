@@ -63,6 +63,7 @@ export interface Profile {
   avatar_url: string | null;
   updated_at: string | null;
   is_admin: boolean | null; // Added is_admin field
+  dashboard_layout?: { id: string; config?: Record<string, any> }[] | null; // Added dashboard_layout
 }
 
 export interface ServiceCategory {

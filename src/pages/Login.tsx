@@ -30,7 +30,7 @@ export default function Login() {
   const Logo = () => (
     <div className="mb-6">
       <div className="h-20 w-20 rounded-full bg-gray-200 flex items-center justify-center mx-auto">
-        {isLoadingSettings ? <Spin size="small" /> : logoUrl ? (
+        {isLoadingSettings ? <Spin /> : logoUrl ? (
           <img src={logoUrl} alt="System Logo" className="h-20 w-20 rounded-full object-cover" />
         ) : (
           <span className="text-sm text-gray-500">Logo</span>

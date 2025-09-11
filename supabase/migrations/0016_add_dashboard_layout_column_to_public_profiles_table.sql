@@ -1,2 +1,0 @@
-ALTER TABLE public.profiles
-ADD COLUMN dashboard_layout JSONB;

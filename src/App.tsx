@@ -8,8 +8,7 @@ import { SessionProvider, useSession } from "./context/SessionContext";
 import { SystemSettingsProvider, useSystemSettings } from "./context/SystemSettingsContext";
 
 // Lazy-loaded page components
-const CustomDashboard = lazy(() => import("./pages/CustomDashboard")); // New customizable dashboard
-const OverviewDashboard = lazy(() => import("./pages/OverviewDashboard")); // Renamed from Dashboard
+const Dashboard = lazy(() => import("./pages/Dashboard"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const TechniciansPage = lazy(() => import("./pages/Technicians"));
 const WorkOrdersPage = lazy(() => import("./pages/WorkOrders"));
@@ -73,8 +72,7 @@ const AppContent = () => {
         <Content className="fade-in main-content">
           <Suspense fallback={suspenseFallback}>
             <Routes>
-              <Route path="/" element={<ProtectedRoute><CustomDashboard /></ProtectedRoute>} /> {/* New default dashboard */}
-              <Route path="/overview-dashboard" element={<ProtectedRoute><OverviewDashboard /></ProtectedRoute>} /> {/* Old dashboard, renamed */}
+              <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
               <Route path="/technicians" element={<ProtectedRoute><TechniciansPage /></ProtectedRoute>} />
               <Route path="/technicians/:id" element={<ProtectedRoute><TechnicianProfilePage /></ProtectedRoute>} />
               <Route path="/work-orders" element={<ProtectedRoute><WorkOrdersPage /></ProtectedRoute>} />

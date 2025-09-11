@@ -64,8 +64,7 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
   };
 
   const menuItems: MenuItem[] = [
-    getItem(<NavLink to="/">My Dashboard</NavLink>, "/", <DashboardOutlined />), // New customizable dashboard
-    getItem(<NavLink to="/overview-dashboard">Overview Dashboard</NavLink>, "/overview-dashboard", <BarChartOutlined />), // Renamed existing dashboard
+    getItem(<NavLink to="/">Dashboard</NavLink>, "/", <DashboardOutlined />),
     getItem(<NavLink to="/work-orders">Work Orders</NavLink>, "/work-orders", <ToolOutlined />),
     { type: 'divider', key: 'main-divider-1' },
     getItem(<NavLink to="/customers">Customers</NavLink>, "/customers", <ContactsOutlined />),
@@ -74,7 +73,7 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
     getItem(<NavLink to="/locations">Locations</NavLink>, "/locations", <EnvironmentOutlined />),
     getItem(<NavLink to="/inventory">Inventory</NavLink>, "/inventory", <ShoppingOutlined />),
     { type: 'divider', key: 'main-divider-2' },
-    getItem(<NavLink to="/analytics">Analytics & Reports</NavLink>, "/analytics", <BarChartOutlined />),
+    getItem(<NavLink to="/analytics">Analytics</NavLink>, "/analytics", <BarChartOutlined />),
     
     {
       type: 'group',

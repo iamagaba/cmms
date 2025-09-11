@@ -21,7 +21,7 @@ import { useSession } from "@/context/SessionContext";
 dayjs.extend(isBetween);
 const { Title } = Typography;
 
-const OverviewDashboard = () => {
+const Dashboard = () => {
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams(); // Corrected initialization
   const [selectedLocation, setSelectedLocation] = useState<string>('all');
@@ -332,7 +332,7 @@ const OverviewDashboard = () => {
   return (
     <>
       <PageHeader
-        title="Overview Dashboard"
+        title="Dashboard"
         hideSearch
         actions={
           <Segmented
@@ -355,4 +355,4 @@ const OverviewDashboard = () => {
   );
 };
 
-export default OverviewDashboard;
+export default Dashboard;

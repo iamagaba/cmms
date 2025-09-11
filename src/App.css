@@ -220,3 +220,18 @@ body {
     display: none !important;
   }
 }
+
+/* Custom styles for Work Order Timeline to reduce left spacing */
+.work-order-timeline.ant-timeline {
+  padding-left: 0; /* Remove default left padding of the timeline container */
+}
+
+.work-order-timeline .ant-timeline-item-label {
+  width: 100px; /* Reduce the fixed width of the label area */
+  text-align: left; /* Ensure text is left-aligned within its reduced width */
+  padding-right: 8px; /* Reduce space between label and dot */
+}
+
+.work-order-timeline .ant-timeline-item-content {
+  padding-left: 24px; /* Adjust padding to bring content closer to the dot */
+}

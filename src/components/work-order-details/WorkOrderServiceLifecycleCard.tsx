@@ -21,7 +21,7 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
 
   return (
     <Card title="Service Information">
-      <Timeline mode="left">
+      <Timeline mode="left" className="work-order-timeline"> {/* Added custom class here */}
         {/* Client Report */}
         <Timeline.Item
           dot={<MessageOutlined />}

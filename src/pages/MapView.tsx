@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Location, Technician, WorkOrder } from '@/types/supabase';
 import { MapboxDisplayMap } from '@/components/MapboxDisplayMap'; // Import the new Mapbox map component
 import mapboxgl from 'mapbox-gl'; // Import mapboxgl for types
+import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
 
 const { Title, Text } = Typography;
 
@@ -94,9 +95,7 @@ const MapViewPage = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 112px)' }}>
-      <Row justify="end" align="middle" style={{ marginBottom: '24px' }}>
-        <Col>{/* Empty column for title, as breadcrumbs handle it */}</Col>
-      </Row>
+      <Breadcrumbs />
       <div style={{ flexGrow: 1, width: '100%' }}>
         <MapboxDisplayMap
           center={mapCenter}

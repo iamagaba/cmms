@@ -14,6 +14,7 @@ import { useSearchParams } from "react-router-dom";
 import WorkOrderProgressTracker from "@/components/WorkOrderProgressTracker";
 import { useSession } from "@/context/SessionContext";
 import { calculateDistance } from "@/utils/geo-helpers";
+import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
 
 // Import new modular components
 import { WorkOrderCustomerVehicleCard } from "@/components/work-order-details/WorkOrderCustomerVehicleCard.tsx";
@@ -251,23 +252,15 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
 
   const usedPartsCount = usedParts?.length || 0;
 
+  const backButton = (
+    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/work-orders')} />
+  );
+
   // --- Main Render Logic ---
   return (
     <>
+      <Breadcrumbs backButton={!isDrawerMode ? backButton : undefined} />
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        {!isDrawerMode && (
-          <Row justify="start" align="middle" style={{ marginBottom: '24px' }}>
-            <Col>
-              <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/work-orders')} />
-            </Col>
-            <Col style={{ marginLeft: '16px' }}>
-              <Title level={4} style={{ margin: 0 }}>
-                Work Order: {workOrder.workOrderNumber}
-              </Title>
-            </Col>
-          </Row>
-        )}
-
         {isDrawerMode ? (
           <>
             <div style={{ marginBottom: 16 }}>

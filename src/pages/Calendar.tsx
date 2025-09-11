@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { WorkOrder, Technician, Vehicle } from '@/types/supabase';
 import WorkOrderDetailsDrawer from '@/components/WorkOrderDetailsDrawer'; // Import the drawer
+import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
 
 const { Text, Title } = Typography;
 
@@ -122,6 +123,9 @@ const CalendarPage = () => {
 
   return (
     <Row gutter={[24, 24]} style={{ height: 'calc(100vh - 112px)' }}> {/* Adjust height to fit within layout */}
+      <Col span={24}>
+        <Breadcrumbs />
+      </Col>
       <Col xs={24} lg={16}> {/* Calendar column */}
         <Card title="Work Order Calendar" style={{ height: '100%' }}>
           <Calendar

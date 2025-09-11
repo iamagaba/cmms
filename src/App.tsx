@@ -110,7 +110,7 @@ const App = () => (
           colorWarning: '#FAAD14',
           colorError: '#FF4D4F',
           colorInfo: '#0052CC',
-          fontFamily: 'Oxygen, sans-serif', // Updated font family here
+          fontFamily: 'Montserrat, sans-serif', // Updated font family here
           colorText: '#1f2937',
           colorTextSecondary: '#6b7280',
           borderRadius: 6,

@@ -300,7 +300,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   const usedPartsCount = usedParts?.length || 0;
 
   const backButton = (
-    <Button icon={<Icon icon="si:arrow-left" />} onClick={() => navigate('/work-orders')} />
+    <Button icon={<Icon icon="ph:arrow-left-fill" />} onClick={() => navigate('/work-orders')} />
   );
 
   const hasActiveEmergencyBike = workOrder.active_emergency_bike_assignment && !workOrder.active_emergency_bike_assignment.returned_at;
@@ -319,7 +319,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
               <WorkOrderProgressTracker workOrder={workOrder} />
             </div>
             <Tabs defaultActiveKey="1" destroyInactiveTabPane={false} onChange={setActiveTabKey}>
-              <TabPane tab={<span><Icon icon="si:info" /> Overview</span>} key="1">
+              <TabPane tab={<span><Icon icon="ph:info-fill" /> Overview</span>} key="1">
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                   <WorkOrderServiceLifecycleCard
                     workOrder={workOrder}
@@ -343,7 +343,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
                   <WorkOrderCustomerVehicleCard workOrder={workOrder} customer={customer} vehicle={vehicle} />
                 </Space>
               </TabPane>
-              <TabPane tab={<span><Icon icon="si:list" /> Parts & Log</span>} key="2">
+              <TabPane tab={<span><Icon icon="ph:list-checks-fill" /> Parts & Log</span>} key="2">
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                   <WorkOrderPartsUsedCard
                     workOrder={workOrder}
@@ -356,7 +356,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
                   <WorkOrderActivityLogCard workOrder={workOrder} profileMap={profileMap} />
                 </Space>
               </TabPane>
-              <TabPane tab={<span><Icon icon="si:compass" /> Location</span>} key="3">
+              <TabPane tab={<span><Icon icon="ph:compass-fill" /> Location</span>} key="3">
                 <Space direction="vertical" size="middle" style={{ width: '100%' }}>
                   <WorkOrderLocationMapCard
                     workOrder={workOrder}
@@ -403,7 +403,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
                     <Card title="Emergency Bike Status">
                       {hasActiveEmergencyBike ? (
                         <Space direction="vertical" style={{ width: '100%' }}>
-                          <Tag color="green" icon={<Icon icon="si:bike" width={14} height={14} />}>Assigned</Tag>
+                          <Tag color="green" icon={<Icon icon="ph:bicycle-fill" width={14} height={14} />}>Assigned</Tag>
                           <Typography.Text strong>Bike: {workOrder.active_emergency_bike_assignment?.vehicles?.license_plate}</Typography.Text>
                           <Typography.Text type="secondary">Assigned on: {dayjs(workOrder.active_emergency_bike_assignment?.assigned_at).format('MMM D, YYYY h:mm A')}</Typography.Text>
                           {workOrder.active_emergency_bike_assignment?.assignment_notes && (
@@ -411,15 +411,15 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
                               Notes: {workOrder.active_emergency_bike_assignment.assignment_notes}
                             </Typography.Paragraph>
                           )}
-                          <Button type="default" icon={<Icon icon="si:bike" width={16} height={16} />} onClick={() => setIsReturnEmergencyBikeDialogOpen(true)} style={{ marginTop: 8 }}>
+                          <Button type="default" icon={<Icon icon="ph:bicycle-fill" width={16} height={16} />} onClick={() => setIsReturnEmergencyBikeDialogOpen(true)} style={{ marginTop: 8 }}>
                             Return Emergency Bike
                           </Button>
                         </Space>
                       ) : workOrder.is_emergency_bike_eligible ? (
                         <Space direction="vertical" style={{ width: '100%' }}>
-                          <Tag color="purple" icon={<Icon icon="si:bike" width={14} height={14} />}>Emergency Bike Needed</Tag>
+                          <Tag color="purple" icon={<Icon icon="ph:bicycle-fill" width={14} height={14} />}>Emergency Bike Needed</Tag>
                           <Typography.Text type="secondary">This work order has been in progress for over {EMERGENCY_BIKE_THRESHOLD_HOURS} hours. Consider assigning an emergency bike.</Typography.Text>
-                          <Button type="primary" icon={<Icon icon="si:bike" width={16} height={16} />} onClick={() => setIsAssignEmergencyBikeDialogOpen(true)} style={{ marginTop: 8 }}>
+                          <Button type="primary" icon={<Icon icon="ph:bicycle-fill" width={16} height={16} />} onClick={() => setIsAssignEmergencyBikeDialogOpen(true)} style={{ marginTop: 8 }}>
                             Assign Emergency Bike
                           </Button>
                         </Space>

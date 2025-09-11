@@ -11,7 +11,7 @@ import { showSuccess, showError, showInfo } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
 import { useSearchParams } from "react-router-dom";
-import PageHeader from "@/components/PageHeader";
+// PageHeader removed
 import WorkOrderProgressTracker from "@/components/WorkOrderProgressTracker";
 import { useSession } from "@/context/SessionContext";
 import { calculateDistance } from "@/utils/geo-helpers";
@@ -257,19 +257,16 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     <>
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
         {!isDrawerMode && (
-          <PageHeader
-            title={
-              <Space align="center">
-                <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/work-orders')}>
-                  Back to Work Orders
-                </Button>
-                <Title level={4} style={{ margin: 0 }}>
-                  Work Order: {workOrder.workOrderNumber}
-                </Title>
-              </Space>
-            }
-            hideSearch
-          />
+          <Row justify="start" align="middle" style={{ marginBottom: '24px' }}>
+            <Col>
+              <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/work-orders')} />
+            </Col>
+            <Col style={{ marginLeft: '16px' }}>
+              <Title level={4} style={{ margin: 0 }}>
+                Work Order: {workOrder.workOrderNumber}
+              </Title>
+            </Col>
+          </Row>
         )}
 
         {isDrawerMode ? (

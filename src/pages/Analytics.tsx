@@ -1,4 +1,4 @@
-import { Row, Col, Card, Typography, Skeleton, DatePicker, Tabs } from 'antd';
+import { Row, Col, Card, Typography, Skeleton, DatePicker, Tabs, Space, Button } from 'antd';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,7 +7,7 @@ import KpiCard from '@/components/KpiCard';
 import { CheckCircleOutlined, ClockCircleOutlined, ToolOutlined, UserOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useState } from 'react';
-import PageHeader from '@/components/PageHeader';
+// PageHeader removed
 import CustomReportGenerator from '@/components/CustomReportGenerator';
 
 const { Title } = Typography;
@@ -135,13 +135,13 @@ const AnalyticsPage = () => {
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <PageHeader
-        title="Analytics & Reports"
-        actions={
+    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
+      <Row justify="space-between" align="middle" style={{ marginBottom: '24px' }}>
+        <Col><Title level={4} style={{ margin: 0 }}>Analytics & Reports</Title></Col>
+        <Col>
           <RangePicker value={dateRange} onChange={(dates) => dates && setDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])} />
-        }
-      />
+        </Col>
+      </Row>
       <Tabs defaultActiveKey="1">
         <TabPane tab="Analytics Dashboard" key="1">
           {dashboardContent}
@@ -150,7 +150,7 @@ const AnalyticsPage = () => {
           {reportsContent}
         </TabPane>
       </Tabs>
-    </div>
+    </Space>
   );
 };
 

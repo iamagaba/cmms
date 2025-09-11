@@ -7,9 +7,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { InventoryItem } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
-import PageHeader from "@/components/PageHeader";
+// PageHeader removed
 
 const { Title } = Typography;
+const { Search } = Input;
 
 const InventoryPage = () => {
   const queryClient = useQueryClient();
@@ -69,16 +70,23 @@ const InventoryPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <PageHeader
-        title="Inventory Management"
-        onSearch={setSearchTerm}
-        onSearchChange={(e) => !e.target.value && setSearchTerm("")}
-        actions={
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingItem(null); setIsDialogOpen(true); }}>
-            Add Item
-          </Button>
-        }
-      />
+      <Row justify="space-between" align="middle" style={{ marginBottom: '24px' }}>
+        <Col><Title level={4} style={{ margin: 0 }}>Inventory Management</Title></Col>
+        <Col>
+          <Space size="middle" align="center">
+            <Search
+              placeholder="Search inventory..."
+              onSearch={setSearchTerm}
+              onChange={(e) => !e.target.value && setSearchTerm("")}
+              style={{ width: 250 }}
+              allowClear
+            />
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingItem(null); setIsDialogOpen(true); }}>
+              Add Item
+            </Button>
+          </Space>
+        </Col>
+      </Row>
       
       {isLoading ? <Skeleton active /> : (
         <InventoryDataTable 

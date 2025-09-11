@@ -7,9 +7,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Customer } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
-import PageHeader from "@/components/PageHeader";
+// PageHeader removed
 
 const { Title } = Typography;
+const { Search } = Input;
 
 const CustomersPage = () => {
   const queryClient = useQueryClient();
@@ -71,16 +72,23 @@ const CustomersPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <PageHeader
-        title="Customer Management"
-        onSearch={setSearchTerm}
-        onSearchChange={(e) => !e.target.value && setSearchTerm("")}
-        actions={
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingCustomer(null); setIsDialogOpen(true); }}>
-            Add Customer
-          </Button>
-        }
-      />
+      <Row justify="space-between" align="middle" style={{ marginBottom: '24px' }}>
+        <Col><Title level={4} style={{ margin: 0 }}>Customer Management</Title></Col>
+        <Col>
+          <Space size="middle" align="center">
+            <Search
+              placeholder="Search customers..."
+              onSearch={setSearchTerm}
+              onChange={(e) => !e.target.value && setSearchTerm("")}
+              style={{ width: 250 }}
+              allowClear
+            />
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingCustomer(null); setIsDialogOpen(true); }}>
+              Add Customer
+            </Button>
+          </Space>
+        </Col>
+      </Row>
       
       {isLoading ? <Skeleton active /> : (
         <CustomerDataTable 

@@ -10,7 +10,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Location, WorkOrder, Technician, Customer, Vehicle, Profile } from "@/types/supabase";
 import { camelToSnakeCase } from "@/utils/data-helpers";
-import PageHeader from "@/components/PageHeader";
+// PageHeader removed
 import dayjs from "dayjs";
 import { useSession } from "@/context/SessionContext";
 import { MapboxDisplayMap } from "@/components/MapboxDisplayMap"; // Import the new Mapbox map component
@@ -126,17 +126,11 @@ const LocationDetailsPage = () => {
   return (
     <>
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <PageHeader
-          title={
-            <Space>
-              <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/locations')}>
-                Back to Locations
-              </Button>
-              <Title level={4} style={{ margin: 0 }}>Location Details</Title>
-            </Space>
-          }
-          hideSearch
-        />
+        <Row justify="start" align="middle" style={{ marginBottom: '24px' }}>
+          <Col>
+            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/locations')} />
+          </Col>
+        </Row>
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={8}>
             <Space direction="vertical" size="middle" style={{ width: '100%' }}>

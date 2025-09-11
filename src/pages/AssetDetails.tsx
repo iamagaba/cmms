@@ -8,7 +8,7 @@ import { Vehicle, Customer, WorkOrder, Technician, Location, Profile, ServiceCat
 import { WorkOrderDataTable, ALL_COLUMNS } from "@/components/WorkOrderDataTable"; // Import ALL_COLUMNS
 import { formatDistanceToNow } from 'date-fns';
 import dayjs from 'dayjs';
-import PageHeader from "@/components/PageHeader";
+// PageHeader removed
 import { CreateWorkOrderDialog } from "@/components/CreateWorkOrderDialog";
 import { WorkOrderFormDrawer } from "@/components/WorkOrderFormDrawer";
 import { useState, useMemo } from "react";
@@ -175,22 +175,11 @@ const AssetDetailsPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <PageHeader
-          title={
-            <Space>
-              <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/assets')}>
-                Back to Assets
-              </Button>
-              <Title level={4} style={{ margin: 0 }}>Asset Details</Title>
-            </Space>
-          }
-          hideSearch
-          actions={
-            <Button type="primary" icon={<PlusOutlined />} onClick={() => setIsCreateDialogOpen(true)}>
-              Create Work Order
-            </Button>
-          }
-        />
+        <Row justify="start" align="middle" style={{ marginBottom: '24px' }}>
+          <Col>
+            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/assets')} />
+          </Col>
+        </Row>
         <Row gutter={[16, 16]}>
             <Col xs={24} md={8}>
                 <Card>

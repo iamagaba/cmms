@@ -14,7 +14,7 @@ import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import CalendarPage from "./Calendar";
 import MapViewPage from "./MapView";
-import PageHeader from "@/components/PageHeader";
+// PageHeader removed
 import { CreateWorkOrderDialog } from "@/components/CreateWorkOrderDialog";
 import dayjs from "dayjs";
 import { useSession } from "@/context/SessionContext";
@@ -203,7 +203,7 @@ const WorkOrdersPage = () => {
     setVisibleColumns(checkedValues);
   };
 
-  const pageHeaderActions = (
+  const pageActions = (
     <Space>
       {view === 'table' && selectedRowKeys.length > 0 && (
         <Dropdown overlay={bulkAssignMenu} disabled={selectedRowKeys.length === 0}>
@@ -270,7 +270,10 @@ const WorkOrdersPage = () => {
   return (
     <>
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <PageHeader title="Work Order Management" hideSearch actions={pageHeaderActions} />
+        <Row justify="space-between" align="middle" style={{ marginBottom: '24px' }}>
+          <Col><Title level={4} style={{ margin: 0 }}>Work Order Management</Title></Col>
+          <Col>{pageActions}</Col>
+        </Row>
         <Collapse><Panel header={<><FilterOutlined /> Filters & View Options</>} key="1"><Row gutter={[16, 16]} align="bottom"><Col xs={24} sm={12} md={6}><Search placeholder="Filter by Vehicle ID..." allowClear onSearch={setVehicleFilter} onChange={(e) => setVehicleFilter(e.target.value)} style={{ width: '100%' }} /></Col><Col xs={24} sm={12} md={4}><Select placeholder="Filter by Status" allowClear style={{ width: '100%' }} onChange={setStatusFilter} value={statusFilter}><Option value="Open">Open</Option><Option value="Confirmation">Confirmation</Option><Option value="Ready">Ready</Option><Option value="In Progress">In Progress</Option><Option value="On Hold">On Hold</Option><Option value="Completed">Completed</Option></Select></Col><Col xs={24} sm={12} md={4}><Select placeholder="Filter by Priority" allowClear style={{ width: '100%' }} onChange={setPriorityFilter} value={priorityFilter}><Option value="High">High</Option><Option value="Medium">Medium</Option><Option value="Low">Low</Option></Select></Col><Col xs={24} sm={12} md={4}><Select placeholder="Filter by Technician" allowClear style={{ width: '100%' }} onChange={setTechnicianFilter} value={technicianFilter}>{(technicians || []).map(t => <Option key={t.id} value={t.id}>{t.name}</Option>)}</Select></Col><Col xs={24} sm={12} md={4}><Select placeholder="Filter by Channel" allowClear style={{ width: '100%' }} onChange={setChannelFilter} value={channelFilter}>{channelOptions.map(c => <Option key={c} value={c}>{c}</Option>)}</Select></Col>{view === 'kanban' && (<Col xs={24} sm={12} md={2}><Select value={groupBy} onChange={(value) => setGroupBy(value as GroupByOption)} style={{ width: '100%' }}><Option value="status">Group by: Status</Option><Option value="priority">Group by: Priority</Option><Option value="technician">Group by: Technician</Option></Select></Col>)}</Row></Panel></Collapse>
         <Tabs defaultActiveKey="table" activeKey={view} onChange={(key) => setView(key as WorkOrderView)} items={tabItems} />
       </Space>

@@ -1,15 +1,18 @@
 import { useState, useMemo } from "react";
-import { Button, Space, Skeleton, Row, Col, Segmented } from "antd";
+import { Button, Typography, Space, Skeleton, Row, Col, Segmented, Input } from "antd";
 import { PlusOutlined, AppstoreOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import { LocationFormDialog } from "@/components/LocationFormDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Location, WorkOrder } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
-import PageHeader from "@/components/PageHeader";
+// PageHeader removed
 import { LocationCard } from "@/components/LocationCard";
 import { LocationDataTable } from "@/components/LocationDataTable";
 import { useNavigate } from "react-router-dom";
+
+const { Title } = Typography;
+const { Search } = Input;
 
 const LocationsPage = () => {
   const queryClient = useQueryClient();
@@ -92,12 +95,17 @@ const LocationsPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <PageHeader
-        title="Location Management"
-        onSearch={setSearchTerm}
-        onSearchChange={(e) => !e.target.value && setSearchTerm("")}
-        actions={
-          <Space>
+      <Row justify="space-between" align="middle" style={{ marginBottom: '24px' }}>
+        <Col><Title level={4} style={{ margin: 0 }}>Location Management</Title></Col>
+        <Col>
+          <Space size="middle" align="center">
+            <Search
+              placeholder="Search locations..."
+              onSearch={setSearchTerm}
+              onChange={(e) => !e.target.value && setSearchTerm("")}
+              style={{ width: 250 }}
+              allowClear
+            />
             <Segmented
               options={[
                 { value: 'card', icon: <AppstoreOutlined /> },
@@ -110,8 +118,8 @@ const LocationsPage = () => {
               Add Location
             </Button>
           </Space>
-        }
-      />
+        </Col>
+      </Row>
       
       {isLoading ? <Skeleton active /> : (
         view === 'card' ? (

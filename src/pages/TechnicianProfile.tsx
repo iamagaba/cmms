@@ -6,7 +6,7 @@ import NotFound from "./NotFound";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Technician, WorkOrder, Location, Vehicle } from "@/types/supabase";
-import PageHeader from "@/components/PageHeader";
+// PageHeader removed
 import { useMemo } from "react";
 
 const { Title, Text } = Typography;
@@ -99,17 +99,11 @@ const TechnicianProfilePage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <PageHeader
-          title={
-            <Space>
-              <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/technicians')}>
-                Back to Technicians
-              </Button>
-              <Title level={4} style={{ margin: 0 }}>Technician Profile</Title>
-            </Space>
-          }
-          hideSearch
-        />
+        <Row justify="start" align="middle" style={{ marginBottom: '24px' }}>
+          <Col>
+            <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/technicians')} />
+          </Col>
+        </Row>
         {performanceMetrics && (
           <Row gutter={[16, 16]}>
             <Col xs={24} sm={12} lg={6}><Card><Statistic title="Completed Jobs" value={performanceMetrics.totalCompleted} prefix={<ToolOutlined />} /></Card></Col>

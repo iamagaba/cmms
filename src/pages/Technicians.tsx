@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Button, Typography, Space, Skeleton, Row, Col, Segmented } from "antd";
+import { Button, Typography, Space, Skeleton, Row, Col, Segmented, Input } from "antd";
 import { PlusOutlined, AppstoreOutlined, UnorderedListOutlined } from "@ant-design/icons";
 import { TechnicianFormDialog } from "@/components/TechnicianFormDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -7,11 +7,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Technician, WorkOrder, Location } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
-import PageHeader from "@/components/PageHeader";
+// PageHeader removed
 import { TechnicianCard, TechnicianCardData } from "@/components/TechnicianCard";
 import { TechnicianDataTable } from "@/components/TechnicianDataTable";
 
 const { Title } = Typography;
+const { Search } = Input;
 
 const TechniciansPage = () => {
   const queryClient = useQueryClient();
@@ -106,12 +107,17 @@ const TechniciansPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <PageHeader
-        title="Technician Management"
-        onSearch={setSearchTerm}
-        onSearchChange={(e) => !e.target.value && setSearchTerm("")}
-        actions={
-          <Space>
+      <Row justify="space-between" align="middle" style={{ marginBottom: '24px' }}>
+        <Col><Title level={4} style={{ margin: 0 }}>Technician Management</Title></Col>
+        <Col>
+          <Space size="middle" align="center">
+            <Search
+              placeholder="Search technicians..."
+              onSearch={setSearchTerm}
+              onChange={(e) => !e.target.value && setSearchTerm("")}
+              style={{ width: 250 }}
+              allowClear
+            />
             <Segmented
               options={[
                 { value: 'card', icon: <AppstoreOutlined /> },
@@ -124,8 +130,8 @@ const TechniciansPage = () => {
               Add Technician
             </Button>
           </Space>
-        }
-      />
+        </Col>
+      </Row>
       
       {isLoading ? <Skeleton active /> : (
         view === 'card' ? (

@@ -10,7 +10,7 @@ import { Technician, WorkOrder, Profile, Location } from '@/types/supabase';
 import { useSession } from '@/context/SessionContext';
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import { useSystemSettings } from '@/context/SystemSettingsContext';
-import PageHeader from '@/components/PageHeader';
+// PageHeader removed
 import { useSearchParams } from 'react-router-dom';
 import ServiceSlaManagement from '@/components/ServiceSlaManagement';
 
@@ -274,7 +274,7 @@ const SettingsPage = () => {
   ];
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <PageHeader title="Settings" hideSearch />
+      <Title level={4} style={{ margin: 0, marginBottom: '24px' }}>Settings</Title>
       <Tabs activeKey={activeTab} onChange={handleTabChange} items={tabItems} />
     </Space>
   );

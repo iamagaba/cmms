@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Typography, Tag, List, Card, Avatar, Skeleton, Empty } from 'antd';
+import { Typography, Tag, List, Card, Avatar, Skeleton, Empty, Row, Col, Space } from 'antd';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -94,7 +94,9 @@ const MapViewPage = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 112px)' }}>
-      <Title level={4} style={{ marginBottom: '24px', flexShrink: 0 }}>Live Operations Map</Title>
+      <Row justify="start" align="middle" style={{ marginBottom: '24px' }}>
+        <Col><Title level={4} style={{ margin: 0 }}>Live Operations Map</Title></Col>
+      </Row>
       <div style={{ flexGrow: 1, width: '100%' }}>
         <MapboxDisplayMap
           center={mapCenter}

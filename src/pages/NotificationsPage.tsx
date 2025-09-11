@@ -1,6 +1,6 @@
 import React from 'react';
-import { Typography, Space, Card, Empty, List, Button } from 'antd';
-import PageHeader from '@/components/PageHeader';
+import { Typography, Space, Card, Empty, List, Button, Row, Col } from 'antd';
+// PageHeader removed
 import { useNotifications } from '@/context/NotificationsContext';
 import { formatDistanceToNow } from 'date-fns';
 import { Link } from 'react-router-dom';
@@ -20,10 +20,9 @@ const NotificationsPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <PageHeader 
-        title="Notifications" 
-        hideSearch 
-        actions={
+      <Row justify="space-between" align="middle" style={{ marginBottom: '24px' }}>
+        <Col><Title level={4} style={{ margin: 0 }}>Notifications</Title></Col>
+        <Col>
           <Button 
             type="primary" 
             icon={<CheckCircleOutlined />} 
@@ -32,8 +31,8 @@ const NotificationsPage = () => {
           >
             Mark All As Read
           </Button>
-        }
-      />
+        </Col>
+      </Row>
       <Card>
         {notifications.length === 0 ? (
           <Empty description="No notifications to display." />

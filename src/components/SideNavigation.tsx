@@ -11,8 +11,8 @@ import {
   CarOutlined,
   ShoppingOutlined,
   ContactsOutlined,
-  FireOutlined,
-  BellOutlined,
+  FireOutlined, // For the logo
+  BellOutlined, // For notifications
   UserOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
@@ -28,11 +28,12 @@ import { Profile } from '@/types/supabase';
 
 const { Sider } = Layout;
 const { Title, Text } = Typography;
-const { SubMenu } = Menu; // Destructure SubMenu
+const { SubMenu } = Menu;
 
 interface SideNavigationProps {
   collapsed: boolean;
   onCollapse: (collapsed: boolean) => void;
+  logoUrl: string | null; // Added logoUrl prop
 }
 
 type MenuItem = Required<MenuProps>['items'][number];
@@ -53,11 +54,12 @@ function getItem(
   } as MenuItem;
 }
 
-const SideNavigation = ({ collapsed, onCollapse }: SideNavigationProps) => {
+const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { session } = useSession();
   const user = session?.user;
+  const { unreadCount } = useNotifications(); // Get unread count
 
   const { data: profile, isLoading: isLoadingProfile } = useQuery<Profile | null>({
     queryKey: ['profile', user?.id],
@@ -81,6 +83,16 @@ const SideNavigation = ({ collapsed, onCollapse }: SideNavigationProps) => {
   };
 
   const menuItems: MenuItem[] = [
+    getItem(
+      <NavLink to="/notifications">
+        <Badge count={unreadCount} size="small" offset={[5, 0]} style={{ backgroundColor: '#6A0DAD' }}>
+          <BellOutlined style={{ fontSize: '20px' }} />
+        </Badge>
+        {!collapsed && <span style={{ marginLeft: 12 }}>Notifications</span>}
+      </NavLink>,
+      "/notifications",
+      <BellOutlined />,
+    ),
     getItem(<NavLink to="/">Dashboard</NavLink>, "/", <DashboardOutlined />),
     getItem(<NavLink to="/work-orders">Work Orders</NavLink>, "/work-orders", <ToolOutlined />),
     { type: 'divider', key: 'main-divider-1' },
@@ -131,14 +143,27 @@ const SideNavigation = ({ collapsed, onCollapse }: SideNavigationProps) => {
         borderRadius: 8,
       }}
     >
-      {/* Removed logo area from here, now in GlobalHeader */}
+      {/* Logo Area */}
+      <NavLink to="/" className="sider-logo-area">
+        {logoUrl ? (
+          <img src={logoUrl} alt="System Logo" style={{ height: '32px' }} />
+        ) : (
+          <FireOutlined style={{ color: '#6A0DAD', fontSize: '28px' }} />
+        )}
+        {!collapsed && (
+          <Typography.Title level={4} style={{ margin: 0, color: '#6A0DAD', whiteSpace: 'nowrap' }}>
+            GOGO Electric
+          </Typography.Title>
+        )}
+      </NavLink>
+
       <Menu
         mode="inline"
         selectedKeys={[selectedKey]}
         items={menuItems}
         className="main-sider-menu"
       >
-        {/* Add the Settings SubMenu */}
+        {/* Settings SubMenu with Logout */}
         <SubMenu key="/settings" icon={<SettingOutlined />} title="Settings">
           <Menu.Item key="/settings?tab=user-management">
             <NavLink to="/settings?tab=user-management">User Management</NavLink>
@@ -151,6 +176,10 @@ const SideNavigation = ({ collapsed, onCollapse }: SideNavigationProps) => {
           </Menu.Item>
           <Menu.Item key="/settings?tab=profile-settings">
             <NavLink to="/settings?tab=profile-settings">My Profile</NavLink>
+          </Menu.Item>
+          <Menu.Divider key="settings-divider" />
+          <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout} danger>
+            Logout
           </Menu.Item>
         </SubMenu>
       </Menu>

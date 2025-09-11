@@ -3,7 +3,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { Layout, App as AntApp, ConfigProvider, theme, Spin } from "antd";
 import SideNavigation from "./components/SideNavigation";
-import GlobalHeader from "./components/GlobalHeader"; // Import GlobalHeader
 import Breadcrumbs from "./components/Breadcrumbs"; // Import Breadcrumbs
 import { NotificationsProvider } from "./context/NotificationsContext";
 import { SessionProvider, useSession } from "./context/SessionContext";
@@ -69,9 +68,9 @@ const AppContent = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <SideNavigation collapsed={collapsed} onCollapse={setCollapsed} /> {/* Removed logoUrl prop */}
+      <SideNavigation collapsed={collapsed} onCollapse={setCollapsed} logoUrl={settings.logo_url} />
       <Layout>
-        <GlobalHeader logoUrl={settings.logo_url} /> {/* Add GlobalHeader */}
+        {/* GlobalHeader removed */}
         <Content className="fade-in main-content">
           <Breadcrumbs /> {/* Add Breadcrumbs */}
           <Suspense fallback={suspenseFallback}>

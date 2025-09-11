@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Typography, Space, Skeleton, Row, Col } from "antd";
+import { Button, Typography, Space, Skeleton, Row, Col, Input } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { AssetDataTable } from "@/components/AssetDataTable";
 import { AssetFormDialog } from "@/components/AssetFormDialog";
@@ -8,19 +8,25 @@ import { supabase } from "@/integrations/supabase/client";
 import { Vehicle, Customer } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
-import PageHeader from "@/components/PageHeader";
+// PageHeader removed
 
 const { Title } = Typography;
+const { Search } = Input;
 
 const AssetsPage = () => {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingVehicle, setEditingVehicle] = useState<Vehicle | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   const { data: vehicles, isLoading: isLoadingVehicles } = useQuery<Vehicle[]>({
-    queryKey: ['vehicles'],
+    queryKey: ['vehicles', searchTerm],
     queryFn: async () => {
-      const { data, error } = await supabase.from('vehicles').select('*');
+      let query = supabase.from('vehicles').select('*');
+      if (searchTerm) {
+        query = query.or(`license_plate.ilike.%${searchTerm}%,make.ilike.%${searchTerm}%,model.ilike.%${searchTerm}%,vin.ilike.%${searchTerm}%`);
+      }
+      const { data, error } = await query.order('license_plate');
       if (error) throw new Error(error.message);
       return data || [];
     }
@@ -78,14 +84,23 @@ const AssetsPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <PageHeader
-        title="Asset Management"
-        actions={
-          <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingVehicle(null); setIsDialogOpen(true); }}>
-            Add Asset
-          </Button>
-        }
-      />
+      <Row justify="space-between" align="middle" style={{ marginBottom: '24px' }}>
+        <Col><Title level={4} style={{ margin: 0 }}>Asset Management</Title></Col>
+        <Col>
+          <Space size="middle" align="center">
+            <Search
+              placeholder="Search assets..."
+              onSearch={setSearchTerm}
+              onChange={(e) => !e.target.value && setSearchTerm("")}
+              style={{ width: 250 }}
+              allowClear
+            />
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => { setEditingVehicle(null); setIsDialogOpen(true); }}>
+              Add Asset
+            </Button>
+          </Space>
+        </Col>
+      </Row>
       
       {isLoading ? <Skeleton active /> : (
         <AssetDataTable 

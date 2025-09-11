@@ -15,11 +15,12 @@ import isBetween from 'dayjs/plugin/isBetween';
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
 import { useSearchParams } from "react-router-dom";
-import PageHeader from "@/components/PageHeader";
+// PageHeader removed
 import { useSession } from "@/context/SessionContext";
 
 dayjs.extend(isBetween);
 const { Title } = Typography;
+const { TabPane } = Tabs;
 
 const Dashboard = () => {
   const queryClient = useQueryClient();
@@ -331,17 +332,16 @@ const Dashboard = () => {
 
   return (
     <>
-      <PageHeader
-        title="Dashboard"
-        hideSearch
-        actions={
+      <Row justify="space-between" align="middle" style={{ marginBottom: '24px' }}>
+        <Col><Title level={4} style={{ margin: 0 }}>Dashboard</Title></Col>
+        <Col>
           <Segmented
             options={locationOptions}
             value={selectedLocation}
             onChange={(value) => setSelectedLocation(value as string)}
           />
-        }
-      />
+        </Col>
+      </Row>
       <Tabs defaultActiveKey="1" items={tabItems} />
       {onHoldWorkOrder && (
         <OnHoldReasonDialog

@@ -39,6 +39,7 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
           slaDue: workOrder.slaDue ? dayjs(workOrder.slaDue) : null,
           appointmentDate: workOrder.appointmentDate ? dayjs(workOrder.appointmentDate) : null,
           customerAddress: workOrder.customerAddress,
+          clientReport: workOrder.clientReport, // Populate new field
         });
         if (workOrder.customerLat && workOrder.customerLng) {
           setClientLocation({ lat: workOrder.customerLat, lng: workOrder.customerLng });
@@ -84,6 +85,8 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
         customerAddress: clientAddress,
         activityLog: workOrder?.activityLog || [{ timestamp: new Date().toISOString(), activity: 'Work order created.', userId: session?.user.id ?? null }],
         partsUsed: workOrder?.partsUsed || [],
+        clientReport: values.clientReport, // Map to new field
+        service: values.clientReport, // Keep for backward compatibility with old 'service' column
       };
       
       if (workOrder?.id) {
@@ -141,7 +144,7 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
           <Col xs={24} md={12}><Form.Item name="customerPhone" label="Customer Phone"><Input disabled /></Form.Item></Col>
           
           <Col span={24} style={{ marginTop: 24 }}><Text strong>Service Details</Text></Col>
-          <Col span={24}><Form.Item name="service" label="Service Description" rules={[{ required: true }]}><TextArea rows={2} /></Form.Item></Col>
+          <Col span={24}><Form.Item name="clientReport" label="Client Report" rules={[{ required: true }]}><TextArea rows={2} placeholder="What did the client initially report?" /></Form.Item></Col>
           <Col span={24}><Form.Item name="service_category_id" label="Service Category" rules={[{ required: true }]}><Select showSearch placeholder="Select a service category">{serviceCategories.map(sc => <Option key={sc.id} value={sc.id}>{sc.name}</Option>)}</Select></Form.Item></Col>
           <Col xs={24} md={8}><Form.Item name="status" label="Status" rules={[{ required: true }]}><Select><Option value="Open">Open</Option><Option value="Confirmation">Confirmation</Option><Option value="Ready">Ready</Option><Option value="In Progress">In Progress</Option><Option value="On Hold">On Hold</Option><Option value="Completed">Completed</Option></Select></Form.Item></Col>
           <Col xs={24} md={8}><Form.Item name="priority" label="Priority" rules={[{ required: true }]}><Select><Option value="High">High</Option><Option value="Medium">Medium</Option><Option value="Low">Low</Option></Select></Form.Item></Col>

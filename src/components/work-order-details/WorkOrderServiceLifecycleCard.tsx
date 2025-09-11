@@ -16,20 +16,30 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
   return (
     <Card title="Service Information">
       <Descriptions column={1} bordered size="small">
+        {/* Client Report Section */}
         <Descriptions.Item label={<Text strong>Client Report</Text>}>
           <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ clientReport: value }) }} style={{ margin: 0 }}>
             {workOrder.clientReport || <Text type="secondary">No client report provided.</Text>}
           </Paragraph>
         </Descriptions.Item>
 
+        {/* Confirmed Issue Section (Conditional) */}
         {!isServiceCenterChannel && (
           <Descriptions.Item label={<Text strong>Confirmed Issue</Text>}>
-            <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ issueType: value }) }} style={{ margin: 0 }}>
-              {workOrder.issueType || <Text type="secondary">No issue confirmed yet.</Text>}
-            </Paragraph>
+            <Space direction="vertical" style={{ width: '100%' }}>
+              <Text strong>Issue Type:</Text>
+              <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ issueType: value }) }} style={{ margin: 0 }}>
+                {workOrder.issueType || <Text type="secondary">No issue confirmed yet.</Text>}
+              </Paragraph>
+              <Text strong>Confirmation Notes:</Text>
+              <Paragraph editable={{ onChange: (value) => handleUpdateWorkOrder({ serviceNotes: value }) }} type="secondary" style={{ margin: 0 }}>
+                {workOrder.serviceNotes || <Text type="secondary">No confirmation notes recorded.</Text>}
+              </Paragraph>
+            </Space>
           </Descriptions.Item>
         )}
 
+        {/* Maintenance Decision Section */}
         <Descriptions.Item label={<Text strong>Maintenance Decision</Text>}>
           <Space direction="vertical" style={{ width: '100%' }}>
             <Text strong>Fault Code:</Text>

@@ -120,6 +120,7 @@ export interface WorkOrder {
   issueType: string | null;
   faultCode: string | null;
   maintenanceNotes: string | null;
+  last_sla_notification_at?: string | null; // Added for SLA monitoring
 }
 
 export interface InventoryItem {

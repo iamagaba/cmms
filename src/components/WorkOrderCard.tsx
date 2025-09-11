@@ -66,7 +66,7 @@ const WorkOrderCard = ({ order, technician, vehicle, onUpdateWorkOrder, onViewDe
       {/* Body: Vehicle and Service */}
       <div>
         <Title level={5} style={{ margin: 0, lineHeight: 1.2, fontSize: '14px' }}>
-          {vehicle ? `${vehicle.make} ${vehicle.model}` : 'N/A'}
+          {vehicle ? `${vehicle.make} ${vehicle.license_plate}` : 'N/A'} {/* Changed to license_plate and removed model */}
         </Title>
         <Paragraph 
           style={{ fontSize: '12px', margin: '2px 0 0 0' }}

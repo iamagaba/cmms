@@ -79,7 +79,7 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ actions, backButton }) => {
     const items: any[] = [
       {
         href: '/',
-        title: <Icon icon="si:home" />,
+        title: <Icon icon="ph:house-fill" />,
       },
     ];
 
@@ -91,36 +91,36 @@ const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ actions, backButton }) => {
       let icon: React.ReactNode | null = null;
 
       // Determine icon based on path segment
-      if (name === 'work-orders') icon = <Icon icon="si:wrench" />;
-      else if (name === 'technicians') icon = <Icon icon="si:users" />;
-      else if (name === 'locations') icon = <Icon icon="si:map-pin" />;
-      else if (name === 'assets') icon = <Icon icon="si:car" />;
-      else if (name === 'customers') icon = <Icon icon="si:address-book" />;
-      else if (name === 'inventory') icon = <Icon icon="si:shopping-bag" />;
-      else if (name === 'analytics') icon = <Icon icon="si:bar-chart" />;
-      else if (name === 'settings') icon = <Icon icon="si:settings" />;
-      else if (name === 'notifications') icon = <Icon icon="si:bell" />;
-      else if (name === 'calendar') icon = <Icon icon="si:calendar" />; // Added for calendar
-      else if (name === 'map-view') icon = <Icon icon="si:map" />; // Added for map-view
+      if (name === 'work-orders') icon = <Icon icon="ph:wrench-fill" />;
+      else if (name === 'technicians') icon = <Icon icon="ph:users-fill" />;
+      else if (name === 'locations') icon = <Icon icon="ph:map-pin-fill" />;
+      else if (name === 'assets') icon = <Icon icon="ph:car-fill" />;
+      else if (name === 'customers') icon = <Icon icon="ph:address-book-fill" />;
+      else if (name === 'inventory') icon = <Icon icon="ph:shopping-bag-fill" />;
+      else if (name === 'analytics') icon = <Icon icon="ph:chart-bar-fill" />;
+      else if (name === 'settings') icon = <Icon icon="ph:gear-fill" />;
+      else if (name === 'notifications') icon = <Icon icon="ph:bell-fill" />;
+      else if (name === 'calendar') icon = <Icon icon="ph:calendar-fill" />; // Added for calendar
+      else if (name === 'map-view') icon = <Icon icon="ph:map-fill" />; // Added for map-view
       // Add more conditions for other top-level routes if needed
 
       // Handle dynamic segments
       if (params.id && name === params.id) {
         if (location.pathname.startsWith('/work-orders/')) {
           breadcrumbName = isLoadingWorkOrder ? <Skeleton.Input active size="small" style={{ width: 100 }} /> : (workOrder?.workOrderNumber || 'Details');
-          icon = <Icon icon="si:wrench" />;
+          icon = <Icon icon="ph:wrench-fill" />;
         } else if (location.pathname.startsWith('/technicians/')) {
           breadcrumbName = isLoadingTechnician ? <Skeleton.Input active size="small" style={{ width: 100 }} /> : (technician?.name || 'Details');
-          icon = <Icon icon="si:users" />;
+          icon = <Icon icon="ph:users-fill" />;
         } else if (location.pathname.startsWith('/assets/')) {
           breadcrumbName = isLoadingAsset ? <Skeleton.Input active size="small" style={{ width: 100 }} /> : (asset?.license_plate || 'Details');
-          icon = <Icon icon="si:car" />;
+          icon = <Icon icon="ph:car-fill" />;
         } else if (location.pathname.startsWith('/customers/')) {
           breadcrumbName = isLoadingCustomer ? <Skeleton.Input active size="small" style={{ width: 100 }} /> : (customer?.name || 'Details');
-          icon = <Icon icon="si:address-book" />;
+          icon = <Icon icon="ph:address-book-fill" />;
         } else if (location.pathname.startsWith('/locations/')) {
           breadcrumbName = isLoadingLoc ? <Skeleton.Input active size="small" style={{ width: 100 }} /> : (loc?.name || 'Details');
-          icon = <Icon icon="si:map-pin" />;
+          icon = <Icon icon="ph:map-pin-fill" />;
         } else {
           breadcrumbName = 'Details'; // Fallback for other dynamic IDs
         }

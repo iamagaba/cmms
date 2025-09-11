@@ -374,7 +374,7 @@ const Dashboard = () => {
       </Row>
       <Row gutter={[16, 16]} align="stretch">
         <Col xs={24} xl={16}>
-          <UrgentWorkOrders workOrders={allWorkOrders || []} technicians={technicians || []} />
+          <UrgentWorkOrders workOrders={allWorkOrders || []} technicians={technicians || []} vehicles={vehicles || []} />
         </Col>
         <Col xs={24} xl={8}>
           <TechnicianStatusList technicians={technicians || []} workOrders={allWorkOrders || []} />

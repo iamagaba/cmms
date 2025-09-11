@@ -352,20 +352,6 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
             <Card>
               <Space direction="vertical" style={{ width: '100%' }}>
                 <WorkOrderProgressTracker workOrder={workOrder} />
-                <Row justify="end" gutter={[8, 8]} style={{ marginTop: 16 }}>
-                  <Col>
-                    {workOrder.is_emergency_bike_eligible && !hasActiveEmergencyBike && (
-                      <Button type="primary" icon={<BikeIcon size={16} />} onClick={() => setIsAssignEmergencyBikeDialogOpen(true)}>
-                        Assign Emergency Bike
-                      </Button>
-                    )}
-                    {hasActiveEmergencyBike && (
-                      <Button type="default" icon={<BikeIcon size={16} />} onClick={() => setIsReturnEmergencyBikeDialogOpen(true)}>
-                        Return Emergency Bike
-                      </Button>
-                    )}
-                  </Col>
-                </Row>
               </Space>
             </Card>
             <Row gutter={[16, 16]}>
@@ -392,7 +378,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
                   <Card title="Emergency Bike Status">
                     {hasActiveEmergencyBike ? (
                       <Space direction="vertical" style={{ width: '100%' }}>
-                        <Tag color="green" icon={<BikeIcon size={14} />} >Assigned</Tag>
+                        <Tag color="green" icon={<BikeIcon size={14} />}>Assigned</Tag>
                         <Typography.Text strong>Bike: {workOrder.active_emergency_bike_assignment?.vehicles?.license_plate}</Typography.Text>
                         <Typography.Text type="secondary">Assigned on: {dayjs(workOrder.active_emergency_bike_assignment?.assigned_at).format('MMM D, YYYY h:mm A')}</Typography.Text>
                         {workOrder.active_emergency_bike_assignment?.assignment_notes && (
@@ -400,6 +386,17 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
                             Notes: {workOrder.active_emergency_bike_assignment.assignment_notes}
                           </Typography.Paragraph>
                         )}
+                        <Button type="default" icon={<BikeIcon size={16} />} onClick={() => setIsReturnEmergencyBikeDialogOpen(true)} style={{ marginTop: 8 }}>
+                          Return Emergency Bike
+                        </Button>
+                      </Space>
+                    ) : workOrder.is_emergency_bike_eligible ? (
+                      <Space direction="vertical" style={{ width: '100%' }}>
+                        <Tag color="purple" icon={<BikeIcon size={14} />}>Emergency Bike Needed</Tag>
+                        <Typography.Text type="secondary">This work order has been in progress for over {EMERGENCY_BIKE_THRESHOLD_HOURS} hours. Consider assigning an emergency bike.</Typography.Text>
+                        <Button type="primary" icon={<BikeIcon size={16} />} onClick={() => setIsAssignEmergencyBikeDialogOpen(true)} style={{ marginTop: 8 }}>
+                          Assign Emergency Bike
+                        </Button>
                       </Space>
                     ) : (
                       <Tag color="default">No Emergency Bike Assigned</Tag>

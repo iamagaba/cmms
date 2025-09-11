@@ -94,8 +94,8 @@ const MapViewPage = () => {
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 112px)' }}>
-      <Row justify="start" align="middle" style={{ marginBottom: '24px' }}>
-        <Col><Title level={4} style={{ margin: 0 }}>Live Operations Map</Title></Col>
+      <Row justify="end" align="middle" style={{ marginBottom: '24px' }}>
+        <Col>{/* Empty column for title, as breadcrumbs handle it */}</Col>
       </Row>
       <div style={{ flexGrow: 1, width: '100%' }}>
         <MapboxDisplayMap

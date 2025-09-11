@@ -6,7 +6,6 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { WorkOrder, Technician, Vehicle } from '@/types/supabase';
 import WorkOrderDetailsDrawer from '@/components/WorkOrderDetailsDrawer'; // Import the drawer
-// PageHeader removed
 
 const { Text, Title } = Typography;
 

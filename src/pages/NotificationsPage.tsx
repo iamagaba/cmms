@@ -1,12 +1,11 @@
 import React from 'react';
 import { Typography, Space, Card, Empty, List, Button, Row, Col } from 'antd';
-// PageHeader removed
 import { useNotifications } from '@/context/NotificationsContext';
 import { formatDistanceToNow } from 'date-fns';
 import { Link } from 'react-router-dom';
 import { CheckCircleOutlined } from '@ant-design/icons';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 const NotificationsPage = () => {
   const { notifications, unreadCount, markAllAsRead } = useNotifications();
@@ -20,8 +19,7 @@ const NotificationsPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Row justify="space-between" align="middle" style={{ marginBottom: '24px' }}>
-        <Col><Title level={4} style={{ margin: 0 }}>Notifications</Title></Col>
+      <Row justify="end" align="middle" style={{ marginBottom: '24px' }}>
         <Col>
           <Button 
             type="primary" 

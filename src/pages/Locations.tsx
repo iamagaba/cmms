@@ -6,12 +6,10 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Location, WorkOrder } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
-// PageHeader removed
 import { LocationCard } from "@/components/LocationCard";
 import { LocationDataTable } from "@/components/LocationDataTable";
 import { useNavigate } from "react-router-dom";
 
-const { Title } = Typography;
 const { Search } = Input;
 
 const LocationsPage = () => {
@@ -95,8 +93,7 @@ const LocationsPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Row justify="space-between" align="middle" style={{ marginBottom: '24px' }}>
-        <Col><Title level={4} style={{ margin: 0 }}>Location Management</Title></Col>
+      <Row justify="end" align="middle" style={{ marginBottom: '24px' }}>
         <Col>
           <Space size="middle" align="center">
             <Search

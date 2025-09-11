@@ -6,7 +6,6 @@ import NotFound from "./NotFound";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Technician, WorkOrder, Location, Vehicle } from "@/types/supabase";
-// PageHeader removed
 import { useMemo } from "react";
 
 const { Title, Text } = Typography;

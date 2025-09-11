@@ -11,7 +11,6 @@ import { showSuccess, showError, showInfo } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
 import { useSearchParams } from "react-router-dom";
-// PageHeader removed
 import WorkOrderProgressTracker from "@/components/WorkOrderProgressTracker";
 import { useSession } from "@/context/SessionContext";
 import { calculateDistance } from "@/utils/geo-helpers";

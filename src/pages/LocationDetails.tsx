@@ -10,7 +10,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Location, WorkOrder, Technician, Customer, Vehicle, Profile } from "@/types/supabase";
 import { camelToSnakeCase } from "@/utils/data-helpers";
-// PageHeader removed
 import dayjs from "dayjs";
 import { useSession } from "@/context/SessionContext";
 import { MapboxDisplayMap } from "@/components/MapboxDisplayMap"; // Import the new Mapbox map component

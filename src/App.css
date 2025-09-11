@@ -141,33 +141,6 @@ body {
   color: var(--ant-color-primary);
 }
 
-/* Ensure NavLink inside Menu.Item takes full width and has smooth transitions */
-.ant-menu-item .ant-menu-title-content {
-  display: flex;
-  align-items: center;
-  height: 100%;
-  width: 100%;
-}
-
-.ant-menu-item .ant-menu-title-content a {
-  display: flex;
-  align-items: center;
-  padding: 0 16px; /* Apply padding directly to NavLink */
-  height: 100%;
-  width: 100%;
-  color: inherit; /* Inherit color from parent Menu.Item */
-  transition: color 0.2s ease;
-}
-
-/* Adjust icon color for non-selected items */
-.ant-menu-item:not(.ant-menu-item-selected) .anticon {
-  color: var(--ant-color-text-secondary); /* Default icon color */
-}
-
-.ant-menu-item:hover .anticon {
-  color: var(--ant-color-primary) !important; /* Primary color on hover */
-}
-
 /* Adjust logo area for better alignment */
 .sider-logo-area {
   height: 64px;

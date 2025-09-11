@@ -117,43 +117,32 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
     getItem(<NavLink to="/analytics">Analytics</NavLink>, "/analytics", <BarChartOutlined />),
 
     // Settings SubMenu
-    {
-      key: 'settings',
-      icon: <SettingOutlined />,
-      label: 'Settings',
-      children: [
-        getItem(<NavLink to="/settings?tab=user-management">User Management</NavLink>, "/settings?tab=user-management"),
-        getItem(<NavLink to="/settings?tab=service-sla">Service & SLA</NavLink>, "/settings?tab=service-sla"),
-        getItem(<NavLink to="/settings?tab=system-settings">System Settings</NavLink>, "/settings?tab=system-settings"),
-      ],
-    },
+    getItem('Settings', 'settings', <SettingOutlined />, [
+      getItem(<NavLink to="/settings?tab=user-management">User Management</NavLink>, "/settings?tab=user-management"),
+      getItem(<NavLink to="/settings?tab=service-sla">Service & SLA</NavLink>, "/settings?tab=service-sla"),
+      getItem(<NavLink to="/settings?tab=system-settings">System Settings</NavLink>, "/settings?tab=system-settings"),
+    ]),
 
     // Profile SubMenu - now includes Notifications and Logout
-    {
-      key: 'profile-section',
-      icon: <UserOutlined />,
-      label: 'Profile',
-      className: 'menu-bottom-group', // Apply class here to push to bottom
-      children: [
-        getItem(<NavLink to="/settings?tab=profile-settings">My Profile</NavLink>, "/settings?tab=profile-settings"),
-        getItem(
-          <NavLink to="/notifications">
-            <Badge count={unreadCount} size="small" offset={[5, 0]} style={{ backgroundColor: '#6A0DAD' }}>
-              Notifications
-            </Badge>
-          </NavLink>,
-          "/notifications",
-        ),
-        { type: 'divider', key: 'profile-divider' },
-        {
-          key: 'logout',
-          icon: <LogoutOutlined />,
-          label: 'Logout',
-          danger: true,
-          onClick: handleLogout,
-        },
-      ],
-    },
+    getItem('Profile', 'profile-section', <UserOutlined />, [
+      getItem(<NavLink to="/settings?tab=profile-settings">My Profile</NavLink>, "/settings?tab=profile-settings"),
+      getItem(
+        <NavLink to="/notifications">
+          <Badge count={unreadCount} size="small" offset={[5, 0]} style={{ backgroundColor: '#6A0DAD' }}>
+            Notifications
+          </Badge>
+        </NavLink>,
+        "/notifications",
+      ),
+      { type: 'divider', key: 'profile-divider' },
+      {
+        key: 'logout',
+        icon: <LogoutOutlined />,
+        label: 'Logout',
+        danger: true,
+        onClick: handleLogout,
+      },
+    ], 'group'), // Use 'group' type for the SubMenu to ensure it's treated as a group of items
   ];
 
   return (
@@ -174,7 +163,7 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
       }}
     >
       {/* Logo Area */}
-      <NavLink to="/" className="sider-logo-area">
+      <NavLink to="/" className="sider-logo-area" style={{ gap: '12px' }}> {/* Added gap here */}
         {logoUrl ? (
           <img src={logoUrl} alt="System Logo" style={{ height: '32px' }} />
         ) : (
@@ -196,8 +185,8 @@ const SideNavigation = ({ collapsed, onCollapse, logoUrl }: SideNavigationProps)
         {/* No direct <SubMenu> children here anymore */}
       </Menu>
 
-      {/* Custom trigger button */}
-      <div className={`sider-custom-trigger ${!collapsed ? 'sider-custom-trigger-expanded' : ''}`}>
+      {/* Custom trigger button - moved to be the first element in the bottom section */}
+      <div className={`sider-custom-trigger ${!collapsed ? 'sider-custom-trigger-expanded' : ''}`} style={{ order: -1 }}> {/* order: -1 pushes it to the top of the flex-end group */}
         <Button
           type="text"
           icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}

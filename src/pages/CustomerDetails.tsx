@@ -6,7 +6,6 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query"; /
 import { supabase } from "@/integrations/supabase/client";
 import { Customer, Vehicle, WorkOrder, Technician, Location, Profile, ServiceCategory } from "@/types/supabase"; // Import Profile and ServiceCategory
 import { Link } from "react-router-dom";
-// PageHeader removed
 import { useState } from "react";
 import { CreateWorkOrderDialog } from "@/components/CreateWorkOrderDialog";
 import { WorkOrderFormDrawer } from "@/components/WorkOrderFormDrawer";

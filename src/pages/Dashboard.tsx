@@ -15,11 +15,9 @@ import isBetween from 'dayjs/plugin/isBetween';
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
 import { useSearchParams } from "react-router-dom";
-// PageHeader removed
 import { useSession } from "@/context/SessionContext";
 
 dayjs.extend(isBetween);
-const { Title } = Typography;
 const { TabPane } = Tabs;
 
 const Dashboard = () => {
@@ -332,8 +330,7 @@ const Dashboard = () => {
 
   return (
     <>
-      <Row justify="space-between" align="middle" style={{ marginBottom: '24px' }}>
-        <Col><Title level={4} style={{ margin: 0 }}>Dashboard</Title></Col>
+      <Row justify="end" align="middle" style={{ marginBottom: '24px' }}>
         <Col>
           <Segmented
             options={locationOptions}

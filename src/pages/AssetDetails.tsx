@@ -8,7 +8,6 @@ import { Vehicle, Customer, WorkOrder, Technician, Location, Profile, ServiceCat
 import { WorkOrderDataTable, ALL_COLUMNS } from "@/components/WorkOrderDataTable"; // Import ALL_COLUMNS
 import { formatDistanceToNow } from 'date-fns';
 import dayjs from 'dayjs';
-// PageHeader removed
 import { CreateWorkOrderDialog } from "@/components/CreateWorkOrderDialog";
 import { WorkOrderFormDrawer } from "@/components/WorkOrderFormDrawer";
 import { useState, useMemo } from "react";

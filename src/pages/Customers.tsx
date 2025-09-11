@@ -7,9 +7,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Customer } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
-// PageHeader removed
 
-const { Title } = Typography;
 const { Search } = Input;
 
 const CustomersPage = () => {
@@ -72,8 +70,7 @@ const CustomersPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Row justify="space-between" align="middle" style={{ marginBottom: '24px' }}>
-        <Col><Title level={4} style={{ margin: 0 }}>Customer Management</Title></Col>
+      <Row justify="end" align="middle" style={{ marginBottom: '24px' }}>
         <Col>
           <Space size="middle" align="center">
             <Search

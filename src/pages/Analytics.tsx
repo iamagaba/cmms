@@ -7,10 +7,8 @@ import KpiCard from '@/components/KpiCard';
 import { CheckCircleOutlined, ClockCircleOutlined, ToolOutlined, UserOutlined } from '@ant-design/icons';
 import dayjs from 'dayjs';
 import { useState } from 'react';
-// PageHeader removed
 import CustomReportGenerator from '@/components/CustomReportGenerator';
 
-const { Title } = Typography;
 const { RangePicker } = DatePicker;
 const { TabPane } = Tabs;
 
@@ -136,8 +134,7 @@ const AnalyticsPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Row justify="space-between" align="middle" style={{ marginBottom: '24px' }}>
-        <Col><Title level={4} style={{ margin: 0 }}>Analytics & Reports</Title></Col>
+      <Row justify="end" align="middle" style={{ marginBottom: '24px' }}>
         <Col>
           <RangePicker value={dateRange} onChange={(dates) => dates && setDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])} />
         </Col>

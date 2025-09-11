@@ -8,9 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Vehicle, Customer } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
-// PageHeader removed
 
-const { Title } = Typography;
 const { Search } = Input;
 
 const AssetsPage = () => {
@@ -84,8 +82,7 @@ const AssetsPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Row justify="space-between" align="middle" style={{ marginBottom: '24px' }}>
-        <Col><Title level={4} style={{ margin: 0 }}>Asset Management</Title></Col>
+      <Row justify="end" align="middle" style={{ marginBottom: '24px' }}>
         <Col>
           <Space size="middle" align="center">
             <Search

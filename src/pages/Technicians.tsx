@@ -50,8 +50,16 @@ const TechniciansPage = () => {
   const technicianMutation = useMutation({
     mutationFn: async (technicianData: Partial<Technician>) => {
       const snakeCaseData = camelToSnakeCase(technicianData); // Convert to snake_case for Supabase
-      const { error } = await supabase.from('technicians').upsert(snakeCaseData);
-      if (error) throw new Error(error.message);
+      if (technicianData.id) {
+        const { error } = await supabase
+          .from('technicians')
+          .update(snakeCaseData)
+          .eq('id', technicianData.id);
+        if (error) throw new Error(error.message);
+      } else {
+        const { error } = await supabase.from('technicians').insert([snakeCaseData]);
+        if (error) throw new Error(error.message);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['technicians'] });
@@ -87,8 +95,32 @@ const TechniciansPage = () => {
     setIsDialogOpen(true);
   };
 
-  const handleUpdateStatus = (id: string, status: Technician['status']) => {
-    technicianMutation.mutate({ id, status }); // Pass camelCase data directly
+  const handleUpdateStatus = async (id: string, status: Technician['status']) => {
+    const { data: currentTechnicianRaw, error: fetchError } = await supabase
+      .from('technicians')
+      .select('*')
+      .eq('id', id)
+      .single();
+
+    if (fetchError) {
+      showError(`Failed to fetch technician data: ${fetchError.message}`);
+      return;
+    }
+    if (!currentTechnicianRaw) {
+      showError("Technician not found.");
+      return;
+    }
+
+    // Convert raw snake_case data to camelCase Technician object
+    const currentTechnician = snakeToCamelCase(currentTechnicianRaw) as Technician;
+
+    // Create a new object with the updated status, preserving all other fields
+    const updatedTechnicianData: Partial<Technician> = {
+      ...currentTechnician,
+      status: status,
+    };
+
+    technicianMutation.mutate(updatedTechnicianData); // Pass camelCase data
   };
 
   const technicianData: TechnicianCardData[] = useMemo(() => {

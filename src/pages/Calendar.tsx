@@ -1,12 +1,12 @@
 import { useState, useMemo } from 'react';
 import { Calendar, Badge, Popover, List, Typography, Tag, Skeleton, Row, Col, Empty, Card, Space } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom'; // Import useSearchParams
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { WorkOrder, Technician, Vehicle } from '@/types/supabase';
-import WorkOrderDetailsDrawer from '@/components/WorkOrderDetailsDrawer'; // Import the drawer
-import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
+import WorkOrderDetailsDrawer from '@/components/WorkOrderDetailsDrawer';
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 const { Text, Title } = Typography;
 
@@ -14,7 +14,7 @@ const priorityColors: Record<string, string> = { High: "red", Medium: "gold", Lo
 
 const CalendarPage = () => {
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(null);
-  const [viewingWorkOrderId, setViewingWorkOrderId] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useSearchParams(); // Initialize useSearchParams
 
   const { data: workOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ queryKey: ['work_orders'], queryFn: async () => { const { data, error } = await supabase.from('work_orders').select('*'); if (error) throw new Error(error.message); return data || []; } });
   const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return data || []; } });
@@ -26,14 +26,15 @@ const CalendarPage = () => {
 
   const handleDateSelect = (value: Dayjs) => {
     setSelectedDate(value);
-    setViewingWorkOrderId(null); // Close any open drawer when a new date is selected
+    setSearchParams({}); // Clear search params when a new date is selected (closes drawer)
   };
 
   const dateCellRender = (value: Dayjs) => {
     const listData = getListData(value);
+    if (listData.length === 0) return null;
 
     return (
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', justifyContent: 'center', marginTop: '4px', minHeight: '20px' }}> {/* Added minHeight for stability */}
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', justifyContent: 'center', marginTop: '4px', minHeight: '20px' }}>
         {listData.map(item => {
           const technician = technicians?.find(t => t.id === item.assignedTechnicianId);
           const vehicle = vehicles?.find(v => v.id === item.vehicleId);
@@ -77,7 +78,7 @@ const CalendarPage = () => {
           return (
             <List.Item
               key={item.id}
-              onClick={() => setViewingWorkOrderId(item.id)}
+              onClick={() => setSearchParams({ view: item.id })} // Update search params to open drawer
               style={{ cursor: 'pointer', padding: '12px 0' }}
             >
               <List.Item.Meta
@@ -104,19 +105,19 @@ const CalendarPage = () => {
   }
 
   return (
-    <Space direction="vertical" size="middle" style={{ width: '100%' }}> {/* Use Space for vertical layout */}
+    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
       <Breadcrumbs />
-      <Row gutter={[24, 24]} style={{ height: 'calc(100vh - 112px - 24px)' }}> {/* Adjusted height calculation */}
-        <Col xs={24} lg={16}> {/* Calendar column */}
+      <Row gutter={[24, 24]} style={{ height: 'calc(100vh - 112px - 24px)' }}>
+        <Col xs={24} lg={16}>
           <Card title="Work Order Calendar" style={{ height: '100%' }}>
             <Calendar
               dateCellRender={dateCellRender}
               onSelect={handleDateSelect}
-              value={selectedDate || dayjs()} // Highlight selected date or current day
+              value={selectedDate || dayjs()}
             />
           </Card>
         </Col>
-        <Col xs={24} lg={8}> {/* Preview column */}
+        <Col xs={24} lg={8}>
           <Card title={selectedDate ? `Work Orders for ${selectedDate.format('MMM D, YYYY')}` : 'Select a Date'} style={{ height: '100%', overflowY: 'auto' }}>
             {selectedDate ? (
               <WorkOrdersForSelectedDate />
@@ -126,7 +127,7 @@ const CalendarPage = () => {
           </Card>
         </Col>
       </Row>
-      <WorkOrderDetailsDrawer workOrderId={viewingWorkOrderId} onClose={() => setViewingWorkOrderId(null)} />
+      <WorkOrderDetailsDrawer onClose={() => setSearchParams({})} /> {/* Pass onClose to clear search params */}
     </Space>
   );
 };

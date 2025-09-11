@@ -1,20 +1,21 @@
 import { Drawer, Button, Space, Typography, Skeleton } from 'antd';
 import { ExpandOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { WorkOrder, Technician, Location } from '@/types/supabase';
-import WorkOrderDetails from '@/pages/WorkOrderDetails'; // We can reuse the details page component logic
-
-interface WorkOrderDetailsDrawerProps {
-  workOrderId: string | null;
-  onClose: () => void;
-}
+import { WorkOrder } from '@/types/supabase';
+import WorkOrderDetails from '@/pages/WorkOrderDetails';
 
 const { Title } = Typography;
 
-const WorkOrderDetailsDrawer = ({ workOrderId, onClose }: WorkOrderDetailsDrawerProps) => {
+interface WorkOrderDetailsDrawerProps {
+  onClose: () => void; // No longer takes workOrderId as a prop
+}
+
+const WorkOrderDetailsDrawer = ({ onClose }: WorkOrderDetailsDrawerProps) => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const workOrderId = searchParams.get('view'); // Get workOrderId from search params
 
   const { data: workOrder, isLoading: isLoadingWorkOrder } = useQuery<WorkOrder | null>({
     queryKey: ['work_order', workOrderId],
@@ -24,7 +25,7 @@ const WorkOrderDetailsDrawer = ({ workOrderId, onClose }: WorkOrderDetailsDrawer
       if (error) throw new Error(error.message);
       return data;
     },
-    enabled: !!workOrderId,
+    enabled: !!workOrderId, // Enable query only if workOrderId is present
   });
 
   const handleExpand = () => {
@@ -49,7 +50,7 @@ const WorkOrderDetailsDrawer = ({ workOrderId, onClose }: WorkOrderDetailsDrawer
       title={drawerTitle}
       placement="right"
       onClose={onClose}
-      open={!!workOrderId}
+      open={!!workOrderId} // Drawer is open if workOrderId is present
       width={800}
       destroyOnClose
     >

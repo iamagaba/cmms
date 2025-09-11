@@ -421,7 +421,7 @@ const Dashboard = () => {
           onSave={handleSaveOnHoldReason}
         />
       )}
-      <WorkOrderDetailsDrawer workOrderId={viewingWorkOrderId} onClose={handleCloseDrawer} />
+      <WorkOrderDetailsDrawer onClose={handleCloseDrawer} />
     </>
   );
 };

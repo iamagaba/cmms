@@ -74,26 +74,28 @@ export const TechnicianFormSheet = ({
   });
 
   useEffect(() => {
-    if (isOpen && technician) {
-      form.reset({
-        name: technician.name,
-        email: technician.email || "",
-        phone: technician.phone || "",
-        location_id: technician.location_id || undefined,
-        status: technician.status || "offline",
-        specializations: (technician.specializations || []).join(', '), // Join array to string
-        join_date: technician.join_date ? dayjs(technician.join_date).toDate() : new Date(),
-      });
-    } else if (isOpen && !technician) {
-      form.reset({
-        name: "",
-        email: "",
-        phone: "",
-        location_id: undefined,
-        status: "offline",
-        specializations: "",
-        join_date: new Date(),
-      });
+    if (isOpen) {
+      if (technician) {
+        form.reset({
+          name: technician.name,
+          email: technician.email || "",
+          phone: technician.phone || "",
+          location_id: technician.location_id || undefined,
+          status: technician.status || "offline",
+          specializations: (technician.specializations || []).join(', '), // Join array to string
+          join_date: technician.join_date ? dayjs(technician.join_date).toDate() : new Date(),
+        });
+      } else {
+        form.reset({
+          name: "",
+          email: "",
+          phone: "",
+          location_id: undefined,
+          status: "offline",
+          specializations: "",
+          join_date: new Date(),
+        });
+      }
     }
   }, [isOpen, technician, form]);
 

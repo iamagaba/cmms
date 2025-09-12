@@ -19,7 +19,7 @@ const PageHeader = ({ title, actions, onSearch, onSearchChange, hideSearch = fal
         {typeof title === 'string' ? <Title level={4} style={{ margin: 0 }}>{title}</Title> : title}
       </Col>
       <Col>
-        <Space size="middle" align="center">
+        <Space.Compact size="small"> {/* Using Space.Compact here */}
           {!hideSearch && (
             <Input
               placeholder="Search..."
@@ -28,10 +28,11 @@ const PageHeader = ({ title, actions, onSearch, onSearchChange, hideSearch = fal
               onPressEnter={(e) => onSearch && onSearch(e.currentTarget.value)}
               onChange={onSearchChange}
               allowClear
+              size="small" // Ensure input is small
             />
           )}
           {actions && <>{actions}</>}
-        </Space>
+        </Space.Compact>
       </Col>
     </Row>
   );

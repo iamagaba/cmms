@@ -3,11 +3,15 @@ import { Typography, Tooltip, Space, Card, Empty } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
 import isBetween from 'dayjs/plugin/isBetween';
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'; // Import the plugin
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'; // Import the plugin
 import { WorkOrder, Vehicle } from '@/types/supabase';
 import { Icon } from '@iconify/react';
 
 dayjs.extend(weekOfYear);
 dayjs.extend(isBetween);
+dayjs.extend(isSameOrBefore); // Extend dayjs with the plugin
+dayjs.extend(isSameOrAfter); // Extend dayjs with the plugin
 
 const { Title, Text } = Typography;
 

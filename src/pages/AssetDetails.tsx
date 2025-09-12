@@ -15,7 +15,8 @@ import { camelToSnakeCase } from "@/utils/data-helpers"; // Import camelToSnakeC
 import { showSuccess, showInfo, showError } from "@/utils/toast"; // Import toast utilities
 import { getColumns } from "@/components/WorkOrderTableColumns"; // Import getColumns
 import { useSession } from "@/context/SessionContext";
-import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
+import Breadcrumbs from "@/components/Breadcrumbs";
+import { AssetRepairTimeline } from "@/components/AssetRepairTimeline"; // Import the new timeline component
 
 const { Title, Text } = Typography;
 
@@ -180,6 +181,10 @@ const AssetDetailsPage = () => {
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
         <Breadcrumbs backButton={backButton} />
+        
+        {/* New: Asset Repair Timeline */}
+        <AssetRepairTimeline workOrders={workOrders || []} />
+
         <Row gutter={[16, 16]}>
             <Col xs={24} md={8}>
                 <Card>

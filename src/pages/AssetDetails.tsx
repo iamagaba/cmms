@@ -31,6 +31,7 @@ const AssetDetailsPage = () => {
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isFormDrawerOpen, setIsFormDrawerOpen] = useState(false);
   const [prefillData, setPrefillData] = useState<Partial<WorkOrder> | null>(null);
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(ALL_COLUMNS.map(c => c.value)); // State for visible columns
 
   const { data: vehicle, isLoading: isLoadingVehicle } = useQuery<VehicleWithCustomer | null>({
     queryKey: ['vehicle', id],
@@ -187,7 +188,7 @@ const AssetDetailsPage = () => {
             <Col xs={24} md={8}>
                 <Card>
                     <Title level={4}>{vehicle.license_plate}</Title>
-                    <Text type="secondary">{vehicle.year} ${vehicle.make} ${vehicle.model}</Text>
+                    <Text type="secondary">{`${vehicle.year} ${vehicle.make} ${vehicle.model}`}</Text>
                     <Descriptions column={1} bordered style={{ marginTop: 16 }}>
                         <Descriptions.Item label="VIN / Chassis Number">{vehicle.vin}</Descriptions.Item>
                         <Descriptions.Item label="Motor Number">{vehicle.motor_number || 'N/A'}</Descriptions.Item>
@@ -224,7 +225,7 @@ const AssetDetailsPage = () => {
                         onViewDetails={(id) => navigate(`/work-orders/${id}`)}
                         profiles={profiles || []}
                         visibleColumns={defaultVisibleColumns}
-                        onVisibleColumnsChange={() => {}} // Added missing prop
+                        onVisibleColumnsChange={setVisibleColumns}
                     />
                 </Card>
             </Col>

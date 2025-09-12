@@ -498,23 +498,21 @@ const ProfileSettings = () => {
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <Card className="col-span-1">
-        <CardHeader className="flex flex-col items-center space-y-4">
-          <Avatar className="h-32 w-32">
-            <AvatarImage src={displayAvatar || undefined} alt="User Avatar" />
-            <AvatarFallback><User className="h-16 w-16" /></AvatarFallback>
-          </Avatar>
-          <Button variant="outline">Change Avatar</Button>
-        </CardHeader>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6"> {/* Increased gap */}
+      <Card className="col-span-1 flex flex-col items-center p-6"> {/* Added flex and padding */}
+        <Avatar className="h-32 w-32 mb-4"> {/* Added margin-bottom */}
+          <AvatarImage src={displayAvatar || undefined} alt="User Avatar" />
+          <AvatarFallback><User className="h-16 w-16" /></AvatarFallback>
+        </Avatar>
+        <Button variant="outline">Change Avatar</Button>
       </Card>
-      <div className="col-span-2 space-y-4">
+      <div className="col-span-2 space-y-6"> {/* Increased space-y */}
         <Card>
           <CardHeader>
             <CardTitle>Edit Profile Information</CardTitle>
             <CardDescription>Update your personal details.</CardDescription>
           </CardHeader>
-          <div className="p-6">
+          <div className="p-6 pt-0"> {/* Adjusted padding */}
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleProfileSubmit)} className="space-y-4">
                 <FormField
@@ -578,7 +576,7 @@ const ProfileSettings = () => {
             <CardTitle>Change Password</CardTitle>
             <CardDescription>Update your account password.</CardDescription>
           </CardHeader>
-          <div className="p-6">
+          <div className="p-6 pt-0"> {/* Adjusted padding */}
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handlePasswordSubmit)} className="space-y-4">
                 <FormField
@@ -650,12 +648,12 @@ const SettingsPage = () => {
   ];
 
   return (
-    <div className="flex flex-col space-y-6 p-6"> {/* Added padding and vertical spacing */}
+    <div className="flex flex-col space-y-6 p-6 max-w-7xl mx-auto"> {/* Added max-width and auto margins for centering */}
       <Breadcrumbs />
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-4 h-auto"> {/* Adjusted grid columns and height */}
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-4 h-auto">
           {tabItems.map(item => (
-            <TabsTrigger key={item.value} value={item.value} className="py-2"> {/* Added vertical padding */}
+            <TabsTrigger key={item.value} value={item.value} className="py-2">
               {item.label}
             </TabsTrigger>
           ))}

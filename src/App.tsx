@@ -114,22 +114,22 @@ const App = () => (
           colorText: '#1f2937',
           colorTextSecondary: '#6b7280',
           borderRadius: 4,
-          controlHeight: 28, // Adjusted control height for compactness
+          controlHeight: 32, // Increased control height for better usability
           colorBgLayout: '#f6f7f9',
           colorBorder: '#e5e7eb',
           colorSplit: '#f3f4f6',
-          fontSize: 13, // Adjusted base font size for readability
+          fontSize: 14, // Increased base font size for readability
         },
         components: {
           Table: { 
-            padding: 8, // Reduced table padding
-            paddingSM: 4, // Reduced small table padding
+            padding: 12, // Adjusted table padding
+            paddingSM: 8, // Adjusted small table padding
             rowSelectedBg: '#f5f5f5',
             rowSelectedHoverBg: '#eeeeee',
           },
-          Card: { padding: 12 }, // Reduced card padding
-          Form: { itemMarginBottom: 12 }, // Reduced form item margin
-          Layout: { headerBg: '#ffffff', headerPadding: '0 16px', headerHeight: 56, siderBg: '#ffffff' }, // Adjusted header height and padding
+          Card: { padding: 16 }, // Adjusted card padding
+          Form: { itemMarginBottom: 16 }, // Adjusted form item margin
+          Layout: { headerBg: '#ffffff', headerPadding: '0 16px', headerHeight: 64, siderBg: '#ffffff' }, // Adjusted header height and padding
           Menu: { 
             itemBg: '#ffffff',
             itemSelectedBg: '#E8D9F7',
@@ -138,15 +138,15 @@ const App = () => (
             itemHoverColor: '#6A0DAD',
             itemBorderRadius: 4,
             subMenuItemBg: '#ffffff',
-            itemHeight: 36, // Reduced menu item height
-            itemPaddingInline: 8, // Reduced horizontal padding for menu items
+            itemHeight: 40, // Adjusted menu item height
+            itemPaddingInline: 12, // Adjusted horizontal padding for menu items
           },
           Typography: {
-            titleMarginBottom: 0.5, // Reduce margin below titles
-            titleMarginTop: 0.5, // Reduce margin above titles
+            titleMarginBottom: 0.5, // Consistent margin below titles
+            titleMarginTop: 0.5, // Consistent margin above titles
           },
           Space: {
-            size: 8, // Set a smaller default gap for Space component
+            size: 12, // Set a larger default gap for Space component
           }
         }
       }}

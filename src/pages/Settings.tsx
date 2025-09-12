@@ -599,7 +599,7 @@ const ProfileSettings = () => {
                   name="newPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>New Password</FormLabel> {/* Corrected closing tag */}
+                      <FormLabel>New Password</FormLabel>
                       <FormControl>
                         <Input type="password" placeholder="New password" {...field} />
                       </FormControl>
@@ -650,12 +650,12 @@ const SettingsPage = () => {
   ];
 
   return (
-    <div className="flex flex-col space-y-6">
+    <div className="flex flex-col space-y-6 p-6"> {/* Added padding and vertical spacing */}
       <Breadcrumbs />
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-4 h-auto"> {/* Adjusted grid columns and height */}
           {tabItems.map(item => (
-            <TabsTrigger key={item.value} value={item.value}>
+            <TabsTrigger key={item.value} value={item.value} className="py-2"> {/* Added vertical padding */}
               {item.label}
             </TabsTrigger>
           ))}

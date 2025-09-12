@@ -110,44 +110,43 @@ const App = () => (
           colorWarning: '#FAAD14',
           colorError: '#FF4D4F',
           colorInfo: '#0052CC',
-          fontFamily: 'Inter', // Updated font family to Inter
+          fontFamily: 'Inter',
           colorText: '#1f2937',
           colorTextSecondary: '#6b7280',
-          borderRadius: 4, // Slightly smaller border radius
-          controlHeight: 28, // Reduced control height for compactness
+          borderRadius: 4,
+          controlHeight: 24, // Further reduced control height
           colorBgLayout: '#f6f7f9',
           colorBorder: '#e5e7eb',
           colorSplit: '#f3f4f6',
-          fontSize: 13, // Slightly smaller base font size
+          fontSize: 12, // Slightly smaller base font size for density
         },
         components: {
           Table: { 
-            padding: 10, // Reduced table padding
-            paddingSM: 6, // Reduced small table padding
+            padding: 8, // Reduced table padding
+            paddingSM: 4, // Reduced small table padding
             rowSelectedBg: '#f5f5f5',
             rowSelectedHoverBg: '#eeeeee',
           },
-          Card: { padding: 12 }, // Reduced card padding
-          Form: { itemMarginBottom: 12 }, // Reduced form item margin
-          Layout: { headerBg: '#ffffff', headerPadding: '0 16px', headerHeight: 56, siderBg: '#ffffff' }, // Reduced header height and padding
+          Card: { padding: 8 }, // Reduced card padding
+          Form: { itemMarginBottom: 8 }, // Reduced form item margin
+          Layout: { headerBg: '#ffffff', headerPadding: '0 12px', headerHeight: 48, siderBg: '#ffffff' }, // Reduced header height and padding
           Menu: { 
             itemBg: '#ffffff',
             itemSelectedBg: '#E8D9F7',
             itemSelectedColor: '#6A0DAD',
             itemHoverBg: '#f0f0f0',
             itemHoverColor: '#6A0DAD',
-            itemBorderRadius: 4, // Match global border radius
+            itemBorderRadius: 4,
             subMenuItemBg: '#ffffff',
-            itemHeight: 36, // Reduced menu item height
-            itemPaddingInline: 8, // Reduced horizontal padding for menu items
+            itemHeight: 32, // Reduced menu item height
+            itemPaddingInline: 4, // Reduced horizontal padding for menu items
           },
           Typography: {
-            titleMarginBottom: 0.5, // Reduce margin below titles
-            titleMarginTop: 0.5, // Reduce margin above titles
+            titleMarginBottom: 0.25, // Further reduce margin below titles
+            titleMarginTop: 0.25, // Further reduce margin above titles
           },
           Space: {
-            // Default gap for Space component, can be overridden locally
-            // size: 8, // You can set a default size here if needed, but 'middle' is often fine
+            size: 4, // Set a smaller default gap for Space component
           }
         }
       }}

@@ -211,7 +211,7 @@ const UserManagement = () => {
 const systemSettingsFormSchema = z.object({
   notifications: z.boolean(),
   defaultPriority: z.enum(["Low", "Medium", "High"]),
-  slaThreshold: z.coerce.number().int().min(0).optional(), // Made optional
+  slaThreshold: z.union([z.coerce.number().int().min(0), z.literal(null)]).optional(), // Changed to allow null
 });
 
 const SystemSettings = () => {
@@ -220,7 +220,7 @@ const SystemSettings = () => {
     defaultValues: {
       notifications: true, // Explicit default matching schema
       defaultPriority: "Medium", // Explicit default matching schema
-      slaThreshold: undefined, // Explicit default matching schema (undefined for optional)
+      slaThreshold: null, // Explicit default matching schema (null for optional union)
     },
   });
   const queryClient = useQueryClient();
@@ -243,7 +243,7 @@ const SystemSettings = () => {
       form.reset({
         notifications: settings.notifications === 'true',
         defaultPriority: (settings.defaultPriority as "Low" | "Medium" | "High") || 'Medium',
-        slaThreshold: settings.slaThreshold ? parseInt(settings.slaThreshold) : undefined, // Use undefined for optional
+        slaThreshold: settings.slaThreshold ? parseInt(settings.slaThreshold) : null, // Use null for optional union
       });
     }
   }, [isLoadingSettings, settings, form]);
@@ -355,7 +355,7 @@ const SystemSettings = () => {
                 <FormItem>
                   <FormLabel>SLA Warning Threshold (days)</FormLabel>
                   <FormControl>
-                    <Input type="number" className="w-[180px]" placeholder="e.g. 3" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value === '' ? undefined : Number(e.target.value))} />
+                    <Input type="number" className="w-[180px]" placeholder="e.g. 3" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value === '' ? null : Number(e.target.value))} />
                   </FormControl>
                   <FormDescription>
                     Get a warning for work orders that are due within this many days.
@@ -644,7 +644,7 @@ const SettingsPage = () => {
 
   const tabItems = [
     { label: <span className="flex items-center"><Users className="mr-2 h-4 w-4" />User Management</span>, value: 'user-management', content: <UserManagement /> },
-    { label: <span className="flex items-center"><Wrench className="mr-2 h-4 w-4" />Service & SLA</span>, value: 'service-sla', content: <ServiceSlaManagement /> }, // Removed duplicate '/>'
+    { label: <span className="flex items-center"><Wrench className="mr-2 h-4 w-4" />Service & SLA</span>, value: 'service-sla', content: <ServiceSlaManagement /> },
     { label: <span className="flex items-center"><SettingsIcon className="mr-2 h-4 w-4" />System Settings</span>, value: 'system-settings', content: <SystemSettings /> },
     { label: <span className="flex items-center"><User className="mr-2 h-4 w-4" />My Profile</span>, value: 'profile-settings', content: <ProfileSettings /> },
   ];

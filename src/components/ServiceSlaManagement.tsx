@@ -9,7 +9,7 @@ import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/ca
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Plus, Pencil, Trash2, MoreHorizontal, Loader2 } from "lucide-react";
+import { Plus, Pencil, Trash2, MoreHorizontal, Loader2 } from "lucide-react"; // Added Loader2
 import {
   DropdownMenu,
   DropdownMenuContent,

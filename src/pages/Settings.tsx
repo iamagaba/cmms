@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form"; // Import SubmitHandler
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -420,7 +420,7 @@ const ProfileSettings = () => {
     defaultValues: {
       name: "",
       email: "",
-      is_admin: false,
+      is_admin: false, // Default to false as per schema
       currentPassword: "",
       newPassword: "",
       confirmPassword: "",
@@ -485,13 +485,13 @@ const ProfileSettings = () => {
 
   const displayAvatar = profile?.avatar_url || user?.user_metadata?.avatar_url;
 
-  const handleProfileSubmit = (values: z.infer<typeof profileSettingsFormSchema>) => {
+  const handleProfileSubmit: SubmitHandler<z.infer<typeof profileSettingsFormSchema>> = (values) => {
     const [first_name, ...last_name_parts] = values.name.split(' ');
     const last_name = last_name_parts.join(' ');
     updateProfileMutation.mutate({ first_name, last_name, is_admin: values.is_admin });
   };
 
-  const handlePasswordSubmit = (values: z.infer<typeof profileSettingsFormSchema>) => {
+  const handlePasswordSubmit: SubmitHandler<z.infer<typeof profileSettingsFormSchema>> = (values) => {
     if (values.newPassword) {
       updatePasswordMutation.mutate(values.newPassword);
     }

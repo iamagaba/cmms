@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form"; // Import SubmitHandler
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import dayjs from "dayjs";
@@ -75,31 +75,29 @@ export const TechnicianFormSheet = ({
 
   useEffect(() => {
     if (isOpen) {
-      if (technician) {
-        form.reset({
-          name: technician.name,
-          email: technician.email || "",
-          phone: technician.phone || "",
-          location_id: technician.location_id || undefined,
-          status: technician.status || "offline",
-          specializations: (technician.specializations || []).join(', '), // Join array to string
-          join_date: technician.join_date ? dayjs(technician.join_date).toDate() : new Date(),
-        });
-      } else {
-        form.reset({
-          name: "",
-          email: "",
-          phone: "",
-          location_id: undefined,
-          status: "offline",
-          specializations: "",
-          join_date: new Date(),
-        });
-      }
+      form.reset({
+        name: technician?.name || "",
+        email: technician?.email || "",
+        phone: technician?.phone || "",
+        location_id: technician?.location_id || undefined,
+        status: technician?.status || "offline",
+        specializations: (technician?.specializations || []).join(', '), // Join array to string
+        join_date: technician?.join_date ? dayjs(technician.join_date).toDate() : new Date(),
+      });
+    } else {
+      form.reset({
+        name: "",
+        email: "",
+        phone: "",
+        location_id: undefined,
+        status: "offline",
+        specializations: "",
+        join_date: new Date(),
+      });
     }
   }, [isOpen, technician, form]);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit: SubmitHandler<z.infer<typeof formSchema>> = async (values) => {
     const technicianToSave: Technician = {
       id: technician?.id || "", // ID will be empty string for new, filled for edit
       name: values.name,

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, SubmitHandler } from "react-hook-form"; // Import SubmitHandler
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { ServiceCategory, SlaPolicy } from "@/types/supabase";
@@ -53,8 +53,8 @@ export const ServiceSlaFormSheet = ({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
-      description: "",
-      first_response_minutes: null, // Default to null for nullable optional numbers
+      description: null, // Explicitly null for nullable optional
+      first_response_minutes: null,
       response_hours: null,
       resolution_hours: null,
       expected_repair_hours: null,
@@ -62,19 +62,19 @@ export const ServiceSlaFormSheet = ({
   });
 
   useEffect(() => {
-    if (isOpen && serviceSlaData) {
+    if (isOpen) {
       form.reset({
-        name: serviceSlaData.name,
-        description: serviceSlaData.description || "",
-        first_response_minutes: serviceSlaData.sla_policies?.first_response_minutes ?? null,
-        response_hours: serviceSlaData.sla_policies?.response_hours ?? null,
-        resolution_hours: serviceSlaData.sla_policies?.resolution_hours ?? null,
-        expected_repair_hours: serviceSlaData.sla_policies?.expected_repair_hours ?? null,
+        name: serviceSlaData?.name || "",
+        description: serviceSlaData?.description || null,
+        first_response_minutes: serviceSlaData?.sla_policies?.first_response_minutes ?? null,
+        response_hours: serviceSlaData?.sla_policies?.response_hours ?? null,
+        resolution_hours: serviceSlaData?.sla_policies?.resolution_hours ?? null,
+        expected_repair_hours: serviceSlaData?.sla_policies?.expected_repair_hours ?? null,
       });
-    } else if (isOpen && !serviceSlaData) {
+    } else {
       form.reset({
         name: "",
-        description: "",
+        description: null,
         first_response_minutes: null,
         response_hours: null,
         resolution_hours: null,
@@ -83,7 +83,7 @@ export const ServiceSlaFormSheet = ({
     }
   }, [isOpen, serviceSlaData, form]);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+  const onSubmit: SubmitHandler<z.infer<typeof formSchema>> = async (values) => {
     const categoryData: Partial<ServiceCategory> = {
       id: serviceSlaData?.id,
       name: values.name,
@@ -131,7 +131,7 @@ export const ServiceSlaFormSheet = ({
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea placeholder="Describe when this category should be used." {...field} />
+                    <Textarea placeholder="Describe when this category should be used." {...field} value={field.value ?? ''} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

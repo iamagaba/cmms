@@ -107,9 +107,23 @@ export const MaintenanceCompletionDrawer = ({
 
   const partsColumns = [
     { title: 'Part', dataIndex: ['inventory_items', 'name'], render: (name: string, record: WorkOrderPart) => `${name} (${record.inventory_items.sku})` },
-    { title: 'Qty', dataIndex: 'quantity_used' },
-    { title: 'Unit Price', dataIndex: 'price_at_at_time_of_use', render: (price: number) => `UGX ${price.toLocaleString('en-US')}` },
-    { title: 'Total', render: (_: any, record: WorkOrderPart) => `UGX ${(record.quantity_used * record.price_at_at_time_of_use).toLocaleString('en-US')}` },
+    { 
+      title: 'Qty', 
+      dataIndex: 'quantity_used',
+      render: (qty: number) => qty != null ? qty.toLocaleString() : 'N/A',
+    },
+    { 
+      title: 'Unit Price', 
+      dataIndex: 'price_at_time_of_use', // Corrected field name
+      render: (price: number) => price != null ? `UGX ${price.toLocaleString('en-US')}` : 'N/A',
+    },
+    { 
+      title: 'Total', 
+      render: (_: any, record: WorkOrderPart) => 
+        record.quantity_used != null && record.price_at_time_of_use != null // Corrected field name
+          ? `UGX ${(record.quantity_used * record.price_at_time_of_use).toLocaleString('en-US')}` // Corrected field name
+          : 'N/A',
+    },
     {
       title: 'Actions',
       key: 'actions',
@@ -125,7 +139,7 @@ export const MaintenanceCompletionDrawer = ({
       ),
     },
   ];
-  const partsTotal = (usedParts || []).reduce((sum, part) => sum + (part.quantity_used * part.inventory_items.unit_price), 0);
+  const partsTotal = (usedParts || []).reduce((sum, part) => sum + (part.quantity_used * part.price_at_time_of_use), 0); // Corrected field name
   const usedPartsCount = usedParts?.length || 0;
 
   return (

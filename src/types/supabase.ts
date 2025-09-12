@@ -142,7 +142,7 @@ export interface WorkOrderPart {
   work_order_id: string;
   item_id: string;
   quantity_used: number;
-  price_at_at_time_of_use: number;
+  price_at_time_of_use: number; // Corrected field name
   created_at?: string;
   inventory_items: InventoryItem; // For joined queries
 }

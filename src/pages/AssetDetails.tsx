@@ -17,6 +17,7 @@ import { getColumns } from "@/components/WorkOrderTableColumns"; // Import getCo
 import { useSession } from "@/context/SessionContext";
 import Breadcrumbs from "@/components/Breadcrumbs";
 import { AssetRepairTimeline } from "@/components/AssetRepairTimeline"; // Import the new timeline component
+import { CustomerWorkOrderSummaryChart } from "@/components/CustomerWorkOrderSummaryChart"; // Import the new chart component
 
 const { Title, Text } = Typography;
 
@@ -64,6 +65,18 @@ const AssetDetailsPage = () => {
     enabled: !!id,
   });
   
+  // New query for customer's overall work order history
+  const { data: customerWorkOrders, isLoading: isLoadingCustomerWorkOrders } = useQuery<WorkOrder[]>({
+    queryKey: ['customer_work_orders', customer?.id],
+    queryFn: async () => {
+      if (!customer?.id) return [];
+      const { data, error } = await supabase.from('work_orders').select('*').eq('customer_id', customer.id);
+      if (error) throw new Error(error.message);
+      return (data || []).map((item: any) => ({ ...item, createdAt: item.created_at, workOrderNumber: item.work_order_number, assignedTechnicianId: item.assigned_technician_id, locationId: item.location_id, serviceNotes: item.service_notes, partsUsed: item.parts_used, activityLog: item.activity_log, slaDue: item.sla_due, completedAt: item.completed_at, customerLat: item.customer_lat, customerLng: item.customer_lng, customerAddress: item.customer_address, onHoldReason: item.on_hold_reason, appointmentDate: item.appointment_date, customerId: item.customer_id, vehicleId: item.vehicle_id, created_by: item.created_by, service_category_id: item.service_category_id, confirmed_at: item.confirmed_at, work_started_at: item.work_started_at, sla_timers_paused_at: item.sla_timers_paused_at, total_paused_duration_seconds: item.total_paused_duration_seconds, initialDiagnosis: item.client_report, issueType: item.issue_type, faultCode: item.fault_code, maintenanceNotes: item.maintenance_notes })) || [];
+    },
+    enabled: !!customer?.id,
+  });
+
   const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return data || []; } });
   const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({ queryKey: ['locations'], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*'); if (error) throw new Error(error.message); return data || []; } });
   const { data: allCustomers, isLoading: isLoadingAllCustomers } = useQuery<Customer[]>({ queryKey: ['customers'], queryFn: async () => { const { data, error } = await supabase.from('customers').select('*'); if (error) throw new Error(error.message); return data || []; } });
@@ -85,6 +98,7 @@ const AssetDetailsPage = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['work_orders', { vehicleId: id }] });
+      queryClient.invalidateQueries({ queryKey: ['customer_work_orders', customer?.id] }); // Invalidate new query
       showSuccess('Work order has been updated.');
     },
     onError: (error) => showError(error.message),
@@ -139,7 +153,7 @@ const AssetDetailsPage = () => {
     workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates }));
   };
 
-  const isLoading = isLoadingVehicle || isLoadingCustomer || isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingAllCustomers || isLoadingProfiles || isLoadingServiceCategories;
+  const isLoading = isLoadingVehicle || isLoadingCustomer || isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingAllCustomers || isLoadingProfiles || isLoadingServiceCategories || isLoadingCustomerWorkOrders; // Include new loading state
 
   if (isLoading) {
     return <Skeleton active />;
@@ -168,6 +182,7 @@ const AssetDetailsPage = () => {
 
   const handleSaveWorkOrder = () => {
     queryClient.invalidateQueries({ queryKey: ['work_orders', { vehicleId: id }] });
+    queryClient.invalidateQueries({ queryKey: ['customer_work_orders', customer?.id] }); // Invalidate new query
     setIsFormDrawerOpen(false);
     setPrefillData(null);
   };
@@ -201,14 +216,23 @@ const AssetDetailsPage = () => {
                     </Descriptions>
                 </Card>
                 {customer && (
-                    <Card style={{ marginTop: 16 }}>
-                        <Title level={5}>Owner Information</Title>
-                        <Descriptions column={1} bordered>
-                            <Descriptions.Item label={<Icon icon="ph:user-fill" />}>{customer.name}</Descriptions.Item>
-                            <Descriptions.Item label={<Icon icon="ph:envelope-fill" />}><a href={`mailto:${customer.email}`}>{customer.email}</a></Descriptions.Item>
-                            <Descriptions.Item label={<Icon icon="ph:phone-fill" />}><a href={`tel:${customer.phone}`}>{customer.phone}</a></Descriptions.Item>
-                        </Descriptions>
-                    </Card>
+                    <>
+                        <Card style={{ marginTop: 16 }}>
+                            <Title level={5}>Owner Information</Title>
+                            <Descriptions column={1} bordered>
+                                <Descriptions.Item label={<Icon icon="ph:user-fill" />}>{customer.name}</Descriptions.Item>
+                                <Descriptions.Item label={<Icon icon="ph:envelope-fill" />}><a href={`mailto:${customer.email}`}>{customer.email}</a></Descriptions.Item>
+                                <Descriptions.Item label={<Icon icon="ph:phone-fill" />}><a href={`tel:${customer.phone}`}>{customer.phone}</a></Descriptions.Item>
+                            </Descriptions>
+                        </Card>
+                        {/* New: Customer Work Order Summary Chart */}
+                        <CustomerWorkOrderSummaryChart
+                            customerId={customer.id}
+                            customerName={customer.name}
+                            customerWorkOrders={customerWorkOrders || []}
+                            isLoading={isLoadingCustomerWorkOrders}
+                        />
+                    </>
                 )}
             </Col>
             <Col xs={24} md={16}>

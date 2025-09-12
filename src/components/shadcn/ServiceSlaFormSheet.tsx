@@ -54,10 +54,10 @@ export const ServiceSlaFormSheet = ({
     defaultValues: {
       name: "",
       description: "",
-      first_response_minutes: undefined,
-      response_hours: undefined,
-      resolution_hours: undefined,
-      expected_repair_hours: undefined,
+      first_response_minutes: null, // Default to null for nullable optional numbers
+      response_hours: null,
+      resolution_hours: null,
+      expected_repair_hours: null,
     },
   });
 
@@ -66,19 +66,19 @@ export const ServiceSlaFormSheet = ({
       form.reset({
         name: serviceSlaData.name,
         description: serviceSlaData.description || "",
-        first_response_minutes: serviceSlaData.sla_policies?.first_response_minutes || undefined,
-        response_hours: serviceSlaData.sla_policies?.response_hours || undefined,
-        resolution_hours: serviceSlaData.sla_policies?.resolution_hours || undefined,
-        expected_repair_hours: serviceSlaData.sla_policies?.expected_repair_hours || undefined,
+        first_response_minutes: serviceSlaData.sla_policies?.first_response_minutes ?? null,
+        response_hours: serviceSlaData.sla_policies?.response_hours ?? null,
+        resolution_hours: serviceSlaData.sla_policies?.resolution_hours ?? null,
+        expected_repair_hours: serviceSlaData.sla_policies?.expected_repair_hours ?? null,
       });
     } else if (isOpen && !serviceSlaData) {
       form.reset({
         name: "",
         description: "",
-        first_response_minutes: undefined,
-        response_hours: undefined,
-        resolution_hours: undefined,
-        expected_repair_hours: undefined,
+        first_response_minutes: null,
+        response_hours: null,
+        resolution_hours: null,
+        expected_repair_hours: null,
       });
     }
   }, [isOpen, serviceSlaData, form]);
@@ -145,7 +145,7 @@ export const ServiceSlaFormSheet = ({
                 <FormItem>
                   <FormLabel>First Response (mins)</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="e.g. 15" {...field} />
+                    <Input type="number" placeholder="e.g. 15" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value === '' ? null : Number(e.target.value))} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -158,7 +158,7 @@ export const ServiceSlaFormSheet = ({
                 <FormItem>
                   <FormLabel>Response Time (hrs)</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="e.g. 4" {...field} />
+                    <Input type="number" placeholder="e.g. 4" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value === '' ? null : Number(e.target.value))} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -171,7 +171,7 @@ export const ServiceSlaFormSheet = ({
                 <FormItem>
                   <FormLabel>Resolution Time (hrs)</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="e.g. 12" {...field} />
+                    <Input type="number" placeholder="e.g. 12" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value === '' ? null : Number(e.target.value))} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -184,7 +184,7 @@ export const ServiceSlaFormSheet = ({
                 <FormItem>
                   <FormLabel>Expected Repair (hrs)</FormLabel>
                   <FormControl>
-                    <Input type="number" placeholder="e.g. 3" {...field} />
+                    <Input type="number" placeholder="e.g. 3" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value === '' ? null : Number(e.target.value))} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

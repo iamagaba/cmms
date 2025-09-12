@@ -40,13 +40,9 @@ const formSchema = z.object({
   email: z.string().email("Invalid email address"),
   phone: z.string().min(1, "Phone number is required"),
   location_id: z.string().uuid().nullable().optional(),
-  status: z.enum(["available", "busy", "offline"], {
-    required_error: "Status is required",
-  }),
+  status: z.enum(["available", "busy", "offline"]),
   specializations: z.string().min(1, "At least one specialization is required (comma-separated)"), // Changed to string
-  join_date: z.date({
-    required_error: "Join date is required",
-  }),
+  join_date: z.date(),
 });
 
 interface TechnicianFormSheetProps {

@@ -125,7 +125,7 @@ export const MaintenanceCompletionDrawer = ({
       ),
     },
   ];
-  const partsTotal = (usedParts || []).reduce((sum, part) => sum + (part.quantity_used * record.price_at_at_time_of_use), 0);
+  const partsTotal = (usedParts || []).reduce((sum, part) => sum + (part.quantity_used * part.inventory_items.unit_price), 0);
   const usedPartsCount = usedParts?.length || 0;
 
   return (

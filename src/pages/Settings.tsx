@@ -11,7 +11,7 @@ import { useSession } from '@/context/SessionContext';
 import { useSystemSettings } from '@/context/SystemSettingsContext';
 import { useSearchParams } from 'react-router-dom';
 import Breadcrumbs from "@/components/Breadcrumbs";
-import ServiceSlaManagement from '@/components/ServiceSlaManagement'; // Keep this import, it's now refactored
+import ServiceSlaManagement from '@/components/ServiceSlaManagement';
 
 // shadcn/ui components
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -51,6 +51,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Skeleton } from "@/components/ui/skeleton"; // Import Skeleton
 
 // --- User Management Tab ---
 const UserManagement = () => {
@@ -112,8 +113,8 @@ const UserManagement = () => {
     technicianMutation.mutate(technicianData);
   };
 
-  const handleDeleteClick = (id: string) => {
-    setItemToDelete(id);
+  const handleDeleteClick = (technician: Technician) => { // Changed to accept Technician object
+    setItemToDelete(technician.id);
     setIsDeleteDialogOpen(true);
   };
 
@@ -354,7 +355,7 @@ const SystemSettings = () => {
                 <FormItem>
                   <FormLabel>SLA Warning Threshold (days)</FormLabel>
                   <FormControl>
-                    <Input type="number" className="w-[180px]" placeholder="e.g. 3" {...field} />
+                    <Input type="number" className="w-[180px]" placeholder="e.g. 3" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value === '' ? null : Number(e.target.value))} />
                   </FormControl>
                   <FormDescription>
                     Get a warning for work orders that are due within this many days.
@@ -370,7 +371,7 @@ const SystemSettings = () => {
                 Upload a logo to be displayed in the header and sidebar. Recommended size: 128x128px.
               </FormDescription>
               <div className="flex items-center space-x-4">
-                {logoUrl && <Avatar className="h-16 w-16 rounded-md" src={logoUrl} alt="System Logo" />}
+                {logoUrl && <Avatar className="h-16 w-16 rounded-md"><AvatarImage src={logoUrl} alt="System Logo" /></Avatar>}
                 <Label htmlFor="logo-upload" className="cursor-pointer">
                   <Button asChild variant="outline">
                     <span className="flex items-center">

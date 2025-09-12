@@ -4,7 +4,6 @@ import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { InventoryItem, WorkOrderPart } from '@/types/supabase';
-import { AddPartToWorkOrderDialog } from './AddPartToWorkOrderDialog'; // Import the AddPartToWorkOrderDialog
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -43,9 +42,20 @@ export const MaintenanceCompletionDrawer = ({
   initialMaintenanceNotes,
 }: MaintenanceCompletionDrawerProps) => {
   const [form] = Form.useForm();
+  const [partForm] = Form.useForm(); // Form for adding parts
   const [loading, setLoading] = useState(false);
   const [showCustomFaultCode, setShowCustomFaultCode] = useState(false);
-  const [isAddPartDialogOpenInternal, setIsAddPartDialogOpenInternal] = useState(false); // Internal state for AddPartToWorkOrderDialog
+
+  // Fetch inventory items for the inline part selection
+  const { data: inventoryItems, isLoading: isLoadingInventory } = useQuery<InventoryItem[]>({
+    queryKey: ['inventory_items'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('inventory_items').select('*').order('name');
+      if (error) throw new Error(error.message);
+      return data || [];
+    },
+    enabled: isOpen, // Only fetch when the drawer is open
+  });
 
   useEffect(() => {
     if (isOpen) {
@@ -55,12 +65,12 @@ export const MaintenanceCompletionDrawer = ({
         maintenanceNotes: initialMaintenanceNotes,
       });
       setShowCustomFaultCode(initialFaultCode && !predefinedFaultCodes.includes(initialFaultCode));
-      setIsAddPartDialogOpenInternal(false); // Reset dialog visibility
+      partForm.resetFields(); // Reset part form when drawer opens
     } else {
       form.resetFields();
       setShowCustomFaultCode(false);
     }
-  }, [isOpen, form, initialFaultCode, initialMaintenanceNotes]);
+  }, [isOpen, form, partForm, initialFaultCode, initialMaintenanceNotes]);
 
   const handleFaultCodeChange = (value: string) => {
     if (value === 'other') {
@@ -82,6 +92,16 @@ export const MaintenanceCompletionDrawer = ({
       console.log('Validate Failed:', info);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAddPartSubmit = async () => {
+    try {
+      const values = await partForm.validateFields();
+      onAddPart(values.itemId, values.quantity);
+      partForm.resetFields(); // Clear part form after adding
+    } catch (info) {
+      console.log('Validate Failed (Add Part):', info);
     }
   };
 
@@ -156,14 +176,6 @@ export const MaintenanceCompletionDrawer = ({
 
         <Space style={{ marginTop: 16, marginBottom: 8, width: '100%', justifyContent: 'space-between' }}>
           <Text strong>Parts Used ({usedPartsCount} items)</Text>
-          <Button
-            type="dashed"
-            icon={<Icon icon="ph:plus-fill" />}
-            onClick={() => setIsAddPartDialogOpenInternal(true)} // Open the AddPartToWorkOrderDialog
-            size="small"
-          >
-            Add Part
-          </Button>
         </Space>
 
         <Table
@@ -185,16 +197,46 @@ export const MaintenanceCompletionDrawer = ({
           )}
           locale={{ emptyText: <Empty description="No parts used yet." image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
         />
-      </Form>
 
-      {/* Render the AddPartToWorkOrderDialog here */}
-      {isAddPartDialogOpenInternal && (
-        <AddPartToWorkOrderDialog
-          isOpen={isAddPartDialogOpenInternal}
-          onClose={() => setIsAddPartDialogOpenInternal(false)}
-          onSave={onAddPart} // Use the onAddPart prop from MaintenanceCompletionDrawer
-        />
-      )}
+        {/* Inline form for adding parts */}
+        <Card size="small" style={{ marginTop: 16 }}>
+          <Text strong style={{ marginBottom: 8, display: 'block' }}>Add New Part</Text>
+          <Form form={partForm} layout="vertical" name="add_part_inline_form" onFinish={handleAddPartSubmit}>
+            <Row gutter={16}>
+              <Col span={14}>
+                <Form.Item name="itemId" label="Select Part" rules={[{ required: true }]} style={{ marginBottom: 0 }}>
+                  <Select
+                    showSearch
+                    placeholder="Search for a part by name or SKU"
+                    filterOption={(input, option) =>
+                      String(option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                    }
+                    loading={isLoadingInventory}
+                  >
+                    {(inventoryItems || []).map(item => (
+                      <Option key={item.id} value={item.id} label={`${item.name} (${item.sku})`}>
+                        {item.name} ({item.sku}) - <span style={{ color: '#888' }}>{item.quantity_on_hand} in stock</span>
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={5}>
+                <Form.Item name="quantity" label="Qty" rules={[{ required: true, type: 'number', min: 1 }]} style={{ marginBottom: 0 }}>
+                  <InputNumber style={{ width: '100%' }} placeholder="1" min={1} />
+                </Form.Item>
+              </Col>
+              <Col span={5}>
+                <Form.Item label=" " style={{ marginBottom: 0 }}> {/* Empty label to align button */}
+                  <Button type="primary" htmlType="submit" icon={<Icon icon="ph:plus-fill" />} block>
+                    Add
+                  </Button>
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
+        </Card>
+      </Form>
     </Drawer>
   );
 };

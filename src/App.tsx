@@ -110,33 +110,44 @@ const App = () => (
           colorWarning: '#FAAD14',
           colorError: '#FF4D4F',
           colorInfo: '#0052CC',
-          fontFamily: 'Inter, sans-serif', // Updated font family to Inter
+          fontFamily: 'Inter', // Updated font family to Inter
           colorText: '#1f2937',
           colorTextSecondary: '#6b7280',
-          borderRadius: 6,
-          controlHeight: 32,
+          borderRadius: 4, // Slightly smaller border radius
+          controlHeight: 28, // Reduced control height for compactness
           colorBgLayout: '#f6f7f9',
           colorBorder: '#e5e7eb',
           colorSplit: '#f3f4f6',
+          fontSize: 13, // Slightly smaller base font size
         },
         components: {
           Table: { 
-            padding: 12, 
-            paddingSM: 8,
+            padding: 10, // Reduced table padding
+            paddingSM: 6, // Reduced small table padding
             rowSelectedBg: '#f5f5f5',
             rowSelectedHoverBg: '#eeeeee',
           },
-          Card: { padding: 16 },
-          Form: { itemMarginBottom: 16 },
-          Layout: { headerBg: '#ffffff', headerPadding: '0 24px', headerHeight: 64, siderBg: '#ffffff' },
+          Card: { padding: 12 }, // Reduced card padding
+          Form: { itemMarginBottom: 12 }, // Reduced form item margin
+          Layout: { headerBg: '#ffffff', headerPadding: '0 16px', headerHeight: 56, siderBg: '#ffffff' }, // Reduced header height and padding
           Menu: { 
             itemBg: '#ffffff',
             itemSelectedBg: '#E8D9F7',
             itemSelectedColor: '#6A0DAD',
             itemHoverBg: '#f0f0f0',
             itemHoverColor: '#6A0DAD',
-            itemBorderRadius: 6,
+            itemBorderRadius: 4, // Match global border radius
             subMenuItemBg: '#ffffff',
+            itemHeight: 36, // Reduced menu item height
+            itemPaddingInline: 8, // Reduced horizontal padding for menu items
+          },
+          Typography: {
+            titleMarginBottom: 0.5, // Reduce margin below titles
+            titleMarginTop: 0.5, // Reduce margin above titles
+          },
+          Space: {
+            // Default gap for Space component, can be overridden locally
+            // size: 8, // You can set a default size here if needed, but 'middle' is often fine
           }
         }
       }}

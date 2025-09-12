@@ -71,6 +71,8 @@ const AnalyticsPage = () => {
     return acc + completionTime;
   }, 0);
   const avgCompletionTimeHours = completedOrders.length > 0 ? (totalCompletionTime / completedOrders.length).toFixed(1) : '0.0';
+  const slaCompliancePercentage = completedOrders.length > 0 ? ((slaMetCount / completedOrders.length) * 100).toFixed(1) : '100.0';
+
 
   // Chart Data Processing (using date-ranged data)
   const statusData = ['Open', 'In Progress', 'On Hold', 'Completed'].map(status => ({
@@ -112,7 +114,7 @@ const AnalyticsPage = () => {
       <Row gutter={[24, 24]}>
         <Col xs={24} sm={12} lg={6}><KpiCard title="Total Work Orders" value={(workOrders || []).length.toString()} icon={<Icon icon="ph:wrench-fill" />} /></Col>
         <Col xs={24} sm={12} lg={6}><KpiCard title="Avg. Completion Time" value={`${avgCompletionTimeHours} hrs`} icon={<Icon icon="ph:hourglass-fill" />} /></Col>
-        <Col xs={24} sm={12} lg={6}><KpiCard title="SLA Compliance" value={`${slaCompliance}%`} icon={<Icon icon="ph:check-circle-fill" />} /></Col>
+        <Col xs={24} sm={12} lg={6}><KpiCard title="SLA Compliance" value={`${slaCompliancePercentage}%`} icon={<Icon icon="ph:check-circle-fill" />} /></Col>
         <Col xs={24} sm={12} lg={6}><KpiCard title="Active Technicians" value={(technicians || []).length.toString()} icon={<Icon icon="ph:user-fill" />} /></Col>
       </Row>
       <Row gutter={[24, 24]}>

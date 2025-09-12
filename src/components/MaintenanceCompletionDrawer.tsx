@@ -4,6 +4,7 @@ import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { InventoryItem, WorkOrderPart } from '@/types/supabase';
+import { AddPartToWorkOrderDialog } from './AddPartToWorkOrderDialog'; // Import the AddPartToWorkOrderDialog
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -44,19 +45,7 @@ export const MaintenanceCompletionDrawer = ({
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [showCustomFaultCode, setShowCustomFaultCode] = useState(false);
-  const [showPartSelection, setShowPartSelection] = useState(false); // State to toggle part selection UI
-  const [selectedPartId, setSelectedPartId] = useState<string | undefined>(undefined);
-  const [selectedPartQuantity, setSelectedPartQuantity] = useState<number | undefined>(undefined);
-
-  const { data: inventoryItems, isLoading: isLoadingInventory } = useQuery<InventoryItem[]>({
-    queryKey: ['inventory_items'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('inventory_items').select('*').order('name');
-      if (error) throw new Error(error.message);
-      return data || [];
-    },
-    enabled: isOpen, // Only fetch when drawer is open
-  });
+  const [isAddPartDialogOpenInternal, setIsAddPartDialogOpenInternal] = useState(false); // Internal state for AddPartToWorkOrderDialog
 
   useEffect(() => {
     if (isOpen) {
@@ -66,9 +55,7 @@ export const MaintenanceCompletionDrawer = ({
         maintenanceNotes: initialMaintenanceNotes,
       });
       setShowCustomFaultCode(initialFaultCode && !predefinedFaultCodes.includes(initialFaultCode));
-      setShowPartSelection(false); // Reset part selection visibility
-      setSelectedPartId(undefined);
-      setSelectedPartQuantity(undefined);
+      setIsAddPartDialogOpenInternal(false); // Reset dialog visibility
     } else {
       form.resetFields();
       setShowCustomFaultCode(false);
@@ -95,15 +82,6 @@ export const MaintenanceCompletionDrawer = ({
       console.log('Validate Failed:', info);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleConfirmAddPart = () => {
-    if (selectedPartId && selectedPartQuantity && selectedPartQuantity > 0) {
-      onAddPart(selectedPartId, selectedPartQuantity);
-      setSelectedPartId(undefined);
-      setSelectedPartQuantity(undefined);
-      setShowPartSelection(false); // Hide part selection after adding
     }
   };
 
@@ -180,36 +158,43 @@ export const MaintenanceCompletionDrawer = ({
           <Text strong>Parts Used ({usedPartsCount} items)</Text>
           <Button
             type="dashed"
-            icon={showPartSelection ? <Icon icon="ph:x-fill" /> : <Icon icon="ph:plus-fill" />}
-            onClick={() => setShowPartSelection(!showPartSelection)}
+            icon={<Icon icon="ph:plus-fill" />}
+            onClick={() => setIsAddPartDialogOpenInternal(true)} // Open the AddPartToWorkOrderDialog
             size="small"
           >
-            {showPartSelection ? 'Cancel Add Part' : 'Add Part'}
+            Add Part
           </Button>
         </Space>
 
-        {isLoadingInventory ? <Spin /> : (
-          <Table
-            dataSource={usedParts || []}
-            columns={partsColumns}
-            rowKey="id"
-            pagination={false}
-            size="small"
-            summary={() => (
-              <Table.Summary.Row>
-                <Table.Summary.Cell index={0} colSpan={3}>
-                  <Text strong>Total Cost</Text>
-                </Table.Summary.Cell>
-                <Table.Summary.Cell index={3}>
-                  <Text strong>UGX {partsTotal.toLocaleString('en-US')}</Text>
-                </Table.Summary.Cell>
-                <Table.Summary.Cell index={4}></Table.Summary.Cell> {/* Empty cell for actions column */}
-              </Table.Summary.Row>
-            )}
-            locale={{ emptyText: <Empty description="No parts used yet." image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
-          />
-        )}
+        <Table
+          dataSource={usedParts || []}
+          columns={partsColumns}
+          rowKey="id"
+          pagination={false}
+          size="small"
+          summary={() => (
+            <Table.Summary.Row>
+              <Table.Summary.Cell index={0} colSpan={3}>
+                <Text strong>Total Cost</Text>
+              </Table.Summary.Cell>
+              <Table.Summary.Cell index={3}>
+                <Text strong>UGX {partsTotal.toLocaleString('en-US')}</Text>
+              </Table.Summary.Cell>
+              <Table.Summary.Cell index={4}></Table.Summary.Cell> {/* Empty cell for actions column */}
+            </Table.Summary.Row>
+          )}
+          locale={{ emptyText: <Empty description="No parts used yet." image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
+        />
       </Form>
+
+      {/* Render the AddPartToWorkOrderDialog here */}
+      {isAddPartDialogOpenInternal && (
+        <AddPartToWorkOrderDialog
+          isOpen={isAddPartDialogOpenInternal}
+          onClose={() => setIsAddPartDialogOpenInternal(false)}
+          onSave={onAddPart} // Use the onAddPart prop from MaintenanceCompletionDrawer
+        />
+      )}
     </Drawer>
   );
 };

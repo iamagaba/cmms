@@ -9,7 +9,7 @@ import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { WorkOrder, Technician, Location, Customer, Vehicle, Profile, ServiceCategory, SlaPolicy, EmergencyBikeAssignment } from "@/types/supabase"; // Added EmergencyBikeAssignment
-import { camelToSnakeCase } from "@/utils/data-helpers";
+import { camelToSnakeCase, snakeToCamelCase } from "@/utils/data-helpers";
 import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import CalendarPage from "./Calendar";
@@ -22,8 +22,10 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 
 dayjs.extend(isBetween);
 const { TabPane } = Tabs;
+const { Panel } = Collapse; // Import Panel from Collapse
+const { Search } = Input; // Import Search from Input
 
-type GroupByOption = 'status' | 'priority' | 'assignedTechnicianId';
+type GroupByOption = 'status' | 'priority' | 'assignedTechnicianId' | 'technician'; // Added 'technician'
 type WorkOrderView = 'table' | 'kanban' | 'calendar' | 'map';
 
 const channelOptions = ['Call Center', 'Service Center', 'Social Media', 'Staff', 'Swap Station'];
@@ -315,7 +317,7 @@ const WorkOrdersPage = () => {
     
     // This automatic status change should happen after validation, but before the final mutation.
     // The validation above already ensures 'Ready' -> 'In Progress' is a valid transition.
-    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready' && updates.status !== 'On Hold' && updates.status !== 'Completed') {
+    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready' && !['On Hold', 'Completed'].includes(updates.status as WorkOrder['status'])) {
       updates.status = 'In Progress';
       showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`);
     }
@@ -445,7 +447,7 @@ const WorkOrdersPage = () => {
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
       <Breadcrumbs actions={pageActions} />
-      <Collapse><Panel header={<><Icon icon="si:filter" /> Filters & View Options</>} key="1"><Row gutter={[16, 16]} align="bottom"><Col xs={24} sm={12} md={6}><Search placeholder="Filter by Vehicle ID..." allowClear onSearch={setVehicleFilter} onChange={(e) => setVehicleFilter(e.target.value)} style={{ width: '100%' }} /></Col><Col xs={24} sm={12} md={4}><Select placeholder="Filter by Status" allowClear style={{ width: '100%' }} onChange={setStatusFilter} value={statusFilter}><Option value="Open">Open</Option><Option value="Confirmation">Confirmation</Option><Option value="Ready">Ready</Option><Option value="In Progress">In Progress</Option><Option value="On Hold">On Hold</Option><Option value="Completed">Completed</Option></Select></Col><Col xs={24} sm={12} md={4}><Select placeholder="Filter by Priority" allowClear style={{ width: '100%' }} onChange={setPriorityFilter} value={priorityFilter}><Option value="High">High</Option><Option value="Medium">Medium</Option><Option value="Low">Low</Option></Select></Col><Col xs={24} sm={12} md={5}><Select placeholder="Filter by Technician" allowClear style={{ width: '100%' }} onChange={setTechnicianFilter} value={technicianFilter}>{technicians?.map(t => <Option key={t.id} value={t.id}>{t.name}</Option>)}</Select></Col><Col xs={24} sm={12} md={5}><Select placeholder="Filter by Location" allowClear style={{ width: '100%' }} onChange={setChannelFilter} value={channelFilter}>{locations?.map(l => <Option key={l.id} value={l.id}>{l.name}</Option>)}</Select></Col>{view === 'kanban' && (<Col xs={24} sm={12} md={2}><Select value={groupBy} onChange={(value) => setGroupBy(value as GroupByOption)} style={{ width: '100%' }}><Option value="status">Group by: Status</Option><Option value="priority">Group by: Priority</Option><Option value="technician">Group by: Technician</Option></Select></Col>)}</Row></Panel></Collapse>
+      <Collapse><Panel header={<><Icon icon="si:filter" /> Filters & View Options</>} key="1"><Row gutter={[16, 16]} align="bottom"><Col xs={24} sm={12} md={6}><Search placeholder="Filter by Vehicle ID..." allowClear onSearch={setVehicleFilter} onChange={(e) => setVehicleFilter(e.target.value)} style={{ width: '100%' }} /></Col><Col xs={24} sm={12} md={4}><Select placeholder="Filter by Status" allowClear style={{ width: '100%' }} onChange={setStatusFilter} value={statusFilter}><Select.Option value="Open">Open</Select.Option><Select.Option value="Confirmation">Confirmation</Select.Option><Select.Option value="Ready">Ready</Select.Option><Select.Option value="In Progress">In Progress</Select.Option><Select.Option value="On Hold">On Hold</Select.Option><Select.Option value="Completed">Completed</Select.Option></Select></Col><Col xs={24} sm={12} md={4}><Select placeholder="Filter by Priority" allowClear style={{ width: '100%' }} onChange={setPriorityFilter} value={priorityFilter}><Select.Option value="High">High</Select.Option><Select.Option value="Medium">Medium</Select.Option><Select.Option value="Low">Low</Select.Option></Select></Col><Col xs={24} sm={12} md={5}><Select placeholder="Filter by Technician" allowClear style={{ width: '100%' }} onChange={setTechnicianFilter} value={technicianFilter}>{technicians?.map(t => <Select.Option key={t.id} value={t.id}>{t.name}</Select.Option>)}</Select></Col><Col xs={24} sm={12} md={5}><Select placeholder="Filter by Location" allowClear style={{ width: '100%' }} onChange={setChannelFilter} value={channelFilter}>{locations?.map(l => <Select.Option key={l.id} value={l.id}>{l.name}</Select.Option>)}</Select></Col>{view === 'kanban' && (<Col xs={24} sm={12} md={2}><Select value={groupBy} onChange={(value) => setGroupBy(value as GroupByOption)} style={{ width: '100%' }}><Select.Option value="status">Group by: Status</Select.Option><Select.Option value="priority">Group by: Priority</Select.Option><Select.Option value="technician">Group by: Technician</Select.Option></Select></Col>)}</Row></Panel></Collapse>
       <Tabs defaultActiveKey="table" activeKey={view} onChange={(key) => setView(key as WorkOrderView)} items={tabItems} />
       {isCreateDialogOpen && <CreateWorkOrderDialog isOpen={isCreateDialogOpen} onClose={() => setIsCreateDialogOpen(false)} onProceed={handleProceedToCreate} />}
       {isFormDialogOpen && <WorkOrderFormDrawer isOpen={isFormDialogOpen} onClose={() => { setIsFormDialogOpen(false); setPrefillData(null); }} onSave={handleSave} workOrder={editingWorkOrder} prefillData={prefillData} technicians={technicians || []} locations={locations || []} serviceCategories={serviceCategories || []} />}

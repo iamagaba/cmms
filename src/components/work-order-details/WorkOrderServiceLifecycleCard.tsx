@@ -29,7 +29,7 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
             <Space>
               <Icon icon="ph:chat-centered-text-fill" />
               <Text strong>Initial Diagnosis</Text>
-              <Text type="secondary" style={{ fontSize: 12 }}>{formatDate(workOrder.created_at)}</Text>
+              <Text type="secondary">{formatDate(workOrder.created_at)}</Text>
             </Space>
           }
           bordered
@@ -52,7 +52,7 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
               <Space>
                 <Icon icon="ph:question-fill" />
                 <Text strong>Confirmed Issue</Text>
-                <Text type="secondary" style={{ fontSize: 12 }}>{formatDate(workOrder.confirmed_at || workOrder.work_started_at || workOrder.created_at)}</Text>
+                <Text type="secondary">{formatDate(workOrder.confirmed_at || workOrder.work_started_at || workOrder.created_at)}</Text>
               </Space>
             }
             bordered
@@ -89,7 +89,7 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
             <Space>
               <Icon icon="ph:wrench-fill" />
               <Text strong>Maintenance Decision</Text>
-              <Text type="secondary" style={{ fontSize: 12 }}>{formatDate(workOrder.completedAt)}</Text>
+              <Text type="secondary">{formatDate(workOrder.completedAt)}</Text>
             </Space>
           }
           bordered

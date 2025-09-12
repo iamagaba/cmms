@@ -60,7 +60,7 @@ const WorkOrderCard = ({ order, technician, vehicle, onUpdateWorkOrder, onViewDe
     >
       {/* Header: ID and SLA */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Text code style={{ fontSize: '11px' }}>{order.workOrderNumber}</Text>
+        <Text code>{order.workOrderNumber}</Text>
         <Space size={4}>
           <EmergencyBikeTag workOrder={order} /> {/* New Emergency Bike Tag */}
           <SlaCountdown slaDue={order.slaDue} status={order.status} completedAt={order.completedAt} />
@@ -69,11 +69,11 @@ const WorkOrderCard = ({ order, technician, vehicle, onUpdateWorkOrder, onViewDe
 
       {/* Body: Vehicle and Service */}
       <div>
-        <Title level={5} style={{ margin: 0, lineHeight: 1.2, fontSize: '14px' }}>
+        <Title level={5} style={{ margin: 0, lineHeight: 1.2 }}>
           {vehicle ? `${vehicle.make} ${vehicle.license_plate}` : 'N/A'}
         </Title>
         <Paragraph 
-          style={{ fontSize: '12px', margin: '2px 0 0 0' }}
+          style={{ margin: '2px 0 0 0' }}
           ellipsis={{ rows: 2, tooltip: order.service }}
           type="secondary"
         >
@@ -86,14 +86,14 @@ const WorkOrderCard = ({ order, technician, vehicle, onUpdateWorkOrder, onViewDe
         <Space size="small" onClick={stopPropagation}>
           {groupBy !== 'priority' && (
             <Dropdown overlay={priorityMenu} trigger={['click']}>
-              <Tag color={priorityColors[order.priority || 'Low']} style={{ cursor: 'pointer' }} className="ant-tag-compact">
+              <Tag color={priorityColors[order.priority || 'Low']} style={{ cursor: 'pointer' }}>
                 {order.priority}
               </Tag>
             </Dropdown>
           )}
           {groupBy !== 'status' && (
             <Dropdown overlay={statusMenu} trigger={['click']}>
-              <Tag color={statusColors[order.status || 'Open']} style={{ cursor: 'pointer' }} className="ant-tag-compact">
+              <Tag color={statusColors[order.status || 'Open']} style={{ cursor: 'pointer' }}>
                 {order.status}
               </Tag>
             </Dropdown>

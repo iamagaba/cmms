@@ -46,7 +46,6 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
             onChange={(value) => handleUpdateWorkOrder({ status: value })}
             style={{ width: 180 }}
             bordered={false}
-            size="small"
             suffixIcon={null}
           >
             <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
@@ -63,7 +62,6 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
             onChange={(value) => handleUpdateWorkOrder({ priority: value })}
             style={{ width: 100 }}
             bordered={false}
-            size="small"
             suffixIcon={null}
           >
             <Option value="High"><Tag color={priorityColors["High"]}>High</Tag></Option>

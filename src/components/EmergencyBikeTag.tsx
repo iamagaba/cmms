@@ -37,7 +37,7 @@ export const EmergencyBikeTag: React.FC<EmergencyBikeTagProps> = ({ workOrder })
 
   return (
     <Tooltip title={`Work order in progress for over ${EMERGENCY_BIKE_THRESHOLD_HOURS} hours. Consider assigning an emergency bike.`}>
-      <Tag icon={<Icon icon="ph:bicycle-fill" width={14} height={14} />} color="purple" className="ant-tag-compact">
+      <Tag icon={<Icon icon="ph:bicycle-fill" width={14} height={14} />} color="purple">
         Emergency Bike Needed
       </Tag>
     </Tooltip>

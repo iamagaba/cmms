@@ -24,7 +24,7 @@ const SlaCountdown = ({ slaDue, status, completedAt }: SlaCountdownProps) => {
   }, [status]);
 
   if (!slaDue) {
-    return <Tag className="ant-tag-compact">No SLA</Tag>;
+    return <Tag>No SLA</Tag>;
   }
 
   const dueDate = dayjs(slaDue);
@@ -35,13 +35,13 @@ const SlaCountdown = ({ slaDue, status, completedAt }: SlaCountdownProps) => {
       const wasOnTime = completionDate.isBefore(dueDate) || completionDate.isSame(dueDate);
       return (
         <Tooltip title={`Completed on ${completionDate.format('MMM D, YYYY h:mm A')}`}>
-          <Tag icon={<Icon icon="ph:check-circle-fill" />} color={wasOnTime ? "success" : "error"} className="ant-tag-compact">
+          <Tag icon={<Icon icon="ph:check-circle-fill" />} color={wasOnTime ? "success" : "error"}>
             {wasOnTime ? 'Completed On Time' : 'Completed Late'}
           </Tag>
         </Tooltip>
       );
     }
-    return <Tag icon={<Icon icon="ph:check-circle-fill" />} color="success" className="ant-tag-compact">Completed</Tag>;
+    return <Tag icon={<Icon icon="ph:check-circle-fill" />} color="success">Completed</Tag>;
   }
 
   const diff = dueDate.diff(now); // Difference in milliseconds
@@ -81,7 +81,7 @@ const SlaCountdown = ({ slaDue, status, completedAt }: SlaCountdownProps) => {
 
   return (
     <Tooltip title={`Due on ${dueDate.format('MMM D, YYYY h:mm A')}`}>
-      <Tag icon={tagIcon} color={tagColor} className="ant-tag-compact">
+      <Tag icon={tagIcon} color={tagColor}>
         {tagText}
       </Tag>
     </Tooltip>

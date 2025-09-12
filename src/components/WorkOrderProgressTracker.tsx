@@ -210,21 +210,21 @@ const WorkOrderProgressTracker = ({ workOrder }: WorkOrderProgressTrackerProps) 
 
         const description = (
           <>
-            {timestamp && <Text type="secondary" style={{ fontSize: 12 }}>{timestamp}</Text>}
+            {timestamp && <Text type="secondary">{timestamp}</Text>}
             {activeDurationText && (
-              <Text type="secondary" style={{ fontSize: 12, display: 'block' }}>
+              <Text type="secondary" style={{ display: 'block' }}>
                 {index === currentStepIndex && workOrder.status !== 'Completed' && workOrder.status !== 'On Hold' ? 'In progress for ' : 'Took '}
                 {activeDurationText}
               </Text>
             )}
             {onHoldDurationText && (
-              <Text type="warning" style={{ fontSize: 12, display: 'block' }}>
+              <Text type="warning" style={{ display: 'block' }}>
                 (On Hold: {onHoldDurationText})
               </Text>
             )}
             {stepStatus === 'error' && workOrder.onHoldReason && (
               <Popover content={workOrder.onHoldReason} title="On Hold Reason" trigger="hover">
-                <Text type="danger" style={{ fontSize: 12, display: 'block', cursor: 'pointer' }}>On Hold</Text>
+                <Text type="danger" style={{ display: 'block', cursor: 'pointer' }}>On Hold</Text>
               </Popover>
             )}
           </>

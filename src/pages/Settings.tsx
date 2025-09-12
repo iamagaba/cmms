@@ -1,7 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useForm, SubmitHandler } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Technician, WorkOrder, Profile, Location } from '@/types/supabase';
@@ -9,54 +6,42 @@ import { showSuccess, showError } from '@/utils/toast';
 import { camelToSnakeCase, snakeToCamelCase } from "@/utils/data-helpers";
 import { useSession } from '@/context/SessionContext';
 import { useSystemSettings } from '@/context/SystemSettingsContext';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import Breadcrumbs from "@/components/Breadcrumbs";
 import ServiceSlaManagement from '@/components/ServiceSlaManagement';
 
-// shadcn/ui components
-import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+// Ant Design components
 import {
+  Card,
+  Tabs,
+  Button,
+  Input,
+  Switch,
+  Avatar,
   Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Upload } from "lucide-react"; // Using Lucide icon for upload
-import { Loader2, Plus, Pencil, Trash2, User, Mail, Lock, Eye, EyeOff, Settings as SettingsIcon, Bell, Wrench, Users, Gauge } from "lucide-react"; // Icons
-import { TechnicianDataTableShadcn } from '@/components/shadcn/TechnicianDataTableShadcn'; // New shadcn table
-import { TechnicianFormSheet } from '@/components/shadcn/TechnicianFormSheet'; // New shadcn sheet form
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { Skeleton } from "@/components/ui/skeleton"; // Import Skeleton
+  Row,
+  Col,
+  Space,
+  Typography,
+  Skeleton,
+  Modal,
+  DatePicker,
+  Popconfirm,
+} from 'antd';
+import { Icon } from '@iconify/react'; // Using Iconify for icons
+import { TechnicianDataTable } from '@/components/TechnicianDataTable';
+import { TechnicianFormDialog } from '@/components/TechnicianFormDialog';
+import dayjs from 'dayjs';
+
+const { TabPane } = Tabs;
+const { Option } = Select;
+const { Title, Text, Paragraph } = Typography;
 
 // --- User Management Tab ---
 const UserManagement = () => {
   const queryClient = useQueryClient();
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingTechnician, setEditingTechnician] = useState<Technician | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
@@ -89,7 +74,7 @@ const UserManagement = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['technicians'] });
       showSuccess('Technician has been saved.');
-      setIsSheetOpen(false);
+      setIsDialogOpen(false);
       setEditingTechnician(null);
     },
     onError: (error) => showError(error.message),
@@ -113,7 +98,7 @@ const UserManagement = () => {
     technicianMutation.mutate(technicianData);
   };
 
-  const handleDeleteClick = (technician: Technician) => { // Changed to accept Technician object
+  const handleDeleteClick = (technician: Technician) => {
     setItemToDelete(technician.id);
     setIsDeleteDialogOpen(true);
   };
@@ -126,7 +111,7 @@ const UserManagement = () => {
 
   const handleEdit = (technician: Technician) => {
     setEditingTechnician(technician);
-    setIsSheetOpen(true);
+    setIsDialogOpen(true);
   };
 
   const handleUpdateStatus = async (id: string, status: Technician['status']) => {
@@ -158,73 +143,58 @@ const UserManagement = () => {
   const isLoading = isLoadingTechnicians || isLoadingWorkOrders || isLoadingLocations;
 
   return (
-    <Card className="w-full">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-lg font-semibold">Manage Users</CardTitle>
-        <Button onClick={() => { setEditingTechnician(null); setIsSheetOpen(true); }}>
-          <Plus className="mr-2 h-4 w-4" /> Add User
-        </Button>
-      </CardHeader>
-      <div className="p-6">
-        {isLoading ? <Skeleton className="h-[300px] w-full" /> : (
-          <TechnicianDataTableShadcn
-            technicians={technicians || []}
-            workOrders={workOrders || []}
-            onEdit={handleEdit}
-            onDelete={handleDeleteClick}
-            onUpdateStatus={handleUpdateStatus}
-            onViewDetails={() => {}} // Placeholder for now, as this table is for management
-          />
-        )}
-      </div>
-      {isSheetOpen && (
-        <TechnicianFormSheet
-          isOpen={isSheetOpen}
-          onClose={() => setIsSheetOpen(false)}
+    <Card
+      title={
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Title level={5} style={{ margin: 0 }}>Manage Users</Title>
+          <Button type="primary" icon={<Icon icon="ph:plus-fill" />} onClick={() => { setEditingTechnician(null); setIsDialogOpen(true); }}>
+            Add User
+          </Button>
+        </div>
+      }
+      style={{ width: '100%' }}
+    >
+      {isLoading ? <Skeleton active /> : (
+        <TechnicianDataTable
+          technicians={technicians || []}
+          workOrders={workOrders || []}
+          onEdit={handleEdit}
+          onDelete={handleDeleteClick}
+          onUpdateStatus={handleUpdateStatus}
+        />
+      )}
+      {isDialogOpen && (
+        <TechnicianFormDialog
+          isOpen={isDialogOpen}
+          onClose={() => setIsDialogOpen(false)}
           onSave={handleSave}
           technician={editingTechnician}
           locations={locations || []}
         />
       )}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the technician.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmDelete} disabled={deleteMutation.isPending}>
-              {deleteMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Continue
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <Modal
+        title="Confirm Deletion"
+        open={isDeleteDialogOpen}
+        onOk={confirmDelete}
+        onCancel={() => setIsDeleteDialogOpen(false)}
+        okText="Delete"
+        cancelText="Cancel"
+        okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
+      >
+        <Paragraph>
+          This action cannot be undone. This will permanently delete the technician.
+        </Paragraph>
+      </Modal>
     </Card>
   );
 };
 
 // --- System Settings Tab ---
-const systemSettingsFormSchema = z.object({
-  notifications: z.boolean(),
-  defaultPriority: z.enum(["Low", "Medium", "High"]),
-  slaThreshold: z.union([z.coerce.number().int().min(0), z.literal(null)]).optional(), // Changed to allow null
-});
-
 const SystemSettings = () => {
-  const form = useForm<z.infer<typeof systemSettingsFormSchema>>({
-    resolver: zodResolver(systemSettingsFormSchema),
-    defaultValues: {
-      notifications: true, // Explicit default matching schema
-      defaultPriority: "Medium", // Explicit default matching schema
-      slaThreshold: null, // Explicit default matching schema (null for optional union)
-    },
-  });
+  const [form] = Form.useForm();
   const queryClient = useQueryClient();
   const { settings, isLoading: isLoadingSettings } = useSystemSettings();
+  const [loading, setLoading] = useState(false);
 
   const updateSystemSettingsMutation = useMutation({
     mutationFn: async (settingsToUpdate: { key: string; value: string | boolean | number | null }[]) => {
@@ -234,16 +204,20 @@ const SystemSettings = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['system_settings'] });
       showSuccess('System settings have been updated.');
+      setLoading(false);
     },
-    onError: (error) => showError(error.message),
+    onError: (error) => {
+      showError(error.message);
+      setLoading(false);
+    },
   });
 
   useEffect(() => {
     if (!isLoadingSettings && settings) {
-      form.reset({
+      form.setFieldsValue({
         notifications: settings.notifications === 'true',
         defaultPriority: (settings.defaultPriority as "Low" | "Medium" | "High") || 'Medium',
-        slaThreshold: settings.slaThreshold ? parseInt(settings.slaThreshold) : null, // Use null for optional union
+        slaThreshold: settings.slaThreshold ? parseInt(settings.slaThreshold) : null,
       });
     }
   }, [isLoadingSettings, settings, form]);
@@ -254,6 +228,7 @@ const SystemSettings = () => {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    setLoading(true);
     const fileExt = file.name.split('.').pop();
     const fileName = `${Date.now()}.${fileExt}`;
     const filePath = `public/${fileName}`;
@@ -264,6 +239,7 @@ const SystemSettings = () => {
 
     if (uploadError) {
       showError(`Upload failed: ${uploadError.message}`);
+      setLoading(false);
       return;
     }
 
@@ -277,156 +253,108 @@ const SystemSettings = () => {
 
     if (dbError) {
       showError(`Failed to save logo URL: ${dbError.message}`);
+      setLoading(false);
       return;
     }
 
     queryClient.invalidateQueries({ queryKey: ['system_settings'] });
     showSuccess('Logo updated successfully.');
+    setLoading(false);
+  };
+
+  const handleSubmit = async () => {
+    setLoading(true);
+    try {
+      const values = await form.validateFields();
+      const settingsToUpdate = Object.keys(values).map(key => ({
+        key,
+        value: (values as any)[key],
+      }));
+      updateSystemSettingsMutation.mutate(settingsToUpdate);
+    } catch (info) {
+      console.log('Validate Failed:', info);
+      setLoading(false);
+    }
   };
 
   if (isLoadingSettings) {
-    return <Card className="w-full"><CardHeader><CardTitle>System Configuration</CardTitle></CardHeader><div className="p-6"><Skeleton className="h-[300px] w-full" /></div></Card>;
+    return <Card title={<Title level={5} style={{ margin: 0 }}>System Configuration</Title>} style={{ width: '100%' }}><Skeleton active /></Card>;
   }
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>System Configuration</CardTitle>
-        <CardDescription>Manage general application settings.</CardDescription>
-      </CardHeader>
-      <div className="p-6">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit((values) => {
-            const settingsToUpdate = Object.keys(values).map(key => ({
-              key,
-              value: (values as any)[key],
-            }));
-            updateSystemSettingsMutation.mutate(settingsToUpdate);
-          })} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="notifications"
-              render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">Enable Email Notifications</FormLabel>
-                    <FormDescription>
-                      Toggle all system-wide email notifications for events like work order creation and status changes.
-                    </FormDescription>
-                  </div>
-                  <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="defaultPriority"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Default Work Order Priority</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Select a priority" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      <SelectItem value="Low">Low</SelectItem>
-                      <SelectItem value="Medium">Medium</SelectItem>
-                      <SelectItem value="High">High</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormDescription>
-                    Set the default priority for all newly created work orders.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="slaThreshold"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>SLA Warning Threshold (days)</FormLabel>
-                  <FormControl>
-                    <Input type="number" className="w-[180px]" placeholder="e.g. 3" {...field} value={field.value ?? ''} onChange={e => field.onChange(e.target.value === '' ? null : Number(e.target.value))} />
-                  </FormControl>
-                  <FormDescription>
-                    Get a warning for work orders that are due within this many days.
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+    <Card
+      title={<Title level={5} style={{ margin: 0 }}>System Configuration</Title>}
+      style={{ width: '100%' }}
+    >
+      <Form form={form} layout="vertical" onFinish={handleSubmit}>
+        <Form.Item
+          name="notifications"
+          label="Enable Email Notifications"
+          valuePropName="checked"
+          tooltip="Toggle all system-wide email notifications for events like work order creation and status changes."
+        >
+          <Switch />
+        </Form.Item>
+        <Form.Item
+          name="defaultPriority"
+          label="Default Work Order Priority"
+          rules={[{ required: true, message: 'Please select a default priority!' }]}
+          tooltip="Set the default priority for all newly created work orders."
+        >
+          <Select style={{ width: 180 }} placeholder="Select a priority">
+            <Option value="Low">Low</Option>
+            <Option value="Medium">Medium</Option>
+            <Option value="High">High</Option>
+          </Select>
+        </Form.Item>
+        <Form.Item
+          name="slaThreshold"
+          label="SLA Warning Threshold (days)"
+          tooltip="Get a warning for work orders that are due within this many days."
+        >
+          <Input
+            type="number"
+            style={{ width: 180 }}
+            placeholder="e.g. 3"
+            min={0}
+            onChange={e => form.setFieldsValue({ slaThreshold: e.target.value === '' ? null : Number(e.target.value) })}
+          />
+        </Form.Item>
 
-            <FormItem className="flex flex-col space-y-2">
-              <FormLabel>System Logo</FormLabel>
-              <FormDescription>
-                Upload a logo to be displayed in the header and sidebar. Recommended size: 128x128px.
-              </FormDescription>
-              <div className="flex items-center space-x-4">
-                {logoUrl && <Avatar className="h-16 w-16 rounded-md"><AvatarImage src={logoUrl} alt="System Logo" /></Avatar>}
-                <Label htmlFor="logo-upload" className="cursor-pointer">
-                  <Button asChild variant="outline">
-                    <span className="flex items-center">
-                      <Upload className="mr-2 h-4 w-4" /> Change Logo
-                    </span>
-                  </Button>
-                  <Input id="logo-upload" type="file" className="sr-only" onChange={handleLogoUpload} accept=".png,.jpg,.jpeg,.svg" />
-                </Label>
-              </div>
-            </FormItem>
+        <Form.Item label="System Logo">
+          <Paragraph type="secondary">
+            Upload a logo to be displayed in the header and sidebar. Recommended size: 128x128px.
+          </Paragraph>
+          <Space align="center">
+            {logoUrl && <Avatar size={64} shape="square" src={logoUrl} alt="System Logo" />}
+            <label htmlFor="logo-upload" style={{ cursor: 'pointer' }}>
+              <Button type="default" icon={<Icon icon="ph:upload-fill" />}>
+                Change Logo
+              </Button>
+              <input id="logo-upload" type="file" style={{ display: 'none' }} onChange={handleLogoUpload} accept=".png,.jpg,.jpeg,.svg" />
+            </label>
+          </Space>
+        </Form.Item>
 
-            <Button type="submit" disabled={updateSystemSettingsMutation.isPending}>
-              {updateSystemSettingsMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Save Settings
-            </Button>
-          </form>
-        </Form>
-      </div>
+        <Form.Item>
+          <Button type="primary" htmlType="submit" loading={loading}>
+            Save Settings
+          </Button>
+        </Form.Item>
+      </Form>
     </Card>
   );
 };
 
 // --- Profile Settings Tab ---
-const profileSettingsFormSchema = z.object({
-  name: z.string().min(1, "Full name is required"),
-  email: z.string().email("Invalid email address"),
-  is_admin: z.boolean(),
-  currentPassword: z.string().optional(),
-  newPassword: z.string().optional(),
-  confirmPassword: z.string().optional(),
-}).refine((data) => {
-  if (data.newPassword || data.confirmPassword) {
-    return data.newPassword === data.confirmPassword;
-  }
-  return true;
-}, {
-  message: "New passwords do not match",
-  path: ["confirmPassword"],
-});
-
 const ProfileSettings = () => {
   const { session } = useSession();
   const user = session?.user;
-  const form = useForm<z.infer<typeof profileSettingsFormSchema>>({
-    resolver: zodResolver(profileSettingsFormSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      is_admin: false, // Explicit default
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    },
-  });
+  const [form] = Form.useForm();
+  const [passwordForm] = Form.useForm();
   const queryClient = useQueryClient();
+  const [loadingProfile, setLoadingProfile] = useState(false);
+  const [loadingPassword, setLoadingPassword] = useState(false);
 
   const { data: profile, isLoading: isLoadingProfile } = useQuery<Profile | null>({
     queryKey: ['profile', user?.id],
@@ -448,8 +376,12 @@ const ProfileSettings = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
       showSuccess('Your profile has been updated.');
+      setLoadingProfile(false);
     },
-    onError: (error) => showError(error.message),
+    onError: (error) => {
+      showError(error.message);
+      setLoadingProfile(false);
+    },
   });
 
   const updatePasswordMutation = useMutation({
@@ -459,181 +391,134 @@ const ProfileSettings = () => {
     },
     onSuccess: () => {
       showSuccess('Your password has been updated.');
-      form.resetField('currentPassword');
-      form.resetField('newPassword');
-      form.resetField('confirmPassword');
+      passwordForm.resetFields();
+      setLoadingPassword(false);
     },
-    onError: (error) => showError(error.message),
+    onError: (error) => {
+      showError(error.message);
+      setLoadingPassword(false);
+    },
   });
 
   useEffect(() => {
     if (profile && user) {
-      form.reset({
+      form.setFieldsValue({
         name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim(),
         email: user.email || "",
         is_admin: profile.is_admin || false,
-        currentPassword: "",
-        newPassword: "",
-        confirmPassword: "",
       });
+      passwordForm.resetFields();
     }
-  }, [profile, user, form]);
+  }, [profile, user, form, passwordForm]);
 
   if (isLoadingProfile) {
-    return <Skeleton className="h-[300px] w-full" />;
+    return <Skeleton active />;
   }
 
   const displayAvatar = profile?.avatar_url || user?.user_metadata?.avatar_url;
 
-  const handleProfileSubmit: SubmitHandler<z.infer<typeof profileSettingsFormSchema>> = (values) => {
-    const [first_name, ...last_name_parts] = values.name.split(' ');
-    const last_name = last_name_parts.join(' ');
-    updateProfileMutation.mutate({ first_name, last_name, is_admin: values.is_admin });
+  const handleProfileSubmit = async () => {
+    setLoadingProfile(true);
+    try {
+      const values = await form.validateFields();
+      const [first_name, ...last_name_parts] = values.name.split(' ');
+      const last_name = last_name_parts.join(' ');
+      updateProfileMutation.mutate({ first_name, last_name, is_admin: values.is_admin });
+    } catch (info) {
+      console.log('Validate Failed:', info);
+      setLoadingProfile(false);
+    }
   };
 
-  const handlePasswordSubmit: SubmitHandler<z.infer<typeof profileSettingsFormSchema>> = (values) => {
-    if (values.newPassword) {
+  const handlePasswordSubmit = async () => {
+    setLoadingPassword(true);
+    try {
+      const values = await passwordForm.validateFields();
+      if (values.newPassword !== values.confirmPassword) {
+        passwordForm.setFields([
+          { name: 'confirmPassword', errors: ['New passwords do not match'] }
+        ]);
+        setLoadingPassword(false);
+        return;
+      }
       updatePasswordMutation.mutate(values.newPassword);
+    } catch (info) {
+      console.log('Validate Failed:', info);
+      setLoadingPassword(false);
     }
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6"> {/* Increased gap */}
-      <Card className="col-span-1 flex flex-col items-center p-6"> {/* Added flex and padding */}
-        <Avatar className="h-32 w-32 mb-4"> {/* Added margin-bottom */}
-          <AvatarImage src={displayAvatar || undefined} alt="User Avatar" />
-          <AvatarFallback><User className="h-16 w-16" /></AvatarFallback>
-        </Avatar>
-        <Button variant="outline">Change Avatar</Button>
-      </Card>
-      <div className="col-span-2 space-y-6"> {/* Increased space-y */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Edit Profile Information</CardTitle>
-            <CardDescription>Update your personal details.</CardDescription>
-          </CardHeader>
-          <div className="p-6 pt-0"> {/* Adjusted padding */}
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleProfileSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Full Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Your full name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="email"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Email Address</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Your email address" {...field} disabled />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                {user?.id === 'df02bbc5-167b-4a8c-a3f8-de0eb4d9db47' && ( // Admin check
-                  <FormField
-                    control={form.control}
-                    name="is_admin"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-                        <div className="space-y-0.5">
-                          <FormLabel className="text-base">Admin Access</FormLabel>
-                          <FormDescription>
-                            Toggle your administrative privileges.
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                )}
-                <Button type="submit" disabled={updateProfileMutation.isPending}>
-                  {updateProfileMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+    <Row gutter={[16, 16]}>
+      <Col xs={24} md={8}>
+        <Card className="flex flex-col items-center p-6">
+          <Avatar size={128} src={displayAvatar || undefined} style={{ marginBottom: 16 }}>
+            <Icon icon="ph:user-fill" style={{ fontSize: '64px' }} />
+          </Avatar>
+          <Button type="default">Change Avatar</Button>
+        </Card>
+      </Col>
+      <Col xs={24} md={16}>
+        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+          <Card
+            title={<Title level={5} style={{ margin: 0 }}>Edit Profile Information</Title>}
+            style={{ width: '100%' }}
+          >
+            <Form form={form} layout="vertical" onFinish={handleProfileSubmit}>
+              <Form.Item name="name" label="Full Name" rules={[{ required: true, message: 'Full name is required' }]}>
+                <Input placeholder="Your full name" />
+              </Form.Item>
+              <Form.Item name="email" label="Email Address">
+                <Input placeholder="Your email address" disabled />
+              </Form.Item>
+              {user?.id === 'df02bbc5-167b-4a8c-a3f8-de0eb4d9db47' && ( // Admin check
+                <Form.Item
+                  name="is_admin"
+                  label="Admin Access"
+                  valuePropName="checked"
+                  tooltip="Toggle your administrative privileges."
+                >
+                  <Switch />
+                </Form.Item>
+              )}
+              <Form.Item>
+                <Button type="primary" htmlType="submit" loading={loadingProfile}>
                   Update Profile
                 </Button>
-              </form>
+              </Form.Item>
             </Form>
-          </div>
-        </Card>
-        <Card>
-          <CardHeader>
-            <CardTitle>Change Password</CardTitle>
-            <CardDescription>Update your account password.</CardDescription>
-          </CardHeader>
-          <div className="p-6 pt-0"> {/* Adjusted padding */}
-            <Form {...form}>
-              <form onSubmit={form.handleSubmit(handlePasswordSubmit)} className="space-y-4">
-                <FormField
-                  control={form.control}
-                  name="currentPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Current Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="Current password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="newPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>New Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="New password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="confirmPassword"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Confirm New Password</FormLabel>
-                      <FormControl>
-                        <Input type="password" placeholder="Confirm new password" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button type="submit" disabled={updatePasswordMutation.isPending}>
-                  {updatePasswordMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          </Card>
+          <Card
+            title={<Title level={5} style={{ margin: 0 }}>Change Password</Title>}
+            style={{ width: '100%' }}
+          >
+            <Form form={passwordForm} layout="vertical" onFinish={handlePasswordSubmit}>
+              <Form.Item name="currentPassword" label="Current Password">
+                <Input.Password placeholder="Current password" />
+              </Form.Item>
+              <Form.Item name="newPassword" label="New Password" rules={[{ required: true, message: 'Please enter a new password!' }]}>
+                <Input.Password placeholder="New password" />
+              </Form.Item>
+              <Form.Item name="confirmPassword" label="Confirm New Password" rules={[{ required: true, message: 'Please confirm your new password!' }]}>
+                <Input.Password placeholder="Confirm new password" />
+              </Form.Item>
+              <Form.Item>
+                <Button type="primary" htmlType="submit" loading={loadingPassword}>
                   Update Password
                 </Button>
-              </form>
+              </Form.Item>
             </Form>
-          </div>
-        </Card>
-      </div>
-    </div>
+          </Card>
+        </Space>
+      </Col>
+    </Row>
   );
 };
 
 // --- Main Settings Page Component ---
 const SettingsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const activeTab = searchParams.get('tab') || 'user-management';
 
   const handleTabChange = (key: string) => {
@@ -641,30 +526,23 @@ const SettingsPage = () => {
   };
 
   const tabItems = [
-    { label: <span className="flex items-center"><Users className="mr-2 h-4 w-4" />User Management</span>, value: 'user-management', content: <UserManagement /> },
-    { label: <span className="flex items-center"><Wrench className="mr-2 h-4 w-4" />Service & SLA</span>, value: 'service-sla', content: <ServiceSlaManagement /> },
-    { label: <span className="flex items-center"><SettingsIcon className="mr-2 h-4 w-4" />System Settings</span>, value: 'system-settings', content: <SystemSettings /> },
-    { label: <span className="flex items-center"><User className="mr-2 h-4 w-4" />My Profile</span>, value: 'profile-settings', content: <ProfileSettings /> },
+    { label: <Space><Icon icon="ph:users-fill" />User Management</Space>, key: 'user-management', children: <UserManagement /> },
+    { label: <Space><Icon icon="ph:wrench-fill" />Service & SLA</Space>, key: 'service-sla', children: <ServiceSlaManagement /> },
+    { label: <Space><Icon icon="ph:gear-fill" />System Settings</Space>, key: 'system-settings', children: <SystemSettings /> },
+    { label: <Space><Icon icon="ph:user-fill" />My Profile</Space>, key: 'profile-settings', children: <ProfileSettings /> },
   ];
 
   return (
-    <div className="flex flex-col space-y-6 p-6 max-w-7xl mx-auto"> {/* Added max-width and auto margins for centering */}
+    <Space direction="vertical" size="middle" style={{ width: '100%' }}>
       <Breadcrumbs />
-      <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 md:grid-cols-4 h-auto">
-          {tabItems.map(item => (
-            <TabsTrigger key={item.value} value={item.value} className="py-2">
-              {item.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+      <Tabs activeKey={activeTab} onChange={handleTabChange} style={{ width: '100%' }}>
         {tabItems.map(item => (
-          <TabsContent key={item.value} value={item.value} className="mt-6">
-            {item.content}
-          </TabsContent>
+          <TabPane tab={item.label} key={item.key}>
+            {item.children}
+          </TabPane>
         ))}
       </Tabs>
-    </div>
+    </Space>
   );
 };
 

@@ -105,48 +105,147 @@ const App = () => (
       theme={{
         algorithm: [theme.defaultAlgorithm, theme.compactAlgorithm],
         token: {
-          colorPrimary: '#6A0DAD',
-          colorSuccess: '#22C55E',
-          colorWarning: '#FAAD14',
-          colorError: '#FF4D4F',
-          colorInfo: '#0052CC',
-          fontFamily: 'Inter',
-          colorText: '#1f2937',
-          colorTextSecondary: '#6b7280',
-          borderRadius: 4,
-          controlHeight: 28, // Adjusted control height for compactness
-          colorBgLayout: '#f6f7f9',
-          colorBorder: '#e5e7eb',
-          colorSplit: '#f3f4f6',
-          fontSize: 13, // Adjusted base font size for readability
+          // Colors from Neptune Design System
+          colorPrimary: 'var(--brand-tertiary)', // Main brand color
+          colorSuccess: 'var(--tag-completed-text)', // Completed tag text
+          colorWarning: 'var(--tag-high-text)', // High priority tag text
+          colorError: 'var(--brand-secondary)', // Secondary brand color for errors
+          colorInfo: 'var(--brand-tertiary)', // Tertiary brand color for info
+
+          // Neutral colors
+          colorText: 'var(--text-primary)',
+          colorTextSecondary: 'var(--text-secondary)',
+          colorBgLayout: 'var(--neutral-background)',
+          colorBgContainer: 'var(--neutral-surface)', // Card, Modal background
+          colorBorder: 'var(--neutral-border)',
+          colorSplit: 'var(--neutral-border)', // Divider color
+
+          // Typography
+          fontFamily: 'var(--font-family-primary)', // Primary font Satoshi
+          fontSize: 14, // Base font size for readability
+
+          // Spacing & Border Radius
+          borderRadius: 8, // Default border radius (sm)
+          borderRadiusLG: 12, // Larger border radius (md)
+          borderRadiusSM: 4, // Smaller border radius
+          controlHeight: 40, // Standard control height for buttons, inputs
+
+          // Spacing
+          marginXXS: 4,
+          marginXS: 8,
+          marginSM: 12,
+          margin: 16,
+          marginMD: 20,
+          marginLG: 24,
+          marginXL: 32,
+          marginXXL: 48,
         },
         components: {
-          Table: { 
-            padding: 8, // Reduced table padding
-            paddingSM: 4, // Reduced small table padding
-            rowSelectedBg: '#f5f5f5',
-            rowSelectedHoverBg: '#eeeeee',
+          Layout: {
+            headerBg: 'var(--neutral-surface)',
+            headerPadding: '0 16px',
+            headerHeight: 64, // Match HTML header height
+            siderBg: 'var(--neutral-surface-accent-bg)', // Sidebar background
           },
-          Card: { padding: 12 }, // Reduced card padding
-          Form: { itemMarginBottom: 12 }, // Reduced form item margin
-          Layout: { headerBg: '#ffffff', headerPadding: '0 16px', headerHeight: 56, siderBg: '#ffffff' }, // Adjusted header height and padding
-          Menu: { 
-            itemBg: '#ffffff',
-            itemSelectedBg: '#E8D9F7',
-            itemSelectedColor: '#6A0DAD',
-            itemHoverBg: '#f0f0f0',
-            itemHoverColor: '#6A0DAD',
-            itemBorderRadius: 4,
-            subMenuItemBg: '#ffffff',
-            itemHeight: 36, // Reduced menu item height
-            itemPaddingInline: 8, // Reduced horizontal padding for menu items
+          Menu: {
+            itemBg: 'transparent',
+            itemSelectedBg: 'var(--brand-tertiary)',
+            itemSelectedColor: 'var(--text-on-primary)',
+            itemHoverBg: 'var(--neutral-surface)',
+            itemHoverColor: 'var(--text-primary)',
+            itemBorderRadius: 8, // Match corner-radius-sm
+            subMenuItemBg: 'transparent',
+            itemHeight: 40, // Standard item height
+            itemPaddingInline: 12, // Horizontal padding
+            // collapsedItemBg: 'transparent', // Removed: Not a valid token
+            collapsedIconSize: 20,
+            collapsedWidth: 64,
+          },
+          Card: {
+            padding: 20, // Match HTML card padding
+            headerBg: 'transparent',
+            // headerPadding: '16px 20px', // Removed: Not a valid token type
+            borderRadiusLG: 12, // Match corner-radius-md
+            boxShadow: 'var(--shadow-soft)',
+            borderColor: 'var(--neutral-border)',
+          },
+          Table: {
+            padding: 16,
+            paddingSM: 12,
+            headerBg: 'var(--neutral-background)',
+            headerColor: 'var(--text-secondary)',
+            headerBorderRadius: 8,
+            rowSelectedBg: 'rgba(91, 73, 233, 0.05)', // Light accent for selected rows
+            rowSelectedHoverBg: 'rgba(91, 73, 233, 0.1)',
+            borderColor: 'var(--neutral-border)',
+            borderRadiusLG: 8,
+          },
+          Form: {
+            itemMarginBottom: 20, // Standard form item margin
+            labelColor: 'var(--text-secondary)',
+          },
+          Input: {
+            activeBorderColor: 'var(--state-focus-outline)',
+            hoverBorderColor: 'var(--state-focus-outline)',
+            // activeShadow: '0 0 0 2px rgba(255, 116, 66, 0.2)', // Removed: Not a valid token
+            borderRadius: 8,
+          },
+          Select: {
+            activeBorderColor: 'var(--state-focus-outline)',
+            hoverBorderColor: 'var(--state-focus-outline)',
+            // activeShadow: '0 0 0 2px rgba(255, 116, 66, 0.2)', // Removed: Not a valid token
+            borderRadius: 8,
+          },
+          Button: {
+            borderRadius: 8,
+            borderRadiusSM: 6,
+            colorPrimary: 'var(--brand-primary)',
+            colorPrimaryHover: 'var(--brand-primary)', // Keep primary color on hover
+            colorPrimaryActive: 'var(--brand-primary)', // Keep primary color on active
+            colorText: 'var(--text-primary)',
+            colorTextLightSolid: 'var(--text-on-primary)', // For primary buttons
+            colorBorder: 'var(--neutral-border)',
+            colorTextDisabled: 'var(--text-secondary)',
+            colorBgContainerDisabled: 'var(--neutral-background)',
+          },
+          Tag: {
+            defaultBg: 'var(--neutral-surface-accent-bg)',
+            defaultColor: 'var(--text-tag)',
+            colorText: 'var(--text-primary)',
           },
           Typography: {
-            titleMarginBottom: 0.5, // Reduce margin below titles
-            titleMarginTop: 0.5, // Reduce margin above titles
+            titleMarginBottom: 0.5,
+            titleMarginTop: 0.5,
           },
           Space: {
-            size: 8, // Set a smaller default gap for Space component
+            size: 16, // Default space size
+          },
+          Modal: {
+            // contentBg: 'var(--neutral-surface)', // Removed: Not a valid token
+            headerBg: 'var(--neutral-surface)',
+            footerBg: 'var(--neutral-surface)',
+            borderRadiusLG: 12,
+          },
+          Drawer: {
+            // contentBg: 'var(--neutral-surface)', // Removed: Not a valid token
+            headerBg: 'var(--neutral-surface)',
+            footerBg: 'var(--neutral-surface)',
+            borderRadiusLG: 12,
+          },
+          DatePicker: {
+            activeBorderColor: 'var(--state-focus-outline)',
+            hoverBorderColor: 'var(--state-focus-outline)',
+            // activeShadow: '0 0 0 2px rgba(255, 116, 66, 0.2)', // Removed: Not a valid token
+            borderRadius: 8,
+          },
+          Tabs: {
+            itemColor: 'var(--text-secondary)',
+            itemSelectedColor: 'var(--text-primary)',
+            itemHoverColor: 'var(--text-primary)',
+            inkBarColor: 'var(--brand-tertiary)',
+          },
+          Badge: {
+            colorText: 'var(--text-on-primary)',
           }
         }
       }}

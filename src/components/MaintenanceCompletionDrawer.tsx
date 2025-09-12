@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Drawer, Form, Select, Input, Button, Typography, Space, Table, InputNumber, Popconfirm, Empty, Row, Col, Spin } from 'antd';
+import { Drawer, Form, Select, Input, Button, Typography, Space, Table, InputNumber, Popconfirm, Empty, Row, Col, Spin, Card } from 'antd';
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -125,7 +125,7 @@ export const MaintenanceCompletionDrawer = ({
       ),
     },
   ];
-  const partsTotal = (usedParts || []).reduce((sum, part) => sum + (part.quantity_used * part.price_at_at_time_of_use), 0);
+  const partsTotal = (usedParts || []).reduce((sum, part) => sum + (part.quantity_used * record.price_at_at_time_of_use), 0);
   const usedPartsCount = usedParts?.length || 0;
 
   return (

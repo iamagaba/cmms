@@ -3,53 +3,26 @@
   height: 100%;
 }
 
-/* ---------------------------------- */
-/* Neptune Design System Custom Properties & Base Styles */
-/* ---------------------------------- */
-:root {
-    --brand-primary: #1a1d21;
-    --brand-secondary: #ff7442;
-    --brand-tertiary: #5b49e9;
-    --neutral-background: #f4f4fa;
-    --neutral-surface: #ffffff;
-    --neutral-surface-accent-bg: rgba(91, 73, 233, 0.07);
-    --neutral-border: #e5e7eb;
-    --neutral-footer-input-border: rgba(255, 255, 255, 0.1);
-    --text-primary: #1a1d21;
-    --text-on-primary: #ffffff;
-    --text-tag: #5b49e9;
-    --text-secondary: #6b7280;
-    --state-focus-outline: #ff7442;
-    --font-family-primary: 'Satoshi', sans-serif;
-    --font-family-secondary: 'Inter', sans-serif;
-    --corner-radius-sm: 8px;
-    --corner-radius-md: 12px;
-    --corner-radius-lg: 24px;
-    --corner-radius-full: 9999px;
-    --shadow-soft: 0 4px 30px rgba(0, 0, 0, 0.05);
-
-    /* Custom for this UI */
-    --tag-completed-bg: rgba(22, 163, 74, 0.1);
-    --tag-completed-text: #16a34a;
-    --tag-high-bg: rgba(255, 116, 66, 0.1);
-    --tag-high-text: #ff7442;
-    --tag-pending-bg: rgba(91, 73, 233, 0.1);
-    --tag-pending-text: #5b49e9;
-}
-
 body {
-    font-family: var(--font-family-primary);
-    background-color: var(--neutral-background);
-    color: var(--text-primary);
+  font-family: 'Inter', sans-serif; /* Changed font to Inter */
+  background-color: #f6f7f9; /* Set a base background color */
 }
 
-.progress-ring-circle {
-    transition: stroke-dashoffset 0.35s;
-    transform: rotate(-90deg);
-    transform-origin: 50% 50%;
+/* --- Polaris-Inspired Layout --- */
+.main-content {
+  padding: 16px 24px;
+  margin: 0;
+  overflow: initial;
+  background-color: transparent; /* Content area is transparent to show layout background */
 }
 
-/* --- Micro-interaction Animations (adapted to new design system) --- */
+/* Custom styles for Leaflet divIcons to remove default background/border */
+.custom-leaflet-icon {
+  background: transparent;
+  border: none;
+}
+
+/* --- Micro-interaction Animations --- */
 
 /* 1. Fade-in animation for page loads */
 @keyframes fadeIn {
@@ -75,7 +48,7 @@ body {
 
 .lift-on-hover:hover {
   transform: translateY(-4px);
-  box-shadow: var(--shadow-soft); /* Use new shadow token */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Softer shadow */
 }
 
 /* 3. Lift effect for table rows on hover */
@@ -86,7 +59,6 @@ body {
 
 .lift-on-hover-row:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* Lighter shadow for rows */
 }
 
 /* --- Hide scrollbar but keep functionality --- */
@@ -97,6 +69,118 @@ body {
 
 .hide-scrollbar::-webkit-scrollbar {
   display: none; /* Chrome, Safari, and Opera */
+}
+
+/* Custom styles for compact calendar tags */
+.ant-tag-compact {
+  padding: 0 4px !important; /* Smaller padding */
+  line-height: 18px !important; /* Adjust line height */
+  height: 20px !important; /* Smaller height */
+  font-size: 10px !important; /* Smaller font size */
+}
+
+/* Custom styles for compact calendar cells */
+.ant-picker-cell-inner {
+  padding: 4px 2px !important; /* Reduce padding inside calendar cells */
+}
+.ant-picker-calendar-date-content {
+  height: auto !important; /* Allow content to dictate height */
+  min-height: unset !important; /* Remove minimum height */
+}
+
+/* Custom styles for calendar badge dots */
+.calendar-badge-dot .ant-badge-dot {
+  width: 8px; /* Make dot slightly larger */
+  height: 8px; /* Make dot slightly larger */
+  border-radius: 50%; /* Ensure it's a circle */
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1); /* Add a subtle border for visibility */
+}
+
+
+/* --- Side Navigation Enhancements --- */
+
+/* Make the menu a flex container to push bottom items down */
+.main-sider-menu.ant-menu-inline {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* Allow menu to grow and take available space */
+  border-right: 0 !important; /* Remove default border */
+  overflow-y: auto; /* Allow scrolling for main items */
+  overflow-x: hidden;
+}
+
+/* The key part: push this divider (and everything after it) to the bottom */
+.ant-menu-item.menu-bottom-divider,
+.ant-menu-divider.menu-bottom-divider,
+.ant-menu-item-group.menu-bottom-group,
+.ant-menu-submenu.menu-bottom-group { /* Added .ant-menu-submenu for the new Profile SubMenu */
+  margin-top: auto !important;
+}
+
+/* Hide the default Ant Design sider trigger */
+.ant-layout-sider-trigger {
+  display: none;
+}
+
+/* Custom styles for the new custom trigger */
+.sider-custom-trigger {
+  flex-shrink: 0; /* Prevent the trigger from shrinking */
+  border-top: 1px solid var(--ant-color-border-secondary);
+  background-color: #f0f0f0; /* Light background for the trigger */
+  color: var(--ant-color-text-secondary); /* Icon color */
+  height: 48px; /* Consistent height */
+  display: flex;
+  align-items: center;
+  justify-content: center; /* Default to center when collapsed */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Right align the trigger when expanded */
+.sider-custom-trigger.sider-custom-trigger-expanded {
+  justify-content: flex-end;
+  padding-right: 16px; /* Add some padding for visual balance */
+}
+
+.sider-custom-trigger .ant-btn {
+  color: var(--ant-color-text-secondary);
+}
+
+.sider-custom-trigger .ant-btn:hover {
+  background-color: var(--ant-color-fill-alter);
+  color: var(--ant-color-primary);
+}
+
+/* Adjust logo area for better alignment */
+.sider-logo-area {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  border-bottom: 1px solid var(--ant-color-border-secondary); /* Add a subtle separator */
+  flex-shrink: 0; /* Prevent logo area from shrinking */
+}
+
+/* Ensure menu item text is not cut off when collapsed */
+.ant-menu-inline-collapsed .ant-menu-item .ant-menu-title-content {
+  max-width: 0;
+  display: none; /* Hide text completely when collapsed */
+}
+
+/* --- Styles for Resizable Table Columns --- */
+.react-resizable {
+  position: relative;
+  background-clip: padding-box;
+}
+
+.react-resizable-handle {
+  position: absolute;
+  right: -5px;
+  bottom: 0;
+  z-index: 1;
+  width: 10px;
+  height: 100%;
+  cursor: col-resize;
 }
 
 /* --- Print Styles for Reports --- */
@@ -124,108 +208,4 @@ body {
   .ant-table-pagination {
     display: none !important;
   }
-}
-
-/* Custom styles for compact calendar tags (if still needed, adjust to new design) */
-.ant-tag-compact {
-  padding: 0 4px !important; /* Smaller padding */
-  line-height: 18px !important; /* Adjust line height */
-  height: 20px !important; /* Smaller height */
-  font-size: 10px !important; /* Smaller font size */
-}
-
-/* Custom styles for compact calendar cells */
-.ant-picker-cell-inner {
-  padding: 4px 2px !important; /* Reduce padding inside calendar cells */
-}
-.ant-picker-calendar-date-content {
-  height: auto !important; /* Allow content to dictate height */
-  min-height: unset !important; /* Remove minimum height */
-}
-
-/* Custom styles for calendar badge dots */
-.calendar-badge-dot .ant-badge-dot {
-  width: 8px; /* Make dot slightly larger */
-  height: 8px; /* Make dot slightly larger */
-  border-radius: 50%; /* Ensure it's a circle */
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1); /* Add a subtle border for visibility */
-}
-
-/* --- Side Navigation Enhancements (will be re-styled in SideNavigation.tsx) --- */
-/* These will likely be overridden by direct Tailwind classes in the component */
-.main-sider-menu.ant-menu-inline {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
-  border-right: 0 !important;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.ant-menu-item.menu-bottom-divider,
-.ant-menu-divider.menu-bottom-divider,
-.ant-menu-item-group.menu-bottom-group,
-.ant-menu-submenu.menu-bottom-group {
-  margin-top: auto !important;
-}
-
-.ant-layout-sider-trigger {
-  display: none;
-}
-
-.sider-custom-trigger {
-  flex-shrink: 0;
-  border-top: 1px solid var(--ant-color-border-secondary);
-  background-color: #f0f0f0;
-  color: var(--ant-color-text-secondary);
-  height: 48px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-.sider-custom-trigger.sider-custom-trigger-expanded {
-  justify-content: flex-end;
-  padding-right: 16px;
-}
-
-.sider-custom-trigger .ant-btn {
-  color: var(--ant-color-text-secondary);
-}
-
-.sider-custom-trigger .ant-btn:hover {
-  background-color: var(--ant-color-fill-alter);
-  color: var(--ant-color-primary);
-}
-
-.sider-logo-area {
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 16px;
-  border-bottom: 1px solid var(--ant-color-border-secondary);
-  flex-shrink: 0;
-}
-
-.ant-menu-inline-collapsed .ant-menu-item .ant-menu-title-content {
-  max-width: 0;
-  display: none;
-}
-
-/* --- Styles for Resizable Table Columns --- */
-.react-resizable {
-  position: relative;
-  background-clip: padding-box;
-}
-
-.react-resizable-handle {
-  position: absolute;
-  right: -5px;
-  bottom: 0;
-  z-index: 1;
-  width: 10px;
-  height: 100%;
-  cursor: col-resize;
 }

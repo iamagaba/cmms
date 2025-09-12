@@ -5,7 +5,7 @@ import dayjs from "dayjs";
 import NotFound from "./NotFound";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { WorkOrder, Technician, Location, Customer, Vehicle, WorkOrderPart, Profile, EmergencyBikeAssignment } from "@/types/supabase"; // Added EmergencyBikeAssignment
+import { WorkOrder, Technician, Location, Customer, Vehicle, WorkOrderPart, Profile, EmergencyBikeAssignment, SlaPolicy } from "@/types/supabase"; // Added EmergencyBikeAssignment
 import { useState, useMemo, useEffect } from "react";
 import { showSuccess, showError, showInfo } from "@/utils/toast";
 import { camelToSnakeCase } from "@/utils/data-helpers";
@@ -31,6 +31,15 @@ import { WorkOrderAppointmentCard } from "@/components/work-order-details/WorkOr
 import { EmergencyBikeAssignmentDialog } from "@/components/EmergencyBikeAssignmentDialog.tsx";
 import { EmergencyBikeReturnDialog } from "@/components/EmergencyBikeReturnDialog.tsx";
 import { EmergencyBikeTag } from "@/components/EmergencyBikeTag.tsx"; // Reusing the tag for consistency
+
+// Import work order helper functions
+import {
+  generateActivityLogEntry,
+  calculateSlaDue,
+  calculatePausedDuration,
+  isValidStatusTransition,
+  generateUpdateActivityMessage,
+} from '@/utils/work-order-helpers';
 
 const { Title } = Typography;
 const { TabPane } = Tabs;
@@ -69,6 +78,9 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
           active_emergency_bike_assignment:emergency_bike_assignments!left(
             *,
             vehicles(*)
+          ),
+          service_categories(
+            sla_policies(*)
           )
         `)
         .eq('id', id)
@@ -136,6 +148,8 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
       return data || [];
     }
   });
+  const { data: slaPolicies, isLoading: isLoadingSlaPolicies } = useQuery<SlaPolicy[]>({ queryKey: ['sla_policies'], queryFn: async () => { const { data, error } = await supabase.from('sla_policies').select('*'); if (error) throw new Error(error.message); return data || []; } });
+
 
   useEffect(() => {
     if (isDrawerMode && activeTabKey === '3') {
@@ -180,40 +194,11 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     const oldWorkOrder = { ...workOrder };
     const newStatus = updates.status;
     const oldStatus = oldWorkOrder.status;
+    const isServiceCenter = oldWorkOrder.channel === 'Service Center';
 
-    // Status transition validation
+    // 1. Status transition validation
     if (newStatus && newStatus !== oldStatus) {
-      const isServiceCenter = oldWorkOrder.channel === 'Service Center';
-      let isValidTransition = false;
-
-      if (oldStatus === 'Open') {
-        if (newStatus === 'Confirmation') {
-          isValidTransition = true;
-        } else if (newStatus === 'In Progress' && isServiceCenter) {
-          isValidTransition = true;
-        }
-      } else if (oldStatus === 'Confirmation') {
-        if (newStatus === 'Ready') {
-          isValidTransition = true;
-        }
-      } else if (oldStatus === 'Ready') {
-        if (newStatus === 'In Progress') {
-          isValidTransition = true;
-        }
-      } else if (oldStatus === 'In Progress') {
-        if (newStatus === 'On Hold' || newStatus === 'Completed') {
-          isValidTransition = true;
-        }
-      } else if (oldStatus === 'On Hold') {
-        if (newStatus === 'In Progress') {
-          isValidTransition = true;
-        }
-      } else if (oldStatus === 'Completed') {
-        showError('Cannot change status of a completed work order.');
-        return;
-      }
-
-      if (!isValidTransition) {
+      if (!isValidStatusTransition(oldStatus, newStatus, isServiceCenter)) {
         showError(`Invalid status transition from '${oldStatus}' to '${newStatus}'.`);
         return;
       }
@@ -224,7 +209,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
         return; 
       } 
       // Special handling for 'Ready' to open Issue Confirmation Dialog
-      if (newStatus === 'Ready' && oldWorkOrder.channel !== 'Service Center' && !oldWorkOrder.issueType) {
+      if (newStatus === 'Ready' && !isServiceCenter && !oldWorkOrder.issueType) {
         setIsIssueConfirmationDialogOpen(true);
         return; // Stop here, the dialog's save will trigger the actual update
       }
@@ -235,70 +220,47 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
       }
     }
 
+    // 2. Prepare activity log and timestamp automation
     const newActivityLog = [...(workOrder.activityLog || [])];
-    let activityMessage = '';
+    let activityMessage = generateUpdateActivityMessage(oldWorkOrder, updates, allTechnicians, allLocations);
 
-    // --- Timestamp & SLA Automation ---
-    // The oldStatus and newStatus are already validated above.
+    // Timestamp & SLA Automation
     if (newStatus && newStatus !== oldStatus) {
-      activityMessage = `Status changed from '${oldStatus || 'N/A'}' to '${newStatus}'.`;
       if (newStatus === 'Confirmation' && !oldWorkOrder.confirmed_at) updates.confirmed_at = new Date().toISOString();
       if (newStatus === 'In Progress' && !oldWorkOrder.work_started_at) updates.work_started_at = new Date().toISOString();
       if (newStatus === 'On Hold' && oldStatus !== 'On Hold') updates.sla_timers_paused_at = new Date().toISOString();
-      if (oldStatus === 'On Hold' && newStatus !== 'On Hold' && oldWorkOrder.sla_timers_paused_at) {
-        const pausedAt = dayjs(oldWorkOrder.sla_timers_paused_at);
-        const resumedAt = dayjs();
-        const durationPaused = resumedAt.diff(pausedAt, 'second');
-        updates.total_paused_duration_seconds = (oldWorkOrder.total_paused_duration_seconds || 0) + durationPaused;
+      
+      const additionalPausedDuration = calculatePausedDuration(oldWorkOrder, newStatus, oldStatus);
+      if (additionalPausedDuration > 0) {
+        updates.total_paused_duration_seconds = (oldWorkOrder.total_paused_duration_seconds || 0) + additionalPausedDuration;
         updates.sla_timers_paused_at = null;
-        activityMessage += ` (SLA timers resumed after ${durationPaused}s pause).`;
+        activityMessage += ` (SLA timers resumed after ${additionalPausedDuration}s pause).`;
       }
     }
 
-    if (updates.assignedTechnicianId && updates.assignedTechnicianId !== oldWorkOrder.assignedTechnicianId) {
-      const oldTech = allTechnicians?.find(t => t.id === oldWorkOrder.assignedTechnicianId)?.name || 'Unassigned';
-      const newTech = allTechnicians?.find(t => t.id === updates.assignedTechnicianId)?.name || 'Unassigned';
-      activityMessage = `Assigned technician changed from '${oldTech}' to '${newTech}'.`;
-    } else if (updates.slaDue && updates.slaDue !== oldWorkOrder.slaDue) {
-      activityMessage = `SLA due date updated to '${dayjs(updates.slaDue).format('MMM D, YYYY h:mm A')}'.`;
-    } else if (updates.appointmentDate && updates.appointmentDate !== oldWorkOrder.appointmentDate) {
-      activityMessage = `Appointment date updated to '${dayjs(updates.appointmentDate).format('MMM D, YYYY h:mm A')}'.`;
-    } else if (updates.initialDiagnosis && updates.initialDiagnosis !== oldWorkOrder.initialDiagnosis) {
-      activityMessage = `Initial diagnosis updated.`;
-    } else if (updates.issueType && updates.issueType !== oldWorkOrder.issueType) {
-      activityMessage = `Confirmed issue type updated to '${updates.issueType}'.`;
-    } else if (updates.faultCode && updates.faultCode !== oldWorkOrder.faultCode) {
-      activityMessage = `Fault code updated to '${updates.faultCode}'.`;
-    } else if (updates.maintenanceNotes && updates.maintenanceNotes !== oldWorkOrder.maintenanceNotes) {
-      activityMessage = `Maintenance notes updated.`;
-    } else if (updates.priority && updates.priority !== oldWorkOrder.priority) {
-      activityMessage = `Priority changed from '${oldWorkOrder.priority || 'N/A'}' to '${updates.priority}'.`;
-    } else if (updates.channel && updates.channel !== oldWorkOrder.channel) {
-      activityMessage = `Channel changed from '${oldWorkOrder.channel || 'N/A'}' to '${updates.channel}'.`;
-    } else if (updates.locationId && updates.locationId !== oldWorkOrder.locationId) {
-      const oldLoc = allLocations?.find(l => l.id === oldWorkOrder.locationId)?.name || 'N/A';
-      const newLoc = allLocations?.find(l => l.id === updates.locationId)?.name || 'N/A';
-      activityMessage = `Service location changed from '${oldLoc}' to '${newLoc}'.`;
-    } else if (updates.customerAddress && updates.customerAddress !== oldWorkOrder.customerAddress) {
-      activityMessage = `Client address updated to '${updates.customerAddress}'.`;
-    } else if (updates.customerLat !== oldWorkOrder.customerLat || updates.customerLng !== oldWorkOrder.customerLng) {
-      activityMessage = `Client coordinates updated.`;
-    } else {
-      activityMessage = 'Work order details updated.';
+    if (updates.service_category_id && updates.service_category_id !== oldWorkOrder.service_category_id) {
+      updates.slaDue = calculateSlaDue(
+        oldWorkOrder.created_at!,
+        updates.service_category_id,
+        slaPolicies,
+        updates.total_paused_duration_seconds || oldWorkOrder.total_paused_duration_seconds
+      );
+      const category = (oldWorkOrder as any).service_categories?.name || 'N/A'; // Access from joined data if available
+      activityMessage += ` Service category set to '${category}'. Resolution SLA updated.`;
     }
 
     if (activityMessage) {
-      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage, userId: session?.user.id ?? null });
+      newActivityLog.push(generateActivityLogEntry(activityMessage, session?.user.id ?? null));
       updates.activityLog = newActivityLog;
     }
 
-    // This automatic status change should happen after validation, but before the final mutation.
-    // The validation above already ensures 'Ready' -> 'In Progress' is a valid transition.
+    // 3. Automatic status change: Ready -> In Progress
     if ((updates.assignedTechnicianId || updates.appointmentDate) && oldStatus === 'Ready' && newStatus !== 'On Hold' && newStatus !== 'Completed') { 
       updates.status = 'In Progress'; 
       showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`); 
     } 
     
+    // 4. Execute mutation
     const finalUpdates = { ...updates };
     if (workOrder.id) {
       finalUpdates.id = workOrder.id; // Ensure ID is present for update
@@ -309,21 +271,21 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
   const handleSaveOnHoldReason = (reason: string) => { 
     if (!onHoldWorkOrder) return; 
     const updates = { status: 'On Hold' as const, onHoldReason: reason }; 
-    workOrderMutation.mutate(camelToSnakeCase({ id: onHoldWorkOrder.id, ...updates })); 
+    handleUpdateWorkOrder(updates); 
     setOnHoldWorkOrder(null); 
   };
 
   const handleSaveIssueConfirmation = (issueType: string, notes: string | null) => {
     if (!workOrder) return;
     const updates: Partial<WorkOrder> = { status: 'Ready', issueType: issueType, serviceNotes: notes };
-    workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates }));
+    handleUpdateWorkOrder(updates);
     setIsIssueConfirmationDialogOpen(false);
   };
 
   const handleSaveMaintenanceCompletion = (faultCode: string, maintenanceNotes: string | null) => {
     if (!workOrder) return;
     const updates: Partial<WorkOrder> = { status: 'Completed', faultCode: faultCode, maintenanceNotes: maintenanceNotes, completedAt: new Date().toISOString() };
-    workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates }));
+    handleUpdateWorkOrder(updates);
     setIsMaintenanceCompletionDrawerOpen(false);
   };
 
@@ -336,7 +298,7 @@ const WorkOrderDetailsPage = ({ isDrawerMode = false }: WorkOrderDetailsProps) =
     return new Map(profiles.map(p => [p.id, `${p.first_name || ''} ${p.last_name || ''}`.trim()]));
   }, [profiles]);
 
-  const isLoading = isLoadingWorkOrder || isLoadingTechnician || isLoadingLocation || isLoadingAllTechnicians || isLoadingAllLocations || isLoadingCustomer || isLoadingVehicle || isLoadingUsedParts || isLoadingProfiles;
+  const isLoading = isLoadingWorkOrder || isLoadingTechnician || isLoadingLocation || isLoadingAllTechnicians || isLoadingAllLocations || isLoadingCustomer || isLoadingVehicle || isLoadingUsedParts || isLoadingProfiles || isLoadingSlaPolicies;
 
   if (isLoading) return <Skeleton active />;
   if (!workOrder) return isDrawerMode ? <div style={{ padding: 24 }}><NotFound /></div> : <NotFound />;

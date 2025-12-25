@@ -78,6 +78,10 @@
     /* Enable smooth scrolling */
     scroll-behavior: smooth;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    /* Optimize text rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
   
   body {
@@ -96,6 +100,40 @@
     color: var(--text-primary);
     font-weight: 400;
     line-height: 1.5;
+    font-size: 16px; /* Base font size for mobile */
+  }
+  
+  /* Typography hierarchy */
+  h1, h2, h3, h4, h5, h6 {
+    font-weight: 600;
+    line-height: 1.25;
+    letter-spacing: -0.025em;
+    color: var(--text-primary);
+  }
+  
+  h1 {
+    font-size: 1.875rem; /* 30px */
+    font-weight: 700;
+  }
+  
+  h2 {
+    font-size: 1.5rem; /* 24px */
+    font-weight: 600;
+  }
+  
+  h3 {
+    font-size: 1.25rem; /* 20px */
+    font-weight: 600;
+  }
+  
+  h4 {
+    font-size: 1.125rem; /* 18px */
+    font-weight: 500;
+  }
+  
+  p {
+    line-height: 1.5;
+    color: var(--text-secondary);
   }
   
   /* Allow text selection in content areas */
@@ -116,6 +154,86 @@
 }
 
 @layer components {
+  /* Typography Utilities - Professional CMMS Design */
+  .text-display {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+  
+  .text-h1 {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+  
+  .text-h2 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+  }
+  
+  .text-h3 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+    font-weight: 600;
+  }
+  
+  .text-h4 {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 500;
+  }
+  
+  .text-body-large {
+    font-size: 1.125rem;
+    line-height: 1.75rem;
+    font-weight: 400;
+  }
+  
+  .text-body {
+    font-size: 1rem;
+    line-height: 1.5rem;
+    font-weight: 400;
+  }
+  
+  .text-body-small {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 400;
+  }
+  
+  .text-caption {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 400;
+    letter-spacing: 0.025em;
+  }
+  
+  .text-label {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+  }
+  
+  .text-button {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+    font-weight: 500;
+    letter-spacing: 0.025em;
+  }
+  
+  .text-overline {
+    font-size: 0.75rem;
+    line-height: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
   /* Mobile-optimized button styles matching main app */
   .btn-mobile {
     @apply min-h-[44px] px-4 py-2 font-medium transition-all duration-200;
@@ -166,22 +284,40 @@
     transform: translateY(-1px);
   }
   
+  /* Spacing Utilities - 4px Base System */
+  .space-micro { gap: 4px; }
+  .space-xs { gap: 8px; }
+  .space-sm { gap: 12px; }
+  .space-base { gap: 16px; }
+  .space-md { gap: 24px; }
+  .space-lg { gap: 32px; }
+  .space-xl { gap: 48px; }
+  
+  /* Component-specific spacing */
+  .card-padding-sm { padding: 16px; }
+  .card-padding-base { padding: 24px; }
+  .card-padding-lg { padding: 32px; }
+  
+  .button-padding-sm { padding: 8px 12px; }
+  .button-padding-base { padding: 10px 16px; }
+  .button-padding-lg { padding: 12px 24px; }
+  
   /* Mobile card styles matching main app */
   .card-mobile {
     background-color: var(--bg-container);
     border-radius: var(--radius-lg);
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
     border: 1px solid var(--border-secondary);
-    padding: 16px;
+    padding: 16px; /* 4px base * 4 */
     margin-bottom: 16px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
   }
   
   .card-mobile:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
     box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
-    border-color: rgba(106, 13, 173, 0.1);
+    border-color: rgba(0, 119, 206, 0.1);
   }
   
   .card-mobile:active {
@@ -443,7 +579,48 @@
 @media (display-mode: standalone) {
   /* Styles when app is installed as PWA */
   body {
-    background-color: #f9fafb;
+    background-color: #f8fafc;
+  }
+}
+
+/* Responsive Typography - Mobile First */
+@media (max-width: 640px) {
+  .text-display {
+    font-size: 2rem;
+    line-height: 2.25rem;
+  }
+  
+  .text-h1 {
+    font-size: 1.5rem;
+    line-height: 2rem;
+  }
+  
+  .text-h2 {
+    font-size: 1.25rem;
+    line-height: 1.75rem;
+  }
+  
+  .text-h3 {
+    font-size: 1.125rem;
+    line-height: 1.5rem;
+  }
+  
+  /* Adjust card padding for small screens */
+  .card-mobile {
+    padding: 12px;
+  }
+}
+
+/* Tablet adjustments */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .text-display {
+    font-size: 2.25rem;
+    line-height: 2.5rem;
+  }
+  
+  .text-h1 {
+    font-size: 1.875rem;
+    line-height: 2.25rem;
   }
 }
 

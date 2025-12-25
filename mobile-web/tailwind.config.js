@@ -121,6 +121,40 @@ module.exports = {
       },
       fontFamily: {
         sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        display: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+        mono: ['JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', 'monospace'],
+      },
+      fontSize: {
+        'xs': ['0.75rem', { lineHeight: '1rem' }],      // 12px
+        'sm': ['0.875rem', { lineHeight: '1.25rem' }],  // 14px
+        'base': ['1rem', { lineHeight: '1.5rem' }],     // 16px
+        'lg': ['1.125rem', { lineHeight: '1.75rem' }],  // 18px
+        'xl': ['1.25rem', { lineHeight: '1.75rem' }],   // 20px
+        '2xl': ['1.5rem', { lineHeight: '2rem' }],      // 24px
+        '3xl': ['1.875rem', { lineHeight: '2.25rem' }], // 30px
+        '4xl': ['2.25rem', { lineHeight: '2.5rem' }],   // 36px
+      },
+      fontWeight: {
+        normal: '400',
+        medium: '500',
+        semibold: '600',
+        bold: '700',
+      },
+      lineHeight: {
+        none: '1',
+        tight: '1.25',
+        snug: '1.375',
+        normal: '1.5',
+        relaxed: '1.625',
+        loose: '2',
+      },
+      letterSpacing: {
+        tighter: '-0.05em',
+        tight: '-0.025em',
+        normal: '0em',
+        wide: '0.025em',
+        wider: '0.05em',
+        widest: '0.1em',
       },
       screens: {
         'xs': '475px',
@@ -130,6 +164,27 @@ module.exports = {
         'safe-bottom': 'env(safe-area-inset-bottom)',
         'safe-left': 'env(safe-area-inset-left)',
         'safe-right': 'env(safe-area-inset-right)',
+        // 4px base spacing scale
+        '0.5': '2px',
+        '1': '4px',
+        '1.5': '6px',
+        '2': '8px',
+        '2.5': '10px',
+        '3': '12px',
+        '3.5': '14px',
+        '4': '16px',
+        '5': '20px',
+        '6': '24px',
+        '7': '28px',
+        '8': '32px',
+        '9': '36px',
+        '10': '40px',
+        '11': '44px',
+        '12': '48px',
+        '14': '56px',
+        '16': '64px',
+        '20': '80px',
+        '24': '96px',
       },
       borderRadius: {
         'lg': '8px',

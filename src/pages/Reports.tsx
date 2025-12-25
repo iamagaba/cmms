@@ -1,7 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Icon } from '@iconify/react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Stack, Button, Group, Card, Badge, Skeleton, Select, Tabs } from '@/components/tailwind-components';
 import { supabase } from '@/integrations/supabase/client';
 import { WorkOrder, Technician, Vehicle } from '@/types/supabase';
@@ -9,15 +9,26 @@ import dayjs from 'dayjs';
 import ReactECharts from 'echarts-for-react';
 import type { EChartsOption } from 'echarts';
 import { professionalColors } from '@/theme/professional-colors';
+import InventoryReport from '@/components/reports/InventoryReport';
 
-type ReportType = 'overview' | 'technician' | 'workorder' | 'asset' | 'financial';
+type ReportType = 'overview' | 'technician' | 'workorder' | 'asset' | 'financial' | 'inventory';
 type DateRange = '7days' | '30days' | '90days' | 'year' | 'custom';
 
 const Reports: React.FC = () => {
-  const [reportType, setReportType] = useState<ReportType>('overview');
+  const [searchParams] = useSearchParams();
+  const tabFromUrl = searchParams.get('tab') as ReportType | null;
+  
+  const [reportType, setReportType] = useState<ReportType>(tabFromUrl || 'overview');
   const [dateRange, setDateRange] = useState<DateRange>('30days');
   const [startDate, setStartDate] = useState(dayjs().subtract(30, 'days').format('YYYY-MM-DD'));
   const [endDate, setEndDate] = useState(dayjs().format('YYYY-MM-DD'));
+
+  // Update report type when URL changes
+  useEffect(() => {
+    if (tabFromUrl && tabFromUrl !== reportType) {
+      setReportType(tabFromUrl);
+    }
+  }, [tabFromUrl, reportType]);
 
   // Update date range when selection changes
   const handleDateRangeChange = (range: DateRange) => {
@@ -187,6 +198,7 @@ const Reports: React.FC = () => {
                 { id: 'workorder', label: 'Work Order Analysis', icon: 'tabler:clipboard-list' },
                 { id: 'asset', label: 'Asset Reports', icon: 'tabler:car' },
                 { id: 'financial', label: 'Financial Summary', icon: 'tabler:currency-dollar' },
+                { id: 'inventory', label: 'Inventory Reports', icon: 'tabler:package' },
               ].map((report) => (
                 <button
                   key={report.id}
@@ -248,13 +260,15 @@ const Reports: React.FC = () => {
                 {reportType === 'overview' ? 'Overview Report' :
                  reportType === 'technician' ? 'Technician Performance' :
                  reportType === 'workorder' ? 'Work Order Analysis' :
-                 reportType === 'asset' ? 'Asset Reports' : 'Financial Summary'}
+                 reportType === 'asset' ? 'Asset Reports' : 
+                 reportType === 'financial' ? 'Financial Summary' : 'Inventory Reports'}
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {reportType === 'overview' ? 'Comprehensive insights and performance metrics' :
                  reportType === 'technician' ? 'Individual technician performance analysis' :
                  reportType === 'workorder' ? 'Work order trends and patterns' :
-                 reportType === 'asset' ? 'Asset maintenance and service history' : 'Revenue and cost analysis'}
+                 reportType === 'asset' ? 'Asset maintenance and service history' : 
+                 reportType === 'financial' ? 'Revenue and cost analysis' : 'Inventory valuation, movement, and analytics'}
               </p>
             </div>
           </div>
@@ -296,6 +310,10 @@ const Reports: React.FC = () => {
             <FinancialReport
               workOrders={workOrders || []}
             />
+          )}
+
+          {reportType === 'inventory' && (
+            <InventoryReport />
           )}
         </div>
       </div>

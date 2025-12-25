@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Icon } from '@iconify/react';
+import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { InventoryItem } from '@/types/supabase';
+import { InventoryItem, ItemCategory, Supplier } from '@/types/supabase';
 import { snakeToCamelCase, camelToSnakeCase } from '@/utils/data-helpers';
 import { showSuccess, showError } from '@/utils/toast';
 import { Input } from '@/components/ui/enterprise';
@@ -10,11 +11,26 @@ import { InventoryItemFormDialog } from '@/components/InventoryItemFormDialog';
 import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog';
 import { StockAdjustmentDialog } from '@/components/StockAdjustmentDialog';
 import { AdjustmentHistoryPanel } from '@/components/AdjustmentHistoryPanel';
+import { CategoryBadge } from '@/components/CategoryMultiSelect';
+import { InventoryTransactionsPanel } from '@/components/InventoryTransactionsPanel';
+import { InventoryPartsUsagePanel } from '@/components/InventoryPartsUsagePanel';
+import { PartsUsageAnalyticsPanel } from '@/components/PartsUsageAnalyticsPanel';
+import { useSuppliers } from '@/hooks/useSuppliers';
+import { 
+  formatStorageLocation, 
+  formatQuantityWithUnit, 
+  getUniqueWarehouses,
+  ALL_CATEGORIES 
+} from '@/utils/inventory-categorization-helpers';
+import { ITEM_CATEGORY_LABELS } from '@/types/supabase';
 
 // Filter types
 interface InventoryFilters {
   stockStatus: string;
   category: string;
+  categories: ItemCategory[];
+  supplierId: string;
+  warehouse: string;
   sortBy: string;
   sortOrder: 'asc' | 'desc';
 }
@@ -37,22 +53,35 @@ const InventoryPage: React.FC = () => {
   const [adjustmentDialogOpen, setAdjustmentDialogOpen] = useState(false);
   const [adjustmentPreselectedItem, setAdjustmentPreselectedItem] = useState<InventoryItem | null>(null);
   const [showHistory, setShowHistory] = useState(false);
+  const [showWorkOrderUsage, setShowWorkOrderUsage] = useState(false);
+  
+  // Transactions Panel State
+  const [transactionsPanelOpen, setTransactionsPanelOpen] = useState(false);
+  
+  // Analytics Panel State
+  const [analyticsPanelOpen, setAnalyticsPanelOpen] = useState(false);
   
   const [filters, setFilters] = useState<InventoryFilters>({
     stockStatus: 'all',
     category: 'all',
+    categories: [],
+    supplierId: 'all',
+    warehouse: 'all',
     sortBy: 'name',
     sortOrder: 'asc',
   });
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  // Data fetching
+  // Fetch suppliers for filter dropdown
+  const { data: suppliers } = useSuppliers();
+
+  // Data fetching - include supplier join
   const { data: inventoryItems, isLoading, error, refetch } = useQuery<InventoryItem[]>({
     queryKey: ['inventory_items'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('inventory_items')
-        .select('*')
+        .select('*, supplier:suppliers(*)')
         .order('name');
       if (error) throw new Error(error.message);
       return (data || []).map(item => snakeToCamelCase(item) as InventoryItem);
@@ -127,6 +156,24 @@ const InventoryPage: React.FC = () => {
       filtered = filtered.filter(i => (i.quantity_on_hand ?? 0) === 0);
     }
 
+    // Apply category filter (item must have at least one matching category)
+    if (filters.categories.length > 0) {
+      filtered = filtered.filter(item => {
+        const itemCategories = item.categories || [];
+        return filters.categories.some(cat => itemCategories.includes(cat));
+      });
+    }
+
+    // Apply supplier filter
+    if (filters.supplierId && filters.supplierId !== 'all') {
+      filtered = filtered.filter(item => item.supplier_id === filters.supplierId);
+    }
+
+    // Apply warehouse filter
+    if (filters.warehouse && filters.warehouse !== 'all') {
+      filtered = filtered.filter(item => item.warehouse === filters.warehouse);
+    }
+
     // Apply search
     if (searchTerm) {
       const query = searchTerm.toLowerCase();
@@ -155,6 +202,11 @@ const InventoryPage: React.FC = () => {
 
     return filtered;
   }, [inventoryItems, filters, searchTerm]);
+
+  // Get unique warehouses for filter dropdown
+  const uniqueWarehouses = useMemo(() => {
+    return getUniqueWarehouses(inventoryItems || []);
+  }, [inventoryItems]);
 
   // Event handlers
   const handleSave = useCallback((itemData: Partial<InventoryItem>) => {
@@ -195,7 +247,7 @@ const InventoryPage: React.FC = () => {
 
   const handleClearFilters = useCallback(() => {
     setSearchTerm('');
-    setFilters({ stockStatus: 'all', category: 'all', sortBy: 'name', sortOrder: 'asc' });
+    setFilters({ stockStatus: 'all', category: 'all', categories: [], supplierId: 'all', warehouse: 'all', sortBy: 'name', sortOrder: 'asc' });
   }, []);
 
   const handleOpenBatchAdjustment = useCallback(() => {
@@ -218,7 +270,7 @@ const InventoryPage: React.FC = () => {
     }
   }, [selectedItem, inventoryItems]);
 
-  const hasActiveFilters = searchTerm || filters.stockStatus !== 'all' || filters.category !== 'all';
+  const hasActiveFilters = searchTerm || filters.stockStatus !== 'all' || filters.category !== 'all' || filters.categories.length > 0 || filters.supplierId !== 'all' || filters.warehouse !== 'all';
 
 
   // Loading state
@@ -349,6 +401,30 @@ const InventoryPage: React.FC = () => {
                 <Icon icon="tabler:plus-minus" className="w-3.5 h-3.5" />
                 Adjust
               </button>
+              <button
+                onClick={() => setTransactionsPanelOpen(true)}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md transition-colors"
+                title="Inventory Transactions"
+              >
+                <Icon icon="tabler:arrows-exchange" className="w-3.5 h-3.5" />
+                Transactions
+              </button>
+              <button
+                onClick={() => setAnalyticsPanelOpen(true)}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md transition-colors"
+                title="Parts Usage Analytics"
+              >
+                <Icon icon="tabler:chart-bar" className="w-3.5 h-3.5" />
+                Analytics
+              </button>
+              <Link
+                to="/reports?tab=inventory"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md transition-colors"
+                title="Inventory Reports"
+              >
+                <Icon icon="tabler:report-analytics" className="w-3.5 h-3.5" />
+                Reports
+              </Link>
             </div>
             <button
               onClick={() => { setEditingItem(null); setIsDialogOpen(true); }}
@@ -390,6 +466,63 @@ const InventoryPage: React.FC = () => {
                   </select>
                 </div>
               </div>
+
+              {/* Category Filter */}
+              <div>
+                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Categories</label>
+                <div className="flex flex-wrap gap-1">
+                  {ALL_CATEGORIES.slice(0, 6).map(cat => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => {
+                        const newCategories = filters.categories.includes(cat)
+                          ? filters.categories.filter(c => c !== cat)
+                          : [...filters.categories, cat];
+                        setFilters({ ...filters, categories: newCategories });
+                      }}
+                      className={`px-2 py-0.5 text-xs rounded border transition-colors ${
+                        filters.categories.includes(cat)
+                          ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700'
+                          : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      {ITEM_CATEGORY_LABELS[cat]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Supplier & Warehouse Filters */}
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Supplier</label>
+                  <select
+                    value={filters.supplierId}
+                    onChange={(e) => setFilters({ ...filters, supplierId: e.target.value })}
+                    className="h-9 w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2.5 py-1 text-xs dark:text-gray-200"
+                  >
+                    <option value="all">All Suppliers</option>
+                    {suppliers?.map(s => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Warehouse</label>
+                  <select
+                    value={filters.warehouse}
+                    onChange={(e) => setFilters({ ...filters, warehouse: e.target.value })}
+                    className="h-9 w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2.5 py-1 text-xs dark:text-gray-200"
+                  >
+                    <option value="all">All Warehouses</option>
+                    {uniqueWarehouses.map(w => (
+                      <option key={w} value={w}>{w}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
               {hasActiveFilters && (
                 <button
                   onClick={handleClearFilters}
@@ -420,11 +553,12 @@ const InventoryPage: React.FC = () => {
                 const isLowStock = qty > 0 && qty <= reorderLvl;
                 const isOutOfStock = qty === 0;
                 const isSelected = selectedItem?.id === item.id;
+                const itemCategories = item.categories || [];
 
                 return (
                   <div
                     key={item.id}
-                    className={`list-row cursor-pointer ${isSelected ? 'list-row-active' : ''}`}
+                    className={`group relative list-row cursor-pointer ${isSelected ? 'list-row-active' : ''}`}
                     onClick={() => handleSelectItem(item)}
                   >
                     <div className="flex items-center justify-between mb-2">
@@ -450,9 +584,54 @@ const InventoryPage: React.FC = () => {
                         </span>
                       </div>
                     </div>
+                    {/* Category badges */}
+                    {itemCategories.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {itemCategories.slice(0, 2).map(cat => (
+                          <CategoryBadge key={cat} category={cat} size="sm" showIcon={false} />
+                        ))}
+                        {itemCategories.length > 2 && (
+                          <span className="text-xs text-gray-400">+{itemCategories.length - 2}</span>
+                        )}
+                      </div>
+                    )}
                     <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                      <span>Qty: {qty}</span>
-                      <span>${(item.unit_price ?? 0).toFixed(2)}</span>
+                      <span>{formatQuantityWithUnit(qty, item.unit_of_measure, item.units_per_package)}</span>
+                      <span>UGX {(item.unit_price ?? 0).toLocaleString()}</span>
+                    </div>
+
+                    {/* Quick Actions - Show on hover */}
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 p-1">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleQuickAdjust(item);
+                        }}
+                        className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                        title="Adjust Stock"
+                      >
+                        <Icon icon="tabler:plus-minus" className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(item);
+                        }}
+                        className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                        title="Edit"
+                      >
+                        <Icon icon="tabler:edit" className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteClick(item);
+                        }}
+                        className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors"
+                        title="Delete"
+                      >
+                        <Icon icon="tabler:trash" className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
+                      </button>
                     </div>
                   </div>
                 );
@@ -502,11 +681,11 @@ const InventoryPage: React.FC = () => {
             </div>
 
             {/* Item Details */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Basic Information */}
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide">Basic Information</h3>
-                <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide border-b border-gray-200 dark:border-gray-700 pb-2">Basic Information</h3>
+                <div className="space-y-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
                   <div>
                     <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Item Name</label>
                     <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.name || 'Not specified'}</p>
@@ -521,18 +700,42 @@ const InventoryPage: React.FC = () => {
                   </div>
                   <div>
                     <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Unit Price</label>
-                    <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">${(selectedItem.unit_price ?? 0).toFixed(2)}</p>
+                    <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">UGX {(selectedItem.unit_price ?? 0).toLocaleString()}</p>
+                  </div>
+                  {/* Categories */}
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Categories</label>
+                    <div className="mt-1 flex flex-wrap gap-1">
+                      {(selectedItem.categories || []).length > 0 ? (
+                        selectedItem.categories!.map(cat => (
+                          <CategoryBadge key={cat} category={cat} size="sm" />
+                        ))
+                      ) : (
+                        <div className="w-full text-center py-3 px-4 bg-white dark:bg-gray-900 rounded-md border border-dashed border-gray-300 dark:border-gray-600">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">No categories assigned</p>
+                          <button
+                            onClick={() => handleEdit(selectedItem)}
+                            className="inline-flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
+                          >
+                            <Icon icon="tabler:plus" className="w-3 h-3" />
+                            Add Categories
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
 
               {/* Stock Information */}
               <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide">Stock Information</h3>
-                <div className="space-y-3">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide border-b border-gray-200 dark:border-gray-700 pb-2">Stock Information</h3>
+                <div className="space-y-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
                   <div>
                     <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Quantity on Hand</label>
-                    <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5 font-semibold">{selectedItem.quantity_on_hand ?? 0}</p>
+                    <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5 font-semibold">
+                      {formatQuantityWithUnit(selectedItem.quantity_on_hand ?? 0, selectedItem.unit_of_measure, selectedItem.units_per_package)}
+                    </p>
                   </div>
                   <div>
                     <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Reorder Level</label>
@@ -561,22 +764,104 @@ const InventoryPage: React.FC = () => {
                   <div>
                     <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Total Value</label>
                     <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5 font-semibold">
-                      ${((selectedItem.quantity_on_hand ?? 0) * (selectedItem.unit_price ?? 0)).toFixed(2)}
+                      UGX {((selectedItem.quantity_on_hand ?? 0) * (selectedItem.unit_price ?? 0)).toLocaleString()}
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Additional Information */}
-            {selectedItem.description && (
-              <div className="mt-8">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide mb-4">Description</h3>
-                <div className="border border-gray-200 dark:border-gray-700 rounded-md p-3">
-                  <p className="text-sm text-gray-700 dark:text-gray-300">{selectedItem.description}</p>
+            {/* Supplier & Storage Location */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+              {/* Supplier Information */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide border-b border-gray-200 dark:border-gray-700 pb-2">Supplier</h3>
+                <div className="space-y-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+                  {selectedItem.supplier ? (
+                    <>
+                      <div>
+                        <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Supplier Name</label>
+                        <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.supplier.name}</p>
+                      </div>
+                      {selectedItem.supplier.contact_name && (
+                        <div>
+                          <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Contact</label>
+                          <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.supplier.contact_name}</p>
+                        </div>
+                      )}
+                      {selectedItem.supplier.phone && (
+                        <div>
+                          <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Phone</label>
+                          <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.supplier.phone}</p>
+                        </div>
+                      )}
+                      {selectedItem.supplier.email && (
+                        <div>
+                          <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Email</label>
+                          <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.supplier.email}</p>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <div className="text-center py-6">
+                      <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <Icon icon="tabler:building-store" className="w-6 h-6 text-gray-400 dark:text-gray-500" />
+                      </div>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No Supplier Assigned</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Add a supplier to track vendor information</p>
+                      <button
+                        onClick={() => handleEdit(selectedItem)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-md transition-colors"
+                      >
+                        <Icon icon="tabler:plus" className="w-3.5 h-3.5" />
+                        Add Supplier
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
-            )}
+
+              {/* Storage Location */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide">Storage Location</h3>
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Location</label>
+                    <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5 font-mono">
+                      {formatStorageLocation(selectedItem)}
+                    </p>
+                  </div>
+                  {selectedItem.warehouse && (
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      {selectedItem.zone && (
+                        <div>
+                          <label className="text-gray-500 dark:text-gray-400">Zone</label>
+                          <p className="text-gray-900 dark:text-gray-100">{selectedItem.zone}</p>
+                        </div>
+                      )}
+                      {selectedItem.aisle && (
+                        <div>
+                          <label className="text-gray-500 dark:text-gray-400">Aisle</label>
+                          <p className="text-gray-900 dark:text-gray-100">{selectedItem.aisle}</p>
+                        </div>
+                      )}
+                      {selectedItem.bin && (
+                        <div>
+                          <label className="text-gray-500 dark:text-gray-400">Bin</label>
+                          <p className="text-gray-900 dark:text-gray-100">{selectedItem.bin}</p>
+                        </div>
+                      )}
+                      {selectedItem.shelf && (
+                        <div>
+                          <label className="text-gray-500 dark:text-gray-400">Shelf</label>
+                          <p className="text-gray-900 dark:text-gray-100">{selectedItem.shelf}</p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
 
             {/* Adjustment History */}
             <div className="mt-8">
@@ -596,6 +881,29 @@ const InventoryPage: React.FC = () => {
                   <AdjustmentHistoryPanel 
                     inventoryItemId={selectedItem.id} 
                     maxHeight="300px"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Work Order Usage */}
+            <div className="mt-8">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
+                  Work Order Usage
+                </h3>
+                <button
+                  onClick={() => setShowWorkOrderUsage(!showWorkOrderUsage)}
+                  className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
+                >
+                  {showWorkOrderUsage ? 'Hide' : 'Show'} Usage
+                </button>
+              </div>
+              {showWorkOrderUsage && (
+                <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+                  <InventoryPartsUsagePanel 
+                    inventoryItemId={selectedItem.id} 
+                    maxHeight="400px"
                   />
                 </div>
               )}
@@ -640,6 +948,18 @@ const InventoryPage: React.FC = () => {
         }}
         onSuccess={handleAdjustmentSuccess}
         preselectedItem={adjustmentPreselectedItem}
+      />
+
+      {/* Inventory Transactions Panel */}
+      <InventoryTransactionsPanel
+        isOpen={transactionsPanelOpen}
+        onClose={() => setTransactionsPanelOpen(false)}
+      />
+
+      {/* Parts Usage Analytics Panel */}
+      <PartsUsageAnalyticsPanel
+        isOpen={analyticsPanelOpen}
+        onClose={() => setAnalyticsPanelOpen(false)}
       />
     </div>
   );

@@ -39,6 +39,7 @@ import CostTracker from "@/components/Cost/CostTracker";
 import { WorkOrderSidebar } from "@/components/work-order-details/WorkOrderSidebar";
 import { WorkOrderPartsUsedCard } from "@/components/work-order-details/WorkOrderPartsUsedCard";
 import { ConfirmationCallDialog } from "@/components/work-order-details/ConfirmationCallDialog";
+import { WorkOrderPartsDialog } from "@/components/WorkOrderPartsDialog";
 
 // Import work order helper functions
 import {
@@ -1180,6 +1181,16 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
           }
         }}
       />
+
+      {/* Work Order Parts Dialog */}
+      {workOrder?.id && (
+        <WorkOrderPartsDialog
+          isOpen={isAddPartDialogOpen}
+          onClose={() => setIsAddPartDialogOpen(false)}
+          workOrderId={workOrder.id}
+          workOrderNumber={workOrder.workOrderNumber}
+        />
+      )}
     </>
   );
 };

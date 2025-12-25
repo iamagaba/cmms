@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Icon } from '@iconify/react';
-import { InventoryItem } from '@/types/supabase';
+import { InventoryItem, ItemCategory, UnitOfMeasure } from '@/types/supabase';
+import { CategoryMultiSelect } from './CategoryMultiSelect';
+import { SupplierSelect } from './SupplierSelect';
+import { StorageLocationFields } from './StorageLocationFields';
+import { UnitOfMeasureSelect } from './UnitOfMeasureSelect';
 
 interface InventoryItemFormDialogProps {
   isOpen: boolean;
@@ -22,6 +26,15 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
     quantity_on_hand: 0,
     reorder_level: 0,
     unit_price: 0,
+    categories: [],
+    supplier_id: null,
+    unit_of_measure: 'each',
+    units_per_package: 1,
+    warehouse: null,
+    zone: null,
+    aisle: null,
+    bin: null,
+    shelf: null,
   });
   const [isSaving, setIsSaving] = useState(false);
 
@@ -36,6 +49,15 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
         quantity_on_hand: item.quantity_on_hand || 0,
         reorder_level: item.reorder_level || 0,
         unit_price: item.unit_price || 0,
+        categories: item.categories || [],
+        supplier_id: item.supplier_id || null,
+        unit_of_measure: item.unit_of_measure || 'each',
+        units_per_package: item.units_per_package || 1,
+        warehouse: item.warehouse || null,
+        zone: item.zone || null,
+        aisle: item.aisle || null,
+        bin: item.bin || null,
+        shelf: item.shelf || null,
       });
     } else {
       setFormData({
@@ -45,6 +67,15 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
         quantity_on_hand: 0,
         reorder_level: 0,
         unit_price: 0,
+        categories: [],
+        supplier_id: null,
+        unit_of_measure: 'each',
+        units_per_package: 1,
+        warehouse: null,
+        zone: null,
+        aisle: null,
+        bin: null,
+        shelf: null,
       });
     }
   }, [item, isOpen]);
@@ -181,6 +212,65 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
                     />
                   </div>
                 </div>
+              </div>
+
+              {/* Categorization */}
+              <div>
+                <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Icon icon="tabler:tags" className="w-5 h-5 text-purple-600" />
+                  Categorization
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Categories
+                    </label>
+                    <CategoryMultiSelect
+                      value={formData.categories || []}
+                      onChange={(categories) => setFormData({ ...formData, categories })}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Supplier
+                    </label>
+                    <SupplierSelect
+                      value={formData.supplier_id || null}
+                      onChange={(supplier_id) => setFormData({ ...formData, supplier_id })}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Unit of Measure */}
+              <div>
+                <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Icon icon="tabler:ruler-measure" className="w-5 h-5 text-purple-600" />
+                  Unit of Measure
+                </h3>
+                <UnitOfMeasureSelect
+                  unit={formData.unit_of_measure || 'each'}
+                  unitsPerPackage={formData.units_per_package || 1}
+                  onUnitChange={(unit_of_measure) => setFormData({ ...formData, unit_of_measure })}
+                  onUnitsPerPackageChange={(units_per_package) => setFormData({ ...formData, units_per_package })}
+                />
+              </div>
+
+              {/* Storage Location */}
+              <div>
+                <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Icon icon="tabler:map-pin" className="w-5 h-5 text-purple-600" />
+                  Storage Location
+                </h3>
+                <StorageLocationFields
+                  warehouse={formData.warehouse || null}
+                  zone={formData.zone || null}
+                  aisle={formData.aisle || null}
+                  bin={formData.bin || null}
+                  shelf={formData.shelf || null}
+                  onChange={(field, value) => setFormData({ ...formData, [field]: value })}
+                />
               </div>
 
               {/* Stock Information */}

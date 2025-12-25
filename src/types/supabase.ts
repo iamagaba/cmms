@@ -907,6 +907,73 @@ export interface WorkOrder {
   appointmentDate?: string | null;
 }
 
+// Item Categories
+export type ItemCategory = 
+  | 'electrical'
+  | 'mechanical'
+  | 'consumables'
+  | 'fluids'
+  | 'safety'
+  | 'tools'
+  | 'fasteners'
+  | 'filters'
+  | 'batteries'
+  | 'tires'
+  | 'other';
+
+export const ITEM_CATEGORY_LABELS: Record<ItemCategory, string> = {
+  electrical: 'Electrical',
+  mechanical: 'Mechanical',
+  consumables: 'Consumables',
+  fluids: 'Fluids',
+  safety: 'Safety',
+  tools: 'Tools',
+  fasteners: 'Fasteners',
+  filters: 'Filters',
+  batteries: 'Batteries',
+  tires: 'Tires',
+  other: 'Other',
+};
+
+// Units of Measure
+export type UnitOfMeasure = 
+  | 'each'
+  | 'pair'
+  | 'box'
+  | 'case'
+  | 'pack'
+  | 'roll'
+  | 'gallon'
+  | 'liter'
+  | 'pound'
+  | 'kilogram';
+
+export const UNIT_OF_MEASURE_LABELS: Record<UnitOfMeasure, string> = {
+  each: 'Each',
+  pair: 'Pair',
+  box: 'Box',
+  case: 'Case',
+  pack: 'Pack',
+  roll: 'Roll',
+  gallon: 'Gallon',
+  liter: 'Liter',
+  pound: 'Pound',
+  kilogram: 'Kilogram',
+};
+
+// Supplier
+export interface Supplier {
+  id: string;
+  name: string;
+  contact_name: string | null;
+  phone: string | null;
+  email: string | null;
+  address: string | null;
+  notes: string | null;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface InventoryItem {
   id: string;
   name: string;
@@ -915,6 +982,19 @@ export interface InventoryItem {
   quantity_on_hand: number;
   reorder_level: number;
   unit_price: number;
+  // Categorization fields
+  categories?: ItemCategory[];
+  supplier_id?: string | null;
+  unit_of_measure?: UnitOfMeasure;
+  units_per_package?: number;
+  // Storage location fields
+  warehouse?: string | null;
+  zone?: string | null;
+  aisle?: string | null;
+  bin?: string | null;
+  shelf?: string | null;
+  // Joined data
+  supplier?: Supplier;
   created_at?: string;
   updated_at?: string;
 }
@@ -922,11 +1002,66 @@ export interface InventoryItem {
 export interface WorkOrderPart {
   id: string;
   work_order_id: string;
-  item_id: string;
+  inventory_item_id: string;
   quantity_used: number;
-  price_at_time_of_use: number;
-  created_at?: string;
-  inventory_items: InventoryItem; // For joined queries
+  unit_cost: number;
+  total_cost: number;
+  notes: string | null;
+  added_by: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joined data
+  inventory_items?: InventoryItem;
+  work_orders?: WorkOrder;
+  profiles?: { first_name: string | null; last_name: string | null };
+}
+
+// Part Reservation Types
+export type ReservationStatus = 'pending' | 'confirmed' | 'fulfilled' | 'cancelled' | 'expired';
+
+export interface PartReservation {
+  id: string;
+  work_order_id: string;
+  inventory_item_id: string;
+  quantity_reserved: number;
+  status: ReservationStatus;
+  reserved_by: string | null;
+  reserved_at: string;
+  expires_at: string | null;
+  fulfilled_at: string | null;
+  cancelled_at: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joined data
+  inventory_items?: InventoryItem;
+  work_orders?: WorkOrder;
+  profiles?: { first_name: string | null; last_name: string | null };
+}
+
+export const RESERVATION_STATUS_LABELS: Record<ReservationStatus, string> = {
+  pending: 'Pending',
+  confirmed: 'Confirmed',
+  fulfilled: 'Fulfilled',
+  cancelled: 'Cancelled',
+  expired: 'Expired',
+};
+
+// Parts Usage Analytics Types
+export interface PartsUsageAnalytics {
+  inventory_item_id: string;
+  item_name: string;
+  sku: string | null;
+  vehicle_id: string | null;
+  vehicle_name: string | null;
+  service_category_id: string | null;
+  service_category_name: string | null;
+  work_orders_count: number;
+  total_quantity_used: number;
+  total_cost: number;
+  avg_quantity_per_order: number;
+  first_used_at: string;
+  last_used_at: string;
 }
 
 
@@ -977,5 +1112,155 @@ export const ADJUSTMENT_REASON_LABELS: Record<AdjustmentReason, string> = {
   transfer_out: 'Transfer Out',
   transfer_in: 'Transfer In',
   initial_stock: 'Initial Stock',
+  other: 'Other',
+};
+
+
+// Inventory Transaction Types
+
+// Stock Receipt Types
+export type ReceiptStatus = 'pending' | 'partial' | 'complete' | 'cancelled';
+
+export interface StockReceipt {
+  id: string;
+  receipt_number: string;
+  supplier_id: string | null;
+  received_date: string;
+  po_number: string | null;
+  invoice_number: string | null;
+  status: ReceiptStatus;
+  notes: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joined data
+  supplier?: Supplier;
+  items?: StockReceiptItem[];
+  profiles?: { first_name: string | null; last_name: string | null };
+}
+
+export interface StockReceiptItem {
+  id: string;
+  receipt_id: string;
+  inventory_item_id: string;
+  quantity_expected: number;
+  quantity_received: number;
+  unit_cost: number | null;
+  notes: string | null;
+  created_at: string;
+  // Joined data
+  inventory_items?: InventoryItem;
+}
+
+export const RECEIPT_STATUS_LABELS: Record<ReceiptStatus, string> = {
+  pending: 'Pending',
+  partial: 'Partial',
+  complete: 'Complete',
+  cancelled: 'Cancelled',
+};
+
+// Stock Transfer Types
+export type TransferStatus = 'pending' | 'in_transit' | 'complete' | 'cancelled';
+
+export interface StockTransfer {
+  id: string;
+  transfer_number: string;
+  from_warehouse: string;
+  to_warehouse: string;
+  transfer_date: string;
+  status: TransferStatus;
+  notes: string | null;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joined data
+  items?: StockTransferItem[];
+  profiles?: { first_name: string | null; last_name: string | null };
+}
+
+export interface StockTransferItem {
+  id: string;
+  transfer_id: string;
+  inventory_item_id: string;
+  quantity: number;
+  notes: string | null;
+  created_at: string;
+  // Joined data
+  inventory_items?: InventoryItem;
+}
+
+export const TRANSFER_STATUS_LABELS: Record<TransferStatus, string> = {
+  pending: 'Pending',
+  in_transit: 'In Transit',
+  complete: 'Complete',
+  cancelled: 'Cancelled',
+};
+
+// Cycle Count Types
+export type CycleCountStatus = 'in_progress' | 'pending_review' | 'complete' | 'cancelled';
+
+export interface CycleCount {
+  id: string;
+  count_number: string;
+  count_date: string;
+  warehouse: string | null;
+  status: CycleCountStatus;
+  notes: string | null;
+  created_by: string | null;
+  completed_by: string | null;
+  completed_at: string | null;
+  created_at: string;
+  updated_at: string;
+  // Joined data
+  items?: CycleCountItem[];
+  profiles?: { first_name: string | null; last_name: string | null };
+}
+
+export interface CycleCountItem {
+  id: string;
+  cycle_count_id: string;
+  inventory_item_id: string;
+  system_quantity: number;
+  counted_quantity: number | null;
+  variance: number;
+  counted_by: string | null;
+  counted_at: string | null;
+  notes: string | null;
+  created_at: string;
+  // Joined data
+  inventory_items?: InventoryItem;
+}
+
+export const CYCLE_COUNT_STATUS_LABELS: Record<CycleCountStatus, string> = {
+  in_progress: 'In Progress',
+  pending_review: 'Pending Review',
+  complete: 'Complete',
+  cancelled: 'Cancelled',
+};
+
+// Shrinkage Types
+export type LossType = 'theft' | 'damage' | 'expired' | 'spoilage' | 'unknown' | 'other';
+
+export interface ShrinkageRecord {
+  id: string;
+  inventory_item_id: string;
+  quantity_lost: number;
+  loss_type: LossType;
+  discovered_date: string;
+  estimated_value: number | null;
+  notes: string | null;
+  reported_by: string | null;
+  created_at: string;
+  // Joined data
+  inventory_items?: InventoryItem;
+  profiles?: { first_name: string | null; last_name: string | null };
+}
+
+export const LOSS_TYPE_LABELS: Record<LossType, string> = {
+  theft: 'Theft',
+  damage: 'Damage',
+  expired: 'Expired',
+  spoilage: 'Spoilage',
+  unknown: 'Unknown',
   other: 'Other',
 };

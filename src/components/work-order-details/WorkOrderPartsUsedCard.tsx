@@ -93,9 +93,9 @@ export const WorkOrderPartsUsedCard: React.FC<WorkOrderPartsUsedCardProps> = ({
                           Qty: <span className="font-medium text-gray-700">{part.quantity_used}</span>
                         </span>
                         <span className="text-gray-500">
-                          @ <span className="font-medium text-gray-700">${price.toFixed(2)}</span>
+                          @ <span className="font-medium text-gray-700">UGX {price.toLocaleString()}</span>
                         </span>
-                        <span className="text-gray-900 font-semibold">${lineTotal.toFixed(2)}</span>
+                        <span className="text-gray-900 font-semibold">UGX {lineTotal.toLocaleString()}</span>
                       </div>
                     </div>
                   </div>
@@ -106,7 +106,7 @@ export const WorkOrderPartsUsedCard: React.FC<WorkOrderPartsUsedCardProps> = ({
             {/* Total */}
             <div className="pt-2 border-t border-gray-200 flex items-center justify-between">
               <span className="text-xs font-medium text-gray-600">Total Parts Cost</span>
-              <span className="text-sm font-bold text-gray-900">${totalCost.toFixed(2)}</span>
+              <span className="text-sm font-bold text-gray-900">UGX {totalCost.toLocaleString()}</span>
             </div>
           </div>
         )}

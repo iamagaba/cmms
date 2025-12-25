@@ -5,7 +5,7 @@ import { ServiceCategory, SlaPolicy } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
 import { ServiceSlaFormDialog, ServiceSlaData } from "@/components/ServiceSlaFormDialog"; // Use Ant Design dialog
 
-import { Card, Table, Button, Space, Typography, Modal, Popconfirm, Menu, Dropdown, Skeleton, Empty } from "antd";
+import { Card, Table, Button, Typography, Modal, Menu, Dropdown, Skeleton, Empty } from "antd";
 import { Icon } from '@iconify/react'; // Using Iconify for icons
 
 const { Title, Paragraph } = Typography;

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { Empty, Typography, Spin } from 'antd';
 
@@ -21,6 +21,8 @@ export const MapboxDisplayMap = ({ center, zoom = 12, markers = [], height = '30
   const [mapInitialized, setMapInitialized] = useState(false);
   const [routeData, setRouteData] = useState<any>(null);
   const [routeDistance, setRouteDistance] = useState<number | null>(null); // in kilometers
+  const [routeDuration, setRouteDuration] = useState<number | null>(null); // in seconds
+  const createdMarkersRef = useRef<mapboxgl.Marker[]>([]);
 
   useEffect(() => {
     if (!mapboxgl.accessToken) {
@@ -61,6 +63,7 @@ export const MapboxDisplayMap = ({ center, zoom = 12, markers = [], height = '30
       if (!origin || !destination || !mapboxgl.accessToken) {
         setRouteData(null);
         setRouteDistance(null);
+        setRouteDuration(null);
         return;
       }
 
@@ -74,15 +77,18 @@ export const MapboxDisplayMap = ({ center, zoom = 12, markers = [], height = '30
           const route = json.routes[0];
           setRouteData(route.geometry);
           setRouteDistance(route.distance / 1000); // Convert meters to kilometers
+          setRouteDuration(route.duration); // seconds
         } else {
           setRouteData(null);
           setRouteDistance(null);
+          setRouteDuration(null);
           console.warn('No route found between the specified points.');
         }
       } catch (error) {
         console.error('Error fetching directions:', error);
         setRouteData(null);
         setRouteDistance(null);
+        setRouteDuration(null);
       }
     };
 
@@ -93,13 +99,13 @@ export const MapboxDisplayMap = ({ center, zoom = 12, markers = [], height = '30
   useEffect(() => {
     if (!mapInitialized || !map.current) return;
 
-    // Clear existing markers
-    const existingMarkers = document.querySelectorAll('.mapboxgl-marker');
-    existingMarkers.forEach(marker => marker.remove());
+    // Clear existing markers created by this component only
+    createdMarkersRef.current.forEach(m => m.remove());
+    createdMarkersRef.current = [];
 
     // Add new markers
     markers.forEach(markerData => {
-      const marker = new mapboxgl.Marker({ color: markerData.color || '#6A0DAD' })
+      const marker = new mapboxgl.Marker({ color: markerData.color || getComputedStyle(document.documentElement).getPropertyValue('--ant-colorPrimary')?.trim() || '#6A0DAD' })
         .setLngLat([markerData.lng, markerData.lat])
         .addTo(map.current!);
 
@@ -107,6 +113,8 @@ export const MapboxDisplayMap = ({ center, zoom = 12, markers = [], height = '30
         const popup = new mapboxgl.Popup({ offset: 25 }).setText(markerData.popupText);
         marker.setPopup(popup);
       }
+
+      createdMarkersRef.current.push(marker);
     });
 
     // Add or update route layer
@@ -127,7 +135,9 @@ export const MapboxDisplayMap = ({ center, zoom = 12, markers = [], height = '30
             'line-cap': 'round',
           },
           paint: {
-            'line-color': '#888',
+            // Use a neutral token-like color for route; Mapbox cannot read CSS vars directly,
+            // so we approximate with a mid-contrast gray that works for both themes.
+            'line-color': '#8c8c8c',
             'line-width': 6,
             'line-opacity': 0.75,
           },
@@ -135,23 +145,33 @@ export const MapboxDisplayMap = ({ center, zoom = 12, markers = [], height = '30
       }
 
       // Add distance label to the map
-      if (routeDistance !== null && routeData.coordinates && routeData.coordinates.length > 0) {
+      if (routeData.coordinates && routeData.coordinates.length > 0 && (routeDistance !== null || routeDuration !== null)) {
         const midPointIndex = Math.floor(routeData.coordinates.length / 2);
         const midCoordinate = routeData.coordinates[midPointIndex];
 
-        const el = document.createElement('div');
+    const el = document.createElement('div');
         el.className = 'distance-label';
-        el.style.backgroundColor = 'white';
+    el.style.backgroundColor = 'var(--ant-colorBgElevated, #fff)';
+    el.style.color = 'var(--ant-colorText, #000)';
         el.style.padding = '4px 8px';
         el.style.borderRadius = '4px';
         el.style.boxShadow = '0 1px 2px rgba(0,0,0,0.1)';
         el.style.fontWeight = 'bold';
         el.style.fontSize = '12px';
-        el.textContent = `${routeDistance.toFixed(1)} km`;
+    el.style.border = '1px solid var(--ant-colorSplit, #d9d9d9)';
+        const parts: string[] = [];
+        if (routeDistance !== null) parts.push(`${routeDistance.toFixed(1)} km`);
+        if (routeDuration !== null) {
+          const mins = Math.round(routeDuration / 60);
+          const label = mins < 60 ? `${mins} min` : `${Math.floor(mins / 60)} hr ${mins % 60} min`;
+          parts.push(label);
+        }
+        el.textContent = parts.join(' • ');
 
-        new mapboxgl.Marker({ element: el, anchor: 'bottom' })
+        const labelMarker = new mapboxgl.Marker({ element: el, anchor: 'bottom' })
           .setLngLat(midCoordinate)
           .addTo(map.current);
+        createdMarkersRef.current.push(labelMarker);
       }
     } else {
       // Remove route layer if no route data
@@ -178,11 +198,11 @@ export const MapboxDisplayMap = ({ center, zoom = 12, markers = [], height = '30
       map.current.setCenter(center);
     }
 
-  }, [markers, mapInitialized, center, routeData, routeDistance]);
+  }, [markers, mapInitialized, center, routeData, routeDistance, routeDuration]);
 
   if (!mapboxgl.accessToken) {
     return (
-      <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: '#f0f2f5', borderRadius: '8px' }}>
+      <div style={{ height, display: 'flex', alignItems: 'center', justifyContent: 'center', backgroundColor: 'var(--ant-colorBgLayout, #f0f2f5)', borderRadius: '8px' }}>
         <Empty description={<Text type="danger">Mapbox API Key not configured.</Text>} />
       </div>
     );
@@ -200,7 +220,7 @@ export const MapboxDisplayMap = ({ center, zoom = 12, markers = [], height = '30
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          backgroundColor: 'rgba(255, 255, 255, 0.8)',
+          backgroundColor: 'color-mix(in srgb, var(--ant-colorBgElevated) 80%, transparent)',
           zIndex: 1,
           borderRadius: '8px',
         }}>

@@ -22,14 +22,19 @@ export function LocationDataTable({ locations, workOrders, onEdit, onDelete }: L
   }, [locations, workOrders]);
 
   const columns = getColumns(onEdit, onDelete);
+  const columnsWithLabels = (columns as any[]).map((col) => ({
+    ...col,
+    onCell: (_: any) => ({ 'data-label': col.title }),
+  }));
 
   return (
-    <Table
-      dataSource={tableData}
-      columns={columns}
-      rowKey="id"
-      size="small"
-      pagination={{ pageSize: 10, hideOnSinglePage: true }}
+      <Table
+        dataSource={tableData}
+        columns={columnsWithLabels as any}
+        rowKey="id"
+        size="small"
+        pagination={{ pageSize: 10, hideOnSinglePage: true, position: ["bottomCenter"] }}
+      className="stacked-table"
       onRow={(record) => ({
         className: 'lift-on-hover-row',
         onClick: () => navigate(`/locations/${record.id}`),

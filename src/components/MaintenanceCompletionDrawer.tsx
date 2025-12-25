@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Drawer, Form, Select, Input, Button, Typography, Space, Table, InputNumber, Popconfirm, Empty, Row, Col, Spin, Card } from 'antd';
+import { Drawer, Form, Select, Input, Button, Typography, Space, Table, InputNumber, Popconfirm, Empty, Row, Col, Card } from 'antd';
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -64,7 +64,7 @@ export const MaintenanceCompletionDrawer = ({
         customFaultCode: initialFaultCode && !predefinedFaultCodes.includes(initialFaultCode) ? initialFaultCode : undefined,
         maintenanceNotes: initialMaintenanceNotes,
       });
-      setShowCustomFaultCode(initialFaultCode && !predefinedFaultCodes.includes(initialFaultCode));
+  setShowCustomFaultCode(!!(initialFaultCode && !predefinedFaultCodes.includes(initialFaultCode)));
       partForm.resetFields(); // Reset part form when drawer opens
     } else {
       form.resetFields();
@@ -152,7 +152,7 @@ export const MaintenanceCompletionDrawer = ({
       footer={
         <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
           <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>
-          <Button key="submit" type="primary" onClick={handleSubmit} loading={loading} disabled={loading || usedPartsCount === 0}>
+          <Button key="submit" type="primary" onClick={handleSubmit} loading={loading} disabled={loading}>
             <Icon icon="ph:check-circle-fill" /> Mark as Completed
           </Button>
         </Space>
@@ -229,7 +229,7 @@ export const MaintenanceCompletionDrawer = ({
                   >
                     {(inventoryItems || []).map(item => (
                       <Option key={item.id} value={item.id} label={`${item.name} (${item.sku})`}>
-                        {item.name} ({item.sku}) - <span style={{ color: '#888' }}>{item.quantity_on_hand} in stock</span>
+                        {item.name} ({item.sku}) - <span style={{ color: 'var(--ant-colorTextSecondary)' }}>{item.quantity_on_hand} in stock</span>
                       </Option>
                     ))}
                   </Select>

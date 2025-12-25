@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { WorkOrder, Technician, Location, Profile, ServiceCategory, SlaPolicy } from '@/types/supabase';
+import { WorkOrder, Technician, Location, SlaPolicy } from '@/types/supabase';
 
 interface ActivityLogEntry {
   timestamp: string;

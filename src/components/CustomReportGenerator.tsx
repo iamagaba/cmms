@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Form, Button, Select, Row, Col, Table, Typography, Space } from 'antd';
+import { Form, Button, Select, Row, Col, Table, Typography } from 'antd';
 import { PrinterOutlined, FundViewOutlined } from '@ant-design/icons';
 import { WorkOrder, Technician, Location } from '@/types/supabase';
 import dayjs from 'dayjs';
@@ -38,8 +38,8 @@ const CustomReportGenerator: React.FC<CustomReportGeneratorProps> = ({ workOrder
         { title: 'Service', dataIndex: 'service', key: 'service' },
         { title: 'Status', dataIndex: 'status', key: 'status' },
         { title: 'Priority', dataIndex: 'priority', key: 'priority' },
-        { title: 'Created At', dataIndex: 'createdAt', key: 'createdAt', render: (date) => dayjs(date).format('YYYY-MM-DD') },
-        { title: 'Completed At', dataIndex: 'completedAt', key: 'completedAt', render: (date) => date ? dayjs(date).format('YYYY-MM-DD') : 'N/A' },
+  { title: 'Created At', dataIndex: 'createdAt', key: 'createdAt', render: (date: string | Date) => dayjs(date).format('YYYY-MM-DD') },
+  { title: 'Completed At', dataIndex: 'completedAt', key: 'completedAt', render: (date: string | Date | null) => date ? dayjs(date).format('YYYY-MM-DD') : 'N/A' },
       ]);
       setReportData(filteredWorkOrders);
       setReportSummary({

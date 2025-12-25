@@ -2,20 +2,20 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button, Card, Col, Row, Space, Typography, Descriptions, Skeleton, Table } from "antd";
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import NotFound from "./NotFound";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query"; // Import useMutation
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Customer, Vehicle, WorkOrder, Technician, Location, Profile, ServiceCategory } from "@/types/supabase"; // Import Profile and ServiceCategory
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { CreateWorkOrderDialog } from "@/components/CreateWorkOrderDialog";
 import { WorkOrderFormDrawer } from "@/components/WorkOrderFormDrawer";
-import { camelToSnakeCase } from "@/utils/data-helpers"; // Import camelToSnakeCase
-import { showSuccess, showInfo, showError } from "@/utils/toast"; // Import toast utilities
+import { snakeToCamelCase } from "@/utils/data-helpers";
+// import { showSuccess } from "@/utils/toast";
 import dayjs from "dayjs";
-import { useSession } from "@/context/SessionContext";
-import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
+// import { useSession } from "@/context/SessionContext";
+import AppBreadcrumb from "@/components/Breadcrumbs";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 type VehicleWithCustomer = Vehicle & { customers: Customer | null };
 
@@ -23,7 +23,7 @@ const CustomerDetailsPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { session } = useSession();
+  // const { session } = useSession();
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isFormDrawerOpen, setIsFormDrawerOpen] = useState(false);
@@ -35,7 +35,7 @@ const CustomerDetailsPage = () => {
       if (!id) return null;
       const { data, error } = await supabase.from('customers').select('*').eq('id', id).single();
       if (error) throw new Error(error.message);
-      return data;
+      return data ? snakeToCamelCase(data) as Customer : null;
     },
     enabled: !!id,
   });
@@ -46,7 +46,7 @@ const CustomerDetailsPage = () => {
       if (!id) return [];
       const { data, error } = await supabase.from('vehicles').select('*').eq('customer_id', id);
       if (error) throw new Error(error.message);
-      return data || [];
+      return (data || []).map(vehicle => snakeToCamelCase(vehicle) as Vehicle);
     },
     enabled: !!id,
   });
@@ -57,84 +57,26 @@ const CustomerDetailsPage = () => {
       if (!id) return [];
       const { data, error } = await supabase.from('work_orders').select('*').eq('customer_id', id);
       if (error) throw new Error(error.message);
-      return (data || []).map((item: any) => ({ ...item, createdAt: item.created_at, workOrderNumber: item.work_order_number, assignedTechnicianId: item.assigned_technician_id, locationId: item.location_id, serviceNotes: item.service_notes, partsUsed: item.parts_used, activityLog: item.activity_log, slaDue: item.sla_due, completedAt: item.completed_at, customerLat: item.customer_lat, customerLng: item.customer_lng, customerAddress: item.customer_address, onHoldReason: item.on_hold_reason, appointmentDate: item.appointment_date, customerId: item.customer_id, vehicleId: item.vehicle_id, created_by: item.created_by, service_category_id: item.service_category_id, confirmed_at: item.confirmed_at, work_started_at: item.work_started_at, sla_timers_paused_at: item.sla_timers_paused_at, total_paused_duration_seconds: item.total_paused_duration_seconds, initialDiagnosis: item.client_report, issueType: item.issue_type, faultCode: item.fault_code, maintenanceNotes: item.maintenance_notes })) || [];
+      return (data || []).map(workOrder => snakeToCamelCase(workOrder) as WorkOrder);
     },
     enabled: !!id,
   });
 
-  const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return data || []; } });
-  const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({ queryKey: ['locations'], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*'); if (error) throw new Error(error.message); return data || []; } });
-  const { data: profiles, isLoading: isLoadingProfiles } = useQuery<Profile[]>({
+  const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return (data || []).map(tech => snakeToCamelCase(tech) as Technician); } });
+  const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({ queryKey: ['locations'], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*'); if (error) throw new Error(error.message); return (data || []).map(location => snakeToCamelCase(location) as Location); } });
+  const { isLoading: isLoadingProfiles } = useQuery<Profile[]>({
     queryKey: ['profiles'],
     queryFn: async () => {
       const { data, error } = await supabase.from('profiles').select('*'); // Select all fields for Profile type
       if (error) throw new Error(error.message);
-      return data || [];
+      return (data || []).map(profile => snakeToCamelCase(profile) as Profile);
     }
   });
-  const { data: serviceCategories, isLoading: isLoadingServiceCategories } = useQuery<ServiceCategory[]>({ queryKey: ['service_categories'], queryFn: async () => { const { data, error } = await supabase.from('service_categories').select('*'); if (error) throw new Error(error.message); return data || []; } });
+  const { data: serviceCategories, isLoading: isLoadingServiceCategories } = useQuery<ServiceCategory[]>({ queryKey: ['service_categories'], queryFn: async () => { const { data, error } = await supabase.from('service_categories').select('*'); if (error) throw new Error(error.message); return (data || []).map(category => snakeToCamelCase(category) as ServiceCategory); } });
 
 
-  const workOrderMutation = useMutation({
-    mutationFn: async (workOrderData: Partial<WorkOrder>) => {
-      const { error } = await supabase.from('work_orders').upsert([workOrderData]);
-      if (error) throw new Error(error.message);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['work_orders', { customerId: id }] });
-      showSuccess('Work order has been updated.');
-    },
-    onError: (error) => showError(error.message),
-  });
+  // Note: Inline work order updates were removed in this page to reduce duplication; details tables link to Work Order views.
 
-  const handleUpdateWorkOrder = (workOrderId: string, updates: Partial<WorkOrder>) => {
-    const workOrder = workOrders?.find(wo => wo.id === workOrderId);
-    if (!workOrder) return;
-
-    const oldWorkOrder = { ...workOrder };
-    const newActivityLog = [...(workOrder.activityLog || [])];
-    let activityMessage = '';
-
-    if (updates.status && updates.status !== oldWorkOrder.status) {
-      activityMessage = `Status changed from '${oldWorkOrder.status || 'N/A'}' to '${updates.status}'.`;
-    } else if (updates.assignedTechnicianId && updates.assignedTechnicianId !== oldWorkOrder.assignedTechnicianId) {
-      const oldTech = technicians?.find(t => t.id === oldWorkOrder.assignedTechnicianId)?.name || 'Unassigned';
-      const newTech = technicians?.find(t => t.id === updates.assignedTechnicianId)?.name || 'Unassigned';
-      activityMessage = `Assigned technician changed from '${oldTech}' to '${newTech}'.`;
-    } else if (updates.slaDue && updates.slaDue !== oldWorkOrder.slaDue) {
-      activityMessage = `SLA due date updated to '${dayjs(updates.slaDue).format('MMM D, YYYY h:mm A')}'.`;
-    } else if (updates.appointmentDate && updates.appointmentDate !== oldWorkOrder.appointmentDate) {
-      activityMessage = `Appointment date updated to '${dayjs(updates.appointmentDate).format('MMM D, YYYY h:mm A')}'.`;
-    } else if (updates.service && updates.service !== oldWorkOrder.service) {
-      activityMessage = `Service description updated.`;
-    } else if (updates.serviceNotes && updates.serviceNotes !== oldWorkOrder.serviceNotes) {
-      activityMessage = `Service notes updated.`;
-    } else if (updates.priority && updates.priority !== oldWorkOrder.priority) {
-      activityMessage = `Priority changed from '${oldWorkOrder.priority || 'N/A'}' to '${updates.priority}'.`;
-    } else if (updates.locationId && updates.locationId !== oldWorkOrder.locationId) {
-      const oldLoc = locations?.find(l => l.id === oldWorkOrder.locationId)?.name || 'N/A';
-      const newLoc = locations?.find(l => l.id === updates.locationId)?.name || 'N/A';
-      activityMessage = `Service location changed from '${oldLoc}' to '${newLoc}'.`;
-    } else if (updates.customerAddress && updates.customerAddress !== oldWorkOrder.customerAddress) {
-      activityMessage = `Client address updated to '${updates.customerAddress}'.`;
-    } else if (updates.customerLat !== oldWorkOrder.customerLat || updates.customerLng !== oldWorkOrder.customerLng) {
-      activityMessage = `Client coordinates updated.`;
-    } else {
-      activityMessage = 'Work order details updated.'; // Generic message for other changes
-    }
-
-    if (activityMessage) {
-      newActivityLog.push({ timestamp: new Date().toISOString(), activity: activityMessage, userId: session?.user.id ?? null });
-      updates.activityLog = newActivityLog;
-    }
-
-    if ((updates.assignedTechnicianId || updates.appointmentDate) && workOrder.status === 'Ready') {
-      updates.status = 'In Progress';
-      showInfo(`Work Order ${workOrder.workOrderNumber} automatically moved to In Progress.`);
-    }
-    
-    workOrderMutation.mutate(camelToSnakeCase({ id: workOrder.id, ...updates }));
-  };
 
   const isLoading = isLoadingCustomer || isLoadingVehicles || isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingProfiles || isLoadingServiceCategories;
 
@@ -185,12 +127,12 @@ const CustomerDetailsPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Breadcrumbs backButton={backButton} />
+  <AppBreadcrumb backButton={backButton} />
       <Row gutter={[16, 16]}>
         <Col xs={24} md={8}>
-          <Card>
+          <Card size="small">
             <Title level={4}>{customer.name}</Title>
-            <Descriptions column={1} bordered>
+            <Descriptions column={1} bordered size="small">
               <Descriptions.Item label={<Icon icon="ph:envelope-fill" />}>
                 <a href={`mailto:${customer.email}`}>{customer.email}</a>
               </Descriptions.Item>
@@ -207,7 +149,7 @@ const CustomerDetailsPage = () => {
         </Col>
         <Col xs={24} md={16}>
           <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-            <Card title="Associated Assets">
+            <Card size="small" title="Associated Assets">
               <Table
                 dataSource={vehicles}
                 columns={vehicleColumns}
@@ -215,7 +157,7 @@ const CustomerDetailsPage = () => {
                 pagination={{ pageSize: 5 }}
               />
             </Card>
-            <Card title="Work Order History">
+            <Card size="small" title="Work Order History">
               <Table
                 dataSource={workOrders}
                 columns={workOrderColumns}

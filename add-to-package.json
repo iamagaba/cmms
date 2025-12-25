@@ -1,0 +1,9 @@
+// Add Vitest test scripts to package.json
+// You must manually merge this into your package.json if not already present.
+{
+  "scripts": {
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage"
+  }
+}

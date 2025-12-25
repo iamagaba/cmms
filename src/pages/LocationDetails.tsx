@@ -1,7 +1,8 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Avatar, Button, Card, Col, Row, Space, Typography, List, Skeleton, Empty } from "antd";
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
-import { WorkOrderDataTable, ALL_COLUMNS } from "@/components/WorkOrderDataTable";
+import { WorkOrderDataTable } from "@/components/WorkOrderDataTable";
+import { ALL_COLUMNS } from "@/components/work-order-columns-constants";
 import NotFound from "./NotFound";
 import { useMemo, useState } from "react";
 import { showSuccess, showInfo, showError } from "@/utils/toast";
@@ -9,11 +10,11 @@ import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Location, WorkOrder, Technician, Customer, Vehicle, Profile } from "@/types/supabase";
-import { camelToSnakeCase } from "@/utils/data-helpers";
+import { camelToSnakeCase, snakeToCamelCase } from "@/utils/data-helpers";
 import dayjs from "dayjs";
 import { useSession } from "@/context/SessionContext";
 import { MapboxDisplayMap } from "@/components/MapboxDisplayMap"; // Import the new Mapbox map component
-import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
+import AppBreadcrumb from "@/components/Breadcrumbs";
 
 const { Title, Text } = Typography;
 
@@ -24,20 +25,20 @@ const LocationDetailsPage = () => {
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
   const { session } = useSession();
 
-  const { data: location, isLoading: isLoadingLocation } = useQuery<Location | null>({ queryKey: ['location', id], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*').eq('id', id).single(); if (error) throw new Error(error.message); return data; }, enabled: !!id });
-  const { data: allWorkOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ queryKey: ['work_orders'], queryFn: async () => { const { data, error } = await supabase.from('work_orders').select('*').order('created_at', { ascending: false }); if (error) throw new Error(error.message); return (data || []).map((item: any) => ({ ...item, createdAt: item.created_at, workOrderNumber: item.work_order_number, assignedTechnicianId: item.assigned_technician_id, locationId: item.location_id, serviceNotes: item.service_notes, partsUsed: item.parts_used, activityLog: item.activity_log, slaDue: item.sla_due, completedAt: item.completed_at, customerLat: item.customer_lat, customerLng: item.customer_lng, customerAddress: item.customer_address, onHoldReason: item.on_hold_reason, appointmentDate: item.appointment_date, customerId: item.customer_id, vehicleId: item.vehicle_id, created_by: item.created_by, service_category_id: item.service_category_id, confirmed_at: item.confirmed_at, work_started_at: item.work_started_at, sla_timers_paused_at: item.sla_timers_paused_at, total_paused_duration_seconds: item.total_paused_duration_seconds })) || []; } });
-  const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return data || []; } });
-  const { data: customers, isLoading: isLoadingCustomers } = useQuery<Customer[]>({ queryKey: ['customers'], queryFn: async () => { const { data, error } = await supabase.from('customers').select('*'); if (error) throw new Error(error.message); return data || []; } });
-  const { data: vehicles, isLoading: isLoadingVehicles } = useQuery<Vehicle[]>({ queryKey: ['vehicles'], queryFn: async () => { const { data, error } = await supabase.from('vehicles').select('*'); if (error) throw new Error(error.message); return data || []; } });
+  const { data: location, isLoading: isLoadingLocation } = useQuery<Location | null>({ queryKey: ['location', id], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*').eq('id', id).single(); if (error) throw new Error(error.message); return data ? snakeToCamelCase(data) as Location : null; }, enabled: !!id });
+  const { data: allWorkOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ queryKey: ['work_orders'], queryFn: async () => { const { data, error } = await supabase.from('work_orders').select('*').order('created_at', { ascending: false }); if (error) throw new Error(error.message); return (data || []).map(workOrder => snakeToCamelCase(workOrder) as WorkOrder); } });
+  const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({ queryKey: ['technicians'], queryFn: async () => { const { data, error } = await supabase.from('technicians').select('*'); if (error) throw new Error(error.message); return (data || []).map(tech => snakeToCamelCase(tech) as Technician); } });
+  const { data: customers, isLoading: isLoadingCustomers } = useQuery<Customer[]>({ queryKey: ['customers'], queryFn: async () => { const { data, error } = await supabase.from('customers').select('*'); if (error) throw new Error(error.message); return (data || []).map(customer => snakeToCamelCase(customer) as Customer); } });
+  const { data: vehicles, isLoading: isLoadingVehicles } = useQuery<Vehicle[]>({ queryKey: ['vehicles'], queryFn: async () => { const { data, error } = await supabase.from('vehicles').select('*'); if (error) throw new Error(error.message); return (data || []).map(vehicle => snakeToCamelCase(vehicle) as Vehicle); } });
   const { data: profiles, isLoading: isLoadingProfiles } = useQuery<Profile[]>({
     queryKey: ['profiles'],
     queryFn: async () => {
       const { data, error } = await supabase.from('profiles').select('*');
       if (error) throw new Error(error.message);
-      return data || [];
+      return (data || []).map(profile => snakeToCamelCase(profile) as Profile);
     }
   });
-  const { data: allLocations, isLoading: isLoadingAllLocations } = useQuery<Location[]>({ queryKey: ['locations'], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*'); if (error) throw new Error(error.message); return data || []; } });
+  const { data: allLocations, isLoading: isLoadingAllLocations } = useQuery<Location[]>({ queryKey: ['locations'], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*'); if (error) throw new Error(error.message); return (data || []).map(location => snakeToCamelCase(location) as Location); } });
 
 
   const workOrderMutation = useMutation({
@@ -129,19 +130,19 @@ const LocationDetailsPage = () => {
 
   return (
     <>
-      <Breadcrumbs backButton={backButton} />
+  <AppBreadcrumb backButton={backButton} />
       <Space direction="vertical" size="middle" style={{ width: '100%' }}>
         <Row gutter={[16, 16]}>
           <Col xs={24} lg={8}>
             <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-              <Card><Title level={4}>{location.name.replace(' Service Center', '')}</Title><Text type="secondary"><Icon icon="ph:map-pin-fill" /> {location.address}</Text></Card>
-              <Card title="Technicians On-Site">
-                <List itemLayout="horizontal" dataSource={locationTechnicians} renderItem={(tech: Technician) => (<List.Item><List.Item.Meta avatar={<Avatar src={tech.avatar || undefined} />} title={<a href={`/technicians/${tech.id}`}>{tech.name}</a>} description={tech.specializations?.join(', ') || 'N/A'} /></List.Item>)} />
+              <Card size="small"><Title level={4}>{location.name.replace(' Service Center', '')}</Title><Text type="secondary"><Icon icon="ph:map-pin-fill" /> {location.address}</Text></Card>
+              <Card size="small" title="Technicians On-Site">
+                <List size="small" itemLayout="horizontal" dataSource={locationTechnicians} renderItem={(tech: Technician) => (<List.Item><List.Item.Meta avatar={<Avatar src={tech.avatar || undefined} />} title={<a href={`/technicians/${tech.id}`}>{tech.name}</a>} description={tech.specializations?.join(', ') || 'N/A'} /></List.Item>)} />
               </Card>
             </Space>
           </Col>
           <Col xs={24} lg={16}>
-            <Card title="Location Map">
+            <Card size="small" title="Location Map">
               {location.lat && location.lng ? (
                 <MapboxDisplayMap center={[location.lng, location.lat]} markers={mapMarkers} height="300px" />
               ) : (
@@ -152,7 +153,7 @@ const LocationDetailsPage = () => {
             </Card>
           </Col>
         </Row>
-        <Card>
+        <Card size="small">
           <Title level={5}>Work Orders at {location.name.replace(' Service Center', '')}</Title>
           <WorkOrderDataTable 
             workOrders={locationWorkOrders} 

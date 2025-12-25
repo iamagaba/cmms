@@ -1,14 +1,18 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Technician, WorkOrder, Profile, Location } from '@/types/supabase';
+import { Profile } from '@/types/supabase';
 import { showSuccess, showError } from '@/utils/toast';
-import { camelToSnakeCase, snakeToCamelCase } from "@/utils/data-helpers";
 import { useSession } from '@/context/SessionContext';
 import { useSystemSettings } from '@/context/SystemSettingsContext';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import Breadcrumbs from "@/components/Breadcrumbs";
+import { useSearchParams, Link } from 'react-router-dom';
+import AppBreadcrumb from "@/components/Breadcrumbs";
 import ServiceSlaManagement from '@/components/ServiceSlaManagement';
+import { requestNotificationPermission, subscribeUserToPush, saveSubscriptionToProfile, unsubscribeUserFromPush } from '@/utils/push';
+import { useNotifications } from '@/context/NotificationsContext';
+import { formatDistanceToNow } from 'date-fns';
+import UserManagement from '@/components/UserManagement';
+import DeveloperSuperAdmin from '@/components/DeveloperSuperAdmin';
 
 // Ant Design components
 import {
@@ -25,172 +29,66 @@ import {
   Space,
   Typography,
   Skeleton,
-  Modal,
-  DatePicker,
-  Popconfirm,
+  List,
+  Empty,
 } from 'antd';
 import { Icon } from '@iconify/react'; // Using Iconify for icons
-import { TechnicianDataTable } from '@/components/TechnicianDataTable';
-import { TechnicianFormDialog } from '@/components/TechnicianFormDialog';
-import dayjs from 'dayjs';
 
 const { TabPane } = Tabs;
-const { Option } = Select;
-const { Title, Text, Paragraph } = Typography;
+const { Title, Paragraph, Text } = Typography;
 
-// --- User Management Tab ---
-const UserManagement = () => {
-  const queryClient = useQueryClient();
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [editingTechnician, setEditingTechnician] = useState<Technician | null>(null);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [itemToDelete, setItemToDelete] = useState<string | null>(null);
+// --- Notifications Tab ---
+const NotificationsTab = () => {
+  const { notifications, unreadCount, markAllAsRead } = useNotifications();
 
-  const { data: technicians, isLoading: isLoadingTechnicians } = useQuery<Technician[]>({
-    queryKey: ['technicians'],
-    queryFn: async () => {
-      const { data, error } = await supabase.from('technicians').select('*').order('name');
-      if (error) throw new Error(error.message);
-      return (data || []).map(snakeToCamelCase) as Technician[];
+  React.useEffect(() => {
+    if (unreadCount > 0) {
+      markAllAsRead();
     }
-  });
-  const { data: workOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({ queryKey: ['work_orders'], queryFn: async () => { const { data, error } = await supabase.from('work_orders').select('*'); if (error) throw new Error(error.message); return data || []; } });
-  const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({ queryKey: ['locations'], queryFn: async () => { const { data, error } = await supabase.from('locations').select('*'); if (error) throw new Error(error.message); return data || []; } });
-
-  const technicianMutation = useMutation({
-    mutationFn: async (technicianData: Partial<Technician>) => {
-      const snakeCaseData = camelToSnakeCase(technicianData);
-      if (technicianData.id) {
-        const { error } = await supabase
-          .from('technicians')
-          .update(snakeCaseData)
-          .eq('id', technicianData.id);
-        if (error) throw new Error(error.message);
-      } else {
-        const { error } = await supabase.from('technicians').insert([snakeCaseData]);
-        if (error) throw new Error(error.message);
-      }
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['technicians'] });
-      showSuccess('Technician has been saved.');
-      setIsDialogOpen(false);
-      setEditingTechnician(null);
-    },
-    onError: (error) => showError(error.message),
-  });
-
-  const deleteMutation = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase.from('technicians').delete().eq('id', id);
-      if (error) throw new Error(error.message);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['technicians'] });
-      showSuccess('Technician has been deleted.');
-      setIsDeleteDialogOpen(false);
-      setItemToDelete(null);
-    },
-    onError: (error) => showError(error.message),
-  });
-
-  const handleSave = (technicianData: Technician) => {
-    technicianMutation.mutate(technicianData);
-  };
-
-  const handleDeleteClick = (technician: Technician) => {
-    setItemToDelete(technician.id);
-    setIsDeleteDialogOpen(true);
-  };
-
-  const confirmDelete = () => {
-    if (itemToDelete) {
-      deleteMutation.mutate(itemToDelete);
-    }
-  };
-
-  const handleEdit = (technician: Technician) => {
-    setEditingTechnician(technician);
-    setIsDialogOpen(true);
-  };
-
-  const handleUpdateStatus = async (id: string, status: Technician['status']) => {
-    const { data: currentTechnicianRaw, error: fetchError } = await supabase
-      .from('technicians')
-      .select('*')
-      .eq('id', id)
-      .single();
-
-    if (fetchError) {
-      showError(`Failed to fetch technician data: ${fetchError.message}`);
-      return;
-    }
-    if (!currentTechnicianRaw) {
-      showError("Technician not found.");
-      return;
-    }
-
-    const currentTechnician = snakeToCamelCase(currentTechnicianRaw) as Technician;
-
-    const updatedTechnicianData: Partial<Technician> = {
-      ...currentTechnician,
-      status: status,
-    };
-
-    technicianMutation.mutate(updatedTechnicianData);
-  };
-
-  const isLoading = isLoadingTechnicians || isLoadingWorkOrders || isLoadingLocations;
+  }, [markAllAsRead, unreadCount]);
 
   return (
     <Card
       title={
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Title level={5} style={{ margin: 0 }}>Manage Users</Title>
-          <Button type="primary" icon={<Icon icon="ph:plus-fill" />} onClick={() => { setEditingTechnician(null); setIsDialogOpen(true); }}>
-            Add User
+          <Title level={5} style={{ margin: 0 }}>Notifications</Title>
+          <Button 
+            type="primary" 
+            icon={<Icon icon="ph:check-circle-fill" />} 
+            onClick={markAllAsRead} 
+            disabled={unreadCount === 0}
+          >
+            Mark All As Read
           </Button>
         </div>
       }
-      style={{ width: '100%' }}
     >
-      {isLoading ? <Skeleton active /> : (
-        <TechnicianDataTable
-          technicians={technicians || []}
-          workOrders={workOrders || []}
-          onEdit={handleEdit}
-          onDelete={handleDeleteClick}
-          onUpdateStatus={handleUpdateStatus}
+      {notifications.length === 0 ? (
+        <Empty description="No notifications to display." />
+      ) : (
+        <List
+          itemLayout="horizontal"
+          dataSource={notifications}
+          renderItem={notification => (
+            <List.Item style={{ padding: '12px 0', backgroundColor: notification.is_read ? 'transparent' : '#e6f7ff' }}>
+              <Link to={`/work-orders/${notification.work_order_id}`} className="block text-inherit hover:text-blue-600">
+                <List.Item.Meta
+                  title={<Text>{notification.message}</Text>}
+                  description={<Text type="secondary">{formatDistanceToNow(new Date(notification.created_at), { addSuffix: true })}</Text>}
+                />
+              </Link>
+            </List.Item>
+          )}
         />
       )}
-      {isDialogOpen && (
-        <TechnicianFormDialog
-          isOpen={isDialogOpen}
-          onClose={() => setIsDialogOpen(false)}
-          onSave={handleSave}
-          technician={editingTechnician}
-          locations={locations || []}
-        />
-      )}
-      <Modal
-        title="Confirm Deletion"
-        open={isDeleteDialogOpen}
-        onOk={confirmDelete}
-        onCancel={() => setIsDeleteDialogOpen(false)}
-        okText="Delete"
-        cancelText="Cancel"
-        okButtonProps={{ danger: true, loading: deleteMutation.isPending }}
-      >
-        <Paragraph>
-          This action cannot be undone. This will permanently delete the technician.
-        </Paragraph>
-      </Modal>
     </Card>
   );
 };
 
+
+
 // --- System Settings Tab ---
-const SystemSettings = () => {
+const SystemTab = () => {
   const [form] = Form.useForm();
   const queryClient = useQueryClient();
   const { settings, isLoading: isLoadingSettings } = useSystemSettings();
@@ -302,9 +200,9 @@ const SystemSettings = () => {
           tooltip="Set the default priority for all newly created work orders."
         >
           <Select style={{ width: 180 }} placeholder="Select a priority">
-            <Option value="Low">Low</Option>
-            <Option value="Medium">Medium</Option>
-            <Option value="High">High</Option>
+            <Select.Option value="Low">Low</Select.Option>
+            <Select.Option value="Medium">Medium</Select.Option>
+            <Select.Option value="High">High</Select.Option>
           </Select>
         </Form.Item>
         <Form.Item
@@ -347,7 +245,7 @@ const SystemSettings = () => {
 };
 
 // --- Profile Settings Tab ---
-const ProfileSettings = () => {
+const ProfileTab = () => {
   const { session } = useSession();
   const user = session?.user;
   const [form] = Form.useForm();
@@ -355,6 +253,48 @@ const ProfileSettings = () => {
   const queryClient = useQueryClient();
   const [loadingProfile, setLoadingProfile] = useState(false);
   const [loadingPassword, setLoadingPassword] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [isPushLoading, setIsPushLoading] = useState(true);
+
+  useEffect(() => {
+    async function checkSubscription() {
+      if ('serviceWorker' in navigator) {
+        try {
+          const registration = await navigator.serviceWorker.ready;
+          const subscription = await registration.pushManager.getSubscription();
+          setIsSubscribed(!!subscription);
+        } catch (error) {
+          console.error('Error checking push notification subscription:', error);
+        }
+      }
+      setIsPushLoading(false);
+    }
+    checkSubscription();
+  }, []);
+
+  const handleSubscriptionChange = async (checked: boolean) => {
+    setIsPushLoading(true);
+    if (checked) {
+      const permissionGranted = await requestNotificationPermission();
+      if (permissionGranted) {
+        const subscription = await subscribeUserToPush();
+        if (subscription) {
+          await saveSubscriptionToProfile(subscription);
+          setIsSubscribed(true);
+          showSuccess('Push notifications enabled.');
+        } else {
+          showError('Failed to subscribe to push notifications.');
+        }
+      } else {
+        showError('Permission for push notifications was denied.');
+      }
+    } else {
+      await unsubscribeUserFromPush();
+      setIsSubscribed(false);
+      showSuccess('Push notifications disabled.');
+    }
+    setIsPushLoading(false);
+  };
 
   const { data: profile, isLoading: isLoadingProfile } = useQuery<Profile | null>({
     queryKey: ['profile', user?.id],
@@ -370,13 +310,31 @@ const ProfileSettings = () => {
   const updateProfileMutation = useMutation({
     mutationFn: async (updates: { first_name?: string; last_name?: string; avatar_url?: string; is_admin?: boolean }) => {
       if (!user?.id) throw new Error("User not authenticated.");
-      const { error } = await supabase.from('profiles').update(updates).eq('id', user.id);
-      if (error) throw new Error(error.message);
+      
+      // Update the profiles table
+      const { error: profileError } = await supabase.from('profiles').update(updates).eq('id', user.id);
+      if (profileError) throw new Error(profileError.message);
+      
+      // Also update the user metadata in Supabase Auth so the navigation shows the correct name
+      if (updates.first_name || updates.last_name) {
+        const full_name = `${updates.first_name || ''} ${updates.last_name || ''}`.trim();
+        const { error: authError } = await supabase.auth.updateUser({
+          data: { 
+            full_name,
+            ...user.user_metadata, // Preserve existing metadata like role
+          }
+        });
+        if (authError) throw new Error(authError.message);
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['profile', user?.id] });
       showSuccess('Your profile has been updated.');
       setLoadingProfile(false);
+      // Refresh the session to get updated user metadata
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     },
     onError: (error) => {
       showError(error.message);
@@ -401,11 +359,15 @@ const ProfileSettings = () => {
   });
 
   useEffect(() => {
-    if (profile && user) {
+    if (user) {
+      // Get name from user_metadata first (primary source), fallback to profiles table
+      const fullName = user.user_metadata?.full_name || 
+                      (profile ? `${profile.first_name || ''} ${profile.last_name || ''}`.trim() : '');
+      
       form.setFieldsValue({
-        name: `${profile.first_name || ''} ${profile.last_name || ''}`.trim(),
+        name: fullName,
         email: user.email || "",
-        is_admin: profile.is_admin || false,
+        is_admin: profile?.is_admin || false,
       });
       passwordForm.resetFields();
     }
@@ -509,7 +471,26 @@ const ProfileSettings = () => {
               </Form.Item>
             </Form>
           </Card>
+          <Card
+            title={<Title level={5} style={{ margin: 0 }}>Push Notifications</Title>}
+            style={{ width: '100%' }}
+          >
+            <Form.Item
+              label="Enable Push Notifications"
+              valuePropName="checked"
+              tooltip="Enable push notifications on this device."
+            >
+              <Switch
+                checked={isSubscribed}
+                loading={isPushLoading}
+                onChange={handleSubscriptionChange}
+              />
+            </Form.Item>
+          </Card>
         </Space>
+      </Col>
+      <Col xs={24}>
+        <DeveloperSuperAdmin />
       </Col>
     </Row>
   );
@@ -518,30 +499,36 @@ const ProfileSettings = () => {
 // --- Main Settings Page Component ---
 const SettingsPage = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
-  const activeTab = searchParams.get('tab') || 'user-management';
+  const { session } = useSession();
+  const userRole = session?.user?.user_metadata?.role || 'technician';
 
   const handleTabChange = (key: string) => {
     setSearchParams({ tab: key });
   };
 
-  const tabItems = [
-    { label: <Space><Icon icon="ph:users-fill" />User Management</Space>, key: 'user-management', children: <UserManagement /> },
-    { label: <Space><Icon icon="ph:wrench-fill" />Service & SLA</Space>, key: 'service-sla', children: <ServiceSlaManagement /> },
-    { label: <Space><Icon icon="ph:gear-fill" />System Settings</Space>, key: 'system-settings', children: <SystemSettings /> },
-    { label: <Space><Icon icon="ph:user-fill" />My Profile</Space>, key: 'profile-settings', children: <ProfileSettings /> },
+  const allTabItems = [
+    { label: <Space><Icon icon="ph:user-fill" />My Profile</Space>, key: 'profile', children: <ProfileTab />, roles: ['admin', 'manager', 'technician', 'maintenance_frontdesk', 'maintenance_backoffice', 'call_center_agent', 'superadmin'] },
+    { label: <Space><Icon icon="ph:bell-fill" />Notifications</Space>, key: 'notifications', children: <NotificationsTab />, roles: ['admin', 'manager', 'technician', 'maintenance_frontdesk', 'maintenance_backoffice', 'call_center_agent', 'superadmin'] },
+    { label: <Space><Icon icon="ph:users-fill" />User Management</Space>, key: 'user-management', children: <UserManagement />, roles: ['admin', 'superadmin'] },
+    { label: <Space><Icon icon="ph:wrench-fill" />Service & SLA</Space>, key: 'service-sla', children: <ServiceSlaManagement />, roles: ['admin', 'superadmin'] },
+    { label: <Space><Icon icon="ph:gear-fill" />System Settings</Space>, key: 'system-settings', children: <SystemTab />, roles: ['admin', 'superadmin'] },
   ];
+
+  const availableTabs = allTabItems.filter(tab => tab.roles.includes(userRole));
+  const activeTab = searchParams.get('tab') || availableTabs[0]?.key || 'profile';
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Breadcrumbs />
-      <Tabs activeKey={activeTab} onChange={handleTabChange} style={{ width: '100%' }}>
-        {tabItems.map(item => (
-          <TabPane tab={item.label} key={item.key}>
-            {item.children}
-          </TabPane>
-        ))}
-      </Tabs>
+      <AppBreadcrumb />
+      <div className="sticky-header-secondary">
+        <Tabs activeKey={activeTab} onChange={handleTabChange} style={{ width: '100%' }}>
+          {availableTabs.map(item => (
+            <TabPane tab={item.label} key={item.key}>
+              {item.children}
+            </TabPane>
+          ))}
+        </Tabs>
+      </div>
     </Space>
   );
 };

@@ -1,12 +1,15 @@
-import { Card, Avatar, Typography, Tag, Dropdown, Menu, Button, Space } from "antd";
+import { Card, Avatar, Typography, Dropdown, Menu, Button, Tag, Tooltip, theme } from "antd";
+import { useState } from "react";
+import StatusChip from "@/components/StatusChip";
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { Technician } from "@/types/supabase";
 import { useNavigate } from "react-router-dom";
 
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 export type TechnicianCardData = Technician & {
   openTasks: number;
+  location?: { name: string } | null;
 };
 
 interface TechnicianCardProps {
@@ -15,11 +18,6 @@ interface TechnicianCardProps {
   onDelete: (technician: TechnicianCardData) => void;
 }
 
-const statusColorMap: Record<string, string> = {
-  available: 'success',
-  busy: 'warning',
-  offline: 'default',
-};
 
 const statusTextMap: Record<string, string> = {
     available: 'Available',
@@ -29,6 +27,8 @@ const statusTextMap: Record<string, string> = {
 
 export const TechnicianCard = ({ technician, onEdit, onDelete }: TechnicianCardProps) => {
   const navigate = useNavigate();
+  const [menuHover, setMenuHover] = useState(false);
+  const { token } = theme.useToken();
 
   const handleCardClick = () => {
     navigate(`/technicians/${technician.id}`);
@@ -45,38 +45,120 @@ export const TechnicianCard = ({ technician, onEdit, onDelete }: TechnicianCardP
     </Menu>
   );
 
+  // Card style: white bg, subtle border, soft shadow, stronger on hover
+  const [cardHover, setCardHover] = useState(false);
+  const cardStyle = {
+    height: '100%',
+    cursor: 'pointer',
+    padding: 0,
+    minWidth: 0,
+    borderRadius: 16,
+    background: token.colorBgContainer,
+    border: `1px solid ${cardHover ? token.colorBorder : token.colorSplit}`,
+    boxShadow: cardHover ? token.boxShadowSecondary : token.boxShadowTertiary,
+    transition: 'box-shadow 0.18s, border 0.18s, background 0.18s',
+  };
+
   return (
-    <Card hoverable className="lift-on-hover" style={{ height: '100%', cursor: 'pointer' }} onClick={handleCardClick}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-        <Space direction="vertical">
-          <Space>
-            <Avatar size={48} src={technician.avatar || undefined}>
+    <Card
+      hoverable
+      className="lift-on-hover technician-card-responsive"
+      style={cardStyle}
+      onClick={handleCardClick}
+      bodyStyle={{ padding: 20 }}
+      onMouseEnter={() => setCardHover(true)}
+      onMouseLeave={() => setCardHover(false)}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        {/* Top row: Avatar, name, status, menu */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <Avatar size={56} src={technician.avatar || undefined} style={{ background: token.colorFillTertiary, color: token.colorPrimary, fontWeight: 700 }}>
               {technician.name.split(' ').map(n => n[0]).join('')}
             </Avatar>
-            <div>
-              <Title level={5} style={{ margin: 0 }}>{technician.name}</Title>
-              <Text type="secondary">{technician.specializations?.join(', ') || 'N/A'}</Text>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 0 }}>
+              <Title level={5} style={{ margin: 0, fontSize: 20, color: token.colorText, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.2 }}>{technician.name}</Title>
+              <div style={{ marginTop: 12 }}>
+                <StatusChip
+                  kind="tech"
+                  value={statusTextMap[String(technician.status || 'offline').toLowerCase()]}
+                />
+              </div>
             </div>
-          </Space>
-        </Space>
-        <Dropdown overlay={menu} trigger={["click"]}>
-          <Button type="text" icon={<Icon icon="ph:dots-three-horizontal-fill" />} onClick={(e) => e.stopPropagation()} />
-        </Dropdown>
-      </div>
-      
-      <div style={{ marginTop: 16 }}>
-        <Tag color={statusColorMap[technician.status || 'offline']}>{statusTextMap[technician.status || 'offline']}</Tag>
-      </div>
-
-      <div style={{ marginTop: 16, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <div>
-          <Text type="secondary">Open Tasks</Text>
-          <Title level={4} style={{ margin: 0 }}>{technician.openTasks}</Title>
+          </div>
+          <Dropdown overlay={menu} trigger={["click"]}>
+            <Button
+              type="text"
+              icon={
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    width: 32,
+                    height: 32,
+                    borderRadius: '50%',
+                    background: menuHover ? token.colorPrimary : 'transparent',
+                    transition: 'background 0.18s',
+                  }}
+                  onMouseEnter={() => setMenuHover(true)}
+                  onMouseLeave={() => setMenuHover(false)}
+                >
+                  <Icon
+                    icon="ph:dots-three-horizontal-fill"
+                    color={menuHover ? token.colorTextLightSolid : token.colorPrimary}
+                    width={22}
+                    height={22}
+                  />
+                </span>
+              }
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                padding: 0,
+                background: 'none',
+                border: 'none',
+                boxShadow: 'none',
+                minWidth: 0,
+                minHeight: 0,
+                lineHeight: 1,
+              }}
+            />
+          </Dropdown>
         </div>
-        <Space direction="vertical" align="end">
-            <Text type="secondary" style={{ fontSize: 12 }}><Icon icon="ph:envelope-fill" /> {technician.email}</Text>
-            <Text type="secondary" style={{ fontSize: 12 }}><Icon icon="ph:phone-fill" /> {technician.phone}</Text>
-        </Space>
+
+        {/* Specializations as tags */}
+        <div style={{ minHeight: 28, display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 4 }}>
+          {technician.specializations && technician.specializations.length > 0 ? (
+            technician.specializations.map((spec) => (
+              <Tag key={spec} style={{
+                fontSize: 12,
+                borderRadius: 8,
+                padding: '0 8px',
+                margin: 0,
+                background: token.colorPrimaryBg,
+                color: token.colorPrimary,
+                border: 'none',
+                fontWeight: 500
+              }}>{spec}</Tag>
+            ))
+          ) : (
+            <Tag style={{ fontSize: 12, borderRadius: 8, margin: 0, background: token.colorPrimaryBg, color: token.colorPrimary, border: 'none', fontWeight: 500 }}>No Specialization</Tag>
+          )}
+        </div>
+
+        {/* Service center and location info, stacked */}
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2, marginTop: 4 }}>
+          {technician.location && (
+            <span style={{ fontSize: 14, color: token.colorTextSecondary, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <Icon icon="ph:map-pin-fill" /> {technician.location.name}
+            </span>
+          )}
+          <Tooltip title="Phone">
+            <span style={{ fontSize: 14, color: token.colorTextSecondary, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <Icon icon="ph:phone-fill" /> {technician.phone || 'N/A'}
+            </span>
+          </Tooltip>
+        </div>
       </div>
     </Card>
   );

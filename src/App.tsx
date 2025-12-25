@@ -1,11 +1,17 @@
 import { lazy, Suspense, useState, useEffect } from "react";
+import { registerServiceWorker } from "@/utils/push";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
-import { Layout, App as AntApp, ConfigProvider, theme, Spin } from "antd";
+import { Layout, App as AntApp, ConfigProvider, Spin } from "antd";
+import { antdLightTheme, antdDarkTheme } from "@/theme/palette";
 import SideNavigation from "./components/SideNavigation";
+import { useLocalStorage } from "@/hooks/useLocalStorage";
+
 import { NotificationsProvider } from "./context/NotificationsContext";
 import { SessionProvider, useSession } from "./context/SessionContext";
 import { SystemSettingsProvider, useSystemSettings } from "./context/SystemSettingsContext";
+import { RealtimeDataProvider } from "@/context/RealtimeDataContext";
+import CommandPalette from './components/CommandPalette';
 
 // Lazy-loaded page components
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -14,7 +20,7 @@ const TechniciansPage = lazy(() => import("./pages/Technicians"));
 const WorkOrdersPage = lazy(() => import("./pages/WorkOrders"));
 const LocationsPage = lazy(() => import("./pages/Locations"));
 const TechnicianProfilePage = lazy(() => import("./pages/TechnicianProfile"));
-const WorkOrderDetailsPage = lazy(() => import("./pages/WorkOrderDetails"));
+const WorkOrderDetailsPage = lazy(() => import("./pages/WorkOrderDetailsEnhanced"));
 const AnalyticsPage = lazy(() => import("./pages/Analytics"));
 const SettingsPage = lazy(() => import("./pages/Settings"));
 const LocationDetailsPage = lazy(() => import("./pages/LocationDetails"));
@@ -26,15 +32,23 @@ const CustomersPage = lazy(() => import("./pages/Customers"));
 const CustomerDetailsPage = lazy(() => import("./pages/CustomerDetails"));
 const CalendarPage = lazy(() => import("./pages/Calendar"));
 const MapViewPage = lazy(() => import("./pages/MapView"));
-const NotificationsPage = lazy(() => import("./pages/NotificationsPage"));
+const SchedulingPage = lazy(() => import("./pages/Scheduling"));
 
 const { Content } = Layout;
 const queryClient = new QueryClient();
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { session, isLoading } = useSession();
-  if (isLoading) return null;
-  if (!session) return <Navigate to="/login" replace />;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Spin size="large" tip="Loading session..." />
+      </div>
+    );
+  }
+  if (!session) {
+    return <Navigate to="/login" replace />;
+  }
   return <>{children}</>;
 };
 
@@ -43,15 +57,38 @@ const AppContent = () => {
   const { session, isLoading } = useSession();
   const { settings } = useSystemSettings();
   const [collapsed, setCollapsed] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useLocalStorage('isDarkMode', false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
-  if (isLoading) return null;
-  if (session && location.pathname === "/login") return <Navigate to="/" replace />;
+  useEffect(() => {
+    // Only register the service worker in production to avoid MIME type errors in Vite dev
+    if (import.meta.env.PROD) {
+      registerServiceWorker();
+    }
+  }, []);
+
+  // Pass theme toggle to SideNavigation
+  const handleThemeChange = (isDark: boolean) => {
+    setIsDarkMode(isDark);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Spin size="large" tip="Initializing..." />
+      </div>
+    );
+  }
+
+  if (session && location.pathname === "/login") {
+    return <Navigate to="/" replace />;
+  }
 
   const isLoginPage = location.pathname === "/login";
 
   const suspenseFallback = (
     <div className="min-h-screen flex items-center justify-center">
-      <Spin size="large" tip="Loading page..." />
+      <Spin size="large" />
     </div>
   );
 
@@ -66,103 +103,64 @@ const AppContent = () => {
   }
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <SideNavigation collapsed={collapsed} onCollapse={setCollapsed} logoUrl={settings.logo_url} />
-      <Layout>
-        {/* GlobalHeader removed */}
-        <Content className="fade-in main-content">
-          <Suspense fallback={suspenseFallback}>
-            <Routes>
-              <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-              <Route path="/technicians" element={<ProtectedRoute><TechniciansPage /></ProtectedRoute>} />
-              <Route path="/technicians/:id" element={<ProtectedRoute><TechnicianProfilePage /></ProtectedRoute>} />
-              <Route path="/work-orders" element={<ProtectedRoute><WorkOrdersPage /></ProtectedRoute>} />
-              <Route path="/work-orders/:id" element={<ProtectedRoute><WorkOrderDetailsPage /></ProtectedRoute>} />
-              <Route path="/locations" element={<ProtectedRoute><LocationsPage /></ProtectedRoute>} />
-              <Route path="/locations/:id" element={<ProtectedRoute><LocationDetailsPage /></ProtectedRoute>} />
-              <Route path="/assets" element={<ProtectedRoute><AssetsPage /></ProtectedRoute>} />
-              <Route path="/assets/:id" element={<ProtectedRoute><AssetDetailsPage /></ProtectedRoute>} />
-              <Route path="/inventory" element={<ProtectedRoute><InventoryPage /></ProtectedRoute>} />
-              <Route path="/customers" element={<ProtectedRoute><CustomersPage /></ProtectedRoute>} />
-              <Route path="/customers/:id" element={<ProtectedRoute><CustomerDetailsPage /></ProtectedRoute>} />
-              <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
-              <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
-              <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
-              <Route path="/map-view" element={<ProtectedRoute><MapViewPage /></ProtectedRoute>} />
-              <Route path="/notifications" element={<ProtectedRoute><NotificationsPage /></ProtectedRoute>} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </Suspense>
-        </Content>
-      </Layout>
-    </Layout>
+    <ConfigProvider theme={{ ...(isDarkMode ? antdDarkTheme : antdLightTheme), cssVar: true }}>
+      <AntApp>
+        <Layout style={{ minHeight: '100vh', display: 'flex', flexDirection: 'row' }}>
+          <SideNavigation 
+            collapsed={collapsed} 
+            onCollapse={setCollapsed} 
+            logoUrl={settings.logo_url}
+            isDarkMode={isDarkMode}
+            onThemeChange={handleThemeChange}
+          />
+          <Layout style={{ marginLeft: collapsed ? 64 : 220, transition: 'margin-left 0.2s', flex: 1 }}>
+            {/* <GlobalHeader /> */}
+            <Content className="fade-in main-content" style={{ padding: 16, overflow: 'visible' }}>
+              {/* Breadcrumb and search bar will be rendered in each page via AppBreadcrumb */}
+              <Suspense fallback={suspenseFallback}>
+                <Routes>
+                  <Route path="/" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+                  <Route path="/technicians" element={<ProtectedRoute><TechniciansPage /></ProtectedRoute>} />
+                  <Route path="/technicians/:id" element={<ProtectedRoute><TechnicianProfilePage /></ProtectedRoute>} />
+                  <Route path="/work-orders" element={<ProtectedRoute><WorkOrdersPage /></ProtectedRoute>} />
+                  <Route path="/work-orders/:id" element={<ProtectedRoute><WorkOrderDetailsPage /></ProtectedRoute>} />
+                  <Route path="/locations" element={<ProtectedRoute><LocationsPage /></ProtectedRoute>} />
+                  <Route path="/locations/:id" element={<ProtectedRoute><LocationDetailsPage /></ProtectedRoute>} />
+                  <Route path="/assets" element={<ProtectedRoute><AssetsPage /></ProtectedRoute>} />
+                  <Route path="/assets/:id" element={<ProtectedRoute><AssetDetailsPage /></ProtectedRoute>} />
+                  <Route path="/inventory" element={<ProtectedRoute><InventoryPage /></ProtectedRoute>} />
+                  <Route path="/customers" element={<ProtectedRoute><CustomersPage /></ProtectedRoute>} />
+                  <Route path="/customers/:id" element={<ProtectedRoute><CustomerDetailsPage /></ProtectedRoute>} />
+                  <Route path="/analytics" element={<ProtectedRoute><AnalyticsPage /></ProtectedRoute>} />
+                  <Route path="/settings" element={<ProtectedRoute><SettingsPage /></ProtectedRoute>} />
+                  <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />
+                  <Route path="/scheduling" element={<ProtectedRoute><SchedulingPage /></ProtectedRoute>} />
+                  <Route path="/map-view" element={<ProtectedRoute><MapViewPage /></ProtectedRoute>} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
+            </Content>
+          </Layout>
+        </Layout>
+        <CommandPalette open={commandPaletteOpen} setOpen={setCommandPaletteOpen} />
+      </AntApp>
+    </ConfigProvider>
   );
 };
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ConfigProvider
-      theme={{
-        algorithm: [theme.defaultAlgorithm, theme.compactAlgorithm],
-        token: {
-          colorPrimary: '#6A0DAD',
-          colorSuccess: '#22C55E',
-          colorWarning: '#FAAD14',
-          colorError: '#FF4D4F',
-          colorInfo: '#0052CC',
-          fontFamily: 'Inter',
-          colorText: '#1f2937',
-          colorTextSecondary: '#6b7280',
-          borderRadius: 4,
-          controlHeight: 32, // Increased control height for better usability
-          colorBgLayout: '#f6f7f9',
-          colorBorder: '#e5e7eb',
-          colorSplit: '#f3f4f6',
-          fontSize: 14, // Increased base font size for readability
-        },
-        components: {
-          Table: { 
-            padding: 12, // Adjusted table padding
-            paddingSM: 8, // Adjusted small table padding
-            rowSelectedBg: '#f5f5f5',
-            rowSelectedHoverBg: '#eeeeee',
-          },
-          Card: { padding: 16 }, // Adjusted card padding
-          Form: { itemMarginBottom: 16 }, // Adjusted form item margin
-          Layout: { headerBg: '#ffffff', headerPadding: '0 16px', headerHeight: 64, siderBg: '#ffffff' }, // Adjusted header height and padding
-          Menu: { 
-            itemBg: '#ffffff',
-            itemSelectedBg: '#E8D9F7',
-            itemSelectedColor: '#6A0DAD',
-            itemHoverBg: '#f0f0f0',
-            itemHoverColor: '#6A0DAD',
-            itemBorderRadius: 4,
-            subMenuItemBg: '#ffffff',
-            itemHeight: 40, // Adjusted menu item height
-            itemPaddingInline: 12, // Adjusted horizontal padding for menu items
-          },
-          Typography: {
-            titleMarginBottom: 0.5, // Consistent margin below titles
-            titleMarginTop: 0.5, // Consistent margin above titles
-          },
-          Space: {
-            size: 12, // Set a larger default gap for Space component
-          }
-        }
-      }}
-    >
-      <AntApp>
-        <BrowserRouter>
-          <SessionProvider>
-            <SystemSettingsProvider>
-              <NotificationsProvider>
-                <AppContent />
-              </NotificationsProvider>
-            </SystemSettingsProvider>
-          </SessionProvider>
-        </BrowserRouter>
-      </AntApp>
-    </ConfigProvider>
+    <BrowserRouter>
+      <SessionProvider>
+        <SystemSettingsProvider>
+          <NotificationsProvider>
+            <RealtimeDataProvider>
+              <AppContent />
+            </RealtimeDataProvider>
+          </NotificationsProvider>
+        </SystemSettingsProvider>
+      </SessionProvider>
+    </BrowserRouter>
   </QueryClientProvider>
 );
 

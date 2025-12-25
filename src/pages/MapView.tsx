@@ -1,28 +1,25 @@
-import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Typography, Tag, List, Card, Avatar, Skeleton, Empty, Row, Col, Space } from 'antd';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Skeleton } from 'antd';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Location, Technician, WorkOrder } from '@/types/supabase';
-import { MapboxDisplayMap } from '@/components/MapboxDisplayMap'; // Import the new Mapbox map component
-import mapboxgl from 'mapbox-gl'; // Import mapboxgl for types
-import Breadcrumbs from "@/components/Breadcrumbs";
+import { MapboxDisplayMap } from '@/components/MapboxDisplayMap';
+import AppBreadcrumb from "@/components/Breadcrumbs";
 
-const { Title, Text } = Typography;
-
-const containerStyle = { width: '100%', height: '100%', borderRadius: '8px' };
 const defaultCenter: [number, number] = [32.58, 0.32]; // [lng, lat] for Kampala, Uganda
-const statusColorMap: Record<string, string> = { available: 'success', busy: 'warning', offline: 'default' };
 
 const MapViewPage = () => {
-  const [selected, setSelected] = useState<{ type: 'location' | 'technician', data: any } | null>(null);
-  const [mapCenter, setMapCenter] = useState<[number, number]>(defaultCenter);
-  const [mapZoom, setMapZoom] = useState<number>(12);
+  // const [selected, setSelected] = useState<{ type: 'location' | 'technician', data: any } | null>(null);
+  const mapCenter = defaultCenter;
+  const [mapZoom] = useState<number>(12);
 
   const { data: workOrders, isLoading: isLoadingWorkOrders } = useQuery<WorkOrder[]>({
-    queryKey: ['work_orders'],
+    queryKey: ['work_orders_map'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('work_orders').select('*');
+      const { data, error } = await supabase
+        .from('work_orders')
+        .select('*')
+        .neq('status', 'Completed'); // Only show non-completed work orders
       if (error) throw new Error(error.message);
       return data || [];
     }
@@ -74,14 +71,20 @@ const MapViewPage = () => {
       }
     });
 
-    // Add work order customer locations
+    // Add work order customer locations (only non-completed)
     (workOrders || []).forEach(wo => {
       if (wo.customerLng && wo.customerLat) {
+        // Color based on status
+        let workOrderColor = '#722ed1'; // Purple for new/pending
+        if (wo.status === 'In Progress') workOrderColor = '#faad14'; // Orange
+        if (wo.status === 'On Hold') workOrderColor = '#ff4d4f'; // Red
+        if (wo.status === 'Ready') workOrderColor = '#1677ff'; // Blue
+        
         markers.push({
           lng: wo.customerLng,
           lat: wo.customerLat,
-          color: '#6A0DAD', // Purple for customer locations
-          popupText: `Work Order: ${wo.workOrderNumber} - ${wo.service}`,
+          color: workOrderColor,
+          popupText: `Work Order: ${wo.workOrderNumber || wo.id}<br/>Service: ${wo.service || 'N/A'}<br/>Status: ${wo.status}<br/>Address: ${wo.customerAddress || 'No address provided'}`,
         });
       }
     });
@@ -89,19 +92,25 @@ const MapViewPage = () => {
     return markers;
   }, [locations, technicians, workOrders]);
 
+  // Only render the map when all data is loaded, so all work order markers are present on first render
   if (isLoadingWorkOrders || isLoadingLocations || isLoadingTechnicians) {
+    return <Skeleton active />;
+  }
+
+  // If there are no work orders, locations, or technicians, show an empty state
+  if (!workOrders || !locations || !technicians) {
     return <Skeleton active />;
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 112px)' }}>
-      <Breadcrumbs />
+      <AppBreadcrumb />
       <div style={{ flexGrow: 1, width: '100%' }}>
         <MapboxDisplayMap
           center={mapCenter}
           zoom={mapZoom}
           markers={allMarkers}
-          height="100%"
+          height="calc(100vh - 112px)"
         />
       </div>
     </div>

@@ -1,0 +1,21 @@
+.asset-data-table .ant-table-cell:first-child {
+  padding-left: 24px !important;
+}
+
+.asset-data-table .ant-table-cell:last-child {
+  padding-right: 24px !important;
+}
+
+.asset-data-table .ant-table-tbody > tr.asset-table-row-even > td {
+  background: var(--ant-colorBgLayout) !important;
+}
+
+.asset-data-table .ant-table-tbody > tr.asset-table-row-odd > td {
+  background: var(--ant-colorBgContainer) !important;
+}
+
+.asset-data-table .lift-on-hover-row:hover {
+  background: var(--ant-colorPrimaryBg) !important;
+  box-shadow: var(--ant-box-shadow-tertiary, 0 2px 8px rgba(0,0,0,0.08));
+  transition: background 0.2s, box-shadow 0.2s;
+}

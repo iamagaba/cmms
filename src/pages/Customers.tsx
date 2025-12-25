@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Typography, Space, Skeleton, Input, Row, Col } from "antd";
+import { Button, Space, Skeleton, Input } from "antd";
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { CustomerDataTable } from "@/components/CustomerDataTable";
 import { CustomerFormDialog } from "@/components/CustomerFormDialog";
@@ -7,7 +7,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Customer } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
-import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
+import { snakeToCamelCase, camelToSnakeCase } from "@/utils/data-helpers";
+import AppBreadcrumb from "@/components/Breadcrumbs";
+import Fab from "@/components/Fab";
 
 const { Search } = Input;
 
@@ -26,13 +28,13 @@ const CustomersPage = () => {
       }
       const { data, error } = await query;
       if (error) throw new Error(error.message);
-      return data || [];
+      return (data || []).map(customer => snakeToCamelCase(customer) as Customer);
     }
   });
 
   const customerMutation = useMutation({
     mutationFn: async (customerData: Partial<Customer>) => {
-      const { error } = await supabase.from('customers').upsert([customerData]);
+      const { error } = await supabase.from('customers').upsert([camelToSnakeCase(customerData)]);
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
@@ -78,7 +80,7 @@ const CustomersPage = () => {
         style={{ width: 250 }}
         allowClear
       />
-      <Button type="primary" icon={<Icon icon="ph:plus-fill" />} onClick={() => { setEditingCustomer(null); setIsDialogOpen(true); }}>
+  <Button className="primary-action-btn" type="primary" icon={<Icon icon="ant-design:plus-outlined" width={16} height={16} />} onClick={() => { setEditingCustomer(null); setIsDialogOpen(true); }}>
         Add Customer
       </Button>
     </Space>
@@ -86,7 +88,7 @@ const CustomersPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Breadcrumbs actions={pageActions} />
+  <AppBreadcrumb actions={pageActions} />
       
       {isLoading ? <Skeleton active /> : (
         <CustomerDataTable 
@@ -104,6 +106,11 @@ const CustomersPage = () => {
           customer={editingCustomer}
         />
       )}
+
+      {/* Mobile FAB for quick add */}
+      <div className="hide-on-desktop">
+        <Fab label="Add Customer" onClick={() => { setEditingCustomer(null); setIsDialogOpen(true); }} />
+      </div>
     </Space>
   );
 };

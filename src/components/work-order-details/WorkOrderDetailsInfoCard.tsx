@@ -1,5 +1,6 @@
 import React from 'react';
-import { Card, Descriptions, Select, DatePicker, Avatar, Tag, Typography, theme } from 'antd';
+import { Card, Descriptions, Select, DatePicker, Avatar, Typography, theme } from 'antd';
+import StatusChip from "@/components/StatusChip";
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import dayjs from 'dayjs';
 import { WorkOrder, Technician, Location } from '@/types/supabase';
@@ -22,24 +23,23 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
   workOrder,
   technician,
   allTechnicians,
-  allLocations,
   handleUpdateWorkOrder,
 }) => {
   const { token } = useToken();
+  const [cardHover, setCardHover] = React.useState(false);
+  const cardStyle = {
+    borderRadius: 16,
+    background: token.colorBgContainer,
+    border: `1px solid ${cardHover ? token.colorBorder : token.colorSplit}`,
+    boxShadow: cardHover ? token.boxShadowSecondary : token.boxShadowTertiary,
+    transition: 'box-shadow 0.18s, border 0.18s, background 0.18s',
+  } as React.CSSProperties;
 
-  const statusColors: Record<string, string> = { 
-    Open: token.colorInfo,
-    "Confirmation": token.cyan6,
-    "Ready": token.colorTextSecondary,
-    "In Progress": token.colorWarning,
-    "On Hold": token.orange6,
-    Completed: token.colorSuccess
-  };
-  const priorityColors: Record<string, string> = { High: token.colorError, Medium: token.colorWarning, Low: token.colorSuccess };
+  // Colors handled by StatusChip; keep token for local usage if needed
 
   return (
-    <Card title="Work Order Details">
-      <Descriptions column={1} bordered> {/* Added bordered prop here */}
+  <Card size="small" title="Work Order Details" style={cardStyle} bodyStyle={{ padding: 12 }} onMouseEnter={() => setCardHover(true)} onMouseLeave={() => setCardHover(false)}>
+    <Descriptions column={1} bordered size="small"> {/* Added bordered prop here */}
         <Descriptions.Item label="Status" labelStyle={{ width: '150px' }}>
           <Select
             value={workOrder.status || 'Open'}
@@ -48,12 +48,12 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
             bordered={false}
             suffixIcon={null}
           >
-            <Option value="Open"><Tag color={statusColors["Open"]}>Open</Tag></Option>
-            <Option value="Confirmation"><Tag color={statusColors["Confirmation"]}>Confirmation</Tag></Option>
-            <Option value="Ready"><Tag color={statusColors["Ready"]}>Ready</Tag></Option>
-            <Option value="In Progress"><Tag color={statusColors["In Progress"]}>In Progress</Tag></Option>
-            <Option value="On Hold"><Tag color={statusColors["On Hold"]}>On Hold</Tag></Option>
-            <Option value="Completed"><Tag color={statusColors["Completed"]}>Completed</Tag></Option>
+            <Option value="Open"><StatusChip kind="status" value="Open" /></Option>
+            <Option value="Confirmation"><StatusChip kind="status" value="Confirmation" /></Option>
+            <Option value="Ready"><StatusChip kind="status" value="Ready" /></Option>
+            <Option value="In Progress"><StatusChip kind="status" value="In Progress" /></Option>
+            <Option value="On Hold"><StatusChip kind="status" value="On Hold" /></Option>
+            <Option value="Completed"><StatusChip kind="status" value="Completed" /></Option>
           </Select>
         </Descriptions.Item>
         <Descriptions.Item label="Priority" labelStyle={{ width: '150px' }}>
@@ -64,9 +64,9 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
             bordered={false}
             suffixIcon={null}
           >
-            <Option value="High"><Tag color={priorityColors["High"]}>High</Tag></Option>
-            <Option value="Medium"><Tag color={priorityColors["Medium"]}>Medium</Tag></Option>
-            <Option value="Low"><Tag color={priorityColors["Low"]}>Low</Tag></Option>
+            <Option value="High"><StatusChip kind="priority" value="High" /></Option>
+            <Option value="Medium"><StatusChip kind="priority" value="Medium" /></Option>
+            <Option value="Low"><StatusChip kind="priority" value="Low" /></Option>
           </Select>
         </Descriptions.Item>
         <Descriptions.Item label="Channel" labelStyle={{ width: '150px' }}>
@@ -84,7 +84,8 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
         </Descriptions.Item>
         <Descriptions.Item label={<><Icon icon="ph:calendar-fill" /> SLA Due</>} labelStyle={{ width: '150px' }}>
           <DatePicker
-            showTime
+            showTime={{ format: 'HH', use12Hours: false, minuteStep: 30 }}
+            format="YYYY-MM-DD HH"
             value={workOrder.slaDue ? dayjs(workOrder.slaDue) : null}
             onChange={(date) => { handleUpdateWorkOrder({ slaDue: date ? date.toISOString() : null }); }}
             bordered={false}
@@ -93,7 +94,8 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
         </Descriptions.Item>
         <Descriptions.Item label="Appointment Date" labelStyle={{ width: '150px' }}>
           <DatePicker
-            showTime
+            showTime={{ format: 'HH', use12Hours: false, minuteStep: 30 }}
+            format="YYYY-MM-DD HH"
             value={workOrder.appointmentDate ? dayjs(workOrder.appointmentDate) : null}
             onChange={(date) => handleUpdateWorkOrder({ appointmentDate: date ? date.toISOString() : null })}
             bordered={false}

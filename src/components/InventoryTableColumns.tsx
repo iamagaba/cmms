@@ -1,4 +1,5 @@
-import { Button, Dropdown, Menu, Tag, Typography } from "antd";
+import { Button, Dropdown, Menu, Typography } from "antd";
+import StatusChip from "@/components/StatusChip";
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { InventoryItem } from "@/types/supabase";
 import dayjs from "dayjs";
@@ -25,14 +26,20 @@ export const getColumns = (
     sorter: (a: InventoryItem, b: InventoryItem) => a.quantity_on_hand - b.quantity_on_hand,
     render: (qty: number, record: InventoryItem) => (
       qty <= record.reorder_level 
-        ? <Tag color="error">{qty} (Low Stock)</Tag> 
+        ? <StatusChip kind="custom" value={`${qty} (Low Stock)`} color="#EF4444" /> 
         : <Text>{qty}</Text>
     ),
   },
   {
     title: "Unit Price",
     dataIndex: "unit_price",
-    render: (price: number) => `UGX ${price.toLocaleString('en-US')}`,
+    render: (price: number) => {
+      if (typeof price === 'number' && !isNaN(price)) {
+        return `UGX ${price.toLocaleString('en-US')}`;
+      } else {
+        return <Text type="secondary">N/A</Text>;
+      }
+    },
     sorter: (a: InventoryItem, b: InventoryItem) => a.unit_price - b.unit_price,
   },
   {
@@ -44,22 +51,23 @@ export const getColumns = (
   {
     title: "Actions",
     key: "actions",
+    width: 80,
     align: "right" as const,
     render: (_: any, record: InventoryItem) => (
       <Dropdown
         overlay={
           <Menu>
-            <Menu.Item key="edit" icon={<Icon icon="ph:pencil-fill" />} onClick={() => onEdit(record)}>
+            <Menu.Item key="edit" icon={<Icon icon="ph:pencil-fill" />} onClick={(e) => { e.domEvent.stopPropagation(); onEdit(record); }}>
               Edit Item
             </Menu.Item>
-            <Menu.Item key="delete" icon={<Icon icon="ph:trash-fill" />} danger onClick={() => onDelete(record)}>
+            <Menu.Item key="delete" icon={<Icon icon="ph:trash-fill" />} danger onClick={(e) => { e.domEvent.stopPropagation(); onDelete(record); }}>
               Delete Item
             </Menu.Item>
           </Menu>
         }
         trigger={["click"]}
       >
-        <Button type="text" icon={<Icon icon="ph:dots-three-horizontal-fill" style={{ fontSize: '18px' }} />} />
+        <Button type="text" icon={<Icon icon="ph:dots-three-horizontal-fill" style={{ fontSize: '18px' }} />} onClick={(e) => e.stopPropagation()} />
       </Dropdown>
     ),
   },

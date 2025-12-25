@@ -1,3 +1,10 @@
+html, body {
+  overflow-x: hidden;
+  overflow-y: auto;
+  background-color: var(--ant-colorBgLayout);
+  margin: 0; /* remove default white margins */
+  min-height: 100%;
+}
 /* You can add global styles to this file, and also import other style files */
 #root {
   height: 100%;
@@ -5,7 +12,10 @@
 
 body {
   font-family: 'Inter', sans-serif; /* Changed font to Inter */
-  background-color: #f6f7f9; /* Set a base background color */
+  background-color: var(--ant-colorBgLayout); /* Theme-aware background */
+  /* Custom app-level CSS variables */
+  --app-card-body-min-height: 160px;
+  --mobile-max: 576px;
 }
 
 /* --- Polaris-Inspired Layout --- */
@@ -28,16 +38,14 @@ body {
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
 .fade-in {
-  animation: fadeIn 0.5s ease-out forwards;
+  animation: fadeIn 0.4s ease-out forwards;
   opacity: 0; /* Start hidden */
 }
 
@@ -59,6 +67,60 @@ body {
 
 .lift-on-hover-row:hover {
   transform: translateY(-2px);
+}
+
+/* Row quick actions visibility and selected state */
+.ant-table-tbody tr .row-actions { opacity: 0; transition: opacity 0.15s ease-in-out; }
+.ant-table-tbody tr:hover .row-actions { opacity: 1; }
+.ant-table-tbody tr.is-selected-row td { background-color: var(--ant-colorPrimaryBgHover) !important; }
+
+/* --- Responsive card grid & tap targets --- */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1200px) {
+  .card-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 992px) {
+  .card-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 576px) {
+  .card-grid { grid-template-columns: repeat(1, 1fr); }
+  .tap-target { min-height: 56px; }
+  .ant-btn, .ant-select-selector, .ant-input, .ant-picker-input { min-height: 44px; }
+}
+
+/* --- Stacked table rows on small screens --- */
+@media (max-width: 576px) {
+  .stacked-table .ant-table-thead { display: none; }
+  .stacked-table .ant-table-cell { display: block; width: 100% !important; border-bottom: none; padding: 6px 16px; }
+  .stacked-table .ant-table-row { border: 1px solid var(--ant-colorBorder); border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
+  .stacked-table .ant-table-cell::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 12px;
+  color: var(--ant-colorTextSecondary);
+    margin-bottom: 2px;
+  }
+}
+
+/* --- Floating Action Button positioning --- */
+.app-fab {
+  position: fixed !important;
+  right: 16px;
+  bottom: 76px; /* keep above tab bar/pagination on mobile */
+  z-index: 1000;
+}
+
+/* Visibility utilities */
+.hide-on-desktop { display: none; }
+@media (max-width: 576px) {
+  .hide-on-desktop { display: block; }
 }
 
 /* --- Hide scrollbar but keep functionality --- */
@@ -117,9 +179,9 @@ body {
 /* Custom styles for the new custom trigger */
 .sider-custom-trigger {
   flex-shrink: 0; /* Prevent the trigger from shrinking */
-  border-top: 1px solid var(--ant-color-border-secondary);
-  background-color: #f0f0f0; /* Light background for the trigger */
-  color: var(--ant-color-text-secondary); /* Icon color */
+  border-top: 1px solid var(--ant-colorBorderSecondary);
+  background-color: var(--ant-colorFillSecondary); /* Theme-aware background for the trigger */
+  color: var(--ant-colorTextSecondary); /* Icon color */
   height: 48px; /* Consistent height */
   display: flex;
   align-items: center;
@@ -134,12 +196,12 @@ body {
 }
 
 .sider-custom-trigger .ant-btn {
-  color: var(--ant-color-text-secondary);
+  color: var(--ant-colorTextSecondary);
 }
 
 .sider-custom-trigger .ant-btn:hover {
-  background-color: var(--ant-color-fill-alter);
-  color: var(--ant-color-primary);
+  background-color: var(--ant-colorFillSecondary);
+  color: var(--ant-colorPrimary);
 }
 
 /* Adjust logo area for better alignment */
@@ -149,7 +211,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 0 16px;
-  border-bottom: 1px solid var(--ant-color-border-secondary); /* Add a subtle separator */
+  border-bottom: 1px solid var(--ant-colorBorderSecondary); /* Add a subtle separator */
   flex-shrink: 0; /* Prevent logo area from shrinking */
 }
 
@@ -173,6 +235,11 @@ body {
   width: 10px;
   height: 100%;
   cursor: col-resize;
+}
+
+/* Standardized width for primary action buttons in page headers */
+.primary-action-btn {
+  min-width: 160px; /* Fits long labels like "New Work Order" */
 }
 
 /* --- Print Styles for Reports --- */
@@ -200,4 +267,163 @@ body {
   .ant-table-pagination {
     display: none !important;
   }
+}
+
+/* Keep Hopping Tiger sider pinned and remove extra bottom gap */
+.ht-sider {
+  display: flex;
+  flex-direction: column;
+}
+.ht-sider > .ant-layout-sider-children {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* ensure full height so bottom sections sit at the bottom */
+  padding-bottom: 0 !important; /* remove any default bottom padding causing gaps */
+}
+.ht-sider .ant-menu-root {
+  flex: 1 1 auto;
+  overflow: auto;
+}
+/* Ensure the last sections don't float up when collapsed */
+.ht-sider .bottom-controls,
+.ht-sider .user-profile {
+  flex-shrink: 0;
+}
+
+/* Sticky header system - reliable implementation */
+.sticky-header {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+  background: var(--ant-colorBgElevated) !important; /* Fully opaque elevated background, theme-aware */
+  border-bottom: 1px solid var(--ant-colorBorder);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); /* Stronger separation from content */
+  padding: 8px 0;
+  margin-bottom: 16px;
+  /* Ensure it works within Space and other containers */
+  width: 100%;
+  left: 0;
+  right: 0;
+}
+
+/* Stacked sticky headers - second level sticks below first */
+.sticky-header-secondary {
+  position: sticky !important;
+  top: 72px !important; /* Height of primary sticky header */
+  z-index: 99 !important;
+  background: var(--ant-colorBgElevated) !important; /* Opaque elevated background to mask content behind */
+  border-bottom: 1px solid var(--ant-colorBorder);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  margin-bottom: 16px;
+  width: 100%;
+  left: 0;
+  right: 0;
+}
+
+/* Ensure the main content container and Space components support sticky positioning */
+.main-content,
+.ant-space-vertical {
+  position: relative !important;
+  overflow: visible !important;
+  height: auto !important;
+}
+
+/* Override any Ant Design Space styles that might interfere */
+.ant-space-vertical > .sticky-header,
+.ant-space-vertical > .sticky-header-secondary {
+  align-self: stretch;
+}
+
+/* Ensure Affix-wrapped breadcrumb spans full width and stacks correctly */
+.ant-affix {
+  width: 100%;
+  z-index: 100 !important;
+}
+
+/* When affixed, ensure the inner header remains opaque and elevated */
+.ant-affix .sticky-header {
+  background: var(--ant-colorBgElevated) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Ensure Ant Layout Content doesn't clip sticky/affixed elements */
+.ant-layout-content {
+  overflow: visible !important;
+}
+
+/* --- Compact UI Adjustments --- */
+
+/* Reduce padding on page headers/breadcrumbs inside Space components */
+.ant-space-vertical > .ant-row {
+  padding-bottom: 8px;
+}
+
+/* Tighter spacing for Form.List items */
+.ant-form-item-row:not(:last-child) {
+  margin-bottom: 12px !important;
+}
+
+/* Reduce the default gap in vertical Space components */
+.ant-space-vertical {
+  gap: 12px !important;
+}
+
+/* More compact stats in cards */
+.ant-statistic-title {
+  margin-bottom: 4px !important;
+  font-size: 13px !important;
+}
+
+.ant-statistic-content {
+  font-size: 22px !important;
+}
+
+/* --- Compact Descriptions (global) --- */
+/* Smaller paddings when using size="small" */
+.ant-descriptions.ant-descriptions-small .ant-descriptions-item {
+  padding-bottom: 8px; /* default ~16 */
+}
+.ant-descriptions.ant-descriptions-small .ant-descriptions-item-label,
+.ant-descriptions.ant-descriptions-small .ant-descriptions-item-content {
+  padding: 6px 8px; /* default ~12-16 */
+}
+/* Bordered mode cell padding */
+.ant-descriptions-bordered .ant-descriptions-item-label,
+.ant-descriptions-bordered .ant-descriptions-item-content {
+  padding: 8px 10px; /* default 16px */
+}
+
+/* --- Compact Cards & Lists (subtle, safe defaults) --- */
+.ant-card-small > .ant-card-head {
+  padding: 8px 12px; /* default 12px 16px */
+}
+.ant-card-small > .ant-card-body {
+  padding: 12px; /* default 16px */
+}
+.ant-card .ant-card-head {
+  padding: 12px 16px; /* lighten default 16px */
+}
+.ant-card .ant-card-body {
+  padding: 16px; /* lighten default 24px */
+}
+.ant-list-item {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+/* Utility: compact detail sections for custom layouts */
+.compact-detail-section .ant-typography {
+  margin-bottom: 4px !important;
+}
+.compact-detail-section .ant-row {
+  margin-bottom: 8px !important;
+}
+
+/* Utility class for compact detail lists/sections */
+.compact-detail-section .ant-typography {
+  margin-bottom: 4px !important; /* Reduces space below text */
+}
+
+.compact-detail-section .ant-row {
+  margin-bottom: 8px !important; /* Reduces space between rows */
 }

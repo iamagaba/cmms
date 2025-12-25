@@ -1,14 +1,15 @@
-import { Row, Col, Card, Typography, Skeleton, DatePicker, Tabs, Space, Button } from 'antd';
+import { Row, Col, Card, Skeleton, DatePicker, Tabs, Space } from 'antd';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { WorkOrder, Technician, Location } from '@/types/supabase';
 import KpiCard from '@/components/KpiCard';
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
+import { snakeToCamelCase } from '@/utils/data-helpers';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import CustomReportGenerator from '@/components/CustomReportGenerator';
-import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
+import AppBreadcrumb from "@/components/Breadcrumbs";
 
 const { RangePicker } = DatePicker;
 const { TabPane } = Tabs;
@@ -25,7 +26,7 @@ const AnalyticsPage = () => {
         .gte('created_at', dateRange[0].toISOString())
         .lte('created_at', dateRange[1].toISOString());
       if (error) throw new Error(error.message);
-      return data || [];
+      return (data || []).map(workOrder => snakeToCamelCase(workOrder) as WorkOrder);
     }
   });
 
@@ -34,7 +35,7 @@ const AnalyticsPage = () => {
     queryFn: async () => {
       const { data, error } = await supabase.from('work_orders').select('*');
       if (error) throw new Error(error.message);
-      return data || [];
+      return (data || []).map(workOrder => snakeToCamelCase(workOrder) as WorkOrder);
     }
   });
 
@@ -43,7 +44,7 @@ const AnalyticsPage = () => {
     queryFn: async () => {
       const { data, error } = await supabase.from('technicians').select('*');
       if (error) throw new Error(error.message);
-      return data || [];
+      return (data || []).map(technician => snakeToCamelCase(technician) as Technician);
     }
   });
 
@@ -52,7 +53,7 @@ const AnalyticsPage = () => {
     queryFn: async () => {
       const { data, error } = await supabase.from('locations').select('*');
       if (error) throw new Error(error.message);
-      return data || [];
+      return (data || []).map(location => snakeToCamelCase(location) as Location);
     }
   });
 
@@ -123,7 +124,7 @@ const AnalyticsPage = () => {
       </Row>
       <Row gutter={[24, 24]}>
         <Col xs={24} lg={16}><Card title="Technician Performance (Completed Orders)"><ResponsiveContainer width="100%" height={400}><BarChart data={technicianPerformance}><CartesianGrid strokeDasharray="3 3" /><XAxis dataKey="name" /><YAxis allowDecimals={false} /><Tooltip /><Legend /><Bar dataKey="completed" fill="#52c41a" name="Completed Tasks" /></BarChart></ResponsiveContainer></Card></Col>
-        <Col xs={24} lg={8}><Card title="Channel Distribution"><ResponsiveContainer width="100%" height={400}><PieChart><Pie data={channelDistributionData} cx="50%" cy="50%" labelLine={false} outerRadius={120} fill="#8884d8" dataKey="value" nameKey="name" label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}>{channelDistributionData.map((entry, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}</Pie><Tooltip /><Legend layout="vertical" verticalAlign="middle" align="right" /></PieChart></ResponsiveContainer></Card></Col>
+  <Col xs={24} lg={8}><Card title="Channel Distribution"><ResponsiveContainer width="100%" height={400}><PieChart><Pie data={channelDistributionData} cx="50%" cy="50%" labelLine={false} outerRadius={120} fill="#8884d8" dataKey="value" nameKey="name" label={(props: any) => `${props.name} ${((props.percent || 0) * 100).toFixed(0)}%`}>{channelDistributionData.map((_, index) => (<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />))}</Pie><Tooltip /><Legend layout="vertical" verticalAlign="middle" align="right" /></PieChart></ResponsiveContainer></Card></Col>
       </Row>
     </div>
   );
@@ -135,20 +136,27 @@ const AnalyticsPage = () => {
   );
 
   const pageActions = (
-    <RangePicker value={dateRange} onChange={(dates) => dates && setDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])} />
+    <RangePicker 
+      value={dateRange} 
+      onChange={(dates) => dates && setDateRange(dates as [dayjs.Dayjs, dayjs.Dayjs])}
+      showTime={{ format: 'HH', use12Hours: false, minuteStep: 30 }}
+      format="YYYY-MM-DD HH"
+    />
   );
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Breadcrumbs actions={pageActions} />
-      <Tabs defaultActiveKey="1">
+  <AppBreadcrumb actions={pageActions} />
+      <div className="sticky-header-secondary">
+        <Tabs defaultActiveKey="1">
         <TabPane tab="Analytics Dashboard" key="1">
           {dashboardContent}
         </TabPane>
         <TabPane tab="Custom Reports" key="2">
           {reportsContent}
         </TabPane>
-      </Tabs>
+        </Tabs>
+      </div>
     </Space>
   );
 };

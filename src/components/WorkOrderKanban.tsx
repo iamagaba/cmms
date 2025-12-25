@@ -1,6 +1,7 @@
 import { WorkOrder, Technician, Location, Customer, Vehicle } from "@/types/supabase";
 import WorkOrderCard from "./WorkOrderCard";
-import { Row, Col, Typography, Tag, Space, theme } from "antd";
+import { Row, Col, Typography, Space, theme } from "antd";
+import "./WorkOrderKanban.css";
 
 const { Title } = Typography;
 const { useToken } = theme;
@@ -22,7 +23,7 @@ interface WorkOrderKanbanProps {
     onViewDetails: (workOrderId: string) => void;
 }
 
-const WorkOrderKanban = ({ workOrders, technicians, locations, customers, vehicles, groupBy, columns, onUpdateWorkOrder, onViewDetails }: WorkOrderKanbanProps) => {
+const WorkOrderKanban = ({ workOrders, technicians, locations, customers: _customers, vehicles, groupBy, columns, onUpdateWorkOrder: _onUpdateWorkOrder, onViewDetails }: WorkOrderKanbanProps) => {
   const { token } = useToken();
 
   const statusColors: { [key: string]: string } = { 
@@ -45,46 +46,39 @@ const WorkOrderKanban = ({ workOrders, technicians, locations, customers, vehicl
     return token.colorPrimary;
   }
 
-  const custMap = new Map(customers.map(c => [c.id, c]));
+  // const custMap = new Map(_customers.map(c => [c.id, c]));
   const vehMap = new Map(vehicles.map(v => [v.id, v]));
 
   return (
-    <Row gutter={[16, 16]} wrap={false} className="hide-scrollbar" style={{ width: '100%', overflowX: 'auto', paddingBottom: '16px' }}>
+  <Row gutter={[8, 8]} wrap={false} className="kanban-board hide-scrollbar" style={{ minHeight: '60vh', background: 'transparent' }}>
       {columns.map(column => {
         const columnOrders = getColumnOrders(column.id);
         const columnColor = getColumnColor(column);
         return (
-            <Col key={column.id || 'unassigned'} flex="0 0 320px">
-                <div style={{ 
-                    backgroundColor: token.colorBgContainer, 
-                    borderRadius: token.borderRadiusLG, 
-                    boxShadow: token.boxShadowSecondary,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    height: '100%'
-                }}>
-                    <div style={{ 
-                        padding: '12px 16px', 
-                        borderBottom: `1px solid ${token.colorBorderSecondary}`, 
-                        display: 'flex', 
-                        alignItems: 'center', 
-                        justifyContent: 'space-between',
-                        backgroundColor: token.colorFillAlter,
-                        borderTopLeftRadius: token.borderRadiusLG,
-                        borderTopRightRadius: token.borderRadiusLG,
-                    }}>
-                        <Space>
-                            <div style={{ width: '4px', height: '16px', backgroundColor: columnColor, borderRadius: '2px' }} />
-                            <Title level={5} style={{ margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{column.title}</Title>
-                        </Space>
-                        <Tag color="default">{columnOrders.length}</Tag>
-                    </div>
-                    <div className="hide-scrollbar" style={{ padding: '12px', flexGrow: 1, overflowY: 'auto' }}>
-                        <Space direction="vertical" style={{ width: '100%' }} size="small">
+            <Col key={column.id || 'unassigned'} className="kanban-column">
+        <div style={{ 
+          backgroundColor: 'transparent',
+          borderRadius: 8,
+          boxShadow: 'none',
+          border: `1px solid ${token.colorBorder}`,
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%'
+        }}>
+          <div className="kanban-column-header" style={{ padding: '8px 8px 4px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <Space size={6} align="center">
+              <div style={{ width: '2px', height: '16px', backgroundColor: columnColor, borderRadius: '1px' }} />
+              <Title level={5} style={{ margin: 0, fontWeight: 500, fontSize: 15 }}>{column.title}</Title>
+            </Space>
+            <span style={{ minWidth: 22, height: 22, borderRadius: 11, background: token.colorFillTertiary, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 500, color: token.colorTextTertiary, marginLeft: 4 }}>{columnOrders.length}</span>
+          </div>
+          <div className="kanban-column-content hide-scrollbar" style={{ padding: 4 }}>
+            <Space direction="vertical" style={{ width: '100%' }} size={4}>
                             {columnOrders.map(order => {
                                 const technician = technicians.find(t => t.id === order.assignedTechnicianId);
                                 const vehicle: Vehicle | undefined = order.vehicleId ? vehMap.get(order.vehicleId) : undefined;
-                                return <WorkOrderCard key={order.id} order={order} technician={technician} vehicle={vehicle} onUpdateWorkOrder={onUpdateWorkOrder} onViewDetails={() => onViewDetails(order.id)} groupBy={groupBy} />;
+                                const location = order.locationId ? locations.find(l => l.id === order.locationId) : undefined;
+                                return <WorkOrderCard key={order.id} order={order} technician={technician} vehicle={vehicle} location={location} onViewDetails={() => onViewDetails(order.id)} />;
                             })}
                         </Space>
                     </div>

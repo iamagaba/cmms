@@ -1,22 +1,24 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Button, Card, Col, Row, Space, Typography, Descriptions, Skeleton } from "antd";
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
-import NotFound from "./NotFound";
+
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query"; // Import useMutation
 import { supabase } from "@/integrations/supabase/client";
 import { Vehicle, Customer, WorkOrder, Technician, Location, Profile, ServiceCategory } from "@/types/supabase"; // Import Profile and ServiceCategory
-import { WorkOrderDataTable, ALL_COLUMNS } from "@/components/WorkOrderDataTable"; // Import ALL_COLUMNS
+import { WorkOrderDataTable } from "@/components/WorkOrderDataTable"; // Import WorkOrderDataTable
+import { ALL_COLUMNS } from "@/components/work-order-columns-constants"; // Import ALL_COLUMNS
 import { formatDistanceToNow } from 'date-fns';
 import dayjs from 'dayjs';
 import { CreateWorkOrderDialog } from "@/components/CreateWorkOrderDialog";
 import { WorkOrderFormDrawer } from "@/components/WorkOrderFormDrawer";
+import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
 import { useState, useMemo } from "react";
 import { camelToSnakeCase } from "@/utils/data-helpers"; // Import camelToSnakeCase
 import { showSuccess, showInfo, showError } from "@/utils/toast"; // Import toast utilities
-import { getColumns } from "@/components/WorkOrderTableColumns"; // Import getColumns
+import { RepairActivityTimeline } from "@/components/RepairActivityTimeline";
 import { useSession } from "@/context/SessionContext";
-import Breadcrumbs from "@/components/Breadcrumbs";
-import { AssetRepairHistoryTimeline } from "@/components/AssetRepairHistoryTimeline"; // Import the new component
+import AppBreadcrumb from "@/components/Breadcrumbs";
+
 
 const { Title, Text } = Typography;
 
@@ -30,12 +32,19 @@ const AssetDetailsPage = () => {
 
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isFormDrawerOpen, setIsFormDrawerOpen] = useState(false);
+  const [editingWorkOrder, setEditingWorkOrder] = useState<WorkOrder | null>(null);
+  const [viewingWorkOrderId, setViewingWorkOrderId] = useState<string | null>(null);
   const [prefillData, setPrefillData] = useState<Partial<WorkOrder> | null>(null);
-  const [visibleColumns, setVisibleColumns] = useState<string[]>(ALL_COLUMNS.map(c => c.value)); // State for visible columns
 
-  const { data: vehicle, isLoading: isLoadingVehicle } = useQuery<VehicleWithCustomer | null>({
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(ALL_COLUMNS.map(c => c.value));
+  // State for selected week in timeline
+  const [selectedWeek, setSelectedWeek] = useState<number | null>(null);
+
+
+  const { data: vehicle, isLoading: isLoadingVehicle, error: vehicleError } = useQuery<VehicleWithCustomer | null>({
     queryKey: ['vehicle', id],
     queryFn: async () => {
+      if (!id) throw new Error('No asset ID provided in URL.');
       const { data, error } = await supabase.from('vehicles').select('*, customers(*)').eq('id', id).single();
       if (error) throw new Error(error.message);
       return data;
@@ -60,7 +69,34 @@ const AssetDetailsPage = () => {
       if (!id) return [];
       const { data, error } = await supabase.from('work_orders').select('*').eq('vehicle_id', id);
       if (error) throw new Error(error.message);
-      return (data || []).map((item: any) => ({ ...item, createdAt: item.created_at, workOrderNumber: item.work_order_number, assignedTechnicianId: item.assigned_technician_id, locationId: item.location_id, serviceNotes: item.service_notes, partsUsed: item.parts_used, activityLog: item.activity_log, slaDue: item.sla_due, completedAt: item.completed_at, customerLat: item.customer_lat, customerLng: item.customer_lng, customerAddress: item.customer_address, onHoldReason: item.on_hold_reason, appointmentDate: item.appointment_date, customerId: item.customer_id, vehicleId: item.vehicle_id, created_by: item.created_by, service_category_id: item.service_category_id, confirmed_at: item.confirmed_at, work_started_at: item.work_started_at, sla_timers_paused_at: item.sla_timers_paused_at, total_paused_duration_seconds: item.total_paused_duration_seconds, initialDiagnosis: item.client_report, issueType: item.issue_type, faultCode: item.fault_code, maintenanceNotes: item.maintenance_notes })) || [];
+      return (data || []).map((item: any) => ({
+        ...item,
+        createdAt: item.created_at,
+        workOrderNumber: item.work_order_number,
+        assignedTechnicianId: item.assigned_technician_id,
+        locationId: item.location_id,
+        initialDiagnosis: item.client_report,
+        maintenanceNotes: item.maintenanceNotes,
+        issueType: item.issueType,
+        faultCode: item.faultCode,
+        partsUsed: item.partsUsed,
+        activityLog: item.activityLog,
+        slaDue: item.slaDue,
+        completedAt: item.completedAt,
+        customerLat: item.customerLat,
+        customerLng: item.customerLng,
+        customerAddress: item.customerAddress,
+        onHoldReason: item.onHoldReason,
+        appointmentDate: item.appointmentDate,
+        customerId: item.customerId,
+        vehicleId: item.vehicleId,
+        created_by: item.created_by,
+        service_category_id: item.service_category_id,
+        confirmed_at: item.confirmed_at,
+        work_started_at: item.work_started_at,
+        sla_timers_paused_at: item.sla_timers_paused_at,
+        total_paused_duration_seconds: item.total_paused_duration_seconds
+      })) || [];
     },
     enabled: !!id,
   });
@@ -142,12 +178,39 @@ const AssetDetailsPage = () => {
 
   const isLoading = isLoadingVehicle || isLoadingCustomer || isLoadingWorkOrders || isLoadingTechnicians || isLoadingLocations || isLoadingAllCustomers || isLoadingProfiles || isLoadingServiceCategories;
 
+  // Filter work orders by selected week (if any)
+  const filteredWorkOrders = useMemo(() => {
+    if (!workOrders) return [];
+    if (!selectedWeek) return workOrders;
+    return workOrders.filter(wo => {
+      if (!wo.created_at) return false;
+      return dayjs(wo.created_at).week() === selectedWeek;
+    });
+  }, [workOrders, selectedWeek]);
+
+
   if (isLoading) {
     return <Skeleton active />;
   }
 
+  if (vehicleError) {
+    // Log error for debugging
+  console.error('AssetDetailsPage error:', vehicleError);
+    return (
+      <div style={{ padding: 32, textAlign: 'center' }}>
+        <Typography.Title level={4} type="danger">Error loading asset</Typography.Title>
+        <Typography.Text type="secondary">{vehicleError.message}</Typography.Text>
+      </div>
+    );
+  }
+
   if (!vehicle) {
-    return <NotFound />;
+    return (
+      <div style={{ padding: 32, textAlign: 'center' }}>
+        <Typography.Title level={4}>Asset Not Found</Typography.Title>
+        <Typography.Text type="secondary">The asset you are looking for does not exist or has been deleted.</Typography.Text>
+      </div>
+    );
   }
 
   const assetAge = vehicle.release_date ? formatDistanceToNow(new Date(vehicle.release_date)) : 'N/A';
@@ -173,78 +236,115 @@ const AssetDetailsPage = () => {
     setPrefillData(null);
   };
 
-  const defaultVisibleColumns = ALL_COLUMNS.map(c => c.value); // Use ALL_COLUMNS for default visibility
+
 
   const backButton = (
-    <Button icon={<Icon icon="ph:arrow-left-fill" />} onClick={() => navigate('/assets')} />
+  <Button icon={<Icon icon="ant-design:arrow-left-outlined" />} onClick={() => navigate('/assets')} />
   );
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <Breadcrumbs backButton={backButton} />
-        {/* New Repair Activity Timeline Component */}
-        <AssetRepairHistoryTimeline workOrders={workOrders || []} vehicle={vehicle} />
-        <Row gutter={[16, 16]}>
-            <Col xs={24} md={8}>
-                <Card>
-                    <Title level={4}>{vehicle.license_plate}</Title>
-                    <Text type="secondary">{`${vehicle.year} ${vehicle.make} ${vehicle.model}`}</Text>
-                    <Descriptions column={1} bordered style={{ marginTop: 16 }}>
-                        <Descriptions.Item label="VIN / Chassis Number">{vehicle.vin}</Descriptions.Item>
-                        <Descriptions.Item label="Motor Number">{vehicle.motor_number || 'N/A'}</Descriptions.Item>
-                        <Descriptions.Item label="Mileage">{vehicle.mileage ? `${vehicle.mileage.toLocaleString()} KMs` : 'N/A'}</Descriptions.Item>
-                        <Descriptions.Item label="Manufacture Date">{vehicle.date_of_manufacture ? dayjs(vehicle.date_of_manufacture).format('MMMM D, YYYY') : 'N/A'}</Descriptions.Item>
-                        <Descriptions.Item label="Release Date">{vehicle.release_date ? dayjs(vehicle.release_date).format('MMMM D, YYYY') : 'N/A'}</Descriptions.Item>
-                        <Descriptions.Item label="Asset Age">{assetAge}</Descriptions.Item>
-                        <Descriptions.Item label="Battery (kWh)">{vehicle.battery_capacity || 'N/A'}</Descriptions.Item>
-                    </Descriptions>
-                </Card>
+      <AppBreadcrumb backButton={backButton} />
+      {/* 1. Asset details and owner info (full width) */}
+      <Row gutter={[16, 16]} style={{ marginBottom: 0 }}>
+        <Col span={24}>
+          <Card size="small">
+            <div style={{ width: '100%' }}>
+              <Title level={4}>{vehicle.license_plate}</Title>
+              <Text type="secondary">{`${vehicle.year} ${vehicle.make} ${vehicle.model}`}</Text>
+              <div style={{ display: 'flex', flexDirection: 'row', gap: 32, alignItems: 'flex-start', width: '100%', marginTop: 16 }}>
+                <div style={{ flex: 2, minWidth: 0 }}>
+                  <Title level={5}>Vehicle Information</Title>
+                  <Descriptions column={1} bordered size="small">
+                    <Descriptions.Item label="VIN / Chassis Number">{vehicle.vin}</Descriptions.Item>
+                    <Descriptions.Item label="Motor Number">{vehicle.motor_number || 'N/A'}</Descriptions.Item>
+                    <Descriptions.Item label="Mileage">{vehicle.mileage ? `${vehicle.mileage.toLocaleString()} KMs` : 'N/A'}</Descriptions.Item>
+                    <Descriptions.Item label="Manufacture Date">{vehicle.date_of_manufacture ? dayjs(vehicle.date_of_manufacture).format('MMMM D, YYYY') : 'N/A'}</Descriptions.Item>
+                    <Descriptions.Item label="Release Date">{vehicle.release_date ? dayjs(vehicle.release_date).format('MMMM D, YYYY') : 'N/A'}</Descriptions.Item>
+                    <Descriptions.Item label="Asset Age">{assetAge}</Descriptions.Item>
+                    <Descriptions.Item label="Battery (kWh)">{vehicle.battery_capacity || 'N/A'}</Descriptions.Item>
+                  </Descriptions>
+                </div>
                 {customer && (
-                    <Card style={{ marginTop: 16 }}>
-                        <Title level={5}>Owner Information</Title>
-                        <Descriptions column={1} bordered>
-                            <Descriptions.Item label={<Icon icon="ph:user-fill" />}>{customer.name}</Descriptions.Item>
-                            <Descriptions.Item label={<Icon icon="ph:envelope-fill" />}><a href={`mailto:${customer.email}`}>{customer.email}</a></Descriptions.Item>
-                            <Descriptions.Item label={<Icon icon="ph:phone-fill" />}><a href={`tel:${customer.phone}`}>{customer.phone}</a></Descriptions.Item>
-                        </Descriptions>
-                    </Card>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <Title level={5}>Owner Information</Title>
+                    <Descriptions column={1} bordered size="small">
+                      <Descriptions.Item label={<Icon icon="ant-design:user-outlined" />}>{customer.name}</Descriptions.Item>
+                      <Descriptions.Item label={<Icon icon="ant-design:mail-outlined" />}><a href={`mailto:${customer.email}`}>{customer.email}</a></Descriptions.Item>
+                      <Descriptions.Item label={<Icon icon="ant-design:phone-outlined" />}><a href={`tel:${customer.phone}`}>{customer.phone}</a></Descriptions.Item>
+                    </Descriptions>
+                  </div>
                 )}
-            </Col>
-            <Col xs={24} md={16}>
-                <Card>
-                    <Title level={5}>Service History</Title>
-                    <WorkOrderDataTable 
-                        workOrders={workOrders || []}
-                        technicians={technicians || []}
-                        locations={locations || []}
-                        customers={allCustomers || []}
-                        vehicles={vehicle ? [vehicle] : []}
-                        onEdit={() => {}}
-                        onDelete={() => {}}
-                        onUpdateWorkOrder={handleUpdateWorkOrder}
-                        onViewDetails={(id) => navigate(`/work-orders/${id}`)}
-                        profiles={profiles || []}
-                        visibleColumns={defaultVisibleColumns}
-                        onVisibleColumnsChange={setVisibleColumns}
-                    />
-                </Card>
-            </Col>
-        </Row>
-        <CreateWorkOrderDialog
-          isOpen={isCreateDialogOpen}
-          onClose={() => setIsCreateDialogOpen(false)}
-          onProceed={handleProceedFromCreateDialog}
-          initialVehicle={vehicle} // Pass the current vehicle directly
-        />
-        <WorkOrderFormDrawer
-          isOpen={isFormDrawerOpen}
-          onClose={() => { setIsFormDrawerOpen(false); setPrefillData(null); }}
-          onSave={handleSaveWorkOrder}
-          technicians={technicians || []}
-          locations={locations || []}
-          serviceCategories={serviceCategories || []}
-          prefillData={prefillData}
-        />
+              </div>
+            </div>
+          </Card>
+        </Col>
+      </Row>
+      {/* 2. Repair Activity Timeline (full width) */}
+      <Row gutter={[16, 16]} style={{ marginBottom: 0 }}>
+        <Col span={24}>
+          <RepairActivityTimeline
+            workOrders={(workOrders || []).filter(wo => typeof wo.created_at === 'string') as { created_at: string }[]}
+            selectedWeek={selectedWeek}
+            onSelectWeek={setSelectedWeek}
+          />
+        </Col>
+      </Row>
+      {/* 3. Service history table (full width, own line) */}
+      <Row gutter={[16, 16]}>
+        <Col span={24}>
+          <Card size="small" style={{ marginBottom: 24 }}>
+            <Title level={5}>Service History {selectedWeek ? `(Week ${selectedWeek})` : ''}</Title>
+            <WorkOrderDataTable
+              workOrders={filteredWorkOrders}
+              technicians={technicians || []}
+              locations={locations || []}
+              customers={allCustomers || []}
+              vehicles={vehicle ? [vehicle] : []}
+              onEdit={(wo) => {
+                setEditingWorkOrder(wo);
+                setIsFormDrawerOpen(true);
+              }}
+              onDelete={() => {}}
+              onUpdateWorkOrder={handleUpdateWorkOrder}
+              onViewDetails={(id) => {
+                setViewingWorkOrderId(id);
+              }}
+              profiles={profiles || []}
+              visibleColumns={visibleColumns || []}
+              onVisibleColumnsChange={setVisibleColumns}
+            />
+          </Card>
+        </Col>
+      </Row>
+      <CreateWorkOrderDialog
+        isOpen={isCreateDialogOpen}
+        onClose={() => setIsCreateDialogOpen(false)}
+        onProceed={handleProceedFromCreateDialog}
+        initialVehicle={vehicle}
+      />
+      <WorkOrderFormDrawer
+        isOpen={isFormDrawerOpen}
+        onClose={() => {
+          setIsFormDrawerOpen(false);
+          setEditingWorkOrder(null);
+          setPrefillData(null);
+        }}
+        onSave={() => {
+          handleSaveWorkOrder();
+          setEditingWorkOrder(null);
+        }}
+        workOrder={editingWorkOrder}
+        technicians={technicians || []}
+        locations={locations || []}
+        serviceCategories={serviceCategories || []}
+        prefillData={prefillData}
+      />
+      <WorkOrderDetailsDrawer
+        onClose={() => setViewingWorkOrderId(null)}
+        workOrderId={viewingWorkOrderId}
+        open={!!viewingWorkOrderId}
+      />
     </Space>
   );
 };

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,9 +16,25 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Add a timeout to prevent infinite loading
+    const timeout = setTimeout(() => {
+      if (isLoading) {
+        console.warn('Session loading timeout - continuing without session');
+        setIsLoading(false);
+      }
+    }, 10000); // 10 second timeout
+
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      if (error) {
+        console.error('Error getting session:', error);
+      }
       setSession(session);
       setIsLoading(false);
+      clearTimeout(timeout);
+    }).catch((error) => {
+      console.error('Error in getSession:', error);
+      setIsLoading(false);
+      clearTimeout(timeout);
     });
 
     const {
@@ -27,8 +44,11 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(false);
     });
 
-    return () => subscription.unsubscribe();
-  }, []);
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
+  }, [isLoading]);
 
   if (isLoading) {
     return (

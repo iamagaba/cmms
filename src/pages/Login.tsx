@@ -1,29 +1,82 @@
-import React, { useState, FormEvent } from "react";
-import { Icon } from '@iconify/react'; // Import Icon from Iconify
+import { useEffect, useState } from "react";
+import './login.css';
+import { Icon } from '@iconify/react';
 import { supabase } from '@/integrations/supabase/client';
 import { useSystemSettings } from '@/context/SystemSettingsContext';
-import { Spin, Input, Button } from 'antd'; // Import Input and Button from antd
-import { showError } from "@/utils/toast";
+import { Spin, Input, Button, Form, Typography, Checkbox, Divider, theme } from 'antd';
+import { showError, showSuccess } from "@/utils/toast";
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
+  const [oauthLoading, setOauthLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const { settings, isLoading: isLoadingSettings } = useSystemSettings();
   const logoUrl = settings.logo_url;
+  const { token } = theme.useToken();
 
-  const handleLogin = async (e: FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    if (error) {
-      showError(error.message);
+  // Prefill saved email
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('cmms:rememberedEmail');
+    if (savedEmail) {
+      form.setFieldsValue({ email: savedEmail });
+      setRememberMe(true);
     }
-    // The SessionProvider will handle the redirect on success
-    setLoading(false);
+  }, [form]);
+
+  const handleLogin = async (values: { email: string; password: string; remember?: boolean }) => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: values.email,
+        password: values.password,
+      });
+      if (error) {
+        showError(error.message);
+        return;
+      }
+      // Remember email for convenience
+      if (values.remember) {
+        localStorage.setItem('cmms:rememberedEmail', values.email);
+      } else {
+        localStorage.removeItem('cmms:rememberedEmail');
+      }
+      // SessionProvider handles redirect on success
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    const email: string | undefined = form.getFieldValue('email');
+    if (!email) {
+      showError('Please enter your email first.');
+      return;
+    }
+    try {
+      setLoading(true);
+      const origin = window.location.origin;
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${origin}/reset-password`,
+      });
+      if (error) {
+        showError(error.message);
+      } else {
+        showSuccess('Password reset link sent. Please check your email.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleOAuthSignIn = async () => {
+    try {
+      setOauthLoading(true);
+      const { error } = await supabase.auth.signInWithOAuth({ provider: 'google' });
+      if (error) showError(error.message);
+    } finally {
+      setOauthLoading(false);
+    }
   };
 
   const Logo = () => (
@@ -39,88 +92,97 @@ export default function Login() {
   );
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-50 p-4">
-      <Logo />
+    <div className="login-bg flex flex-col items-center justify-center p-4">
+      <div className="login-logo">
+        <Logo />
+      </div>
+      <Typography.Title level={2} className="login-title" style={{ marginBottom: 4 }}>GOGO Electric</Typography.Title>
+      <Typography.Paragraph className="login-subtitle" style={{ marginTop: 0 }}>GOGO Maintenance Management Platform</Typography.Paragraph>
 
-      {/* Title */}
-      <h1 className="mb-2 text-3xl font-bold text-gray-800">GOGO Electric</h1>
-      <p className="mb-8 text-base text-gray-500">GOGO Maintenance Management Platform</p>
-
-      {/* Login Box */}
-      <div className="w-full max-w-md rounded-lg border border-gray-200 bg-white p-8 shadow-sm">
-        <form className="space-y-6" onSubmit={handleLogin}>
-          {/* Email */}
-          <div>
-            <label className="mb-2 block text-base font-medium text-gray-700">
-              Email address
-            </label>
+      <div className="login-card" style={{ border: `1px solid ${token.colorBorderSecondary}` }}>
+        <Form
+          form={form}
+          layout="vertical"
+          onFinish={handleLogin}
+          initialValues={{ remember: rememberMe }}
+          disabled={loading || oauthLoading}
+        >
+          <Form.Item
+            name="email"
+            label="Email address"
+            rules={[
+              { required: true, message: 'Please enter your email.' },
+              { type: 'email', message: 'Please enter a valid email.' },
+            ]}
+          >
             <Input
-              prefix={<Icon icon="ph:envelope-fill" className="h-5 w-5 text-gray-400" />}
-              placeholder="Your email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              size="large" // Use Ant Design size prop
+              prefix={<Icon icon="ph:envelope-fill" style={{ color: token.colorTextTertiary }} />}
+              placeholder="you@example.com"
+              size="large"
+              autoFocus
             />
-          </div>
+          </Form.Item>
 
-          {/* Password */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-base font-medium text-gray-700">
-                Password
-              </label>
-              <a href="#" className="text-base text-purple-600 hover:underline">
-                Forgot password?
-              </a>
-            </div>
+          <Form.Item
+            name="password"
+            label={
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span>Password</span>
+                <Button type="link" size="small" onClick={handleForgotPassword} style={{ padding: 0 }}>
+                  Forgot password?
+                </Button>
+              </div>
+            }
+            rules={[{ required: true, message: 'Please enter your password.' }]}
+          >
             <Input.Password
-              prefix={<Icon icon="ph:lock-fill" className="h-5 w-5 text-gray-400" />}
+              prefix={<Icon icon="ph:lock-fill" style={{ color: token.colorTextTertiary }} />}
               placeholder="Your password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              size="large" // Use Ant Design size prop
+              size="large"
               iconRender={(visible) => (visible ? <Icon icon="ph:eye-fill" width={20} height={20} /> : <Icon icon="ph:eye-slash-fill" width={20} height={20} />)}
             />
-          </div>
+          </Form.Item>
 
-          {/* Submit */}
-          <Button
-            type="primary"
-            htmlType="submit"
-            loading={loading}
-            className="w-full flex items-center justify-center" // Keep Tailwind for flex layout
-            size="large" // Use Ant Design size prop
-          >
-            {loading && <Icon icon="ph:spinner-gap-fill" className="mr-2 h-5 w-5 animate-spin" />}
-            Sign in
-          </Button>
-        </form>
+          <Form.Item name="remember" valuePropName="checked" style={{ marginBottom: 0 }}>
+            <Checkbox onChange={(e) => setRememberMe(e.target.checked)}>Remember me</Checkbox>
+          </Form.Item>
 
-        {/* Sign up */}
-        <div className="mt-6 text-center text-base">
-          <span className="text-gray-600">Don't have an account?</span>{" "}
-          <a href="#" className="text-purple-600 hover:underline">
-            Sign up
-          </a>
+          <Form.Item style={{ marginTop: 16 }}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              loading={loading}
+              size="large"
+              block
+              style={{ fontWeight: 600, letterSpacing: 0.3 }}
+            >
+              Sign in
+            </Button>
+          </Form.Item>
+        </Form>
+
+        <Divider plain>or</Divider>
+        <Button
+          icon={<Icon icon="logos:google-icon" width={18} height={18} />}
+          onClick={handleOAuthSignIn}
+          size="large"
+          block
+          loading={oauthLoading}
+        >
+          Continue with Google
+        </Button>
+
+        <div style={{ marginTop: 24, textAlign: 'center', fontSize: 16 }}>
+          <span style={{ color: 'var(--ant-colorTextSecondary)' }}>Don't have an account?</span>{' '}
+          <a href="#" style={{ color: token.colorPrimary, fontWeight: 500 }}>Sign up</a>
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="mt-8 text-sm text-gray-500">
-        <a href="#" className="px-3 hover:underline">
-          Terms
-        </a>
-        <a href="#" className="px-3 hover:underline">
-          Privacy
-        </a>
-        <a href="#" className="px-3 hover:underline">
-          Security
-        </a>
-        <a href="#" className="px-3 hover:underline">
-          Contact
-        </a>
+      <footer className="login-footer">
+        <a href="#">Terms</a>
+        <a href="#">Privacy</a>
+        <a href="#">Security</a>
+        <a href="#">Contact</a>
       </footer>
     </div>
   );

@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { Drawer, Form, Input, Select, Button, DatePicker, Col, Row, Typography, Space } from "antd";
+import { Drawer, Form, Input, Select, Button, DatePicker, Col, Row, Typography, Space, Divider, Card, message, Tooltip } from "antd";
 import { WorkOrder, Technician, Location, ServiceCategory } from "@/types/supabase";
 import dayjs from 'dayjs';
 import { MapboxLocationSearchInput } from "./MapboxLocationSearchInput";
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { useSession } from "@/context/SessionContext";
-import { DiagnosticFlowInput } from "./DiagnosticFlowInput"; // Import the new component
+import BikeDiagnosisWizard from "./BikeDiagnosisWizard";
 
 const { Option } = Select;
 const { TextArea } = Input;
@@ -38,19 +38,37 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
 
   useEffect(() => {
     if (isOpen) {
-      const initialDiagnosisValue = workOrder?.initialDiagnosis || prefillData?.initialDiagnosis || ''; // Renamed from clientReport
+      const initialDiagnosisValue =
+        workOrder?.initialDiagnosis ??
+        prefillData?.initialDiagnosis ??
+        '';
+      // Merge workOrder (edit) and prefillData (create) for initial values
       form.setFieldsValue({
+        ...prefillData,
         ...workOrder,
-        slaDue: workOrder?.slaDue ? dayjs(workOrder.slaDue) : null,
+        vehicleId: workOrder?.vehicleId ?? prefillData?.vehicleId,
+        vehicleModel: workOrder?.vehicleModel ?? prefillData?.vehicleModel,
+        customerName: workOrder?.customerName ?? prefillData?.customerName,
+        customerPhone: workOrder?.customerPhone ?? prefillData?.customerPhone,
+        customerId: workOrder?.customerId ?? prefillData?.customerId,
+        slaDue: workOrder?.slaDue ? dayjs(workOrder.slaDue) : (prefillData?.slaDue ? dayjs(prefillData.slaDue as string) : null),
         appointmentDate: workOrder?.appointmentDate ? dayjs(workOrder.appointmentDate) : null,
-        customerAddress: workOrder?.customerAddress,
+        customerAddress: workOrder?.customerAddress ?? prefillData?.customerAddress,
         initialDiagnosis: initialDiagnosisValue, // Populate initialDiagnosis field
       });
       if (workOrder?.customerLat && workOrder?.customerLng) {
         setClientLocation({ lat: workOrder.customerLat, lng: workOrder.customerLng });
+      } else if (prefillData) {
+        type WithCoords = { customerLat?: number | null; customerLng?: number | null };
+        const pd = prefillData as WithCoords;
+        if (typeof pd.customerLat === 'number' && typeof pd.customerLng === 'number') {
+          setClientLocation({ lat: pd.customerLat, lng: pd.customerLng });
+        }
       }
       if (workOrder?.customerAddress) {
         setClientAddress(workOrder.customerAddress);
+      } else if (prefillData?.customerAddress) {
+        setClientAddress(prefillData.customerAddress);
       }
 
       // Determine if starting with diagnostic flow or manual input
@@ -71,18 +89,22 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
     form.setFieldsValue({ customerAddress: location.label });
   };
 
-  const handleDiagnosisComplete = (summary: string) => {
-    setGeneratedInitialDiagnosis(summary);
-    form.setFieldsValue({ initialDiagnosis: summary }); // Update form field with generated summary
-  };
 
   const handleSubmit = async () => {
     setLoading(true);
     try {
       const values = await form.validateFields();
-      const rawWorkOrderData: Partial<WorkOrder> = {
+      // Remove non-persistent frontend-only fields before sending to backend
+      const { initialDiagnosis: _omitInitialDiagnosis, ...restValues } = values;
+      // Only send valid backend fields. Map initialDiagnosis to service
+      const initialDiagnosisValue: string = (form.getFieldValue('initialDiagnosis')
+        || generatedInitialDiagnosis
+        || '')
+        .toString()
+        .trim();
+      const rawWorkOrderData: Partial<WorkOrder> & { client_report?: string | null } = {
         ...prefillData,
-        ...values,
+        ...restValues,
         slaDue: values.slaDue?.toISOString(),
         appointmentDate: values.appointmentDate ? values.appointmentDate.toISOString() : null,
         customerLat: clientLocation?.lat,
@@ -90,19 +112,17 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
         customerAddress: clientAddress,
         activityLog: workOrder?.activityLog || [{ timestamp: new Date().toISOString(), activity: 'Work order created.', userId: session?.user.id ?? null }],
         partsUsed: workOrder?.partsUsed || [],
-        initialDiagnosis: isDiagnosing ? generatedInitialDiagnosis : values.initialDiagnosis, // Use generated or manual report (renamed)
-        service: isDiagnosing ? generatedInitialDiagnosis : values.initialDiagnosis, // Keep for backward compatibility with old 'service' column (renamed)
+        client_report: initialDiagnosisValue || null,
       };
-      
       if (workOrder?.id) {
         rawWorkOrderData.id = workOrder.id;
       }
-
-      const { customerName, customerPhone, vehicleModel, ...workOrderToSave } = rawWorkOrderData;
-
+      const { customerName: _customerName, customerPhone: _customerPhone, vehicleModel: _vehicleModel, ...workOrderToSave } = rawWorkOrderData;
       onSave(workOrderToSave);
+      message.success('Work order saved successfully!');
       onClose();
     } catch (info) {
+      message.error('Please check the form for errors.');
       console.log('Validate Failed:', info);
     } finally {
       setLoading(false);
@@ -135,62 +155,167 @@ export const WorkOrderFormDrawer = ({ isOpen, onClose, onSave, workOrder, techni
       destroyOnClose 
       footer={
         <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-          <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>,
+          <Button key="cancel" onClick={onClose} disabled={loading}>Cancel</Button>
           <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save Work Order</Button>
         </Space>
       }
     >
       <Form form={form} layout="vertical" name="work_order_form">
-        <Row gutter={16}>
-          <Col span={24}><Text strong>Customer & Vehicle Details</Text></Col>
-          <Col xs={24} md={12}><Form.Item name="vehicleId" label="Vehicle ID"><Input disabled /></Form.Item></Col>
-          <Col xs={24} md={12}><Form.Item name="vehicleModel" label="Vehicle Model"><Input disabled /></Form.Item></Col>
-          <Col xs={24} md={12}><Form.Item name="customerName" label="Customer Name"><Input disabled /></Form.Item></Col>
-          <Col xs={24} md={12}><Form.Item name="customerPhone" label="Customer Phone"><Input disabled /></Form.Item></Col>
-          
-          <Col span={24} style={{ marginTop: 24 }}><Text strong>Service Details</Text></Col>
-          <Col span={24}>
-            <Form.Item label="Initial Diagnosis" required> {/* Changed label */}
-              {isDiagnosing ? (
-                <DiagnosticFlowInput 
-                  onDiagnosisComplete={handleDiagnosisComplete} 
-                  initialInitialDiagnosis={workOrder?.initialDiagnosis || prefillData?.initialDiagnosis} // Changed prop name
-                />
-              ) : (
-                <>
-                  <TextArea 
-                    rows={4} 
-                    placeholder="What is the initial diagnosis?" // Changed placeholder
-                    value={form.getFieldValue('initialDiagnosis')} // Changed field name
-                    onChange={(e) => {
-                      form.setFieldsValue({ initialDiagnosis: e.target.value }); // Changed field name
-                      setGeneratedInitialDiagnosis(e.target.value); // Keep generated report in sync for manual edits
-                    }}
-                  />
-                  <Button 
-                    type="link" 
-                    onClick={() => setIsDiagnosing(true)} 
-                    style={{ paddingLeft: 0, marginTop: 8 }}
-                  >
-                    Start Diagnostic Flow
-                  </Button>
-                </>
-              )}
+  <Card size="small" bordered={false} style={{ marginBottom: 24 }}>
+          <Divider orientation="left">Customer & Vehicle Details</Divider>
+          <Row gutter={16}>
+            <Col xs={24} md={12}>
+              <Form.Item name="vehicleId" label={<Tooltip title="Unique system ID for this vehicle (auto-filled)">Vehicle ID</Tooltip>}>
+                <Input disabled />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item name="vehicleModel" label={<Tooltip title="Make and model of the vehicle (auto-filled)">Vehicle Model</Tooltip>}>
+                <Input disabled />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item name="customerName" label={<Tooltip title="Name of the asset owner (auto-filled)">Customer Name</Tooltip>}>
+                <Input disabled />
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item name="customerPhone" label={<Tooltip title="Phone number of the asset owner (auto-filled)">Customer Phone</Tooltip>}>
+                <Input disabled />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Card>
+  <Card size="small" bordered={false} style={{ marginBottom: 24 }}>
+          <Divider orientation="left">Service Details</Divider>
+          <Row gutter={16}>
+            {/* Hidden field to register the initialDiagnosis in the Form store */}
+            <Form.Item name="initialDiagnosis" hidden>
+              <Input />
             </Form.Item>
-          </Col>
-          <Col span={24}><Form.Item name="service_category_id" label="Service Category" rules={[{ required: true }]}><Select showSearch placeholder="Select a service category">{serviceCategories.map(sc => <Option key={sc.id} value={sc.id}>{sc.name}</Option>)}</Select></Form.Item></Col>
-          <Col xs={24} md={8}><Form.Item name="status" label="Status" rules={[{ required: true }]}><Select><Option value="Open">Open</Option><Option value="Confirmation">Confirmation</Option><Option value="Ready">Ready</Option><Option value="In Progress">In Progress</Option><Option value="On Hold">On Hold</Option><Option value="Completed">Completed</Option></Select></Form.Item></Col>
-          <Col xs={24} md={8}><Form.Item name="priority" label="Priority" rules={[{ required: true }]}><Select><Option value="High">High</Option><Option value="Medium">Medium</Option><Option value="Low">Low</Option></Select></Form.Item></Col>
-          <Col xs={24} md={8}><Form.Item name="channel" label="Channel"><Select allowClear placeholder="Select a channel">{channelOptions.map(c => <Option key={c} value={c}>{c}</Option>)}</Select></Form.Item></Col>
-          <Col xs={24} md={12}><Form.Item name="locationId" label="Service Location" rules={[{ required: true }]}><Select>{locations.map(l => <Option key={l.id} value={l.id}>{l.name.replace(' Service Center', '')}</Option>)}</Select></Form.Item></Col>
-          <Col xs={24} md={12}><Form.Item name="customerAddress" label="Client Location (Optional)"><MapboxLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder?.customerAddress || ''} /></Form.Item></Col>
-
-          <Col span={24} style={{ marginTop: 24 }}><Text strong>Assignment & Scheduling</Text></Col>
-          <Col span={24}><Text type="secondary" style={{ marginBottom: 16, display: 'block' }}>Assign a technician OR schedule an appointment to move the work order to 'In Progress'.</Text></Col>
-          <Col xs={24} md={12}><Form.Item name="assignedTechnicianId" label="Assigned Technician"><Select allowClear>{technicians.map(t => <Option key={t.id} value={t.id}>{t.name}</Option>)}</Select></Form.Item></Col>
-          <Col xs={24} md={12}><Form.Item name="appointmentDate" label="Appointment Date"><DatePicker showTime style={{ width: '100%' }} /></Form.Item></Col>
-          <Col span={24}><Form.Item name="slaDue" label="SLA Due Date" rules={[{ required: true }]}><DatePicker showTime style={{ width: '100%' }} /></Form.Item></Col>
-        </Row>
+            <Col span={24}>
+              <Form.Item label="Initial Diagnosis" required>
+                {isDiagnosing ? (
+                  <BikeDiagnosisWizard onComplete={(summary) => {
+                    setGeneratedInitialDiagnosis(summary);
+                    form.setFieldsValue({ initialDiagnosis: summary });
+                    // Exit diagnosing mode after capturing the summary
+                    setIsDiagnosing(false);
+                  }} />
+                ) : (
+                  <>
+                    <TextArea 
+                      rows={4} 
+                      placeholder="What is the initial diagnosis?"
+                      value={form.getFieldValue('initialDiagnosis')}
+                      onChange={(e) => {
+                        form.setFieldsValue({ initialDiagnosis: e.target.value });
+                        setGeneratedInitialDiagnosis(e.target.value);
+                      }}
+                    />
+                    <Button 
+                      type="link" 
+                      onClick={() => setIsDiagnosing(true)} 
+                      style={{ paddingLeft: 0, marginTop: 8 }}
+                    >
+                      Start Diagnostic Flow
+                    </Button>
+                  </>
+                )}
+              </Form.Item>
+            </Col>
+            <Col span={24}>
+              <Form.Item 
+                name="service_category_id" 
+                label={<Tooltip title="Type of service or repair required">Service Category</Tooltip>} 
+                rules={[{ required: true, message: 'Please select a service category' }]}
+              >
+                <Select showSearch placeholder="Select a service category">
+                  {serviceCategories.map(sc => <Option key={sc.id} value={sc.id}>{sc.name}</Option>)}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item 
+                name="status" 
+                label={<Tooltip title="Current progress stage of the work order">Status</Tooltip>} 
+                rules={[{ required: true, message: 'Please select a status' }]}
+              >
+                <Select>
+                  <Option value="Open">Open</Option>
+                  <Option value="Confirmation">Confirmation</Option>
+                  <Option value="Ready">Ready</Option>
+                  <Option value="In Progress">In Progress</Option>
+                  <Option value="On Hold">On Hold</Option>
+                  <Option value="Completed">Completed</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item 
+                name="priority" 
+                label={<Tooltip title="How urgent is this work order?">Priority</Tooltip>} 
+                rules={[{ required: true, message: 'Please select a priority' }]}
+              >
+                <Select>
+                  <Option value="High">High</Option>
+                  <Option value="Medium">Medium</Option>
+                  <Option value="Low">Low</Option>
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={8}>
+              <Form.Item 
+                name="channel" 
+                label={<Tooltip title="How was this work order reported?">Channel</Tooltip>}
+              >
+                <Select allowClear placeholder="Select a channel">
+                  {channelOptions.map(c => <Option key={c} value={c}>{c}</Option>)}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item 
+                name="locationId" 
+                label={<Tooltip title="Where will the service be performed?">Service Location</Tooltip>} 
+                rules={[{ required: true, message: 'Please select a service location' }]}
+              >
+                <Select>
+                  {locations.map(l => <Option key={l.id} value={l.id}>{l.name.replace(' Service Center', '')}</Option>)}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col xs={24} md={12}>
+              <Form.Item 
+                name="customerAddress" 
+                label={<Tooltip title="Client's address for on-site service (optional)">Client Location (Optional)</Tooltip>}
+              >
+                <MapboxLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder?.customerAddress || prefillData?.customerAddress || ''} />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Card>
+  <Card size="small" bordered={false} style={{ marginBottom: 24 }}>
+          <Divider orientation="left">Assignment & Scheduling</Divider>
+          <Row gutter={16}>
+            <Col span={24}><Text type="secondary" style={{ marginBottom: 16, display: 'block' }}>Assign a technician OR schedule an appointment to move the work order to 'In Progress'.</Text></Col>
+            <Col xs={24} md={12}><Form.Item name="assignedTechnicianId" label="Assigned Technician"><Select allowClear>{technicians.map(t => <Option key={t.id} value={t.id}>{t.name}</Option>)}</Select></Form.Item></Col>
+            <Col xs={24} md={12}><Form.Item name="appointmentDate" label="Appointment Date">
+              <DatePicker 
+                showTime={{ format: 'HH', use12Hours: false, minuteStep: 30 }} 
+                format="YYYY-MM-DD HH"
+                style={{ width: '100%' }} 
+              />
+            </Form.Item></Col>
+            <Col span={24}><Form.Item name="slaDue" label="SLA Due Date" rules={[{ required: true }]}>
+              <DatePicker 
+                showTime={{ format: 'HH', use12Hours: false, minuteStep: 30 }} 
+                format="YYYY-MM-DD HH"
+                style={{ width: '100%' }} 
+              />
+            </Form.Item></Col>
+          </Row>
+        </Card>
       </Form>
     </Drawer>
   );

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Tag, Tooltip } from 'antd';
+import { Tooltip } from 'antd';
+import StatusChip from "@/components/StatusChip";
 import { Icon } from '@iconify/react'; // Using Iconify for the icon
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
@@ -24,7 +25,7 @@ const SlaCountdown = ({ slaDue, status, completedAt }: SlaCountdownProps) => {
   }, [status]);
 
   if (!slaDue) {
-    return <Tag>No SLA</Tag>;
+    return <StatusChip kind="custom" value="No SLA" color="#9CA3AF" />;
   }
 
   const dueDate = dayjs(slaDue);
@@ -35,13 +36,14 @@ const SlaCountdown = ({ slaDue, status, completedAt }: SlaCountdownProps) => {
       const wasOnTime = completionDate.isBefore(dueDate) || completionDate.isSame(dueDate);
       return (
         <Tooltip title={`Completed on ${completionDate.format('MMM D, YYYY h:mm A')}`}>
-          <Tag icon={<Icon icon="ph:check-circle-fill" />} color={wasOnTime ? "success" : "error"}>
-            {wasOnTime ? 'Completed On Time' : 'Completed Late'}
-          </Tag>
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+            <Icon icon="ph:check-circle-fill" />
+            <StatusChip kind="custom" value={wasOnTime ? 'Completed On Time' : 'Completed Late'} color={wasOnTime ? '#10B981' : '#EF4444'} />
+          </span>
         </Tooltip>
       );
     }
-    return <Tag icon={<Icon icon="ph:check-circle-fill" />} color="success">Completed</Tag>;
+    return <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Icon icon="ph:check-circle-fill" /><StatusChip kind="custom" value="Completed" color="#10B981" /></span>;
   }
 
   const diff = dueDate.diff(now); // Difference in milliseconds
@@ -81,9 +83,10 @@ const SlaCountdown = ({ slaDue, status, completedAt }: SlaCountdownProps) => {
 
   return (
     <Tooltip title={`Due on ${dueDate.format('MMM D, YYYY h:mm A')}`}>
-      <Tag icon={tagIcon} color={tagColor}>
-        {tagText}
-      </Tag>
+      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+        {tagIcon}
+        <StatusChip kind="custom" value={tagText} color={tagColor === 'processing' ? '#3B82F6' : tagColor === 'warning' ? '#F59E0B' : tagColor === 'error' ? '#EF4444' : '#9CA3AF'} />
+      </span>
     </Tooltip>
   );
 };

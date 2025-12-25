@@ -1,17 +1,19 @@
 import { useState, useMemo } from "react";
-import { Button, Typography, Space, Skeleton, Row, Col, Segmented, Input } from "antd";
+import { Button, Space, Skeleton, Segmented } from "antd";
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { LocationFormDialog } from "@/components/LocationFormDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Location, WorkOrder } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
+import { snakeToCamelCase, camelToSnakeCase } from "@/utils/data-helpers";
 import { LocationCard } from "@/components/LocationCard";
 import { LocationDataTable } from "@/components/LocationDataTable";
 import { useNavigate } from "react-router-dom";
-import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
+import AppBreadcrumb from "@/components/Breadcrumbs";
+import { TableFiltersBar } from "@/components/TableFiltersBar";
+import Fab from "@/components/Fab";
 
-const { Search } = Input;
 
 const LocationsPage = () => {
   const queryClient = useQueryClient();
@@ -26,7 +28,7 @@ const LocationsPage = () => {
     queryFn: async () => {
       const { data, error } = await supabase.from('locations').select('*').order('name');
       if (error) throw new Error(error.message);
-      return data || [];
+      return (data || []).map(location => snakeToCamelCase(location) as Location);
     }
   });
 
@@ -35,13 +37,13 @@ const LocationsPage = () => {
     queryFn: async () => {
       const { data, error } = await supabase.from('work_orders').select('*');
       if (error) throw new Error(error.message);
-      return data || [];
+      return (data || []).map(workOrder => snakeToCamelCase(workOrder) as WorkOrder);
     }
   });
 
   const locationMutation = useMutation({
     mutationFn: async (locationData: Partial<Location>) => {
-      const { error } = await supabase.from('locations').upsert(locationData);
+      const { error } = await supabase.from('locations').upsert(camelToSnakeCase(locationData));
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
@@ -92,14 +94,24 @@ const LocationsPage = () => {
 
   const isLoading = isLoadingLocations || isLoadingWorkOrders;
 
+  // Filter chips for search term
+  const filterChips = searchTerm
+    ? [{ label: `Search: ${searchTerm}`, onClose: () => setSearchTerm("") }]
+    : [];
+
+  const handleClearAll = () => {
+    setSearchTerm("");
+  };
+
   const pageActions = (
     <Space size="middle" align="center">
-      <Search
+      <TableFiltersBar
+        compact
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        filterChips={filterChips}
+        onClearAll={handleClearAll}
         placeholder="Search locations..."
-        onSearch={setSearchTerm}
-        onChange={(e) => !e.target.value && setSearchTerm("")}
-        style={{ width: 250 }}
-        allowClear
       />
       <Segmented
         options={[
@@ -109,7 +121,7 @@ const LocationsPage = () => {
         value={view}
         onChange={(value) => setView(value as 'card' | 'list')}
       />
-      <Button type="primary" icon={<Icon icon="ph:plus-fill" />} onClick={() => { setEditingLocation(null); setIsDialogOpen(true); }}>
+  <Button className="primary-action-btn" type="primary" icon={<Icon icon="ant-design:plus-outlined" width={16} height={16} />} onClick={() => { setEditingLocation(null); setIsDialogOpen(true); }}>
         Add Location
       </Button>
     </Space>
@@ -117,20 +129,20 @@ const LocationsPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Breadcrumbs actions={pageActions} />
+  <AppBreadcrumb actions={pageActions} />
       
       {isLoading ? <Skeleton active /> : (
         view === 'card' ? (
-          <Row gutter={[16, 16]}>
+          <div className="card-grid">
             {filteredLocations.map(loc => (
-              <Col key={loc.id} xs={24} sm={12} md={8} lg={6} onClick={() => handleCardClick(loc)}>
+              <div key={loc.id} className="tap-target" onClick={() => handleCardClick(loc)}>
                 <LocationCard 
                   location={loc}
                   workOrders={workOrders || []}
                 />
-              </Col>
+              </div>
             ))}
-          </Row>
+          </div>
         ) : (
           <LocationDataTable
             locations={filteredLocations}
@@ -149,6 +161,11 @@ const LocationsPage = () => {
           location={editingLocation}
         />
       )}
+
+      {/* Mobile FAB for quick add */}
+      <div className="hide-on-desktop">
+        <Fab label="Add Location" onClick={() => { setEditingLocation(null); setIsDialogOpen(true); }} />
+      </div>
     </Space>
   );
 };

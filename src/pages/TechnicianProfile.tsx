@@ -1,5 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { Avatar, Card, Col, Row, Typography, Tag, Descriptions, Table, Button, Space, Skeleton, Statistic, Select } from "antd";
+import { Avatar, Card, Col, Row, Typography, Descriptions, Table, Button, Space, Skeleton, Statistic, Select } from "antd";
+import StatusChip from "@/components/StatusChip";
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import dayjs from "dayjs";
 import NotFound from "./NotFound";
@@ -7,7 +8,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Technician, WorkOrder, Location, Vehicle } from "@/types/supabase";
 import { useMemo } from "react";
-import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
+import AppBreadcrumb from "@/components/Breadcrumbs";
 import { useSession } from "@/context/SessionContext"; // Import useSession
 import { showSuccess, showError } from "@/utils/toast"; // Import toast utilities
 import { camelToSnakeCase, snakeToCamelCase } from "@/utils/data-helpers"; // Import camelToSnakeCase and snakeToCamelCase
@@ -15,9 +16,9 @@ import { camelToSnakeCase, snakeToCamelCase } from "@/utils/data-helpers"; // Im
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-const statusColorMap: Record<string, string> = { available: 'success', busy: 'warning', offline: 'default' };
+// const statusColorMap: Record<string, string> = { available: 'success', busy: 'warning', offline: 'default' };
 const statusTextMap: Record<string, string> = { available: 'Available', busy: 'Busy', offline: 'Offline' };
-const priorityColors: Record<string, string> = { High: "red", Medium: "gold", Low: "green" };
+// const priorityColors: Record<string, string> = { High: "red", Medium: "gold", Low: "green" };
 
 const TechnicianProfilePage = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,7 +33,11 @@ const TechnicianProfilePage = () => {
       if (!id) return null;
       const { data, error } = await supabase.from('technicians').select('*').eq('id', id).single();
       if (error) throw new Error(error.message);
-      return snakeToCamelCase(data) as Technician; // Apply snakeToCamelCase
+      // Apply snakeToCamelCase but preserve certain snake_case fields used elsewhere
+      const transformed = snakeToCamelCase(data) as any;
+      if (data.location_id !== undefined) transformed.location_id = data.location_id;
+      if ((data as any).join_date !== undefined) transformed.join_date = (data as any).join_date;
+      return transformed as Technician;
     },
     enabled: !!id,
   });
@@ -109,7 +114,9 @@ const TechnicianProfilePage = () => {
     return <NotFound />;
   }
 
-  const assignedLocation = locations?.find(loc => loc.id === technician.location_id);
+  // Resolve location id from either snake_case or camelCase to be robust
+  const techLocId = (technician as any).location_id ?? (technician as any).locationId ?? null;
+  const assignedLocation = locations?.find(loc => loc.id === techLocId);
   const isCurrentUserTechnician = currentUserId === technician.id;
 
   const workOrderColumns = [
@@ -118,7 +125,7 @@ const TechnicianProfilePage = () => {
         const vehicle = vehicles?.find(v => v.id === vehicleId);
         return vehicle ? `${vehicle.make} ${vehicle.model}` : 'N/A';
     }},
-    { title: 'Priority', dataIndex: 'priority', render: (priority: string) => <Tag color={priorityColors[priority]}>{priority}</Tag> },
+    { title: 'Priority', dataIndex: 'priority', render: (priority: string) => <StatusChip kind="priority" value={priority} /> },
     { title: 'Location', dataIndex: 'locationId', render: (locId: string) => locations?.find(l => l.id === locId)?.name?.replace(' Service Center', '') || 'N/A' },
     { title: 'Due Date', dataIndex: 'slaDue', render: (date: string) => dayjs(date).format('MMM D, YYYY') },
   ];
@@ -129,7 +136,7 @@ const TechnicianProfilePage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <Breadcrumbs backButton={backButton} />
+  <AppBreadcrumb backButton={backButton} />
         {performanceMetrics && (
           <Row gutter={[16, 16]}>
             <Col xs={24} sm={12} lg={6}><Card><Statistic title="Completed Jobs" value={performanceMetrics.totalCompleted} prefix={<Icon icon="ph:wrench-fill" />} /></Card></Col>
@@ -140,7 +147,7 @@ const TechnicianProfilePage = () => {
         )}
         <Row gutter={[16, 16]}>
             <Col xs={24} md={8}>
-                <Card>
+                <Card size="small">
                     <div style={{ textAlign: 'center', marginBottom: 24 }}>
                         <Avatar size={128} src={technician.avatar || undefined}>{technician.name.split(' ').map(n => n[0]).join('')}</Avatar>
                         <Title level={4} style={{ marginTop: 16 }}>{technician.name}</Title>
@@ -151,15 +158,15 @@ const TechnicianProfilePage = () => {
                             style={{ width: 120, marginTop: 8 }}
                             loading={updateTechnicianStatusMutation.isPending}
                           >
-                            <Option value="available"><Tag color={statusColorMap["available"]}>Available</Tag></Option>
-                            <Option value="busy"><Tag color={statusColorMap["busy"]}>Busy</Tag></Option>
-                            <Option value="offline"><Tag color={statusColorMap["offline"]}>Offline</Tag></Option>
+                            <Option value="available"><StatusChip kind="tech" value="Available" /></Option>
+                            <Option value="busy"><StatusChip kind="tech" value="Busy" /></Option>
+                            <Option value="offline"><StatusChip kind="tech" value="Offline" /></Option>
                           </Select>
                         ) : (
-                          <Tag color={statusColorMap[technician.status || 'offline']} style={{ marginTop: 8 }}>{statusTextMap[technician.status || 'offline']}</Tag>
+                          <div style={{ marginTop: 8 }}><StatusChip kind="tech" value={statusTextMap[technician.status || 'offline']} /></div>
                         )}
                     </div>
-                    <Descriptions column={1} bordered>
+                    <Descriptions column={1} bordered size="small">
                         <Descriptions.Item label={<><Icon icon="ph:envelope-fill" /> Email</>}><a href={`mailto:${technician.email}`}>{technician.email}</a></Descriptions.Item>
                         <Descriptions.Item label={<><Icon icon="ph:phone-fill" /> Phone</>}><a href={`tel:${technician.phone}`}>{technician.phone}</a></Descriptions.Item>
                         <Descriptions.Item label={<><Icon icon="ph:wrench-fill" /> Specialization</>}>{technician.specializations?.join(', ') || 'N/A'}</Descriptions.Item>
@@ -170,7 +177,12 @@ const TechnicianProfilePage = () => {
                             <Text type="secondary">Not Assigned</Text>
                           )}
                         </Descriptions.Item>
-                        <Descriptions.Item label={<><Icon icon="ph:calendar-fill" /> Member Since</>}>{dayjs(technician.join_date).format('MMMM YYYY')}</Descriptions.Item>
+                        <Descriptions.Item label={<><Icon icon="ph:calendar-fill" /> Member Since</>}>
+                          {(() => {
+                            const jd = (technician as any).join_date ?? (technician as any).joinDate ?? null;
+                            return jd ? dayjs(jd).format('MMMM YYYY') : 'N/A';
+                          })()}
+                        </Descriptions.Item>
                     </Descriptions>
                 </Card>
             </Col>

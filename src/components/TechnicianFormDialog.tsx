@@ -1,7 +1,8 @@
+import { v4 as uuidv4 } from 'uuid';
 import { useEffect, useState } from "react";
-import { Drawer, Form, Input, Select, Button, DatePicker, Space } from "antd";
+import { Drawer, Form, Input, Select, Button, Space } from "antd";
 import { Technician, Location } from "@/types/supabase";
-import dayjs from 'dayjs';
+
 
 const { Option } = Select;
 
@@ -20,11 +21,12 @@ export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician, loca
   useEffect(() => {
     if (isOpen) {
       if (technician) {
-        form.setFieldsValue({
+        const formData = {
           ...technician,
-          join_date: technician.join_date ? dayjs(technician.join_date) : null, // Use join_date
+          // join_date removed
           specializations: technician.specializations || [], // Use specializations array
-        });
+        };
+        form.setFieldsValue(formData);
       } else {
         form.resetFields();
       }
@@ -36,15 +38,23 @@ export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician, loca
     try {
       const values = await form.validateFields();
       const technicianToSave: Technician = {
-        id: technician?.id,
-        ...values,
-        join_date: values.join_date.toISOString(), // Use join_date
-        specializations: values.specializations || [], // Ensure specializations is an array
+        id: technician?.id || uuidv4(),
+        name: values.name,
+        avatar: values.avatar ?? null,
+        status: values.status ?? 'available',
+        email: values.email ?? '',
+        phone: values.phone ?? '',
+        specializations: values.specializations || [],
+        lat: values.lat ?? null,
+        lng: values.lng ?? null,
+        max_concurrent_orders: values.max_concurrent_orders ?? null,
+        location_id: values.location_id ?? null,
+        created_at: values.created_at ?? undefined,
+        updated_at: values.updated_at ?? undefined,
       };
-      
       onSave(technicianToSave);
-      onClose();
     } catch (info) {
+      // Just log info; error message for join_date is handled above
       console.log('Validate Failed:', info);
     } finally {
       setLoading(false);
@@ -97,9 +107,7 @@ export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician, loca
             <Option value="Diagnostics">Diagnostics</Option>
           </Select>
         </Form.Item>
-        <Form.Item name="join_date" label="Join Date" rules={[{ required: true, message: 'Please select a join date!' }]}> {/* Use join_date */}
-          <DatePicker style={{ width: '100%' }} />
-        </Form.Item>
+        {/* join_date field removed */}
       </Form>
     </Drawer>
   );

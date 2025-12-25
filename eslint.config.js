@@ -23,7 +23,12 @@ export default tseslint.config(
         "warn",
         { allowConstantExport: true },
       ],
-      "@typescript-eslint/no-unused-vars": "off",
+      // So we can iterate towards stricter typing without blocking builds
+      "@typescript-eslint/no-explicit-any": "off",
+      // Keep as a warning to surface issues without failing CI
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
+      // Allow sharing constants within files that also export components
+      "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
     },
   },
 );

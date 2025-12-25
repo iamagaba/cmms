@@ -27,6 +27,7 @@ export const getColumns = (
   {
     title: "Actions",
     key: "actions",
+    width: 80,
     align: "right" as const,
     render: (_: any, record: LocationRow) => (
       <Dropdown

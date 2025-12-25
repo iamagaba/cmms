@@ -2,18 +2,19 @@ import React, { useMemo } from 'react';
 import { Typography, Tooltip, Space, Card, Empty } from 'antd';
 import dayjs, { Dayjs } from 'dayjs';
 import weekOfYear from 'dayjs/plugin/weekOfYear';
+import isoWeek from 'dayjs/plugin/isoWeek';
 import isBetween from 'dayjs/plugin/isBetween';
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'; // Import the plugin
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'; // Import the plugin
+import isSameOrBefore from 'dayjs/plugin/isSameOrBefore';
+import isSameOrAfter from 'dayjs/plugin/isSameOrAfter';
 import { WorkOrder, Vehicle } from '@/types/supabase';
-import { Icon } from '@iconify/react';
 
 dayjs.extend(weekOfYear);
+dayjs.extend(isoWeek);
 dayjs.extend(isBetween);
-dayjs.extend(isSameOrBefore); // Extend dayjs with the plugin
-dayjs.extend(isSameOrAfter); // Extend dayjs with the plugin
+dayjs.extend(isSameOrBefore);
+dayjs.extend(isSameOrAfter);
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 interface AssetRepairHistoryTimelineProps {
   workOrders: WorkOrder[];
@@ -81,7 +82,7 @@ export const AssetRepairHistoryTimeline: React.FC<AssetRepairHistoryTimelineProp
     workOrders.forEach(wo => {
       const woDate = dayjs(wo.created_at);
       const weekKey = woDate.startOf('week').format('YYYY-WW');
-      if (weeklyData.hasOwnProperty(weekKey)) {
+      if (Object.prototype.hasOwnProperty.call(weeklyData, weekKey)) {
         weeklyData[weekKey]++;
       }
     });
@@ -99,14 +100,6 @@ export const AssetRepairHistoryTimeline: React.FC<AssetRepairHistoryTimelineProp
 
     return result;
   }, [workOrders, vehicle]);
-
-  if (!timelineData.length) {
-    return (
-      <Card title="Repair Activity Timeline" style={{ marginBottom: 16 }}>
-        <Empty description="No repair history available for this asset." image={Empty.PRESENTED_IMAGE_SIMPLE} />
-      </Card>
-    );
-  }
 
   // Determine month/year markers for the timeline
   const monthMarkers = useMemo(() => {
@@ -130,7 +123,10 @@ export const AssetRepairHistoryTimeline: React.FC<AssetRepairHistoryTimelineProp
   }, [timelineData]);
 
   return (
-    <Card title="Repair Activity Timeline" style={{ marginBottom: 16 }}>
+  <Card size="small" title="Repair Activity Timeline" style={{ marginBottom: 16 }}>
+      {timelineData.length === 0 ? (
+        <Empty description="No repair history available for this asset." image={Empty.PRESENTED_IMAGE_SIMPLE} />
+      ) : (
       <div className="relative w-full overflow-x-auto hide-scrollbar pb-4">
         <div className="flex items-end" style={{ minWidth: `${timelineData.length * 20}px` }}> {/* Adjust minWidth based on number of weeks */}
           {timelineData.map((data, index) => (
@@ -163,6 +159,7 @@ export const AssetRepairHistoryTimeline: React.FC<AssetRepairHistoryTimelineProp
           ))}
         </div>
       </div>
+      )}
       {/* Legend */}
       <div className="mt-4 flex flex-wrap gap-4 items-center">
         <Text strong>Health Legend:</Text>

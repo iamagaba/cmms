@@ -1,7 +1,7 @@
-import { Card, List, Tag, Typography, Space, Avatar, Empty } from 'antd';
+import { Card, List, Typography, Space, Avatar, Empty, theme } from 'antd';
+import StatusChip from "@/components/StatusChip";
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { WorkOrder, Technician, Vehicle } from '@/types/supabase';
-import { Link } from 'react-router-dom';
 import { formatDistanceToNow, isPast } from 'date-fns';
 import React from 'react'; // Import React for useMemo
 
@@ -14,6 +14,7 @@ interface UrgentWorkOrdersProps {
 }
 
 const UrgentWorkOrders = ({ workOrders, technicians, vehicles }: UrgentWorkOrdersProps) => {
+  const { token } = theme.useToken();
   const now = new Date();
   const twentyFourHoursFromNow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
 
@@ -31,21 +32,21 @@ const UrgentWorkOrders = ({ workOrders, technicians, vehicles }: UrgentWorkOrder
 
   const cardTitle = (
     <Space>
-      <Icon icon="ph:warning-fill" style={{ color: '#faad14' }} />
+      <Icon icon="ph:warning-fill" style={{ color: token.colorWarning }} />
       <Text>Urgent Work Orders</Text>
     </Space>
   );
 
   if (urgentOrders.length === 0) {
     return (
-      <Card title={cardTitle} style={{ height: '100%' }}>
+  <Card size="small" title={cardTitle} style={{ height: '100%' }}>
         <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No urgent work orders" />
       </Card>
     );
   }
 
   return (
-    <Card title={cardTitle} style={{ height: '100%' }}>
+  <Card size="small" title={cardTitle} style={{ height: '100%' }}>
       <List
         itemLayout="horizontal"
         dataSource={urgentOrders}
@@ -84,9 +85,7 @@ const UrgentWorkOrders = ({ workOrders, technicians, vehicles }: UrgentWorkOrder
                 }
               />
               <div style={{ textAlign: 'right' }}>
-                <Tag color={isOverdue ? 'error' : 'warning'}>
-                  {isOverdue ? 'Overdue' : 'Due Soon'}
-                </Tag>
+                <StatusChip kind="custom" value={isOverdue ? 'Overdue' : 'Due Soon'} color={isOverdue ? token.colorError : token.colorWarning} />
                 <br />
                 <Text type="secondary" style={{ fontSize: 12 }}>
                   {formatDistanceToNow(dueDate, { addSuffix: true })}

@@ -1,25 +1,18 @@
-import { Avatar, Button, Dropdown, Menu, Tag, Typography, Select, Space } from "antd";
+import { Avatar, Button, Dropdown, Menu, Typography, Select, Tag } from "antd";
+import StatusChip from "@/components/StatusChip";
 import { Icon } from '@iconify/react';
 import { Technician } from "@/types/supabase";
 import { Link } from "react-router-dom";
-import { useSession } from "@/context/SessionContext"; // Import useSession
-import { useQuery } from "@tanstack/react-query"; // Import useQuery
-import { supabase } from "@/integrations/supabase/client"; // Import supabase client
 import { Profile } from "@/types/supabase"; // Import Profile type
-import { snakeToCamelCase } from "@/utils/data-helpers"; // Import snakeToCamelCase
 
 const { Text } = Typography;
 const { Option } = Select;
 
 export type TechnicianRow = Technician & {
   openTasks: number;
+  location?: { name: string } | null;
 };
 
-const statusColorMap: Record<string, string> = {
-  available: 'success',
-  busy: 'warning',
-  offline: 'default',
-};
 
 const statusTextMap: Record<string, string> = {
     available: 'Available',
@@ -31,29 +24,16 @@ interface GetColumnsProps {
   onEdit: (record: TechnicianRow) => void;
   onDelete: (record: TechnicianRow) => void;
   onUpdateStatus: (id: string, status: Technician['status']) => void; // New prop for status update
+  currentUserProfile?: Profile | null; // pass profile from caller instead of using hooks here
 }
 
 export const getColumns = ({
   onEdit,
   onDelete,
   onUpdateStatus,
+  currentUserProfile,
 }: GetColumnsProps) => {
-  const { session } = useSession();
-  const currentUserId = session?.user?.id;
-
-  const { data: userProfile, isLoading: isLoadingProfile } = useQuery<Profile | null>({
-    queryKey: ['userProfile', currentUserId],
-    queryFn: async () => {
-      if (!currentUserId) return null;
-      // Select all fields to match the Profile type
-      const { data, error } = await supabase.from('profiles').select('*').eq('id', currentUserId).single();
-      if (error) throw new Error(error.message);
-      return data;
-    },
-    enabled: !!currentUserId,
-  });
-
-  const isAdmin = userProfile?.is_admin;
+  const isAdmin = !!currentUserProfile?.is_admin;
 
   return [
     {
@@ -82,20 +62,25 @@ export const getColumns = ({
               bordered={false}
               size="small"
               onClick={(e) => e.stopPropagation()} // Prevent row click
-            >
-              <Option value="available"><Tag color={statusColorMap["available"]}>Available</Tag></Option>
-              <Option value="busy"><Tag color={statusColorMap["busy"]}>Busy</Tag></Option>
-              <Option value="offline"><Tag color={statusColorMap["offline"]}>Offline</Tag></Option>
+              >
+              <Option value="available"><StatusChip kind="tech" value="Available" /></Option>
+              <Option value="busy"><StatusChip kind="tech" value="Busy" /></Option>
+              <Option value="offline"><StatusChip kind="tech" value="Offline" /></Option>
             </Select>
           );
         }
-        return <Tag color={statusColorMap[status || 'offline']}>{statusTextMap[status || 'offline']}</Tag>;
+        return <StatusChip kind="tech" value={statusTextMap[status || 'offline']} />;
       }
     },
     {
       title: "Open Tasks",
       dataIndex: "openTasks",
       sorter: (a: TechnicianRow, b: TechnicianRow) => a.openTasks - b.openTasks,
+    },
+    {
+      title: "Location",
+      dataIndex: "location",
+      render: (location: { name: string } | null) => location ? location.name : 'No location assigned',
     },
     {
       title: "Specializations", // Changed title
@@ -105,8 +90,9 @@ export const getColumns = ({
     {
       title: "Actions",
       key: "actions",
+      width: 80,
       align: "right" as const,
-      render: (_: any, record: TechnicianRow) => (
+      render: (_: unknown, record: TechnicianRow) => (
         <Dropdown
           overlay={
             <Menu>

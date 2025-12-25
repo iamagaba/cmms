@@ -1,13 +1,12 @@
 import React from 'react';
-import { Card, Descriptions, Select, Button, Empty, Typography, Space } from 'antd';
+import { Card, Descriptions, Select, Button, Empty } from 'antd';
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { WorkOrder, Location } from '@/types/supabase';
 import { MapboxLocationSearchInput } from '@/components/MapboxLocationSearchInput';
 import { MapboxDisplayMap } from '@/components/MapboxDisplayMap';
-import { calculateDistance } from '@/utils/geo-helpers';
 import mapboxgl from 'mapbox-gl';
 
-const { Text } = Typography;
+// const { Text } = Typography;
 const { Option } = Select;
 
 interface WorkOrderLocationMapCardProps {
@@ -51,8 +50,8 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
   // so we remove the local calculation and Descriptions.Item for it.
 
   return (
-    <Card title="Location Details">
-      <Descriptions column={1} bordered> {/* Added bordered prop here */}
+    <Card size="small" title="Location Details">
+      <Descriptions column={1} bordered size="small"> {/* Added bordered prop here */}
         <Descriptions.Item label={<><Icon icon="ph:map-pin-fill" /> Service Location</>} labelStyle={{ width: '150px' }}>
           <Select
             value={workOrder.locationId}

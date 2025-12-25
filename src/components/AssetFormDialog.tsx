@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { v4 as uuidv4 } from 'uuid';
 import { Drawer, Form, Input, Select, Button, InputNumber, DatePicker, Row, Col, Space } from "antd";
 import { Vehicle, Customer } from "@/types/supabase";
 import dayjs from 'dayjs';
@@ -36,7 +37,7 @@ export const AssetFormDialog = ({ isOpen, onClose, onSave, vehicle, customers }:
     try {
       const values = await form.validateFields();
       const vehicleToSave: Partial<Vehicle> = {
-        id: vehicle?.id,
+        id: vehicle?.id || uuidv4(),
         ...values,
         date_of_manufacture: values.date_of_manufacture ? values.date_of_manufacture.toISOString() : null,
         release_date: values.release_date ? values.release_date.toISOString() : null,
@@ -86,8 +87,12 @@ export const AssetFormDialog = ({ isOpen, onClose, onSave, vehicle, customers }:
           <Col span={12}><Form.Item name="vin" label="VIN / Chassis Number" rules={[{ required: true }]}><Input placeholder="Vehicle Identification Number" /></Form.Item></Col>
           <Col span={12}><Form.Item name="motor_number" label="Motor Number"><Input placeholder="Motor serial number" /></Form.Item></Col>
           <Col span={24}><Form.Item name="mileage" label="Mileage / Total KMs"><InputNumber style={{ width: '100%' }} placeholder="e.g. 50000" formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')} parser={value => value!.replace(/\$\s?|(,*)/g, '')} /></Form.Item></Col>
-          <Col span={12}><Form.Item name="date_of_manufacture" label="Date of Manufacture"><DatePicker style={{ width: '100%' }} /></Form.Item></Col>
-          <Col span={12}><Form.Item name="release_date" label="Release Date to Customer"><DatePicker style={{ width: '100%' }} /></Form.Item></Col>
+          <Col span={12}><Form.Item name="date_of_manufacture" label="Date of Manufacture">
+            <DatePicker showTime={{ format: 'HH', use12Hours: false, minuteStep: 60 }} format="YYYY-MM-DD HH" style={{ width: '100%' }} />
+          </Form.Item></Col>
+          <Col span={12}><Form.Item name="release_date" label="Release Date to Customer">
+            <DatePicker showTime={{ format: 'HH', use12Hours: false, minuteStep: 60 }} format="YYYY-MM-DD HH" style={{ width: '100%' }} />
+          </Form.Item></Col>
         </Row>
       </Form>
     </Drawer>

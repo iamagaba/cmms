@@ -1,10 +1,12 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Drawer, Button, Spin, Row, Col, Card, Typography, List, Tag, Empty, AutoComplete, Space } from 'antd';
+import { Drawer, Button, Spin, Row, Col, Card, Typography, List, Empty, AutoComplete, Space } from 'antd';
 import { supabase } from '@/integrations/supabase/client';
 import { Vehicle, Customer, WorkOrder } from '@/types/supabase';
 import { showError } from '@/utils/toast';
 import { Link } from 'react-router-dom';
 import debounce from 'lodash.debounce';
+import StatusChip from '@/components/StatusChip';
+import { snakeToCamelCase } from '@/utils/data-helpers';
 
 const { Title, Text } = Typography;
 
@@ -56,7 +58,8 @@ export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed, initialVehic
         .order('created_at', { ascending: false });
 
       if (woError) throw woError;
-      setExistingWorkOrders(woData || []);
+      // Normalize to camelCase so render below can safely access workOrderNumber/status
+      setExistingWorkOrders(((woData || []).map(snakeToCamelCase)) as WorkOrder[]);
     } catch (error: any) {
       showError(error.message);
     } finally {
@@ -170,7 +173,7 @@ export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed, initialVehic
         <div style={{ marginTop: 24 }}>
           <Row gutter={24}>
             <Col xs={24} md={10}>
-              <Card>
+              <Card size="small">
                 <Title level={5}>Vehicle Selected</Title>
                 <Text strong>{selectedVehicle.year} {selectedVehicle.make} {selectedVehicle.model}</Text><br/>
                 <Text type="secondary">VIN: {selectedVehicle.vin}</Text><br/>
@@ -179,20 +182,42 @@ export const CreateWorkOrderDialog = ({ isOpen, onClose, onProceed, initialVehic
               </Card>
             </Col>
             <Col xs={24} md={14}>
-              <Card>
+              <Card size="small">
                 <Title level={5}>Existing Work Orders ({existingWorkOrders.length})</Title>
                 {isLoading ? <Spin /> : existingWorkOrders.length > 0 ? (
                   <List
-                    dataSource={existingWorkOrders}
-                    renderItem={item => (
-                      <List.Item>
-                        <List.Item.Meta
-                          title={<Link to={`/work-orders/${item.id}`} target="_blank" rel="noopener noreferrer">{item.workOrderNumber}</Link>}
-                          description={item.service}
-                        />
-                        <Tag>{item.status}</Tag>
-                      </List.Item>
-                    )}
+                    dataSource={[...existingWorkOrders].sort((a, b) => new Date(b.created_at!).getTime() - new Date(a.created_at!).getTime())}
+                    renderItem={item => {
+                      // Calculate age
+                      const created = item.created_at ? new Date(item.created_at) : null;
+                      let age = '';
+                      if (created) {
+                        const now = new Date();
+                        const diffMs = now.getTime() - created.getTime();
+                        const diffMins = Math.floor(diffMs / 60000);
+                        if (diffMins < 60) {
+                          age = `${diffMins} min${diffMins !== 1 ? 's' : ''} ago`;
+                        } else if (diffMins < 60 * 24) {
+                          const hours = Math.floor(diffMins / 60);
+                          age = `${hours} hour${hours !== 1 ? 's' : ''} ago`;
+                        } else {
+                          const days = Math.floor(diffMins / (60 * 24));
+                          age = `${days} day${days !== 1 ? 's' : ''} ago`;
+                        }
+                      }
+                      return (
+                        <List.Item>
+                          <List.Item.Meta
+                            title={<Link to={`/work-orders/${item.id}`} target="_blank" rel="noopener noreferrer">{item.workOrderNumber}</Link>}
+                            description={<>
+                              {item.service}
+                              {age && <span style={{ marginLeft: 12, color: '#888' }}>• {age}</span>}
+                            </>}
+                          />
+                          <StatusChip kind="status" value={item.status || 'Open'} />
+                        </List.Item>
+                      );
+                    }}
                   />
                 ) : (
                   <Empty description="No existing work orders found for this vehicle." />

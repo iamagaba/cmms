@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, ReactNode, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,13 +20,23 @@ interface SystemSettingsContextType {
 const SystemSettingsContext = createContext<SystemSettingsContextType | undefined>(undefined);
 
 export const SystemSettingsProvider = ({ children }: { children: ReactNode }) => {
-  const { data: settingsData, isLoading } = useQuery<SystemSetting[]>({
+  const { data: settingsData, isLoading, error } = useQuery<SystemSetting[]>({
     queryKey: ['system_settings'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('system_settings').select('key, value');
-      if (error) throw new Error(error.message);
-      return data || [];
+      try {
+        const { data, error } = await supabase.from('system_settings').select('key, value');
+        if (error) {
+          console.warn('System settings table not found or not accessible:', error.message);
+          return [];
+        }
+        return data || [];
+      } catch (err) {
+        console.warn('Failed to load system settings:', err);
+        return [];
+      }
     },
+    retry: 1, // Only retry once
+    retryDelay: 1000, // Wait 1 second before retry
   });
 
   const settings = useMemo(() => {
@@ -36,8 +47,14 @@ export const SystemSettingsProvider = ({ children }: { children: ReactNode }) =>
     }, {} as SystemSettings);
   }, [settingsData]);
 
+  // Don't block rendering if system settings fail to load
+  const contextValue = useMemo(() => ({
+    settings,
+    isLoading: isLoading && !error // Don't show loading if there's an error
+  }), [settings, isLoading, error]);
+
   return (
-    <SystemSettingsContext.Provider value={{ settings, isLoading }}>
+    <SystemSettingsContext.Provider value={contextValue}>
       {children}
     </SystemSettingsContext.Provider>
   );

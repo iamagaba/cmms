@@ -1,16 +1,18 @@
 import { useState } from "react";
-import { Button, Typography, Space, Skeleton, Row, Col, Input } from "antd";
+import { Button, Space, Skeleton } from "antd";
 import { Icon } from '@iconify/react'; // Import Icon from Iconify
 import { AssetDataTable } from "@/components/AssetDataTable";
+import { TableFiltersBar } from "@/components/TableFiltersBar";
+// uuid import for SSR/ESM compatibility (already used in AssetFormDialog)
 import { AssetFormDialog } from "@/components/AssetFormDialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Vehicle, Customer } from "@/types/supabase";
 import { showSuccess, showError } from "@/utils/toast";
-import { camelToSnakeCase } from "@/utils/data-helpers";
-import Breadcrumbs from "@/components/Breadcrumbs"; // Import Breadcrumbs
+import { camelToSnakeCase, snakeToCamelCase } from "@/utils/data-helpers";
+import AppBreadcrumb from "@/components/Breadcrumbs";
+// Removed custom primary button style to match Customers page buttons
 
-const { Search } = Input;
 
 const AssetsPage = () => {
   const queryClient = useQueryClient();
@@ -27,7 +29,8 @@ const AssetsPage = () => {
       }
       const { data, error } = await query.order('license_plate');
       if (error) throw new Error(error.message);
-      return data || [];
+      // Keep snake_case keys to match table columns and form field names
+      return (data || []) as Vehicle[];
     }
   });
 
@@ -36,7 +39,7 @@ const AssetsPage = () => {
     queryFn: async () => {
       const { data, error } = await supabase.from('customers').select('*');
       if (error) throw new Error(error.message);
-      return data || [];
+      return (data || []).map(customer => snakeToCamelCase(customer) as Customer);
     }
   });
 
@@ -81,16 +84,23 @@ const AssetsPage = () => {
 
   const isLoading = isLoadingVehicles || isLoadingCustomers;
 
+  // Filter chips for search term
+  const filterChips = searchTerm
+    ? [{ label: `Search: ${searchTerm}`, onClose: () => setSearchTerm("") }]
+    : [];
+
+  const handleClearAll = () => {
+    setSearchTerm("");
+  };
+
   const pageActions = (
     <Space size="middle" align="center">
-      <Search
-        placeholder="Search assets..."
-        onSearch={setSearchTerm}
-        onChange={(e) => !e.target.value && setSearchTerm("")}
-        style={{ width: 250 }}
-        allowClear
-      />
-      <Button type="primary" icon={<Icon icon="ph:plus-fill" />} onClick={() => { setEditingVehicle(null); setIsDialogOpen(true); }}>
+      <Button
+        className="primary-action-btn"
+        type="primary"
+        icon={<Icon icon="ant-design:plus-outlined" width={16} height={16} />}
+        onClick={() => { setEditingVehicle(null); setIsDialogOpen(true); }}
+      >
         Add Asset
       </Button>
     </Space>
@@ -98,7 +108,17 @@ const AssetsPage = () => {
 
   return (
     <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-      <Breadcrumbs actions={pageActions} />
+  <AppBreadcrumb actions={pageActions} />
+      <div className="sticky-header-secondary">
+        <TableFiltersBar
+          compact
+          searchValue={searchTerm}
+          onSearchChange={setSearchTerm}
+          filterChips={filterChips}
+          onClearAll={handleClearAll}
+          placeholder="Search assets..."
+        />
+      </div>
       
       {isLoading ? <Skeleton active /> : (
         <AssetDataTable 

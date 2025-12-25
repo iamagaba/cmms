@@ -12,12 +12,12 @@ interface WorkOrderActivityLogCardProps {
 
 export const WorkOrderActivityLogCard: React.FC<WorkOrderActivityLogCardProps> = ({ workOrder, profileMap }) => {
   return (
-    <Card title="Activity Log">
+  <Card size="small" title="Activity Log">
       <Timeline>
         {[...(workOrder.activityLog || [])]
           .sort((a, b) => dayjs(b.timestamp).diff(dayjs(a.timestamp)))
           .map((item, index) => {
-            const userName = profileMap.get(item.userId) || (item.userId ? 'A user' : 'System');
+            const userName = profileMap.get(item.userId) ?? (item.userId ? 'A user' : 'System');
             return (
               <Timeline.Item key={index}>
                 <Text strong>{item.activity}</Text>

@@ -1,0 +1,40 @@
+﻿/* Improve visibility of connector lines and status text in Steps component *//* Custom styling for colored dots in Progress view */
+
+.progress-steps-enhanced .ant-steps-item-tail::after {.custom-step-dot {
+
+  background-color: #8c8c8c !important; /* Darker gray for connector lines */  background-color: var(--dot-color) !important;
+
+}  border-color: var(--dot-color) !important;
+
+}
+
+.progress-steps-enhanced .ant-steps-item-title {
+
+  color: #595959 !important; /* Darker gray for status text *//* Increase connector line visibility for Progress view */
+
+}.progress-view-steps .ant-steps-item-tail::after {
+
+  background-color: #525252 !important;
+
+.progress-steps-enhanced .ant-steps-item-description {  opacity: 1 !important;
+
+  color: #595959 !important; /* Darker gray for description text */}
+
+}
+
+.progress-view-steps .ant-steps-item-process .ant-steps-item-icon .ant-steps-icon-dot,
+
+/* Ensure finished steps maintain good contrast */.progress-view-steps .ant-steps-item-finish .ant-steps-item-icon .ant-steps-icon-dot,
+
+.progress-steps-enhanced .ant-steps-item-finish .ant-steps-item-title {.progress-view-steps .ant-steps-item-wait .ant-steps-item-icon .ant-steps-icon-dot,
+
+  color: #262626 !important; /* Even darker for completed steps */ .progress-view-steps .ant-steps-item-error .ant-steps-item-icon .ant-steps-icon-dot {
+
+}  background-color: var(--dot-color) !important;
+
+  border-color: var(--dot-color) !important;
+
+.progress-steps-enhanced .ant-steps-item-process .ant-steps-item-title {}
+
+  color: #262626 !important; /* Darker for current step */
+}

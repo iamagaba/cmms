@@ -147,7 +147,7 @@ export const DiagnosticFlowInput: React.FC<DiagnosticFlowInputProps> = ({ onDiag
   const isFlowEnded = currentQuestionId === 'END_FLOW';
 
   return (
-    <Card
+  <Card size="small"
       title="Client Issue Diagnosis"
       extra={
         <Space>

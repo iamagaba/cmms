@@ -123,23 +123,23 @@ export default function MapViewPage() {
     <div className="min-h-screen bg-gray-50">
       <MobileHeader title="Map View" />
       
-      <main className="px-4 py-6 pb-20 space-y-6">
-        {/* Search and Filter */}
-        <div className="space-y-4">
+      <main className="pb-20">
+        {/* Search and Filter - Improved Design */}
+        <div className="px-4 pt-4 pb-3 bg-white border-b border-gray-100 space-y-3">
           {/* Search Bar */}
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
               placeholder="Search locations..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-12 pr-4 py-3.5 bg-gray-50 border-0 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white transition-all text-base"
             />
           </div>
 
           {/* Filter Tabs */}
-          <div className="flex space-x-2 overflow-x-auto pb-2">
+          <div className="flex space-x-2 overflow-x-auto pb-1 scrollbar-hide">
             {[
               { key: 'all', label: 'All Locations', icon: MapPin },
               { key: 'today', label: 'Today', icon: Clock },
@@ -150,10 +150,10 @@ export default function MapViewPage() {
                 <button
                   key={tab.key}
                   onClick={() => setFilter(tab.key as typeof filter)}
-                  className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-colors flex items-center space-x-2 ${
+                  className={`flex-shrink-0 px-4 py-2.5 rounded-xl font-semibold text-sm transition-all flex items-center space-x-2 ${
                     filter === tab.key
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white text-gray-600 hover:bg-gray-50'
+                      ? 'bg-primary-600 text-white shadow-lg shadow-primary-600/30'
+                      : 'bg-white text-gray-700 hover:bg-gray-50 border border-gray-200'
                   }`}
                 >
                   <Icon className="w-4 h-4" />
@@ -164,10 +164,10 @@ export default function MapViewPage() {
           </div>
         </div>
 
-        {/* Interactive Map */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        {/* Interactive Map - Enhanced Container */}
+        <div className="mx-4 mt-4 bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           <MobileMapbox
-            center={userLocation ? [userLocation.lng, userLocation.lat] : [32.58, 0.32]} // Default to Kampala, Uganda
+            center={userLocation ? [userLocation.lng, userLocation.lat] : [32.58, 0.32]}
             zoom={userLocation ? 13 : 10}
             height="400px"
             markers={filteredOrders.map(order => ({
@@ -195,57 +195,50 @@ export default function MapViewPage() {
             }}
           />
           
-          {/* Map Legend */}
-          <div className="p-4 border-t border-gray-100">
-            <div className="flex items-center justify-between">
+          {/* Map Legend - Enhanced Design */}
+          <div className="p-4 border-t border-gray-100 bg-gray-50">
+            <div className="flex items-center justify-between flex-wrap gap-3">
               <div className="flex items-center space-x-4 flex-wrap gap-2">
                 <div className="flex items-center space-x-2">
                   <div 
-                    className="w-3 h-3 rounded-full" 
+                    className="w-3 h-3 rounded-full shadow-sm" 
                     style={{ backgroundColor: getPriorityColor('High') }}
                   ></div>
-                  <span className="text-sm text-gray-600">High Priority</span>
+                  <span className="text-sm text-gray-700 font-medium">High Priority</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div 
-                    className="w-3 h-3 rounded-full" 
+                    className="w-3 h-3 rounded-full shadow-sm" 
                     style={{ backgroundColor: getStatusColor('In Progress') }}
                   ></div>
-                  <span className="text-sm text-gray-600">In Progress</span>
+                  <span className="text-sm text-gray-700 font-medium">In Progress</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <div 
-                    className="w-3 h-3 rounded-full" 
+                    className="w-3 h-3 rounded-full shadow-sm" 
                     style={{ backgroundColor: getStatusColor('Open') }}
                   ></div>
-                  <span className="text-sm text-gray-600">Open</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div 
-                    className="w-3 h-3 rounded-full" 
-                    style={{ backgroundColor: getStatusColor('Ready') }}
-                  ></div>
-                  <span className="text-sm text-gray-600">Ready</span>
+                  <span className="text-sm text-gray-700 font-medium">Open</span>
                 </div>
               </div>
-              <div className="text-sm text-gray-500">
+              <div className="px-3 py-1.5 bg-primary-50 text-primary-700 rounded-lg text-sm font-semibold">
                 {filteredOrders.length} locations
               </div>
             </div>
           </div>
         </div>
 
-        {/* Location List */}
-        <div className="space-y-4">
+        {/* Location List - Enhanced Design */}
+        <div className="px-4 mt-6 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-gray-900">Work Order Locations</h2>
-            <span className="text-sm text-gray-500">{filteredOrders.length} locations</span>
+            <h2 className="text-lg font-bold text-gray-900">Work Order Locations</h2>
+            <span className="px-3 py-1 bg-gray-100 text-gray-700 rounded-lg text-sm font-semibold">{filteredOrders.length} total</span>
           </div>
 
           {loading ? (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {[...Array(5)].map((_, i) => (
-                <div key={i} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 animate-pulse">
+                <div key={i} className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 animate-pulse">
                   <div className="flex items-center space-x-3 mb-3">
                     <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
                     <div className="flex-1">
@@ -258,9 +251,11 @@ export default function MapViewPage() {
               ))}
             </div>
           ) : filteredOrders.length === 0 ? (
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100 text-center py-12">
-              <MapPin className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No locations found</h3>
+            <div className="bg-white rounded-2xl p-8 shadow-sm border border-gray-100 text-center">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <MapPin className="w-8 h-8 text-gray-400" />
+              </div>
+              <h3 className="text-lg font-bold text-gray-900 mb-2">No locations found</h3>
               <p className="text-gray-500">Try adjusting your search or filter criteria</p>
             </div>
           ) : (
@@ -268,22 +263,22 @@ export default function MapViewPage() {
               {filteredOrders.map((order) => (
                 <div
                   key={order.id}
-                  className="bg-white rounded-xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-all"
+                  className="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 hover:shadow-md transition-all"
                 >
                   {/* Header */}
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center space-x-3">
                       <div 
-                        className="w-4 h-4 rounded-full" 
+                        className="w-4 h-4 rounded-full shadow-sm" 
                         style={{ backgroundColor: order.priority === 'High' ? getPriorityColor(order.priority) : getStatusColor(order.status) }}
                       ></div>
                       <div>
-                        <p className="font-semibold text-gray-900">{order.workOrderNumber}</p>
+                        <p className="font-bold text-gray-900">{order.workOrderNumber}</p>
                         <p className="text-sm text-gray-500">{order.status}</p>
                       </div>
                     </div>
                     {order.priority === 'High' && (
-                      <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full">
+                      <span className="px-2.5 py-1 bg-error-100 text-error-800 text-xs font-bold rounded-lg">
                         High Priority
                       </span>
                     )}
@@ -292,13 +287,15 @@ export default function MapViewPage() {
                   {/* Customer & Vehicle */}
                   <div className="space-y-2 mb-3">
                     {order.customers && (
-                      <div className="flex items-center space-x-2 text-sm text-gray-600">
-                        <User className="w-4 h-4" />
-                        <span>{order.customers.name}</span>
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center space-x-2 text-gray-700 flex-1 min-w-0">
+                          <User className="w-4 h-4 flex-shrink-0 text-gray-400" />
+                          <span className="truncate font-medium">{order.customers.name}</span>
+                        </div>
                         {order.customers.phone && (
                           <a 
                             href={`tel:${order.customers.phone}`}
-                            className="ml-auto text-blue-600 hover:text-blue-700"
+                            className="ml-2 p-2 bg-primary-50 text-primary-600 rounded-lg hover:bg-primary-100 transition-colors"
                           >
                             <Phone className="w-4 h-4" />
                           </a>
@@ -307,22 +304,22 @@ export default function MapViewPage() {
                     )}
                     {order.vehicles && (
                       <div className="flex items-center space-x-2 text-sm text-gray-600">
-                        <Car className="w-4 h-4" />
-                        <span>{order.vehicles.year} {order.vehicles.make} {order.vehicles.model}</span>
+                        <Car className="w-4 h-4 flex-shrink-0 text-gray-400" />
+                        <span className="truncate">{order.vehicles.year} {order.vehicles.make} {order.vehicles.model}</span>
                       </div>
                     )}
                   </div>
 
                   {/* Location */}
-                  <div className="mb-3">
-                    <div className="flex items-start space-x-2 text-sm text-gray-600">
-                      <MapPin className="w-4 h-4 mt-0.5" />
-                      <div className="flex-1">
-                        <p className="text-gray-900 font-medium">
+                  <div className="mb-3 p-3 bg-gray-50 rounded-xl">
+                    <div className="flex items-start space-x-2 text-sm">
+                      <MapPin className="w-4 h-4 mt-0.5 flex-shrink-0 text-primary-600" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-gray-900 font-medium line-clamp-2">
                           {order.customerAddress || order.locations?.address || 'Address not available'}
                         </p>
                         {userLocation && order.customerLat && order.customerLng && (
-                          <p className="text-xs text-gray-500 mt-1">
+                          <p className="text-xs text-primary-600 font-semibold mt-1">
                             {calculateDistance(
                               userLocation.lat, 
                               userLocation.lng, 
@@ -337,17 +334,17 @@ export default function MapViewPage() {
 
                   {/* Appointment */}
                   {order.appointmentDate && (
-                    <div className="flex items-center space-x-2 text-sm text-gray-600 mb-3">
-                      <Clock className="w-4 h-4" />
-                      <span>{formatDate(order.appointmentDate)}</span>
+                    <div className="flex items-center space-x-2 text-sm text-gray-600 mb-3 p-2 bg-blue-50 rounded-lg">
+                      <Clock className="w-4 h-4 text-blue-600" />
+                      <span className="font-medium text-blue-900">{formatDate(order.appointmentDate)}</span>
                     </div>
                   )}
 
                   {/* Actions */}
-                  <div className="flex items-center justify-between pt-3 border-t border-gray-100">
+                  <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
                     <button
                       onClick={() => window.location.href = `/work-orders/${order.id}`}
-                      className="flex items-center space-x-2 text-blue-600 hover:text-blue-700 font-medium text-sm"
+                      className="flex-1 flex items-center justify-center space-x-2 text-primary-600 hover:text-primary-700 font-semibold text-sm py-2.5 px-4 bg-primary-50 rounded-xl hover:bg-primary-100 transition-colors"
                     >
                       <span>View Details</span>
                       <ChevronRight className="w-4 h-4" />
@@ -359,7 +356,7 @@ export default function MapViewPage() {
                           order.customerLat!, 
                           order.customerLng!
                         )}
-                        className="flex items-center space-x-2 bg-blue-600 text-white px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
+                        className="flex items-center justify-center space-x-2 bg-primary-600 text-white px-4 py-2.5 rounded-xl hover:bg-primary-700 transition-colors text-sm font-semibold shadow-sm"
                       >
                         <Navigation className="w-4 h-4" />
                         <span>Navigate</span>
@@ -372,23 +369,23 @@ export default function MapViewPage() {
           )}
         </div>
 
-        {/* Location Stats */}
+        {/* Location Stats - Enhanced Design */}
         {!loading && workOrders.length > 0 && (
-          <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Location Summary</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-blue-600">{workOrders.length}</p>
-                <p className="text-sm text-gray-500">Total Locations</p>
+          <div className="mx-4 mt-6 mb-6 bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <h3 className="text-lg font-bold text-gray-900 mb-4">Location Summary</h3>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="text-center p-4 bg-primary-50 rounded-xl">
+                <p className="text-3xl font-bold text-primary-600">{workOrders.length}</p>
+                <p className="text-sm text-primary-700 font-medium mt-1">Total Locations</p>
               </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-yellow-600">
+              <div className="text-center p-4 bg-warning-50 rounded-xl">
+                <p className="text-3xl font-bold text-warning-600">
                   {workOrders.filter(o => o.status === 'In Progress').length}
                 </p>
-                <p className="text-sm text-gray-500">In Progress</p>
+                <p className="text-sm text-warning-700 font-medium mt-1">In Progress</p>
               </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-green-600">
+              <div className="text-center p-4 bg-success-50 rounded-xl">
+                <p className="text-3xl font-bold text-success-600">
                   {workOrders.filter(o => {
                     const today = new Date()
                     today.setHours(0, 0, 0, 0)
@@ -396,13 +393,13 @@ export default function MapViewPage() {
                            new Date(o.appointmentDate).toDateString() === today.toDateString()
                   }).length}
                 </p>
-                <p className="text-sm text-gray-500">Today</p>
+                <p className="text-sm text-success-700 font-medium mt-1">Today</p>
               </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-red-600">
+              <div className="text-center p-4 bg-error-50 rounded-xl">
+                <p className="text-3xl font-bold text-error-600">
                   {workOrders.filter(o => o.priority === 'High').length}
                 </p>
-                <p className="text-sm text-gray-500">High Priority</p>
+                <p className="text-sm text-error-700 font-medium mt-1">High Priority</p>
               </div>
             </div>
           </div>

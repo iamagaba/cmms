@@ -59,43 +59,45 @@ export default function ProfilePage() {
       <MobileHeader title="Profile" />
       
       <main className="px-4 py-6 pb-20 space-y-6">
-        {/* Profile Card */}
-        <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-          <div className="flex items-center space-x-4 mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
-              <span className="text-white text-xl font-bold">
+        {/* Profile Card - Enhanced Design */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+          <div className="flex items-center space-x-4 mb-6">
+            <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-primary-600 rounded-2xl flex items-center justify-center shadow-lg">
+              <span className="text-white text-2xl font-bold">
                 {profile?.first_name?.[0] || profile?.email?.[0]?.toUpperCase() || 'U'}
               </span>
             </div>
-            <div>
-              <h2 className="text-xl font-bold text-gray-900">
+            <div className="flex-1 min-w-0">
+              <h2 className="text-xl font-bold text-gray-900 truncate">
                 {profile?.first_name && profile?.last_name 
                   ? `${profile.first_name} ${profile.last_name}`
                   : profile?.email || 'User'
                 }
               </h2>
-              <p className="text-gray-600">{profile?.role || 'Field Technician'}</p>
-              <p className="text-sm text-gray-500">{profile?.email}</p>
+              <p className="text-primary-600 font-medium">{profile?.role || 'Field Technician'}</p>
+              <p className="text-sm text-gray-500 truncate">{profile?.email}</p>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
-            <div className="text-center">
-              <p className="text-2xl font-bold text-blue-600">24</p>
-              <p className="text-xs text-gray-500">Completed</p>
+          
+          {/* Stats Grid - Improved Design */}
+          <div className="grid grid-cols-3 gap-3 pt-4 border-t border-gray-100">
+            <div className="text-center p-3 bg-success-50 rounded-xl">
+              <p className="text-2xl font-bold text-success-600">24</p>
+              <p className="text-xs text-success-700 font-medium">Completed</p>
             </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-yellow-600">3</p>
-              <p className="text-xs text-gray-500">In Progress</p>
+            <div className="text-center p-3 bg-warning-50 rounded-xl">
+              <p className="text-2xl font-bold text-warning-600">3</p>
+              <p className="text-xs text-warning-700 font-medium">In Progress</p>
             </div>
-            <div className="text-center">
-              <p className="text-2xl font-bold text-green-600">98%</p>
-              <p className="text-xs text-gray-500">Success Rate</p>
+            <div className="text-center p-3 bg-primary-50 rounded-xl">
+              <p className="text-2xl font-bold text-primary-600">98%</p>
+              <p className="text-xs text-primary-700 font-medium">Success Rate</p>
             </div>
           </div>
         </div>
 
-        {/* Menu Items */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        {/* Menu Items - Enhanced Design */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
           {menuItems.map((item, index) => {
             const Icon = item.icon
             return (
@@ -104,26 +106,31 @@ export default function ProfilePage() {
                 onClick={item.onClick}
                 className="w-full flex items-center space-x-4 p-4 hover:bg-gray-50 active:bg-gray-100 transition-colors border-b border-gray-100 last:border-b-0"
               >
-                <div className="p-2 bg-gray-100 rounded-lg">
-                  <Icon className="w-5 h-5 text-gray-600" />
+                <div className="p-3 bg-primary-50 rounded-xl">
+                  <Icon className="w-5 h-5 text-primary-600" />
                 </div>
-                <div className="flex-1 text-left">
+                <div className="flex-1 text-left min-w-0">
                   <p className="font-semibold text-gray-900">{item.label}</p>
-                  <p className="text-sm text-gray-500">{item.description}</p>
+                  <p className="text-sm text-gray-500 truncate">{item.description}</p>
+                </div>
+                <div className="text-gray-400">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </div>
               </button>
             )
           })}
         </div>
 
-        {/* Logout Button */}
+        {/* Logout Button - Enhanced Design */}
         <button 
           onClick={handleLogout}
           disabled={isLoggingOut}
-          className="w-full bg-red-50 text-red-600 p-4 rounded-xl font-semibold hover:bg-red-100 active:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
+          className="w-full bg-error-50 text-error-600 p-4 rounded-2xl font-bold hover:bg-error-100 active:bg-error-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2 border border-error-200"
         >
           {isLoggingOut ? (
-            <div className="w-5 h-5 border-2 border-red-600 border-t-transparent rounded-full animate-spin" />
+            <div className="w-5 h-5 border-2 border-error-600 border-t-transparent rounded-full animate-spin" />
           ) : (
             <LogOut className="w-5 h-5" />
           )}

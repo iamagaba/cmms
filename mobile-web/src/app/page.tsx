@@ -41,7 +41,7 @@ export default function DashboardPage() {
         <main className="px-4 py-6 space-y-6 pb-20">
           {/* Welcome Section */}
           <div className="card-mobile text-center">
-            <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #6A0DAD, #7838C7)' }}>
+            <div className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #0077ce, #0c96f1)' }}>
               <span className="text-white text-xl font-bold">👋</span>
             </div>
             <h1 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>

@@ -91,11 +91,11 @@ export default function AssetHistoryPage() {
       case 'In Progress':
         return 'bg-yellow-100 text-yellow-800'
       case 'Completed':
-        return 'bg-green-100 text-green-800'
+        return 'bg-success-100 text-success-800'
       case 'Confirmation':
-        return 'bg-purple-100 text-purple-800'
+        return 'bg-primary-100 text-primary-800'
       case 'Ready':
-        return 'bg-cyan-100 text-cyan-800'
+        return 'bg-gray-100 text-gray-800'
       case 'On Hold':
         return 'bg-orange-100 text-orange-800'
       default:
@@ -186,8 +186,8 @@ export default function AssetHistoryPage() {
         {asset && (
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                <Car className="w-6 h-6 text-purple-600" />
+              <div className="w-12 h-12 bg-primary-50 rounded-xl flex items-center justify-center">
+                <Car className="w-6 h-6 text-primary-600" />
               </div>
               <div>
                 <h2 className="text-lg font-bold text-gray-900">{asset.license_plate}</h2>
@@ -231,7 +231,7 @@ export default function AssetHistoryPage() {
               onClick={() => setFilter(tab.key as typeof filter)}
               className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-colors ${
                 filter === tab.key
-                  ? 'bg-purple-600 text-white'
+                  ? 'bg-primary-600 text-white'
                   : 'bg-white text-gray-600 hover:bg-gray-50'
               }`}
             >
@@ -260,8 +260,8 @@ export default function AssetHistoryPage() {
                 {/* Header */}
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <Wrench className="w-5 h-5 text-purple-600" />
+                    <div className="w-10 h-10 bg-secondary-50 rounded-lg flex items-center justify-center">
+                      <Wrench className="w-5 h-5 text-secondary-600" />
                     </div>
                     <div>
                       <p className="font-semibold text-gray-900">{repair.workOrderNumber}</p>
@@ -304,7 +304,7 @@ export default function AssetHistoryPage() {
                     {repair.technicians.phone && (
                       <a 
                         href={`tel:${repair.technicians.phone}`}
-                        className="ml-auto text-purple-600 hover:text-purple-700"
+                        className="ml-auto text-primary-600 hover:text-primary-700"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <Phone className="w-4 h-4" />
@@ -371,7 +371,7 @@ export default function AssetHistoryPage() {
         {repairHistory.length > 0 && (
           <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
             <div className="flex items-center space-x-2 mb-4">
-              <FileText className="w-5 h-5 text-purple-600" />
+              <FileText className="w-5 h-5 text-primary-600" />
               <h3 className="text-lg font-semibold text-gray-900">Maintenance Insights</h3>
             </div>
             
@@ -393,7 +393,7 @@ export default function AssetHistoryPage() {
                     .map(([service, count]) => (
                       <div key={service} className="flex items-center justify-between p-2 bg-gray-50 rounded-lg">
                         <span className="text-sm text-gray-900">{service}</span>
-                        <span className="text-sm font-medium text-purple-600">{count}x</span>
+                        <span className="text-sm font-medium text-primary-600">{count}x</span>
                       </div>
                     ))}
                 </div>

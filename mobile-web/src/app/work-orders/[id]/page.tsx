@@ -78,11 +78,11 @@ export default function WorkOrderDetailsPage() {
       case 'In Progress':
         return 'bg-yellow-100 text-yellow-800 border-yellow-200'
       case 'Completed':
-        return 'bg-green-100 text-green-800 border-green-200'
+        return 'bg-success-100 text-success-800 border-success-200'
       case 'Confirmation':
-        return 'bg-purple-100 text-purple-800 border-purple-200'
+        return 'bg-primary-100 text-primary-800 border-primary-200'
       case 'Ready':
-        return 'bg-cyan-100 text-cyan-800 border-cyan-200'
+        return 'bg-gray-100 text-gray-800 border-gray-200'
       case 'On Hold':
         return 'bg-orange-100 text-orange-800 border-orange-200'
       default:

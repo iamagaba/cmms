@@ -7,6 +7,7 @@ import { MobileNavigation } from '@/components/MobileNavigation'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { EmptyState } from '@/components/EmptyState'
 import { EnhancedButton } from '@/components/EnhancedButton'
+import { OptimizedLoader } from '@/components/OptimizedLoader'
 import { 
   Car, Search, Battery, Calendar, 
   MapPin, User, Wrench, ChevronRight, Plus, Filter
@@ -114,63 +115,46 @@ export default function AssetsPage() {
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gray-50">
-      <MobileHeader title="Assets" />
-      
-      {/* Quick Actions */}
-      <div className="space-y-4">
-          <motion.div
-            className="fixed bottom-20 right-4 z-40"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-          >
-            <EnhancedButton
-              variant="primary"
-              size="lg"
-              fullWidth
-              icon={<Plus className="w-5 h-5" />}
-              onClick={() => window.location.href = '/assets/new'}
-            >
-              Add Asset
-            </EnhancedButton>
-          </motion.div>
+        <MobileHeader title="Assets" />
         
-        {/* Search and Filter */}
-          {/* Search Bar */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search assets..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-          </div>
+        <main className="p-4 pb-24">
+          {/* Search and Filter */}
+          <div className="space-y-4 mb-6">
+            {/* Search Bar */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search assets..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+              />
+            </div>
 
-          {/* Filter Tabs */}
-          <div className="flex space-x-2 overflow-x-auto pb-2 mb-4">
-            {[
-              { key: 'all', label: 'All', count: filterCounts.all },
-              { key: 'company', label: 'Company', count: filterCounts.company },
-              { key: 'customer', label: 'Customer', count: filterCounts.customer },
-              { key: 'emergency', label: 'Emergency', count: filterCounts.emergency },
-            ].map((tab) => (
-              <motion.button
-                key={tab.key}
-                onClick={() => setFilter(tab.key as typeof filter)}
-                className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-colors ${
-                  filter === tab.key
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50'
-                }`}
-                whileTap={{ scale: 0.95 }}
-              >
-                {tab.label} ({tab.count})
-              </motion.button>
-            ))}
+            {/* Filter Tabs */}
+            <div className="flex space-x-2 overflow-x-auto pb-2">
+              {[
+                { key: 'all', label: 'All', count: filterCounts.all },
+                { key: 'company', label: 'Company', count: filterCounts.company },
+                { key: 'customer', label: 'Customer', count: filterCounts.customer },
+                { key: 'emergency', label: 'Emergency', count: filterCounts.emergency },
+              ].map((tab) => (
+                <motion.button
+                  key={tab.key}
+                  onClick={() => setFilter(tab.key as typeof filter)}
+                  className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-colors ${
+                    filter === tab.key
+                      ? 'bg-purple-600 text-white'
+                      : 'bg-white text-gray-600 hover:bg-gray-50'
+                  }`}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {tab.label} ({tab.count})
+                </motion.button>
+              ))}
+            </div>
           </div>
-        </div>
         
         {/* Assets List */}
         <OptimizedLoader
@@ -365,67 +349,46 @@ export default function AssetsPage() {
           </motion.div>
         )}
 
-        {/* Simplified Stats - Only show if relevant */}
-        {!loading && assets.length > 0 && filterCounts.emergency > 0 && (
-          <motion.div
-            className="bg-red-50 border border-red-200 rounded-xl p-4 shadow-sm"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+          {/* Simplified Stats - Only show if relevant */}
+          {!loading && assets.length > 0 && filterCounts.emergency > 0 && (
+            <motion.div
+              className="bg-red-50 border border-red-200 rounded-xl p-4 shadow-sm mt-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                  <span className="text-lg">🚨</span>
+                </div>
+                <div>
+                  <p className="font-semibold text-red-900">{filterCounts.emergency} Emergency Bikes Available</p>
+                  <p className="text-xs text-red-700">Ready for deployment</p>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </main>
+        
+        {/* Quick Actions FAB */}
+        <motion.div
+          className="fixed bottom-20 right-4 z-40"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 17 }}
+        >
+          <EnhancedButton
+            variant="primary"
+            size="lg"
+            icon={<Plus className="w-5 h-5" />}
+            onClick={() => window.location.href = '/assets/new'}
+            className="rounded-full w-14 h-14 shadow-lg"
           >
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                <span className="text-lg">🚨</span>
-              </div>
-              <div>
-                <p className="font-semibold text-red-900">{filterCounts.emergency} Emergency Bikes Available</p>
-                <p className="text-xs text-red-700">Ready for deployment</p>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </main>
-      
-      {/* Search and Filter */}
-      <div className="space-y-4">
-          {/* Search Bar */}
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search assets..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-            />
-          </div>
-
-          {/* Filter Tabs */}
-          <div className="flex space-x-2 overflow-x-auto pb-2 mb-4">
-            {[
-              { key: 'all', label: 'All', count: filterCounts.all },
-              { key: 'company', label: 'Company', count: filterCounts.company },
-              { key: 'customer', label: 'Customer', count: filterCounts.customer },
-              { key: 'emergency', label: 'Emergency', count: filterCounts.emergency },
-            ].map((tab) => (
-              <motion.button
-                key={tab.key}
-                onClick={() => setFilter(tab.key as typeof filter)}
-                className={`flex-shrink-0 px-4 py-2 rounded-xl font-medium text-sm transition-colors ${
-                  filter === tab.key
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-white text-gray-600 hover:bg-gray-50'
-                }`}
-                whileTap={{ scale: 0.95 }}
-              >
-                {tab.label} ({tab.count})
-              </motion.button>
-            ))}
-          </div>
-        </div>
-      
-      <MobileNavigation activeTab="assets" badges={badges} />
-    </div>
+          </EnhancedButton>
+        </motion.div>
+        
+        <MobileNavigation activeTab="assets" badges={badges} />
+      </div>
     </ProtectedRoute>
   )
 }

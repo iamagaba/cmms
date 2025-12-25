@@ -8,59 +8,115 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        // Main app's purple-based brand colors
+        // Steel Blue - Primary Brand Color (Industrial CMMS)
         primary: {
-          50: '#F8F5FC',
-          100: '#F1E6FB', 
-          200: '#E3CCF7',
-          300: '#CAA3F0',
-          400: '#AD79E6',
-          500: '#8D4FD6',
-          600: '#7838C7',
-          700: '#6A0DAD', // Main brand color
-          800: '#530A86',
-          900: '#3C0760',
+          50: '#f0f7ff',
+          100: '#e0efff',
+          200: '#b9dfff',
+          300: '#7cc8ff',
+          400: '#36b0ff',
+          500: '#0c96f1',
+          600: '#0077ce', // Primary brand color
+          700: '#005fa6',
+          800: '#035189',
+          900: '#094372',
+          950: '#062a4b',
         },
-        // Secondary pink colors
+        // Safety Orange - Alert and Warning Color
         secondary: {
-          50: '#FFF5F9',
-          100: '#FFE6F1',
-          200: '#FFC9E2', 
-          300: '#FFA3CD',
-          400: '#FF7AB5',
-          500: '#FF4D9B',
-          600: '#EB2F96',
-          700: '#D81B78',
-          800: '#B11260',
-          900: '#8A0C4A',
+          50: '#fff7ed',
+          100: '#ffedd5',
+          200: '#fed7aa',
+          300: '#fdba74',
+          400: '#fb923c',
+          500: '#f97316', // Primary safety orange
+          600: '#ea580c',
+          700: '#c2410c',
+          800: '#9a3412',
+          900: '#7c2d12',
+          950: '#431407',
         },
-        // Consistent gray scale
+        // Machinery Gray - Professional Neutral System
         gray: {
-          50: '#F9FAFB',
-          100: '#F3F4F6',
-          200: '#E5E7EB',
-          300: '#D1D5DB',
-          400: '#9CA3AF',
-          500: '#6B7280',
-          600: '#4B5563',
-          700: '#374151',
-          800: '#1F2937',
-          900: '#111827',
+          50: '#f8fafc',
+          100: '#f1f5f9',
+          200: '#e2e8f0',
+          300: '#cbd5e1',
+          400: '#94a3b8',
+          500: '#64748b',
+          600: '#475569',
+          700: '#334155',
+          800: '#1e293b',
+          900: '#0f172a',
+          950: '#020617',
         },
-        // Status colors matching main app
+        // Industrial Green - Success States
+        success: {
+          50: '#f0fdf4',
+          100: '#dcfce7',
+          200: '#bbf7d0',
+          300: '#86efac',
+          400: '#4ade80',
+          500: '#22c55e',
+          600: '#16a34a',
+          700: '#15803d',
+          800: '#166534',
+          900: '#14532d',
+        },
+        // Warning Red - Error States
+        error: {
+          50: '#fef2f2',
+          100: '#fee2e2',
+          200: '#fecaca',
+          300: '#fca5a5',
+          400: '#f87171',
+          500: '#ef4444',
+          600: '#dc2626',
+          700: '#b91c1c',
+          800: '#991b1b',
+          900: '#7f1d1d',
+        },
+        // Maintenance Yellow - Caution States
+        warning: {
+          50: '#fefce8',
+          100: '#fef9c3',
+          200: '#fef08a',
+          300: '#fde047',
+          400: '#facc15',
+          500: '#eab308',
+          600: '#ca8a04',
+          700: '#a16207',
+          800: '#854d0e',
+          900: '#713f12',
+        },
+        // Work Order Status Colors
         status: {
-          open: '#2f54eb',
-          confirmation: '#13c2c2',
-          ready: '#8c8c8c',
-          progress: '#fa8c16',
-          hold: '#faad14',
-          completed: '#52c41a',
+          new: '#0077ce',
+          open: '#0077ce',
+          confirmation: '#0c96f1',
+          ready: '#64748b',
+          progress: '#f97316',
+          inProgress: '#f97316',
+          hold: '#eab308',
+          onHold: '#eab308',
+          completed: '#22c55e',
+          cancelled: '#ef4444',
+          scheduled: '#64748b',
         },
-        // Priority colors
+        // Priority Colors
         priority: {
-          high: '#ff4d4f',
-          medium: '#faad14',
-          low: '#52c41a',
+          critical: '#dc2626',
+          high: '#ea580c',
+          medium: '#ca8a04',
+          low: '#64748b',
+          routine: '#16a34a',
+        },
+        // Asset Status Colors
+        asset: {
+          operational: '#22c55e',
+          maintenance: '#eab308',
+          outOfService: '#ef4444',
+          retired: '#94a3b8',
         }
       },
       fontFamily: {

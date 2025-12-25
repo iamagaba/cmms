@@ -4,38 +4,66 @@
 @tailwind components;
 @tailwind utilities;
 
-/* CSS Variables matching main app theme */
+/* CSS Variables - Industrial CMMS Design System */
 :root {
-  --brand-primary: #6A0DAD;
-  --brand-primary-hover: #7838C7;
-  --brand-primary-active: #530A86;
-  --brand-primary-light: #F8F5FC;
-  --brand-secondary: #D81B78;
-  --text-primary: #111827;
-  --text-secondary: #4B5563;
-  --text-tertiary: #9CA3AF;
-  --text-muted: #D1D5DB;
-  --bg-layout: #F9FAFB;
+  /* Primary Brand - Steel Blue */
+  --brand-primary: #0077ce;
+  --brand-primary-hover: #0c96f1;
+  --brand-primary-active: #005fa6;
+  --brand-primary-light: #f0f7ff;
+  
+  /* Secondary - Safety Orange */
+  --brand-secondary: #f97316;
+  --brand-secondary-hover: #fb923c;
+  --brand-secondary-active: #ea580c;
+  
+  /* Text Colors */
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-tertiary: #94a3b8;
+  --text-muted: #cbd5e1;
+  
+  /* Background Colors */
+  --bg-layout: #f8fafc;
   --bg-container: #ffffff;
   --bg-elevated: #ffffff;
-  --border-primary: #E5E7EB;
-  --border-secondary: #F3F4F6;
-  --border-focus: rgba(106, 13, 173, 0.3);
+  --bg-secondary: #f1f5f9;
+  
+  /* Border Colors */
+  --border-primary: #e2e8f0;
+  --border-secondary: #f1f5f9;
+  --border-focus: rgba(0, 119, 206, 0.3);
+  
+  /* Shadows */
   --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.08), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  
+  /* Border Radius */
   --radius-sm: 6px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 16px;
-  --success: #10B981;
-  --success-light: #D1FAE5;
-  --warning: #F59E0B;
-  --warning-light: #FEF3C7;
-  --error: #EF4444;
-  --error-light: #FEE2E2;
-  --info: #3B82F6;
-  --info-light: #DBEAFE;
+  
+  /* Status Colors - Industrial Green */
+  --success: #22c55e;
+  --success-light: #dcfce7;
+  --success-dark: #16a34a;
+  
+  /* Warning Colors - Maintenance Yellow */
+  --warning: #eab308;
+  --warning-light: #fef9c3;
+  --warning-dark: #ca8a04;
+  
+  /* Error Colors - Warning Red */
+  --error: #ef4444;
+  --error-light: #fee2e2;
+  --error-dark: #dc2626;
+  
+  /* Info Colors - Steel Blue */
+  --info: #0c96f1;
+  --info-light: #e0efff;
+  --info-dark: #0077ce;
 }
 
 /* Mobile-first responsive design */
@@ -271,89 +299,110 @@
     }
   }
   
-  /* Status indicators matching main app StatusChip */
+  /* Status indicators - Industrial CMMS Design System */
+  .status-new,
   .status-open {
-    background-color: #2f54eb;
+    background-color: #0077ce;
     color: white;
     @apply px-2 py-1 rounded text-xs font-medium;
   }
   
   .status-confirmation {
-    background-color: #13c2c2;
+    background-color: #0c96f1;
     color: white;
     @apply px-2 py-1 rounded text-xs font-medium;
   }
   
-  .status-ready {
-    background-color: #8c8c8c;
+  .status-ready,
+  .status-scheduled {
+    background-color: #64748b;
     color: white;
     @apply px-2 py-1 rounded text-xs font-medium;
   }
   
-  .status-progress {
-    background-color: #fa8c16;
+  .status-progress,
+  .status-inProgress {
+    background-color: #f97316;
     color: white;
     @apply px-2 py-1 rounded text-xs font-medium;
   }
   
-  .status-hold {
-    background-color: #faad14;
+  .status-hold,
+  .status-onHold {
+    background-color: #eab308;
     color: white;
     @apply px-2 py-1 rounded text-xs font-medium;
   }
   
   .status-completed {
-    background-color: #52c41a;
+    background-color: #22c55e;
     color: white;
     @apply px-2 py-1 rounded text-xs font-medium;
   }
   
-  /* Priority indicators matching main app */
+  .status-cancelled {
+    background-color: #ef4444;
+    color: white;
+    @apply px-2 py-1 rounded text-xs font-medium;
+  }
+  
+  /* Priority indicators - Industrial Design */
+  .priority-critical {
+    background-color: #dc2626;
+    color: white;
+    @apply px-2 py-1 rounded text-xs font-medium;
+  }
+  
   .priority-high {
-    background-color: #ff4d4f;
+    background-color: #ea580c;
     color: white;
     @apply px-2 py-1 rounded text-xs font-medium;
   }
   
   .priority-medium {
-    background-color: #faad14;
+    background-color: #ca8a04;
     color: white;
     @apply px-2 py-1 rounded text-xs font-medium;
   }
   
   .priority-low {
-    background-color: #52c41a;
+    background-color: #64748b;
     color: white;
     @apply px-2 py-1 rounded text-xs font-medium;
   }
   
-  /* Work order card styles matching main app */
+  .priority-routine {
+    background-color: #16a34a;
+    color: white;
+    @apply px-2 py-1 rounded text-xs font-medium;
+  }
+  
+  /* Work order card styles - Industrial Design */
   .work-order-card {
     @apply card-mobile;
     cursor: pointer;
     position: relative;
+    border-left: 4px solid transparent;
   }
   
-  .work-order-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  .work-order-card.priority-critical {
+    border-left-color: #dc2626;
   }
   
-  .work-order-card.priority-high::before {
-    background-color: #ff4d4f;
+  .work-order-card.priority-high {
+    border-left-color: #ea580c;
   }
   
-  .work-order-card.priority-medium::before {
-    background-color: #faad14;
+  .work-order-card.priority-medium {
+    border-left-color: #ca8a04;
   }
   
-  .work-order-card.priority-low::before {
-    background-color: #52c41a;
+  .work-order-card.priority-low {
+    border-left-color: #64748b;
+  }
+  
+  .work-order-card.priority-routine {
+    border-left-color: #16a34a;
   }
   
   /* KPI card styles matching main app */
@@ -382,11 +431,11 @@
   }
   
   .kpi-trend.positive {
-    color: #52c41a;
+    color: #22c55e;
   }
   
   .kpi-trend.negative {
-    color: #ff4d4f;
+    color: #ef4444;
   }
 }
 
@@ -474,38 +523,61 @@ Text truncation utilities */
 }
 
 /* Enhanced status indicators with subtle animations */
+.status-new,
 .status-open,
 .status-confirmation,
 .status-ready,
+.status-scheduled,
 .status-progress,
+.status-inProgress,
 .status-hold,
-.status-completed {
+.status-onHold,
+.status-completed,
+.status-cancelled {
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
 }
 
+.status-new:hover,
 .status-open:hover,
 .status-confirmation:hover,
 .status-ready:hover,
+.status-scheduled:hover,
 .status-progress:hover,
+.status-inProgress:hover,
 .status-hold:hover,
-.status-completed:hover {
+.status-onHold:hover,
+.status-completed:hover,
+.status-cancelled:hover {
   transform: scale(1.05);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Priority indicators with pulse animation for high priority */
-.priority-high {
-  animation: priority-pulse 2s infinite;
+/* Priority indicators with pulse animation for critical/high priority */
+.priority-critical {
+  animation: priority-pulse-critical 2s infinite;
 }
 
-@keyframes priority-pulse {
+.priority-high {
+  animation: priority-pulse-high 2.5s infinite;
+}
+
+@keyframes priority-pulse-critical {
   0%, 100% {
-    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4);
+    box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.4);
   }
   50% {
-    box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1);
+  }
+}
+
+@keyframes priority-pulse-high {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.1);
   }
 }
 
@@ -522,7 +594,7 @@ Text truncation utilities */
   transform: scale(0.98);
 }
 
-/* Enhanced work order cards */
+/* Enhanced work order cards - Industrial Design */
 .work-order-card {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -532,16 +604,24 @@ Text truncation utilities */
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
+.work-order-card.priority-critical {
+  border-left: 4px solid #dc2626;
+}
+
 .work-order-card.priority-high {
-  border-left: 4px solid #EF4444;
+  border-left: 4px solid #ea580c;
 }
 
 .work-order-card.priority-medium {
-  border-left: 4px solid #F59E0B;
+  border-left: 4px solid #ca8a04;
 }
 
 .work-order-card.priority-low {
-  border-left: 4px solid #10B981;
+  border-left: 4px solid #64748b;
+}
+
+.work-order-card.priority-routine {
+  border-left: 4px solid #16a34a;
 }/* 
 Scrollbar utilities */
 .scrollbar-hide {

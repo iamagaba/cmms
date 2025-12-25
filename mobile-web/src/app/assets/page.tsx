@@ -347,6 +347,7 @@ export default function AssetsPage() {
             })}
           </motion.div>
         )}
+        </OptimizedLoader>
 
           {/* Simplified Stats - Only show if relevant */}
           {!loading && assets.length > 0 && filterCounts.emergency > 0 && (

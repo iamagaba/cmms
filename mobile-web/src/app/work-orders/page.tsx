@@ -8,11 +8,11 @@ import { EmptyState } from '@/components/EmptyState'
 import { EnhancedButton } from '@/components/EnhancedButton'
 import { OptimizedLoader, WorkOrderSkeleton } from '@/components/OptimizedLoader'
 import { usePerformance } from '@/hooks/usePerformance'
-import { Clock, MapPin, Car, ChevronRight, Search, Plus, Navigation, Filter } from 'lucide-react'
+import { Clock, MapPin, Car, ChevronRight, Search, Plus, Navigation, Filter, Phone } from 'lucide-react'
 import { useHaptic } from '@/utils/haptic'
 import { useBadges } from '@/context/BadgeContext'
 import { supabase } from '@/lib/supabase'
-import { getStatusClass, getPriorityClass } from '@/utils/statusColors'
+import { getStatusColor, getPriorityColor } from '@/utils/statusColors'
 import { useGeolocation } from '@/hooks/useGeolocation'
 import { calculateDistance, formatDistance, sortByProximityAndPriority } from '@/utils/distance'
 import { snakeToCamelCase } from '@/utils/data-helpers'
@@ -75,11 +75,19 @@ export default function WorkOrdersPage() {
   }, [])
 
   const getStatusStyle = (status: WorkOrder['status']) => {
-    return getStatusClass(status || 'Open')
+    const color = getStatusColor(status)
+    return {
+      backgroundColor: color,
+      color: 'white',
+    }
   }
 
   const getPriorityStyle = (priority: WorkOrder['priority']) => {
-    return getPriorityClass(priority || 'Low')
+    const color = getPriorityColor(priority)
+    return {
+      backgroundColor: color,
+      color: 'white',
+    }
   }
 
   const formatDate = (dateString: string) => {
@@ -396,7 +404,10 @@ export default function WorkOrdersPage() {
                               <p className="text-sm text-gray-600 line-clamp-1">{order.service}</p>
                             )}
                           </div>
-                          <span className={`px-3 py-1.5 rounded-lg text-xs font-bold flex-shrink-0 ml-3 ${getStatusStyle(order.status)}`}>
+                          <span 
+                            className="px-3 py-1.5 rounded-lg text-xs font-bold flex-shrink-0 ml-3"
+                            style={getStatusStyle(order.status)}
+                          >
                             {order.status}
                           </span>
                         </div>
@@ -486,7 +497,10 @@ export default function WorkOrdersPage() {
                                 <div className="flex items-center space-x-2 p-3 bg-white rounded-xl">
                                   <div className="min-w-0">
                                     <p className="text-xs text-gray-500 font-medium mb-1">Priority</p>
-                                    <span className={`inline-block px-2 py-1 rounded-lg text-xs font-bold ${getPriorityStyle(order.priority)}`}>
+                                    <span 
+                                      className="inline-block px-2 py-1 rounded-lg text-xs font-bold"
+                                      style={getPriorityStyle(order.priority)}
+                                    >
                                       {order.priority}
                                     </span>
                                   </div>
@@ -494,17 +508,34 @@ export default function WorkOrdersPage() {
                               )}
                             </div>
 
-                            <EnhancedButton
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                handleNavigateToDetails(order.id)
-                              }}
-                              fullWidth
-                              size="lg"
-                              className="mt-2"
-                            >
-                              View Full Details
-                            </EnhancedButton>
+                            <div className="grid grid-cols-2 gap-2">
+                              <EnhancedButton
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  if (order.customerPhone) {
+                                    window.location.href = `tel:${order.customerPhone}`
+                                  }
+                                }}
+                                variant="outline"
+                                size="lg"
+                                disabled={!order.customerPhone}
+                                className="flex items-center justify-center space-x-2"
+                              >
+                                <Phone className="w-4 h-4" />
+                                <span>Call</span>
+                              </EnhancedButton>
+
+                              <EnhancedButton
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  handleNavigateToDetails(order.id)
+                                }}
+                                size="lg"
+                                className="flex items-center justify-center space-x-2"
+                              >
+                                <span>View Details</span>
+                              </EnhancedButton>
+                            </div>
                           </div>
                         </div>
                       </motion.div>

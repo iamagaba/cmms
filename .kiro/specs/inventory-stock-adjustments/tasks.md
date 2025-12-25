@@ -6,11 +6,11 @@ This plan implements batch stock adjustments with audit trail functionality. Tas
 
 ## Tasks
 
-- [ ] 1. Database schema and types setup
-  - [ ] 1.1 Create stock_adjustments table migration
+- [-] 1. Database schema and types setup
+  - [x] 1.1 Create stock_adjustments table migration
     - Create SQL migration file with table, indexes, and RLS policies
     - _Requirements: 4.1, 4.3_
-  - [ ] 1.2 Update TypeScript types
+  - [-] 1.2 Update TypeScript types
     - Add StockAdjustment interface and AdjustmentReason type to supabase.ts
     - _Requirements: 4.1_
 

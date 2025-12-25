@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { MobileHeader } from '@/components/MobileHeader'
 import { MobileNavigation } from '@/components/MobileNavigation'
-import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { EmptyState } from '@/components/EmptyState'
 import { EnhancedButton } from '@/components/EnhancedButton'
 import { OptimizedLoader } from '@/components/OptimizedLoader'
@@ -113,11 +112,10 @@ export default function AssetsPage() {
   }
 
   return (
-    <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
-        <MobileHeader title="Assets" />
-        
-        <main className="p-4 pb-24">
+    <div className="min-h-screen bg-gray-50">
+      <MobileHeader title="Assets" />
+      
+      <main className="p-4 pb-24">
           {/* Search and Filter */}
           <div className="space-y-4 mb-6">
             {/* Search Bar */}
@@ -389,6 +387,5 @@ export default function AssetsPage() {
         
         <MobileNavigation activeTab="assets" badges={badges} />
       </div>
-    </ProtectedRoute>
-  )
+    )
 }

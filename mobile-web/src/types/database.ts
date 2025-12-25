@@ -66,6 +66,7 @@ export interface Vehicle {
   customer_id: string | null
   is_company_asset?: boolean | null
   is_emergency_bike?: boolean | null
+  status?: 'Normal' | 'Available' | 'In Repair' | 'Decommissioned' | null
   created_at?: string
   updated_at?: string
   date_of_manufacture: string | null

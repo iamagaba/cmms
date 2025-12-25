@@ -80,20 +80,29 @@ export default function AssetsPage() {
     emergency: assets.filter(a => a.is_emergency_bike).length,
   }
 
-  const getAssetTypeStyle = (asset: Asset) => {
-    if (asset.is_emergency_bike) {
-      return { backgroundColor: '#ff4d4f', color: 'white' }
-    } else if (asset.is_company_asset) {
-      return { backgroundColor: '#2f54eb', color: 'white' }
-    } else {
-      return { backgroundColor: '#52c41a', color: 'white' }
+  const getAssetStatusStyle = (status: string | null | undefined) => {
+    switch (status) {
+      case 'Normal':
+        return { backgroundColor: '#22c55e', color: 'white' } // Green
+      case 'Available':
+        return { backgroundColor: '#0077ce', color: 'white' } // Blue
+      case 'In Repair':
+        return { backgroundColor: '#f97316', color: 'white' } // Orange
+      case 'Decommissioned':
+        return { backgroundColor: '#64748b', color: 'white' } // Gray
+      default:
+        return { backgroundColor: '#94a3b8', color: 'white' } // Light gray
     }
   }
 
+  const getAssetStatusLabel = (status: string | null | undefined) => {
+    return status || 'Unknown'
+  }
+
   const getAssetTypeLabel = (asset: Asset) => {
-    if (asset.is_emergency_bike) return 'Emergency'
-    if (asset.is_company_asset) return 'Company'
-    return 'Customer'
+    if (asset.is_emergency_bike) return 'Emergency Bike'
+    if (asset.is_company_asset) return 'Company Asset'
+    return 'Customer Asset'
   }
 
   const listVariants = {
@@ -250,9 +259,9 @@ export default function AssetsPage() {
                       <div className="flex items-center space-x-2 flex-shrink-0 ml-3">
                         <span 
                           className="px-2 py-1 rounded text-xs font-medium"
-                          style={getAssetTypeStyle(asset)}
+                          style={getAssetStatusStyle(asset.status)}
                         >
-                          {getAssetTypeLabel(asset)}
+                          {getAssetStatusLabel(asset.status)}
                         </span>
                         <motion.div
                           animate={{ rotate: isExpanded ? 180 : 0 }}
@@ -275,6 +284,12 @@ export default function AssetsPage() {
                     className="overflow-hidden"
                   >
                     <div className="px-4 py-4 space-y-3 border-t border-gray-100">
+                      {/* Vehicle Type */}
+                      <div className="bg-primary-50 rounded-lg p-3">
+                        <p className="text-xs font-medium text-gray-700 mb-1">Vehicle Type</p>
+                        <p className="text-sm font-semibold text-primary-900">{getAssetTypeLabel(asset)}</p>
+                      </div>
+
                       {/* Technical Specs Section */}
                       <div className="bg-gray-50 rounded-lg p-3 space-y-2">
                         <p className="text-xs font-medium text-gray-700 mb-2">Technical Specs</p>

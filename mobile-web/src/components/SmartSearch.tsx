@@ -164,9 +164,9 @@ export function SmartSearch({
   const getSuggestionIconColor = (type: SearchSuggestion['type']) => {
     switch (type) {
       case 'recent': return 'text-gray-400'
-      case 'customer': return 'text-blue-500'
-      case 'asset': return 'text-purple-500'
-      case 'location': return 'text-green-500'
+      case 'customer': return 'text-primary-600'
+      case 'asset': return 'text-secondary-500'
+      case 'location': return 'text-success-600'
       default: return 'text-gray-400'
     }
   }

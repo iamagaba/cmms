@@ -55,7 +55,7 @@ export function MobileHeader({
           ) : (
             <div 
               className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background: 'linear-gradient(135deg, #6A0DAD, #7838C7)' }}
+              style={{ background: 'linear-gradient(135deg, #0077ce, #0c96f1)' }}
             >
               <span className="text-white text-sm font-bold">G</span>
             </div>

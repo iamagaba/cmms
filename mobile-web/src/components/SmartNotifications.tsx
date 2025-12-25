@@ -67,11 +67,11 @@ export function SmartNotifications({
     if (priority === 'high') return 'text-red-500'
     
     switch (type) {
-      case 'success': return 'text-green-500'
-      case 'warning': return 'text-yellow-500'
-      case 'error': return 'text-red-500'
-      case 'location': return 'text-blue-500'
-      case 'assignment': return 'text-purple-500'
+      case 'success': return 'text-success-600'
+      case 'warning': return 'text-warning-600'
+      case 'error': return 'text-error-600'
+      case 'location': return 'text-primary-600'
+      case 'assignment': return 'text-secondary-500'
       default: return 'text-gray-500'
     }
   }

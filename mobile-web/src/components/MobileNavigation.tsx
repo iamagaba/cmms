@@ -57,10 +57,10 @@ export function MobileNavigation({ activeTab, badges = {} }: MobileNavigationPro
   const getBadgeColor = useMemo(() => {
     const colors = {
       red: 'bg-red-500 text-white',
-      blue: 'bg-blue-500 text-white',
+      blue: 'bg-primary-600 text-white',
       green: 'bg-green-500 text-white',
       yellow: 'bg-yellow-500 text-white',
-      purple: 'bg-purple-500 text-white'
+      orange: 'bg-secondary-500 text-white'
     }
     return (color: string = 'red') => colors[color as keyof typeof colors] || colors.red
   }, [])

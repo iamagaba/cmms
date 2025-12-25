@@ -84,7 +84,7 @@ function DefaultLoader() {
         {[0, 1, 2].map((i) => (
           <motion.div
             key={i}
-            className="w-2 h-2 bg-purple-600 rounded-full"
+            className="w-2 h-2 bg-primary-600 rounded-full"
             animate={{
               scale: [1, 1.2, 1],
               opacity: [0.7, 1, 0.7]

@@ -16,9 +16,9 @@ export interface EnhancedButtonProps extends ButtonHTMLAttributes<HTMLButtonElem
 }
 
 const buttonVariants = {
-  primary: 'bg-purple-600 text-white hover:bg-purple-700 active:bg-purple-800 border-purple-600',
+  primary: 'bg-primary-600 text-white hover:bg-primary-500 active:bg-primary-700 border-primary-600',
   secondary: 'bg-gray-100 text-gray-900 hover:bg-gray-200 active:bg-gray-300 border-gray-200',
-  outline: 'bg-transparent text-purple-600 hover:bg-purple-50 active:bg-purple-100 border-purple-600 border-2',
+  outline: 'bg-transparent text-primary-600 hover:bg-primary-50 active:bg-primary-100 border-primary-600 border-2',
   ghost: 'bg-transparent text-gray-600 hover:bg-gray-100 active:bg-gray-200 border-transparent',
   danger: 'bg-red-600 text-white hover:bg-red-700 active:bg-red-800 border-red-600'
 }
@@ -60,7 +60,7 @@ export const EnhancedButton = forwardRef<HTMLButtonElement, EnhancedButtonProps>
       inline-flex items-center justify-center
       font-medium rounded-xl
       transition-all duration-200
-      focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2
+      focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2
       disabled:opacity-50 disabled:cursor-not-allowed
       ${buttonVariants[variant]}
       ${buttonSizes[size]}

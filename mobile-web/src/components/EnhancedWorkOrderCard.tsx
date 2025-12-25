@@ -48,7 +48,7 @@ export function EnhancedWorkOrderCard({ order, onAction }: EnhancedWorkOrderCard
             id: 'photos', 
             label: 'Add Photos', 
             icon: Camera, 
-            color: 'bg-purple-600 hover:bg-purple-700 text-white' 
+            color: 'bg-primary-600 hover:bg-primary-700 text-white' 
           },
           { 
             id: 'complete', 

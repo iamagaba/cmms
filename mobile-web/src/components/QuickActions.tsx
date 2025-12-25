@@ -18,7 +18,7 @@ export function QuickActions() {
       id: 'map-view',
       label: 'Map View',
       icon: Map,
-      color: 'bg-purple-500 hover:bg-purple-600',
+      color: 'bg-primary-600 hover:bg-primary-700',
       onClick: () => {
         // Navigate to map view
         window.location.href = '/map'

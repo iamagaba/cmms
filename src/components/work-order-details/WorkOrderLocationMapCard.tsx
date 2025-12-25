@@ -1,119 +1,167 @@
-import React from 'react';
-import { Card, Descriptions, Select, Button, Empty } from 'antd';
-import { Icon } from '@iconify/react'; // Import Icon from Iconify
+import React, { useEffect, useRef, useState } from 'react';
+import { Icon } from '@iconify/react';
 import { WorkOrder, Location } from '@/types/supabase';
-import { MapboxLocationSearchInput } from '@/components/MapboxLocationSearchInput';
-import { MapboxDisplayMap } from '@/components/MapboxDisplayMap';
 import mapboxgl from 'mapbox-gl';
-
-// const { Text } = Typography;
-const { Option } = Select;
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 interface WorkOrderLocationMapCardProps {
   workOrder: WorkOrder;
-  location: Location | null;
-  allLocations: Location[];
-  handleUpdateWorkOrder: (updates: Partial<WorkOrder>) => void;
-  handleLocationSelect: (selectedLoc: { lat: number; lng: number; label: string }) => void;
-  showInteractiveMap: boolean;
-  setShowInteractiveMap: (show: boolean) => void;
+  location?: Location | null;
+  allLocations?: Location[];
+  handleUpdateWorkOrder?: (updates: Partial<WorkOrder>) => void;
+  handleLocationSelect?: (loc: { lat: number; lng: number; label: string }) => void;
+  showInteractiveMap?: boolean;
+  setShowInteractiveMap?: (show: boolean) => void;
 }
+
+const MAPBOX_TOKEN = import.meta.env.VITE_APP_MAPBOX_API_KEY;
 
 export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> = ({
   workOrder,
   location,
-  allLocations,
+  allLocations = [],
   handleUpdateWorkOrder,
   handleLocationSelect,
-  showInteractiveMap,
+  showInteractiveMap = false,
   setShowInteractiveMap,
 }) => {
-  const mapMarkers = [];
-  let mapCenter: [number, number] = [0, 0]; // Default center
-  let originCoords: [number, number] | null = null;
-  let destinationCoords: [number, number] | null = null;
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+  const [mapError, setMapError] = useState<string | null>(null);
 
-  if (location?.lng && location?.lat) {
-    mapMarkers.push({ lng: location.lng, lat: location.lat, color: '#1677ff', popupText: `Service Center: ${location.name}` });
-    mapCenter = [location.lng, location.lat];
-    originCoords = [location.lng, location.lat];
-  }
-  if (workOrder.customerLng && workOrder.customerLat) {
-    mapMarkers.push({ lng: workOrder.customerLng, lat: workOrder.customerLat, color: '#faad14', popupText: `Client Location: ${workOrder.customerAddress || 'N/A'}` });
-    if (!mapCenter[0] && !mapCenter[1]) { // If no service location, center on client
-      mapCenter = [workOrder.customerLng, workOrder.customerLat];
+  const customerLat = workOrder.customerLat;
+  const customerLng = workOrder.customerLng;
+  const customerAddress = workOrder.customerAddress;
+  const hasCustomerLocation = customerLat != null && customerLng != null;
+
+  const serviceCenterLat = location?.lat;
+  const serviceCenterLng = location?.lng;
+  const hasServiceCenterLocation = serviceCenterLat != null && serviceCenterLng != null;
+
+  const hasAnyLocation = hasCustomerLocation || hasServiceCenterLocation;
+
+  useEffect(() => {
+    if (!mapContainer.current || !MAPBOX_TOKEN || !hasAnyLocation) return;
+
+    try {
+      mapboxgl.accessToken = MAPBOX_TOKEN;
+      
+      const centerLat = customerLat ?? serviceCenterLat ?? -1.2921;
+      const centerLng = customerLng ?? serviceCenterLng ?? 36.8219;
+
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [centerLng, centerLat],
+        zoom: 14,
+      });
+
+      map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+      // Customer location marker (red)
+      if (hasCustomerLocation) {
+        new mapboxgl.Marker({ color: '#ef4444' })
+          .setLngLat([customerLng!, customerLat!])
+          .setPopup(new mapboxgl.Popup().setHTML(`<strong>Customer Location</strong><br/>${customerAddress || 'No address'}`))
+          .addTo(map.current);
+      }
+
+      // Service center marker (blue)
+      if (hasServiceCenterLocation) {
+        new mapboxgl.Marker({ color: '#3b82f6' })
+          .setLngLat([serviceCenterLng!, serviceCenterLat!])
+          .setPopup(new mapboxgl.Popup().setHTML(`<strong>${location?.name || 'Service Center'}</strong><br/>${location?.address || ''}`))
+          .addTo(map.current);
+      }
+
+      // Fit bounds if both locations exist
+      if (hasCustomerLocation && hasServiceCenterLocation) {
+        const bounds = new mapboxgl.LngLatBounds()
+          .extend([customerLng!, customerLat!])
+          .extend([serviceCenterLng!, serviceCenterLat!]);
+        map.current.fitBounds(bounds, { padding: 50 });
+      }
+    } catch (err) {
+      setMapError('Failed to load map');
+      console.error('Map error:', err);
     }
-    destinationCoords = [workOrder.customerLng, workOrder.customerLat];
-  }
 
-  // The distance calculation and display is now handled by MapboxDisplayMap
-  // so we remove the local calculation and Descriptions.Item for it.
+    return () => { map.current?.remove(); };
+  }, [hasAnyLocation, customerLat, customerLng, serviceCenterLat, serviceCenterLng, showInteractiveMap]);
+
+  if (!MAPBOX_TOKEN) {
+    return (
+      <div className="bg-white">
+        <div className="px-3 py-2 border-b border-gray-200">
+          <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wide">Location</h3>
+        </div>
+        <div className="px-3 py-2">
+          <div className="bg-amber-50 border border-amber-200 rounded px-2 py-1.5 text-xs text-amber-700">
+            Map unavailable: Mapbox API key not configured
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <Card size="small" title="Location Details">
-      <Descriptions column={1} bordered size="small"> {/* Added bordered prop here */}
-        <Descriptions.Item label={<><Icon icon="ph:map-pin-fill" /> Service Location</>} labelStyle={{ width: '150px' }}>
-          <Select
-            value={workOrder.locationId}
-            onChange={(value) => handleUpdateWorkOrder({ locationId: value })}
-            style={{ width: '100%' }}
-            bordered={false}
-            allowClear
-            placeholder="Select location"
-            suffixIcon={null}
+    <div className="bg-white">
+      <div className="px-3 py-2 border-b border-gray-200 flex items-center justify-between">
+        <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wide">Location</h3>
+        {setShowInteractiveMap && (
+          <button
+            onClick={() => setShowInteractiveMap(!showInteractiveMap)}
+            className="text-xs text-primary-600 hover:text-primary-700 font-medium"
           >
-            {(allLocations || []).map(l => (
-              <Option key={l.id} value={l.id}>{l.name.replace(' Service Center', '')}</Option>
-            ))}
-          </Select>
-        </Descriptions.Item>
-        <Descriptions.Item label="Client Location" labelStyle={{ width: '150px' }}>
-          <MapboxLocationSearchInput onLocationSelect={handleLocationSelect} initialValue={workOrder.customerAddress || ''} />
-        </Descriptions.Item>
-      </Descriptions>
-      <div style={{ marginTop: 16 }}>
-        {mapMarkers.length > 0 ? (
-          showInteractiveMap ? (
-            <MapboxDisplayMap 
-              center={mapCenter} 
-              markers={mapMarkers} 
-              height="300px" 
-              origin={originCoords} 
-              destination={destinationCoords} 
-            />
-          ) : (
-            <div
-              style={{
-                height: '300px',
-                backgroundColor: '#f0f2f5',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                position: 'relative',
-                overflow: 'hidden',
-              }}
-              onClick={() => setShowInteractiveMap(true)}
-            >
-              {mapboxgl.accessToken && mapCenter[0] !== 0 && mapCenter[1] !== 0 ? (
-                <img
-                  src={`https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/${mapCenter[0]},${mapCenter[1]},${12},0,0/600x300?access_token=${mapboxgl.accessToken}&logo=false&attribution=false`}
-                  alt="Static map preview"
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', position: 'absolute', top: 0, left: 0 }}
-                />
-              ) : (
-                <Empty description="No map preview available" image={Empty.PRESENTED_IMAGE_SIMPLE} style={{ zIndex: 1 }} />
-              )}
-              <Button type="primary" icon={<Icon icon="ph:compass-fill" />} style={{ zIndex: 1 }}>
-                View Interactive Map
-              </Button>
-            </div>
-          )
-        ) : (
-          <div style={{padding: '24px', textAlign: 'center'}}><Empty description="No location data to display." /></div>
+            {showInteractiveMap ? 'Hide' : 'Show'}
+          </button>
         )}
       </div>
-    </Card>
+      
+      {/* Use divide-y for sections */}
+      <div className="divide-y divide-gray-100">
+        {/* Address Info */}
+        {(customerAddress || location) && (
+          <div className="px-3 py-2 space-y-1.5">
+            {customerAddress && (
+              <div className="flex items-start gap-1.5">
+                <Icon icon="tabler:map-pin" className="w-3 h-3 text-red-500 mt-0.5 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-gray-500">Customer</p>
+                  <p className="text-xs text-gray-900">{customerAddress}</p>
+                </div>
+              </div>
+            )}
+            {location && (
+              <div className="flex items-start gap-1.5">
+                <Icon icon="tabler:building" className="w-3 h-3 text-blue-500 mt-0.5 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-xs text-gray-500">Service Center</p>
+                  <p className="text-xs text-gray-900">{location.name}</p>
+                  {location.address && <p className="text-xs text-gray-500">{location.address}</p>}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Map */}
+        <div className="px-3 py-2">
+          {hasAnyLocation ? (
+            <div ref={mapContainer} className="h-40 rounded overflow-hidden" />
+          ) : (
+            <div className="h-24 bg-gray-100 rounded flex items-center justify-center">
+              <div className="text-center">
+                <Icon icon="tabler:map-off" className="w-6 h-6 text-gray-300 mx-auto mb-1" />
+                <p className="text-xs text-gray-400">No location data</p>
+              </div>
+            </div>
+          )}
+          {mapError && <p className="text-xs text-red-500 mt-1">{mapError}</p>}
+        </div>
+      </div>
+    </div>
   );
 };
+
+export default WorkOrderLocationMapCard;

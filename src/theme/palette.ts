@@ -1,5 +1,4 @@
 // Centralized brand palette
-import { theme } from 'antd';
 
 export const palette = {
   purple: {
@@ -32,14 +31,16 @@ export const brand = {
 };
 
 export const dataVizColors = [
-  palette.purple[700],
-  palette.pink[700],
-  '#14B8A6', // teal
-  '#3B82F6', // blue
-  '#F59E0B', // amber
-  '#10B981', // emerald
-  '#EF4444', // red
-  '#64748B', // slate
+  palette.purple[600],  // Primary brand
+  palette.pink[600],    // Secondary brand
+  '#06B6D4',           // Cyan (modern teal)
+  '#3B82F6',           // Blue
+  '#F59E0B',           // Amber
+  '#10B981',           // Emerald
+  '#8B5CF6',           // Violet
+  '#EC4899',           // Pink accent
+  '#14B8A6',           // Teal
+  '#F97316',           // Orange
 ] as const;
 
 /**
@@ -52,54 +53,5 @@ export const getDataVizColor = (index: number): string => {
   return dataVizColors[index % dataVizColors.length];
 };
 
-export const antdLightTheme = {
-  algorithm: theme.defaultAlgorithm,
-  token: {
-    colorPrimary: brand.primary,
-    colorLink: brand.primary,
-    colorInfo: '#14B8A6',
-    colorBgLayout: palette.gray[50],
-    colorBgContainer: '#ffffff',
-    colorBorder: palette.gray[200],
-    colorSplit: palette.gray[100],
-    colorText: palette.gray[800],
-    colorTextSecondary: palette.gray[600],
-    colorTextTertiary: palette.gray[400],
-    colorSurface: '#ffffff', // Base surface for cards, modals
-    colorSurfaceSubtle: palette.gray[50], // For subtle backgrounds like table row stripes
-    colorTextAction: brand.primary, // For text links
-    colorTextActionHover: brand.primaryHover,
-  },
-  components: {
-    Button: {
-      colorPrimary: brand.primary,
-      colorPrimaryHover: brand.primaryHover,
-    },
-  }
-};
-
-export const antdDarkTheme = {
-  algorithm: theme.darkAlgorithm,
-  token: {
-    colorPrimary: palette.purple[400], // Use a lighter purple for accessibility on dark backgrounds
-    colorLink: palette.purple[400],
-    colorInfo: '#14B8A6',
-    colorBgLayout: palette.gray[900],
-    colorBgContainer: palette.gray[800],
-    colorBorder: palette.gray[700],
-    colorSplit: palette.gray[800],
-    colorText: palette.gray[50],
-    colorTextSecondary: palette.gray[300],
-    colorTextTertiary: palette.gray[400],
-    colorSurface: palette.gray[800],
-    colorSurfaceSubtle: palette.gray[700],
-    colorTextAction: palette.purple[400],
-    colorTextActionHover: palette.purple[300],
-  },
-  components: {
-    Button: {
-      colorPrimary: palette.purple[400],
-      colorPrimaryHover: palette.purple[300],
-    },
-  }
-};
+// Legacy Ant Design theme configurations removed
+// All theme configuration now handled by Mantine theme in src/theme/mantine.ts

@@ -1,0 +1,201 @@
+/* ============================================ */
+/* CSS CUSTOM PROPERTIES FOR DYNAMIC THEMING */
+/* ============================================ */
+
+:root {
+  /* ========== COLOR VARIABLES ========== */
+  /* Primary Colors */
+  --color-primary: var(--mantine-color-purple-6);
+  --color-primary-hover: var(--mantine-color-purple-7);
+  --color-primary-active: var(--mantine-color-purple-8);
+  --color-primary-light: var(--mantine-color-purple-1);
+  --color-primary-subtle: var(--mantine-color-purple-0);
+  
+  /* Secondary Colors */
+  --color-secondary: var(--mantine-color-gray-6);
+  --color-secondary-hover: var(--mantine-color-gray-7);
+  --color-secondary-light: var(--mantine-color-gray-1);
+  
+  /* Semantic Colors */
+  --color-success: var(--mantine-color-success-6);
+  --color-success-hover: var(--mantine-color-success-7);
+  --color-success-light: var(--mantine-color-success-1);
+  --color-success-subtle: var(--mantine-color-success-0);
+  
+  --color-warning: var(--mantine-color-warning-6);
+  --color-warning-hover: var(--mantine-color-warning-7);
+  --color-warning-light: var(--mantine-color-warning-1);
+  --color-warning-subtle: var(--mantine-color-warning-0);
+  
+  --color-error: var(--mantine-color-error-6);
+  --color-error-hover: var(--mantine-color-error-7);
+  --color-error-light: var(--mantine-color-error-1);
+  --color-error-subtle: var(--mantine-color-error-0);
+  
+  --color-info: var(--mantine-color-info-6);
+  --color-info-hover: var(--mantine-color-info-7);
+  --color-info-light: var(--mantine-color-info-1);
+  --color-info-subtle: var(--mantine-color-info-0);
+  
+  /* ========== TEXT COLORS ========== */
+  --text-primary: var(--mantine-color-gray-9);
+  --text-secondary: var(--mantine-color-gray-6);
+  --text-tertiary: var(--mantine-color-gray-5);
+  --text-disabled: var(--mantine-color-gray-4);
+  --text-inverse: #ffffff;
+  --text-link: var(--color-primary);
+  --text-link-hover: var(--color-primary-hover);
+  
+  /* ========== BACKGROUND COLORS ========== */
+  --bg-default: #ffffff;
+  --bg-subtle: var(--mantine-color-gray-0);
+  --bg-muted: var(--mantine-color-gray-1);
+  --bg-hover: var(--color-primary-subtle);
+  --bg-selected: var(--color-primary-light);
+  --bg-accent: var(--mantine-color-pink-0);
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+  
+  /* Status Backgrounds */
+  --bg-success: var(--color-success-subtle);
+  --bg-warning: var(--color-warning-subtle);
+  --bg-error: var(--color-error-subtle);
+  --bg-info: var(--color-info-subtle);
+  
+  /* ========== BORDER COLORS ========== */
+  --border-default: var(--mantine-color-gray-2);
+  --border-hover: var(--mantine-color-gray-3);
+  --border-focus: var(--color-primary);
+  --border-error: var(--color-error);
+  --border-success: var(--color-success);
+  --border-warning: var(--color-warning);
+  --border-info: var(--color-info);
+  
+  /* ========== SHADOW VARIABLES ========== */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+  --shadow-focus: 0 0 0 3px var(--color-primary-light);
+  
+  /* ========== ANIMATION VARIABLES ========== */
+  --duration-instant: 100ms;
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --duration-slower: 500ms;
+  
+  --easing-linear: linear;
+  --easing-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --easing-ease-in: cubic-bezier(0.7, 0, 0.84, 0);
+  --easing-ease-in-out: cubic-bezier(0.87, 0, 0.13, 1);
+  --easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  
+  /* ========== SPACING VARIABLES ========== */
+  --spacing-xs: 0.25rem;  /* 4px */
+  --spacing-sm: 0.5rem;   /* 8px */
+  --spacing-md: 1rem;     /* 16px */
+  --spacing-lg: 1.5rem;   /* 24px */
+  --spacing-xl: 2rem;     /* 32px */
+  --spacing-xxl: 3rem;    /* 48px */
+  
+  /* ========== RADIUS VARIABLES ========== */
+  --radius-xs: 0.125rem;  /* 2px */
+  --radius-sm: 0.25rem;   /* 4px */
+  --radius-md: 0.5rem;    /* 8px */
+  --radius-lg: 0.75rem;   /* 12px */
+  --radius-xl: 1rem;      /* 16px */
+  --radius-xxl: 1.5rem;   /* 24px */
+  --radius-full: 9999px;
+  
+  /* ========== SIZE VARIABLES ========== */
+  --size-button-xs: 1.5rem;   /* 24px */
+  --size-button-sm: 2rem;     /* 32px */
+  --size-button-md: 2.5rem;   /* 40px */
+  --size-button-lg: 3rem;     /* 48px */
+  --size-button-xl: 3.5rem;   /* 56px */
+  
+  --size-input-xs: 1.75rem;   /* 28px */
+  --size-input-sm: 2.25rem;   /* 36px */
+  --size-input-md: 2.75rem;   /* 44px */
+  --size-input-lg: 3.25rem;   /* 52px */
+  --size-input-xl: 3.75rem;   /* 60px */
+  
+  --size-icon-xs: 0.75rem;    /* 12px */
+  --size-icon-sm: 1rem;       /* 16px */
+  --size-icon-md: 1.25rem;    /* 20px */
+  --size-icon-lg: 1.5rem;     /* 24px */
+  --size-icon-xl: 2rem;       /* 32px */
+  
+  /* ========== Z-INDEX VARIABLES ========== */
+  --z-hide: -1;
+  --z-auto: auto;
+  --z-base: 0;
+  --z-docked: 10;
+  --z-dropdown: 1000;
+  --z-sticky: 1100;
+  --z-banner: 1200;
+  --z-overlay: 1300;
+  --z-modal: 1400;
+  --z-popover: 1500;
+  --z-skip-link: 1600;
+  --z-toast: 1700;
+  --z-tooltip: 1800;
+}
+
+/* ============================================ */
+/* DARK MODE VARIABLES */
+/* ============================================ */
+
+[data-mantine-color-scheme="dark"] {
+  /* Dark mode color overrides */
+  --bg-default: var(--mantine-color-dark-7);
+  --bg-subtle: var(--mantine-color-dark-6);
+  --bg-muted: var(--mantine-color-dark-5);
+  --bg-hover: var(--mantine-color-dark-5);
+  --bg-selected: var(--mantine-color-dark-4);
+  
+  --text-primary: var(--mantine-color-dark-0);
+  --text-secondary: var(--mantine-color-dark-2);
+  --text-tertiary: var(--mantine-color-dark-3);
+  --text-disabled: var(--mantine-color-dark-4);
+  
+  --border-default: var(--mantine-color-dark-4);
+  --border-hover: var(--mantine-color-dark-3);
+  
+  /* Adjust shadows for dark mode */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px -1px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
+}
+
+/* ============================================ */
+/* UTILITY CLASSES FOR CSS VARIABLES */
+/* ============================================ */
+
+.bg-primary { background-color: var(--color-primary); }
+.bg-secondary { background-color: var(--color-secondary); }
+.bg-success { background-color: var(--bg-success); }
+.bg-warning { background-color: var(--bg-warning); }
+.bg-error { background-color: var(--bg-error); }
+.bg-info { background-color: var(--bg-info); }
+
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-tertiary { color: var(--text-tertiary); }
+.text-disabled { color: var(--text-disabled); }
+
+.border-default { border-color: var(--border-default); }
+.border-focus { border-color: var(--border-focus); }
+.border-error { border-color: var(--border-error); }
+.border-success { border-color: var(--border-success); }
+
+.shadow-sm { box-shadow: var(--shadow-sm); }
+.shadow-md { box-shadow: var(--shadow-md); }
+.shadow-lg { box-shadow: var(--shadow-lg); }
+
+.transition-fast { transition: all var(--duration-fast) var(--easing-ease-out); }
+.transition-normal { transition: all var(--duration-normal) var(--easing-ease-out); }
+.transition-slow { transition: all var(--duration-slow) var(--easing-ease-out); }

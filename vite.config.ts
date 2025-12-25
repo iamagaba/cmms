@@ -1,61 +1,90 @@
 import { defineConfig } from "vite";
-import dyadComponentTagger from "@dyad-sh/react-vite-component-tagger";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { VitePWA } from "vite-plugin-pwa";
+import { visualizer } from "rollup-plugin-visualizer";
 
-export default defineConfig(() => ({
+export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
   },
   plugins: [
-    dyadComponentTagger(),
     react(),
-    VitePWA({
-      registerType: "autoUpdate",
-      injectRegister: "auto",
-      strategies: "injectManifest",
-      srcDir: "src",
-      filename: "sw.ts",
-      workbox: {
-        globPatterns: ["**/*.{js,css,html,ico,png,svg}"],
-        // Add this to ensure workbox modules are bundled
-        importScripts: [],
-      },
-      manifest: {
-        name: "CMMS",
-        short_name: "CMMS",
-        description: "Computerized Maintenance Management System.",
-        theme_color: "#ffffff",
-        icons: [
-          {
-            src: "pwa-192x192.png",
-            sizes: "192x192",
-            type: "image/png",
-          },
-          {
-            src: "pwa-512x512.png",
-            sizes: "512x512",
-            type: "image/png",
-          },
-        ],
-      },
+    // Bundle analyzer - only in analyze mode
+    mode === 'analyze' && visualizer({
+      filename: 'dist/stats.html',
+      open: true,
+      gzipSize: true,
+      brotliSize: true,
     }),
-  ],
+  ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "@mantine/core": path.resolve(__dirname, "./src/mocks/mantine-core.tsx"),
+      "@mantine/hooks": path.resolve(__dirname, "./src/mocks/mantine-hooks.tsx"),
+      "@mantine/notifications": path.resolve(__dirname, "./src/mocks/mantine-notifications.tsx"),
+      "@mantine/dates": path.resolve(__dirname, "./src/mocks/mantine-dates.tsx"),
+      "@mantine/form": path.resolve(__dirname, "./src/mocks/mantine-form.tsx"),
+      "@mantine/charts": path.resolve(__dirname, "./src/mocks/mantine-charts.tsx"),
+      "@mantine/dropzone": path.resolve(__dirname, "./src/mocks/mantine-dropzone.tsx"),
+      "@mantine/spotlight": path.resolve(__dirname, "./src/mocks/mantine-spotlight.tsx"),
+      "mantine-datatable": path.resolve(__dirname, "./src/mocks/mantine-datatable.tsx"),
     },
   },
   build: {
+    // Optimize chunk size
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
-      // This is to ensure that the service worker is bundled correctly
       output: {
-        entryFileNames: `assets/[name].js`,
-        chunkFileNames: `assets/[name].js`,
-        assetFileNames: `assets/[name].[ext]`,
+        entryFileNames: `assets/[name].[hash].js`,
+        chunkFileNames: `assets/[name].[hash].js`,
+        assetFileNames: `assets/[name].[hash].[ext]`,
+        manualChunks: (id) => {
+          // Vendor chunks for large dependencies
+          if (id.includes('node_modules')) {
+            // Calendar and date libraries
+            if (id.includes('react-big-calendar') || id.includes('moment') || id.includes('date-fns') || id.includes('dayjs')) {
+              return 'vendor-calendar';
+            }
+            // Map libraries
+            if (id.includes('mapbox-gl') || id.includes('leaflet')) {
+              return 'vendor-maps';
+            }
+            // React ecosystem
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
+              return 'vendor-react';
+            }
+            // Query and state management
+            if (id.includes('@tanstack/react-query') || id.includes('react-hook-form')) {
+              return 'vendor-state';
+            }
+            // Supabase
+            if (id.includes('@supabase')) {
+              return 'vendor-supabase';
+            }
+            // Other large libraries
+            if (id.includes('framer-motion') || id.includes('embla-carousel')) {
+              return 'vendor-animations';
+            }
+            // Remaining node_modules
+            return 'vendor-misc';
+          }
+
+          // App chunks by feature
+          if (id.includes('/pages/Calendar') || id.includes('/components/Calendar')) {
+            return 'feature-calendar';
+          }
+          if (id.includes('/pages/Analytics') || id.includes('/components/charts')) {
+            return 'feature-analytics';
+          }
+          if (id.includes('/pages/MapView') || id.includes('/components/map')) {
+            return 'feature-maps';
+          }
+        },
       },
     },
+    // Enable source maps for debugging
+    sourcemap: mode === 'development',
   },
 }));

@@ -1,0 +1,84 @@
+/* WorkOrderDetailsEnhanced compact styles */
+
+/* Progress tracker sticky positioning */
+.progress-tracker-sticky {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: white;
+  padding: 8px 0;
+  margin: -8px 0 8px 0;
+  border-bottom: 1px solid var(--mantine-color-gray-3);
+}
+
+.sticky-header-secondary {
+  position: relative;
+}
+
+/* Compact tabs for drawer mode */
+.sticky-header-secondary .mantine-Tabs-tab {
+  padding: 8px 12px;
+  font-size: 0.75rem;
+}
+
+.sticky-header-secondary .mantine-Tabs-tab span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.sticky-header-secondary .mantine-Tabs-panel {
+  padding-top: 12px;
+}
+
+/* Compact cards in drawer mode */
+.mantine-Card-root {
+  border-radius: 8px;
+}
+
+.mantine-Card-section {
+  padding: 8px 12px;
+}
+
+/* Compact timeline items */
+.mantine-Timeline-item {
+  padding-bottom: 8px;
+}
+
+.mantine-Timeline-itemTitle {
+  margin-bottom: 2px;
+}
+
+/* Compact table styling */
+.mantine-Table-root {
+  font-size: 0.75rem;
+}
+
+.mantine-Table-th,
+.mantine-Table-td {
+  padding: 6px 8px;
+}
+
+/* Compact form elements */
+.mantine-Select-input,
+.mantine-DateTimePicker-input {
+  min-height: 28px;
+  font-size: 0.75rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .progress-tracker-sticky {
+    padding: 6px 0;
+    margin: -6px 0 6px 0;
+  }
+  
+  .sticky-header-secondary .mantine-Tabs-tab {
+    padding: 6px 8px;
+    font-size: 0.6875rem;
+  }
+  
+  .sticky-header-secondary .mantine-Tabs-tab span {
+    gap: 3px;
+  }
+}

@@ -1,5 +1,7 @@
 import dayjs from "dayjs";
-import { theme } from 'antd';
+import weekOfYear from "dayjs/plugin/weekOfYear";
+
+dayjs.extend(weekOfYear);
 
 
 const monthNames = [
@@ -40,22 +42,21 @@ export const RepairActivityTimeline = ({
   selectedWeek?: number | null;
   onSelectWeek?: (week: number) => void;
 }) => {
-  const { token } = theme.useToken();
   const year = dayjs().year();
   const weeksByMonth = getWeeksByMonth(year);
   const repairCounts = getRepairCountsByWeek(workOrders, year);
   // Color for weeks with work orders
   function getCellColor(count: number, isSelected: boolean) {
-    if (isSelected) return token.colorPrimary;
-    if (count === 0) return token.colorFillQuaternary;
-    if (count === 1) return token.colorSuccessBg;
-    if (count === 2) return token.colorWarningBg;
-  if (count === 3) return token.colorWarningBg;
-    if (count >= 4) return token.colorErrorBg;
-    return token.colorFillQuaternary;
+    if (isSelected) return 'var(--mantine-color-purple-6)';
+    if (count === 0) return 'var(--mantine-color-gray-1)';
+    if (count === 1) return 'var(--mantine-color-green-2)';
+    if (count === 2) return 'var(--mantine-color-yellow-3)';
+    if (count === 3) return 'var(--mantine-color-yellow-4)';
+    if (count >= 4) return 'var(--mantine-color-red-4)';
+    return 'var(--mantine-color-gray-1)';
   }
   return (
-    <div style={{ background: token.colorBgContainer, borderRadius: token.borderRadius, padding: 16, boxShadow: token.boxShadowTertiary, overflowX: 'auto' }}>
+    <div style={{ background: 'var(--mantine-color-body)', borderRadius: 'var(--mantine-radius-md)', padding: 16, boxShadow: 'var(--mantine-shadow-sm)', overflowX: 'auto' }}>
       <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 12 }}>Repair Activity Timeline</div>
       <div
         style={{
@@ -84,11 +85,11 @@ export const RepairActivityTimeline = ({
                     padding: '2px 0',
                     fontSize: 15,
                     minHeight: 22,
-                    color: isSelected ? token.colorTextLightSolid : token.colorText,
+                    color: isSelected ? 'white' : 'var(--mantine-color-text)',
                     fontWeight: 500,
                     boxShadow: 'none',
                     cursor: count > 0 ? 'pointer' : 'default',
-                    outline: isSelected ? `2px solid ${token.colorPrimary}` : 'none',
+                    outline: isSelected ? '2px solid var(--mantine-color-purple-6)' : 'none',
                     transition: 'all 0.2s',
                     userSelect: 'none',
                     border: 'none',

@@ -101,6 +101,45 @@ export const isValidStatusTransition = (
 };
 
 /**
+ * Determines if an asset is currently in custody at a service center.
+ * @param vehicle The vehicle/asset to check.
+ * @returns True if the asset is in custody (status = 'In Repair').
+ */
+export const isAssetInCustody = (vehicle: { status?: string | null }): boolean => {
+  return vehicle.status === 'In Repair';
+};
+
+/**
+ * Gets badge information for displaying asset custody status.
+ * @param vehicle The vehicle/asset to get badge info for.
+ * @returns Object with label, color, and icon for the custody badge.
+ */
+export const getAssetCustodyBadge = (vehicle: { status?: string | null }) => {
+  if (vehicle.status === 'In Repair') {
+    return { 
+      label: 'In Custody', 
+      color: 'blue', 
+      icon: '🔧',
+      description: 'Asset is at service center undergoing repair'
+    };
+  }
+  if (vehicle.status === 'Decommissioned') {
+    return { 
+      label: 'Decommissioned', 
+      color: 'red', 
+      icon: '🚫',
+      description: 'Asset is no longer in service'
+    };
+  }
+  return { 
+    label: 'With Customer', 
+    color: 'green', 
+    icon: '📍',
+    description: 'Asset is in customer possession'
+  };
+};
+
+/**
  * Generates an activity message based on the changes made to a work order.
  * @param oldWorkOrder The original work order object.
  * @param updates The partial updates being applied.

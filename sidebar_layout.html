@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Collapsible Sidebar Layout (CSS Grid)</title>
+  <style>
+    /* Basic Reset */
+    body, h1, p {
+      margin: 0;
+      font-family: sans-serif;
+    }
+
+    /* Page Container: CSS Grid Layout */
+    .page-container {
+      display: grid;
+      /* Define two columns: the first for the sidebar, the second for the main content */
+      /* Initially, the sidebar column is 0 width, and the main content takes the rest (1fr) */
+      grid-template-columns: 0 1fr;
+      min-height: 100vh;
+      /* Smooth transition for the grid-template-columns property */
+      transition: grid-template-columns 0.3s ease-in-out;
+    }
+
+    /* When the sidebar is visible, the first column grows to 250px */
+    .page-container.sidebar-visible {
+      grid-template-columns: 250px 1fr;
+    }
+
+    /* Sidebar Styling */
+    .sidebar {
+      width: 250px; /* Fixed width */
+      background-color: #333;
+      color: white;
+      padding: 20px;
+      box-sizing: border-box;
+      /* Hide content that overflows when the column width is 0 */
+      overflow-x: hidden;
+      white-space: nowrap; /* Prevent content from wrapping */
+      display: flex;
+      flex-direction: column;
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0.3s, opacity 0.3s ease-in-out;
+    }
+
+    .page-container.sidebar-visible .sidebar {
+        visibility: visible;
+        opacity: 1;
+    }
+
+    /* Main Content Area Styling */
+    .main-content {
+      padding: 20px;
+      box-sizing: border-box;
+      /* The grid will handle the width automatically */
+    }
+
+    /* Toggle Button Styling */
+    #toggle-btn {
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      padding: 10px 15px;
+      background-color: #555;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-container">
+  <aside class="sidebar">
+    <h2>Sidebar</h2>
+    <p>This is the sidebar content.</p>
+    <ul>
+      <li><a href="#" style="color: white;">Link 1</a></li>
+      <li><a href="#" style="color: white;">Link 2</a></li>
+      <li><a href="#" style="color: white;">Link 3</a></li>
+    </ul>
+  </aside>
+  <main class="main-content">
+    <button id="toggle-btn">Toggle Sidebar</button>
+    <h1>Page Title</h1>
+    <p>This is the main content area. This solution uses CSS Grid, which provides a more robust way to handle the layout. When the sidebar is shown, the grid column resizes, and the main content area reflows smoothly.</p>
+  </main>
+</div>
+
+<script>
+  document.getElementById('toggle-btn').addEventListener('click', function() {
+    document.querySelector('.page-container').classList.toggle('sidebar-visible');
+  });
+</script>
+
+</body>
+</html>

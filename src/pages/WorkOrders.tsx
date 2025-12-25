@@ -1,46 +1,159 @@
-import { useMemo, useState } from "react";
-import { Button, Space, Tabs, Alert, Spin, Table, Typography } from "antd";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
+import {
+  Stack,
+  Button,
+  Card,
+  Checkbox,
+  Tabs,
+  Menu,
+  Alert,
+  Skeleton,
+  Container,
+  Title,
+  Text,
+  Group,
+  Badge,
+  ActionIcon,
+  TextInput,
+  MultiSelect,
+  Paper,
+  Box,
+  Grid,
+  ThemeIcon
+} from '@/components/tailwind-components';
 import { Icon } from '@iconify/react';
-import { WorkOrderDataTable } from "@/components/WorkOrderDataTable";
-import { ALL_COLUMNS } from "@/components/work-order-columns-constants";
-import { WorkOrderFormDrawer } from "@/components/WorkOrderFormDrawer";
-import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
-import WorkOrderKanban from "@/components/WorkOrderKanban";
-import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
-import WorkOrderProgressTracker from "@/components/WorkOrderProgressTracker";
+import { useDisclosure, useMediaQuery } from '@/hooks/tailwind';
+import { EnhancedWorkOrderDataTable } from "@/components/EnhancedWorkOrderDataTable";
+import { ALL_COLUMNS, REQUIRED_COLUMNS, OPTIONAL_COLUMNS } from "@/components/work-order-columns-constants";
+import AppBreadcrumb from "@/components/Breadcrumbs";
+import { WorkOrderDetailsDrawer } from "@/components/WorkOrderDetailsDrawer";
+import { CreateWorkOrderForm } from "@/components/work-orders/CreateWorkOrderForm";
+import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
+import { useDensity } from "@/context/DensityContext";
 
-import CalendarPage from "./Calendar";
-import MapViewPage from "./MapView";
-import { CreateWorkOrderDialog } from "@/components/CreateWorkOrderDialog";
+// Utility functions
+import ErrorBoundary from "@/components/ErrorBoundary";
+
 import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime';
 import isBetween from 'dayjs/plugin/isBetween';
-import AppBreadcrumb from "@/components/Breadcrumbs";
-import Fab from "@/components/Fab";
+
 import { useWorkOrderData } from "@/hooks/useWorkOrderData";
 import { useWorkOrderMutations } from "@/hooks/useWorkOrderMutations";
-import { useWorkOrderFilters, GroupByOption } from "@/hooks/useWorkOrderFilters";
-// Removed custom primary button style to match Customers page buttons
-import { WorkOrder, Vehicle, Customer } from "@/types/supabase";
-import WorkOrderFilters from "@/components/WorkOrderFilters";
+import { useWorkOrderFilters } from "@/hooks/useWorkOrderFilters";
+import { useSearchHistory } from "@/hooks/useSearchHistory";
+import { useNotifications } from '@/hooks/useNotifications';
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import { WorkOrder } from "@/types/supabase";
+import { WorkOrdersMap } from "@/components/maps/WorkOrdersMap";
+
+// Fix import if file exists, otherwise comment out or remove if verified unused
+// import WorkOrderProgressTimeline from "@/components/WorkOrderProgressTimeline";
 
 dayjs.extend(isBetween);
 dayjs.extend(relativeTime);
 
-type WorkOrderView = 'table' | 'kanban' | 'calendar' | 'map' | 'progress';
+type WorkOrderView = 'table' | 'kanban' | 'calendar' | 'map' | 'progress' | 'cards';
+
+// Enhanced status and priority configurations
+const STATUS_CONFIG = {
+  'Open': { color: 'blue', icon: 'tabler:circle-dot', label: 'Open' },
+  'In Progress': { color: 'orange', icon: 'tabler:clock', label: 'In Progress' },
+  'Completed': { color: 'green', icon: 'tabler:check-circle', label: 'Completed' },
+  'On Hold': { color: 'yellow', icon: 'tabler:pause-circle', label: 'On Hold' },
+  'Cancelled': { color: 'red', icon: 'tabler:x-circle', label: 'Cancelled' },
+} as const;
+
+const PRIORITY_CONFIG = {
+  'High': { color: 'red', icon: 'tabler:arrow-up', label: 'High Priority' },
+  'Medium': { color: 'yellow', icon: 'tabler:minus', label: 'Medium Priority' },
+  'Low': { color: 'green', icon: 'tabler:arrow-down', label: 'Low Priority' },
+} as const;
 
 const WorkOrdersPage = () => {
-  // const navigate = useNavigate();
   // Component state
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
-  const [editingWorkOrder, setEditingWorkOrder] = useState<WorkOrder | null>(null);
-  const [prefillData, setPrefillData] = useState<Partial<WorkOrder> | null>(null);
   const [view, setView] = useState<WorkOrderView>('table');
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
-  const [visibleColumns, setVisibleColumns] = useState<string[]>(ALL_COLUMNS.map(c => c.value));
+  const [editingWorkOrder, setEditingWorkOrder] = useState<WorkOrder | null>(null);
+  const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const { isCompact } = useDensity();
 
-    // const viewingWorkOrderId = searchParams.get('view');
+  // Delete Dialog State
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [workOrderToDelete, setWorkOrderToDelete] = useState<WorkOrder | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Enhanced UI state
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
+  const [priorityFilter, setPriorityFilter] = useState<string[]>([]);
+  const [technicianFilter, setTechnicianFilter] = useState<string[]>([]);
+  const [locationFilter, setLocationFilter] = useState<string[]>([]);
+  const [selectedRecords, setSelectedRecords] = useState<WorkOrder[]>([]);
+  const [filtersOpened, { toggle: toggleFilters }] = useDisclosure(false);
+
+
+  const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 300);
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
+  // Handler to open the new work order form dialog
+  const onCreateNew = () => {
+    setIsCreateModalOpen(true);
+  };
+
+  // Maximum number of columns that can be displayed (set high to allow all columns)
+  const MAX_VISIBLE_COLUMNS = 13;
+
+  // Load visible columns from localStorage or use defaults
+  // Required columns are always included
+  const [visibleColumns, setVisibleColumns] = useState<string[]>(() => {
+    const saved = localStorage.getItem('workOrderVisibleColumns');
+    const defaultOptional = ['service', 'priority', 'technician'];
+    if (saved) {
+      const parsed = JSON.parse(saved).filter((col: string) => col !== 'actions');
+      // Ensure required columns are always included
+      const withRequired = [...new Set([...REQUIRED_COLUMNS, ...parsed])];
+      return withRequired;
+    }
+    return [...REQUIRED_COLUMNS, ...defaultOptional];
+  });
+
+  // Column selector menu state
+  const [columnMenuOpened, setColumnMenuOpened] = useState(false);
+
+  // Save visible columns to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('workOrderVisibleColumns', JSON.stringify(visibleColumns));
+  }, [visibleColumns]);
+
+  // Toggle column visibility (only for optional columns)
+  const toggleColumn = (columnValue: string) => {
+    // Don't allow toggling required columns
+    if (REQUIRED_COLUMNS.includes(columnValue)) return;
+
+    setVisibleColumns(prev => {
+      const isCurrentlyVisible = prev.includes(columnValue);
+
+      if (isCurrentlyVisible) {
+        // Remove column
+        return prev.filter(col => col !== columnValue);
+      } else {
+        // Add column (check max limit)
+        if (prev.length >= MAX_VISIBLE_COLUMNS) {
+          return prev;
+        }
+        return [...prev, columnValue];
+      }
+    });
+  };
+
+  // Reset columns to default
+  const resetColumnsToDefault = () => {
+    const defaultOptional = ['service', 'priority', 'technician'];
+    setVisibleColumns([...REQUIRED_COLUMNS, ...defaultOptional]);
+    setColumnMenuOpened(false);
+  };
 
   // Custom hooks for data, mutations, and filters
   const {
@@ -57,47 +170,140 @@ const WorkOrdersPage = () => {
     refetch
   } = useWorkOrderData();
 
+  const { showSuccess, showInfo, showError } = useNotifications();
+
   const {
     vehicleFilter,
-    statusFilter,
-    priorityFilter,
-    technicianFilter,
-    channelFilter,
-    groupBy,
+    statusFilter: hookStatusFilter, // Keep this if used, otherwise remove
     setVehicleFilter,
-    setStatusFilter,
-    setPriorityFilter,
-    setTechnicianFilter,
-    setChannelFilter,
-    setGroupBy,
+    setStatusFilter: setHookStatusFilter, // Keep if used
     filteredWorkOrders,
-    kanbanColumns,
-    groupByField
   } = useWorkOrderFilters(allWorkOrders, technicians);
 
   const {
     updateWorkOrder,
     saveWorkOrder,
     deleteWorkOrder,
-    bulkAssign
   } = useWorkOrderMutations({ serviceCategories, slaPolicies, technicians, locations });
+
+  const { add: addToSearchHistory } = useSearchHistory();
+
+  // Enhanced filtering and search
+  const processedWorkOrders = useMemo(() => {
+    let filtered = filteredWorkOrders || [];
+
+    // Advanced search filter
+    if (debouncedSearchQuery) {
+      const query = debouncedSearchQuery.toLowerCase();
+      filtered = filtered.filter(wo =>
+        wo.workOrderNumber?.toLowerCase().includes(query) ||
+        wo.description?.toLowerCase().includes(query) ||
+        wo.initialDiagnosis?.toLowerCase().includes(query) ||
+        wo.service?.toLowerCase().includes(query) ||
+        vehicles?.find(v => v.id === wo.vehicleId)?.license_plate?.toLowerCase().includes(query) ||
+        vehicles?.find(v => v.id === wo.vehicleId)?.make?.toLowerCase().includes(query) ||
+        vehicles?.find(v => v.id === wo.vehicleId)?.model?.toLowerCase().includes(query) ||
+        customers?.find(c => c.id === wo.customerId)?.name?.toLowerCase().includes(query) ||
+        technicians?.find(t => t.id === wo.assignedTechnicianId)?.name?.toLowerCase().includes(query) ||
+        locations?.find(l => l.id === wo.locationId)?.name?.toLowerCase().includes(query)
+      );
+    }
+
+    // Status filter
+    if (statusFilter.length > 0) {
+      filtered = filtered.filter(wo => statusFilter.includes(wo.status || ''));
+    }
+
+    // Priority filter
+    if (priorityFilter.length > 0) {
+      filtered = filtered.filter(wo => priorityFilter.includes(wo.priority || ''));
+    }
+
+    // Technician filter
+    if (technicianFilter.length > 0) {
+      filtered = filtered.filter(wo =>
+        wo.assignedTechnicianId && technicianFilter.includes(wo.assignedTechnicianId)
+      );
+    }
+
+    // Location filter
+    if (locationFilter.length > 0) {
+      filtered = filtered.filter(wo =>
+        wo.locationId && locationFilter.includes(wo.locationId)
+      );
+    }
+
+    return filtered;
+  }, [filteredWorkOrders, debouncedSearchQuery, statusFilter, priorityFilter, technicianFilter, locationFilter, vehicles, customers, technicians, locations]);
+
+  // Calculate status counts for summary cards (must be before early returns)
+  const statusCounts = useMemo(() => {
+    const counts = { open: 0, inProgress: 0, completed: 0, onHold: 0 };
+    (allWorkOrders || []).forEach(wo => {
+      if (wo.status === 'Open') counts.open++;
+      else if (wo.status === 'In Progress') counts.inProgress++;
+      else if (wo.status === 'Completed') counts.completed++;
+      else if (wo.status === 'On Hold') counts.onHold++;
+    });
+    return counts;
+  }, [allWorkOrders]);
+
+  // Update search history with result count when search results change
+  useEffect(() => {
+    if (vehicleFilter.trim() && processedWorkOrders) {
+      addToSearchHistory(vehicleFilter.trim(), processedWorkOrders.length);
+    }
+  }, [vehicleFilter, processedWorkOrders?.length, addToSearchHistory]);
+
+  // Saved preset filter: All vs Active Loaners
+  const [preset] = useState<'all' | 'active-loaners'>('all');
 
   // Event handlers
   const handleSave = (workOrderData: WorkOrder) => {
     saveWorkOrder(workOrderData);
-    setIsFormDialogOpen(false);
-    setEditingWorkOrder(null);
   };
 
-  const handleDelete = (workOrderData: WorkOrder) => {
-    deleteWorkOrder(workOrderData);
+  const handleDeleteClick = (workOrderData: WorkOrder) => {
+    setWorkOrderToDelete(workOrderData);
+    setDeleteDialogOpen(true);
   };
-  
-  const handleUpdateWorkOrder = (id: string, updates: Partial<WorkOrder>) => {
+
+  const handleBulkDeleteClick = () => {
+    setWorkOrderToDelete(null); // Indicates bulk delete
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      if (workOrderToDelete) {
+        // Single delete
+        await deleteWorkOrder(workOrderToDelete);
+      } else {
+        // Bulk delete
+        for (const record of selectedRecords) {
+          await deleteWorkOrder(record);
+        }
+        setSelectedRecords([]);
+        showSuccess(`${selectedRecords.length} work orders deleted`, {
+          title: 'Work Orders Deleted',
+        });
+      }
+      setDeleteDialogOpen(false);
+      setWorkOrderToDelete(null);
+    } catch (error) {
+      // Error handled by mutation
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleUpdateWorkOrder = useCallback((id: string, updates: Partial<WorkOrder>) => {
     const workOrder = allWorkOrders?.find(wo => wo.id === id);
     if (!workOrder) return;
+
     updateWorkOrder(workOrder, updates, setOnHoldWorkOrder);
-  };
+  }, [allWorkOrders, updateWorkOrder]);
 
   const handleSaveOnHoldReason = (reason: string) => {
     if (!onHoldWorkOrder) return;
@@ -106,263 +312,915 @@ const WorkOrdersPage = () => {
     setOnHoldWorkOrder(null);
   };
 
+  // Enhanced bulk actions
+  const handleBulkStatusUpdate = useCallback((status: string) => {
+    selectedRecords.forEach(record => {
+      handleUpdateWorkOrder(record.id, { status: status as any });
+    });
+    setSelectedRecords([]);
+    showSuccess(`${selectedRecords.length} work orders updated to ${status}`, {
+      title: 'Status Updated',
+    });
+  }, [selectedRecords, handleUpdateWorkOrder]);
+
+  const handleBulkAssign = useCallback((technicianId: string) => {
+    const technician = technicians?.find(t => t.id === technicianId);
+    selectedRecords.forEach(record => {
+      handleUpdateWorkOrder(record.id, { assignedTechnicianId: technicianId });
+    });
+    setSelectedRecords([]);
+    showInfo(`${selectedRecords.length} work orders assigned to ${technician?.name}`, {
+      title: 'Technician Assigned',
+    });
+  }, [selectedRecords, handleUpdateWorkOrder, technicians]);
+
+  // Export functionality
+  const handleExport = useCallback(() => {
+    const csvContent = [
+      ['Work Order', 'Status', 'Priority', 'Vehicle', 'Technician', 'Created', 'SLA Due'].join(','),
+      ...processedWorkOrders.map(wo => [
+        wo.workOrderNumber || wo.id.substring(0, 8),
+        wo.status || '',
+        wo.priority || '',
+        vehicles?.find(v => v.id === wo.vehicleId)?.license_plate || '',
+        technicians?.find(t => t.id === wo.assignedTechnicianId)?.name || 'Unassigned',
+        dayjs(wo.created_at).format('YYYY-MM-DD'),
+        wo.slaDue ? dayjs(wo.slaDue).format('YYYY-MM-DD') : ''
+      ].join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `work-orders-${dayjs().format('YYYY-MM-DD')}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+
+    showSuccess(`${processedWorkOrders.length} work orders exported`, {
+      title: 'Export Complete',
+    });
+  }, [processedWorkOrders, vehicles, technicians]);
+
+  // Filter options
+  const statusOptions = Object.keys(STATUS_CONFIG);
+  const priorityOptions = Object.keys(PRIORITY_CONFIG);
+  const technicianOptions = technicians?.map(t => ({ value: t.id, label: t.name })) || [];
+  const locationOptions = locations?.map(l => ({ value: l.id, label: l.name })) || [];
+
+  // Clear all filters
+  const clearAllFilters = useCallback(() => {
+    setSearchQuery('');
+    setStatusFilter([]);
+    setPriorityFilter([]);
+    setTechnicianFilter([]);
+    setLocationFilter([]);
+    setVehicleFilter(''); // Clear the existing vehicle filter too
+  }, [setVehicleFilter]);
+
+  const hasActiveFilters = searchQuery || statusFilter.length > 0 || priorityFilter.length > 0 ||
+    technicianFilter.length > 0 || locationFilter.length > 0;
+
   const [drawerWorkOrderId, setDrawerWorkOrderId] = useState<string | null>(null);
-  const handleViewDetails = (workOrderId: string) => {
+  const lastClickTimeRef = useRef(0);
+  const isDrawerOpenRef = useRef(false);
+  const drawerOpenedAtRef = useRef(0);
+
+  const handleViewDetails = useCallback((workOrderId: string) => {
+    console.log('🎯 handleViewDetails called with workOrderId:', workOrderId);
+    const now = Date.now();
+    // Prevent rapid successive clicks (debounce for 250ms)
+    if (now - lastClickTimeRef.current < 250) {
+      console.log('⏱️ Debounced - too soon after last click');
+      return;
+    }
+    lastClickTimeRef.current = now;
+
+    // If drawer is already open with the same ID, ignore
+    if (isDrawerOpenRef.current && drawerWorkOrderId === workOrderId) {
+      console.log('🔄 Drawer already open with same ID');
+      return;
+    }
+
+    console.log('📂 Opening drawer with workOrderId:', workOrderId);
+    // Open drawer
     setDrawerWorkOrderId(workOrderId);
-  };
-
-  // removed duplicate searchTerm state
-  // Drawer removed
-
-  const handleProceedToCreate = (vehicle: Vehicle & { customers?: Customer | null }) => {
-    setIsCreateDialogOpen(false);
-    const initialSlaDue = dayjs().add(15, 'minutes').toISOString();
-    const prefill = {
-      vehicleId: vehicle.id,
-      customerId: vehicle.customers?.id,
-      customerName: vehicle.customers?.name || '',
-      customerPhone: vehicle.customers?.phone || '',
-      vehicleModel: `${vehicle.make} ${vehicle.model}`,
-      slaDue: initialSlaDue,
-    };
-    setPrefillData(prefill);
-    setIsFormDialogOpen(true);
-  };
+    isDrawerOpenRef.current = true;
+    drawerOpenedAtRef.current = now;
+  }, [drawerWorkOrderId]);
 
   const handleVisibleColumnsChange = setVisibleColumns;
-  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
-  // Maps for quick lookup
-  const vehicleMap = useMemo(() => new Map((vehicles || []).map(v => [v.id, v])), [vehicles]);
-  const locationMap = useMemo(() => new Map((locations || []).map(l => [l.id, l])), [locations]);
+  // Enhanced Work Order Card Component for Kanban
+  const WorkOrderCard = ({ workOrder }: { workOrder: WorkOrder }) => {
+    const vehicle = vehicles?.find(v => v.id === workOrder.vehicleId);
+    const customer = customers?.find(c => c.id === workOrder.customerId);
+    const technician = technicians?.find(t => t.id === workOrder.assignedTechnicianId);
+    const hasLoaner = !!((workOrder as any).hasActiveLoaner ?? (workOrder as any).has_active_loaner);
+    const isOverdue = workOrder.slaDue && dayjs(workOrder.slaDue).isBefore(dayjs()) && workOrder.status !== 'Completed';
 
-  const tabItems = [
-    {
-      label: (<span><Icon icon="si:table" /> Table</span>),
-      key: 'table',
-      children: (
-        <WorkOrderDataTable
-          workOrders={filteredWorkOrders}
-          technicians={technicians}
-          locations={locations}
-          customers={customers}
-          vehicles={vehicles}
-          onEdit={(wo) => { setEditingWorkOrder(wo); setIsFormDialogOpen(true); }}
-          onDelete={handleDelete}
-          onUpdateWorkOrder={handleUpdateWorkOrder}
-          onViewDetails={handleViewDetails}
-          profiles={profiles}
-          visibleColumns={visibleColumns}
-          onVisibleColumnsChange={handleVisibleColumnsChange}
-          rowSelection={{
-            selectedRowKeys,
-            onChange: (keys) => setSelectedRowKeys(keys as string[]),
-          }}
-          onBulkAssign={(ids, technicianId) => bulkAssign(ids, technicianId)}
-          virtualized={filteredWorkOrders.length > 80}
-        />
-      ),
-    },
-    {
-      label: (<span><Icon icon="si:grid" /> Board</span>),
-      key: 'kanban',
-      children: (
-        <WorkOrderKanban
-          workOrders={filteredWorkOrders}
-          groupBy={groupByField}
-          columns={kanbanColumns}
-          onUpdateWorkOrder={handleUpdateWorkOrder}
-          technicians={technicians}
-          locations={locations}
-          customers={customers}
-          vehicles={vehicles}
-          onViewDetails={handleViewDetails}
-        />
-      ),
-    },
-    {
-      label: (<span><Icon icon="si:calendar" /> Calendar</span>),
-      key: 'calendar',
-      children: <CalendarPage />,
-    },
-    {
-      label: (<span><Icon icon="si:map" /> Map View</span>),
-      key: 'map',
-      children: <MapViewPage />,
-    },
-    {
-      label: (<span><Icon icon="ant-design:ordered-list-outlined" /> Progress</span>),
-      key: 'progress',
-      children: (
-        <Table
-          size="small"
-          dataSource={filteredWorkOrders}
-          rowKey="id"
-          pagination={{ pageSize: 10, position: ["bottomCenter"] as const, hideOnSinglePage: true }}
-          columns={[
-            {
-              title: 'Work Order',
-              key: 'workOrder',
-              render: (_: any, wo: WorkOrder) => (
-                <Typography.Link onClick={() => handleViewDetails(wo.id)}>
-                  {wo.workOrderNumber || wo.id}
-                </Typography.Link>
-              ),
-            },
-            {
-              title: 'License Plate',
-              key: 'licensePlate',
-              render: (_: any, wo: WorkOrder) => vehicleMap.get(wo.vehicleId || '')?.license_plate || 'N/A',
-            },
-            {
-              title: 'Location',
-              key: 'location',
-              render: (_: any, wo: WorkOrder) => locationMap.get(wo.locationId || '')?.name?.replace(' Service Center', '') || 'N/A',
-            },
-            {
-              title: 'Technician',
-              key: 'technician',
-              render: (_: any, wo: WorkOrder) => {
-                const tech = technicians?.find(t => t.id === wo.assignedTechnicianId);
-                return tech?.name || 'Unassigned';
-              },
-            },
-            {
-              title: 'Created',
-              key: 'created',
-              render: (_: any, wo: WorkOrder) => {
-                const ts = (wo as any).createdAt ?? (wo as any).created_at;
-                return ts ? dayjs(ts).fromNow() : '—';
-              },
-            },
-            {
-              title: 'Progress',
-              key: 'progress',
-              render: (_: any, wo: WorkOrder) => (
-                <div style={{ minWidth: 320 }}>
-                  <WorkOrderProgressTracker workOrder={wo} type="inline" showDescriptions={false} customDotColors />
+    // Priority styling
+    const priorityStyles: Record<string, { text: string; bg: string; border: string }> = {
+      'High': { text: 'text-red-700', bg: 'bg-red-50', border: 'border-red-200' },
+      'Medium': { text: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-200' },
+      'Low': { text: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-200' },
+    };
+    const priorityStyle = priorityStyles[workOrder.priority || 'Medium'] || priorityStyles['Medium'];
+
+    return (
+      <div
+        className="relative group bg-white border border-gray-200 rounded-lg hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer"
+        onClick={() => handleViewDetails(workOrder.id)}
+      >
+        {/* Header */}
+        <div className="px-3 py-2.5 border-b border-gray-100 flex items-center justify-between">
+          <span className="text-sm font-semibold text-primary-600 group-hover:text-primary-700">
+            {workOrder.workOrderNumber || `WO-${workOrder.id.substring(0, 6).toUpperCase()}`}
+          </span>
+          <div className="flex items-center gap-1.5">
+            {hasLoaner && (
+              <span className="px-1.5 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-medium rounded border border-blue-200">
+                LOANER
+              </span>
+            )}
+            {isOverdue && (
+              <span className="px-1.5 py-0.5 bg-red-50 text-red-600 text-[10px] font-medium rounded border border-red-200">
+                OVERDUE
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Body */}
+        <div className="p-3 space-y-2.5">
+          {/* Service Title */}
+          <h3 className="text-sm font-medium text-gray-900 line-clamp-2 capitalize">
+            {workOrder.service || workOrder.description || 'General Service'}
+          </h3>
+
+          {/* Vehicle & Customer */}
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2 text-xs text-gray-600">
+              <Icon icon="tabler:car" className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+              <span className="truncate">
+                {vehicle?.license_plate || 'N/A'}
+                {vehicle?.make && ` • ${vehicle.make}`}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-gray-600">
+              <Icon icon="tabler:user" className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+              <span className="truncate">
+                {customer?.name || workOrder.customerName || 'N/A'}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="px-3 py-2 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-2 min-w-0">
+            {technician ? (
+              <>
+                <div className="w-5 h-5 rounded bg-primary-100 flex items-center justify-center flex-shrink-0">
+                  <span className="text-[9px] font-semibold text-primary-700">
+                    {technician.name.charAt(0).toUpperCase()}
+                  </span>
                 </div>
-              ),
-            },
-          ]}
-        />
-      ),
-    },
-  ];
-
+                <span className="text-xs text-gray-600 truncate">{technician.name}</span>
+              </>
+            ) : (
+              <span className="text-xs text-gray-400 italic">Unassigned</span>
+            )}
+          </div>
+          <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${priorityStyle.text} ${priorityStyle.bg} ${priorityStyle.border}`}>
+            {workOrder.priority || 'Medium'}
+          </span>
+        </div>
+      </div>
+    );
+  };
 
   // Define pageActions for AppBreadcrumb (e.g., bulk actions, add button)
   const pageActions = (
     <Button
-      className="primary-action-btn"
-      type="primary"
-      icon={<Icon icon="ant-design:plus-outlined" width={16} height={16} />}
-      onClick={() => setIsCreateDialogOpen(true)}
+      variant="filled"
+      leftSection={<Icon icon="ant-design:plus-outlined" />}
+      onClick={onCreateNew}
+      className="mb-md"
     >
-      New Work Order
+      Create Work Order
     </Button>
   );
 
   if (error) {
     return (
-      <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <AppBreadcrumb actions={pageActions} />
-        <Alert
-          message="Error Loading Work Orders"
-          description={error.message}
-          type="error"
-          showIcon
-          action={
-            <Button size="small" onClick={() => refetch()}>
-              Retry
-            </Button>
-          }
-        />
-      </Space>
+      <div className="w-full px-6 py-6 bg-white dark:bg-gray-950 min-h-screen">
+        <div className="bg-white dark:bg-gray-900 border border-red-200 dark:border-red-800 rounded-lg p-8 text-center">
+          <div className="mx-auto w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center mb-4">
+            <Icon icon="tabler:alert-triangle" className="w-8 h-8 text-red-600 dark:text-red-400" />
+          </div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Error Loading Work Orders</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 max-w-md mx-auto">
+            {(error as any).message || 'An unexpected error occurred while loading work orders.'}
+          </p>
+          <Button
+            variant="filled"
+            onClick={() => refetch()}
+            className="bg-red-600 hover:bg-red-700"
+          >
+            <Group gap="xs">
+              <Icon icon="tabler:refresh" width={16} height={16} />
+              <span>Try Again</span>
+            </Group>
+          </Button>
+        </div>
+      </div>
     );
   }
 
   if (isLoading) {
     return (
-      <Space direction="vertical" size="middle" style={{ width: '100%' }}>
-        <AppBreadcrumb actions={pageActions} />
-        <Spin tip="Loading work orders..." size="large" style={{ width: '100%', margin: '40px 0' }} />
-      </Space>
+      <div className="w-full px-6 py-6 bg-white dark:bg-gray-950 min-h-screen">
+        <Stack gap="lg">
+          {/* Header Skeleton */}
+          <div className="flex justify-between items-start">
+            <div>
+              <Skeleton height={32} width={180} radius="md" />
+              <Skeleton height={16} width={280} radius="md" mt={8} />
+            </div>
+            <div className="flex gap-2">
+              <Skeleton height={36} width={100} radius="md" />
+              <Skeleton height={36} width={140} radius="md" />
+            </div>
+          </div>
+
+          {/* Status Cards Skeleton */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
+                <div className="flex justify-between">
+                  <div>
+                    <Skeleton height={14} width={60} radius="md" />
+                    <Skeleton height={28} width={40} radius="md" mt={8} />
+                  </div>
+                  <Skeleton height={48} width={48} radius="lg" />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Search Skeleton */}
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
+            <Skeleton height={44} radius="lg" />
+          </div>
+
+          {/* Table Skeleton */}
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+            <div className="p-4 border-b border-gray-100 dark:border-gray-800">
+              <Skeleton height={32} width={200} radius="md" />
+            </div>
+            <div className="divide-y divide-gray-100 dark:divide-gray-800">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="p-4 flex items-center gap-4">
+                  <Skeleton height={40} width={4} radius="md" />
+                  <Skeleton height={16} width={100} radius="md" />
+                  <Skeleton height={16} width={200} radius="md" className="flex-1" />
+                  <Skeleton height={24} width={80} radius="md" />
+                  <Skeleton height={16} width={60} radius="md" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </Stack>
+      </div>
     );
   }
 
   return (
-    <div style={{ width: '100%' }}>
-      <AppBreadcrumb actions={pageActions} />
-      <div className="sticky-header-secondary">
-        <WorkOrderFilters
-        vehicleFilter={vehicleFilter}
-        statusFilter={statusFilter}
-        priorityFilter={priorityFilter}
-        technicianFilter={technicianFilter}
-        channelFilter={channelFilter}
-        onVehicleFilterChange={setVehicleFilter}
-        onStatusFilterChange={setStatusFilter}
-        onPriorityFilterChange={setPriorityFilter}
-        onTechnicianFilterChange={setTechnicianFilter}
-        onChannelFilterChange={setChannelFilter}
-        technicians={technicians}
-        locations={locations}
-        view={view}
-        groupBy={groupBy}
-        onGroupByChange={(value) => setGroupBy(value as GroupByOption)}
-        />
-      </div>
-      <div className="sticky-header-secondary">
-        <Tabs 
-          defaultActiveKey="table" 
-          activeKey={view} 
-          onChange={(key) => setView(key as WorkOrderView)} 
-          items={tabItems} 
-        />
-      </div>
-      {isCreateDialogOpen && (
-        <CreateWorkOrderDialog 
-          isOpen={isCreateDialogOpen} 
-          onClose={() => setIsCreateDialogOpen(false)} 
-          onProceed={handleProceedToCreate} 
-        />
-      )}
-      {isFormDialogOpen && (
-        <WorkOrderFormDrawer 
-          isOpen={isFormDialogOpen} 
-          onClose={() => { 
-            setIsFormDialogOpen(false); 
-            setPrefillData(null); 
-          }} 
-          onSave={(data) => handleSave(data as WorkOrder)}
-          workOrder={editingWorkOrder} 
-          prefillData={prefillData} 
-          technicians={technicians} 
-          locations={locations} 
-          serviceCategories={serviceCategories} 
-        />
-      )}
-      {onHoldWorkOrder && (
-        <OnHoldReasonDialog 
-          isOpen={!!onHoldWorkOrder} 
-          onClose={() => setOnHoldWorkOrder(null)} 
-          onSave={handleSaveOnHoldReason} 
-        />
-      )}
-      {drawerWorkOrderId && (
-        <WorkOrderDetailsDrawer
-          open={!!drawerWorkOrderId}
-          workOrderId={drawerWorkOrderId}
-          onClose={() => setDrawerWorkOrderId(null)}
-        />
-      )}
+    <ErrorBoundary>
+      <div className="w-full h-screen flex flex-col bg-white dark:bg-gray-950">
+        <Stack gap="md" className="flex-1 flex flex-col overflow-hidden">
+          {/* Page Header */}
+          <div className="flex-none px-6 pt-4 pb-3 border-b border-gray-200 dark:border-gray-800">
+            <div className="flex items-center justify-between">
+              <div>
+                <Title order={1} className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  Work Orders
+                </Title>
+                <Text size="sm" c="dimmed" className="mt-0.5 text-gray-600 dark:text-gray-400">
+                  Manage and track all maintenance work orders
+                </Text>
+              </div>
 
-      {/* Mobile FAB for quick add */}
-      <div className="hide-on-desktop">
-        <Fab label="New Work Order" onClick={() => setIsCreateDialogOpen(true)} />
+              <Group gap="sm">
+                <Button
+                  variant="subtle"
+                  size="sm"
+                  onClick={handleExport}
+                  disabled={processedWorkOrders.length === 0}
+                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                >
+                  <Icon icon="tabler:download" width={18} height={18} />
+                </Button>
+                <Button
+                  variant={filtersOpened ? 'light' : 'subtle'}
+                  size="sm"
+                  onClick={toggleFilters}
+                  className={filtersOpened ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}
+                >
+                  <Group gap="xs">
+                    <Icon icon="tabler:adjustments-horizontal" width={18} height={18} />
+                    <span>Filters</span>
+                    {hasActiveFilters && (
+                      <span className="w-2 h-2 rounded bg-primary-500" />
+                    )}
+                  </Group>
+                </Button>
+                <button
+                  onClick={onCreateNew}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
+                >
+                  <Icon icon="tabler:plus" width={16} height={16} />
+                  <span>{isMobile ? 'New' : 'New Work Order'}</span>
+                </button>
+              </Group>
+            </div>
+          </div>
+
+          {/* Stat Ribbon */}
+          <div className="flex-none grid grid-cols-4 divide-x divide-gray-200 dark:divide-gray-800 border-y border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+            <button
+              onClick={() => { setStatusFilter(['Open']); }}
+              className="px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Open</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{statusCounts.open}</p>
+                </div>
+                <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 transition-colors">
+                  <Icon icon="tabler:circle-dot" className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => { setStatusFilter(['In Progress']); }}
+              className="px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">In Progress</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{statusCounts.inProgress}</p>
+                </div>
+                <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center group-hover:bg-amber-100 dark:group-hover:bg-amber-900/50 transition-colors">
+                  <Icon icon="tabler:loader" className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => { setStatusFilter(['Completed']); }}
+              className="px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Completed</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{statusCounts.completed}</p>
+                </div>
+                <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50 transition-colors">
+                  <Icon icon="tabler:circle-check" className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                </div>
+              </div>
+            </button>
+
+            <button
+              onClick={() => { setStatusFilter(['On Hold']); }}
+              className="px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">On Hold</p>
+                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{statusCounts.onHold}</p>
+                </div>
+                <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-colors">
+                  <Icon icon="tabler:player-pause" className="w-5 h-5 text-slate-600 dark:text-slate-400" />
+                </div>
+              </div>
+            </button>
+          </div>
+
+          {/* Active Filters Display - Always visible when filters are active */}
+          {hasActiveFilters && !filtersOpened && (
+            <div className="flex flex-wrap items-center gap-2 px-1">
+              <span className="text-xs text-gray-500 dark:text-gray-400">Active filters:</span>
+              {statusFilter.map(status => (
+                <span key={status} className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded text-xs font-medium border border-blue-200 dark:border-blue-800">
+                  {status}
+                  <button onClick={() => setStatusFilter(statusFilter.filter(s => s !== status))} className="hover:text-blue-900 dark:hover:text-blue-100">
+                    <Icon icon="tabler:x" className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+              {priorityFilter.map(priority => (
+                <span key={priority} className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded text-xs font-medium border border-amber-200 dark:border-amber-800">
+                  {priority}
+                  <button onClick={() => setPriorityFilter(priorityFilter.filter(p => p !== priority))} className="hover:text-amber-900 dark:hover:text-amber-100">
+                    <Icon icon="tabler:x" className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+              {technicianFilter.length > 0 && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded text-xs font-medium border border-purple-200 dark:border-purple-800">
+                  {technicianFilter.length} technician{technicianFilter.length > 1 ? 's' : ''}
+                  <button onClick={() => setTechnicianFilter([])} className="hover:text-purple-900 dark:hover:text-purple-100">
+                    <Icon icon="tabler:x" className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              {locationFilter.length > 0 && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded text-xs font-medium border border-emerald-200 dark:border-emerald-800">
+                  {locationFilter.length} location{locationFilter.length > 1 ? 's' : ''}
+                  <button onClick={() => setLocationFilter([])} className="hover:text-emerald-900 dark:hover:text-emerald-100">
+                    <Icon icon="tabler:x" className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              {searchQuery && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded text-xs font-medium border border-gray-200 dark:border-gray-700">
+                  Search: {searchQuery}
+                  <button onClick={() => setSearchQuery('')} className="hover:text-gray-900 dark:hover:text-gray-100">
+                    <Icon icon="tabler:x" className="w-3 h-3" />
+                  </button>
+                </span>
+              )}
+              <button
+                onClick={clearAllFilters}
+                className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline ml-2"
+              >
+                Clear all
+              </button>
+            </div>
+          )}
+
+          {/* Search and Filters Panel - Only visible when Filters button is clicked */}
+          {filtersOpened && (
+            <Paper p="md" withBorder className="rounded-lg bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
+              <Stack gap="md">
+                {/* Search Bar */}
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <Icon icon="tabler:search" className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search by work order #, vehicle, customer, or technician..."
+                    className="w-full pl-11 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600"
+                    >
+                      <Icon icon="tabler:x" className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Filter Dropdowns */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Status</label>
+                    <MultiSelect
+                      placeholder="All statuses"
+                      data={statusOptions}
+                      value={statusFilter}
+                      onChange={setStatusFilter}
+                      clearable
+                      className="[&_input]:rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Priority</label>
+                    <MultiSelect
+                      placeholder="All priorities"
+                      data={priorityOptions}
+                      value={priorityFilter}
+                      onChange={setPriorityFilter}
+                      clearable
+                      className="[&_input]:rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Technician</label>
+                    <MultiSelect
+                      placeholder="All technicians"
+                      data={technicianOptions}
+                      value={technicianFilter}
+                      onChange={setTechnicianFilter}
+                      clearable
+                      searchable
+                      className="[&_input]:rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Location</label>
+                    <MultiSelect
+                      placeholder="All locations"
+                      data={locationOptions}
+                      value={locationFilter}
+                      onChange={setLocationFilter}
+                      clearable
+                      searchable
+                      className="[&_input]:rounded-lg"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                  <Text size="sm" c="dimmed">
+                    Showing <span className="font-semibold text-gray-700">{processedWorkOrders.length}</span> of {allWorkOrders?.length || 0} work orders
+                  </Text>
+                  {hasActiveFilters && (
+                    <Button
+                      variant="subtle"
+                      size="xs"
+                      onClick={clearAllFilters}
+                      className="text-gray-500 hover:text-gray-700"
+                    >
+                      <Group gap="xs">
+                        <Icon icon="tabler:filter-off" width={14} height={14} />
+                        <span>Reset filters</span>
+                      </Group>
+                    </Button>
+                  )}
+                </div>
+              </Stack>
+            </Paper>
+          )}
+
+          {/* Bulk Actions Bar */}
+          {selectedRecords.length > 0 && (
+            <div className="bg-primary-50 border border-primary-200 rounded-lg p-3 animate-in slide-in-from-top-2 duration-200">
+              <div className="flex items-center justify-between flex-wrap gap-3">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center">
+                    <Icon icon="tabler:checkbox" className="w-4 h-4 text-primary-600" />
+                  </div>
+                  <span className="text-sm font-medium text-primary-900">
+                    {selectedRecords.length} work order{selectedRecords.length !== 1 ? 's' : ''} selected
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Menu>
+                    <Menu.Target>
+                      <button className="flex items-center gap-2 px-3 py-1.5 bg-white border border-primary-200 rounded-lg text-sm font-medium text-primary-700 hover:bg-primary-50 transition-colors">
+                        <Icon icon="tabler:status-change" className="w-4 h-4" />
+                        Status
+                        <Icon icon="tabler:chevron-down" className="w-3 h-3" />
+                      </button>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      {statusOptions.map(status => (
+                        <Menu.Item
+                          key={status}
+                          leftSection={<Icon icon={STATUS_CONFIG[status as keyof typeof STATUS_CONFIG]?.icon} width={14} height={14} />}
+                          onClick={() => handleBulkStatusUpdate(status)}
+                        >
+                          {status}
+                        </Menu.Item>
+                      ))}
+                    </Menu.Dropdown>
+                  </Menu>
+
+                  <Menu>
+                    <Menu.Target>
+                      <button className="flex items-center gap-2 px-3 py-1.5 bg-white border border-primary-200 rounded-lg text-sm font-medium text-primary-700 hover:bg-primary-50 transition-colors">
+                        <Icon icon="tabler:user-plus" className="w-4 h-4" />
+                        Assign
+                        <Icon icon="tabler:chevron-down" className="w-3 h-3" />
+                      </button>
+                    </Menu.Target>
+                    <Menu.Dropdown>
+                      {technicians?.map(tech => (
+                        <Menu.Item
+                          key={tech.id}
+                          leftSection={
+                            <div className="w-5 h-5 rounded-lg bg-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-600">
+                              {tech.name.charAt(0)}
+                            </div>
+                          }
+                          onClick={() => handleBulkAssign(tech.id)}
+                        >
+                          {tech.name}
+                        </Menu.Item>
+                      )) || []}
+                    </Menu.Dropdown>
+                  </Menu>
+
+                  <button
+                    onClick={handleBulkDelete}
+                    className="flex items-center gap-2 px-3 py-1.5 bg-white border border-red-200 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    <Icon icon="tabler:trash" className="w-4 h-4" />
+                    Delete
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedRecords([])}
+                    className="p-1.5 text-primary-400 hover:text-primary-600 hover:bg-primary-100 rounded-lg transition-colors"
+                  >
+                    <Icon icon="tabler:x" className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* View Toggle and Content */}
+          <ErrorBoundary>
+            <div className="flex-1 flex flex-col overflow-hidden">
+              {/* View Toggle Header */}
+              <div className="flex-none flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50/50">
+                <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
+                  <button
+                    onClick={() => setView('table')}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all border ${view === 'table'
+                      ? 'bg-white text-gray-900 border-gray-200'
+                      : 'text-gray-600 hover:text-gray-900 border-transparent hover:border-gray-200'
+                      }`}
+                  >
+                    <Icon icon="tabler:table" className="w-4 h-4" />
+                    Table
+                  </button>
+                  <button
+                    onClick={() => setView('cards')}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all border ${view === 'cards'
+                      ? 'bg-white text-gray-900 border-gray-200'
+                      : 'text-gray-600 hover:text-gray-900 border-transparent hover:border-gray-200'
+                      }`}
+                  >
+                    <Icon icon="tabler:layout-kanban" className="w-4 h-4" />
+                    Kanban
+                  </button>
+                  <button
+                    onClick={() => setView('map')}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all border ${view === 'map'
+                      ? 'bg-white text-gray-900 border-gray-200'
+                      : 'text-gray-600 hover:text-gray-900 border-transparent hover:border-gray-200'
+                      }`}
+                  >
+                    <Icon icon="tabler:map" className="w-4 h-4" />
+                    Map
+                  </button>
+                </div>
+
+                {view === 'table' && (
+                  <div className="relative">
+                    <button
+                      onClick={() => setColumnMenuOpened(!columnMenuOpened)}
+                      className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                    >
+                      <Icon icon="tabler:columns" className="w-4 h-4" />
+                      <span>Columns</span>
+                      <Icon icon={columnMenuOpened ? "tabler:chevron-up" : "tabler:chevron-down"} className="w-3 h-3" />
+                    </button>
+
+                    {columnMenuOpened && (
+                      <>
+                        {/* Backdrop */}
+                        <div
+                          className="fixed inset-0 z-10"
+                          onClick={() => setColumnMenuOpened(false)}
+                        />
+
+                        {/* Dropdown Menu */}
+                        <div className="absolute right-0 top-full mt-1 z-20 w-56 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                          {/* Header */}
+                          <div className="px-3 py-2 bg-gray-50 border-b border-gray-200">
+                            <p className="text-xs font-medium text-gray-700">
+                              Show columns ({visibleColumns.length}/{MAX_VISIBLE_COLUMNS})
+                            </p>
+                          </div>
+
+                          {/* Column List - Only show optional columns */}
+                          <div className="max-h-64 overflow-y-auto py-1">
+                            {OPTIONAL_COLUMNS.map(col => {
+                              const isChecked = visibleColumns.includes(col.value);
+                              const isDisabled = !isChecked && visibleColumns.length >= MAX_VISIBLE_COLUMNS;
+
+                              return (
+                                <button
+                                  key={col.value}
+                                  onClick={() => !isDisabled && toggleColumn(col.value)}
+                                  disabled={isDisabled}
+                                  className={`w-full flex items-center gap-3 px-3 py-2 text-left text-sm transition-colors ${isDisabled
+                                    ? 'cursor-not-allowed opacity-50'
+                                    : 'hover:bg-gray-50 cursor-pointer'
+                                    }`}
+                                >
+                                  {/* Custom Checkbox */}
+                                  <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${isChecked
+                                    ? 'bg-primary-600 border-primary-600'
+                                    : 'border-gray-300 bg-white'
+                                    }`}>
+                                    {isChecked && (
+                                      <Icon icon="tabler:check" className="w-3 h-3 text-white" />
+                                    )}
+                                  </div>
+
+                                  {/* Label */}
+                                  <span className={isChecked ? 'text-gray-900 font-medium' : 'text-gray-600'}>
+                                    {col.label}
+                                  </span>
+                                </button>
+                              );
+                            })}
+                          </div>
+
+                          {/* Footer */}
+                          <div className="px-3 py-2 bg-gray-50 border-t border-gray-200">
+                            <button
+                              onClick={resetColumnsToDefault}
+                              className="text-xs text-primary-600 hover:text-primary-700 font-medium"
+                            >
+                              Reset to defaults
+                            </button>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Content Area - No overflow here, let children handle it */}
+              <div className="flex-1 min-h-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
+                {view === 'table' && (
+                  <EnhancedWorkOrderDataTable
+                    workOrders={preset === 'active-loaners' ? processedWorkOrders.filter(wo => (wo as any).hasActiveLoaner ?? (wo as any).has_active_loaner) : processedWorkOrders}
+                    technicians={technicians}
+                    locations={locations}
+                    customers={customers}
+                    vehicles={vehicles}
+                    profiles={profiles}
+                    onEdit={(wo) => { setEditingWorkOrder(wo); setIsFormDialogOpen(true); }}
+                    onDelete={handleDeleteClick}
+                    onUpdateWorkOrder={handleUpdateWorkOrder}
+                    onViewDetails={handleViewDetails}
+                    loading={isLoading}
+                    visibleColumns={visibleColumns}
+                  />
+                )}
+                {view === 'cards' && (
+                  <div className="flex-1 flex overflow-hidden">
+                    {/* Kanban Board */}
+                    <div className="flex-1 flex gap-4 p-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                      {/* Open Column */}
+                      <div className="flex-shrink-0 w-80 flex flex-col bg-gray-50 rounded-lg border border-gray-200">
+                        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white rounded-t-lg">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded bg-blue-500" />
+                            <span className="text-sm font-semibold text-gray-900">Open</span>
+                          </div>
+                          <span className="px-2 py-0.5 bg-blue-50 text-blue-700 text-xs font-medium rounded border border-blue-200">
+                            {processedWorkOrders.filter(wo => wo.status === 'Open').length}
+                          </span>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-[200px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                          {processedWorkOrders.filter(wo => wo.status === 'Open').length === 0 ? (
+                            <div className="flex items-center justify-center h-24 text-xs text-gray-400">
+                              No open work orders
+                            </div>
+                          ) : (
+                            processedWorkOrders.filter(wo => wo.status === 'Open').map(workOrder => (
+                              <WorkOrderCard key={workOrder.id} workOrder={workOrder} />
+                            ))
+                          )}
+                        </div>
+                      </div>
+
+                      {/* In Progress Column */}
+                      <div className="flex-shrink-0 w-80 flex flex-col bg-gray-50 rounded-lg border border-gray-200">
+                        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white rounded-t-lg">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded bg-amber-500" />
+                            <span className="text-sm font-semibold text-gray-900">In Progress</span>
+                          </div>
+                          <span className="px-2 py-0.5 bg-amber-50 text-amber-700 text-xs font-medium rounded border border-amber-200">
+                            {processedWorkOrders.filter(wo => wo.status === 'In Progress').length}
+                          </span>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-[200px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                          {processedWorkOrders.filter(wo => wo.status === 'In Progress').length === 0 ? (
+                            <div className="flex items-center justify-center h-24 text-xs text-gray-400">
+                              No work orders in progress
+                            </div>
+                          ) : (
+                            processedWorkOrders.filter(wo => wo.status === 'In Progress').map(workOrder => (
+                              <WorkOrderCard key={workOrder.id} workOrder={workOrder} />
+                            ))
+                          )}
+                        </div>
+                      </div>
+
+                      {/* On Hold Column */}
+                      <div className="flex-shrink-0 w-80 flex flex-col bg-gray-50 rounded-lg border border-gray-200">
+                        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white rounded-t-lg">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded bg-slate-400" />
+                            <span className="text-sm font-semibold text-gray-900">On Hold</span>
+                          </div>
+                          <span className="px-2 py-0.5 bg-slate-50 text-slate-600 text-xs font-medium rounded border border-slate-200">
+                            {processedWorkOrders.filter(wo => wo.status === 'On Hold').length}
+                          </span>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-[200px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                          {processedWorkOrders.filter(wo => wo.status === 'On Hold').length === 0 ? (
+                            <div className="flex items-center justify-center h-24 text-xs text-gray-400">
+                              No work orders on hold
+                            </div>
+                          ) : (
+                            processedWorkOrders.filter(wo => wo.status === 'On Hold').map(workOrder => (
+                              <WorkOrderCard key={workOrder.id} workOrder={workOrder} />
+                            ))
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Completed Column */}
+                      <div className="flex-shrink-0 w-80 flex flex-col bg-gray-50 rounded-lg border border-gray-200">
+                        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white rounded-t-lg">
+                          <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded bg-emerald-500" />
+                            <span className="text-sm font-semibold text-gray-900">Completed</span>
+                          </div>
+                          <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-medium rounded border border-emerald-200">
+                            {processedWorkOrders.filter(wo => wo.status === 'Completed').length}
+                          </span>
+                        </div>
+                        <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-[200px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+                          {processedWorkOrders.filter(wo => wo.status === 'Completed').length === 0 ? (
+                            <div className="flex items-center justify-center h-24 text-xs text-gray-400">
+                              No completed work orders
+                            </div>
+                          ) : (
+                            processedWorkOrders.filter(wo => wo.status === 'Completed').map(workOrder => (
+                              <WorkOrderCard key={workOrder.id} workOrder={workOrder} />
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+                {view === 'map' && (
+                  <div className="flex-1 p-4 min-h-[500px]">
+                    <WorkOrdersMap
+                      workOrders={processedWorkOrders}
+                      locations={locations}
+                      onWorkOrderClick={(workOrder) => handleViewDetails(workOrder.id)}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          </ErrorBoundary>
+
+          {/* Work Order Details Drawer */}
+          <WorkOrderDetailsDrawer
+            open={!!drawerWorkOrderId}
+            onClose={() => {
+              setDrawerWorkOrderId(null);
+              isDrawerOpenRef.current = false;
+            }}
+            workOrderId={drawerWorkOrderId}
+          />
+
+          {/* Create Work Order Form Modal */}
+          <CreateWorkOrderForm
+            isOpen={isCreateModalOpen}
+            onClose={() => setIsCreateModalOpen(false)}
+          />
+
+          {/* Delete Confirmation Dialog */}
+          <DeleteConfirmationDialog
+            isOpen={deleteDialogOpen}
+            onClose={() => setDeleteDialogOpen(false)}
+            onConfirm={handleConfirmDelete}
+            title={workOrderToDelete ? "Delete Work Order" : "Delete Work Orders"}
+            message={workOrderToDelete
+              ? `Are you sure you want to delete work order ${workOrderToDelete.workOrderNumber || workOrderToDelete.id.substring(0, 8)}? This action cannot be undone.`
+              : `Are you sure you want to delete ${selectedRecords.length} work orders? This action cannot be undone.`}
+            itemName={workOrderToDelete ? (workOrderToDelete.workOrderNumber || "this work order") : `${selectedRecords.length} work orders`}
+            isDeleting={isDeleting}
+          />
+        </Stack>
       </div>
-    </div>
+    </ErrorBoundary>
   );
 };
 

@@ -11,6 +11,8 @@ export interface DiagnosisStep {
   options?: { value: string; label: string }[];
   next?: (answer: any) => string | undefined; // function to determine next step id
   recommendation?: (answers: Record<string, any>) => string | undefined; // for summary
+  optional?: boolean; // if true, step is optional
+  tip?: string; // optional contextual tip/guidance
 }
 
 // Example flow for basic electric vehicle issues
@@ -36,6 +38,7 @@ export const diagnosisFlow: DiagnosisStep[] = [
         default: return 'other-details';
       }
     },
+    tip: 'Select the main issue to begin troubleshooting. This helps us guide you to the right solution.',
   },
   {
     id: 'battery-charging',
@@ -48,6 +51,7 @@ export const diagnosisFlow: DiagnosisStep[] = [
       { value: 'not-sure', label: 'Not Sure' },
     ],
     next: (answer) => answer === 'no' ? 'charger-indicator' : 'battery-power-on',
+    tip: 'Check the charger connection and ensure the power outlet is working.',
   },
   {
     id: 'charger-indicator',

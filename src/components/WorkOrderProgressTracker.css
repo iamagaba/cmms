@@ -1,40 +1,162 @@
-﻿/* Improve visibility of connector lines and status text in Steps component *//* Custom styling for colored dots in Progress view */
-
-.progress-steps-enhanced .ant-steps-item-tail::after {.custom-step-dot {
-
-  background-color: #8c8c8c !important; /* Darker gray for connector lines */  background-color: var(--dot-color) !important;
-
-}  border-color: var(--dot-color) !important;
-
+﻿/* WorkOrderProgressTracker styles */
+.work-order-progress-container {
+  /* Custom scrollbar styling for webkit browsers */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
 }
 
-.progress-steps-enhanced .ant-steps-item-title {
-
-  color: #595959 !important; /* Darker gray for status text *//* Increase connector line visibility for Progress view */
-
-}.progress-view-steps .ant-steps-item-tail::after {
-
-  background-color: #525252 !important;
-
-.progress-steps-enhanced .ant-steps-item-description {  opacity: 1 !important;
-
-  color: #595959 !important; /* Darker gray for description text */}
-
+.work-order-progress-container::-webkit-scrollbar {
+  height: 4px;
 }
 
-.progress-view-steps .ant-steps-item-process .ant-steps-item-icon .ant-steps-icon-dot,
+.work-order-progress-container::-webkit-scrollbar-track {
+  background: transparent;
+}
 
-/* Ensure finished steps maintain good contrast */.progress-view-steps .ant-steps-item-finish .ant-steps-item-icon .ant-steps-icon-dot,
+.work-order-progress-container::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+}
 
-.progress-steps-enhanced .ant-steps-item-finish .ant-steps-item-title {.progress-view-steps .ant-steps-item-wait .ant-steps-item-icon .ant-steps-icon-dot,
+.work-order-progress-container::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
 
-  color: #262626 !important; /* Even darker for completed steps */ .progress-view-steps .ant-steps-item-error .ant-steps-item-icon .ant-steps-icon-dot {
+/* Ensure stepper steps don't wrap on small screens */
+.work-order-progress-container .mantine-Stepper-root {
+  flex-wrap: nowrap;
+}
 
-}  background-color: var(--dot-color) !important;
+.work-order-progress-container .mantine-Stepper-steps {
+  flex-wrap: nowrap;
+}
 
-  border-color: var(--dot-color) !important;
+/* Make stepper more compact */
+/* Make stepper more compact */
+.work-order-progress-container .mantine-Stepper-step {
+  min-width: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 
-.progress-steps-enhanced .ant-steps-item-process .ant-steps-item-title {}
+/* Unwrap the body so we can order children individually relative to the icon */
+.work-order-progress-container .mantine-Stepper-stepBody {
+  display: contents;
+}
 
-  color: #262626 !important; /* Darker for current step */
+/* Status name and timestamp appear first (inside label) */
+.work-order-progress-container .mantine-Stepper-stepLabel {
+  order: 1;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 6px;
+  /* Space between timestamp and icon */
+}
+
+/* Icon appears second (after status and timestamp) */
+.work-order-progress-container .mantine-Stepper-stepIcon {
+  order: 2;
+  margin: 0 !important;
+  /* Reset default margins */
+  z-index: 2;
+  /* Ensure icon stays on top of separator */
+}
+
+/* Duration chip appears last */
+.work-order-progress-container .mantine-Stepper-stepDescription {
+  order: 3;
+  font-size: 0.6875rem;
+  line-height: 1.2;
+  margin-top: 6px !important;
+  /* Space between icon and duration */
+  text-align: center;
+  max-width: none !important;
+}
+
+.work-order-progress-container .mantine-Stepper-stepIcon {
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+}
+
+.work-order-progress-container .mantine-Stepper-stepBody {
+  margin-left: 8px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .work-order-progress-container {
+    padding-bottom: 12px;
+    /* More space for touch scrolling */
+  }
+
+  .work-order-progress-container .mantine-Stepper-stepLabel {
+    font-size: 0.6875rem;
+  }
+
+  .work-order-progress-container .mantine-Stepper-stepDescription {
+    font-size: 0.625rem;
+  }
+
+  .work-order-progress-container .mantine-Stepper-stepIcon {
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    min-height: 16px;
+  }
+}
+
+/* Pulse animation for active step */
+@keyframes pulse-step {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.85;
+    transform: scale(1.08);
+  }
+}
+
+.step-active-pulse .mantine-Stepper-stepIcon {
+  animation: pulse-step 2s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+/* Clickable step styles */
+.work-order-progress-container .mantine-Stepper-step[style*="pointer"] {
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.work-order-progress-container .mantine-Stepper-step[style*="pointer"]:hover .mantine-Stepper-stepIcon {
+  transform: scale(1.1);
+  filter: brightness(1.1);
+}
+
+.work-order-progress-container .mantine-Stepper-step[style*="pointer"]:active .mantine-Stepper-stepIcon {
+  transform: scale(0.95);
+}
+
+/* Fix step number visibility on colored backgrounds */
+.work-order-progress-container .mantine-Stepper-stepIcon[data-completed="true"],
+.work-order-progress-container .mantine-Stepper-stepIcon[data-progress="true"] {
+  color: white !important;
+}
+
+/* Ensure step number text is white on active/completed steps */
+.work-order-progress-container .mantine-Stepper-stepIcon[data-completed="true"] svg,
+.work-order-progress-container .mantine-Stepper-stepIcon[data-progress="true"] svg {
+  color: white !important;
+}
+
+/* Alternative approach: target the step body text color */
+.work-order-progress-container .mantine-Stepper-step[data-progress="true"] .mantine-Stepper-stepIcon,
+.work-order-progress-container .mantine-Stepper-step[data-completed="true"] .mantine-Stepper-stepIcon {
+  color: white !important;
 }

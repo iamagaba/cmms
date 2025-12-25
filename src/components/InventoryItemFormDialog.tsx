@@ -1,72 +1,322 @@
-import { useEffect, useState } from "react";
-import { Drawer, Form, Input, Button, InputNumber, Row, Col, Space } from "antd";
-import { InventoryItem } from "@/types/supabase";
-
-const { TextArea } = Input;
+import React, { useState, useEffect } from 'react';
+import { Icon } from '@iconify/react';
+import { InventoryItem } from '@/types/supabase';
 
 interface InventoryItemFormDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: Partial<InventoryItem>) => void;
+  onSave: (itemData: Partial<InventoryItem>) => void;
   item?: InventoryItem | null;
 }
 
-export const InventoryItemFormDialog = ({ isOpen, onClose, onSave, item }: InventoryItemFormDialogProps) => {
-  const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
+export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = ({
+  isOpen,
+  onClose,
+  onSave,
+  item
+}) => {
+  const [formData, setFormData] = useState<Partial<InventoryItem>>({
+    name: '',
+    sku: '',
+    description: '',
+    quantity_on_hand: 0,
+    reorder_level: 0,
+    unit_price: 0,
+  });
+  const [isSaving, setIsSaving] = useState(false);
 
+  // Initialize form with item data when editing
   useEffect(() => {
-    if (isOpen) {
-      if (item) {
-        form.setFieldsValue(item);
-      } else {
-        form.resetFields();
-      }
+    if (item) {
+      setFormData({
+        id: item.id,
+        name: item.name || '',
+        sku: item.sku || '',
+        description: item.description || '',
+        quantity_on_hand: item.quantity_on_hand || 0,
+        reorder_level: item.reorder_level || 0,
+        unit_price: item.unit_price || 0,
+      });
+    } else {
+      setFormData({
+        name: '',
+        sku: '',
+        description: '',
+        quantity_on_hand: 0,
+        reorder_level: 0,
+        unit_price: 0,
+      });
     }
-  }, [isOpen, item, form]);
+  }, [item, isOpen]);
 
-  const handleSubmit = async () => {
-    setLoading(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Validate required fields
+    if (!formData.name || !formData.sku) {
+      alert('Please provide item name and SKU');
+      return;
+    }
+    
+    if (formData.unit_price === undefined || formData.unit_price < 0) {
+      alert('Please provide a valid unit price');
+      return;
+    }
+    
+    if (formData.quantity_on_hand === undefined || formData.quantity_on_hand < 0) {
+      alert('Please provide a valid quantity on hand');
+      return;
+    }
+    
+    if (formData.reorder_level === undefined || formData.reorder_level < 0) {
+      alert('Please provide a valid reorder level');
+      return;
+    }
+    
+    setIsSaving(true);
     try {
-      const values = await form.validateFields();
-      const itemToSave: Partial<InventoryItem> = {
-        id: item?.id,
-        ...values,
-      };
-      onSave(itemToSave);
+      await onSave(formData);
+      
+      // Reset form and close dialog
+      setFormData({
+        name: '',
+        sku: '',
+        description: '',
+        quantity_on_hand: 0,
+        reorder_level: 0,
+        unit_price: 0,
+      });
       onClose();
-    } catch (info) {
-      console.log('Validate Failed:', info);
+    } catch (error) {
+      console.error('Error saving inventory item:', error);
+      alert('Failed to save inventory item. Please try again.');
     } finally {
-      setLoading(false);
+      setIsSaving(false);
     }
   };
 
+  if (!isOpen) return null;
+
   return (
-    <Drawer
-      title={item ? "Edit Inventory Item" : "Add Inventory Item"}
-      placement="right"
-      onClose={onClose}
-      open={isOpen}
-      width={720}
-      destroyOnClose
-      footer={
-        <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-          <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>
-          <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save</Button>
-        </Space>
-      }
-    >
-      <Form form={form} layout="vertical" name="inventory_item_form">
-        <Row gutter={16}>
-          <Col span={16}><Form.Item name="name" label="Part Name" rules={[{ required: true }]}><Input placeholder="e.g. Brake Pad Set - Model S" /></Form.Item></Col>
-          <Col span={8}><Form.Item name="sku" label="SKU / Part #" rules={[{ required: true }]}><Input placeholder="e.g. BP-001" /></Form.Item></Col>
-          <Col span={24}><Form.Item name="description" label="Description"><TextArea rows={2} placeholder="Details about the part, compatibility, etc." /></Form.Item></Col>
-          <Col span={8}><Form.Item name="quantity_on_hand" label="Quantity" rules={[{ required: true, type: 'number' }]}><InputNumber style={{ width: '100%' }} min={0} /></Form.Item></Col>
-          <Col span={8}><Form.Item name="reorder_level" label="Reorder Level" rules={[{ required: true, type: 'number' }]}><InputNumber style={{ width: '100%' }} min={0} /></Form.Item></Col>
-          <Col span={8}><Form.Item name="unit_price" label="Unit Price (UGX)" rules={[{ required: true }]}><InputNumber style={{ width: '100%' }} min={0} /></Form.Item></Col>
-        </Row>
-      </Form>
-    </Drawer>
+    <div className="fixed inset-0 z-50 overflow-hidden">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/50 transition-opacity" onClick={onClose} />
+      
+      {/* Dialog */}
+      <div className="absolute inset-y-0 right-0 flex max-w-full">
+        <div 
+          className="w-screen max-w-lg bg-white shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out translate-x-0"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
+            <div>
+              <div className="flex items-center gap-2">
+                <Icon icon="tabler:package" className="w-6 h-6 text-purple-600" />
+                <h2 className="text-xl font-semibold text-gray-900">
+                  {item ? 'Edit Inventory Item' : 'Add New Inventory Item'}
+                </h2>
+              </div>
+              <p className="text-sm text-gray-500 mt-0.5">
+                {item ? 'Update item details' : 'Add a new item to inventory'}
+              </p>
+            </div>
+            <button
+              onClick={onClose}
+              className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+            >
+              <Icon icon="tabler:x" className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Form - Scrollable */}
+          <form id="inventory-item-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
+            <div className="p-6 space-y-6">
+              
+              {/* Basic Information */}
+              <div>
+                <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Icon icon="tabler:info-circle" className="w-5 h-5 text-purple-600" />
+                  Basic Information
+                </h3>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Item Name <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      placeholder="Enter item name"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      SKU <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={formData.sku}
+                      onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      placeholder="Enter SKU"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Description
+                    </label>
+                    <textarea
+                      value={formData.description || ''}
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      rows={3}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      placeholder="Enter item description (optional)"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Stock Information */}
+              <div>
+                <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <Icon icon="tabler:package" className="w-5 h-5 text-purple-600" />
+                  Stock Information
+                </h3>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Quantity on Hand <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        required
+                        min="0"
+                        value={formData.quantity_on_hand || ''}
+                        onChange={(e) => setFormData({ ...formData, quantity_on_hand: parseInt(e.target.value) || 0 })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        placeholder="0"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Reorder Level <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        required
+                        min="0"
+                        value={formData.reorder_level || ''}
+                        onChange={(e) => setFormData({ ...formData, reorder_level: parseInt(e.target.value) || 0 })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        placeholder="0"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Unit Price <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span className="text-gray-500 sm:text-sm">$</span>
+                      </div>
+                      <input
+                        type="number"
+                        required
+                        min="0"
+                        step="0.01"
+                        value={formData.unit_price || ''}
+                        onChange={(e) => setFormData({ ...formData, unit_price: parseFloat(e.target.value) || 0 })}
+                        className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        placeholder="0.00"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Stock Status Indicator */}
+                  {formData.quantity_on_hand !== undefined && formData.reorder_level !== undefined && (
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                      <div className="flex items-center gap-2">
+                        <Icon 
+                          icon={
+                            formData.quantity_on_hand === 0 ? "tabler:alert-triangle" :
+                            formData.quantity_on_hand <= formData.reorder_level ? "tabler:alert-circle" :
+                            "tabler:check-circle"
+                          } 
+                          className={`w-4 h-4 ${
+                            formData.quantity_on_hand === 0 ? "text-red-600" :
+                            formData.quantity_on_hand <= formData.reorder_level ? "text-orange-600" :
+                            "text-emerald-600"
+                          }`} 
+                        />
+                        <span className={`text-sm font-medium ${
+                          formData.quantity_on_hand === 0 ? "text-red-900" :
+                          formData.quantity_on_hand <= formData.reorder_level ? "text-orange-900" :
+                          "text-emerald-900"
+                        }`}>
+                          {formData.quantity_on_hand === 0 ? "Out of Stock" :
+                           formData.quantity_on_hand <= formData.reorder_level ? "Low Stock" :
+                           "In Stock"}
+                        </span>
+                      </div>
+                      {formData.quantity_on_hand > 0 && formData.quantity_on_hand <= formData.reorder_level && (
+                        <p className="text-xs text-orange-700 mt-1">
+                          Stock level is at or below reorder point. Consider restocking.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Total Value */}
+                  {formData.quantity_on_hand !== undefined && formData.unit_price !== undefined && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-blue-900">Total Inventory Value</span>
+                        <span className="text-lg font-bold text-blue-900">
+                          ${((formData.quantity_on_hand || 0) * (formData.unit_price || 0)).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+            </div>
+          </form>
+
+          {/* Footer Actions - Sticky */}
+          <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={isSaving}
+              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              Cancel
+            </button>
+            
+            <button
+              type="submit"
+              form="inventory-item-form"
+              disabled={isSaving}
+              className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+            >
+              {isSaving && <Icon icon="tabler:loader-2" className="w-4 h-4 animate-spin" />}
+              {item ? 'Update Item' : 'Create Item'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };

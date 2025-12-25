@@ -1,0 +1,15 @@
+.user-profile {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-height: 64px;
+  padding: 0 16px;
+}
+
+.user-profile .ant-avatar {
+  flex-shrink: 0;
+}
+
+.user-profile .ant-typography {
+  line-height: 1.2;
+}

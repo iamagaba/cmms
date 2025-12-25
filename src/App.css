@@ -1,429 +1,522 @@
-html, body {
-  overflow-x: hidden;
-  overflow-y: auto;
-  background-color: var(--ant-colorBgLayout);
-  margin: 0; /* remove default white margins */
-  min-height: 100%;
-}
-/* You can add global styles to this file, and also import other style files */
-#root {
-  height: 100%;
+/* Professional CMMS Design System */
+/* All imports must come first */
+@import './theme/professional-css-variables.css';
+@import './theme/layout-utilities.css';
+@import './theme/design-system.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global defaults for enterprise design */
+@layer base {
+  body {
+    @apply text-sm text-gray-900 bg-white;
+  }
 }
 
-body {
-  font-family: 'Inter', sans-serif; /* Changed font to Inter */
-  background-color: var(--ant-colorBgLayout); /* Theme-aware background */
-  /* Custom app-level CSS variables */
-  --app-card-body-min-height: 160px;
-  --mobile-max: 576px;
+/* Material Icons */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
-/* --- Polaris-Inspired Layout --- */
-.main-content {
-  padding: 16px 24px;
-  margin: 0;
-  overflow: initial;
-  background-color: transparent; /* Content area is transparent to show layout background */
+/* Sidebar Styles */
+#desktop-sidebar {
+  transition: width 0.3s ease;
 }
 
-/* Custom styles for Leaflet divIcons to remove default background/border */
-.custom-leaflet-icon {
+#desktop-sidebar .sidebar-text {
+  opacity: 0;
+  white-space: nowrap;
+  transition: opacity 0.3s ease;
+}
+
+#desktop-sidebar:hover .sidebar-text {
+  opacity: 1;
+}
+
+#desktop-sidebar .sidebar-link {
+  color: #6b7280;
+}
+
+#desktop-sidebar .sidebar-link:hover {
+  background-color: #f3f4f6;
+}
+
+#desktop-sidebar .sidebar-link.active {
+  background-color: rgba(111, 66, 193, 0.1);
+  color: #6f42c1;
+}
+
+/* === MODERN SCROLLBAR STYLES === */
+
+/* WebKit Browsers (Chrome, Safari, Edge) - Global Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  /* Width of vertical scrollbar */
+  height: 8px;
+  /* Height of horizontal scrollbar */
+}
+
+::-webkit-scrollbar-track {
   background: transparent;
-  border: none;
+  /* Invisible track */
 }
 
-/* --- Micro-interaction Animations --- */
+::-webkit-scrollbar-thumb {
+  background-color: #d1d5db;
+  /* gray-300 */
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
 
-/* 1. Fade-in animation for page loads */
+::-webkit-scrollbar-thumb:hover {
+  background-color: #9ca3af;
+  /* gray-400 */
+}
+
+/* Firefox - Global Scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db transparent;
+  /* thumb color, track color */
+}
+
+/* === DARK MODE SCROLLBAR OVERRIDES === */
+html.dark ::-webkit-scrollbar-thumb {
+  background-color: #4b5563;
+  /* gray-600 */
+}
+
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background-color: #6b7280;
+  /* gray-500 */
+}
+
+html.dark * {
+  scrollbar-color: #4b5563 transparent;
+}
+
+/* Custom Scrollbar Utility Class (for specific elements) */
+.custom-scrollbar::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #e5e7eb;
+  border-radius: 20px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: #d1d5db;
+}
+
+/* Hide Scrollbar Utility Class */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/**
+ * Enterprise Design System - Utility Classes
+ * 
+ * Custom utility classes that enforce the enterprise design standards.
+ * These provide shortcuts for common patterns without needing full components.
+ */
+
+@layer components {
+
+  /* List Row - Standard row style for master lists */
+  .list-row {
+    @apply flex cursor-pointer flex-col border-b border-gray-100 px-4 py-3 hover:bg-gray-50 transition-colors;
+  }
+
+  /* List Row Active - Active/selected state for list items */
+  .list-row-active {
+    @apply bg-purple-50 text-purple-900;
+  }
+
+  /* Ribbon Header - Standard header bar for detail pages */
+  .ribbon-header {
+    @apply flex items-center gap-4 border-b border-gray-200 bg-white px-4 py-2.5 text-sm;
+  }
+
+  /* Info Bar - Horizontal information strip (like WorkOrderOverviewCards) */
+  .info-bar {
+    @apply bg-white border-y border-gray-200 px-4 py-2.5 flex items-center gap-5 text-xs;
+  }
+
+  /* Info Bar Item - Individual item in info bar */
+  .info-bar-item {
+    @apply flex items-center gap-1.5;
+  }
+
+  /* Info Bar Divider - Vertical separator in info bar */
+  .info-bar-divider {
+    @apply w-px h-4 bg-gray-200;
+  }
+
+  /* Section Header - Header for content sections */
+  .section-header {
+    @apply px-3 py-2 border-b border-gray-200 flex items-center gap-2;
+  }
+
+  /* Section Header Title - Title text in section header */
+  .section-header-title {
+    @apply text-xs font-semibold text-gray-900 uppercase tracking-wide;
+  }
+
+  /* Search Container - Standardized search input wrapper */
+  .search-container {
+    @apply relative w-full;
+  }
+
+  /* Search Icon - Icon positioning for search inputs */
+  .search-icon {
+    @apply absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none;
+  }
+
+  /* Status Dot - Small colored dot for status indicators */
+  .status-dot {
+    @apply h-2 w-2 rounded-full flex-shrink-0;
+  }
+
+  /* Card Grid - Responsive grid for cards */
+  .card-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+  }
+
+  /* Form Grid - Two-column form layout */
+  .form-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+  }
+
+  /* Stat Card - Dashboard statistic card */
+  .stat-card {
+    @apply bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors;
+  }
+
+  /* Empty State - Centered empty state message */
+  .empty-state {
+    @apply flex flex-col items-center justify-center py-12 text-center;
+  }
+
+  /* Empty State Icon - Icon for empty states */
+  .empty-state-icon {
+    @apply w-12 h-12 text-gray-300 mb-3;
+  }
+
+  /* Empty State Text - Text for empty states */
+  .empty-state-text {
+    @apply text-sm text-gray-500;
+  }
+}
+
+
+
+/* Loading State */
+.loading {
+  position: relative;
+  pointer-events: none;
+  min-height: 100px;
+}
+
+.loading::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(1px);
+  z-index: 40;
+  border-radius: inherit;
+}
+
+.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 32px;
+  height: 32px;
+  margin-top: -16px;
+  margin-left: -16px;
+  border: 3px solid #e0cff7;
+  border-top-color: #6f42c1;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  z-index: 50;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Skeleton Animation */
+.skeleton {
+  background-color: #e5e7eb;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Table Styles */
+.table-row-hover:hover {
+  background-color: #eff6ff !important;
+}
+
+/* Status Badge Styles */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.status-new {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.status-contacted {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.status-appointment {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-nurturing {
+  background-color: #e0e7ff;
+  color: #3730a3;
+}
+
+.status-purchased {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.status-not-interested {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Interest Level Badges */
+.interest-high {
+  background-color: #d1fae5;
+  color: #065f46;
+}
+
+.interest-medium {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.interest-low {
+  background-color: #fee2e2;
+  color: #991b1b;
+}
+
+/* Responsive Table */
+@media (max-width: 1023px) {
+  .desktop-only {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .mobile-only {
+    display: none !important;
+  }
+}
+
+/* Smooth transitions */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+button,
+a,
+input,
+select {
+  transition-property: all;
+}
+
+/* Compact UI Overrides */
+.page-content {
+  padding: 0.75rem !important;
+}
+
+@media (min-width: 1024px) {
+  .page-content {
+    padding: 1.25rem !important;
+  }
+}
+
+.stat-card {
+  padding: 0.75rem !important;
+}
+
+.stat-card p {
+  margin-top: 0.25rem !important;
+}
+
+/* Leaderboard Table Styles */
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboard-table th {
+  background-color: #f9fafb;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.leaderboard-table td {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.leaderboard-table tr:hover {
+  background-color: #f9fafb;
+}
+
+.rank-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.rank-1 {
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+  color: #92400e;
+}
+
+.rank-2 {
+  background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
+  color: #374151;
+}
+
+.rank-3 {
+  background: linear-gradient(135deg, #cd7f32 0%, #e8a87c 100%);
+  color: #78350f;
+}
+
+/* Filter Dropdown - Highlight Selected Option */
+input[type="radio"]:checked+span {
+  font-weight: 600;
+  color: #6f42c1;
+}
+
+input[type="radio"]:checked {
+  accent-color: #6f42c1;
+}
+
+label:has(input[type="radio"]:checked) {
+  background-color: #f2ebfb !important;
+}
+
+/* Animations for UI Micro-interactions migrated from animations.css */
+
+/* Fade-in animation for newly added items in a list or table */
 @keyframes fadeIn {
   from {
     opacity: 0;
+    transform: translateY(10px);
   }
+
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 
 .fade-in {
-  animation: fadeIn 0.4s ease-out forwards;
-  opacity: 0; /* Start hidden */
+  animation: fadeIn 0.3s ease-out forwards;
 }
 
-/* 2. Lift effect for cards on hover */
-.lift-on-hover {
-  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
+/* Slide-in from right animation for drawers/panels */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
 
-.lift-on-hover:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Softer shadow */
-}
-
-/* 3. Lift effect for table rows on hover */
-.lift-on-hover-row {
-  transition: transform 0.2s ease-in-out;
-  cursor: pointer;
-}
-
-.lift-on-hover-row:hover {
-  transform: translateY(-2px);
-}
-
-/* Row quick actions visibility and selected state */
-.ant-table-tbody tr .row-actions { opacity: 0; transition: opacity 0.15s ease-in-out; }
-.ant-table-tbody tr:hover .row-actions { opacity: 1; }
-.ant-table-tbody tr.is-selected-row td { background-color: var(--ant-colorPrimaryBgHover) !important; }
-
-/* --- Responsive card grid & tap targets --- */
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-}
-
-@media (max-width: 1200px) {
-  .card-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
-@media (max-width: 992px) {
-  .card-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (max-width: 576px) {
-  .card-grid { grid-template-columns: repeat(1, 1fr); }
-  .tap-target { min-height: 56px; }
-  .ant-btn, .ant-select-selector, .ant-input, .ant-picker-input { min-height: 44px; }
-}
-
-/* --- Stacked table rows on small screens --- */
-@media (max-width: 576px) {
-  .stacked-table .ant-table-thead { display: none; }
-  .stacked-table .ant-table-cell { display: block; width: 100% !important; border-bottom: none; padding: 6px 16px; }
-  .stacked-table .ant-table-row { border: 1px solid var(--ant-colorBorder); border-radius: 8px; margin-bottom: 12px; overflow: hidden; }
-  .stacked-table .ant-table-cell::before {
-    content: attr(data-label);
-    display: block;
-    font-size: 12px;
-  color: var(--ant-colorTextSecondary);
-    margin-bottom: 2px;
+  to {
+    transform: translateX(0);
   }
 }
 
-/* --- Floating Action Button positioning --- */
-.app-fab {
-  position: fixed !important;
-  right: 16px;
-  bottom: 76px; /* keep above tab bar/pagination on mobile */
-  z-index: 1000;
+.slide-in-right {
+  animation: slideInRight 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-/* Visibility utilities */
-.hide-on-desktop { display: none; }
-@media (max-width: 576px) {
-  .hide-on-desktop { display: block; }
-}
-
-/* --- Hide scrollbar but keep functionality --- */
-.hide-scrollbar {
-  -ms-overflow-style: none;  /* IE and Edge */
-  scrollbar-width: none;  /* Firefox */
-}
-
-.hide-scrollbar::-webkit-scrollbar {
-  display: none; /* Chrome, Safari, and Opera */
-}
-
-/* Custom styles for compact calendar cells */
-.ant-picker-cell-inner {
-  padding: 4px 2px !important; /* Reduce padding inside calendar cells */
-}
-.ant-picker-calendar-date-content {
-  height: auto !important; /* Allow content to dictate height */
-  min-height: unset !important; /* Remove minimum height */
-}
-
-/* Custom styles for calendar badge dots */
-.calendar-badge-dot .ant-badge-dot {
-  width: 8px; /* Make dot slightly larger */
-  height: 8px; /* Make dot slightly larger */
-  border-radius: 50%; /* Ensure it's a circle */
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1); /* Add a subtle border for visibility */
-}
-
-
-/* --- Side Navigation Enhancements --- */
-
-/* Make the menu a flex container to push bottom items down */
-.main-sider-menu.ant-menu-inline {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1; /* Allow menu to grow and take available space */
-  border-right: 0 !important; /* Remove default border */
-  overflow-y: auto; /* Allow scrolling for main items */
-  overflow-x: hidden;
-}
-
-/* The key part: push this divider (and everything after it) to the bottom */
-.ant-menu-item.menu-bottom-divider,
-.ant-menu-divider.menu-bottom-divider,
-.ant-menu-item-group.menu-bottom-group,
-.ant-menu-submenu.menu-bottom-group { /* Added .ant-menu-submenu for the new Profile SubMenu */
-  margin-top: auto !important;
-}
-
-/* Hide the default Ant Design sider trigger */
-.ant-layout-sider-trigger {
-  display: none;
-}
-
-/* Custom styles for the new custom trigger */
-.sider-custom-trigger {
-  flex-shrink: 0; /* Prevent the trigger from shrinking */
-  border-top: 1px solid var(--ant-colorBorderSecondary);
-  background-color: var(--ant-colorFillSecondary); /* Theme-aware background for the trigger */
-  color: var(--ant-colorTextSecondary); /* Icon color */
-  height: 48px; /* Consistent height */
-  display: flex;
-  align-items: center;
-  justify-content: center; /* Default to center when collapsed */
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-/* Right align the trigger when expanded */
-.sider-custom-trigger.sider-custom-trigger-expanded {
-  justify-content: flex-end;
-  padding-right: 16px; /* Add some padding for visual balance */
-}
-
-.sider-custom-trigger .ant-btn {
-  color: var(--ant-colorTextSecondary);
-}
-
-.sider-custom-trigger .ant-btn:hover {
-  background-color: var(--ant-colorFillSecondary);
-  color: var(--ant-colorPrimary);
-}
-
-/* Adjust logo area for better alignment */
-.sider-logo-area {
-  height: 64px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0 16px;
-  border-bottom: 1px solid var(--ant-colorBorderSecondary); /* Add a subtle separator */
-  flex-shrink: 0; /* Prevent logo area from shrinking */
-}
-
-/* Ensure menu item text is not cut off when collapsed */
-.ant-menu-inline-collapsed .ant-menu-item .ant-menu-title-content {
-  max-width: 0;
-  display: none; /* Hide text completely when collapsed */
-}
-
-/* --- Styles for Resizable Table Columns --- */
-.react-resizable {
-  position: relative;
-  background-clip: padding-box;
-}
-
-.react-resizable-handle {
-  position: absolute;
-  right: -5px;
-  bottom: 0;
-  z-index: 1;
-  width: 10px;
-  height: 100%;
-  cursor: col-resize;
-}
-
-/* Standardized width for primary action buttons in page headers */
-.primary-action-btn {
-  min-width: 160px; /* Fits long labels like "New Work Order" */
-}
-
-/* --- Print Styles for Reports --- */
-@media print {
-  body * {
-    visibility: hidden;
+/* Pulse animation for highlighting an element (renamed to avoid conflict) */
+@keyframes pulse-shadow {
+  0% {
+    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0.4);
   }
-  #report-area, #report-area * {
-    visibility: visible;
+
+  70% {
+    box-shadow: 0 0 0 10px rgba(24, 144, 255, 0);
   }
-  #report-area {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    padding: 20px;
-  }
-  .report-generator-form, .ant-layout-sider, .ant-layout-header, .main-content > .ant-space > .ant-row:first-child {
-    display: none !important;
-  }
-  .ant-card {
-    border: none !important;
-    box-shadow: none !important;
-  }
-  .ant-table-pagination {
-    display: none !important;
+
+  100% {
+    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0);
   }
 }
 
-/* Keep Hopping Tiger sider pinned and remove extra bottom gap */
-.ht-sider {
-  display: flex;
-  flex-direction: column;
-}
-.ht-sider > .ant-layout-sider-children {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh; /* ensure full height so bottom sections sit at the bottom */
-  padding-bottom: 0 !important; /* remove any default bottom padding causing gaps */
-}
-.ht-sider .ant-menu-root {
-  flex: 1 1 auto;
-  overflow: auto;
-}
-/* Ensure the last sections don't float up when collapsed */
-.ht-sider .bottom-controls,
-.ht-sider .user-profile {
-  flex-shrink: 0;
+.pulse-shadow {
+  animation: pulse-shadow 2s infinite;
 }
 
-/* Sticky header system - reliable implementation */
-.sticky-header {
-  position: sticky !important;
-  top: 0 !important;
-  z-index: 100 !important;
-  background: var(--ant-colorBgElevated) !important; /* Fully opaque elevated background, theme-aware */
-  border-bottom: 1px solid var(--ant-colorBorder);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); /* Stronger separation from content */
-  padding: 8px 0;
-  margin-bottom: 16px;
-  /* Ensure it works within Space and other containers */
-  width: 100%;
-  left: 0;
-  right: 0;
+/* Prevent body scroll when modal/drawer is open */
+body:has(.mantine-Modal-root),
+body:has(.mantine-Drawer-root) {
+  overflow: hidden !important;
 }
 
-/* Stacked sticky headers - second level sticks below first */
-.sticky-header-secondary {
-  position: sticky !important;
-  top: 72px !important; /* Height of primary sticky header */
-  z-index: 99 !important;
-  background: var(--ant-colorBgElevated) !important; /* Opaque elevated background to mask content behind */
-  border-bottom: 1px solid var(--ant-colorBorder);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  margin-bottom: 16px;
-  width: 100%;
-  left: 0;
-  right: 0;
-}
-
-/* Ensure the main content container and Space components support sticky positioning */
-.main-content,
-.ant-space-vertical {
-  position: relative !important;
-  overflow: visible !important;
-  height: auto !important;
-}
-
-/* Override any Ant Design Space styles that might interfere */
-.ant-space-vertical > .sticky-header,
-.ant-space-vertical > .sticky-header-secondary {
-  align-self: stretch;
-}
-
-/* Ensure Affix-wrapped breadcrumb spans full width and stacks correctly */
-.ant-affix {
-  width: 100%;
-  z-index: 100 !important;
-}
-
-/* When affixed, ensure the inner header remains opaque and elevated */
-.ant-affix .sticky-header {
-  background: var(--ant-colorBgElevated) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-/* Ensure Ant Layout Content doesn't clip sticky/affixed elements */
-.ant-layout-content {
-  overflow: visible !important;
-}
-
-/* --- Compact UI Adjustments --- */
-
-/* Reduce padding on page headers/breadcrumbs inside Space components */
-.ant-space-vertical > .ant-row {
-  padding-bottom: 8px;
-}
-
-/* Tighter spacing for Form.List items */
-.ant-form-item-row:not(:last-child) {
-  margin-bottom: 12px !important;
-}
-
-/* Reduce the default gap in vertical Space components */
-.ant-space-vertical {
-  gap: 12px !important;
-}
-
-/* More compact stats in cards */
-.ant-statistic-title {
-  margin-bottom: 4px !important;
-  font-size: 13px !important;
-}
-
-.ant-statistic-content {
-  font-size: 22px !important;
-}
-
-/* --- Compact Descriptions (global) --- */
-/* Smaller paddings when using size="small" */
-.ant-descriptions.ant-descriptions-small .ant-descriptions-item {
-  padding-bottom: 8px; /* default ~16 */
-}
-.ant-descriptions.ant-descriptions-small .ant-descriptions-item-label,
-.ant-descriptions.ant-descriptions-small .ant-descriptions-item-content {
-  padding: 6px 8px; /* default ~12-16 */
-}
-/* Bordered mode cell padding */
-.ant-descriptions-bordered .ant-descriptions-item-label,
-.ant-descriptions-bordered .ant-descriptions-item-content {
-  padding: 8px 10px; /* default 16px */
-}
-
-/* --- Compact Cards & Lists (subtle, safe defaults) --- */
-.ant-card-small > .ant-card-head {
-  padding: 8px 12px; /* default 12px 16px */
-}
-.ant-card-small > .ant-card-body {
-  padding: 12px; /* default 16px */
-}
-.ant-card .ant-card-head {
-  padding: 12px 16px; /* lighten default 16px */
-}
-.ant-card .ant-card-body {
-  padding: 16px; /* lighten default 24px */
-}
-.ant-list-item {
-  padding-top: 8px;
-  padding-bottom: 8px;
-}
-
-/* Utility: compact detail sections for custom layouts */
-.compact-detail-section .ant-typography {
-  margin-bottom: 4px !important;
-}
-.compact-detail-section .ant-row {
-  margin-bottom: 8px !important;
-}
-
-/* Utility class for compact detail lists/sections */
-.compact-detail-section .ant-typography {
-  margin-bottom: 4px !important; /* Reduces space below text */
-}
-
-.compact-detail-section .ant-row {
-  margin-bottom: 8px !important; /* Reduces space between rows */
+/* Ensure modals and drawers are scrollable */
+.mantine-Modal-body,
+.mantine-Drawer-body {
+  overflow-y: auto !important;
+  max-height: calc(100vh - 120px);
 }

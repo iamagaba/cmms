@@ -30,7 +30,7 @@ export const RealtimeDataProvider = ({ children }: { children: ReactNode }) => {
       workOrderNumber: item.work_order_number,
       assignedTechnicianId: item.assigned_technician_id,
       locationId: item.location_id,
-      initialDiagnosis: item.client_report,
+      initialDiagnosis: item.initial_diagnosis || item.client_report || item.service,
       maintenanceNotes: item.maintenance_notes || item.service_notes,
       issueType: item.issue_type,
       faultCode: item.fault_code,
@@ -73,33 +73,71 @@ export const RealtimeDataProvider = ({ children }: { children: ReactNode }) => {
     return mappedData;
   };
 
-  // Initial data fetch
+  // Initial data fetch - optimized for performance
   useEffect(() => {
+    let isMounted = true;
+
     const fetchInitialData = async () => {
-      setIsLoadingRealtimeData(true);
       try {
-        // Fetch work orders with necessary joins for initial state
+        // Always set empty arrays first to prevent undefined errors
+        if (isMounted) {
+          setWorkOrders([]);
+          setTechnicians([]);
+        }
+
+        // Fetch basic work orders first (no joins for speed)
         const { data: woData, error: woError } = await supabase
           .from('work_orders')
-          .select(`
-            *,
-            active_emergency_bike_assignment:emergency_bike_assignments!left(
-              *,
-              vehicles(*)
-            ),
-            service_categories(
-              sla_policies(*)
-            )
-          `);
+          .select('*');
+
+        if (!isMounted) return;
+
         if (woError) {
           console.warn('Could not load work orders:', woError.message);
           setWorkOrders([]);
         } else {
-          setWorkOrders((woData || []).map(transformWorkOrder));
+          // Set basic work orders immediately
+          const mapped = (woData || []).map(transformWorkOrder);
+          setWorkOrders(mapped);
+
+          // Then progressively enhance with joins if needed
+          const enhanceWorkOrders = async () => {
+            try {
+              const { data: enhancedData, error: enhanceError } = await supabase
+                .from('work_orders')
+                .select(`
+                  *,
+                  active_emergency_bike_assignment:emergency_bike_assignments!left(
+                    *,
+                    vehicles(*)
+                  ),
+                  service_categories(
+                    sla_policies(*)
+                  )
+                `);
+
+              if (!isMounted) return;
+
+              if (!enhanceError && enhancedData) {
+                const enhancedMapped = enhancedData.map(transformWorkOrder);
+                setWorkOrders(enhancedMapped);
+              }
+            } catch (error) {
+              console.warn('Error enhancing work orders with joins:', error);
+            }
+          };
+
+          // Enhance after a short delay to not block initial render
+          setTimeout(() => {
+            if (isMounted) enhanceWorkOrders();
+          }, 100);
         }
 
-        // Fetch technicians
+        // Fetch technicians in parallel (simple query, no joins)
         const { data: techData, error: techError } = await supabase.from('technicians').select('*');
+
+        if (!isMounted) return;
+
         if (techError) {
           console.warn('Could not load technicians:', techError.message);
           setTechnicians([]);
@@ -109,14 +147,23 @@ export const RealtimeDataProvider = ({ children }: { children: ReactNode }) => {
       } catch (error) {
         console.error('Error fetching initial real-time data:', error);
         // Set empty arrays so the app doesn't hang
-        setWorkOrders([]);
-        setTechnicians([]);
+        if (isMounted) {
+          setWorkOrders([]);
+          setTechnicians([]);
+        }
       } finally {
-        setIsLoadingRealtimeData(false);
+        if (isMounted) {
+          setIsLoadingRealtimeData(false);
+        }
       }
     };
 
+    // Start fetch immediately
     fetchInitialData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Realtime subscriptions

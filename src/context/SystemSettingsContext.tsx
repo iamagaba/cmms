@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, ReactNode, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { createContext, useContext, ReactNode, useMemo, useEffect } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 interface SystemSetting {
@@ -15,11 +15,25 @@ interface SystemSettings {
 interface SystemSettingsContextType {
   settings: SystemSettings;
   isLoading: boolean;
+  updateSetting: (key: string, value: string | boolean | number | null) => void;
+  toggleDarkMode: () => void;
+  isDarkMode: boolean;
 }
 
 const SystemSettingsContext = createContext<SystemSettingsContextType | undefined>(undefined);
 
+const defaultSettings: SystemSettings = {
+  organization_name: 'Gogo CMMS',
+  logo_url: '/logo.png',
+  color_scheme: 'light',
+  notifications: 'true',
+  defaultPriority: 'Medium',
+  slaThreshold: '3',
+};
+
 export const SystemSettingsProvider = ({ children }: { children: ReactNode }) => {
+  const queryClient = useQueryClient();
+
   const { data: settingsData, isLoading, error } = useQuery<SystemSetting[]>({
     queryKey: ['system_settings'],
     queryFn: async () => {
@@ -27,31 +41,66 @@ export const SystemSettingsProvider = ({ children }: { children: ReactNode }) =>
         const { data, error } = await supabase.from('system_settings').select('key, value');
         if (error) {
           console.warn('System settings table not found or not accessible:', error.message);
-          return [];
+          return Object.entries(defaultSettings).map(([key, value]) => ({ key, value }));
         }
         return data || [];
       } catch (err) {
         console.warn('Failed to load system settings:', err);
-        return [];
+        return Object.entries(defaultSettings).map(([key, value]) => ({ key, value }));
       }
     },
-    retry: 1, // Only retry once
-    retryDelay: 1000, // Wait 1 second before retry
+    retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ key, value }: { key: string; value: string | boolean | number | null }) => {
+      const { error } = await supabase.from('system_settings').upsert({ key, value: value?.toString() || null });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['system_settings'] });
+    },
   });
 
   const settings = useMemo(() => {
-    if (!settingsData) return {};
+    if (!settingsData) return defaultSettings;
     return settingsData.reduce((acc, setting) => {
       acc[setting.key] = setting.value;
       return acc;
     }, {} as SystemSettings);
   }, [settingsData]);
 
+  const isDarkMode = settings['color_scheme'] === 'dark';
+
+  // Set initial dark mode class
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.body.classList.toggle('dark-mode', isDarkMode);
+    }
+  }, [isDarkMode]);
+
+  const updateSetting = (key: string, value: string | boolean | number | null) => {
+    updateMutation.mutate({ key, value });
+  };
+
+  const toggleDarkMode = () => {
+    updateSetting('color_scheme', isDarkMode ? 'light' : 'dark');
+    // Toggle body class for dark mode
+    if (typeof document !== 'undefined') {
+      document.body.classList.toggle('dark-mode', !isDarkMode);
+    }
+  };
+
   // Don't block rendering if system settings fail to load
   const contextValue = useMemo(() => ({
     settings,
-    isLoading: isLoading && !error // Don't show loading if there's an error
-  }), [settings, isLoading, error]);
+    isLoading: isLoading && !error, // Don't show loading if there's an error
+    updateSetting,
+    toggleDarkMode,
+    isDarkMode,
+  }), [settings, isLoading, error, updateSetting, toggleDarkMode, isDarkMode]);
 
   return (
     <SystemSettingsContext.Provider value={contextValue}>

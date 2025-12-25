@@ -1,155 +1,181 @@
-import { Table, Card, Space, Typography, Avatar, Empty, Button } from 'antd';
-import StatusChip from '@/components/StatusChip';
+import { StatusBadge } from '@/components/badges';
 import { Icon } from '@iconify/react';
 import { WorkOrder, Technician, Vehicle } from '@/types/supabase';
-import { formatDistanceToNow, isPast } from 'date-fns';
+import { formatDistanceToNow, isPast, isValid } from 'date-fns';
 import React from 'react';
-
-const { Text } = Typography;
+import { AssetCustodyBadge } from '@/components/AssetCustodyBadge';
 
 interface UrgentWorkOrdersTableProps {
   workOrders: WorkOrder[];
   technicians: Technician[];
   vehicles: Vehicle[];
   onViewDetails?: (workOrderId: string) => void;
+  loading?: boolean;
 }
 
-const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrders, technicians, vehicles, onViewDetails }) => {
+const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrders, technicians, vehicles, onViewDetails, loading = false }) => {
   const now = new Date();
   const twentyFourHoursFromNow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  const safeWorkOrders = Array.isArray(workOrders) ? workOrders : [];
 
-  const vehicleMap = React.useMemo(() => {
-    const map = new Map(vehicles.map(v => [v.id, v]));
-    console.log('UrgentWorkOrders - Vehicles loaded:', vehicles.length, 'vehicles');
-    console.log('UrgentWorkOrders - Vehicle IDs in work orders:', workOrders.map(wo => wo.vehicleId).filter(Boolean));
-    return map;
-  }, [vehicles, workOrders]);
+  const vehicleMap = React.useMemo(() => new Map((vehicles || []).map(v => [v.id, v])), [vehicles]);
 
-  const urgentOrders = workOrders
+  const urgentOrders = safeWorkOrders
     .filter(wo => {
       if (wo.status === 'Completed' || !wo.slaDue) return false;
-      const dueDate = new Date(wo.slaDue);
+      const dueDate = new Date(wo.slaDue as string);
+      if (!isValid(dueDate)) return false;
       return isPast(dueDate) || dueDate < twentyFourHoursFromNow;
     })
-    .sort((a, b) => new Date(a.slaDue!).getTime() - new Date(b.slaDue!).getTime());
+    .sort((a, b) => {
+      const da = new Date(a.slaDue as string);
+      const db = new Date(b.slaDue as string);
+      const ta = isValid(da) ? da.getTime() : Number.POSITIVE_INFINITY;
+      const tb = isValid(db) ? db.getTime() : Number.POSITIVE_INFINITY;
+      return ta - tb;
+    });
 
-  const columns = [
-    {
-      title: 'License Plate',
-      dataIndex: 'vehicleId',
-      key: 'vehicleId',
-      render: (_: string, record: WorkOrder) => {
-        // Try to get license plate from vehicleId. Support both camelCase and snake_case field names.
-        let licensePlate: string | undefined;
-        if (record.vehicleId) {
-          const vehicle = vehicleMap.get(record.vehicleId);
-          if (vehicle) {
-            // Some data paths may have been camelCased (licensePlate) or left as snake_case (license_plate)
-            licensePlate = (vehicle as any).licensePlate || (vehicle as any).license_plate || (vehicle as any).plate;
-          }
-        }
+  const renderLicensePlate = (record: WorkOrder) => {
+    let licensePlate: string | undefined;
+    if (record.vehicleId) {
+      const vehicle = vehicleMap.get(record.vehicleId);
+      if (vehicle) {
+        licensePlate = (vehicle as any).licensePlate || (vehicle as any).license_plate || (vehicle as any).plate;
+      }
+    }
+    if (!licensePlate && (record as any).vehicleModel) licensePlate = (record as any).vehicleModel as any;
+    if (!licensePlate && record.vehicleId) licensePlate = record.vehicleId;
 
-        // Fallbacks: try record.vehicleModel or record.vehicleId
-        if (!licensePlate && record.vehicleModel) licensePlate = record.vehicleModel as any;
-        if (!licensePlate && record.vehicleId) licensePlate = record.vehicleId;
+    return licensePlate ? <span className="text-xs font-semibold">{licensePlate}</span> : <span className="text-xs text-gray-400">N/A</span>;
+  };
 
-        return licensePlate ? <Text>{licensePlate}</Text> : <Text type="secondary">N/A</Text>;
-      },
-    },
-    {
-      title: 'Service',
-      dataIndex: 'service',
-      key: 'service',
-    },
-    {
-      title: 'Technician',
-      dataIndex: 'assignedTechnicianId',
-      key: 'assignedTechnicianId',
-      render: (techId: string) => {
-        const tech = technicians.find(t => t.id === techId);
-        return tech ? (
-          <Space>
-            <Avatar size="small" src={tech.avatar || undefined} icon={<Icon icon="ph:user-fill" />} />
-            <Text>{tech.name}</Text>
-          </Space>
-        ) : (
-          <Text type="secondary">Unassigned</Text>
-        );
-      },
-    },
-    {
-      title: 'Client Location',
-      dataIndex: 'customerAddress',
-      key: 'customerAddress',
-      render: (address: string) => address ? (
-        <Space>
-          <Icon icon="ph:map-pin-fill" style={{ marginRight: 4 }} />
-          <Text>{address}</Text>
-        </Space>
-      ) : <Text type="secondary">N/A</Text>,
-    },
-    {
-      title: 'Due Status',
-      dataIndex: 'slaDue',
-      key: 'dueStatus',
-      render: (slaDue: string) => {
-        const dueDate = new Date(slaDue);
-        const isOverdue = isPast(dueDate);
-        return <StatusChip kind="custom" value={isOverdue ? 'Overdue' : 'Due Soon'} color={isOverdue ? '#EF4444' : '#F59E0B'} />;
-      },
-    },
-    {
-      title: 'Due In',
-      dataIndex: 'slaDue',
-      key: 'dueIn',
-      render: (slaDue: string) => <Text type="secondary" style={{ fontSize: 12 }}>{formatDistanceToNow(new Date(slaDue), { addSuffix: true })}</Text>,
-    },
-  ];
+  const renderTechnician = (techId: string) => {
+    const tech = technicians.find(t => t.id === techId);
+    return tech ? (
+      <div className="flex items-center gap-2">
+        <div className="w-5 h-5 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 overflow-hidden">
+          {tech.avatar ? (
+            <img src={tech.avatar} alt={tech.name} className="w-full h-full object-cover" />
+          ) : (
+            <Icon icon="tabler:user" width="12" height="12" />
+          )}
+        </div>
+        <span className="text-xs truncate max-w-[100px]">{tech.name}</span>
+      </div>
+    ) : (
+      <span className="text-xs text-gray-400">Unassigned</span>
+    );
+  };
+
+  const renderAddress = (address: string) => address ? (
+    <div className="flex items-center gap-1">
+      <Icon icon="tabler:map-pin" className="w-3 h-3 text-gray-500" />
+      <span className="text-xs truncate max-w-[150px]" title={address}>{address}</span>
+    </div>
+  ) : <span className="text-xs text-gray-400">N/A</span>;
+
+  const renderDueStatus = (slaDue: string) => {
+    const dueDate = new Date(slaDue);
+    if (!isValid(dueDate)) {
+      return <StatusBadge status="neutral" size="sm">Unknown</StatusBadge>;
+    }
+    const overdue = isPast(dueDate);
+    return <StatusBadge status={overdue ? 'error' : 'warning'} size="sm">{overdue ? 'Overdue' : 'Due Soon'}</StatusBadge>;
+  };
+
+  const renderDueIn = (slaDue: string) => {
+    const dueDate = new Date(slaDue);
+    return isValid(dueDate)
+      ? <span className="text-xs text-gray-500" style={{ fontSize: '10px' }}>{formatDistanceToNow(dueDate, { addSuffix: true })}</span>
+      : <span className="text-xs text-gray-500">-</span>;
+  };
+
+  const rowCount = 5;
 
   return (
-  <Card size="small" title={<Space><Icon icon="ph:warning-fill" style={{ color: '#faad14' }} /><Text>Urgent Work Orders</Text></Space>} style={{ height: '100%' }}>
-      {urgentOrders.length === 0 ? (
-        <Empty
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-          description={
-            <>
-              <div>No urgent work orders</div>
-              <Button type="primary" style={{ marginTop: 12 }} onClick={() => window.location.reload()}>
-                Refresh
-              </Button>
-            </>
-          }
-        />
-      ) : (
-        <Table
-          dataSource={urgentOrders}
-          columns={columns}
-          rowKey="id"
-          pagination={false}
-          onRow={(record) => ({
-            onClick: () => onViewDetails && onViewDetails(record.id),
-            style: { cursor: onViewDetails ? 'pointer' : undefined },
-          })}
-          size="small"
-          locale={{
-            emptyText: (
-              <Empty
-                image={Empty.PRESENTED_IMAGE_SIMPLE}
-                description={
-                  <>
-                    <div>No urgent work orders</div>
-                    <Button type="primary" style={{ marginTop: 12 }} onClick={() => window.location.reload()}>
-                      Refresh
-                    </Button>
-                  </>
-                }
-              />
-            ),
-          }}
-        />
-      )}
-    </Card>
+    <div className="bg-white border border-slate-100 shadow-sm h-full flex flex-col rounded-xl overflow-hidden">
+      <div className="p-4 border-b border-slate-50 flex items-center gap-3">
+        <div className="w-6 h-6 rounded-full flex items-center justify-center bg-rose-50 text-rose-500">
+          <Icon icon="tabler:alert-triangle" className="w-4 h-4" />
+        </div>
+        <div>
+          <span className="text-sm font-bold text-slate-800 block">Urgent Work Orders</span>
+          <span className="text-[10px] text-slate-500">
+            Due &lt; 24h
+          </span>
+        </div>
+      </div>
+
+      <div className="flex-1 overflow-auto">
+        {urgentOrders.length === 0 ? (
+          loading ? (
+            <div className="p-4 flex flex-col gap-2">
+              {Array.from({ length: rowCount }).map((_, idx) => (
+                <div key={idx} className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
+                  <div className="h-4 w-20 bg-slate-100 rounded animate-pulse" />
+                  <div className="h-4 w-24 bg-slate-100 rounded animate-pulse" />
+                  <div className="h-4 w-20 bg-slate-100 rounded animate-pulse" />
+                  <div className="h-4 w-24 bg-slate-100 rounded animate-pulse" />
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center py-8 gap-2">
+              <div className="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center">
+                <Icon icon="tabler:circle-check" className="w-5 h-5 text-emerald-500" />
+              </div>
+              <span className="text-xs font-medium text-slate-500">No urgent work orders</span>
+            </div>
+          )
+        ) : (
+          <div className="min-w-[600px]">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b border-slate-50">
+                  <th className="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">License Plate</th>
+                  <th className="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Custody</th>
+                  <th className="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Service</th>
+                  <th className="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Technician</th>
+                  <th className="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Location</th>
+                  <th className="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                  <th className="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Due</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {urgentOrders.map((record) => (
+                  <tr
+                    key={record.id}
+                    onClick={() => onViewDetails && onViewDetails(record.id)}
+                    tabIndex={0}
+                    onKeyDown={(e) => {
+                      if ((e.key === 'Enter' || e.key === ' ') && onViewDetails) {
+                        e.preventDefault();
+                        onViewDetails(record.id);
+                      }
+                    }}
+                    className={`
+                    group transition-colors duration-150 cursor-pointer hover:bg-slate-50/50
+                    focus:outline-none focus:bg-primary-50/50
+                  `}
+                  >
+                    <td className="px-4 py-2 border-r border-transparent">{renderLicensePlate(record)}</td>
+                    <td className="px-4 py-2 border-r border-transparent">
+                      <AssetCustodyBadge vehicle={record.vehicleId ? vehicleMap.get(record.vehicleId) : null} size="sm" />
+                    </td>
+                    <td className="px-4 py-2 border-r border-transparent"><span className="text-xs font-medium text-slate-700">{record.service}</span></td>
+                    <td className="px-4 py-2 border-r border-transparent">{renderTechnician(record.assignedTechnicianId || '')}</td>
+                    <td className="px-4 py-2 border-r border-transparent">{renderAddress(record.customerAddress || '')}</td>
+                    <td className="px-4 py-2 border-r border-transparent">{renderDueStatus(record.slaDue as string)}</td>
+                    <td className="px-4 py-2">{renderDueIn(record.slaDue as string)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 
-export default UrgentWorkOrdersTable;
+export default React.memo(UrgentWorkOrdersTable);

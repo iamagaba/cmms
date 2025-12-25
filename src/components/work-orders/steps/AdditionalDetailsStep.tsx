@@ -1,0 +1,176 @@
+import React, { useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Icon } from '@iconify/react';
+import { Stack } from '@/components/tailwind-components';
+import { supabase } from '@/integrations/supabase/client';
+import { Location } from '@/types/supabase';
+
+interface AdditionalDetailsStepProps {
+  data: {
+    priority: 'low' | 'medium' | 'high' | 'urgent';
+    serviceLocationId: string;
+    scheduledDate: string;
+    customerNotes: string;
+    customerLocation?: { lat: number; lng: number } | null;
+  };
+  onChange: (updates: any) => void;
+}
+export const AdditionalDetailsStep: React.FC<AdditionalDetailsStepProps> = ({
+  data,
+  onChange
+}) => {
+  // Track validation errors (currently not used since sticky footer handles validation)
+  const errors: Record<string, string> = {};
+
+  // Fetch service locations
+  const { data: locations } = useQuery({
+    queryKey: ['locations'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('locations')
+        .select('*')
+        .order('name', { ascending: true });
+      if (error) throw error;
+      return data as Location[];
+    }
+  });
+
+  // Calculate distance between two coordinates using Haversine formula
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 6371; // Earth's radius in kilometers
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
+  // Auto-populate nearest service center when customer location changes
+  useEffect(() => {
+    if (data.customerLocation && locations && locations.length > 0) {
+      const { lat, lng } = data.customerLocation;
+
+      // Calculate distances to all service centers
+      const locationsWithDistance = locations
+        .filter(location => location.lat && location.lng)
+        .map(location => ({
+          ...location,
+          distance: calculateDistance(lat, lng, location.lat!, location.lng!)
+        }));
+
+      if (locationsWithDistance.length > 0) {
+        // Find the nearest one
+        const nearest = locationsWithDistance.reduce((prev, curr) =>
+          curr.distance < prev.distance ? curr : prev
+        );
+
+        // Auto-select if not already set or if current selection is far
+        if (!data.serviceLocationId) {
+          onChange({ serviceLocationId: nearest.id });
+        }
+      }
+    }
+  }, [data.customerLocation, locations]);
+
+  const priorities = [
+    { value: 'low', label: 'Low', color: 'bg-green-100 text-green-800', icon: 'mdi:arrow-down' },
+    { value: 'medium', label: 'Medium', color: 'bg-yellow-100 text-yellow-800', icon: 'mdi:minus' },
+    { value: 'high', label: 'High', color: 'bg-orange-100 text-orange-800', icon: 'mdi:arrow-up' },
+    { value: 'urgent', label: 'Urgent', color: 'bg-red-100 text-red-800', icon: 'mdi:alert' }
+  ];
+
+
+
+  return (
+    <Stack gap="sm">
+      {/* Priority Selection */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Priority <span className="text-red-500">*</span>
+        </label>
+        <div className="grid grid-cols-2 gap-3">
+          {priorities.map((priority) => (
+            <button
+              key={priority.value}
+              onClick={() => onChange({ priority: priority.value })}
+              className={`p-4 rounded-lg border-2 transition-all ${data.priority === priority.value
+                ? 'border-primary-500 bg-primary-50'
+                : 'border-gray-200 hover:border-gray-300'
+                }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${priority.color}`}>
+                  <Icon icon={priority.icon} width={20} height={20} />
+                </div>
+                <div className="text-left">
+                  <div className="font-semibold text-gray-900">{priority.label}</div>
+                  <div className="text-xs text-gray-500">
+                    {priority.value === 'urgent' && 'Immediate attention'}
+                    {priority.value === 'high' && 'Within 24 hours'}
+                    {priority.value === 'medium' && 'Within 3 days'}
+                    {priority.value === 'low' && 'Scheduled maintenance'}
+                  </div>
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+        {errors.priority && <p className="text-sm text-red-600 mt-1">{errors.priority}</p>}
+      </div>
+
+      {/* Service Location */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Service Location <span className="text-red-500">*</span>
+        </label>
+        <select
+          value={data.serviceLocationId}
+          onChange={(e) => onChange({ serviceLocationId: e.target.value })}
+          className={`w-full h-9 px-3 py-1.5 text-sm border rounded-md shadow-sm transition-colors focus:outline-none focus:ring-1 focus:ring-purple-600 focus:border-purple-600 ${errors.serviceLocationId ? 'border-red-500' : 'border-gray-200'
+            }`}
+        >
+          <option value="">Select service center...</option>
+          {locations?.map(l => (
+            <option key={l.id} value={l.id}>
+              {l.name} - {l.address}
+            </option>
+          ))}
+        </select>
+        {errors.serviceLocationId && <p className="text-sm text-red-600 mt-1">{errors.serviceLocationId}</p>}
+      </div>
+
+      {/* Scheduled Date (Optional) */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Scheduled Date (Optional)
+        </label>
+        <input
+          type="datetime-local"
+          value={data.scheduledDate}
+          onChange={(e) => onChange({ scheduledDate: e.target.value })}
+          className="w-full h-9 px-3 py-1.5 text-sm border border-gray-200 rounded-md shadow-sm transition-colors focus:outline-none focus:ring-1 focus:ring-purple-600 focus:border-purple-600"
+        />
+        <p className="text-xs text-gray-500 mt-1">
+          Leave empty for immediate service
+        </p>
+      </div>
+
+      {/* Customer Notes */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Additional Notes (Optional)
+        </label>
+        <textarea
+          value={data.customerNotes}
+          onChange={(e) => onChange({ customerNotes: e.target.value })}
+          placeholder="Any additional information from the customer..."
+          rows={4}
+          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md shadow-sm transition-colors focus:outline-none focus:ring-1 focus:ring-purple-600 focus:border-purple-600 resize-none"
+        />
+      </div>
+    </Stack>
+  );
+};

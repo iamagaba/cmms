@@ -1,114 +1,256 @@
-import { v4 as uuidv4 } from 'uuid';
-import { useEffect, useState } from "react";
-import { Drawer, Form, Input, Select, Button, Space } from "antd";
-import { Technician, Location } from "@/types/supabase";
-
-
-const { Option } = Select;
+import React, { useState, useEffect } from 'react';
+import { Icon } from '@iconify/react';
+import { Technician, Location } from '@/types/supabase';
 
 interface TechnicianFormDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: Technician) => void;
+  onSubmit: (data: Partial<Technician>) => void;
   technician?: Technician | null;
   locations: Location[];
 }
 
-export const TechnicianFormDialog = ({ isOpen, onClose, onSave, technician, locations }: TechnicianFormDialogProps) => {
-  const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
+export const TechnicianFormDialog: React.FC<TechnicianFormDialogProps> = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  technician,
+  locations
+}) => {
+  const [formData, setFormData] = useState<Partial<Technician>>({
+    name: '',
+    email: '',
+    phone: '',
+    status: 'available',
+    specializations: [],
+    locationId: '',
+    maxConcurrentOrders: 5,
+  });
+
+  const [newSkill, setNewSkill] = useState('');
 
   useEffect(() => {
-    if (isOpen) {
-      if (technician) {
-        const formData = {
-          ...technician,
-          // join_date removed
-          specializations: technician.specializations || [], // Use specializations array
-        };
-        form.setFieldsValue(formData);
-      } else {
-        form.resetFields();
-      }
+    if (technician) {
+      setFormData({
+        id: technician.id,
+        name: technician.name || '',
+        email: technician.email || '',
+        phone: technician.phone || '',
+        status: technician.status || 'available',
+        specializations: technician.specializations || [],
+        locationId: technician.locationId || '',
+        maxConcurrentOrders: technician.maxConcurrentOrders || 5,
+      });
+    } else {
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        status: 'available',
+        specializations: [],
+        locationId: '',
+        maxConcurrentOrders: 5,
+      });
     }
-  }, [isOpen, technician, form]);
+  }, [technician]);
 
-  const handleSubmit = async () => {
-    setLoading(true);
-    try {
-      const values = await form.validateFields();
-      const technicianToSave: Technician = {
-        id: technician?.id || uuidv4(),
-        name: values.name,
-        avatar: values.avatar ?? null,
-        status: values.status ?? 'available',
-        email: values.email ?? '',
-        phone: values.phone ?? '',
-        specializations: values.specializations || [],
-        lat: values.lat ?? null,
-        lng: values.lng ?? null,
-        max_concurrent_orders: values.max_concurrent_orders ?? null,
-        location_id: values.location_id ?? null,
-        created_at: values.created_at ?? undefined,
-        updated_at: values.updated_at ?? undefined,
-      };
-      onSave(technicianToSave);
-    } catch (info) {
-      // Just log info; error message for join_date is handled above
-      console.log('Validate Failed:', info);
-    } finally {
-      setLoading(false);
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit(formData);
+  };
+
+  const handleAddSkill = () => {
+    if (newSkill.trim() && !formData.specializations?.includes(newSkill.trim())) {
+      setFormData(prev => ({
+        ...prev,
+        specializations: [...(prev.specializations || []), newSkill.trim()]
+      }));
+      setNewSkill('');
     }
   };
 
+  const handleRemoveSkill = (skillToRemove: string) => {
+    setFormData(prev => ({
+      ...prev,
+      specializations: prev.specializations?.filter(skill => skill !== skillToRemove) || []
+    }));
+  };
+
+  if (!isOpen) return null;
+
   return (
-    <Drawer
-      title={technician ? "Edit Technician" : "Add Technician"}
-      placement="right"
-      onClose={onClose}
-      open={isOpen}
-      width={720}
-      destroyOnClose
-      footer={
-        <Space style={{ width: '100%', justifyContent: 'flex-end' }}>
-          <Button key="back" onClick={onClose} disabled={loading}>Cancel</Button>
-          <Button key="submit" type="primary" onClick={handleSubmit} loading={loading}>Save</Button>
-        </Space>
-      }
-    >
-      <Form form={form} layout="vertical" name="technician_form">
-        <Form.Item name="name" label="Name" rules={[{ required: true, message: 'Please input the name!' }]}>
-          <Input placeholder="e.g. John Doe" />
-        </Form.Item>
-        <Form.Item name="email" label="Email" rules={[{ required: true, type: 'email', message: 'Please enter a valid email!' }]}>
-          <Input placeholder="e.g. john.doe@gogo.com" />
-        </Form.Item>
-        <Form.Item name="phone" label="Phone Number" rules={[{ required: true, message: 'Please input the phone number!' }]}>
-          <Input placeholder="e.g. +256 772 123456" />
-        </Form.Item>
-        <Form.Item name="location_id" label="Assigned Location">
-          <Select placeholder="Select a location" allowClear>
-            {locations.map(loc => (
-              <Option key={loc.id} value={loc.id}>{loc.name}</Option>
-            ))}
-          </Select>
-        </Form.Item>
-        <Form.Item name="status" label="Status" rules={[{ required: true, message: 'Please select a status!' }]}>
-          <Select placeholder="Select a status">
-            <Option value="available">Available</Option>
-            <Option value="busy">Busy</Option>
-            <Option value="offline">Offline</Option>
-          </Select>
-        </Form.Item>
-        <Form.Item name="specializations" label="Specialization" rules={[{ required: true, message: 'Please select a specialization!' }]}>
-          <Select mode="multiple" placeholder="Select specializations"> {/* Changed to multiple select */}
-            <Option value="Electrical">Electrical</Option>
-            <Option value="Mechanical">Mechanical</Option>
-            <Option value="Diagnostics">Diagnostics</Option>
-          </Select>
-        </Form.Item>
-        {/* join_date field removed */}
-      </Form>
-    </Drawer>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-md backdrop-saturate-150" onClick={onClose}>
+      <div 
+        className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+          <h2 className="text-lg font-semibold text-gray-900">
+            {technician ? 'Edit Technician' : 'Add New Technician'}
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 text-gray-400 hover:text-gray-600"
+          >
+            <Icon icon="heroicons:x-mark" className="h-5 w-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {/* Name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Name *
+            </label>
+            <input
+              type="text"
+              required
+              value={formData.name}
+              onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter technician name"
+            />
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Email
+            </label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter email address"
+            />
+          </div>
+
+          {/* Phone */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Phone
+            </label>
+            <input
+              type="tel"
+              value={formData.phone}
+              onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              placeholder="Enter phone number"
+            />
+          </div>
+
+          {/* Status */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Status
+            </label>
+            <select
+              value={formData.status}
+              onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'available' | 'busy' | 'offline' }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="available">Available</option>
+              <option value="busy">Busy</option>
+              <option value="offline">Offline</option>
+            </select>
+          </div>
+
+          {/* Location */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Location
+            </label>
+            <select
+              value={formData.locationId}
+              onChange={(e) => setFormData(prev => ({ ...prev, locationId: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            >
+              <option value="">Select a location</option>
+              {locations.map(location => (
+                <option key={location.id} value={location.id}>
+                  {location.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Max Concurrent Orders */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Max Concurrent Orders
+            </label>
+            <input
+              type="number"
+              min="1"
+              max="20"
+              value={formData.maxConcurrentOrders}
+              onChange={(e) => setFormData(prev => ({ ...prev, maxConcurrentOrders: parseInt(e.target.value) }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+
+          {/* Specializations */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Specializations
+            </label>
+            <div className="flex gap-2 mb-2">
+              <input
+                type="text"
+                value={newSkill}
+                onChange={(e) => setNewSkill(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Add a specialization"
+              />
+              <button
+                type="button"
+                onClick={handleAddSkill}
+                className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                <Icon icon="heroicons:plus" className="h-4 w-4" />
+              </button>
+            </div>
+            {formData.specializations && formData.specializations.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {formData.specializations.map((skill, index) => (
+                  <span
+                    key={index}
+                    className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                  >
+                    {skill}
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveSkill(skill)}
+                      className="ml-1 text-blue-600 hover:text-blue-800"
+                    >
+                      <Icon icon="heroicons:x-mark" className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Form Actions */}
+          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700"
+            >
+              {technician ? 'Update' : 'Create'} Technician
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };

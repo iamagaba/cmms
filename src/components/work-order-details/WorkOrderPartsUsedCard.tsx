@@ -1,141 +1,118 @@
 import React from 'react';
-import { Card, Button, Table, Popconfirm, Empty, Typography, Tooltip, theme } from 'antd';
 import { Icon } from '@iconify/react';
 import { WorkOrderPart } from '@/types/supabase';
-import { AddPartToWorkOrderDialog } from '@/components/AddPartToWorkOrderDialog';
-
-const { Text } = Typography;
 
 interface WorkOrderPartsUsedCardProps {
   usedParts: WorkOrderPart[];
-  handleRemovePart: (partId: string) => void;
-  // Support either a simple callback or managed dialog props from parent
-  onAddPart?: () => void;
   isAddPartDialogOpen?: boolean;
   setIsAddPartDialogOpen?: (open: boolean) => void;
   handleAddPart?: (itemId: string, quantity: number) => void;
-  status?: string;
+  handleRemovePart?: (partId: string) => void;
 }
 
 export const WorkOrderPartsUsedCard: React.FC<WorkOrderPartsUsedCardProps> = ({
   usedParts,
-  handleRemovePart,
-  onAddPart,
   isAddPartDialogOpen,
   setIsAddPartDialogOpen,
   handleAddPart,
-  status,
+  handleRemovePart,
 }) => {
-  const { token } = theme.useToken();
-  const openAddPart = () => {
-    if (setIsAddPartDialogOpen) setIsAddPartDialogOpen(true);
-    else if (onAddPart) onAddPart();
-  };
-
-  const partsColumns = [
-    {
-      title: 'Part',
-      dataIndex: ['inventory_items', 'name'],
-      render: (name: string | undefined, record: WorkOrderPart) => {
-        const item = (record as any).inventory_items as { name?: string; sku?: string } | undefined;
-        const displayName = name ?? item?.name ?? 'Unknown part';
-        const sku = item?.sku ? ` (${item.sku})` : '';
-        return `${displayName}${sku}`;
-      },
-    },
-    { 
-      title: 'Qty', 
-      dataIndex: 'quantity_used',
-      render: (qty: number) => (qty ?? 0).toLocaleString(),
-    },
-    { 
-      title: 'Unit Price', 
-      dataIndex: 'price_at_time_of_use', // Corrected field name
-      render: (price: number) => `UGX ${(price ?? 0).toLocaleString('en-US')}`,
-    },
-    { 
-      title: 'Total', 
-      render: (_: any, record: WorkOrderPart) => {
-        const qty = Number((record as any).quantity_used) || 0;
-        const price = Number((record as any).price_at_time_of_use) || 0;
-        return `UGX ${(qty * price).toLocaleString('en-US')}`;
-      },
-    },
-    {
-      title: 'Actions',
-      key: 'actions',
-      render: (_: any, record: WorkOrderPart) => (
-        <Popconfirm
-          title="Are you sure to delete this part?"
-          onConfirm={() => handleRemovePart(record.id)}
-          okText="Yes"
-          cancelText="No"
-        >
-          <Button type="text" danger icon={<Icon icon="ph:trash-fill" />} size="small" />
-        </Popconfirm>
-      ),
-    },
-  ];
-  const partsTotal = (usedParts || []).reduce((sum, part) => {
-    const qty = Number((part as any).quantity_used) || 0;
-    const price = Number((part as any).price_at_time_of_use) || 0;
-    return sum + qty * price;
+  const totalCost = usedParts.reduce((sum, part) => {
+    const price = part.price_at_time_of_use || part.inventory_items?.unit_price || 0;
+    return sum + (price * part.quantity_used);
   }, 0);
 
-  const canAddPart = status === 'In Progress' || status === 'Completed';
   return (
-  <Card size="small"
-      title="Parts Used"
-      style={{
-        borderRadius: 16,
-        background: token.colorBgContainer,
-        border: `1px solid ${token.colorSplit}`,
-        boxShadow: token.boxShadowTertiary,
-      }}
-      bodyStyle={{ padding: 20 }}
-      extra={
-        canAddPart ? (
-          <Button type="primary" icon={<Icon icon="ph:plus-fill" />} onClick={openAddPart}>
-            Add Part
-          </Button>
-        ) : (
-          <Tooltip title="Parts can only be added when the work order is In Progress or Completed.">
-            <span>
-              <Button type="primary" icon={<Icon icon="ph:plus-fill" />} disabled style={{ pointerEvents: 'none' }}>
-                Add Part
-              </Button>
+    <div className="bg-white">
+      <div className="px-3 py-2 border-b border-gray-200 flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wide">Parts Used</h3>
+          {usedParts.length > 0 && (
+            <span className="bg-gray-200 text-gray-700 text-[10px] font-medium px-1.5 py-0.5 rounded-full">
+              {usedParts.length}
             </span>
-          </Tooltip>
-        )
-      }
-    >
-      <Table
-        dataSource={usedParts || []}
-        columns={partsColumns}
-        rowKey="id"
-        pagination={false}
-        size="small"
-        summary={() => (
-          <Table.Summary.Row>
-            <Table.Summary.Cell index={0} colSpan={3}>
-              <Text strong>Total Cost</Text>
-            </Table.Summary.Cell>
-            <Table.Summary.Cell index={3}>
-              <Text strong>UGX {partsTotal.toLocaleString('en-US')}</Text>
-            </Table.Summary.Cell>
-            <Table.Summary.Cell index={4} />
-          </Table.Summary.Row>
+          )}
+        </div>
+        {setIsAddPartDialogOpen && (
+          <button
+            onClick={() => setIsAddPartDialogOpen(true)}
+            className="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
+          >
+            <Icon icon="tabler:plus" className="w-3 h-3" />
+            Add
+          </button>
         )}
-        locale={{ emptyText: <Empty description="No parts used yet." image={Empty.PRESENTED_IMAGE_SIMPLE} /> }}
-      />
+      </div>
+      <div className="px-3 py-2">
+        {usedParts.length === 0 ? (
+          <div className="text-center py-4">
+            <Icon icon="tabler:package-off" className="w-6 h-6 text-gray-300 mx-auto mb-1" />
+            <p className="text-xs text-gray-400">No parts used yet</p>
+            {setIsAddPartDialogOpen && (
+              <button
+                onClick={() => setIsAddPartDialogOpen(true)}
+                className="mt-2 text-xs text-primary-600 hover:text-primary-700 font-medium"
+              >
+                Add first part
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <div className="divide-y divide-gray-100">
+              {usedParts.map((part) => {
+                const item = part.inventory_items;
+                const price = part.price_at_time_of_use || item?.unit_price || 0;
+                const lineTotal = price * part.quantity_used;
 
-      {isAddPartDialogOpen !== undefined && setIsAddPartDialogOpen && handleAddPart && (
-        <AddPartToWorkOrderDialog
-          isOpen={isAddPartDialogOpen}
-          onClose={() => setIsAddPartDialogOpen(false)}
-          onSave={(itemId, quantity) => handleAddPart(itemId, quantity)}
-        />
-      )}
-    </Card>
+                return (
+                  <div key={part.id} className="flex items-start gap-2 py-2 group first:pt-0 last:pb-0">
+                    <div className="w-6 h-6 bg-white border border-gray-200 rounded flex items-center justify-center flex-shrink-0">
+                      <Icon icon="tabler:package" className="w-3 h-3 text-gray-400" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-gray-900 truncate">
+                            {item?.name || 'Unknown Part'}
+                          </p>
+                          {item?.sku && <p className="text-xs text-gray-500">SKU: {item.sku}</p>}
+                        </div>
+                        {handleRemovePart && (
+                          <button
+                            onClick={() => handleRemovePart(part.id)}
+                            className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 text-gray-400 hover:text-red-500"
+                            title="Remove part"
+                          >
+                            <Icon icon="tabler:trash" className="w-3 h-3" />
+                          </button>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-3 mt-1 text-xs">
+                        <span className="text-gray-500">
+                          Qty: <span className="font-medium text-gray-700">{part.quantity_used}</span>
+                        </span>
+                        <span className="text-gray-500">
+                          @ <span className="font-medium text-gray-700">${price.toFixed(2)}</span>
+                        </span>
+                        <span className="text-gray-900 font-semibold">${lineTotal.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Total */}
+            <div className="pt-2 border-t border-gray-200 flex items-center justify-between">
+              <span className="text-xs font-medium text-gray-600">Total Parts Cost</span>
+              <span className="text-sm font-bold text-gray-900">${totalCost.toFixed(2)}</span>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
+
+export default WorkOrderPartsUsedCard;

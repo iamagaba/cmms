@@ -1,0 +1,593 @@
+/**
+ * Professional CMMS Design System - CSS Integration
+ * 
+ * This file contains CSS custom properties and utility classes generated
+ * from the professional design system tokens. It provides the foundation
+ * for consistent styling across the desktop application.
+ */
+
+/* ============================================ */
+/* CSS CUSTOM PROPERTIES (Design Tokens)       */
+/* ============================================ */
+
+:root {
+  /* Color Properties - Steel Blue (Primary) */
+  --color-steelBlue-50: #f0f7ff;
+  --color-steelBlue-100: #e0efff;
+  --color-steelBlue-200: #b9dfff;
+  --color-steelBlue-300: #7cc8ff;
+  --color-steelBlue-400: #36b0ff;
+  --color-steelBlue-500: #0c96f1;
+  --color-steelBlue-600: #0077ce;
+  --color-steelBlue-700: #005fa6;
+  --color-steelBlue-800: #035189;
+  --color-steelBlue-900: #094372;
+  --color-steelBlue-950: #062a4b;
+
+  /* Color Properties - Safety Orange */
+  --color-safetyOrange-50: #fff7ed;
+  --color-safetyOrange-100: #ffedd5;
+  --color-safetyOrange-200: #fed7aa;
+  --color-safetyOrange-300: #fdba74;
+  --color-safetyOrange-400: #fb923c;
+  --color-safetyOrange-500: #f97316;
+  --color-safetyOrange-600: #ea580c;
+  --color-safetyOrange-700: #c2410c;
+  --color-safetyOrange-800: #9a3412;
+  --color-safetyOrange-900: #7c2d12;
+  --color-safetyOrange-950: #431407;
+
+  /* Color Properties - Machinery Gray */
+  --color-machineryGray-50: #f8fafc;
+  --color-machineryGray-100: #f1f5f9;
+  --color-machineryGray-200: #e2e8f0;
+  --color-machineryGray-300: #cbd5e1;
+  --color-machineryGray-400: #94a3b8;
+  --color-machineryGray-500: #64748b;
+  --color-machineryGray-600: #475569;
+  --color-machineryGray-700: #334155;
+  --color-machineryGray-800: #1e293b;
+  --color-machineryGray-900: #0f172a;
+  --color-machineryGray-950: #020617;
+
+  /* Color Properties - Industrial Green */
+  --color-industrialGreen-50: #f0fdf4;
+  --color-industrialGreen-100: #dcfce7;
+  --color-industrialGreen-200: #bbf7d0;
+  --color-industrialGreen-300: #86efac;
+  --color-industrialGreen-400: #4ade80;
+  --color-industrialGreen-500: #22c55e;
+  --color-industrialGreen-600: #16a34a;
+  --color-industrialGreen-700: #15803d;
+  --color-industrialGreen-800: #166534;
+  --color-industrialGreen-900: #14532d;
+  --color-industrialGreen-950: #052e16;
+
+  /* Color Properties - Maintenance Yellow */
+  --color-maintenanceYellow-50: #fefce8;
+  --color-maintenanceYellow-100: #fef9c3;
+  --color-maintenanceYellow-200: #fef08a;
+  --color-maintenanceYellow-300: #fde047;
+  --color-maintenanceYellow-400: #facc15;
+  --color-maintenanceYellow-500: #eab308;
+  --color-maintenanceYellow-600: #ca8a04;
+  --color-maintenanceYellow-700: #a16207;
+  --color-maintenanceYellow-800: #854d0e;
+  --color-maintenanceYellow-900: #713f12;
+  --color-maintenanceYellow-950: #422006;
+
+  /* Color Properties - Warning Red */
+  --color-warningRed-50: #fef2f2;
+  --color-warningRed-100: #fee2e2;
+  --color-warningRed-200: #fecaca;
+  --color-warningRed-300: #fca5a5;
+  --color-warningRed-400: #f87171;
+  --color-warningRed-500: #ef4444;
+  --color-warningRed-600: #dc2626;
+  --color-warningRed-700: #b91c1c;
+  --color-warningRed-800: #991b1b;
+  --color-warningRed-900: #7f1d1d;
+  --color-warningRed-950: #450a0a;
+
+  /* Spacing Properties */
+  --spacing-0: 0rem;
+  --spacing-px: 0.0625rem;
+  --spacing-0_5: 0.125rem;
+  --spacing-1: 0.25rem;
+  --spacing-1_5: 0.375rem;
+  --spacing-2: 0.5rem;
+  --spacing-2_5: 0.625rem;
+  --spacing-3: 0.75rem;
+  --spacing-3_5: 0.875rem;
+  --spacing-4: 1rem;
+  --spacing-5: 1.25rem;
+  --spacing-6: 1.5rem;
+  --spacing-7: 1.75rem;
+  --spacing-8: 2rem;
+  --spacing-9: 2.25rem;
+  --spacing-10: 2.5rem;
+  --spacing-11: 2.75rem;
+  --spacing-12: 3rem;
+  --spacing-14: 3.5rem;
+  --spacing-16: 4rem;
+  --spacing-20: 5rem;
+  --spacing-24: 6rem;
+  --spacing-28: 7rem;
+  --spacing-32: 8rem;
+  --spacing-36: 9rem;
+  --spacing-40: 10rem;
+  --spacing-44: 11rem;
+  --spacing-48: 12rem;
+  --spacing-52: 13rem;
+  --spacing-56: 14rem;
+  --spacing-60: 15rem;
+  --spacing-64: 16rem;
+  --spacing-72: 18rem;
+  --spacing-80: 20rem;
+  --spacing-96: 24rem;
+
+  /* Typography Properties */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  --font-size-5xl: 3rem;
+  --font-size-6xl: 3.75rem;
+
+  --line-height-none: 1;
+  --line-height-tight: 1.25;
+  --line-height-snug: 1.375;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.625;
+  --line-height-loose: 2;
+
+  /* Shadow Properties */
+  --shadow-none: none;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  --shadow-industrial: 0 4px 12px -2px rgba(7, 95, 166, 0.15);
+  --shadow-elevated: 0 8px 32px -4px rgba(15, 23, 42, 0.12);
+  --shadow-focusRing: 0 0 0 3px rgba(0, 119, 206, 0.1);
+  --shadow-focusRingError: 0 0 0 3px rgba(239, 68, 68, 0.1);
+
+  /* Border Radius Properties */
+  --radius-none: 0px;
+  --radius-sm: 2px;
+  --radius-base: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 12px;
+  --radius-2xl: 16px;
+  --radius-3xl: 24px;
+  --radius-full: 9999px;
+  --radius-button: 6px;
+  --radius-input: 6px;
+  --radius-card: 8px;
+  --radius-modal: 12px;
+  --radius-badge: 9999px;
+
+  /* Animation Properties */
+  --duration-instant: 0ms;
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 350ms;
+  --duration-slower: 500ms;
+
+  --easing-linear: linear;
+  --easing-easeOut: cubic-bezier(0, 0, 0.2, 1);
+  --easing-easeIn: cubic-bezier(0.4, 0, 1, 1);
+  --easing-easeInOut: cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ============================================ */
+/* DARK MODE OVERRIDES                          */
+/* ============================================ */
+
+[data-theme="dark"] {
+  /* Invert machinery gray colors for dark mode */
+  --color-machineryGray-50: #020617;
+  --color-machineryGray-100: #0f172a;
+  --color-machineryGray-200: #1e293b;
+  --color-machineryGray-300: #334155;
+  --color-machineryGray-400: #475569;
+  --color-machineryGray-500: #64748b;
+  --color-machineryGray-600: #94a3b8;
+  --color-machineryGray-700: #cbd5e1;
+  --color-machineryGray-800: #e2e8f0;
+  --color-machineryGray-900: #f1f5f9;
+  --color-machineryGray-950: #f8fafc;
+
+  /* Adjust shadows for dark mode */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-base: 0 1px 3px 0 rgba(0, 0, 0, 0.3), 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+}
+
+/* ============================================ */
+/* COMPONENT UTILITY CLASSES                   */
+/* ============================================ */
+
+/* Button Component Utilities */
+.btn-primary {
+  @apply inline-flex items-center justify-center font-medium rounded-lg border;
+  @apply h-10 px-4 text-sm gap-2;
+  @apply bg-steel-600 text-white border-steel-600;
+  @apply hover:bg-steel-700 hover:border-steel-700;
+  @apply active:bg-steel-800 active:border-steel-800;
+  @apply focus:outline-none focus:ring-2 focus:ring-steel-500 focus:ring-offset-2;
+  @apply disabled:bg-machinery-300 disabled:border-machinery-300 disabled:text-machinery-500 disabled:cursor-not-allowed disabled:opacity-60;
+  @apply shadow-sm hover:shadow-md;
+  @apply transition-all duration-200 ease-out;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center font-medium rounded-lg border;
+  @apply h-10 px-4 text-sm gap-2;
+  @apply bg-white text-machinery-700 border-machinery-300;
+  @apply hover:bg-machinery-50 hover:border-machinery-400;
+  @apply active:bg-machinery-100 active:border-machinery-500;
+  @apply focus:outline-none focus:ring-2 focus:ring-machinery-500 focus:ring-offset-2;
+  @apply disabled:bg-machinery-100 disabled:border-machinery-200 disabled:text-machinery-400 disabled:cursor-not-allowed disabled:opacity-60;
+  @apply shadow-sm hover:shadow-md;
+  @apply transition-all duration-200 ease-out;
+}
+
+.btn-outline {
+  @apply inline-flex items-center justify-center font-medium rounded-lg border;
+  @apply h-10 px-4 text-sm gap-2;
+  @apply bg-transparent text-steel-600 border-steel-600;
+  @apply hover:bg-steel-50 hover:text-steel-700;
+  @apply active:bg-steel-100 active:text-steel-800;
+  @apply focus:outline-none focus:ring-2 focus:ring-steel-500 focus:ring-offset-2;
+  @apply disabled:bg-transparent disabled:border-machinery-300 disabled:text-machinery-400 disabled:cursor-not-allowed disabled:opacity-60;
+  @apply transition-all duration-200 ease-out;
+}
+
+.btn-ghost {
+  @apply inline-flex items-center justify-center font-medium rounded-lg border;
+  @apply h-10 px-4 text-sm gap-2;
+  @apply bg-transparent text-machinery-600 border-transparent;
+  @apply hover:bg-machinery-100 hover:text-machinery-700;
+  @apply active:bg-machinery-200 active:text-machinery-800;
+  @apply focus:outline-none focus:ring-2 focus:ring-machinery-500 focus:ring-offset-2;
+  @apply disabled:bg-transparent disabled:text-machinery-400 disabled:cursor-not-allowed disabled:opacity-60;
+  @apply transition-all duration-200 ease-out;
+}
+
+.btn-danger {
+  @apply inline-flex items-center justify-center font-medium rounded-lg border;
+  @apply h-10 px-4 text-sm gap-2;
+  @apply bg-warning-600 text-white border-warning-600;
+  @apply hover:bg-warning-700 hover:border-warning-700;
+  @apply active:bg-warning-800 active:border-warning-800;
+  @apply focus:outline-none focus:ring-2 focus:ring-warning-500 focus:ring-offset-2;
+  @apply disabled:bg-machinery-300 disabled:border-machinery-300 disabled:text-machinery-500 disabled:cursor-not-allowed disabled:opacity-60;
+  @apply shadow-sm hover:shadow-md;
+  @apply transition-all duration-200 ease-out;
+}
+
+.btn-success {
+  @apply inline-flex items-center justify-center font-medium rounded-lg border;
+  @apply h-10 px-4 text-sm gap-2;
+  @apply bg-industrial-600 text-white border-industrial-600;
+  @apply hover:bg-industrial-700 hover:border-industrial-700;
+  @apply active:bg-industrial-800 active:border-industrial-800;
+  @apply focus:outline-none focus:ring-2 focus:ring-industrial-500 focus:ring-offset-2;
+  @apply disabled:bg-machinery-300 disabled:border-machinery-300 disabled:text-machinery-500 disabled:cursor-not-allowed disabled:opacity-60;
+  @apply shadow-sm hover:shadow-md;
+  @apply transition-all duration-200 ease-out;
+}
+
+/* Button Size Variants */
+.btn-sm {
+  @apply h-8 px-3 text-sm gap-1.5;
+}
+
+.btn-lg {
+  @apply h-12 px-6 text-base gap-2.5;
+}
+
+/* Input Component Utilities */
+.input-base {
+  @apply block w-full rounded-lg border bg-white shadow-sm;
+  @apply h-10 px-3 text-sm;
+  @apply border-machinery-300 focus:border-steel-500 focus:ring-steel-500;
+  @apply transition-all duration-200;
+  @apply focus:outline-none focus:ring-2 focus:ring-offset-0;
+  @apply disabled:bg-machinery-50 disabled:text-machinery-500 disabled:cursor-not-allowed;
+  @apply placeholder:text-machinery-400;
+}
+
+.input-error {
+  @apply border-warning-300 focus:border-warning-500 focus:ring-warning-500;
+}
+
+.input-success {
+  @apply border-industrial-300 focus:border-industrial-500 focus:ring-industrial-500;
+}
+
+.input-warning {
+  @apply border-maintenance-300 focus:border-maintenance-500 focus:ring-maintenance-500;
+}
+
+/* Input Size Variants */
+.input-sm {
+  @apply h-8 px-3 text-sm;
+}
+
+.input-lg {
+  @apply h-12 px-4 text-base;
+}
+
+/* Card Component Utilities */
+.card-base {
+  @apply bg-white border border-machinery-200 rounded-lg shadow-sm;
+  @apply transition-all duration-200;
+}
+
+.card-elevated {
+  @apply bg-white border border-machinery-200 rounded-lg;
+  @apply shadow-md hover:shadow-lg;
+  @apply transition-all duration-200;
+}
+
+.card-outlined {
+  @apply bg-white border-2 border-machinery-300 rounded-lg;
+  @apply shadow-none;
+}
+
+.card-filled {
+  @apply bg-machinery-50 border border-machinery-200 rounded-lg;
+  @apply shadow-none;
+}
+
+.card-interactive {
+  @apply card-base cursor-pointer;
+  @apply hover:shadow-md hover:border-machinery-300;
+  @apply focus:outline-none focus:ring-2 focus:ring-steel-500 focus:ring-offset-2;
+}
+
+/* Status Component Utilities */
+.status-success {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-1 text-sm font-medium rounded-full;
+  @apply bg-industrial-100 text-industrial-800 border border-industrial-200;
+}
+
+.status-warning {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-1 text-sm font-medium rounded-full;
+  @apply bg-maintenance-100 text-maintenance-800 border border-maintenance-200;
+}
+
+.status-error {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-1 text-sm font-medium rounded-full;
+  @apply bg-warning-100 text-warning-800 border border-warning-200;
+}
+
+.status-info {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-1 text-sm font-medium rounded-full;
+  @apply bg-steel-100 text-steel-800 border border-steel-200;
+}
+
+.status-neutral {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-1 text-sm font-medium rounded-full;
+  @apply bg-machinery-100 text-machinery-700 border border-machinery-200;
+}
+
+/* Navigation Utilities */
+.nav-link {
+  @apply inline-flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg;
+  @apply text-machinery-600 hover:text-machinery-900 hover:bg-machinery-100;
+  @apply transition-all duration-200;
+  @apply focus:outline-none focus:ring-2 focus:ring-steel-500 focus:ring-offset-2;
+}
+
+.nav-link-active {
+  @apply nav-link bg-steel-100 text-steel-700;
+}
+
+.nav-item {
+  @apply flex items-center gap-3 px-4 py-2 text-sm;
+  @apply text-machinery-600 hover:text-machinery-900 hover:bg-machinery-50;
+  @apply transition-colors duration-200;
+}
+
+.nav-item-active {
+  @apply nav-item bg-steel-50 text-steel-700 border-r-2 border-steel-600;
+}
+
+/* Layout Utilities */
+.page-container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.section-spacing {
+  @apply py-8 lg:py-12;
+}
+
+/* Focus Utilities */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-steel-500 focus:ring-offset-2;
+}
+
+.focus-ring-inset {
+  @apply focus:outline-none focus:ring-2 focus:ring-steel-500 focus:ring-inset;
+}
+
+.focus-ring-error {
+  @apply focus:outline-none focus:ring-2 focus:ring-warning-500 focus:ring-offset-2;
+}
+
+.focus-ring-success {
+  @apply focus:outline-none focus:ring-2 focus:ring-industrial-500 focus:ring-offset-2;
+}
+
+/* ============================================ */
+/* LEGACY COMPATIBILITY                         */
+/* ============================================ */
+
+/* Legacy color aliases - will be deprecated in v2.0 */
+.bg-blue-600 {
+  @apply bg-steel-600;
+}
+
+.bg-blue-700 {
+  @apply bg-steel-700;
+}
+
+.text-blue-600 {
+  @apply text-steel-600;
+}
+
+.border-blue-600 {
+  @apply border-steel-600;
+}
+
+.hover\:bg-blue-700:hover {
+  @apply hover:bg-steel-700;
+}
+
+.focus\:ring-blue-500:focus {
+  @apply focus:ring-steel-500;
+}
+
+.bg-green-500 {
+  @apply bg-industrial-500;
+}
+
+.bg-green-600 {
+  @apply bg-industrial-600;
+}
+
+.text-green-800 {
+  @apply text-industrial-800;
+}
+
+.bg-green-100 {
+  @apply bg-industrial-100;
+}
+
+.bg-red-500 {
+  @apply bg-warning-500;
+}
+
+.bg-red-600 {
+  @apply bg-warning-600;
+}
+
+.text-red-800 {
+  @apply text-warning-800;
+}
+
+.bg-red-100 {
+  @apply bg-warning-100;
+}
+
+.bg-yellow-500 {
+  @apply bg-maintenance-500;
+}
+
+.text-yellow-800 {
+  @apply text-maintenance-800;
+}
+
+.bg-yellow-100 {
+  @apply bg-maintenance-100;
+}
+
+/* Legacy button styles */
+.btn-old-primary {
+  @apply btn-primary;
+}
+
+.btn-old-secondary {
+  @apply btn-secondary;
+}
+
+/* Animation Utilities */
+.animate-fade-in {
+  animation: fadeIn var(--duration-normal) var(--easing-easeOut);
+}
+
+.animate-slide-up {
+  animation: slideUp var(--duration-normal) var(--easing-easeOut);
+}
+
+.animate-scale-in {
+  animation: scaleIn var(--duration-fast) var(--easing-easeOut);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ============================================ */
+/* RESPONSIVE UTILITIES                         */
+/* ============================================ */
+
+/* Touch-friendly sizing for mobile */
+@media (max-width: 768px) {
+
+  .btn-primary,
+  .btn-secondary,
+  .btn-outline,
+  .btn-ghost,
+  .btn-danger {
+    @apply min-h-[44px] px-4 py-3;
+  }
+
+  .input-base {
+    @apply min-h-[44px] px-4 py-3;
+  }
+}
+
+/* Compact density for smaller screens */
+@media (max-width: 640px) {
+  .section-spacing {
+    @apply py-6;
+  }
+
+  .page-container {
+    @apply px-3;
+  }
+}

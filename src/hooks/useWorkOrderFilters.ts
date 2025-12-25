@@ -15,13 +15,27 @@ export const useWorkOrderFilters = (allWorkOrders: WorkOrder[], technicians: Tec
     if (!allWorkOrders) return [];
     
     return allWorkOrders.filter(wo => {
-      const vehicleMatch = wo.vehicleId?.toLowerCase().includes(vehicleFilter.toLowerCase()) ?? true;
+      // Enhanced search functionality - search across multiple fields
+      let searchMatch = true;
+      if (vehicleFilter.trim()) {
+        const searchTerm = vehicleFilter.toLowerCase();
+        searchMatch = (
+          wo.vehicleId?.toLowerCase().includes(searchTerm) ||
+          wo.workOrderNumber?.toLowerCase().includes(searchTerm) ||
+          wo.customerName?.toLowerCase().includes(searchTerm) ||
+          wo.customerPhone?.toLowerCase().includes(searchTerm) ||
+          wo.vehicleModel?.toLowerCase().includes(searchTerm) ||
+          wo.description?.toLowerCase().includes(searchTerm) ||
+          wo.notes?.toLowerCase().includes(searchTerm)
+        ) ?? false;
+      }
+      
       const statusMatch = statusFilter ? wo.status === statusFilter : true;
       const priorityMatch = priorityFilter ? wo.priority === priorityFilter : true;
       const technicianMatch = technicianFilter ? wo.assignedTechnicianId === technicianFilter : true;
       const channelMatch = channelFilter ? wo.channel === channelFilter : true;
       
-      return vehicleMatch && statusMatch && priorityMatch && technicianMatch && channelMatch;
+      return searchMatch && statusMatch && priorityMatch && technicianMatch && channelMatch;
     });
   }, [allWorkOrders, vehicleFilter, statusFilter, priorityFilter, technicianFilter, channelFilter]);
 

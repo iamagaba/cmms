@@ -8,6 +8,8 @@ import { showSuccess, showError } from '@/utils/toast';
 import { Input } from '@/components/ui/enterprise';
 import { InventoryItemFormDialog } from '@/components/InventoryItemFormDialog';
 import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog';
+import { StockAdjustmentDialog } from '@/components/StockAdjustmentDialog';
+import { AdjustmentHistoryPanel } from '@/components/AdjustmentHistoryPanel';
 
 // Filter types
 interface InventoryFilters {
@@ -30,6 +32,12 @@ const InventoryPage: React.FC = () => {
   const [itemToDelete, setItemToDelete] = useState<InventoryItem | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
+  
+  // Stock Adjustment Dialog State
+  const [adjustmentDialogOpen, setAdjustmentDialogOpen] = useState(false);
+  const [adjustmentPreselectedItem, setAdjustmentPreselectedItem] = useState<InventoryItem | null>(null);
+  const [showHistory, setShowHistory] = useState(false);
+  
   const [filters, setFilters] = useState<InventoryFilters>({
     stockStatus: 'all',
     category: 'all',
@@ -190,6 +198,26 @@ const InventoryPage: React.FC = () => {
     setFilters({ stockStatus: 'all', category: 'all', sortBy: 'name', sortOrder: 'asc' });
   }, []);
 
+  const handleOpenBatchAdjustment = useCallback(() => {
+    setAdjustmentPreselectedItem(null);
+    setAdjustmentDialogOpen(true);
+  }, []);
+
+  const handleQuickAdjust = useCallback((item: InventoryItem) => {
+    setAdjustmentPreselectedItem(item);
+    setAdjustmentDialogOpen(true);
+  }, []);
+
+  const handleAdjustmentSuccess = useCallback(() => {
+    // Refresh the selected item if it was adjusted
+    if (selectedItem) {
+      const updatedItem = inventoryItems?.find(i => i.id === selectedItem.id);
+      if (updatedItem) {
+        setSelectedItem(updatedItem);
+      }
+    }
+  }, [selectedItem, inventoryItems]);
+
   const hasActiveFilters = searchTerm || filters.stockStatus !== 'all' || filters.category !== 'all';
 
 
@@ -299,19 +327,29 @@ const InventoryPage: React.FC = () => {
 
           {/* Filters Toggle */}
           <div className="px-4 pb-3 flex items-center justify-between">
-            <button
-              onClick={() => setFiltersOpen(!filtersOpen)}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors ${filtersOpen || hasActiveFilters
-                ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700'
-                }`}
-            >
-              <Icon icon="tabler:adjustments-horizontal" className="w-3.5 h-3.5" />
-              Filters
-              {hasActiveFilters && (
-                <span className="w-1.5 h-1.5 rounded-full bg-purple-600" />
-              )}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setFiltersOpen(!filtersOpen)}
+                className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors ${filtersOpen || hasActiveFilters
+                  ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700'
+                  : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700'
+                  }`}
+              >
+                <Icon icon="tabler:adjustments-horizontal" className="w-3.5 h-3.5" />
+                Filters
+                {hasActiveFilters && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-purple-600" />
+                )}
+              </button>
+              <button
+                onClick={handleOpenBatchAdjustment}
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md transition-colors"
+                title="Adjust Stock"
+              >
+                <Icon icon="tabler:plus-minus" className="w-3.5 h-3.5" />
+                Adjust
+              </button>
+            </div>
             <button
               onClick={() => { setEditingItem(null); setIsDialogOpen(true); }}
               className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md transition-colors"
@@ -440,6 +478,13 @@ const InventoryPage: React.FC = () => {
               </div>
               <div className="flex items-center gap-2">
                 <button
+                  onClick={() => handleQuickAdjust(selectedItem)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                >
+                  <Icon icon="tabler:plus-minus" className="w-4 h-4" />
+                  Adjust Stock
+                </button>
+                <button
                   onClick={() => handleEdit(selectedItem)}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
                 >
@@ -532,6 +577,29 @@ const InventoryPage: React.FC = () => {
                 </div>
               </div>
             )}
+
+            {/* Adjustment History */}
+            <div className="mt-8">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
+                  Stock Adjustment History
+                </h3>
+                <button
+                  onClick={() => setShowHistory(!showHistory)}
+                  className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
+                >
+                  {showHistory ? 'Hide' : 'Show'} History
+                </button>
+              </div>
+              {showHistory && (
+                <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+                  <AdjustmentHistoryPanel 
+                    inventoryItemId={selectedItem.id} 
+                    maxHeight="300px"
+                  />
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <div className="flex items-center justify-center h-full">
@@ -561,6 +629,17 @@ const InventoryPage: React.FC = () => {
         message="Are you sure you want to delete this inventory item? This action cannot be undone."
         itemName={itemToDelete?.name}
         isDeleting={isDeleting}
+      />
+
+      {/* Stock Adjustment Dialog */}
+      <StockAdjustmentDialog
+        isOpen={adjustmentDialogOpen}
+        onClose={() => {
+          setAdjustmentDialogOpen(false);
+          setAdjustmentPreselectedItem(null);
+        }}
+        onSuccess={handleAdjustmentSuccess}
+        preselectedItem={adjustmentPreselectedItem}
       />
     </div>
   );

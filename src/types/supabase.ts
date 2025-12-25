@@ -928,3 +928,54 @@ export interface WorkOrderPart {
   created_at?: string;
   inventory_items: InventoryItem; // For joined queries
 }
+
+
+// Stock Adjustment Types
+export type AdjustmentReason = 
+  | 'received'
+  | 'damaged'
+  | 'returned'
+  | 'cycle_count'
+  | 'theft'
+  | 'expired'
+  | 'transfer_out'
+  | 'transfer_in'
+  | 'initial_stock'
+  | 'other';
+
+export interface StockAdjustment {
+  id: string;
+  inventory_item_id: string | null;
+  quantity_delta: number;
+  quantity_before: number;
+  quantity_after: number;
+  reason: AdjustmentReason;
+  notes: string | null;
+  created_by: string | null;
+  created_at: string;
+  // Joined data for queries
+  inventory_items?: InventoryItem;
+  profiles?: { first_name: string | null; last_name: string | null };
+}
+
+export interface BatchAdjustmentInput {
+  items: Array<{
+    inventory_item_id: string;
+    quantity_delta: number;
+  }>;
+  reason: AdjustmentReason;
+  notes?: string;
+}
+
+export const ADJUSTMENT_REASON_LABELS: Record<AdjustmentReason, string> = {
+  received: 'Received',
+  damaged: 'Damaged',
+  returned: 'Returned',
+  cycle_count: 'Cycle Count',
+  theft: 'Theft',
+  expired: 'Expired',
+  transfer_out: 'Transfer Out',
+  transfer_in: 'Transfer In',
+  initial_stock: 'Initial Stock',
+  other: 'Other',
+};

@@ -518,27 +518,6 @@
     @apply card-mobile;
     cursor: pointer;
     position: relative;
-    border-left: 4px solid transparent;
-  }
-  
-  .work-order-card.priority-critical {
-    border-left-color: #dc2626;
-  }
-  
-  .work-order-card.priority-high {
-    border-left-color: #ea580c;
-  }
-  
-  .work-order-card.priority-medium {
-    border-left-color: #ca8a04;
-  }
-  
-  .work-order-card.priority-low {
-    border-left-color: #64748b;
-  }
-  
-  .work-order-card.priority-routine {
-    border-left-color: #16a34a;
   }
   
   /* KPI card styles matching main app */
@@ -779,26 +758,6 @@ Text truncation utilities */
 .work-order-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-}
-
-.work-order-card.priority-critical {
-  border-left: 4px solid #dc2626;
-}
-
-.work-order-card.priority-high {
-  border-left: 4px solid #ea580c;
-}
-
-.work-order-card.priority-medium {
-  border-left: 4px solid #ca8a04;
-}
-
-.work-order-card.priority-low {
-  border-left: 4px solid #64748b;
-}
-
-.work-order-card.priority-routine {
-  border-left: 4px solid #16a34a;
 }/* 
 Scrollbar utilities */
 .scrollbar-hide {

@@ -34,6 +34,7 @@ const ReportsPage = lazy(() => import("./pages/Reports"));
 const DesignSystemDemo = lazy(() => import("./components/demo/DesignSystemDemo"));
 const ChatPage = lazy(() => import("./pages/Chat"));
 const TVDashboard = lazy(() => import("./pages/TVDashboard"));
+const WhatsAppTest = lazy(() => import("./pages/WhatsAppTest"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -97,6 +98,7 @@ const AppContent = () => {
         <Route path="chat" element={<Suspense fallback={suspenseFallback}><ProtectedRoute><ChatPage /></ProtectedRoute></Suspense>} />
         <Route path="settings" element={<Suspense fallback={suspenseFallback}><ProtectedRoute><SettingsPage /></ProtectedRoute></Suspense>} />
         <Route path="design-system" element={<Suspense fallback={suspenseFallback}><ProtectedRoute><DesignSystemDemo /></ProtectedRoute></Suspense>} />
+        <Route path="whatsapp-test" element={<Suspense fallback={suspenseFallback}><ProtectedRoute><WhatsAppTest /></ProtectedRoute></Suspense>} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

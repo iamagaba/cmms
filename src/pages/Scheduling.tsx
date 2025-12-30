@@ -1,6 +1,16 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Clock01Icon,
+  TimelineIcon,
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
+  UserGroupIcon,
+  CheckmarkCircle01Icon,
+  UserIcon,
+  AlertCircleIcon
+} from '@hugeicons/core-free-icons';
 import { Stack, Button, Group, Tabs, Badge, Skeleton, Select } from '@/components/tailwind-components';
 import { supabase } from '@/integrations/supabase/client';
 import { WorkOrder, Technician } from '@/types/supabase';
@@ -135,7 +145,7 @@ const Scheduling: React.FC = () => {
               onClick={handleToday}
               className="p-2 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
-              <Icon icon="tabler:calendar-event" className="w-4 h-4" />
+              <HugeiconsIcon icon={Clock01Icon} size={16} />
             </button>
           </div>
 
@@ -147,7 +157,7 @@ const Scheduling: React.FC = () => {
                 viewMode === 'calendar' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
               }`}
             >
-              <Icon icon="tabler:calendar" className="w-3.5 h-3.5" />
+              <HugeiconsIcon icon={Clock01Icon} size={14} />
               Calendar
             </button>
             <button
@@ -156,7 +166,7 @@ const Scheduling: React.FC = () => {
                 viewMode === 'timeline' ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
               }`}
             >
-              <Icon icon="tabler:timeline" className="w-3.5 h-3.5" />
+              <HugeiconsIcon icon={TimelineIcon} size={14} />
               Timeline
             </button>
           </div>
@@ -188,13 +198,13 @@ const Scheduling: React.FC = () => {
                 onClick={handlePreviousMonth}
                 className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
-                <Icon icon="tabler:chevron-left" className="w-4 h-4" />
+                <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
               </button>
               <button
                 onClick={handleNextMonth}
                 className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
               >
-                <Icon icon="tabler:chevron-right" className="w-4 h-4" />
+                <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
               </button>
             </div>
           </div>
@@ -283,7 +293,7 @@ const Scheduling: React.FC = () => {
                   viewMode === 'availability' ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
                 }`}
               >
-                <Icon icon="tabler:users" className="w-4 h-4 mr-1.5" />
+                <HugeiconsIcon icon={UserGroupIcon} size={16} className="mr-1.5" />
                 Availability
               </button>
             </div>
@@ -295,28 +305,28 @@ const Scheduling: React.FC = () => {
           <div className="grid grid-cols-4 divide-x divide-gray-200 dark:divide-gray-800">
             <div className="px-6 py-4">
               <div className="flex items-center gap-2 mb-1">
-                <Icon icon="tabler:calendar-check" className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="text-primary-600 dark:text-primary-400" />
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Scheduled</p>
               </div>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{schedulingStats.totalScheduled}</p>
             </div>
             <div className="px-6 py-4">
               <div className="flex items-center gap-2 mb-1">
-                <Icon icon="tabler:clock" className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <HugeiconsIcon icon={Clock01Icon} size={16} className="text-blue-600 dark:text-blue-400" />
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Today</p>
               </div>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{schedulingStats.todayScheduled}</p>
             </div>
             <div className="px-6 py-4">
               <div className="flex items-center gap-2 mb-1">
-                <Icon icon="tabler:user-check" className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <HugeiconsIcon icon={UserIcon} size={16} className="text-emerald-600 dark:text-emerald-400" />
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Available</p>
               </div>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{schedulingStats.availableTechs}</p>
             </div>
             <div className="px-6 py-4">
               <div className="flex items-center gap-2 mb-1">
-                <Icon icon="tabler:alert-triangle" className="w-4 h-4 text-red-600 dark:text-red-400" />
+                <HugeiconsIcon icon={AlertCircleIcon} size={16} className="text-red-600 dark:text-red-400" />
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Overbooked</p>
               </div>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{schedulingStats.overbooked}</p>

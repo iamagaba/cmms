@@ -1,4 +1,9 @@
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  Menu01Icon,
+  Wrench01Icon,
+  UserIcon
+} from '@hugeicons/core-free-icons';
 
 interface CustodyFilterButtonsProps {
   activeFilter: 'all' | 'in-custody' | 'with-customer';
@@ -32,7 +37,7 @@ export const CustodyFilterButtons = ({
         onClick={() => onFilterChange('all')}
         className={buttonClass('all')}
       >
-        <Icon icon="tabler:list" width={16} height={16} />
+        <HugeiconsIcon icon={Menu01Icon} size={16} />
         All
       </button>
 
@@ -40,7 +45,7 @@ export const CustodyFilterButtons = ({
         onClick={() => onFilterChange('in-custody')}
         className={buttonClass('in-custody')}
       >
-        <Icon icon="tabler:tool" width={16} height={16} />
+        <HugeiconsIcon icon={Wrench01Icon} size={16} />
         In Custody
         {inCustodyCount !== undefined && (
           <span className={`px-2 py-0.5 rounded-full text-xs ${
@@ -55,7 +60,7 @@ export const CustodyFilterButtons = ({
         onClick={() => onFilterChange('with-customer')}
         className={buttonClass('with-customer')}
       >
-        <Icon icon="tabler:user" width={16} height={16} />
+        <HugeiconsIcon icon={UserIcon} size={16} />
         With Customer
         {withCustomerCount !== undefined && (
           <span className={`px-2 py-0.5 rounded-full text-xs ${

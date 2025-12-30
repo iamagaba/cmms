@@ -1,5 +1,6 @@
 import React from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { InformationCircleIcon } from '@hugeicons/core-free-icons';
 import { UnitOfMeasure, UNIT_OF_MEASURE_LABELS } from '@/types/supabase';
 import { ALL_UNITS } from '@/utils/inventory-categorization-helpers';
 
@@ -65,7 +66,7 @@ export const UnitOfMeasureSelect: React.FC<UnitOfMeasureSelectProps> = ({
       {/* Info Box */}
       {showConversionFactor && unitsPerPackage > 1 && (
         <div className="flex items-start gap-2 text-sm bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-lg px-3 py-2">
-          <Icon icon="tabler:info-circle" className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+          <HugeiconsIcon icon={InformationCircleIcon} size={16} className="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
           <span className="text-blue-700 dark:text-blue-300">
             1 {UNIT_OF_MEASURE_LABELS[unit].toLowerCase()} = {unitsPerPackage} individual items
           </span>

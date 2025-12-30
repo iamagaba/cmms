@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  Cancel01Icon,
+  PackageReceiveIcon,
+  Delete01Icon,
+  Loading03Icon
+} from '@hugeicons/core-free-icons';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { InventoryItem, Supplier } from '@/types/supabase';
@@ -126,7 +132,7 @@ export const StockReceiptDialog: React.FC<StockReceiptDialogProps> = ({
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-              <Icon icon="tabler:package-import" className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+              <HugeiconsIcon icon={PackageReceiveIcon} size={20} className="text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Receive Stock</h2>
@@ -134,7 +140,7 @@ export const StockReceiptDialog: React.FC<StockReceiptDialogProps> = ({
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-            <Icon icon="tabler:x" className="w-5 h-5 text-gray-500" />
+            <HugeiconsIcon icon={Cancel01Icon} size={20} className="text-gray-500" />
           </button>
         </div>
 
@@ -266,7 +272,7 @@ export const StockReceiptDialog: React.FC<StockReceiptDialogProps> = ({
                             onClick={() => handleRemoveItem(li.inventory_item_id)}
                             className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
                           >
-                            <Icon icon="tabler:trash" className="w-4 h-4" />
+                            <HugeiconsIcon icon={Delete01Icon} size={16} />
                           </button>
                         </td>
                       </tr>
@@ -315,7 +321,7 @@ export const StockReceiptDialog: React.FC<StockReceiptDialogProps> = ({
               disabled={lineItems.length === 0 || createReceipt.isPending}
               className="px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              {createReceipt.isPending && <Icon icon="tabler:loader-2" className="w-4 h-4 animate-spin" />}
+              {createReceipt.isPending && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin" />}
               Receive Stock
             </button>
           </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Menu } from '@/components/tailwind-components';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Motorbike01Icon, SpeedometerIcon, UserIcon, MoreHorizontalIcon, Delete01Icon, MoreVerticalIcon } from '@hugeicons/core-free-icons';
 import { Vehicle } from '@/types/supabase';
 import { cn } from '@/lib/utils';
 
@@ -65,7 +66,7 @@ export const DetailedAssetCard = ({ asset, onEdit, onDelete, onViewDetails }: {
             <div className="flex justify-between items-start mb-3">
                 <div className="flex gap-3">
                     <div className="w-10 h-10 rounded-lg bg-primary-50 text-primary-600 flex items-center justify-center border border-primary-100 group-hover:scale-105 transition-transform">
-                        <Icon icon="tabler:motorbike" width={20} />
+                        <HugeiconsIcon icon={Motorbike01Icon} size={20} />
                     </div>
                     <div>
                         <h3 className="text-sm font-bold text-neutral-900 leading-tight group-hover:text-primary-600 transition-colors uppercase">{asset.license_plate}</h3>
@@ -78,14 +79,14 @@ export const DetailedAssetCard = ({ asset, onEdit, onDelete, onViewDetails }: {
             <div className="grid grid-cols-2 gap-2 mb-3 flex-1">
                 <div className="bg-neutral-50 rounded-lg p-2 border border-neutral-100">
                     <div className="flex items-center gap-1.5 mb-0.5">
-                        <Icon icon="tabler:gauge" className="text-neutral-400 w-3 h-3" />
+                        <HugeiconsIcon icon={SpeedometerIcon} size={12} className="text-neutral-400" />
                         <span className="text-[10px] uppercase font-bold text-neutral-400">Mileage</span>
                     </div>
                     <p className="text-xs font-bold text-neutral-700">{asset.mileage?.toLocaleString() || 0} km</p>
                 </div>
                 <div className="bg-neutral-50 rounded-lg p-2 border border-neutral-100">
                     <div className="flex items-center gap-1.5 mb-0.5">
-                        <Icon icon="tabler:user" className="text-neutral-400 w-3 h-3" />
+                        <HugeiconsIcon icon={UserIcon} size={12} className="text-neutral-400" />
                         <span className="text-[10px] uppercase font-bold text-neutral-400">Owner</span>
                     </div>
                     <p className="text-xs font-bold text-neutral-700 truncate" title={asset.customer?.first_name}>{asset.customer?.first_name || 'N/A'}</p>
@@ -105,11 +106,11 @@ export const DetailedAssetCard = ({ asset, onEdit, onDelete, onViewDetails }: {
                     <Menu>
                         <Menu.Target>
                             <button onClick={(e) => e.preventDefault()} className="w-8 h-8 flex items-center justify-center rounded-lg border border-neutral-200 text-neutral-400 hover:text-neutral-600 hover:border-neutral-300 bg-white transition-colors">
-                                <Icon icon="tabler:dots" className="w-4 h-4" />
+                                <HugeiconsIcon icon={MoreHorizontalIcon} size={16} />
                             </button>
                         </Menu.Target>
                         <Menu.Dropdown>
-                            <Menu.Item color="red" leftSection={<Icon icon="tabler:trash" className="w-4 h-4" />} onClick={() => onDelete?.(asset)}>
+                            <Menu.Item color="red" leftSection={<HugeiconsIcon icon={Delete01Icon} size={16} />} onClick={() => onDelete?.(asset)}>
                                 Delete
                             </Menu.Item>
                         </Menu.Dropdown>
@@ -136,7 +137,7 @@ export const CompactAssetCard = ({ asset, onEdit, onDelete }: {
                 <div className="flex justify-between items-start mb-2">
                     <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-md bg-primary-50 text-primary-600 flex items-center justify-center border border-primary-100">
-                            <Icon icon="tabler:motorbike" width={16} />
+                            <HugeiconsIcon icon={Motorbike01Icon} size={16} />
                         </div>
                         <div>
                             <h4 className="text-xs font-bold text-neutral-900 leading-tight uppercase">{asset.license_plate}</h4>
@@ -147,7 +148,7 @@ export const CompactAssetCard = ({ asset, onEdit, onDelete }: {
                     <Menu>
                         <Menu.Target>
                             <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} className="text-neutral-400 hover:text-primary-600 p-1">
-                                <Icon icon="tabler:dots-vertical" className="w-4 h-4" />
+                                <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
                             </button>
                         </Menu.Target>
                         <Menu.Dropdown>

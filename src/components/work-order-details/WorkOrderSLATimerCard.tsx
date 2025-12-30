@@ -1,5 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  CheckmarkCircle01Icon,
+  AlertCircleIcon,
+  Cancel01Icon
+} from '@hugeicons/core-free-icons';
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
@@ -60,10 +65,10 @@ export const WorkOrderSLATimerCard: React.FC<WorkOrderSLATimerCardProps> = ({ wo
   const urgency = getUrgencyLevel();
 
   const urgencyConfig = {
-    safe: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', bar: 'bg-emerald-500', icon: 'tabler:clock-check' },
-    warning: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', bar: 'bg-amber-500', icon: 'tabler:clock-exclamation' },
-    critical: { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700', bar: 'bg-orange-500', icon: 'tabler:clock-exclamation' },
-    overdue: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', bar: 'bg-red-500', icon: 'tabler:clock-x' },
+    safe: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', bar: 'bg-emerald-500', icon: CheckmarkCircle01Icon },
+    warning: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', bar: 'bg-amber-500', icon: AlertCircleIcon },
+    critical: { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700', bar: 'bg-orange-500', icon: AlertCircleIcon },
+    overdue: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', bar: 'bg-red-500', icon: Cancel01Icon },
   };
 
   const config = urgencyConfig[urgency];
@@ -72,7 +77,7 @@ export const WorkOrderSLATimerCard: React.FC<WorkOrderSLATimerCardProps> = ({ wo
     <div className={`${config.bg} border ${config.border} rounded-xl overflow-hidden`}>
       <div className="px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Icon icon={config.icon} className={`w-5 h-5 ${config.text}`} />
+          <HugeiconsIcon icon={config.icon} size={20} className={config.text} />
           <span className={`text-sm font-semibold ${config.text}`}>
             {isOverdue ? 'SLA Overdue' : 'SLA Timer'}
           </span>

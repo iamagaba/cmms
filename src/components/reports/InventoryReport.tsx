@@ -1,5 +1,29 @@
 import React, { useState } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  FileIcon,
+  Download01Icon,
+  Calendar01Icon,
+  PackageIcon,
+  Store01Icon,
+  Loading01Icon,
+  TimelineIcon,
+  TagIcon,
+  ArrowDataTransferHorizontalIcon,
+  Clock01Icon,
+  AnalyticsUpIcon,
+  PieChartIcon,
+  Layers01Icon,
+  ChartIcon,
+  ArrowDownIcon,
+  ArrowUpIcon,
+  Invoice01Icon,
+  Building04Icon,
+  ChartLineData01Icon,
+  PackageDeliveredIcon,
+  Alert01Icon,
+  GridIcon
+} from '@hugeicons/core-free-icons';
 import {
   useInventoryValuation,
   useStockMovementHistory,
@@ -15,11 +39,11 @@ import dayjs from 'dayjs';
 type InventoryReportType = 'valuation' | 'movement' | 'slow-moving' | 'trends' | 'cost-analysis';
 
 const INVENTORY_REPORT_TABS = [
-  { id: 'valuation', label: 'Valuation', icon: 'tabler:currency-dollar' },
-  { id: 'movement', label: 'Stock Movement', icon: 'tabler:arrows-exchange' },
-  { id: 'slow-moving', label: 'Slow/Dead Stock', icon: 'tabler:clock-pause' },
-  { id: 'trends', label: 'Usage Trends', icon: 'tabler:trending-up' },
-  { id: 'cost-analysis', label: 'Cost Analysis', icon: 'tabler:chart-pie' },
+  { id: 'valuation', label: 'Valuation', icon: TagIcon },
+  { id: 'movement', label: 'Stock Movement', icon: ArrowDataTransferHorizontalIcon },
+  { id: 'slow-moving', label: 'Slow/Dead Stock', icon: Clock01Icon },
+  { id: 'trends', label: 'Usage Trends', icon: AnalyticsUpIcon },
+  { id: 'cost-analysis', label: 'Cost Analysis', icon: PieChartIcon },
 ];
 
 // Currency formatter for UGX
@@ -42,7 +66,7 @@ const InventoryReport: React.FC = () => {
                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
             }`}
           >
-            <Icon icon={tab.icon} className="w-4 h-4" />
+            <HugeiconsIcon icon={tab.icon} size={16} />
             {tab.label}
           </button>
         ))}
@@ -75,25 +99,25 @@ const ValuationReport: React.FC = () => {
         <StatCard
           label="Total Items"
           value={data.totalItems.toLocaleString()}
-          icon="tabler:package"
+          icon={PackageIcon}
           color="purple"
         />
         <StatCard
           label="Total Quantity"
           value={data.totalQuantity.toLocaleString()}
-          icon="tabler:stack-2"
+          icon={Layers01Icon}
           color="blue"
         />
         <StatCard
           label="Total Value"
           value={formatCurrency(data.totalValue)}
-          icon="tabler:currency-dollar"
+          icon={TagIcon}
           color="emerald"
         />
         <StatCard
           label="Avg Item Value"
           value={formatCurrency(data.averageItemValue)}
-          icon="tabler:chart-bar"
+          icon={ChartIcon}
           color="orange"
         />
       </div>
@@ -238,25 +262,25 @@ const StockMovementReport: React.FC = () => {
         <StatCard
           label="Total In"
           value={`+${data.totalIn.toLocaleString()}`}
-          icon="tabler:arrow-down"
+          icon={ArrowDownIcon}
           color="emerald"
         />
         <StatCard
           label="Total Out"
           value={`-${data.totalOut.toLocaleString()}`}
-          icon="tabler:arrow-up"
+          icon={ArrowUpIcon}
           color="red"
         />
         <StatCard
           label="Net Change"
           value={data.netChange >= 0 ? `+${data.netChange}` : data.netChange.toString()}
-          icon="tabler:arrows-exchange"
+          icon={ArrowDataTransferHorizontalIcon}
           color={data.netChange >= 0 ? 'blue' : 'orange'}
         />
         <StatCard
           label="Transactions"
           value={data.records.length.toString()}
-          icon="tabler:receipt"
+          icon={Invoice01Icon}
           color="purple"
         />
       </div>
@@ -350,25 +374,25 @@ const SlowMovingReport: React.FC = () => {
         <StatCard
           label="Slow-Moving Items"
           value={(slowMoving?.length || 0).toString()}
-          icon="tabler:clock-pause"
+          icon={Clock01Icon}
           color="orange"
         />
         <StatCard
           label="Slow-Moving Value"
           value={formatCurrency(slowMovingValue)}
-          icon="tabler:currency-dollar"
+          icon={TagIcon}
           color="orange"
         />
         <StatCard
           label="Dead Stock Items"
           value={(deadStock?.length || 0).toString()}
-          icon="tabler:alert-triangle"
+          icon={Alert01Icon}
           color="red"
         />
         <StatCard
           label="Dead Stock Value"
           value={formatCurrency(deadStockValue)}
-          icon="tabler:currency-dollar"
+          icon={TagIcon}
           color="red"
         />
       </div>
@@ -488,25 +512,25 @@ const UsageTrendsReport: React.FC = () => {
         <StatCard
           label="Avg Monthly Usage"
           value={Math.round(data.averageMonthlyUsage).toLocaleString()}
-          icon="tabler:chart-line"
+          icon={ChartLineData01Icon}
           color="purple"
         />
         <StatCard
           label="Avg Monthly Received"
           value={Math.round(data.averageMonthlyReceived).toLocaleString()}
-          icon="tabler:package-import"
+          icon={PackageDeliveredIcon}
           color="emerald"
         />
         <StatCard
           label="Projected Next Month"
           value={Math.round(data.projectedNextMonth).toLocaleString()}
-          icon="tabler:trending-up"
+          icon={AnalyticsUpIcon}
           color="blue"
         />
         <StatCard
           label="Growth Rate"
           value={`${data.growthRate >= 0 ? '+' : ''}${data.growthRate.toFixed(1)}%`}
-          icon={data.growthRate >= 0 ? 'tabler:arrow-up' : 'tabler:arrow-down'}
+          icon={data.growthRate >= 0 ? ArrowUpIcon : ArrowDownIcon}
           color={data.growthRate >= 0 ? 'emerald' : 'red'}
         />
       </div>
@@ -588,25 +612,25 @@ const CostAnalysisReport: React.FC = () => {
         <StatCard
           label="Total Inventory Value"
           value={formatCurrency(data.totalInventoryValue)}
-          icon="tabler:currency-dollar"
+          icon={TagIcon}
           color="emerald"
         />
         <StatCard
           label="Average Item Cost"
           value={formatCurrency(data.averageItemCost)}
-          icon="tabler:chart-bar"
+          icon={ChartIcon}
           color="blue"
         />
         <StatCard
           label="Highest Value Category"
           value={ITEM_CATEGORY_LABELS[data.highestValueCategory as keyof typeof ITEM_CATEGORY_LABELS] || data.highestValueCategory}
-          icon="tabler:arrow-up"
+          icon={ArrowUpIcon}
           color="purple"
         />
         <StatCard
           label="Categories"
           value={data.byCategory.length.toString()}
-          icon="tabler:category"
+          icon={GridIcon}
           color="orange"
         />
       </div>
@@ -653,7 +677,7 @@ const CostAnalysisReport: React.FC = () => {
               <div key={supplier.supplier_id || idx} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                    <Icon icon="tabler:building-store" className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <HugeiconsIcon icon={Building04Icon} size={16} className="text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -682,7 +706,7 @@ const CostAnalysisReport: React.FC = () => {
 const StatCard: React.FC<{
   label: string;
   value: string;
-  icon: string;
+  icon: any;
   color: 'purple' | 'emerald' | 'blue' | 'orange' | 'red';
 }> = ({ label, value, icon, color }) => {
   const colorClasses = {
@@ -698,7 +722,7 @@ const StatCard: React.FC<{
       <div className="flex items-center justify-between mb-2">
         <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{label}</span>
         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${colorClasses[color]}`}>
-          <Icon icon={icon} className="w-4 h-4" />
+          <HugeiconsIcon icon={icon} size={16} />
         </div>
       </div>
       <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</div>
@@ -708,13 +732,13 @@ const StatCard: React.FC<{
 
 const LoadingState: React.FC = () => (
   <div className="flex items-center justify-center py-12">
-    <Icon icon="tabler:loader-2" className="w-8 h-8 animate-spin text-primary-600" />
+    <HugeiconsIcon icon={Loading01Icon} size={32} className="animate-spin text-primary-600" />
   </div>
 );
 
 const EmptyState: React.FC<{ message: string }> = ({ message }) => (
   <div className="text-center py-12">
-    <Icon icon="tabler:chart-bar-off" className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+    <HugeiconsIcon icon={TimelineIcon} size={48} className="text-gray-300 mx-auto mb-3" />
     <p className="text-sm text-gray-500">{message}</p>
   </div>
 );

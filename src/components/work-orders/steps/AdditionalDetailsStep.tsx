@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowDown01Icon, Cancel01Icon, ArrowUp01Icon, AlertCircleIcon } from '@hugeicons/core-free-icons';
 import { Stack } from '@/components/tailwind-components';
 import { supabase } from '@/integrations/supabase/client';
 import { Location } from '@/types/supabase';
@@ -76,10 +77,10 @@ export const AdditionalDetailsStep: React.FC<AdditionalDetailsStepProps> = ({
   }, [data.customerLocation, locations]);
 
   const priorities = [
-    { value: 'low', label: 'Low', color: 'bg-green-100 text-green-800', icon: 'mdi:arrow-down' },
-    { value: 'medium', label: 'Medium', color: 'bg-yellow-100 text-yellow-800', icon: 'mdi:minus' },
-    { value: 'high', label: 'High', color: 'bg-orange-100 text-orange-800', icon: 'mdi:arrow-up' },
-    { value: 'urgent', label: 'Urgent', color: 'bg-red-100 text-red-800', icon: 'mdi:alert' }
+    { value: 'low', label: 'Low', color: 'bg-green-100 text-green-800', icon: ArrowDown01Icon },
+    { value: 'medium', label: 'Medium', color: 'bg-yellow-100 text-yellow-800', icon: Cancel01Icon },
+    { value: 'high', label: 'High', color: 'bg-orange-100 text-orange-800', icon: ArrowUp01Icon },
+    { value: 'urgent', label: 'Urgent', color: 'bg-red-100 text-red-800', icon: AlertCircleIcon }
   ];
 
 
@@ -91,30 +92,19 @@ export const AdditionalDetailsStep: React.FC<AdditionalDetailsStepProps> = ({
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Priority <span className="text-red-500">*</span>
         </label>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-wrap gap-2">
           {priorities.map((priority) => (
             <button
               key={priority.value}
               onClick={() => onChange({ priority: priority.value })}
-              className={`p-4 rounded-lg border-2 transition-all ${data.priority === priority.value
-                ? 'border-primary-500 bg-primary-50'
-                : 'border-gray-200 hover:border-gray-300'
-                }`}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                data.priority === priority.value
+                  ? `${priority.color} ring-2 ring-offset-1 ring-current`
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+              }`}
             >
-              <div className="flex items-center gap-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${priority.color}`}>
-                  <Icon icon={priority.icon} width={20} height={20} />
-                </div>
-                <div className="text-left">
-                  <div className="font-semibold text-gray-900">{priority.label}</div>
-                  <div className="text-xs text-gray-500">
-                    {priority.value === 'urgent' && 'Immediate attention'}
-                    {priority.value === 'high' && 'Within 24 hours'}
-                    {priority.value === 'medium' && 'Within 3 days'}
-                    {priority.value === 'low' && 'Scheduled maintenance'}
-                  </div>
-                </div>
-              </div>
+              <HugeiconsIcon icon={priority.icon} size={16} />
+              {priority.label}
             </button>
           ))}
         </div>

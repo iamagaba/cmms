@@ -6,7 +6,9 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { FilterIcon, Cancel01Icon } from '@hugeicons/core-free-icons';
+import { Icon } from '@/components/icons/Icon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ColumnFilter, FilterOption } from './EnhancedProfessionalDataTable';
@@ -347,14 +349,14 @@ const DataTableFilterBar: React.FC<FilterBarProps> = ({
                 'focus:outline-none focus:ring-2 focus:ring-steel-500 rounded'
               )}
             >
-              <Icon icon="tabler:x" className="w-3 h-3" />
+              <HugeiconsIcon icon={Cancel01Icon} size={12} />
               <span>Clear all</span>
             </button>
           )}
         </div>
         
         <div className="flex items-center gap-2 text-sm text-machinery-600">
-          <Icon icon="tabler:filter" className="w-4 h-4" />
+          <HugeiconsIcon icon={FilterIcon} size={16} />
           <span>
             {activeFilterCount} filter{activeFilterCount !== 1 ? 's' : ''} applied
           </span>

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Add01Icon, PackageIcon, Delete01Icon } from '@hugeicons/core-free-icons';
 import { WorkOrderPart } from '@/types/supabase';
 
 interface WorkOrderPartsUsedCardProps {
@@ -38,7 +39,7 @@ export const WorkOrderPartsUsedCard: React.FC<WorkOrderPartsUsedCardProps> = ({
             onClick={() => setIsAddPartDialogOpen(true)}
             className="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
           >
-            <Icon icon="tabler:plus" className="w-3 h-3" />
+            <HugeiconsIcon icon={Add01Icon} size={12} />
             Add
           </button>
         )}
@@ -46,7 +47,7 @@ export const WorkOrderPartsUsedCard: React.FC<WorkOrderPartsUsedCardProps> = ({
       <div className="px-3 py-2">
         {usedParts.length === 0 ? (
           <div className="text-center py-4">
-            <Icon icon="tabler:package-off" className="w-6 h-6 text-gray-300 mx-auto mb-1" />
+            <HugeiconsIcon icon={PackageIcon} size={24} className="text-gray-300 mx-auto mb-1" />
             <p className="text-xs text-gray-400">No parts used yet</p>
             {setIsAddPartDialogOpen && (
               <button
@@ -68,7 +69,7 @@ export const WorkOrderPartsUsedCard: React.FC<WorkOrderPartsUsedCardProps> = ({
                 return (
                   <div key={part.id} className="flex items-start gap-2 py-2 group first:pt-0 last:pb-0">
                     <div className="w-6 h-6 bg-white border border-gray-200 rounded flex items-center justify-center flex-shrink-0">
-                      <Icon icon="tabler:package" className="w-3 h-3 text-gray-400" />
+                      <HugeiconsIcon icon={PackageIcon} size={12} className="text-gray-400" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between gap-2">
@@ -84,7 +85,7 @@ export const WorkOrderPartsUsedCard: React.FC<WorkOrderPartsUsedCardProps> = ({
                             className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 text-gray-400 hover:text-red-500"
                             title="Remove part"
                           >
-                            <Icon icon="tabler:trash" className="w-3 h-3" />
+                            <HugeiconsIcon icon={Delete01Icon} size={12} />
                           </button>
                         )}
                       </div>

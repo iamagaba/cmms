@@ -1,5 +1,9 @@
 import React from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  LayoutDistributeVerticalIcon,
+  LayoutDistributeHorizontalIcon
+} from '@hugeicons/core-free-icons';
 import { useDensity } from '@/context/DensityContext';
 
 export const DensityToggle: React.FC = () => {
@@ -16,7 +20,7 @@ export const DensityToggle: React.FC = () => {
         }`}
         title="Cozy mode - More spacing and larger elements"
       >
-        <Icon icon="tabler:layout-distribute-vertical" className="w-4 h-4" />
+        <HugeiconsIcon icon={LayoutDistributeVerticalIcon} size={16} />
         <span>Cozy</span>
       </button>
       <button
@@ -28,7 +32,7 @@ export const DensityToggle: React.FC = () => {
         }`}
         title="Compact mode - More information on screen"
       >
-        <Icon icon="tabler:layout-distribute-horizontal" className="w-4 h-4" />
+        <HugeiconsIcon icon={LayoutDistributeHorizontalIcon} size={16} />
         <span>Compact</span>
       </button>
     </div>

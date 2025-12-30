@@ -1,12 +1,12 @@
 import React from 'react';
 import { Button } from '@/components/tailwind-components';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
 
 export const EnhancedButton = ({ children, icon, badge, ...props }: any) => (
     <Button {...props}>
         {icon && (
             <span className="mr-2">
-                {typeof icon === 'string' ? <Icon icon={icon} width={20} /> : icon}
+                {typeof icon === 'string' ? <HugeiconsIcon icon={icon} size={20} /> : icon}
             </span>
         )}
         {children}

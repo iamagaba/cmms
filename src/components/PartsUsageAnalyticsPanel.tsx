@@ -1,5 +1,15 @@
 import React, { useState, useMemo } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  AnalyticsUpIcon,
+  AnalyticsDownIcon,
+  PackageIcon,
+  Calendar01Icon,
+  Cancel01Icon,
+  Loading01Icon,
+  Car01Icon,
+  GridIcon
+} from '@hugeicons/core-free-icons';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTopUsedParts, usePartsUsageAnalytics } from '@/hooks/useWorkOrderParts';
@@ -189,7 +199,7 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
               <option value="all">All time</option>
             </select>
             <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-              <Icon icon="tabler:x" className="w-5 h-5 text-gray-500" />
+              <HugeiconsIcon icon={Cancel01Icon} size={20} className="text-gray-500" />
             </button>
           </div>
         </div>
@@ -211,7 +221,7 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
-              <Icon icon={tab.icon} className="w-4 h-4" />
+              {/* TODO: Convert tab.icon prop to use HugeiconsIcon component */}
               {tab.label}
             </button>
           ))}
@@ -221,7 +231,7 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
         <div className="flex-1 overflow-auto p-6">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Icon icon="tabler:loader-2" className="w-8 h-8 animate-spin text-purple-600" />
+              <HugeiconsIcon icon={Loading01Icon} size={32} className="animate-spin text-purple-600" />
             </div>
           ) : (
             <>
@@ -333,7 +343,7 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
                 <div className="space-y-2">
                   {isLoadingVehicle ? (
                     <div className="text-center py-8">
-                      <Icon icon="tabler:loader-2" className="w-6 h-6 animate-spin mx-auto text-purple-600" />
+                      <HugeiconsIcon icon={Loading01Icon} size={24} className="animate-spin mx-auto text-purple-600" />
                     </div>
                   ) : (
                     <>
@@ -344,7 +354,7 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
                         >
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                              <Icon icon="tabler:car" className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+                              <HugeiconsIcon icon={Car01Icon} size={20} className="text-blue-600 dark:text-blue-400" />
                             </div>
                             <div>
                               <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -379,7 +389,7 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
                 <div className="space-y-2">
                   {isLoadingCategory ? (
                     <div className="text-center py-8">
-                      <Icon icon="tabler:loader-2" className="w-6 h-6 animate-spin mx-auto text-purple-600" />
+                      <HugeiconsIcon icon={Loading01Icon} size={24} className="animate-spin mx-auto text-purple-600" />
                     </div>
                   ) : (
                     <>
@@ -390,7 +400,7 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
                         >
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
-                              <Icon icon="tabler:category" className="w-5 h-5 text-orange-600 dark:text-orange-400" />
+                              <HugeiconsIcon icon={GridIcon} size={20} className="text-orange-600 dark:text-orange-400" />
                             </div>
                             <div>
                               <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -446,7 +456,7 @@ const StatCard: React.FC<{
     <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
       <div className="flex items-center gap-3 mb-2">
         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${colorClasses[color]}`}>
-          <Icon icon={icon} className="w-4 h-4" />
+          {/* TODO: Convert icon prop to use HugeiconsIcon component */}
         </div>
       </div>
       <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</p>

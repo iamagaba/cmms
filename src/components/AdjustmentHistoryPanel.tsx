@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  AlertCircleIcon,
+  FilterIcon,
+  Clock01Icon
+} from '@hugeicons/core-free-icons';
 import { 
   useItemAdjustmentHistory, 
   useAdjustmentHistory,
@@ -76,7 +81,7 @@ export const AdjustmentHistoryPanel: React.FC<AdjustmentHistoryPanelProps> = ({
   if (error) {
     return (
       <div className="p-4 text-center">
-        <Icon icon="tabler:alert-circle" className="w-8 h-8 text-red-500 mx-auto mb-2" />
+        <HugeiconsIcon icon={AlertCircleIcon} size={32} className="text-red-500 mx-auto mb-2" />
         <p className="text-sm text-red-600 dark:text-red-400">Failed to load history</p>
       </div>
     );
@@ -99,7 +104,7 @@ export const AdjustmentHistoryPanel: React.FC<AdjustmentHistoryPanelProps> = ({
                   : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
               }`}
             >
-              <Icon icon="tabler:filter" className="w-3.5 h-3.5" />
+              <HugeiconsIcon icon={FilterIcon} size={14} />
               Filters
             </button>
           </div>
@@ -154,7 +159,7 @@ export const AdjustmentHistoryPanel: React.FC<AdjustmentHistoryPanelProps> = ({
       <div className="overflow-auto" style={{ maxHeight }}>
         {!adjustments || adjustments.length === 0 ? (
           <div className="p-8 text-center">
-            <Icon icon="tabler:history-off" className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
+            <HugeiconsIcon icon={Clock01Icon} size={32} className="text-gray-300 dark:text-gray-600 mx-auto mb-2" />
             <p className="text-sm text-gray-500 dark:text-gray-400">No adjustment history</p>
           </div>
         ) : (

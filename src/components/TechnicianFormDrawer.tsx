@@ -1,5 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  UserIcon, 
+  Call02Icon, 
+  Mail01Icon, 
+  Location01Icon,
+  Cancel01Icon,
+  Tick01Icon,
+  RecordIcon,
+  ClipboardIcon,
+  Wrench01Icon,
+  Add01Icon,
+  ToolsIcon,
+  FloppyDiskIcon
+} from '@hugeicons/core-free-icons';
 import { Technician, Location } from '@/types/supabase';
 import { Input } from '@/components/ui/enterprise';
 
@@ -112,7 +126,7 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                         onClick={onClose}
                         className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
                     >
-                        <Icon icon="tabler:x" className="w-5 h-5" />
+                        <HugeiconsIcon icon={Cancel01Icon} size={20} />
                     </button>
                 </div>
 
@@ -134,7 +148,7 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                                         value={formData.name || ''}
                                         onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                                         placeholder="Enter technician name"
-                                        leftIcon={<Icon icon="tabler:user" className="w-4 h-4 text-gray-400" />}
+                                        leftIcon={<HugeiconsIcon icon={UserIcon} size={16} className="text-gray-400" />}
                                     />
                                 </div>
 
@@ -148,7 +162,7 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                                         value={formData.email || ''}
                                         onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                                         placeholder="technician@example.com"
-                                        leftIcon={<Icon icon="tabler:mail" className="w-4 h-4 text-gray-400" />}
+                                        leftIcon={<HugeiconsIcon icon={Mail01Icon} size={16} className="text-gray-400" />}
                                     />
                                 </div>
 
@@ -162,7 +176,7 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                                         value={formData.phone || ''}
                                         onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
                                         placeholder="+256 XXX XXX XXX"
-                                        leftIcon={<Icon icon="tabler:phone" className="w-4 h-4 text-gray-400" />}
+                                        leftIcon={<HugeiconsIcon icon={Call02Icon} size={16} className="text-gray-400" />}
                                     />
                                 </div>
                             </div>
@@ -178,7 +192,7 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                                         Status
                                     </label>
                                     <div className="relative">
-                                        <Icon icon="tabler:circle-dot" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                                        <HugeiconsIcon icon={RecordIcon} size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                                         <select
                                             value={formData.status || 'available'}
                                             onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'available' | 'busy' | 'offline' }))}
@@ -197,7 +211,7 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                                         Location
                                     </label>
                                     <div className="relative">
-                                        <Icon icon="tabler:map-pin" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                                        <HugeiconsIcon icon={Location01Icon} size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
                                         <select
                                             value={formData.location_id || ''}
                                             onChange={(e) => setFormData(prev => ({ ...prev, location_id: e.target.value }))}
@@ -224,7 +238,7 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                                         max="20"
                                         value={formData.max_concurrent_orders || 5}
                                         onChange={(e) => setFormData(prev => ({ ...prev, max_concurrent_orders: parseInt(e.target.value) }))}
-                                        leftIcon={<Icon icon="tabler:clipboard-list" className="w-4 h-4 text-gray-400" />}
+                                        leftIcon={<HugeiconsIcon icon={ClipboardIcon} size={16} className="text-gray-400" />}
                                     />
                                     <p className="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
                                         Maximum number of work orders this technician can handle simultaneously
@@ -244,7 +258,7 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                                         onChange={(e) => setNewSkill(e.target.value)}
                                         onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
                                         placeholder="Add a specialization (e.g., Electrical, Engine)"
-                                        leftIcon={<Icon icon="tabler:tool" className="w-4 h-4 text-gray-400" />}
+                                        leftIcon={<HugeiconsIcon icon={Wrench01Icon} size={16} className="text-gray-400" />}
                                         className="flex-1"
                                     />
                                     <button
@@ -252,7 +266,7 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                                         onClick={handleAddSkill}
                                         className="px-4 py-2.5 bg-primary-600 hover:bg-primary-700 text-white rounded-lg transition-colors flex items-center gap-2 text-sm font-medium"
                                     >
-                                        <Icon icon="tabler:plus" className="w-4 h-4" />
+                                        <HugeiconsIcon icon={Add01Icon} size={16} />
                                         Add
                                     </button>
                                 </div>
@@ -264,14 +278,14 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                                                     key={index}
                                                     className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800"
                                                 >
-                                                    <Icon icon="tabler:check" className="w-3.5 h-3.5" />
+                                                    <HugeiconsIcon icon={Tick01Icon} size={14} />
                                                     {skill}
                                                     <button
                                                         type="button"
                                                         onClick={() => handleRemoveSkill(skill)}
                                                         className="ml-1 text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-200"
                                                     >
-                                                        <Icon icon="tabler:x" className="w-3.5 h-3.5" />
+                                                        <HugeiconsIcon icon={Cancel01Icon} size={14} />
                                                     </button>
                                                 </span>
                                             ))}
@@ -280,7 +294,7 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                                 )}
                                 {(!formData.specializations || formData.specializations.length === 0) && (
                                     <div className="text-center py-8 bg-gray-50 dark:bg-gray-900 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg">
-                                        <Icon icon="tabler:tools-off" className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                                        <HugeiconsIcon icon={ToolsIcon} size={32} className="text-gray-400 mx-auto mb-2" />
                                         <p className="text-sm text-gray-500 dark:text-gray-400">No specializations added yet</p>
                                         <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Add skills to help with work order assignment</p>
                                     </div>
@@ -305,7 +319,7 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                             onClick={handleSubmit}
                             className="px-6 py-2.5 bg-primary-600 hover:bg-primary-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
                         >
-                            <Icon icon={technician ? "tabler:device-floppy" : "tabler:plus"} className="w-4 h-4" />
+                            <HugeiconsIcon icon={technician ? FloppyDiskIcon : Add01Icon} size={16} />
                             {technician ? 'Update Technician' : 'Create Technician'}
                         </button>
                     </div>

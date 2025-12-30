@@ -1,7 +1,17 @@
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getQuestions, getAllOptions, getAllFollowupQuestions } from '@/api/diagnosticConfigApi';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+    RefreshIcon, 
+    InformationCircleIcon, 
+    ArrowLeft01Icon, 
+    Tick01Icon, 
+    Wrench01Icon, 
+    ListViewIcon, 
+    Loading01Icon, 
+    GridIcon 
+} from '@hugeicons/core-free-icons';
 import { DiagnosticQuestionRow, DiagnosticOptionRow, DiagnosticFollowupQuestionRow } from '@/types/diagnostic';
 
 interface TreeNodeProps {
@@ -31,7 +41,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({
     if (visited.has(questionId)) {
         return (
             <div style={{ marginLeft: depth * 20 }} className="p-2 text-red-500 flex items-center gap-2 bg-red-50 rounded border border-red-100 mb-2">
-                <Icon icon="tabler:repeat" />
+                <HugeiconsIcon icon={RefreshIcon} size={16} />
                 <span>Cycle detected: Link back to {question?.text || questionId}</span>
             </div>
         );
@@ -58,7 +68,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({
                 }
       `}>
                 <div className={`mt-0.5 p-1 rounded ${isFollowUp ? 'bg-purple-100 text-purple-600' : 'bg-primary-100 text-primary-600'}`}>
-                    <Icon icon={isFollowUp ? "tabler:arrow-elbow-right" : "tabler:question-mark"} className="w-4 h-4" />
+                    {isFollowUp ? <HugeiconsIcon icon={ArrowLeft01Icon} size={16} /> : <HugeiconsIcon icon={InformationCircleIcon} size={16} />}
                 </div>
                 <div className="flex-1">
                     <div className="flex items-center gap-2">
@@ -88,7 +98,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({
                                 </span>
                                 {opt.is_solution && (
                                     <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded flex items-center gap-1">
-                                        <Icon icon="tabler:check" className="w-3 h-3" />
+                                        <HugeiconsIcon icon={Tick01Icon} size={12} />
                                         Solution
                                     </span>
                                 )}
@@ -98,7 +108,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({
                             {opt.is_solution && (
                                 <div className="ml-4 mb-2 p-2 bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/30 rounded text-sm text-green-800 dark:text-green-200">
                                     <div className="font-medium flex items-center gap-1 mb-1">
-                                        <Icon icon="tabler:tool" className="w-3 h-3" />
+                                        <HugeiconsIcon icon={Wrench01Icon} size={12} />
                                         Resolution:
                                     </div>
                                     {opt.solution_text}
@@ -116,7 +126,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({
                             {followups.length > 0 && (
                                 <div className="ml-4 pl-4 border-l-2 border-purple-100 dark:border-purple-900/30">
                                     <div className="text-xs font-semibold text-purple-600 mb-2 uppercase tracking-wider flex items-center gap-1">
-                                        <Icon icon="tabler:list-numbers" className="w-3 h-3" />
+                                        <HugeiconsIcon icon={ListViewIcon} size={12} />
                                         Follow-up Sequence
                                     </div>
                                     {followups.map(fp => {
@@ -239,7 +249,7 @@ const QuestionFlowView: React.FC = () => {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center p-12">
-                <Icon icon="tabler:loader-2" className="w-8 h-8 animate-spin text-primary-500" />
+                <HugeiconsIcon icon={Loading01Icon} size={32} className="animate-spin text-primary-500" />
             </div>
         );
     }
@@ -250,7 +260,7 @@ const QuestionFlowView: React.FC = () => {
         <div className="p-4 bg-gray-50 dark:bg-gray-950 rounded-lg min-h-[500px] overflow-auto border border-gray-200 dark:border-gray-800">
             <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                    <Icon icon="tabler:hierarchy-2" className="w-5 h-5 text-primary-600" />
+                    <HugeiconsIcon icon={GridIcon} size={20} className="text-primary-600" />
                     Logic Flow Visualization
                 </h3>
                 <div className="flex items-center gap-3 text-xs text-gray-500">

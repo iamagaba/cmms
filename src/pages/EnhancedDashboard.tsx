@@ -1,5 +1,16 @@
 import React, { useState, useMemo } from "react";
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  RefreshIcon,
+  Add01Icon,
+  ArrowRight01Icon,
+  ArrowUp01Icon,
+  ArrowDown01Icon,
+  ClipboardIcon,
+  Folder01Icon,
+  CheckmarkCircle01Icon,
+  Clock01Icon
+} from '@hugeicons/core-free-icons';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { WorkOrder, Location, Customer, Vehicle, Profile } from "@/types/supabase";
@@ -325,7 +336,7 @@ const EnhancedDashboard = () => {
                 onClick={() => window.location.reload()}
                 className="text-gray-600 hover:text-gray-900"
               >
-                <Icon icon="tabler:refresh" width={18} height={18} />
+                <HugeiconsIcon icon={RefreshIcon} size={18} />
               </Button>
               <Button
                 variant="filled"
@@ -333,7 +344,7 @@ const EnhancedDashboard = () => {
                 className="bg-primary-600 hover:bg-primary-700"
               >
                 <Group gap="xs">
-                  <Icon icon="tabler:plus" width={18} height={18} />
+                  <HugeiconsIcon icon={Add01Icon} size={18} />
                   <span>New Work Order</span>
                 </Group>
               </Button>
@@ -352,14 +363,14 @@ const EnhancedDashboard = () => {
                   <p className="text-xl font-bold text-gray-900 mt-0.5">{dashboardData.kpis.totalOrders.value}</p>
                   <div className="mt-1 flex items-center gap-1.5">
                     <span className={`flex items-center gap-0.5 text-[10px] font-medium ${dashboardData.kpis.totalOrders.trend.direction === 'up' ? 'text-emerald-600' : 'text-red-600'}`}>
-                      <Icon icon={dashboardData.kpis.totalOrders.trend.direction === 'up' ? 'tabler:trending-up' : 'tabler:trending-down'} className="w-3 h-3" />
+                      <HugeiconsIcon icon={dashboardData.kpis.totalOrders.trend.direction === 'up' ? ArrowUp01Icon : ArrowDown01Icon} size={12} />
                       {dashboardData.kpis.totalOrders.trend.value}%
                     </span>
                     <span className="text-[10px] text-gray-400">{dashboardData.kpis.totalOrders.trend.label}</span>
                   </div>
                 </div>
                 <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
-                  <Icon icon="tabler:clipboard-list" className="w-4.5 h-4.5 text-blue-600" />
+                  <HugeiconsIcon icon={ClipboardIcon} size={18} className="text-blue-600" />
                 </div>
               </div>
             </div>
@@ -374,14 +385,14 @@ const EnhancedDashboard = () => {
                   <p className="text-xl font-bold text-gray-900 mt-0.5">{dashboardData.kpis.openOrders.value}</p>
                   <div className="mt-1 flex items-center gap-1.5">
                     <span className={`flex items-center gap-0.5 text-[10px] font-medium ${dashboardData.kpis.openOrders.trend.direction === 'down' ? 'text-emerald-600' : 'text-red-600'}`}>
-                      <Icon icon={dashboardData.kpis.openOrders.trend.direction === 'up' ? 'tabler:trending-up' : 'tabler:trending-down'} className="w-3 h-3" />
+                      <HugeiconsIcon icon={dashboardData.kpis.openOrders.trend.direction === 'up' ? ArrowUp01Icon : ArrowDown01Icon} size={12} />
                       {dashboardData.kpis.openOrders.trend.value}%
                     </span>
                     <span className="text-[10px] text-gray-400">{dashboardData.kpis.openOrders.trend.label}</span>
                   </div>
                 </div>
                 <div className="w-9 h-9 rounded-lg bg-amber-50 flex items-center justify-center">
-                  <Icon icon="tabler:folder-open" className="w-4.5 h-4.5 text-amber-600" />
+                  <HugeiconsIcon icon={Folder01Icon} size={18} className="text-amber-600" />
                 </div>
               </div>
             </div>
@@ -396,14 +407,14 @@ const EnhancedDashboard = () => {
                   <p className="text-xl font-bold text-gray-900 mt-0.5">{dashboardData.kpis.completedToday.value}</p>
                   <div className="mt-1 flex items-center gap-1.5">
                     <span className={`flex items-center gap-0.5 text-[10px] font-medium ${dashboardData.kpis.completedToday.trend.direction === 'up' ? 'text-emerald-600' : 'text-red-600'}`}>
-                      <Icon icon={dashboardData.kpis.completedToday.trend.direction === 'up' ? 'tabler:trending-up' : 'tabler:trending-down'} className="w-3 h-3" />
+                      <HugeiconsIcon icon={dashboardData.kpis.completedToday.trend.direction === 'up' ? ArrowUp01Icon : ArrowDown01Icon} size={12} />
                       {dashboardData.kpis.completedToday.trend.value}%
                     </span>
                     <span className="text-[10px] text-gray-400">{dashboardData.kpis.completedToday.trend.label}</span>
                   </div>
                 </div>
                 <div className="w-9 h-9 rounded-lg bg-emerald-50 flex items-center justify-center">
-                  <Icon icon="tabler:circle-check" className="w-4.5 h-4.5 text-emerald-600" />
+                  <HugeiconsIcon icon={CheckmarkCircle01Icon} size={18} className="text-emerald-600" />
                 </div>
               </div>
             </div>
@@ -415,14 +426,14 @@ const EnhancedDashboard = () => {
                   <p className="text-xl font-bold text-gray-900 mt-0.5">{dashboardData.kpis.avgResponseTime.value}</p>
                   <div className="mt-1 flex items-center gap-1.5">
                     <span className={`flex items-center gap-0.5 text-[10px] font-medium ${dashboardData.kpis.avgResponseTime.trend.direction === 'down' ? 'text-emerald-600' : 'text-red-600'}`}>
-                      <Icon icon={dashboardData.kpis.avgResponseTime.trend.direction === 'up' ? 'tabler:trending-up' : 'tabler:trending-down'} className="w-3 h-3" />
+                      <HugeiconsIcon icon={dashboardData.kpis.avgResponseTime.trend.direction === 'up' ? ArrowUp01Icon : ArrowDown01Icon} size={12} />
                       {dashboardData.kpis.avgResponseTime.trend.value}%
                     </span>
                     <span className="text-[10px] text-gray-400">{dashboardData.kpis.avgResponseTime.trend.label}</span>
                   </div>
                 </div>
                 <div className="w-9 h-9 rounded-lg bg-purple-50 flex items-center justify-center">
-                  <Icon icon="tabler:clock" className="w-4.5 h-4.5 text-purple-600" />
+                  <HugeiconsIcon icon={Clock01Icon} size={18} className="text-purple-600" />
                 </div>
               </div>
             </div>
@@ -440,7 +451,7 @@ const EnhancedDashboard = () => {
                 className="flex items-center gap-1 text-xs text-primary-600 hover:text-primary-700 font-medium"
               >
                 View all
-                <Icon icon="tabler:arrow-right" className="w-3.5 h-3.5" />
+                <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
               </button>
             </div>
             

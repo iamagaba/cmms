@@ -1,6 +1,23 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useLocation, Link, useNavigate } from 'react-router-dom';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+    Home01Icon,
+    ClipboardIcon,
+    PackageIcon,
+    UserMultipleIcon,
+    Settings01Icon,
+    ChartHistogramIcon,
+    PackageIcon as InventoryIcon,
+    Wrench01Icon,
+    Calendar01Icon,
+    ArrowLeft01Icon,
+    ArrowDown01Icon,
+    MoreHorizontalIcon,
+    ArrowRight01Icon,
+    Search01Icon,
+    Cancel01Icon
+} from '@hugeicons/core-free-icons';
 import { professionalColors } from '../../theme/professional-colors';
 import { designTokens } from '../../theme/professional-design-tokens';
 
@@ -12,8 +29,8 @@ interface BreadcrumbItem {
     label: string;
     /** Navigation path for the breadcrumb */
     path: string;
-    /** Optional icon identifier from Iconify */
-    icon?: string;
+    /** Optional icon object from Hugeicons */
+    icon?: any;
     /** Whether this item is clickable (default: true for non-current items) */
     isClickable?: boolean;
     /** Additional metadata for the breadcrumb */
@@ -31,7 +48,7 @@ interface NavigationHistory {
     /** Timestamp when the page was visited */
     timestamp: number;
     /** Optional icon for the history item */
-    icon?: string;
+    icon?: any;
 }
 
 /**
@@ -126,26 +143,26 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
         }
 
         const pathnames = location.pathname.split('/').filter((x) => x);
-        
+
         // Enhanced path-to-label mapping for better UX
-        const pathLabelMap: Record<string, { label: string; icon?: string }> = {
-            '': { label: 'Home', icon: 'tabler:home' },
-            'dashboard': { label: 'Dashboard', icon: 'tabler:dashboard' },
-            'work-orders': { label: 'Work Orders', icon: 'tabler:clipboard-list' },
-            'assets': { label: 'Assets', icon: 'tabler:package' },
-            'technicians': { label: 'Technicians', icon: 'tabler:users' },
-            'settings': { label: 'Settings', icon: 'tabler:settings' },
-            'reports': { label: 'Reports', icon: 'tabler:chart-bar' },
-            'inventory': { label: 'Inventory', icon: 'tabler:box' },
-            'maintenance': { label: 'Maintenance', icon: 'tabler:tool' },
-            'calendar': { label: 'Calendar', icon: 'tabler:calendar' },
+        const pathLabelMap: Record<string, { label: string; icon?: any }> = {
+            '': { label: 'Home', icon: Home01Icon },
+            'dashboard': { label: 'Dashboard', icon: Home01Icon },
+            'work-orders': { label: 'Work Orders', icon: ClipboardIcon },
+            'assets': { label: 'Assets', icon: PackageIcon },
+            'technicians': { label: 'Technicians', icon: UserMultipleIcon },
+            'settings': { label: 'Settings', icon: Settings01Icon },
+            'reports': { label: 'Reports', icon: ChartHistogramIcon },
+            'inventory': { label: 'Inventory', icon: InventoryIcon },
+            'maintenance': { label: 'Maintenance', icon: Wrench01Icon },
+            'calendar': { label: 'Calendar', icon: Calendar01Icon },
         };
 
         const items: BreadcrumbItem[] = [
-            { 
-                label: 'Home', 
-                path: '/', 
-                icon: showIcons ? 'tabler:home' : undefined,
+            {
+                label: 'Home',
+                path: '/',
+                icon: showIcons ? Home01Icon : undefined,
                 isClickable: location.pathname !== '/'
             }
         ];
@@ -160,7 +177,7 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
             items.push({
                 label: pathInfo.label,
                 path,
-                icon: showIcons ? pathInfo.icon : undefined,
+                icon: showIcons && pathInfo.icon ? pathInfo.icon : undefined,
                 isClickable: !isLast,
             });
         });
@@ -169,7 +186,7 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
     }, [location.pathname, customBreadcrumbs, showIcons]);
 
     const breadcrumbItems = generateBreadcrumbItems();
-    
+
     // Extract pathnames for back button logic
     const pathnames = location.pathname.split('/').filter((x) => x);
 
@@ -181,10 +198,10 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
                 setNavigationHistory(prev => {
                     const filtered = prev.filter(item => item.path !== location.pathname);
                     const newHistory = [
-                        { 
-                            path: location.pathname, 
-                            label: currentPage.label, 
-                            timestamp: Date.now() 
+                        {
+                            path: location.pathname,
+                            label: currentPage.label,
+                            timestamp: Date.now()
                         },
                         ...filtered
                     ].slice(0, maxHistoryItems);
@@ -232,29 +249,29 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
     // Enhanced responsive breadcrumb truncation with better logic
     const getVisibleBreadcrumbs = useCallback((): BreadcrumbItem[] => {
         if (breadcrumbItems.length <= 2) return breadcrumbItems;
-        
+
         // Respect maxBreadcrumbs prop
         if (breadcrumbItems.length <= maxBreadcrumbs) return breadcrumbItems;
-        
+
         // Responsive breakpoints using design tokens
         const screenWidth = window.innerWidth;
         const isMobile = screenWidth < parseInt(designTokens.breakpoint.sm);
-        const isTablet = screenWidth >= parseInt(designTokens.breakpoint.sm) && 
-                        screenWidth < parseInt(designTokens.breakpoint.lg);
-        
+        const isTablet = screenWidth >= parseInt(designTokens.breakpoint.sm) &&
+            screenWidth < parseInt(designTokens.breakpoint.lg);
+
         // Always show first (home) and last (current) items
         const first = breadcrumbItems[0];
         const last = breadcrumbItems[breadcrumbItems.length - 1];
-        
+
         if (isMobile && breadcrumbItems.length > 3) {
             // Mobile: Show only first and last with ellipsis
             return [
                 first,
-                { 
-                    label: '...', 
-                    path: '', 
-                    icon: showIcons ? 'tabler:dots' : undefined,
-                    isClickable: false 
+                {
+                    label: '...',
+                    path: '',
+                    icon: showIcons ? MoreHorizontalIcon : undefined,
+                    isClickable: false
                 },
                 last
             ];
@@ -263,11 +280,11 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
             const middleIndex = Math.floor(breadcrumbItems.length / 2);
             return [
                 first,
-                { 
-                    label: '...', 
-                    path: '', 
-                    icon: showIcons ? 'tabler:dots' : undefined,
-                    isClickable: false 
+                {
+                    label: '...',
+                    path: '',
+                    icon: showIcons ? MoreHorizontalIcon : undefined,
+                    isClickable: false
                 },
                 breadcrumbItems[middleIndex],
                 last
@@ -276,19 +293,19 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
             // Desktop: Show first, ellipsis, last few items
             const itemsToShow = maxBreadcrumbs - 2; // Reserve space for first and ellipsis
             const startIndex = breadcrumbItems.length - itemsToShow;
-            
+
             return [
                 first,
-                { 
-                    label: '...', 
-                    path: '', 
-                    icon: showIcons ? 'tabler:dots' : undefined,
-                    isClickable: false 
+                {
+                    label: '...',
+                    path: '',
+                    icon: showIcons ? MoreHorizontalIcon : undefined,
+                    isClickable: false
                 },
                 ...breadcrumbItems.slice(startIndex)
             ];
         }
-        
+
         return breadcrumbItems;
     }, [breadcrumbItems, maxBreadcrumbs, showIcons]);
 
@@ -310,9 +327,9 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
     }, [getVisibleBreadcrumbs]);
 
     return (
-        <header 
+        <header
             className={`w-full sticky top-0 ${compact ? 'px-3 py-2' : 'px-4 py-2.5'} ${className}`}
-            style={{ 
+            style={{
                 backgroundColor: 'rgba(255, 255, 255, 0.85)',
                 zIndex: designTokens.zIndex.sticky,
                 backdropFilter: 'blur(12px) saturate(180%)',
@@ -334,10 +351,10 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
                                         aria-label="Go back"
                                         title="Go back"
                                     >
-                                        <Icon icon="tabler:arrow-left" className="w-4 h-4" />
+                                        <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
                                     </button>
                                 )}
-                                
+
                                 {showNavigationHistory && navigationHistory.length > 0 && (
                                     <button
                                         onClick={() => setShowHistory(!showHistory)}
@@ -345,7 +362,7 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
                                         aria-label="Navigation history"
                                         title="Navigation history"
                                     >
-                                        <Icon icon="tabler:chevron-down" className="w-3 h-3" />
+                                        <HugeiconsIcon icon={ArrowDown01Icon} size={16} />
                                     </button>
                                 )}
                             </div>
@@ -353,20 +370,20 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
 
                         {/* Navigation history dropdown */}
                         {showHistory && navigationHistory.length > 0 && (
-                            <div 
+                            <div
                                 className="absolute top-full left-0 mt-1 py-2 bg-white rounded-md border shadow-lg min-w-48 z-50"
-                                style={{ 
+                                style={{
                                     borderColor: professionalColors.neutral.border.primary,
                                     boxShadow: designTokens.shadow.lg,
                                     borderRadius: designTokens.borderRadius.md,
                                     zIndex: designTokens.zIndex.dropdown
                                 }}
                             >
-                                <div 
+                                <div
                                     className="px-3 py-1 text-xs font-medium border-b mb-1"
-                                    style={{ 
+                                    style={{
                                         color: professionalColors.neutral.text.tertiary,
-                                        borderColor: professionalColors.neutral.border.primary 
+                                        borderColor: professionalColors.neutral.border.primary
                                     }}
                                 >
                                     Recent Pages
@@ -379,7 +396,7 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
                                             setShowHistory(false);
                                         }}
                                         className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-inset"
-                                        style={{ 
+                                        style={{
                                             color: professionalColors.neutral.text.primary,
                                             transition: designTokens.animation.transitions.colors
                                         }}
@@ -399,7 +416,7 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
                                         }}
                                     >
                                         <div className="truncate">{item.label}</div>
-                                        <div 
+                                        <div
                                             className="text-xs truncate"
                                             style={{ color: professionalColors.neutral.text.tertiary }}
                                         >
@@ -412,7 +429,7 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
                     </div>
 
                     {/* Breadcrumb navigation */}
-                    <nav 
+                    <nav
                         ref={breadcrumbRef}
                         className="flex items-center text-sm min-w-0"
                         aria-label={ariaLabel}
@@ -428,20 +445,20 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
                                     return (
                                         <li key={item.path || index} className="flex items-center">
                                             {index > 0 && (
-                                                <span 
+                                                <span
                                                     className="mx-2 flex items-center"
                                                     style={{ color: professionalColors.neutral.text.tertiary }}
                                                     aria-hidden="true"
                                                 >
-                                                    {separator || <Icon icon="tabler:chevron-right" className="w-4 h-4" />}
+                                                    {separator || <HugeiconsIcon icon={ArrowRight01Icon} size={16} />}
                                                 </span>
                                             )}
-                                            
+
                                             {isEllipsis ? (
                                                 <button
                                                     type="button"
                                                     className="px-1 py-1 rounded transition-colors focus:outline-none focus:ring-2"
-                                                    style={{ 
+                                                    style={{
                                                         color: professionalColors.neutral.text.tertiary,
                                                         borderRadius: designTokens.borderRadius.sm,
                                                         transition: designTokens.animation.transitions.colors
@@ -461,24 +478,24 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
                                                     aria-label="Show hidden breadcrumb items"
                                                     title="Show hidden breadcrumb items"
                                                 >
-                                                    {item.icon && <Icon icon={item.icon} className="w-4 h-4" />}
+                                                    {item.icon && <HugeiconsIcon icon={item.icon} size={16} />}
                                                     {!item.icon && item.label}
                                                 </button>
                                             ) : isLast ? (
-                                                <span 
+                                                <span
                                                     className="font-medium flex items-center gap-1"
                                                     style={{ color: professionalColors.neutral.text.primary }}
                                                     aria-current="page"
                                                     role="text"
                                                 >
-                                                    {item.icon && <Icon icon={item.icon} className="w-4 h-4" aria-hidden="true" />}
+                                                    {item.icon && <HugeiconsIcon icon={item.icon} size={16} aria-hidden="true" />}
                                                     <span>{item.label}</span>
                                                 </span>
                                             ) : (
                                                 <Link
                                                     to={item.path}
                                                     className="hover:underline flex items-center gap-1 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 rounded px-1"
-                                                    style={{ 
+                                                    style={{
                                                         color: professionalColors.neutral.text.primary,
                                                         borderRadius: designTokens.borderRadius.sm,
                                                         transition: designTokens.animation.transitions.colors
@@ -497,7 +514,7 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
                                                     }}
                                                     aria-label={`Navigate to ${item.label}`}
                                                 >
-                                                    {item.icon && <Icon icon={item.icon} className="w-4 h-4" aria-hidden="true" />}
+                                                    {item.icon && <HugeiconsIcon icon={item.icon} size={16} aria-hidden="true" />}
                                                     <span>{item.label}</span>
                                                 </Link>
                                             )}
@@ -515,20 +532,20 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
                                     return (
                                         <li key={item.path || index} className="flex items-center">
                                             {index > 0 && (
-                                                <span 
+                                                <span
                                                     className="mx-1 flex items-center"
                                                     style={{ color: professionalColors.neutral.text.tertiary }}
                                                     aria-hidden="true"
                                                 >
-                                                    {separator || <Icon icon="tabler:chevron-right" className="w-4 h-4" />}
+                                                    {separator || <HugeiconsIcon icon={ArrowRight01Icon} size={16} />}
                                                 </span>
                                             )}
-                                            
+
                                             {isEllipsis ? (
                                                 <button
                                                     type="button"
                                                     className="px-1 py-1 rounded transition-colors focus:outline-none focus:ring-2"
-                                                    style={{ 
+                                                    style={{
                                                         color: professionalColors.neutral.text.tertiary,
                                                         borderRadius: designTokens.borderRadius.sm,
                                                         transition: designTokens.animation.transitions.colors
@@ -548,25 +565,25 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
                                                     aria-label="Show hidden breadcrumb items"
                                                     title="Show hidden breadcrumb items"
                                                 >
-                                                    {item.icon && <Icon icon={item.icon} className="w-4 h-4 flex-shrink-0" />}
+                                                    {item.icon && <HugeiconsIcon icon={item.icon} size={16} className="flex-shrink-0" />}
                                                     {!item.icon && <span className="truncate">{item.label}</span>}
                                                 </button>
                                             ) : isLast ? (
-                                                <span 
+                                                <span
                                                     className="font-medium flex items-center gap-1 truncate max-w-32"
                                                     style={{ color: professionalColors.neutral.text.primary }}
                                                     aria-current="page"
                                                     title={item.label}
                                                     role="text"
                                                 >
-                                                    {item.icon && <Icon icon={item.icon} className="w-4 h-4 flex-shrink-0" aria-hidden="true" />}
+                                                    {item.icon && <HugeiconsIcon icon={item.icon} size={16} className="flex-shrink-0" aria-hidden="true" />}
                                                     <span className="truncate">{item.label}</span>
                                                 </span>
                                             ) : (
                                                 <Link
                                                     to={item.path}
                                                     className="hover:underline flex items-center gap-1 transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 rounded px-1 truncate max-w-24"
-                                                    style={{ 
+                                                    style={{
                                                         color: professionalColors.neutral.text.primary,
                                                         borderRadius: designTokens.borderRadius.sm,
                                                         transition: designTokens.animation.transitions.colors
@@ -586,7 +603,7 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
                                                     }}
                                                     aria-label={`Navigate to ${item.label}`}
                                                 >
-                                                    {item.icon && <Icon icon={item.icon} className="w-4 h-4 flex-shrink-0" aria-hidden="true" />}
+                                                    {item.icon && <HugeiconsIcon icon={item.icon} size={16} className="flex-shrink-0" aria-hidden="true" />}
                                                     <span className="truncate">{item.label}</span>
                                                 </Link>
                                             )}
@@ -614,7 +631,7 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
                                                 onChange={(e) => setSearchValue(e.target.value)}
                                                 placeholder={searchPlaceholder}
                                                 className="w-48 sm:w-64 px-3 py-2 pl-9 text-sm border rounded-md focus:outline-none focus:ring-2 transition-all"
-                                                style={{ 
+                                                style={{
                                                     borderColor: professionalColors.neutral.border.primary,
                                                     backgroundColor: professionalColors.neutral.background.primary,
                                                     borderRadius: designTokens.borderRadius.input
@@ -629,9 +646,10 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
                                                 }}
                                                 aria-label={`Search ${searchPlaceholder.toLowerCase()}`}
                                             />
-                                            <Icon 
-                                                icon="tabler:search" 
-                                                className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4"
+                                            <HugeiconsIcon
+                                                icon={Search01Icon}
+                                                size={16}
+                                                className="absolute left-3 top-1/2 transform -translate-y-1/2"
                                                 style={{ color: professionalColors.neutral.text.tertiary }}
                                             />
                                         </div>
@@ -645,7 +663,7 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
                                         type="button"
                                         onClick={() => setShowSearch(false)}
                                         className="p-2 rounded-md transition-colors focus:outline-none focus:ring-2"
-                                        style={{ 
+                                        style={{
                                             color: professionalColors.neutral.text.tertiary,
                                             borderRadius: designTokens.borderRadius.button
                                         }}
@@ -664,7 +682,7 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
                                         aria-label="Close search"
                                         title="Close search (Escape)"
                                     >
-                                        <Icon icon="tabler:x" className="w-4 h-4" />
+                                        <HugeiconsIcon icon={Cancel01Icon} size={16} />
                                     </button>
                                 </div>
                             ) : (
@@ -673,7 +691,7 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
                                         <button
                                             onClick={handleSearchToggle}
                                             className="p-2 rounded-md transition-colors focus:outline-none focus:ring-2"
-                                            style={{ 
+                                            style={{
                                                 color: professionalColors.neutral.text.secondary,
                                                 backgroundColor: 'transparent',
                                                 borderRadius: designTokens.borderRadius.button
@@ -693,7 +711,7 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
                                             aria-label="Open search"
                                             title="Search (Ctrl+K)"
                                         >
-                                            <Icon icon="tabler:search" className="w-5 h-5" />
+                                            <HugeiconsIcon icon={Search01Icon} size={20} />
                                         </button>
                                     ))}
                                 </>

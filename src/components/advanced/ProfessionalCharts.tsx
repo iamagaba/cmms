@@ -7,7 +7,12 @@
  */
 
 import React, { useMemo, useRef, useEffect } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  AnalyticsUpIcon,
+  AnalyticsDownIcon,
+  MinusSignIcon
+} from '@hugeicons/core-free-icons';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import ProfessionalCard from '@/components/ui/ProfessionalCard';
@@ -193,7 +198,7 @@ const KPIChart: React.FC<KPIChartProps> = ({
               className="w-10 h-10 rounded-lg flex items-center justify-center"
               style={{ backgroundColor: `${color}20` }}
             >
-              <Icon icon={icon} className="w-5 h-5" style={{ color }} />
+              <HugeiconsIcon icon={icon} size={20} style={{ color }} />
             </div>
           )}
           <div>
@@ -246,16 +251,16 @@ const KPIChart: React.FC<KPIChartProps> = ({
       {/* Trend */}
       {trend && (
         <div className="flex items-center gap-2 text-sm">
-          <Icon
+          <HugeiconsIcon
             icon={
               trend.direction === 'up'
-                ? 'tabler:trending-up'
+                ? AnalyticsUpIcon
                 : trend.direction === 'down'
-                ? 'tabler:trending-down'
-                : 'tabler:minus'
+                ? AnalyticsDownIcon
+                : MinusSignIcon
             }
+            size={16}
             className={cn(
-              'w-4 h-4',
               trend.direction === 'up' && 'text-industrial-500',
               trend.direction === 'down' && 'text-warning-500',
               trend.direction === 'neutral' && 'text-machinery-500'

@@ -6,7 +6,7 @@
  */
 
 import React from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
 import { cn } from '@/lib/utils';
 import ProfessionalButton from '@/components/ui/ProfessionalButton';
 
@@ -54,7 +54,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
         <div className="flex items-center gap-3">
           {icon && (
             <div className="p-2 bg-steel-100 rounded-lg">
-              <Icon icon={icon} className="w-5 h-5 text-steel-600" />
+              <HugeiconsIcon icon={icon} size={20} />
             </div>
           )}
           <div className="min-w-0 flex-1">

@@ -8,7 +8,8 @@
 
 import React, { useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Cancel01Icon } from '@hugeicons/core-free-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import ProfessionalButton from '@/components/ui/ProfessionalButton';
@@ -428,7 +429,7 @@ const ProfessionalModal: React.FC<ModalProps> = ({
                 <ProfessionalButton
                   variant="ghost"
                   size="sm"
-                  icon="tabler:x"
+                  icon={Cancel01Icon}
                   onClick={onClose}
                   className="ml-4 flex-shrink-0"
                   aria-label="Close modal"
@@ -617,7 +618,7 @@ const ProfessionalDrawer: React.FC<DrawerProps> = ({
                 <ProfessionalButton
                   variant="ghost"
                   size="sm"
-                  icon="tabler:x"
+                  icon={Cancel01Icon}
                   onClick={onClose}
                   className="ml-4 flex-shrink-0"
                   aria-label="Close drawer"

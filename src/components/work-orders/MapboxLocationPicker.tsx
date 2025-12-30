@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Location01Icon, MapsIcon, CheckmarkCircle01Icon, InformationCircleIcon } from '@hugeicons/core-free-icons';
 import { Stack } from '@/components/tailwind-components';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -175,11 +176,10 @@ export const MapboxLocationPicker: React.FC<MapboxLocationPickerProps> = ({
             className={`w-full h-9 pl-10 pr-20 py-1.5 text-sm border rounded-md shadow-sm transition-colors focus:outline-none focus:ring-1 focus:ring-purple-600 focus:border-purple-600 ${error ? 'border-red-500' : 'border-gray-200'
               }`}
           />
-          <Icon
-            icon="mdi:map-marker"
+          <HugeiconsIcon
+            icon={Location01Icon}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            width={18}
-            height={18}
+            size={18}
           />
           {/* Map Toggle Icon */}
           <button
@@ -188,10 +188,9 @@ export const MapboxLocationPicker: React.FC<MapboxLocationPickerProps> = ({
             className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-primary-600 transition-colors rounded"
             title={showMap ? 'Hide map' : 'Show map picker'}
           >
-            <Icon
-              icon={showMap ? 'mdi:map-marker-off' : 'mdi:map'}
-              width={18}
-              height={18}
+            <HugeiconsIcon
+              icon={MapsIcon}
+              size={18}
             />
           </button>
           {isSearching && (
@@ -211,7 +210,7 @@ export const MapboxLocationPicker: React.FC<MapboxLocationPickerProps> = ({
                 className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
               >
                 <div className="flex items-start gap-2">
-                  <Icon icon="mdi:map-marker" className="text-primary-600 flex-shrink-0 mt-0.5" width={16} height={16} />
+                  <HugeiconsIcon icon={Location01Icon} className="text-primary-600 flex-shrink-0 mt-0.5" size={16} />
                   <div className="flex-1 min-w-0">
                     <div className="text-sm font-medium text-gray-900 truncate">
                       {feature.text}
@@ -236,7 +235,7 @@ export const MapboxLocationPicker: React.FC<MapboxLocationPickerProps> = ({
       {value && (
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
           <div className="flex items-start gap-2">
-            <Icon icon="mdi:check-circle" className="text-blue-600 flex-shrink-0 mt-0.5" width={16} height={16} />
+            <HugeiconsIcon icon={CheckmarkCircle01Icon} className="text-blue-600 flex-shrink-0 mt-0.5" size={16} />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-blue-900">Location Selected</p>
               <p className="text-xs text-blue-700 mt-1">{value.address}</p>
@@ -255,7 +254,7 @@ export const MapboxLocationPicker: React.FC<MapboxLocationPickerProps> = ({
         <div className="border border-gray-300 rounded-lg overflow-hidden">
           <div ref={mapContainer} className="w-full h-64" />
           <div className="bg-gray-50 px-3 py-2 text-xs text-gray-600">
-            <Icon icon="mdi:information" className="inline mr-1" width={14} height={14} />
+            <HugeiconsIcon icon={InformationCircleIcon} className="inline mr-1" size={14} />
             Drag the marker to adjust the location
           </div>
         </div>

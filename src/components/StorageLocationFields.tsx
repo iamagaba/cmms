@@ -1,5 +1,6 @@
 import React from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Location01Icon } from '@hugeicons/core-free-icons';
 
 interface StorageLocationFieldsProps {
   warehouse: string | null;
@@ -95,7 +96,7 @@ export const StorageLocationFields: React.FC<StorageLocationFieldsProps> = ({
       {/* Preview */}
       {(warehouse || zone || aisle || bin || shelf) && (
         <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 rounded-lg px-3 py-2">
-          <Icon icon="tabler:map-pin" className="w-4 h-4" />
+          <HugeiconsIcon icon={Location01Icon} size={16} />
           <span>
             {[
               warehouse,

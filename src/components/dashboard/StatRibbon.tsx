@@ -1,6 +1,7 @@
 
 import React from "react";
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon, IconSvgElement } from '@hugeicons/react';
+import { ArrowRight01Icon } from '@hugeicons/core-free-icons';
 import { cn } from '@/lib/utils';
 
 interface StatRibbonProps {
@@ -8,7 +9,7 @@ interface StatRibbonProps {
         title: string;
         value: string | number;
         subtitle?: string;
-        icon: string;
+        icon: IconSvgElement;
         color: 'primary' | 'emerald' | 'amber' | 'red';
         onClick?: () => void;
     }>;
@@ -40,9 +41,10 @@ export const StatRibbon: React.FC<StatRibbonProps> = ({ stats }) => {
                         <div className="flex items-center justify-between">
                             <div className="flex-1">
                                 <div className="flex items-center gap-2 mb-1">
-                                    <Icon
+                                    <HugeiconsIcon
                                         icon={stat.icon}
-                                        className={cn('w-4 h-4', getIconColorClass(stat.color))}
+                                        size={16}
+                                        className={cn(getIconColorClass(stat.color))}
                                     />
                                     <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
                                         {stat.title}
@@ -56,9 +58,10 @@ export const StatRibbon: React.FC<StatRibbonProps> = ({ stats }) => {
                                 )}
                             </div>
                             {stat.onClick && (
-                                <Icon
-                                    icon="tabler:chevron-right"
-                                    className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                                <HugeiconsIcon
+                                    icon={ArrowRight01Icon}
+                                    size={16}
+                                    className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"
                                 />
                             )}
                         </div>

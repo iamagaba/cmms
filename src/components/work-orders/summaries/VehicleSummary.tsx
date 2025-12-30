@@ -1,5 +1,6 @@
 import React from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Car01Icon, Location01Icon, Call02Icon } from '@hugeicons/core-free-icons';
 
 interface VehicleSummaryProps {
     data: {
@@ -20,7 +21,7 @@ export const VehicleSummary: React.FC<VehicleSummaryProps> = ({ data, vehicleInf
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2">
             <div className="space-y-1">
                 <div className="flex items-center gap-2 text-gray-500 text-xs uppercase tracking-wide font-medium">
-                    <Icon icon="mdi:car" width={14} />
+                    <HugeiconsIcon icon={Car01Icon} size={14} />
                     Vehicle
                 </div>
                 <div className="text-sm font-medium text-gray-900">
@@ -33,14 +34,14 @@ export const VehicleSummary: React.FC<VehicleSummaryProps> = ({ data, vehicleInf
 
             <div className="space-y-1">
                 <div className="flex items-center gap-2 text-gray-500 text-xs uppercase tracking-wide font-medium">
-                    <Icon icon="mdi:map-marker" width={14} />
+                    <HugeiconsIcon icon={Location01Icon} size={14} />
                     Location
                 </div>
                 <div className="text-sm text-gray-900 line-clamp-1" title={data.customerLocation?.address}>
                     {data.customerLocation?.address || 'No location provided'}
                 </div>
                 <div className="flex items-center gap-1 text-xs text-gray-500">
-                    <Icon icon="mdi:phone" width={12} />
+                    <HugeiconsIcon icon={Call02Icon} size={12} />
                     {data.contactPhone}
                     {data.alternatePhone && <span className="text-gray-400"> • {data.alternatePhone}</span>}
                 </div>

@@ -7,7 +7,8 @@
  */
 
 import React, { forwardRef } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowRight01Icon } from '@hugeicons/core-free-icons';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Container } from '@/components/ui/ProfessionalCard';
@@ -181,16 +182,18 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className }) => {
       {items.map((item, index) => (
         <React.Fragment key={index}>
           {index > 0 && (
-            <Icon 
-              icon="tabler:chevron-right" 
-              className="w-4 h-4 text-machinery-400" 
+            <HugeiconsIcon 
+              icon={ArrowRight01Icon} 
+              size={16}
+              className="text-machinery-400" 
             />
           )}
           <div className="flex items-center gap-1.5">
             {item.icon && (
-              <Icon 
+              <HugeiconsIcon 
                 icon={item.icon} 
-                className="w-4 h-4 text-machinery-500" 
+                size={16}
+                className="text-machinery-500" 
               />
             )}
             {item.href ? (
@@ -258,7 +261,7 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(
               <div className="flex items-start gap-4">
                 {icon && (
                   <div className="flex-shrink-0 w-12 h-12 bg-steel-100 rounded-xl flex items-center justify-center">
-                    <Icon icon={icon} className="w-6 h-6 text-steel-600" />
+                    <HugeiconsIcon icon={icon} size={24} className="text-steel-600" />
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
@@ -358,7 +361,7 @@ const ContentSection = forwardRef<HTMLDivElement, ContentSectionProps>(
             <div className="flex items-start gap-3">
               {icon && (
                 <div className="flex-shrink-0 w-8 h-8 bg-steel-100 rounded-lg flex items-center justify-center">
-                  <Icon icon={icon} className="w-4 h-4 text-steel-600" />
+                  <HugeiconsIcon icon={icon} size={16} className="text-steel-600" />
                 </div>
               )}
               <div className="min-w-0 flex-1">

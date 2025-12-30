@@ -7,7 +7,7 @@
  */
 
 import React, { forwardRef } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -685,7 +685,7 @@ const LoadingButton = forwardRef<HTMLButtonElement, LoadingButtonProps>(
               transition={{ duration: 0.15 }}
               className="flex items-center gap-2"
             >
-              {icon && <Icon icon={icon} className="w-4 h-4" />}
+              {icon && <HugeiconsIcon icon={icon} size={16} />}
               {children}
             </motion.div>
           )}

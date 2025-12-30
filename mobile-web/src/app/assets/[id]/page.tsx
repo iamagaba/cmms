@@ -52,13 +52,17 @@ export default function AssetDetailsPage() {
     fetchAsset()
   }, [params.id])
 
-  const getAssetTypeStyle = (asset: Asset) => {
-    if (asset.is_emergency_bike) {
-      return 'bg-red-100 text-red-800 border-red-200'
-    } else if (asset.is_company_asset) {
-      return 'bg-blue-100 text-blue-800 border-blue-200'
-    } else {
-      return 'bg-green-100 text-green-800 border-green-200'
+  const getStatusStyle = (status: string | null | undefined) => {
+    switch (status) {
+      case 'In Repair':
+        return 'bg-orange-100 text-orange-800 border-orange-200'
+      case 'Available':
+        return 'bg-green-100 text-green-800 border-green-200'
+      case 'Decommissioned':
+        return 'bg-gray-100 text-gray-800 border-gray-200'
+      case 'Normal':
+      default:
+        return 'bg-blue-100 text-blue-800 border-blue-200'
     }
   }
 
@@ -132,7 +136,7 @@ export default function AssetDetailsPage() {
       />
       
       <main className="px-4 py-6 pb-20 space-y-4">
-        {/* Asset Type Card */}
+        {/* Asset Status Card */}
         <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center space-x-3">
@@ -145,8 +149,8 @@ export default function AssetDetailsPage() {
               </div>
             </div>
           </div>
-          <div className={`px-4 py-3 rounded-xl border-2 ${getAssetTypeStyle(asset)} font-semibold text-center`}>
-            {getAssetTypeLabel(asset)}
+          <div className={`px-4 py-3 rounded-xl border-2 ${getStatusStyle(asset.status)} font-semibold text-center`}>
+            {asset.status || 'Normal'}
           </div>
         </div>
 
@@ -157,6 +161,10 @@ export default function AssetDetailsPage() {
             <h2 className="text-lg font-semibold text-gray-900">Vehicle Information</h2>
           </div>
           <div className="space-y-3">
+            <div>
+              <p className="text-sm text-gray-500">Type</p>
+              <p className="text-base font-medium text-gray-900">{getAssetTypeLabel(asset)}</p>
+            </div>
             <div>
               <p className="text-sm text-gray-500">Make & Model</p>
               <p className="text-base font-medium text-gray-900">{asset.make} {asset.model}</p>

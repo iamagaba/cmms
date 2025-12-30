@@ -6,9 +6,9 @@
  */
 
 import React, { forwardRef } from 'react';
-import { Icon } from '@iconify/react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { Icon } from '@/components/icons/Icon';
 
 // ============================================
 // COMPONENT INTERFACES
@@ -208,7 +208,7 @@ const ProfessionalButton = forwardRef<HTMLButtonElement, ProfessionalButtonProps
         {loading ? (
           <LoadingSpinner size={size} />
         ) : icon ? (
-          <Icon icon={icon} className="flex-shrink-0" />
+          <Icon icon={icon} size={16} className="flex-shrink-0" />
         ) : null}
 
         {/* Button text */}
@@ -223,7 +223,7 @@ const ProfessionalButton = forwardRef<HTMLButtonElement, ProfessionalButtonProps
 
         {/* Right icon */}
         {!loading && iconRight && (
-          <Icon icon={iconRight} className="flex-shrink-0" />
+          <Icon icon={iconRight} size={16} className="flex-shrink-0" />
         )}
       </motion.button>
     );
@@ -298,7 +298,7 @@ const ProfessionalIconButton = forwardRef<HTMLButtonElement, ProfessionalIconBut
         )}
         {...props}
       >
-        <Icon icon={icon} className="w-5 h-5" />
+        <Icon icon={icon} size={20} />
       </ProfessionalButton>
     );
   }

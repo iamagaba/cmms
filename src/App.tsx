@@ -35,6 +35,7 @@ const DesignSystemDemo = lazy(() => import("./components/demo/DesignSystemDemo")
 const ChatPage = lazy(() => import("./pages/Chat"));
 const TVDashboard = lazy(() => import("./pages/TVDashboard"));
 const WhatsAppTest = lazy(() => import("./pages/WhatsAppTest"));
+const IconTestPage = lazy(() => import("./pages/IconTestPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -99,6 +100,7 @@ const AppContent = () => {
         <Route path="settings" element={<Suspense fallback={suspenseFallback}><ProtectedRoute><SettingsPage /></ProtectedRoute></Suspense>} />
         <Route path="design-system" element={<Suspense fallback={suspenseFallback}><ProtectedRoute><DesignSystemDemo /></ProtectedRoute></Suspense>} />
         <Route path="whatsapp-test" element={<Suspense fallback={suspenseFallback}><ProtectedRoute><WhatsAppTest /></ProtectedRoute></Suspense>} />
+        <Route path="icon-test" element={<Suspense fallback={suspenseFallback}><ProtectedRoute><IconTestPage /></ProtectedRoute></Suspense>} />
         <Route path="*" element={<NotFound />} />
       </Route>
     </Routes>

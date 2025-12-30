@@ -7,7 +7,20 @@
  */
 
 import React, { useState } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  Sun03Icon, 
+  Moon02Icon, 
+  GridIcon, 
+  Layout02Icon, 
+  DistributeVerticalCenterIcon, 
+  Cancel01Icon, 
+  PaletteIcon, 
+  RefreshIcon, 
+  SquareIcon, 
+  RoundedRectangleIcon, 
+  CircleIcon 
+} from '@hugeicons/core-free-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useTheme } from '@/providers/ThemeProvider';
@@ -70,12 +83,12 @@ const ModeToggle: React.FC<ModeToggleProps> = ({ size = 'base', showLabel = true
             exit={{ opacity: 0, rotate: 90 }}
             transition={{ duration: 0.2 }}
           >
-            <Icon
-              icon={theme.mode === 'light' ? 'tabler:sun' : 'tabler:moon'}
+            <HugeiconsIcon
+              icon={theme.mode === 'light' ? Sun03Icon : Moon02Icon}
+              size={size === 'sm' ? 16 : size === 'lg' ? 24 : 20}
               className={cn(
                 'transition-colors',
-                theme.mode === 'light' ? 'text-warning-500' : 'text-steel-400',
-                size === 'sm' ? 'w-4 h-4' : size === 'lg' ? 'w-6 h-6' : 'w-5 h-5'
+                theme.mode === 'light' ? 'text-warning-500' : 'text-steel-400'
               )}
             />
           </motion.div>
@@ -98,9 +111,9 @@ const DensitySelector: React.FC<DensitySelectorProps> = ({ size = 'base', showLa
   const { theme, setDensity } = useTheme();
   
   const densityOptions = [
-    { value: 'compact', label: 'Compact', icon: 'tabler:layout-grid' },
-    { value: 'comfortable', label: 'Comfortable', icon: 'tabler:layout-2' },
-    { value: 'spacious', label: 'Spacious', icon: 'tabler:layout-distribute-vertical' },
+    { value: 'compact', label: 'Compact', icon: GridIcon },
+    { value: 'comfortable', label: 'Comfortable', icon: Layout02Icon },
+    { value: 'spacious', label: 'Spacious', icon: DistributeVerticalCenterIcon },
   ] as const;
 
   return (
@@ -126,7 +139,7 @@ const DensitySelector: React.FC<DensitySelectorProps> = ({ size = 'base', showLa
             aria-label={`Set density to ${option.label}`}
             title={option.label}
           >
-            <Icon icon={option.icon} className="w-4 h-4 mx-auto" />
+            <HugeiconsIcon icon={option.icon} size={16} className="mx-auto" />
           </button>
         ))}
       </div>
@@ -202,9 +215,9 @@ const BorderRadiusSelector: React.FC<BorderRadiusSelectorProps> = ({
   const { theme, setBorderRadius } = useTheme();
   
   const radiusOptions = [
-    { value: 'sharp', label: 'Sharp', icon: 'tabler:square' },
-    { value: 'rounded', label: 'Rounded', icon: 'tabler:square-rounded' },
-    { value: 'soft', label: 'Soft', icon: 'tabler:circle' },
+    { value: 'sharp', label: 'Sharp', icon: SquareIcon },
+    { value: 'rounded', label: 'Rounded', icon: RoundedRectangleIcon },
+    { value: 'soft', label: 'Soft', icon: CircleIcon },
   ] as const;
 
   return (
@@ -230,7 +243,7 @@ const BorderRadiusSelector: React.FC<BorderRadiusSelectorProps> = ({
             aria-label={`Set border radius to ${option.label}`}
             title={option.label}
           >
-            <Icon icon={option.icon} className="w-4 h-4 mx-auto" />
+            <HugeiconsIcon icon={option.icon} size={16} className="mx-auto" />
           </button>
         ))}
       </div>
@@ -255,7 +268,7 @@ const ThemeControlsDropdown: React.FC<ThemeControlsProps> = ({
       <ProfessionalButton
         variant="outline"
         size={size === 'lg' ? 'base' : 'sm'}
-        icon="tabler:palette"
+        icon={PaletteIcon}
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Theme settings"
         aria-expanded={isOpen}
@@ -283,7 +296,7 @@ const ThemeControlsDropdown: React.FC<ThemeControlsProps> = ({
                     className="p-1 hover:bg-machinery-100 rounded transition-colors"
                     aria-label="Close theme settings"
                   >
-                    <Icon icon="tabler:x" className="w-4 h-4 text-machinery-500" />
+                    <HugeiconsIcon icon={Cancel01Icon} size={16} className="text-machinery-500" />
                   </button>
                 </div>
                 
@@ -296,7 +309,7 @@ const ThemeControlsDropdown: React.FC<ThemeControlsProps> = ({
                   <ProfessionalButton
                     variant="outline"
                     size="sm"
-                    icon="tabler:refresh"
+                    icon={RefreshIcon}
                     onClick={() => {
                       resetTheme();
                       setIsOpen(false);
@@ -347,7 +360,7 @@ const ThemeControlsPanel: React.FC<ThemeControlsProps> = ({
           <ProfessionalButton
             variant="outline"
             size="sm"
-            icon="tabler:refresh"
+            icon={RefreshIcon}
             onClick={resetTheme}
             className="w-full"
           >

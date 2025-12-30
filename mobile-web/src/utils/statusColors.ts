@@ -1,17 +1,22 @@
-// Status colors matching main app exactly
+// Status colors matching desktop enterprise design system exactly
 export const STATUS_COLORS: Record<string, string> = {
-  Open: '#2f54eb',
-  Confirmation: '#13c2c2',
-  Ready: '#8c8c8c',
-  'In Progress': '#fa8c16',
-  'On Hold': '#faad14',
-  Completed: '#52c41a',
+  Open: '#0077ce',        // Steel Blue (Primary)
+  New: '#0077ce',         // Steel Blue (Primary)
+  Confirmation: '#0c96f1', // Light Steel Blue
+  Ready: '#64748b',       // Slate Gray
+  Scheduled: '#64748b',   // Slate Gray
+  'In Progress': '#f97316', // Safety Orange
+  'On Hold': '#eab308',   // Warning Yellow
+  Completed: '#22c55e',   // Success Green
+  Cancelled: '#ef4444',   // Error Red
 }
 
 export const PRIORITY_COLORS: Record<string, string> = {
-  High: '#ff4d4f',
-  Medium: '#faad14',
-  Low: '#52c41a',
+  Critical: '#dc2626',    // Dark Red
+  High: '#ea580c',        // Orange-Red
+  Medium: '#ca8a04',      // Dark Yellow
+  Low: '#64748b',         // Slate Gray
+  Routine: '#16a34a',     // Dark Green
 }
 
 export const getStatusColor = (status: string | null): string => {

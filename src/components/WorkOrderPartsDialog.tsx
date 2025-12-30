@@ -1,5 +1,14 @@
 import React, { useState, useMemo } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  Cancel01Icon,
+  Add01Icon,
+  PackageIcon,
+  Clock01Icon,
+  Search01Icon,
+  Delete01Icon,
+  PackageRemoveIcon
+} from '@hugeicons/core-free-icons';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { InventoryItem } from '@/types/supabase';
@@ -156,16 +165,16 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
             </p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-            <Icon icon="tabler:x" className="w-5 h-5 text-gray-500" />
+            <HugeiconsIcon icon={Cancel01Icon} size={20} className="text-gray-500" />
           </button>
         </div>
 
         {/* Tabs */}
         <div className="flex border-b border-gray-200 dark:border-gray-700">
           {[
-            { id: 'add', label: 'Add Parts', icon: 'tabler:plus' },
-            { id: 'used', label: `Used (${usedParts?.length || 0})`, icon: 'tabler:package' },
-            { id: 'reserved', label: `Reserved (${reservations?.length || 0})`, icon: 'tabler:clock' },
+            { id: 'add', label: 'Add Parts', icon: Add01Icon },
+            { id: 'used', label: `Used (${usedParts?.length || 0})`, icon: PackageIcon },
+            { id: 'reserved', label: `Reserved (${reservations?.length || 0})`, icon: Clock01Icon },
           ].map(tab => (
             <button
               key={tab.id}
@@ -176,7 +185,7 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
-              <Icon icon={tab.icon} className="w-4 h-4" />
+              <HugeiconsIcon icon={tab.icon} size={16} />
               {tab.label}
             </button>
           ))}
@@ -192,7 +201,9 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
                   Search Inventory
                 </label>
                 <div className="relative">
-                  <Icon icon="tabler:search" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                    <HugeiconsIcon icon={Search01Icon} size={16} className="text-gray-400" />
+                  </div>
                   <input
                     type="text"
                     value={searchTerm}
@@ -309,7 +320,7 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
                     disabled={addPartMutation.isPending || reservePartMutation.isPending}
                     className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                   >
-                    <Icon icon={isReserving ? 'tabler:clock' : 'tabler:plus'} className="w-4 h-4" />
+                    <HugeiconsIcon icon={isReserving ? Clock01Icon : Add01Icon} size={16} />
                     {isReserving ? 'Reserve Part' : 'Add Part to Work Order'}
                   </button>
                 </div>
@@ -323,7 +334,7 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
                 <div className="text-center py-8 text-gray-500">Loading...</div>
               ) : !usedParts?.length ? (
                 <div className="text-center py-8">
-                  <Icon icon="tabler:package-off" className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                  <HugeiconsIcon icon={PackageRemoveIcon} size={48} className="text-gray-300 mx-auto mb-2" />
                   <p className="text-sm text-gray-500">No parts used yet</p>
                 </div>
               ) : (
@@ -354,7 +365,7 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
                           className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
                           title="Remove and restore to inventory"
                         >
-                          <Icon icon="tabler:trash" className="w-4 h-4" />
+                          <HugeiconsIcon icon={Delete01Icon} size={16} />
                         </button>
                       </div>
                     </div>
@@ -378,7 +389,7 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
                 <div className="text-center py-8 text-gray-500">Loading...</div>
               ) : !reservations?.length ? (
                 <div className="text-center py-8">
-                  <Icon icon="tabler:clock-off" className="w-12 h-12 text-gray-300 mx-auto mb-2" />
+                  <HugeiconsIcon icon={Clock01Icon} size={48} className="text-gray-300 mx-auto mb-2" />
                   <p className="text-sm text-gray-500">No reservations</p>
                 </div>
               ) : (

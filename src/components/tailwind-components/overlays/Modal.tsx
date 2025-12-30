@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Cancel01Icon } from '@hugeicons/core-free-icons';
 
 export interface ModalProps {
     /** Whether modal is open */
@@ -93,7 +94,7 @@ export function Modal({
                                 onClick={onClose}
                                 className="ml-auto text-gray-400 hover:text-gray-600 transition-colors"
                             >
-                                <Icon icon="mdi:close" width={24} height={24} />
+                                <HugeiconsIcon icon={Cancel01Icon} size={24} />
                             </button>
                         )}
                     </div>

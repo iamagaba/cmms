@@ -11,9 +11,21 @@ import {
   Collapse,
   ActionIcon,
   Box,
-  Container
+  Container,
+  ThemeIcon
 } from '@/components/tailwind-components';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  InformationCircleIcon, 
+  AlertCircleIcon, 
+  Alert01Icon, 
+  AlertSquareIcon, 
+  RefreshIcon, 
+  ReloadIcon, 
+  ArrowUp01Icon, 
+  ArrowDown01Icon, 
+  BugIcon 
+} from '@hugeicons/core-free-icons';
 import { showError } from '@/utils/toast';
 
 interface Props {
@@ -156,10 +168,10 @@ export class ErrorBoundary extends Component<Props, State> {
   private getErrorIcon = () => {
     const severity = this.getErrorSeverity();
     const icons = {
-      low: 'mdi:information',
-      medium: 'mdi:alert',
-      high: 'mdi:alert-circle',
-      critical: 'mdi:alert-octagon'
+      low: InformationCircleIcon,
+      medium: AlertCircleIcon,
+      high: AlertCircleIcon,
+      critical: AlertSquareIcon
     };
     return icons[severity];
   };
@@ -227,7 +239,7 @@ export class ErrorBoundary extends Component<Props, State> {
           <Card shadow="md" p="xl" radius="md">
             <Stack align="center" gap="lg">
               <Box className={`text-${color}-500`}>
-                <Icon icon={icon} width={64} height={64} />
+                <HugeiconsIcon icon={icon} size={64} />
               </Box>
 
               <Stack align="center" gap="xs">
@@ -253,7 +265,7 @@ export class ErrorBoundary extends Component<Props, State> {
                     size="lg"
                   >
                     <Group gap="xs">
-                      <Icon icon="mdi:refresh" width={16} height={16} />
+                      <HugeiconsIcon icon={RefreshIcon} size={16} />
                       <span>Try Again</span>
                     </Group>
                   </Button>
@@ -265,7 +277,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   size="lg"
                 >
                   <Group gap="xs">
-                    <Icon icon="mdi:reload" width={16} height={16} />
+                    <HugeiconsIcon icon={ReloadIcon} size={16} />
                     <span>Refresh Page</span>
                   </Group>
                 </Button>
@@ -279,10 +291,9 @@ export class ErrorBoundary extends Component<Props, State> {
                       onClick={this.toggleDetails}
                       aria-label="Toggle error details"
                     >
-                      <Icon
-                        icon={this.state.showDetails ? 'mdi:chevron-up' : 'mdi:chevron-down'}
-                        width={16}
-                        height={16}
+                      <HugeiconsIcon
+                        icon={this.state.showDetails ? ArrowUp01Icon : ArrowDown01Icon}
+                        size={16}
                       />
                     </ActionIcon>
                     <Text size="sm" c="dimmed">
@@ -294,7 +305,7 @@ export class ErrorBoundary extends Component<Props, State> {
                     <Alert
                       color="red"
                       title="Technical Details"
-                      icon={<Icon icon="mdi:bug" width={16} height={16} />}
+                      icon={<HugeiconsIcon icon={BugIcon} size={16} />}
                     >
                       <Stack gap="xs">
                         <Text size="sm" fw={500}>Error Message:</Text>
@@ -335,7 +346,7 @@ export class ErrorBoundary extends Component<Props, State> {
         <Alert
           color={color}
           title="Section Error"
-          icon={<Icon icon={icon} width={20} height={20} />}
+          icon={<HugeiconsIcon icon={icon} size={20} />}
           withCloseButton={false}
         >
           <Stack gap="sm">
@@ -350,7 +361,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   onClick={this.handleRetry}
                 >
                   <Group gap="xs">
-                    <Icon icon="mdi:refresh" width={14} height={14} />
+                    <HugeiconsIcon icon={RefreshIcon} size={14} />
                     <span>Retry</span>
                   </Group>
                 </Button>
@@ -371,7 +382,7 @@ export class ErrorBoundary extends Component<Props, State> {
     return (
       <Alert
         color={color}
-        icon={<Icon icon={icon} width={16} height={16} />}
+        icon={<HugeiconsIcon icon={icon} size={16} />}
         withCloseButton={false}
       >
         <Group justify="space-between" align="center">
@@ -379,7 +390,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
           {this.state.retryCount < this.maxRetries && (
             <ThemeIcon size="lg" radius="md" variant="light" color="blue">
-              <Icon icon="tabler:refresh" width={20} height={20} />
+              <HugeiconsIcon icon={RefreshIcon} size={20} />
             </ThemeIcon>
           )}
         </Group>

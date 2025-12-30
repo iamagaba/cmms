@@ -1,6 +1,7 @@
 
 import React, { useMemo } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { UserGroupIcon, UserIcon, Car01Icon, AlertCircleIcon, Calendar01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons';
 import { useNavigate } from "react-router-dom";
 import { WorkOrder } from "@/types/supabase";
 import { cn } from '@/lib/utils';
@@ -73,7 +74,7 @@ export const TechniciansList: React.FC<TechniciansListProps> = ({ technicians, w
             <div className="px-6 py-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <Icon icon="tabler:users" className="w-4 h-4 text-gray-500" />
+                        <HugeiconsIcon icon={UserGroupIcon} size={16} className="text-gray-500" />
                         <div>
                             <h3 className="text-sm font-semibold text-gray-900">Technicians</h3>
                             <p className="text-xs text-gray-500 mt-0.5">{technicianStats.filter(t => t.isSignedIn).length} online</p>
@@ -148,7 +149,7 @@ export const TechniciansList: React.FC<TechniciansListProps> = ({ technicians, w
                     </>
                 ) : (
                     <div className="p-6 text-center py-8">
-                        <Icon icon="tabler:users" className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                        <HugeiconsIcon icon={UserGroupIcon} size={48} className="text-gray-400 mx-auto mb-3" />
                         <p className="text-sm font-medium text-gray-900 mb-1">No Technicians</p>
                         <p className="text-xs text-gray-500">Add technicians to get started</p>
                     </div>

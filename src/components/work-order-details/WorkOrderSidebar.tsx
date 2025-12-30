@@ -1,7 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Search01Icon, ClipboardIcon } from '@hugeicons/core-free-icons';
+import { useQuery } from '@tanstack/react-query';
 import { WorkOrder, Technician, Vehicle, Customer } from '@/types/supabase';
+import { DiagnosticCategoryRow } from '@/types/diagnostic';
 import { useWorkOrderData } from '@/hooks/useWorkOrderData';
+import { supabase } from '@/integrations/supabase/client';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -28,6 +32,17 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
     customers,
     isLoading
   } = useWorkOrderData();
+
+  // Fetch diagnostic categories for service type lookup
+  const { data: serviceCategories } = useQuery<DiagnosticCategoryRow[]>({
+    queryKey: ['diagnostic_categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('diagnostic_categories').select('*');
+      if (error) return [];
+      return data || [];
+    },
+    staleTime: 10 * 60 * 1000,
+  });
 
   // Filter and search work orders
   const filteredWorkOrders = useMemo(() => {
@@ -98,14 +113,20 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
     };
     const statusDotColor = statusDotColors[workOrder.status || 'Open'] || statusDotColors['Open'];
 
-    // Priority styling
-    const priorityStyles: Record<string, { border: string; text: string }> = {
-      'Critical': { border: 'border-red-200', text: 'text-red-600' },
-      'High': { border: 'border-orange-200', text: 'text-orange-600' },
-      'Medium': { border: 'border-yellow-200', text: 'text-yellow-600' },
-      'Low': { border: 'border-green-200', text: 'text-green-600' },
+    // Priority styling - handle both lowercase (DB) and capitalized values
+    const priorityStyles: Record<string, { border: string; text: string; bg: string }> = {
+      'critical': { border: 'border-red-200', text: 'text-red-700', bg: 'bg-red-50' },
+      'Critical': { border: 'border-red-200', text: 'text-red-700', bg: 'bg-red-50' },
+      'urgent': { border: 'border-red-200', text: 'text-red-700', bg: 'bg-red-50' },
+      'Urgent': { border: 'border-red-200', text: 'text-red-700', bg: 'bg-red-50' },
+      'high': { border: 'border-orange-200', text: 'text-orange-700', bg: 'bg-orange-50' },
+      'High': { border: 'border-orange-200', text: 'text-orange-700', bg: 'bg-orange-50' },
+      'medium': { border: 'border-amber-200', text: 'text-amber-700', bg: 'bg-amber-50' },
+      'Medium': { border: 'border-amber-200', text: 'text-amber-700', bg: 'bg-amber-50' },
+      'low': { border: 'border-emerald-200', text: 'text-emerald-700', bg: 'bg-emerald-50' },
+      'Low': { border: 'border-emerald-200', text: 'text-emerald-700', bg: 'bg-emerald-50' },
     };
-    const priorityStyle = priorityStyles[workOrder.priority || 'Medium'] || priorityStyles['Medium'];
+    const priorityStyle = priorityStyles[workOrder.priority || 'medium'] || priorityStyles['medium'];
 
     // Format title with proper capitalization
     const formatTitle = (text: string) => {
@@ -114,54 +135,100 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
       ).join(' ');
     };
 
-    const title = workOrder.service || workOrder.description || 'General Service';
+    // Get the display title - look up service category name
+    const getDisplayTitle = () => {
+      // First try to look up the service category by ID
+      if (workOrder.service_category_id && serviceCategories) {
+        const category = serviceCategories.find(c => c.id === workOrder.service_category_id);
+        if (category?.label || category?.name) {
+          return category.label || category.name;
+        }
+      }
+      
+      // Also check if workOrder.service is a category ID
+      if (workOrder.service && serviceCategories) {
+        const category = serviceCategories.find(c => c.id === workOrder.service);
+        if (category?.label || category?.name) {
+          return category.label || category.name;
+        }
+      }
+      
+      // Try title field
+      if (workOrder.title && !workOrder.title.includes('-') && workOrder.title.length < 50) {
+        return workOrder.title;
+      }
+      
+      // Try initialDiagnosis if it's not a placeholder
+      if (workOrder.initialDiagnosis && 
+          !workOrder.initialDiagnosis.toLowerCase().includes('what type of issue') &&
+          !workOrder.initialDiagnosis.includes('-') || workOrder.initialDiagnosis.length < 30) {
+        return workOrder.initialDiagnosis;
+      }
+      
+      return 'General Service';
+    };
+
+    const title = getDisplayTitle();
     const formattedTitle = formatTitle(title);
 
-    // Truncate WO number for cleaner display
+    // Use work order number as primary identifier
+    const licensePlate = vehicle?.license_plate || 'N/A';
     const woNumber = workOrder.workOrderNumber || `WO-${workOrder.id.substring(0, 6).toUpperCase()}`;
-    const truncatedWoNumber = woNumber.length > 15 ? `${woNumber.substring(0, 12)}...` : woNumber;
 
     return (
       <div
         onClick={() => onSelectWorkOrder(workOrder.id)}
-        className={`px-4 py-3 border-b border-gray-100 hover:bg-gray-50 cursor-pointer transition-colors ${
-          isSelected ? 'bg-purple-50 text-purple-900' : ''
+        className={`px-3 py-2.5 border-b border-gray-100 cursor-pointer transition-all ${
+          isSelected ? 'bg-purple-50' : 'hover:bg-gray-50'
         }`}
       >
-        {/* Row 1: Title (Primary) and Status Dot */}
-        <div className="flex justify-between items-start mb-1">
-          <h4 className={`text-sm font-semibold truncate pr-2 ${isSelected ? 'text-purple-900' : 'text-gray-900'}`}>
-            {formattedTitle}
-          </h4>
-          <span className={`h-2 w-2 rounded-full ${statusDotColor} mt-1 flex-shrink-0`} title={workOrder.status || 'Open'} />
-        </div>
-
-        {/* Row 2: WO# (Secondary) and Time */}
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-xs text-gray-500">
-            {truncatedWoNumber}
-          </span>
-          <span className="text-xs text-gray-400">
+        {/* Row 1: License Plate + Status + Time */}
+        <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center gap-2">
+            <span className={`text-sm font-semibold ${isSelected ? 'text-purple-900' : 'text-gray-900'}`}>
+              {licensePlate}
+            </span>
+            <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
+              workOrder.status === 'Open' ? 'bg-blue-50 text-blue-700' :
+              workOrder.status === 'Confirmation' ? 'bg-purple-50 text-purple-700' :
+              workOrder.status === 'Ready' ? 'bg-cyan-50 text-cyan-700' :
+              workOrder.status === 'In Progress' ? 'bg-orange-50 text-orange-700' :
+              workOrder.status === 'Completed' ? 'bg-emerald-50 text-emerald-700' :
+              workOrder.status === 'On Hold' ? 'bg-slate-50 text-slate-700' :
+              'bg-red-50 text-red-700'
+            }`}>
+              {workOrder.status || 'Open'}
+            </span>
+          </div>
+          <span className="text-[10px] text-gray-400">
             {dayjs(workOrder.created_at).fromNow()}
           </span>
         </div>
 
-        {/* Row 3: Asset (No Box!) */}
-        {vehicle && (
-          <div className="flex items-center gap-2 text-xs text-gray-500 mb-2">
-            <Icon icon="tabler:car" className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-            <span className="truncate">{vehicle.license_plate} • {vehicle.make} {vehicle.model}</span>
-          </div>
-        )}
+        {/* Row 2: Issue Type + Vehicle Model (combined) */}
+        <div className="flex items-center gap-1.5 text-xs text-gray-600 mb-1.5">
+          <span className="truncate font-medium">{formattedTitle}</span>
+          {vehicle && (
+            <>
+              <span className="text-gray-300">•</span>
+              <span className="text-gray-500 truncate">{vehicle.make} {vehicle.model}</span>
+            </>
+          )}
+        </div>
 
-        {/* Row 4: Footer - Technician and Priority */}
-        <div className="flex justify-between items-center mt-2">
-          <span className={`text-xs font-medium ${technician ? 'text-gray-700' : 'text-orange-600'}`}>
-            {technician ? technician.name : 'Unassigned'}
-          </span>
+        {/* Row 3: WO Number + Technician + Priority */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className={`text-[10px] ${isSelected ? 'text-purple-600' : 'text-primary-500'}`}>
+              {woNumber}
+            </span>
+            <span className={`text-[10px] ${technician ? 'text-gray-500' : 'text-amber-600 font-medium'}`}>
+              {technician ? technician.name : 'Unassigned'}
+            </span>
+          </div>
           {workOrder.priority && (
-            <span className={`text-[10px] border ${priorityStyle.border} ${priorityStyle.text} px-1.5 py-0.5 rounded`}>
-              {workOrder.priority}
+            <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${priorityStyle.bg} ${priorityStyle.text}`}>
+              {workOrder.priority.charAt(0).toUpperCase() + workOrder.priority.slice(1)}
             </span>
           )}
         </div>
@@ -204,7 +271,7 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
         {/* Search */}
         <div className="relative mb-3">
           <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-            <Icon icon="tabler:search" className="w-3.5 h-3.5 text-gray-400" />
+            <HugeiconsIcon icon={Search01Icon} size={14} className="text-gray-400" />
           </div>
           <input
             type="text"
@@ -248,7 +315,7 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
       <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
         {filteredWorkOrders.length === 0 ? (
           <div className="p-6 text-center">
-            <Icon icon="tabler:clipboard-off" className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+            <HugeiconsIcon icon={ClipboardIcon} size={32} className="text-gray-300 mx-auto mb-2" />
             <p className="text-sm text-gray-500">
               {searchQuery || statusFilter !== 'all' ? 'No work orders match your filters' : 'No work orders found'}
             </p>

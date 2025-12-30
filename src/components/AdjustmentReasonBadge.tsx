@@ -1,5 +1,5 @@
 import React from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
 import { AdjustmentReason, ADJUSTMENT_REASON_LABELS } from '@/types/supabase';
 import { getReasonBadgeColor, getReasonIcon } from '@/utils/stock-adjustment-helpers';
 
@@ -26,7 +26,7 @@ export const AdjustmentReasonBadge: React.FC<AdjustmentReasonBadgeProps> = ({
     <span 
       className={`inline-flex items-center gap-1 rounded border font-medium ${colorClass} ${sizeClasses}`}
     >
-      {showIcon && <Icon icon={icon} className={size === 'sm' ? 'w-3 h-3' : 'w-4 h-4'} />}
+      {showIcon && <HugeiconsIcon icon={icon} size={size === 'sm' ? 12 : 16} />}
       {label}
     </span>
   );

@@ -1,5 +1,6 @@
 import React, { useRef, useEffect } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Tick01Icon, Edit01Icon, ArrowDown01Icon } from '@hugeicons/core-free-icons';
 import { cn } from '@/lib/utils';
 // Button import removed as it is no longer used for 'Continue'
 
@@ -102,7 +103,7 @@ export const SectionCard: React.FC<SectionCardProps> = ({
                     <div className="flex items-start justify-between">
                         <div className="flex items-start gap-4 flex-1">
                             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-green-600 flex-shrink-0 mt-0.5">
-                                <Icon icon="mdi:check" width={18} className="stroke-2" />
+                                <HugeiconsIcon icon={Tick01Icon} size={18} className="stroke-2" />
                             </div>
 
                             <div className="flex-1 min-w-0">
@@ -114,7 +115,7 @@ export const SectionCard: React.FC<SectionCardProps> = ({
                         </div>
 
                         <button className="text-gray-400 opacity-0 group-hover:opacity-100 hover:text-purple-600 transition-all p-2 -mr-2">
-                            <Icon icon="mdi:pencil" width={18} />
+                            <HugeiconsIcon icon={Edit01Icon} size={18} />
                         </button>
                     </div>
                 </div>
@@ -154,9 +155,9 @@ export const SectionCard: React.FC<SectionCardProps> = ({
                     </h3>
                 </div>
                 {!isLocked && (
-                    <Icon
-                        icon="mdi:chevron-down"
-                        width={20}
+                    <HugeiconsIcon
+                        icon={ArrowDown01Icon}
+                        size={20}
                         className="text-gray-400 group-hover:text-purple-500"
                     />
                 )}

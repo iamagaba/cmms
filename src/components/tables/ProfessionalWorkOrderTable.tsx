@@ -6,7 +6,8 @@
  */
 
 import React, { useMemo } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { UserIcon, Car01Icon } from '@hugeicons/core-free-icons';
 import dayjs from 'dayjs';
 import ProfessionalDataTable, { TableColumn } from '../ui/ProfessionalDataTable';
 import { WorkOrderStatusBadge, PriorityBadge } from '../ui/ProfessionalBadge';
@@ -196,7 +197,7 @@ const ProfessionalWorkOrderTable: React.FC<ProfessionalWorkOrderTableProps> = ({
         return (
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-steel-500 rounded-full flex items-center justify-center">
-              <Icon icon="tabler:user" className="w-3 h-3 text-white" />
+              <HugeiconsIcon icon={UserIcon} size={12} className="text-white" />
             </div>
             <span className="text-machinery-700 font-medium">
               {technician?.name || 'Unknown'}
@@ -223,7 +224,7 @@ const ProfessionalWorkOrderTable: React.FC<ProfessionalWorkOrderTableProps> = ({
         const vehicle = vehicleMap[value];
         return (
           <div className="flex items-center gap-2">
-            <Icon icon="tabler:car" className="w-4 h-4 text-machinery-500" />
+            <HugeiconsIcon icon={Car01Icon} size={16} className="text-machinery-500" />
             <span className="text-machinery-700">
               {vehicle?.make} {vehicle?.model}
             </span>

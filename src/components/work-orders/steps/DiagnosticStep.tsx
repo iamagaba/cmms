@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { CheckmarkCircle01Icon, AlertCircleIcon, Edit01Icon, NoteIcon } from '@hugeicons/core-free-icons';
 import { Stack, Button, Card } from '@/components/tailwind-components';
 import { DiagnosticTool } from '@/components/diagnostic/DiagnosticTool';
 import { DiagnosticSession } from '@/types/diagnostic';
@@ -47,7 +48,7 @@ export const DiagnosticStep: React.FC<DiagnosticStepProps> = ({
             {/* Diagnostic Summary */}
             <div className="flex items-start gap-3">
               <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Icon icon="mdi:check-circle" className="text-green-600" width={20} height={20} />
+                <HugeiconsIcon icon={CheckmarkCircle01Icon} className="text-green-600" size={20} />
               </div>
               <div className="flex-1">
                 <h4 className="font-semibold text-gray-900 mb-1">Diagnostic Complete</h4>
@@ -67,11 +68,10 @@ export const DiagnosticStep: React.FC<DiagnosticStepProps> = ({
                 : 'bg-yellow-50 border border-yellow-200'
                 }`}>
                 <div className="flex items-center gap-2 mb-1">
-                  <Icon
-                    icon={data.diagnosticSession.solutionSuccessful ? 'mdi:check-circle' : 'mdi:alert-circle'}
+                  <HugeiconsIcon
+                    icon={data.diagnosticSession.solutionSuccessful ? CheckmarkCircle01Icon : AlertCircleIcon}
                     className={data.diagnosticSession.solutionSuccessful ? 'text-green-600' : 'text-yellow-600'}
-                    width={16}
-                    height={16}
+                    size={16}
                   />
                   <span className={`text-sm font-medium ${data.diagnosticSession.solutionSuccessful ? 'text-green-900' : 'text-yellow-900'
                     }`}>
@@ -102,7 +102,7 @@ export const DiagnosticStep: React.FC<DiagnosticStepProps> = ({
               variant="outline"
               size="sm"
               onClick={handleEditDiagnostic}
-              leftSection={<Icon icon="mdi:pencil" width={16} height={16} />}
+              leftSection={<HugeiconsIcon icon={Edit01Icon} size={16} />}
             >
               Edit Diagnostic
             </Button>
@@ -110,7 +110,7 @@ export const DiagnosticStep: React.FC<DiagnosticStepProps> = ({
         </Card>
       ) : (
         <Card p="lg" className="text-center">
-          <Icon icon="mdi:clipboard-text" className="text-gray-400 mx-auto mb-3" width={48} height={48} />
+          <HugeiconsIcon icon={NoteIcon} className="text-gray-400 mx-auto mb-3" size={48} />
           <p className="text-gray-600 mb-4">No diagnostic completed yet</p>
           <Button onClick={() => setShowDiagnostic(true)}>
             Start Diagnostic

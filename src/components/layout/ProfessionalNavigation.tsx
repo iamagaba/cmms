@@ -7,7 +7,17 @@
  */
 
 import React, { forwardRef, useState } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  ArrowRight01Icon, 
+  MoreHorizontalIcon, 
+  ArrowLeft01Icon, 
+  ArrowRight02Icon, 
+  DoubleArrowLeft01Icon, 
+  DoubleArrowRight01Icon, 
+  ArrowDown01Icon, 
+  ArrowUp01Icon 
+} from '@hugeicons/core-free-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import ProfessionalButton from '@/components/ui/ProfessionalButton';
@@ -104,13 +114,14 @@ const ProfessionalBreadcrumb = forwardRef<HTMLNavElement, ProfessionalBreadcrumb
                         className="flex items-center gap-1 px-2 py-1 text-machinery-500 hover:text-machinery-700 hover:bg-machinery-100 rounded transition-colors"
                         title={`Show ${collapsedCount} hidden items`}
                       >
-                        <Icon icon="tabler:dots" className="w-4 h-4" />
+                        <HugeiconsIcon icon={MoreHorizontalIcon} size={16} />
                         <span className="text-xs">+{collapsedCount}</span>
                       </button>
                     </li>
-                    <Icon
-                      icon={separator}
-                      className="w-4 h-4 text-machinery-400"
+                    <HugeiconsIcon
+                      icon={ArrowRight01Icon}
+                      size={16}
+                      className="text-machinery-400"
                     />
                   </>
                 )}
@@ -118,9 +129,10 @@ const ProfessionalBreadcrumb = forwardRef<HTMLNavElement, ProfessionalBreadcrumb
                 <li className="flex items-center">
                   <div className="flex items-center gap-1.5">
                     {item.icon && (
-                      <Icon
+                      <HugeiconsIcon
                         icon={item.icon}
-                        className="w-4 h-4 text-machinery-500"
+                        size={16}
+                        className="text-machinery-500"
                       />
                     )}
                     {item.href && !isLast ? (
@@ -143,9 +155,10 @@ const ProfessionalBreadcrumb = forwardRef<HTMLNavElement, ProfessionalBreadcrumb
                 </li>
 
                 {!isLast && (
-                  <Icon
-                    icon={separator}
-                    className="w-4 h-4 text-machinery-400"
+                  <HugeiconsIcon
+                    icon={ArrowRight01Icon}
+                    size={16}
+                    className="text-machinery-400"
                   />
                 )}
               </React.Fragment>
@@ -288,9 +301,10 @@ const ProfessionalTabs = forwardRef<HTMLDivElement, ProfessionalTabsProps>(
             >
               {/* Icon */}
               {item.icon && (
-                <Icon
+                <HugeiconsIcon
                   icon={item.icon}
-                  className="w-4 h-4 flex-shrink-0"
+                  size={16}
+                  className="flex-shrink-0"
                 />
               )}
 
@@ -502,7 +516,7 @@ const ProfessionalPagination = forwardRef<HTMLDivElement, ProfessionalPagination
             <ProfessionalButton
               variant="ghost"
               size={size}
-              icon="tabler:chevrons-left"
+              icon={DoubleArrowLeft01Icon}
               disabled={currentPage === 1}
               onClick={() => onPageChange(1)}
               className={sizeClasses[size]}
@@ -515,7 +529,7 @@ const ProfessionalPagination = forwardRef<HTMLDivElement, ProfessionalPagination
             <ProfessionalButton
               variant="ghost"
               size={size}
-              icon="tabler:chevron-left"
+              icon={ArrowLeft01Icon}
               disabled={currentPage === 1}
               onClick={() => onPageChange(currentPage - 1)}
               className={sizeClasses[size]}
@@ -548,7 +562,7 @@ const ProfessionalPagination = forwardRef<HTMLDivElement, ProfessionalPagination
             <ProfessionalButton
               variant="ghost"
               size={size}
-              icon="tabler:chevron-right"
+              icon={ArrowRight02Icon}
               disabled={currentPage === totalPages}
               onClick={() => onPageChange(currentPage + 1)}
               className={sizeClasses[size]}
@@ -561,7 +575,7 @@ const ProfessionalPagination = forwardRef<HTMLDivElement, ProfessionalPagination
             <ProfessionalButton
               variant="ghost"
               size={size}
-              icon="tabler:chevrons-right"
+              icon={DoubleArrowRight01Icon}
               disabled={currentPage === totalPages}
               onClick={() => onPageChange(totalPages)}
               className={sizeClasses[size]}
@@ -657,9 +671,9 @@ const ContextualNavigation = forwardRef<HTMLDivElement, ContextualNavigationProp
                 onClick={() => setIsCollapsed(!isCollapsed)}
                 className="p-1 text-machinery-500 hover:text-machinery-700 rounded"
               >
-                <Icon
-                  icon={isCollapsed ? 'tabler:chevron-down' : 'tabler:chevron-up'}
-                  className="w-4 h-4"
+                <HugeiconsIcon
+                  icon={isCollapsed ? ArrowDown01Icon : ArrowUp01Icon}
+                  size={16}
                 />
               </button>
             )}
@@ -693,9 +707,10 @@ const ContextualNavigation = forwardRef<HTMLDivElement, ContextualNavigationProp
                     )}
                   >
                     {item.icon && (
-                      <Icon
+                      <HugeiconsIcon
                         icon={item.icon}
-                        className="w-4 h-4 flex-shrink-0"
+                        size={16}
+                        className="flex-shrink-0"
                       />
                     )}
                     <span className="truncate">{item.label}</span>

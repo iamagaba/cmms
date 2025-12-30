@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Add01Icon,
+  PackageIcon,
+  ArrowUp01Icon,
+  ArrowDown01Icon,
+  Delete01Icon,
+  Clock01Icon,
+  CheckmarkCircle01Icon,
+  Loading01Icon
+} from '@hugeicons/core-free-icons';
 import { WorkOrder, WorkOrderPart } from '@/types/supabase';
 
 interface WorkOrderCostSummaryCardProps {
@@ -58,7 +68,7 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
             onClick={() => setIsAddPartDialogOpen(true)}
             className="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
           >
-            <Icon icon="tabler:plus" className="w-3 h-3" />
+            <HugeiconsIcon icon={Add01Icon} size={12} />
             Add
           </button>
         )}
@@ -73,7 +83,7 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
           >
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 rounded bg-blue-100 flex items-center justify-center">
-                <Icon icon="tabler:package" className="w-3 h-3 text-blue-600" />
+                <HugeiconsIcon icon={PackageIcon} size={12} className="text-blue-600" />
               </div>
               <div className="text-left">
                 <p className="text-xs font-medium text-gray-900">Parts ({usedParts.length})</p>
@@ -81,7 +91,7 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
             </div>
             <div className="flex items-center gap-2">
               <span className="text-xs font-semibold text-gray-900">{formatCurrency(partsCost)}</span>
-              <Icon icon={showParts ? "tabler:chevron-up" : "tabler:chevron-down"} className="w-3 h-3 text-gray-400" />
+              <HugeiconsIcon icon={showParts ? ArrowUp01Icon : ArrowDown01Icon} size={12} className="text-gray-400" />
             </div>
           </button>
 
@@ -90,7 +100,7 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
             <div className="mt-1.5 space-y-1 max-h-40 overflow-y-auto">
               {usedParts.length === 0 ? (
                 <div className="text-center py-3 bg-gray-50 rounded">
-                  <Icon icon="tabler:package-off" className="w-6 h-6 text-gray-300 mx-auto mb-1" />
+                  <HugeiconsIcon icon={PackageIcon} size={24} className="text-gray-300 mx-auto mb-1" />
                   <p className="text-xs text-gray-400">No parts added yet</p>
                 </div>
               ) : (
@@ -114,7 +124,7 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
                             onClick={() => handleRemovePart(part.id)}
                             className="opacity-0 group-hover:opacity-100 p-0.5 text-gray-400 hover:text-red-500 transition-opacity"
                           >
-                            <Icon icon="tabler:trash" className="w-3 h-3" />
+                            <HugeiconsIcon icon={Delete01Icon} size={12} />
                           </button>
                         )}
                       </div>
@@ -130,14 +140,14 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
         <div className="flex items-center justify-between px-2 py-1.5 bg-orange-50 rounded">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded bg-orange-100 flex items-center justify-center">
-              <Icon icon="tabler:clock" className="w-3 h-3 text-orange-600" />
+              <HugeiconsIcon icon={Clock01Icon} size={12} className="text-orange-600" />
             </div>
             <div>
               <p className="text-xs font-medium text-gray-900">Labor</p>
               <p className="text-xs text-gray-500">
-                {actualLaborHours > 0 
-                  ? `${formatHours(actualLaborHours)} @ ${laborRate}/hr` 
-                  : estimatedHours > 0 
+                {actualLaborHours > 0
+                  ? `${formatHours(actualLaborHours)} @ ${laborRate}/hr`
+                  : estimatedHours > 0
                     ? `${formatHours(estimatedHours)} est.`
                     : 'Not estimated'
                 }
@@ -168,12 +178,12 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
         {/* Status Badge */}
         {workOrder.status === 'Completed' ? (
           <div className="bg-emerald-50 border border-emerald-200 rounded px-2 py-1 flex items-center gap-1.5">
-            <Icon icon="tabler:circle-check" className="w-3 h-3 text-emerald-600" />
+            <HugeiconsIcon icon={CheckmarkCircle01Icon} size={12} className="text-emerald-600" />
             <span className="text-xs text-emerald-700">Completed - Final cost</span>
           </div>
         ) : workOrder.status === 'In Progress' ? (
           <div className="bg-orange-50 border border-orange-200 rounded px-2 py-1 flex items-center gap-1.5">
-            <Icon icon="tabler:progress" className="w-3 h-3 text-orange-600" />
+            <HugeiconsIcon icon={Loading01Icon} size={12} className="text-orange-600" />
             <span className="text-xs text-orange-700">In progress - Cost updating</span>
           </div>
         ) : null}

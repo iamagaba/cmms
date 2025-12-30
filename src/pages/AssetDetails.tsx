@@ -1,7 +1,23 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  ClipboardIcon,
+  Edit01Icon,
+  Motorbike01Icon,
+  InformationCircleIcon,
+  LockIcon,
+  UserCircleIcon,
+  Call02Icon,
+  ArrowRight01Icon,
+  Clock01Icon,
+  Alert01Icon,
+  CheckmarkCircle01Icon,
+  TimelineIcon,
+  Add01Icon,
+  AlertCircleIcon
+} from '@hugeicons/core-free-icons';
 import { Stack, Button, Skeleton, Tabs } from '@/components/tailwind-components';
 import { supabase } from '@/integrations/supabase/client';
 import { Vehicle, Customer, WorkOrder } from '@/types/supabase';
@@ -72,7 +88,7 @@ const AssetDetails = () => {
     return (
       <div className="w-full px-6 py-6">
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-8 text-center">
-          <Icon icon="mdi:alert-circle" className="mx-auto text-gray-400 dark:text-gray-500 mb-4" width={64} />
+          <HugeiconsIcon icon={Alert01Icon} className="mx-auto text-gray-400 dark:text-gray-500 mb-4" size={64} />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Asset Not Found</h3>
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">The asset you're looking for doesn't exist.</p>
           <Button onClick={() => navigate('/assets')}>Back to Assets</Button>
@@ -83,7 +99,6 @@ const AssetDetails = () => {
 
   const statusColors = {
     'Normal': 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800',
-    'Available': 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800',
     'In Repair': 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800',
     'Decommissioned': 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
   };
@@ -98,7 +113,7 @@ const AssetDetails = () => {
         onClick={() => navigate(`/work-orders?vehicle=${id}`)}
         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
       >
-        <Icon icon="tabler:clipboard-list" width={16} />
+        <HugeiconsIcon icon={ClipboardIcon} size={16} />
         <span className="hidden sm:inline">View Work Orders</span>
         <span className="sm:hidden">Work Orders</span>
       </button>
@@ -106,7 +121,7 @@ const AssetDetails = () => {
         onClick={() => setIsEditDialogOpen(true)}
         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
       >
-        <Icon icon="tabler:edit" width={16} />
+        <HugeiconsIcon icon={Edit01Icon} size={16} />
         <span className="hidden sm:inline">Edit Asset</span>
         <span className="sm:hidden">Edit</span>
       </button>
@@ -131,7 +146,7 @@ const AssetDetails = () => {
           {/* Vehicle Title Section */}
           <div className="flex items-start gap-4 pb-3 border-b border-gray-200 dark:border-gray-700">
             <div className="w-14 h-14 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
-              <Icon icon="tabler:motorbike" className="w-7 h-7 text-primary-600 dark:text-primary-400" />
+              <HugeiconsIcon icon={Motorbike01Icon} className="w-7 h-7 text-primary-600 dark:text-primary-400" />
             </div>
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{vehicle.license_plate}</h1>
@@ -142,13 +157,13 @@ const AssetDetails = () => {
                 </span>
                 {vehicle.is_emergency_bike && (
                   <span className="px-2.5 py-1 rounded text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800">
-                    <Icon icon="tabler:lifebuoy" width={12} className="inline mr-1" />
+                    <HugeiconsIcon icon={InformationCircleIcon} size={12} className="inline mr-1" />
                     Emergency Bike
                   </span>
                 )}
                 {vehicle.warranty_end_date && dayjs(vehicle.warranty_end_date).isAfter(dayjs()) && (
                   <span className="px-2.5 py-1 rounded text-xs font-medium bg-purple-100 text-purple-700 border border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800">
-                    <Icon icon="tabler:shield-check" width={12} className="inline mr-1" />
+                    <HugeiconsIcon icon={LockIcon} size={12} className="inline mr-1" />
                     Under Warranty
                   </span>
                 )}
@@ -162,7 +177,7 @@ const AssetDetails = () => {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                  <Icon icon="tabler:user-circle" width={18} className="text-gray-600 dark:text-gray-400" />
+                  <HugeiconsIcon icon={UserCircleIcon} size={18} className="text-gray-600 dark:text-gray-400" />
                   Owner Information
                 </h3>
                 {vehicle.customers?.phone && (
@@ -170,7 +185,7 @@ const AssetDetails = () => {
                     href={`tel:${vehicle.customers.phone}`}
                     className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
                   >
-                    <Icon icon="tabler:phone" width={14} />
+                    <HugeiconsIcon icon={Call02Icon} size={14} />
                     Call
                   </a>
                 )}
@@ -198,7 +213,7 @@ const AssetDetails = () => {
             {/* Vehicle Specifications */}
             <div>
               <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
-                <Icon icon="tabler:info-circle" width={18} className="text-gray-600 dark:text-gray-400" />
+                <HugeiconsIcon icon={InformationCircleIcon} size={18} className="text-gray-600 dark:text-gray-400" />
                 Vehicle Specifications
               </h3>
               <div className="grid grid-cols-2 gap-2">
@@ -261,11 +276,11 @@ const AssetDetails = () => {
                 <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{totalWorkOrders}</p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
-                <Icon icon="tabler:clipboard-list" className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                <HugeiconsIcon icon={ClipboardIcon} className="w-6 h-6 text-blue-600 dark:text-blue-400" />
               </div>
             </div>
             <div className="mt-3 flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
-              <Icon icon="tabler:arrow-right" className="w-3 h-3" />
+              <HugeiconsIcon icon={ArrowRight01Icon} className="w-3 h-3" />
               <span>View all</span>
             </div>
           </div>
@@ -277,12 +292,12 @@ const AssetDetails = () => {
                 <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{openWorkOrders}</p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center">
-                <Icon icon="tabler:clock" className="w-6 h-6 text-amber-600 dark:text-amber-400" />
+                <HugeiconsIcon icon={Clock01Icon} className="w-6 h-6 text-amber-600 dark:text-amber-400" />
               </div>
             </div>
             {openWorkOrders > 0 && (
               <div className="mt-3 flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
-                <Icon icon="tabler:alert-circle" className="w-3 h-3" />
+                <HugeiconsIcon icon={Alert01Icon} className="w-3 h-3" />
                 <span>Needs attention</span>
               </div>
             )}
@@ -299,7 +314,7 @@ const AssetDetails = () => {
                 </div>
               </div>
               <div className="w-12 h-12 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center">
-                <Icon icon="tabler:circle-check" className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                <HugeiconsIcon icon={CheckmarkCircle01Icon} className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
               </div>
             </div>
           </div>
@@ -313,7 +328,7 @@ const AssetDetails = () => {
                 </p>
               </div>
               <div className="w-12 h-12 rounded-lg bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center">
-                <Icon icon="tabler:shield-check" className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                <HugeiconsIcon icon={LockIcon} className="w-6 h-6 text-purple-600 dark:text-purple-400" />
               </div>
             </div>
             {vehicle.warranty_end_date && dayjs(vehicle.warranty_end_date).isAfter(dayjs()) && (
@@ -328,7 +343,7 @@ const AssetDetails = () => {
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-              <Icon icon="tabler:history" width={18} className="text-gray-600 dark:text-gray-400" />
+              <HugeiconsIcon icon={TimelineIcon} size={18} className="text-gray-600 dark:text-gray-400" />
               Service History
             </h3>
             <button
@@ -336,13 +351,13 @@ const AssetDetails = () => {
               className="inline-flex items-center gap-1 text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors"
             >
               View All
-              <Icon icon="tabler:arrow-right" width={14} />
+              <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
             </button>
           </div>
           {recentWorkOrders.length === 0 ? (
             <div className="text-center py-12">
               <div className="w-16 h-16 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-3">
-                <Icon icon="tabler:clipboard-off" className="text-gray-400 dark:text-gray-500" width={32} />
+                <HugeiconsIcon icon={ClipboardIcon} className="text-gray-400 dark:text-gray-500" size={32} />
               </div>
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No service history</p>
               <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">This vehicle hasn't had any work orders yet</p>
@@ -350,7 +365,7 @@ const AssetDetails = () => {
                 onClick={() => navigate(`/work-orders/new?vehicle=${id}`)}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
               >
-                <Icon icon="tabler:plus" width={14} />
+                <HugeiconsIcon icon={Add01Icon} size={14} />
                 Create First Work Order
               </button>
             </div>
@@ -444,7 +459,7 @@ const AssetDetails = () => {
         {vehicle.warranty_end_date && (
           <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
             <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-              <Icon icon="tabler:shield-check" width={18} className="text-gray-600 dark:text-gray-400" />
+              <HugeiconsIcon icon={LockIcon} size={18} className="text-gray-600 dark:text-gray-400" />
               Warranty Information
             </h3>
             <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
@@ -453,12 +468,12 @@ const AssetDetails = () => {
                 <div className="text-sm font-semibold">
                   {dayjs(vehicle.warranty_end_date).isAfter(dayjs()) ? (
                     <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                      <Icon icon="tabler:circle-check" width={16} />
+                      <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} />
                       Active
                     </span>
                   ) : (
                     <span className="text-red-600 dark:text-red-400 flex items-center gap-1">
-                      <Icon icon="tabler:circle-x" width={16} />
+                      <HugeiconsIcon icon={AlertCircleIcon} size={16} />
                       Expired
                     </span>
                   )}

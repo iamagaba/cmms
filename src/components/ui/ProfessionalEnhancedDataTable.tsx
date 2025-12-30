@@ -6,8 +6,25 @@
  * responsive design, and comprehensive accessibility support.
  * 
  * Features:
- * - Maintenance workflow optimio, useCallback } from 'react';
-import { Icon } from '@iconify/react';
+ * - Maintenance workflow optimization
+ * - Advanced filtering and search
+ * - Bulk operations support
+ * - Export functionality
+ * - Responsive design
+ */
+
+import React, { useState, useMemo, useCallback } from 'react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  ArrowUp01Icon,
+  ArrowDown01Icon,
+  ArrowRight01Icon,
+  Cancel01Icon,
+  Download01Icon,
+  AlertCircleIcon,
+  RefreshIcon,
+  Search01Icon
+} from '@hugeicons/core-free-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import ProfessionalDataTable, { TableColumn, TableProps } from './ProfessionalDataTable';
@@ -136,7 +153,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
           <ProfessionalButton
             variant="ghost"
             size="sm"
-            icon={isExpanded ? "tabler:chevron-up" : "tabler:chevron-down"}
+            icon={isExpanded ? ArrowUp01Icon : ArrowDown01Icon}
             onClick={() => setIsExpanded(!isExpanded)}
           >
             Filters
@@ -151,7 +168,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
             <ProfessionalButton
               variant="ghost"
               size="sm"
-              icon="tabler:x"
+              icon={Cancel01Icon}
               onClick={onClearFilters}
             >
               Clear all
@@ -298,7 +315,7 @@ const BulkActionsBar = <T,>({
         <ProfessionalButton
           variant="ghost"
           size="sm"
-          icon="tabler:x"
+          icon={Cancel01Icon}
           onClick={onClearSelection}
         >
           Clear selection
@@ -326,7 +343,7 @@ const ExportMenu = <T,>({ exportOptions, data, onExport }: ExportMenuProps<T>) =
       <ProfessionalButton
         variant="outline"
         size="sm"
-        icon="tabler:download"
+        icon={Download01Icon}
         onClick={() => setIsOpen(!isOpen)}
       >
         Export
@@ -349,7 +366,7 @@ const ExportMenu = <T,>({ exportOptions, data, onExport }: ExportMenuProps<T>) =
                 }}
                 className="w-full px-4 py-2 text-left text-sm text-machinery-700 hover:bg-machinery-50 flex items-center gap-3 transition-colors"
               >
-                <Icon icon={option.icon} className="w-4 h-4" />
+                <HugeiconsIcon icon={option.icon} size={16} />
                 {option.label}
               </button>
             ))}
@@ -378,13 +395,13 @@ interface ErrorStateProps {
 
 const ErrorState: React.FC<ErrorStateProps> = ({ error, onRetry }) => (
   <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-    <Icon icon="tabler:alert-circle" className="w-12 h-12 text-warning-500 mx-auto mb-4" />
+    <HugeiconsIcon icon={AlertCircleIcon} size={48} className="text-warning-500 mx-auto mb-4" />
     <h3 className="text-lg font-semibold text-machinery-900 mb-2">Error Loading Data</h3>
     <p className="text-machinery-600 mb-4">{error}</p>
     {onRetry && (
       <ProfessionalButton
         variant="primary"
-        icon="tabler:refresh"
+        icon={RefreshIcon}
         onClick={onRetry}
       >
         Try Again
@@ -582,9 +599,10 @@ const ProfessionalEnhancedDataTable = <T extends Record<string, any>>({
               className="p-1 hover:bg-machinery-100 rounded transition-colors"
               aria-label={isExpanded ? 'Collapse row' : 'Expand row'}
             >
-              <Icon
-                icon={isExpanded ? "tabler:chevron-down" : "tabler:chevron-right"}
-                className="w-4 h-4 text-machinery-500"
+              <HugeiconsIcon
+                icon={isExpanded ? ArrowDown01Icon : ArrowRight01Icon}
+                size={16}
+                className="text-machinery-500"
               />
             </button>
           );
@@ -638,7 +656,7 @@ const ProfessionalEnhancedDataTable = <T extends Record<string, any>>({
         <div className="flex items-center justify-between p-4 border-b border-machinery-200 bg-white">
           {searchable && (
             <ProfessionalInput
-              icon="tabler:search"
+              icon={Search01Icon}
               placeholder={searchPlaceholder}
               value={searchValue}
               onChange={(e) => handleSearch(e.target.value)}

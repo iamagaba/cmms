@@ -7,7 +7,7 @@
  */
 
 import React, { forwardRef } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -291,8 +291,9 @@ const ProfessionalBadge = forwardRef<HTMLSpanElement, ProfessionalBadgeProps>(
 
         {/* Icon */}
         {icon && (
-          <Icon 
+          <HugeiconsIcon 
             icon={icon} 
+            size={16}
             className={cn(
               'flex-shrink-0',
               size === 'xs' ? 'w-3 h-3' : 'w-4 h-4'

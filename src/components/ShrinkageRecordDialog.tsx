@@ -1,10 +1,21 @@
 import React, { useState } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  Cancel01Icon,
+  Alert01Icon,
+  Shield01Icon,
+  Clock01Icon,
+  CloudIcon,
+  InformationCircleIcon,
+  MoreHorizontalIcon,
+  Loading03Icon
+} from '@hugeicons/core-free-icons';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { InventoryItem, LossType, LOSS_TYPE_LABELS } from '@/types/supabase';
 import { useCreateShrinkageRecord } from '@/hooks/useInventoryTransactions';
 import { snakeToCamelCase } from '@/utils/data-helpers';
+import type { IconSvgObject } from '@hugeicons/core-free-icons';
 
 interface ShrinkageRecordDialogProps {
   isOpen: boolean;
@@ -15,13 +26,13 @@ interface ShrinkageRecordDialogProps {
 
 const LOSS_TYPES: LossType[] = ['theft', 'damage', 'expired', 'spoilage', 'unknown', 'other'];
 
-const LOSS_TYPE_ICONS: Record<LossType, string> = {
-  theft: 'tabler:shield-off',
-  damage: 'tabler:alert-triangle',
-  expired: 'tabler:clock-off',
-  spoilage: 'tabler:droplet-off',
-  unknown: 'tabler:question-mark',
-  other: 'tabler:dots',
+const LOSS_TYPE_ICONS: Record<LossType, IconSvgObject> = {
+  theft: Shield01Icon,
+  damage: Alert01Icon,
+  expired: Clock01Icon,
+  spoilage: CloudIcon,
+  unknown: InformationCircleIcon,
+  other: MoreHorizontalIcon,
 };
 
 const LOSS_TYPE_COLORS: Record<LossType, string> = {
@@ -100,7 +111,7 @@ export const ShrinkageRecordDialog: React.FC<ShrinkageRecordDialogProps> = ({
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-              <Icon icon="tabler:alert-triangle" className="w-5 h-5 text-red-600 dark:text-red-400" />
+              <HugeiconsIcon icon={Alert01Icon} size={20} className="text-red-600 dark:text-red-400" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Record Shrinkage</h2>
@@ -108,7 +119,7 @@ export const ShrinkageRecordDialog: React.FC<ShrinkageRecordDialogProps> = ({
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-            <Icon icon="tabler:x" className="w-5 h-5 text-gray-500" />
+            <HugeiconsIcon icon={Cancel01Icon} size={20} className="text-gray-500" />
           </button>
         </div>
 
@@ -150,7 +161,7 @@ export const ShrinkageRecordDialog: React.FC<ShrinkageRecordDialogProps> = ({
                         : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
                     }`}
                   >
-                    <Icon icon={LOSS_TYPE_ICONS[type]} className="w-4 h-4" />
+                    <HugeiconsIcon icon={LOSS_TYPE_ICONS[type]} size={16} />
                     {LOSS_TYPE_LABELS[type]}
                   </button>
                 ))}
@@ -228,7 +239,7 @@ export const ShrinkageRecordDialog: React.FC<ShrinkageRecordDialogProps> = ({
               disabled={!selectedItemId || quantityLost <= 0 || createShrinkage.isPending}
               className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              {createShrinkage.isPending && <Icon icon="tabler:loader-2" className="w-4 h-4 animate-spin" />}
+              {createShrinkage.isPending && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin" />}
               Record Shrinkage
             </button>
           </div>

@@ -1,7 +1,14 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  Search01Icon,
+  Add01Icon,
+  Folder01Icon,
+  Edit01Icon,
+  Delete01Icon
+} from '@hugeicons/core-free-icons';
 import { getQuestions, getCategories, deleteQuestion } from '@/api/diagnosticConfigApi';
 import { DiagnosticQuestionRow, DiagnosticCategoryRow } from '@/types/diagnostic';
 import { showSuccess, showError } from '@/utils/toast';
@@ -74,7 +81,7 @@ const QuestionTreeView = ({
             <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center bg-gray-50 dark:bg-gray-800/50 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div className="flex flex-1 gap-4 w-full md:w-auto">
                     <div className="relative flex-1 md:max-w-xs">
-                        <Icon icon="tabler:search" className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
+                        <HugeiconsIcon icon={Search01Icon} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
                         <input
                             type="text"
                             placeholder="Search questions..."
@@ -102,7 +109,7 @@ const QuestionTreeView = ({
                     className="flex items-center gap-2 px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium whitespace-nowrap"
                     onClick={handleCreate}
                 >
-                    <Icon icon="tabler:plus" className="w-4 h-4" />
+                    <HugeiconsIcon icon={Add01Icon} size={16} />
                     New Question
                 </button>
             </div>
@@ -123,7 +130,7 @@ const QuestionTreeView = ({
                                             {q.question_id}
                                         </span>
                                         <span className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                                            <Icon icon="tabler:folder" className="w-3 h-3" />
+                                            <HugeiconsIcon icon={Folder01Icon} size={12} />
                                             {getCategoryName(q.category_id)}
                                         </span>
                                         {!q.is_active && (
@@ -141,13 +148,13 @@ const QuestionTreeView = ({
                                         className="p-1.5 text-gray-500 hover:text-primary-600 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
                                         onClick={() => handleEdit(q)}
                                     >
-                                        <Icon icon="tabler:pencil" className="w-4 h-4" />
+                                        <HugeiconsIcon icon={Edit01Icon} size={16} />
                                     </button>
                                     <button
                                         className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-gray-100 dark:hover:bg-gray-800 rounded"
                                         onClick={() => handleDelete(q.id)}
                                     >
-                                        <Icon icon="tabler:trash" className="w-4 h-4" />
+                                        <HugeiconsIcon icon={Delete01Icon} size={16} />
                                     </button>
                                 </div>
                             </div>

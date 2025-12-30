@@ -7,7 +7,8 @@
  */
 
 import React, { forwardRef } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowUp01Icon, ArrowDown01Icon } from '@hugeicons/core-free-icons';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -330,7 +331,7 @@ const ProfessionalCard = forwardRef<HTMLDivElement, ProfessionalCardProps>(
             <div className="flex items-start gap-3 flex-1 min-w-0">
               {icon && (
                 <div className="flex-shrink-0 mt-0.5">
-                  <Icon icon={icon} className="w-5 h-5 text-machinery-500 dark:text-gray-400" />
+                  <HugeiconsIcon icon={icon} size={20} className="text-machinery-500 dark:text-gray-400" />
                 </div>
               )}
               <div className="flex-1 min-w-0">
@@ -486,7 +487,7 @@ const MetricCard = forwardRef<HTMLDivElement, MetricCardProps>(
               'flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center',
               themeConfig.bg
             )}>
-              <Icon icon={icon} className={cn('w-6 h-6', themeConfig.icon)} />
+              <HugeiconsIcon icon={icon} size={24} className={cn('w-6 h-6', themeConfig.icon)} />
             </div>
           )}
         </div>
@@ -532,8 +533,9 @@ const DataCard = forwardRef<HTMLDivElement, DataCardProps>(
               <div className="flex items-center justify-between py-2">
                 <div className="flex items-center gap-3">
                   {item.icon && (
-                    <Icon
+                    <HugeiconsIcon
                       icon={item.icon}
+                      size={16}
                       className={cn(
                         'w-4 h-4',
                         item.color || 'text-machinery-500'
@@ -594,7 +596,7 @@ const ActionCard = forwardRef<HTMLDivElement, ActionCardProps>(
             'w-16 h-16 mx-auto rounded-full flex items-center justify-center mb-4',
             themeConfig.bg
           )}>
-            <Icon icon={icon} className={cn('w-8 h-8', themeConfig.icon)} />
+            <HugeiconsIcon icon={icon} size={32} className={cn('w-8 h-8', themeConfig.icon)} />
           </div>
         )}
         
@@ -632,7 +634,7 @@ const ActionCard = forwardRef<HTMLDivElement, ActionCardProps>(
                   className="w-4 h-4 border-2 border-current border-t-transparent rounded-full"
                 />
               ) : primaryAction.icon ? (
-                <Icon icon={primaryAction.icon} className="w-4 h-4" />
+                <HugeiconsIcon icon={primaryAction.icon} size={16} />
               ) : null}
               {primaryAction.label}
             </button>
@@ -650,7 +652,7 @@ const ActionCard = forwardRef<HTMLDivElement, ActionCardProps>(
               )}
             >
               {secondaryAction.icon && (
-                <Icon icon={secondaryAction.icon} className="w-4 h-4" />
+                <HugeiconsIcon icon={secondaryAction.icon} size={16} />
               )}
               {secondaryAction.label}
             </button>

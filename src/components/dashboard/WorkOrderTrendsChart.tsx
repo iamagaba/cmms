@@ -1,7 +1,8 @@
 
 import React from 'react';
 import ReactECharts from 'echarts-for-react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { TimelineIcon } from '@hugeicons/core-free-icons';
 
 export const WorkOrderTrendsChart = ({ data }: { data: any[] }) => {
     const getOption = () => ({
@@ -64,7 +65,7 @@ export const WorkOrderTrendsChart = ({ data }: { data: any[] }) => {
             {/* Header */}
             <div className="px-6 py-4 border-b border-gray-200">
                 <div className="flex items-center gap-2">
-                    <Icon icon="tabler:chart-line" className="w-4 h-4 text-gray-500" />
+                    <HugeiconsIcon icon={TimelineIcon} size={16} className="text-gray-500" />
                     <div>
                         <h3 className="text-sm font-semibold text-gray-900">Work Order Trends</h3>
                         <p className="text-xs text-gray-500 mt-0.5">Last 7 days activity</p>

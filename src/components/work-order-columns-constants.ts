@@ -3,7 +3,7 @@ export const REQUIRED_COLUMNS = ['workOrderNumber', 'vehicleCustomer', 'status',
 
 // Optional columns that users can toggle on/off
 export const OPTIONAL_COLUMNS = [
-  { label: 'Service', value: 'service' },
+  { label: 'Issue', value: 'service' },
   { label: 'Priority', value: 'priority' },
   { label: 'Technician', value: 'technician' },
   { label: 'Scheduled Date', value: 'scheduledDate' },
@@ -17,7 +17,7 @@ export const OPTIONAL_COLUMNS = [
 export const ALL_COLUMNS = [
   { label: 'Work Order #', value: 'workOrderNumber', required: true },
   { label: 'Vehicle / Customer', value: 'vehicleCustomer', required: true },
-  { label: 'Service', value: 'service', required: false },
+  { label: 'Issue', value: 'service', required: false },
   { label: 'Status', value: 'status', required: true },
   { label: 'Priority', value: 'priority', required: false },
   { label: 'Technician', value: 'technician', required: false },

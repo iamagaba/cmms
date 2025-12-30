@@ -7,7 +7,8 @@
  */
 
 import React, { useState, useMemo } from "react";
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowRight01Icon } from '@hugeicons/core-free-icons';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { WorkOrder, Location, Customer, Vehicle, Profile } from "@/types/supabase";
@@ -450,7 +451,7 @@ const ImprovedDashboard = () => {
                         className="text-sm font-medium text-gray-700 hover:text-gray-900 flex items-center gap-1 transition-colors"
                       >
                         View all
-                        <Icon icon="tabler:arrow-right" className="w-4 h-4" />
+                        <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
                       </button>
                     </div>
                   </div>

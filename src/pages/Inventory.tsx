@@ -1,5 +1,20 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  AlertCircleIcon,
+  RefreshIcon,
+  Search01Icon,
+  Settings02Icon,
+  PlusMinusIcon,
+  ArrowDataTransferHorizontalIcon,
+  BarChartIcon,
+  FileIcon,
+  Add01Icon,
+  PackageIcon,
+  Edit01Icon,
+  Delete01Icon,
+  Store01Icon
+} from '@hugeicons/core-free-icons';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,11 +31,11 @@ import { InventoryTransactionsPanel } from '@/components/InventoryTransactionsPa
 import { InventoryPartsUsagePanel } from '@/components/InventoryPartsUsagePanel';
 import { PartsUsageAnalyticsPanel } from '@/components/PartsUsageAnalyticsPanel';
 import { useSuppliers } from '@/hooks/useSuppliers';
-import { 
-  formatStorageLocation, 
-  formatQuantityWithUnit, 
+import {
+  formatStorageLocation,
+  formatQuantityWithUnit,
   getUniqueWarehouses,
-  ALL_CATEGORIES 
+  ALL_CATEGORIES
 } from '@/utils/inventory-categorization-helpers';
 import { ITEM_CATEGORY_LABELS } from '@/types/supabase';
 
@@ -48,19 +63,19 @@ const InventoryPage: React.FC = () => {
   const [itemToDelete, setItemToDelete] = useState<InventoryItem | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  
+
   // Stock Adjustment Dialog State
   const [adjustmentDialogOpen, setAdjustmentDialogOpen] = useState(false);
   const [adjustmentPreselectedItem, setAdjustmentPreselectedItem] = useState<InventoryItem | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [showWorkOrderUsage, setShowWorkOrderUsage] = useState(false);
-  
+
   // Transactions Panel State
   const [transactionsPanelOpen, setTransactionsPanelOpen] = useState(false);
-  
+
   // Analytics Panel State
   const [analyticsPanelOpen, setAnalyticsPanelOpen] = useState(false);
-  
+
   const [filters, setFilters] = useState<InventoryFilters>({
     stockStatus: 'all',
     category: 'all',
@@ -132,17 +147,7 @@ const InventoryPage: React.FC = () => {
   });
 
   // Statistics
-  const stats = useMemo(() => {
-    if (!inventoryItems) return { total: 0, inStock: 0, lowStock: 0, outOfStock: 0, totalValue: 0 };
 
-    const total = inventoryItems.length;
-    const outOfStock = inventoryItems.filter(i => (i.quantity_on_hand ?? 0) === 0).length;
-    const lowStock = inventoryItems.filter(i => (i.quantity_on_hand ?? 0) > 0 && (i.quantity_on_hand ?? 0) <= (i.reorder_level ?? 0)).length;
-    const inStock = inventoryItems.filter(i => (i.quantity_on_hand ?? 0) > (i.reorder_level ?? 0)).length;
-    const totalValue = inventoryItems.reduce((sum, i) => sum + ((i.quantity_on_hand ?? 0) * (i.unit_price ?? 0)), 0);
-
-    return { total, inStock, lowStock, outOfStock, totalValue };
-  }, [inventoryItems]);
   const filteredItems = useMemo(() => {
     if (!inventoryItems) return [];
     let filtered = [...inventoryItems];
@@ -313,7 +318,7 @@ const InventoryPage: React.FC = () => {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-              <Icon icon="tabler:alert-triangle" className="w-8 h-8 text-red-600" />
+              <HugeiconsIcon icon={AlertCircleIcon} size={32} className=" text-red-600" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Inventory</h3>
             <p className="text-sm text-gray-600 mb-4 max-w-md mx-auto">
@@ -323,7 +328,7 @@ const InventoryPage: React.FC = () => {
               onClick={() => refetch()}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors"
             >
-              <Icon icon="tabler:refresh" className="w-4 h-4" />
+              <HugeiconsIcon icon={RefreshIcon} size={16} className="" />
               Try Again
             </button>
           </div>
@@ -340,31 +345,8 @@ const InventoryPage: React.FC = () => {
         {/* Header with Stat Ribbon */}
         <div className="border-b border-gray-200 dark:border-gray-800">
           {/* Page Title */}
-          <div className="p-4 pb-3">
+          <div className="p-4 pb-4">
             <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Inventory</h1>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Parts, supplies, and stock levels</p>
-          </div>
-
-          {/* Stat Ribbon - Enterprise Design */}
-          <div className="bg-white dark:bg-gray-900 border-y border-gray-200 dark:border-gray-800">
-            <div className="grid grid-cols-4 divide-x divide-gray-200 dark:divide-gray-800">
-              <div className="px-4 py-2.5 flex items-center justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Total</span>
-                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{stats.total ?? 0}</span>
-              </div>
-              <div className="px-4 py-2.5 flex items-center justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">In Stock</span>
-                <span className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">{stats.inStock ?? 0}</span>
-              </div>
-              <div className="px-4 py-2.5 flex items-center justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Low</span>
-                <span className="text-sm font-semibold text-orange-700 dark:text-orange-400">{stats.lowStock ?? 0}</span>
-              </div>
-              <div className="px-4 py-2.5 flex items-center justify-between">
-                <span className="text-xs text-gray-500 dark:text-gray-400">Out</span>
-                <span className="text-sm font-semibold text-red-700 dark:text-red-400">{stats.outOfStock ?? 0}</span>
-              </div>
-            </div>
           </div>
 
           {/* Search */}
@@ -373,7 +355,7 @@ const InventoryPage: React.FC = () => {
               placeholder="Search inventory..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              leftIcon={<Icon icon="tabler:search" className="w-3.5 h-3.5 text-gray-400" />}
+              leftIcon={<HugeiconsIcon icon={Search01Icon} size={16} className=" text-gray-400" />}
             />
           </div>
 
@@ -387,10 +369,12 @@ const InventoryPage: React.FC = () => {
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700'
                   }`}
               >
-                <Icon icon="tabler:adjustments-horizontal" className="w-3.5 h-3.5" />
+                <HugeiconsIcon icon={Settings02Icon} size={16} className="" />
                 Filters
                 {hasActiveFilters && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-purple-600" />
+                  <span className="inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-purple-600 text-white text-[10px] font-semibold">
+                    {[searchTerm, filters.stockStatus !== 'all', filters.category !== 'all', filters.categories.length > 0, filters.supplierId !== 'all', filters.warehouse !== 'all'].filter(Boolean).length}
+                  </span>
                 )}
               </button>
               <button
@@ -398,7 +382,7 @@ const InventoryPage: React.FC = () => {
                 className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md transition-colors"
                 title="Adjust Stock"
               >
-                <Icon icon="tabler:plus-minus" className="w-3.5 h-3.5" />
+                <HugeiconsIcon icon={PlusMinusIcon} size={16} className="" />
                 Adjust
               </button>
               <button
@@ -406,7 +390,7 @@ const InventoryPage: React.FC = () => {
                 className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md transition-colors"
                 title="Inventory Transactions"
               >
-                <Icon icon="tabler:arrows-exchange" className="w-3.5 h-3.5" />
+                <HugeiconsIcon icon={ArrowDataTransferHorizontalIcon} size={16} className="" />
                 Transactions
               </button>
               <button
@@ -414,7 +398,7 @@ const InventoryPage: React.FC = () => {
                 className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md transition-colors"
                 title="Parts Usage Analytics"
               >
-                <Icon icon="tabler:chart-bar" className="w-3.5 h-3.5" />
+                <HugeiconsIcon icon={BarChartIcon} size={16} className="" />
                 Analytics
               </button>
               <Link
@@ -422,7 +406,7 @@ const InventoryPage: React.FC = () => {
                 className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md transition-colors"
                 title="Inventory Reports"
               >
-                <Icon icon="tabler:report-analytics" className="w-3.5 h-3.5" />
+                <HugeiconsIcon icon={FileIcon} size={16} className="" />
                 Reports
               </Link>
             </div>
@@ -430,7 +414,7 @@ const InventoryPage: React.FC = () => {
               onClick={() => { setEditingItem(null); setIsDialogOpen(true); }}
               className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md transition-colors"
             >
-              <Icon icon="tabler:plus" className="w-3.5 h-3.5" />
+              <HugeiconsIcon icon={Add01Icon} size={16} className="" />
               Add Item
             </button>
           </div>
@@ -481,11 +465,10 @@ const InventoryPage: React.FC = () => {
                           : [...filters.categories, cat];
                         setFilters({ ...filters, categories: newCategories });
                       }}
-                      className={`px-2 py-0.5 text-xs rounded border transition-colors ${
-                        filters.categories.includes(cat)
-                          ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700'
-                          : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-gray-300'
-                      }`}
+                      className={`px-2 py-0.5 text-xs rounded border transition-colors ${filters.categories.includes(cat)
+                        ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700'
+                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                        }`}
                     >
                       {ITEM_CATEGORY_LABELS[cat]}
                     </button>
@@ -539,7 +522,7 @@ const InventoryPage: React.FC = () => {
         <div className="flex-1 overflow-auto">
           {filteredItems.length === 0 ? (
             <div className="empty-state">
-              <Icon icon="tabler:package-off" className="empty-state-icon" />
+              <HugeiconsIcon icon={PackageIcon} className="empty-state-icon" />
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No items found</p>
               <p className="empty-state-text">
                 {hasActiveFilters ? "Try adjusting your filters" : "Add your first inventory item to get started"}
@@ -563,8 +546,8 @@ const InventoryPage: React.FC = () => {
                   >
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-md bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                          <Icon icon="tabler:package" className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                        <div size={8} className=" rounded-md bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                          <HugeiconsIcon icon={PackageIcon} size={20} className=" text-purple-600 dark:text-purple-400" />
                         </div>
                         <div>
                           <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -610,7 +593,7 @@ const InventoryPage: React.FC = () => {
                         className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
                         title="Adjust Stock"
                       >
-                        <Icon icon="tabler:plus-minus" className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                        <HugeiconsIcon icon={PlusMinusIcon} size={16} className=" text-gray-600 dark:text-gray-400" />
                       </button>
                       <button
                         onClick={(e) => {
@@ -620,7 +603,7 @@ const InventoryPage: React.FC = () => {
                         className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
                         title="Edit"
                       >
-                        <Icon icon="tabler:edit" className="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                        <HugeiconsIcon icon={Edit01Icon} size={16} className=" text-gray-600 dark:text-gray-400" />
                       </button>
                       <button
                         onClick={(e) => {
@@ -630,7 +613,7 @@ const InventoryPage: React.FC = () => {
                         className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors"
                         title="Delete"
                       >
-                        <Icon icon="tabler:trash" className="w-3.5 h-3.5 text-red-600 dark:text-red-400" />
+                        <HugeiconsIcon icon={Delete01Icon} size={16} className=" text-red-600 dark:text-red-400" />
                       </button>
                     </div>
                   </div>
@@ -660,21 +643,21 @@ const InventoryPage: React.FC = () => {
                   onClick={() => handleQuickAdjust(selectedItem)}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
                 >
-                  <Icon icon="tabler:plus-minus" className="w-4 h-4" />
+                  <HugeiconsIcon icon={PlusMinusIcon} size={20} className="" />
                   Adjust Stock
                 </button>
                 <button
                   onClick={() => handleEdit(selectedItem)}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
                 >
-                  <Icon icon="tabler:edit" className="w-4 h-4" />
+                  <HugeiconsIcon icon={Edit01Icon} size={20} className="" />
                   Edit
                 </button>
                 <button
                   onClick={() => handleDeleteClick(selectedItem)}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors"
                 >
-                  <Icon icon="tabler:trash" className="w-4 h-4" />
+                  <HugeiconsIcon icon={Delete01Icon} size={20} className="" />
                   Delete
                 </button>
               </div>
@@ -717,7 +700,7 @@ const InventoryPage: React.FC = () => {
                             onClick={() => handleEdit(selectedItem)}
                             className="inline-flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
                           >
-                            <Icon icon="tabler:plus" className="w-3 h-3" />
+                            <HugeiconsIcon icon={Add01Icon} size={14} className="" />
                             Add Categories
                           </button>
                         </div>
@@ -804,8 +787,8 @@ const InventoryPage: React.FC = () => {
                     </>
                   ) : (
                     <div className="text-center py-6">
-                      <div className="w-12 h-12 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <Icon icon="tabler:building-store" className="w-6 h-6 text-gray-400 dark:text-gray-500" />
+                      <div size={12} className=" bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <HugeiconsIcon icon={Store01Icon} size={24} className=" text-gray-400 dark:text-gray-500" />
                       </div>
                       <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No Supplier Assigned</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Add a supplier to track vendor information</p>
@@ -813,7 +796,7 @@ const InventoryPage: React.FC = () => {
                         onClick={() => handleEdit(selectedItem)}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-md transition-colors"
                       >
-                        <Icon icon="tabler:plus" className="w-3.5 h-3.5" />
+                        <HugeiconsIcon icon={Add01Icon} size={16} className="" />
                         Add Supplier
                       </button>
                     </div>
@@ -878,8 +861,8 @@ const InventoryPage: React.FC = () => {
               </div>
               {showHistory && (
                 <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
-                  <AdjustmentHistoryPanel 
-                    inventoryItemId={selectedItem.id} 
+                  <AdjustmentHistoryPanel
+                    inventoryItemId={selectedItem.id}
                     maxHeight="300px"
                   />
                 </div>
@@ -901,8 +884,8 @@ const InventoryPage: React.FC = () => {
               </div>
               {showWorkOrderUsage && (
                 <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
-                  <InventoryPartsUsagePanel 
-                    inventoryItemId={selectedItem.id} 
+                  <InventoryPartsUsagePanel
+                    inventoryItemId={selectedItem.id}
                     maxHeight="400px"
                   />
                 </div>
@@ -912,7 +895,7 @@ const InventoryPage: React.FC = () => {
         ) : (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <Icon icon="tabler:package" className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+              <HugeiconsIcon icon={PackageIcon} size={48} className=" text-gray-300 dark:text-gray-600 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">Select an Item</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">Choose an inventory item from the list to view details</p>
             </div>

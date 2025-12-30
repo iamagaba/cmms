@@ -1,5 +1,13 @@
 import React, { useState, useMemo } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  Cancel01Icon,
+  ArrowRight01Icon,
+  Building02Icon,
+  Delete01Icon,
+  Loading03Icon,
+  ArrowDataTransferHorizontalIcon
+} from '@hugeicons/core-free-icons';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { InventoryItem } from '@/types/supabase';
@@ -129,7 +137,7 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-              <Icon icon="tabler:transfer" className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+              <HugeiconsIcon icon={ArrowDataTransferHorizontalIcon} size={20} className="text-blue-600 dark:text-blue-400" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Transfer Stock</h2>
@@ -137,7 +145,7 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-            <Icon icon="tabler:x" className="w-5 h-5 text-gray-500" />
+            <HugeiconsIcon icon={Cancel01Icon} size={20} className="text-gray-500" />
           </button>
         </div>
 
@@ -192,12 +200,12 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
             {fromWarehouse && toWarehouse && (
               <div className="flex items-center justify-center gap-4 py-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
                 <div className="text-center">
-                  <Icon icon="tabler:building-warehouse" className="w-8 h-8 text-gray-400 mx-auto mb-1" />
+                  <HugeiconsIcon icon={Building02Icon} size={32} className="text-gray-400 mx-auto mb-1" />
                   <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{fromWarehouse}</div>
                 </div>
-                <Icon icon="tabler:arrow-right" className="w-6 h-6 text-blue-500" />
+                <HugeiconsIcon icon={ArrowRight01Icon} size={24} className="text-blue-500" />
                 <div className="text-center">
-                  <Icon icon="tabler:building-warehouse" className="w-8 h-8 text-blue-500 mx-auto mb-1" />
+                  <HugeiconsIcon icon={Building02Icon} size={32} className="text-blue-500 mx-auto mb-1" />
                   <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{toWarehouse}</div>
                 </div>
               </div>
@@ -270,7 +278,7 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
                             onClick={() => handleRemoveItem(li.inventory_item_id)}
                             className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
                           >
-                            <Icon icon="tabler:trash" className="w-4 h-4" />
+                            <HugeiconsIcon icon={Delete01Icon} size={16} />
                           </button>
                         </td>
                       </tr>
@@ -316,7 +324,7 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
               disabled={lineItems.length === 0 || !fromWarehouse || !toWarehouse || createTransfer.isPending}
               className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              {createTransfer.isPending && <Icon icon="tabler:loader-2" className="w-4 h-4 animate-spin" />}
+              {createTransfer.isPending && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin" />}
               Complete Transfer
             </button>
           </div>

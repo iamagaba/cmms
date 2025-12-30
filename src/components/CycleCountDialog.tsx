@@ -1,5 +1,11 @@
 import React, { useState, useMemo } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  Cancel01Icon,
+  ClipboardIcon,
+  Tick01Icon,
+  Loading03Icon
+} from '@hugeicons/core-free-icons';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { InventoryItem } from '@/types/supabase';
@@ -144,7 +150,7 @@ export const CycleCountDialog: React.FC<CycleCountDialogProps> = ({
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-              <Icon icon="tabler:clipboard-check" className="w-5 h-5 text-purple-600 dark:text-purple-400" />
+              <HugeiconsIcon icon={ClipboardIcon} size={20} className="text-purple-600 dark:text-purple-400" />
             </div>
             <div>
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -156,7 +162,7 @@ export const CycleCountDialog: React.FC<CycleCountDialogProps> = ({
             </div>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-            <Icon icon="tabler:x" className="w-5 h-5 text-gray-500" />
+            <HugeiconsIcon icon={Cancel01Icon} size={20} className="text-gray-500" />
           </button>
         </div>
 
@@ -232,7 +238,7 @@ export const CycleCountDialog: React.FC<CycleCountDialogProps> = ({
                             ? 'bg-purple-600 border-purple-600' 
                             : 'border-gray-300 dark:border-gray-600'
                         }`}>
-                          {isSelected && <Icon icon="tabler:check" className="w-3 h-3 text-white" />}
+                          {isSelected && <HugeiconsIcon icon={Tick01Icon} size={12} className="text-white" />}
                         </div>
                         <div className="flex-1">
                           <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.name}</div>
@@ -352,7 +358,7 @@ export const CycleCountDialog: React.FC<CycleCountDialogProps> = ({
               disabled={lineItems.length === 0 || createCycleCount.isPending}
               className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              {createCycleCount.isPending && <Icon icon="tabler:loader-2" className="w-4 h-4 animate-spin" />}
+              {createCycleCount.isPending && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin" />}
               Start Count ({lineItems.length} items)
             </button>
           ) : (
@@ -361,7 +367,7 @@ export const CycleCountDialog: React.FC<CycleCountDialogProps> = ({
               disabled={countedItems < lineItems.length || completeCycleCount.isPending}
               className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              {completeCycleCount.isPending && <Icon icon="tabler:loader-2" className="w-4 h-4 animate-spin" />}
+              {completeCycleCount.isPending && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin" />}
               Complete & Apply Adjustments
             </button>
           )}

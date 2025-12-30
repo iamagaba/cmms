@@ -7,7 +7,14 @@
  */
 
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  FilterIcon,
+  ArrowUp01Icon,
+  ArrowDown01Icon,
+  SelectorIcon,
+  DatabaseOffIcon
+} from '@hugeicons/core-free-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import ProfessionalButton from '@/components/ui/ProfessionalButton';
@@ -212,7 +219,7 @@ const TableFilter: React.FC<TableFilterProps> = ({ filters, onFilter, className 
       {/* Filter Header */}
       <div className="flex items-center justify-between p-4 border-b border-machinery-200">
         <div className="flex items-center gap-2">
-          <Icon icon="tabler:filter" className="w-5 h-5 text-machinery-500" />
+          <HugeiconsIcon icon={FilterIcon} size={20} />
           <span className="font-medium text-machinery-900">Filters</span>
           {hasActiveFilters && (
             <span className="px-2 py-1 bg-steel-100 text-steel-700 text-xs rounded-full">
@@ -233,7 +240,7 @@ const TableFilter: React.FC<TableFilterProps> = ({ filters, onFilter, className 
           <ProfessionalButton
             variant="ghost"
             size="sm"
-            icon={isExpanded ? 'tabler:chevron-up' : 'tabler:chevron-down'}
+            icon={isExpanded ? ArrowUp01Icon : ArrowDown01Icon}
             onClick={() => setIsExpanded(!isExpanded)}
           >
             {isExpanded ? 'Collapse' : 'Expand'}
@@ -412,13 +419,13 @@ interface EmptyStateProps {
 const EmptyState: React.FC<EmptyStateProps> = ({
   title = 'No data available',
   description = 'There are no items to display at the moment.',
-  icon = 'tabler:database-off',
+  icon = DatabaseOffIcon,
   action,
 }) => {
   return (
     <div className="flex flex-col items-center justify-center py-12 px-4">
       <div className="w-16 h-16 bg-machinery-100 rounded-full flex items-center justify-center mb-4">
-        <Icon icon={icon} className="w-8 h-8 text-machinery-400" />
+        <HugeiconsIcon icon={icon} size={32} />
       </div>
       <h3 className="text-lg font-semibold text-machinery-900 mb-2">
         {title}
@@ -653,15 +660,15 @@ const ProfessionalDataTable = <T extends Record<string, any>>({
                           }}
                           className="text-machinery-400 hover:text-machinery-600"
                         >
-                          <Icon 
+                          <HugeiconsIcon 
                             icon={
                               sorting.sortConfig?.key === column.key
                                 ? sorting.sortConfig.direction === 'asc'
-                                  ? 'tabler:chevron-up'
-                                  : 'tabler:chevron-down'
-                                : 'tabler:selector'
+                                  ? ArrowUp01Icon
+                                  : ArrowDown01Icon
+                                : SelectorIcon
                             }
-                            className="w-4 h-4"
+                            size={16}
                           />
                         </button>
                       )}

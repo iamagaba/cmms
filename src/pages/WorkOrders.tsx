@@ -21,7 +21,37 @@ import {
   Grid,
   ThemeIcon
 } from '@/components/tailwind-components';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Car01Icon,
+  UserIcon,
+  Add01Icon,
+  Alert01Icon,
+  RefreshIcon,
+  Download01Icon,
+  FilterHorizontalIcon,
+  Cancel01Icon,
+  Search01Icon,
+  CheckmarkCircle01Icon,
+  ArrowDown01Icon,
+  ArrowUp01Icon,
+  Delete01Icon,
+  GridIcon,
+  ListViewIcon,
+  Location01Icon,
+  Layers01Icon,
+  Tick01Icon,
+  Clock01Icon,
+  PauseIcon,
+  AlertCircleIcon,
+  Menu01Icon,
+  MapsIcon,
+  TableIcon,
+  KanbanIcon,
+  FilterRemoveIcon,
+  UserAdd01Icon,
+  LayoutTwoColumnIcon
+} from '@hugeicons/core-free-icons';
 import { useDisclosure, useMediaQuery } from '@/hooks/tailwind';
 import { EnhancedWorkOrderDataTable } from "@/components/EnhancedWorkOrderDataTable";
 import { ALL_COLUMNS, REQUIRED_COLUMNS, OPTIONAL_COLUMNS } from "@/components/work-order-columns-constants";
@@ -57,17 +87,17 @@ type WorkOrderView = 'table' | 'kanban' | 'calendar' | 'map' | 'progress' | 'car
 
 // Enhanced status and priority configurations
 const STATUS_CONFIG = {
-  'Open': { color: 'blue', icon: 'tabler:circle-dot', label: 'Open' },
-  'In Progress': { color: 'orange', icon: 'tabler:clock', label: 'In Progress' },
-  'Completed': { color: 'green', icon: 'tabler:check-circle', label: 'Completed' },
-  'On Hold': { color: 'yellow', icon: 'tabler:pause-circle', label: 'On Hold' },
-  'Cancelled': { color: 'red', icon: 'tabler:x-circle', label: 'Cancelled' },
+  'Open': { color: 'blue', icon: Clock01Icon, label: 'Open' },
+  'In Progress': { color: 'orange', icon: Clock01Icon, label: 'In Progress' },
+  'Completed': { color: 'green', icon: CheckmarkCircle01Icon, label: 'Completed' },
+  'On Hold': { color: 'yellow', icon: PauseIcon, label: 'On Hold' },
+  'Cancelled': { color: 'red', icon: AlertCircleIcon, label: 'Cancelled' },
 } as const;
 
 const PRIORITY_CONFIG = {
-  'High': { color: 'red', icon: 'tabler:arrow-up', label: 'High Priority' },
-  'Medium': { color: 'yellow', icon: 'tabler:minus', label: 'Medium Priority' },
-  'Low': { color: 'green', icon: 'tabler:arrow-down', label: 'Low Priority' },
+  'High': { color: 'red', icon: ArrowUp01Icon, label: 'High Priority' },
+  'Medium': { color: 'yellow', icon: Menu01Icon, label: 'Medium Priority' },
+  'Low': { color: 'green', icon: ArrowDown01Icon, label: 'Low Priority' },
 } as const;
 
 const WorkOrdersPage = () => {
@@ -236,17 +266,7 @@ const WorkOrdersPage = () => {
     return filtered;
   }, [filteredWorkOrders, debouncedSearchQuery, statusFilter, priorityFilter, technicianFilter, locationFilter, vehicles, customers, technicians, locations]);
 
-  // Calculate status counts for summary cards (must be before early returns)
-  const statusCounts = useMemo(() => {
-    const counts = { open: 0, inProgress: 0, completed: 0, onHold: 0 };
-    (allWorkOrders || []).forEach(wo => {
-      if (wo.status === 'Open') counts.open++;
-      else if (wo.status === 'In Progress') counts.inProgress++;
-      else if (wo.status === 'Completed') counts.completed++;
-      else if (wo.status === 'On Hold') counts.onHold++;
-    });
-    return counts;
-  }, [allWorkOrders]);
+
 
   // Update search history with result count when search results change
   useEffect(() => {
@@ -289,6 +309,9 @@ const WorkOrdersPage = () => {
           title: 'Work Orders Deleted',
         });
       }
+      // Manually refresh data to update UI since Realtime doesn't sync with mutation invalidation automatically
+      await refetch();
+
       setDeleteDialogOpen(false);
       setWorkOrderToDelete(null);
     } catch (error) {
@@ -461,14 +484,14 @@ const WorkOrdersPage = () => {
           {/* Vehicle & Customer */}
           <div className="space-y-1.5">
             <div className="flex items-center gap-2 text-xs text-gray-600">
-              <Icon icon="tabler:car" className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+              <HugeiconsIcon icon={Car01Icon} size={14} className="text-gray-400 flex-shrink-0" />
               <span className="truncate">
                 {vehicle?.license_plate || 'N/A'}
                 {vehicle?.make && ` • ${vehicle.make}`}
               </span>
             </div>
             <div className="flex items-center gap-2 text-xs text-gray-600">
-              <Icon icon="tabler:user" className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
+              <HugeiconsIcon icon={UserIcon} size={14} className="text-gray-400 flex-shrink-0" />
               <span className="truncate">
                 {customer?.name || workOrder.customerName || 'N/A'}
               </span>
@@ -504,7 +527,7 @@ const WorkOrdersPage = () => {
   const pageActions = (
     <Button
       variant="filled"
-      leftSection={<Icon icon="ant-design:plus-outlined" />}
+      leftSection={<HugeiconsIcon icon={Add01Icon} size={16} />}
       onClick={onCreateNew}
       className="mb-md"
     >
@@ -517,7 +540,7 @@ const WorkOrdersPage = () => {
       <div className="w-full px-6 py-6 bg-white dark:bg-gray-950 min-h-screen">
         <div className="bg-white dark:bg-gray-900 border border-red-200 dark:border-red-800 rounded-lg p-8 text-center">
           <div className="mx-auto w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center mb-4">
-            <Icon icon="tabler:alert-triangle" className="w-8 h-8 text-red-600 dark:text-red-400" />
+            <HugeiconsIcon icon={Alert01Icon} size={32} className="text-red-600 dark:text-red-400" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Error Loading Work Orders</h3>
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 max-w-md mx-auto">
@@ -529,7 +552,7 @@ const WorkOrdersPage = () => {
             className="bg-red-600 hover:bg-red-700"
           >
             <Group gap="xs">
-              <Icon icon="tabler:refresh" width={16} height={16} />
+              <HugeiconsIcon icon={RefreshIcon} size={16} />
               <span>Try Again</span>
             </Group>
           </Button>
@@ -601,15 +624,12 @@ const WorkOrdersPage = () => {
       <div className="w-full h-screen flex flex-col bg-white dark:bg-gray-950">
         <Stack gap="md" className="flex-1 flex flex-col overflow-hidden">
           {/* Page Header */}
-          <div className="flex-none px-6 pt-4 pb-3 border-b border-gray-200 dark:border-gray-800">
+          <div className="flex-none px-6 pt-4 pb-4 border-b border-gray-200 dark:border-gray-800">
             <div className="flex items-center justify-between">
               <div>
                 <Title order={1} className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                   Work Orders
                 </Title>
-                <Text size="sm" c="dimmed" className="mt-0.5 text-gray-600 dark:text-gray-400">
-                  Manage and track all maintenance work orders
-                </Text>
               </div>
 
               <Group gap="sm">
@@ -620,7 +640,7 @@ const WorkOrdersPage = () => {
                   disabled={processedWorkOrders.length === 0}
                   className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
                 >
-                  <Icon icon="tabler:download" width={18} height={18} />
+                  <HugeiconsIcon icon={Download01Icon} size={18} />
                 </Button>
                 <Button
                   variant={filtersOpened ? 'light' : 'subtle'}
@@ -629,10 +649,12 @@ const WorkOrdersPage = () => {
                   className={filtersOpened ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}
                 >
                   <Group gap="xs">
-                    <Icon icon="tabler:adjustments-horizontal" width={18} height={18} />
+                    <HugeiconsIcon icon={FilterHorizontalIcon} size={18} />
                     <span>Filters</span>
                     {hasActiveFilters && (
-                      <span className="w-2 h-2 rounded bg-primary-500" />
+                      <span className="inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-primary-600 dark:bg-primary-500 text-white text-[10px] font-semibold">
+                        {[searchQuery, statusFilter.length > 0, priorityFilter.length > 0, technicianFilter.length > 0, locationFilter.length > 0].filter(Boolean).length}
+                      </span>
                     )}
                   </Group>
                 </Button>
@@ -640,74 +662,11 @@ const WorkOrdersPage = () => {
                   onClick={onCreateNew}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
                 >
-                  <Icon icon="tabler:plus" width={16} height={16} />
+                  <HugeiconsIcon icon={Add01Icon} size={16} />
                   <span>{isMobile ? 'New' : 'New Work Order'}</span>
                 </button>
               </Group>
             </div>
-          </div>
-
-          {/* Stat Ribbon */}
-          <div className="flex-none grid grid-cols-4 divide-x divide-gray-200 dark:divide-gray-800 border-y border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
-            <button
-              onClick={() => { setStatusFilter(['Open']); }}
-              className="px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Open</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{statusCounts.open}</p>
-                </div>
-                <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center group-hover:bg-blue-100 dark:group-hover:bg-blue-900/50 transition-colors">
-                  <Icon icon="tabler:circle-dot" className="w-5 h-5 text-blue-600 dark:text-blue-400" />
-                </div>
-              </div>
-            </button>
-
-            <button
-              onClick={() => { setStatusFilter(['In Progress']); }}
-              className="px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">In Progress</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{statusCounts.inProgress}</p>
-                </div>
-                <div className="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center group-hover:bg-amber-100 dark:group-hover:bg-amber-900/50 transition-colors">
-                  <Icon icon="tabler:loader" className="w-5 h-5 text-amber-600 dark:text-amber-400" />
-                </div>
-              </div>
-            </button>
-
-            <button
-              onClick={() => { setStatusFilter(['Completed']); }}
-              className="px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Completed</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{statusCounts.completed}</p>
-                </div>
-                <div className="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center group-hover:bg-emerald-100 dark:group-hover:bg-emerald-900/50 transition-colors">
-                  <Icon icon="tabler:circle-check" className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
-                </div>
-              </div>
-            </button>
-
-            <button
-              onClick={() => { setStatusFilter(['On Hold']); }}
-              className="px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors group"
-            >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">On Hold</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{statusCounts.onHold}</p>
-                </div>
-                <div className="w-10 h-10 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-slate-200 dark:group-hover:bg-slate-700 transition-colors">
-                  <Icon icon="tabler:player-pause" className="w-5 h-5 text-slate-600 dark:text-slate-400" />
-                </div>
-              </div>
-            </button>
           </div>
 
           {/* Active Filters Display - Always visible when filters are active */}
@@ -718,7 +677,7 @@ const WorkOrdersPage = () => {
                 <span key={status} className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded text-xs font-medium border border-blue-200 dark:border-blue-800">
                   {status}
                   <button onClick={() => setStatusFilter(statusFilter.filter(s => s !== status))} className="hover:text-blue-900 dark:hover:text-blue-100">
-                    <Icon icon="tabler:x" className="w-3 h-3" />
+                    <HugeiconsIcon icon={Cancel01Icon} size={12} />
                   </button>
                 </span>
               ))}
@@ -726,7 +685,7 @@ const WorkOrdersPage = () => {
                 <span key={priority} className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded text-xs font-medium border border-amber-200 dark:border-amber-800">
                   {priority}
                   <button onClick={() => setPriorityFilter(priorityFilter.filter(p => p !== priority))} className="hover:text-amber-900 dark:hover:text-amber-100">
-                    <Icon icon="tabler:x" className="w-3 h-3" />
+                    <HugeiconsIcon icon={Cancel01Icon} size={12} />
                   </button>
                 </span>
               ))}
@@ -734,7 +693,7 @@ const WorkOrdersPage = () => {
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded text-xs font-medium border border-purple-200 dark:border-purple-800">
                   {technicianFilter.length} technician{technicianFilter.length > 1 ? 's' : ''}
                   <button onClick={() => setTechnicianFilter([])} className="hover:text-purple-900 dark:hover:text-purple-100">
-                    <Icon icon="tabler:x" className="w-3 h-3" />
+                    <HugeiconsIcon icon={Cancel01Icon} size={12} />
                   </button>
                 </span>
               )}
@@ -742,7 +701,7 @@ const WorkOrdersPage = () => {
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded text-xs font-medium border border-emerald-200 dark:border-emerald-800">
                   {locationFilter.length} location{locationFilter.length > 1 ? 's' : ''}
                   <button onClick={() => setLocationFilter([])} className="hover:text-emerald-900 dark:hover:text-emerald-100">
-                    <Icon icon="tabler:x" className="w-3 h-3" />
+                    <HugeiconsIcon icon={Cancel01Icon} size={12} />
                   </button>
                 </span>
               )}
@@ -750,7 +709,7 @@ const WorkOrdersPage = () => {
                 <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded text-xs font-medium border border-gray-200 dark:border-gray-700">
                   Search: {searchQuery}
                   <button onClick={() => setSearchQuery('')} className="hover:text-gray-900 dark:hover:text-gray-100">
-                    <Icon icon="tabler:x" className="w-3 h-3" />
+                    <HugeiconsIcon icon={Cancel01Icon} size={12} />
                   </button>
                 </span>
               )}
@@ -770,7 +729,7 @@ const WorkOrdersPage = () => {
                 {/* Search Bar */}
                 <div className="relative">
                   <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <Icon icon="tabler:search" className="w-5 h-5 text-gray-400 dark:text-gray-500" />
+                    <HugeiconsIcon icon={Search01Icon} size={20} className="text-gray-400 dark:text-gray-500" />
                   </div>
                   <input
                     type="text"
@@ -784,7 +743,7 @@ const WorkOrdersPage = () => {
                       onClick={() => setSearchQuery('')}
                       className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600"
                     >
-                      <Icon icon="tabler:x" className="w-4 h-4" />
+                      <HugeiconsIcon icon={Cancel01Icon} size={16} />
                     </button>
                   )}
                 </div>
@@ -851,7 +810,7 @@ const WorkOrdersPage = () => {
                       className="text-gray-500 hover:text-gray-700"
                     >
                       <Group gap="xs">
-                        <Icon icon="tabler:filter-off" width={14} height={14} />
+                        <HugeiconsIcon icon={FilterRemoveIcon} size={14} />
                         <span>Reset filters</span>
                       </Group>
                     </Button>
@@ -867,7 +826,7 @@ const WorkOrdersPage = () => {
               <div className="flex items-center justify-between flex-wrap gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center">
-                    <Icon icon="tabler:checkbox" className="w-4 h-4 text-primary-600" />
+                    <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="text-primary-600" />
                   </div>
                   <span className="text-sm font-medium text-primary-900">
                     {selectedRecords.length} work order{selectedRecords.length !== 1 ? 's' : ''} selected
@@ -878,16 +837,16 @@ const WorkOrdersPage = () => {
                   <Menu>
                     <Menu.Target>
                       <button className="flex items-center gap-2 px-3 py-1.5 bg-white border border-primary-200 rounded-lg text-sm font-medium text-primary-700 hover:bg-primary-50 transition-colors">
-                        <Icon icon="tabler:status-change" className="w-4 h-4" />
+                        <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} />
                         Status
-                        <Icon icon="tabler:chevron-down" className="w-3 h-3" />
+                        <HugeiconsIcon icon={ArrowDown01Icon} size={12} />
                       </button>
                     </Menu.Target>
                     <Menu.Dropdown>
                       {statusOptions.map(status => (
                         <Menu.Item
                           key={status}
-                          leftSection={<Icon icon={STATUS_CONFIG[status as keyof typeof STATUS_CONFIG]?.icon} width={14} height={14} />}
+                          leftSection={<HugeiconsIcon icon={STATUS_CONFIG[status as keyof typeof STATUS_CONFIG]?.icon} size={14} />}
                           onClick={() => handleBulkStatusUpdate(status)}
                         >
                           {status}
@@ -899,9 +858,9 @@ const WorkOrdersPage = () => {
                   <Menu>
                     <Menu.Target>
                       <button className="flex items-center gap-2 px-3 py-1.5 bg-white border border-primary-200 rounded-lg text-sm font-medium text-primary-700 hover:bg-primary-50 transition-colors">
-                        <Icon icon="tabler:user-plus" className="w-4 h-4" />
+                        <HugeiconsIcon icon={UserAdd01Icon} size={16} />
                         Assign
-                        <Icon icon="tabler:chevron-down" className="w-3 h-3" />
+                        <HugeiconsIcon icon={ArrowDown01Icon} size={12} />
                       </button>
                     </Menu.Target>
                     <Menu.Dropdown>
@@ -925,7 +884,7 @@ const WorkOrdersPage = () => {
                     onClick={handleBulkDelete}
                     className="flex items-center gap-2 px-3 py-1.5 bg-white border border-red-200 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
                   >
-                    <Icon icon="tabler:trash" className="w-4 h-4" />
+                    <HugeiconsIcon icon={Delete01Icon} size={16} />
                     Delete
                   </button>
 
@@ -933,7 +892,7 @@ const WorkOrdersPage = () => {
                     onClick={() => setSelectedRecords([])}
                     className="p-1.5 text-primary-400 hover:text-primary-600 hover:bg-primary-100 rounded-lg transition-colors"
                   >
-                    <Icon icon="tabler:x" className="w-4 h-4" />
+                    <HugeiconsIcon icon={Cancel01Icon} size={16} />
                   </button>
                 </div>
               </div>
@@ -953,7 +912,7 @@ const WorkOrdersPage = () => {
                       : 'text-gray-600 hover:text-gray-900 border-transparent hover:border-gray-200'
                       }`}
                   >
-                    <Icon icon="tabler:table" className="w-4 h-4" />
+                    <HugeiconsIcon icon={TableIcon} size={16} />
                     Table
                   </button>
                   <button
@@ -963,7 +922,7 @@ const WorkOrdersPage = () => {
                       : 'text-gray-600 hover:text-gray-900 border-transparent hover:border-gray-200'
                       }`}
                   >
-                    <Icon icon="tabler:layout-kanban" className="w-4 h-4" />
+                    <HugeiconsIcon icon={KanbanIcon} size={16} />
                     Kanban
                   </button>
                   <button
@@ -973,7 +932,7 @@ const WorkOrdersPage = () => {
                       : 'text-gray-600 hover:text-gray-900 border-transparent hover:border-gray-200'
                       }`}
                   >
-                    <Icon icon="tabler:map" className="w-4 h-4" />
+                    <HugeiconsIcon icon={MapsIcon} size={16} />
                     Map
                   </button>
                 </div>
@@ -984,9 +943,9 @@ const WorkOrdersPage = () => {
                       onClick={() => setColumnMenuOpened(!columnMenuOpened)}
                       className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
                     >
-                      <Icon icon="tabler:columns" className="w-4 h-4" />
+                      <HugeiconsIcon icon={LayoutTwoColumnIcon} size={16} />
                       <span>Columns</span>
-                      <Icon icon={columnMenuOpened ? "tabler:chevron-up" : "tabler:chevron-down"} className="w-3 h-3" />
+                      <HugeiconsIcon icon={columnMenuOpened ? ArrowUp01Icon : ArrowDown01Icon} size={12} />
                     </button>
 
                     {columnMenuOpened && (
@@ -1028,7 +987,7 @@ const WorkOrdersPage = () => {
                                     : 'border-gray-300 bg-white'
                                     }`}>
                                     {isChecked && (
-                                      <Icon icon="tabler:check" className="w-3 h-3 text-white" />
+                                      <HugeiconsIcon icon={Tick01Icon} size={12} className="text-white" />
                                     )}
                                   </div>
 
@@ -1067,6 +1026,7 @@ const WorkOrdersPage = () => {
                     customers={customers}
                     vehicles={vehicles}
                     profiles={profiles}
+                    serviceCategories={serviceCategories}
                     onEdit={(wo) => { setEditingWorkOrder(wo); setIsFormDialogOpen(true); }}
                     onDelete={handleDeleteClick}
                     onUpdateWorkOrder={handleUpdateWorkOrder}

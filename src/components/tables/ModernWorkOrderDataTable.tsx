@@ -6,7 +6,15 @@
  */
 
 import React, { useMemo } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  UserIcon, 
+  Car01Icon, 
+  Alert01Icon, 
+  ClipboardIcon,
+  Calendar01Icon,
+  Clock01Icon
+} from '@hugeicons/core-free-icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import EnhancedDataTable, { 
@@ -163,12 +171,18 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
       dataIndex: 'workOrderNumber',
       width: 140,
       render: (value: string, record: WorkOrder) => (
-        <div className="font-mono">
-          <div className="font-semibold text-steel-700">
-            {value || `WO-${record.id.slice(-6).toUpperCase()}`}
+        <div className="flex items-center gap-3">
+          {/* Enhancement #5: Icon integration with visual balance */}
+          <div className="w-8 h-8 rounded-lg bg-steel-100 flex items-center justify-center flex-shrink-0">
+            <HugeiconsIcon icon={ClipboardIcon} size={16} className="text-steel-600" />
           </div>
-          <div className="text-xs text-machinery-500">
-            ID: {record.id.slice(-8)}
+          <div className="font-mono">
+            <div className="font-semibold text-steel-700">
+              {value || `WO-${record.id.slice(-6).toUpperCase()}`}
+            </div>
+            <div className="text-xs text-machinery-500">
+              ID: {record.id.slice(-8)}
+            </div>
           </div>
         </div>
       ),
@@ -201,12 +215,15 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
       key: 'status',
       title: 'Status',
       dataIndex: 'status',
-      width: 120,
+      width: 140,
       render: (value: string, record: WorkOrder) => (
-        <WorkOrderStatusBadge 
-          status={getStatusFromWorkOrder(record)}
-          size="sm"
-        />
+        // Enhancement #5: Icon with status badge
+        <div className="flex items-center gap-2">
+          <WorkOrderStatusBadge 
+            status={getStatusFromWorkOrder(record)}
+            size="sm"
+          />
+        </div>
       ),
       sortable: true,
     },
@@ -214,12 +231,15 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
       key: 'priority',
       title: 'Priority',
       dataIndex: 'priority',
-      width: 100,
+      width: 120,
       render: (value: string, record: WorkOrder) => (
-        <PriorityBadge 
-          priority={getPriorityFromWorkOrder(record)}
-          size="sm"
-        />
+        // Enhancement #5: Icon with priority badge
+        <div className="flex items-center gap-2">
+          <PriorityBadge 
+            priority={getPriorityFromWorkOrder(record)}
+            size="sm"
+          />
+        </div>
       ),
       sortable: true,
     },
@@ -241,7 +261,7 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
         return (
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-steel-500 rounded-lg flex items-center justify-center">
-              <Icon icon="tabler:user" className="w-3 h-3 text-white" />
+              <HugeiconsIcon icon={UserIcon} size={12} className="text-white" />
             </div>
             <div>
               <div className="text-sm font-medium text-machinery-700">
@@ -277,7 +297,7 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
         
         return (
           <div className="flex items-center gap-2">
-            <Icon icon="tabler:car" className="w-4 h-4 text-machinery-500" />
+            <HugeiconsIcon icon={Car01Icon} size={16} className="text-machinery-500" />
             <div>
               <div className="text-sm font-medium text-machinery-700">
                 {vehicle?.make} {vehicle?.model}
@@ -302,14 +322,20 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
       key: 'createdAt',
       title: 'Created',
       dataIndex: 'createdAt',
-      width: 120,
+      width: 160,
       render: (value: string) => (
-        <div className="text-sm">
-          <div className="text-machinery-700 font-medium">
-            {dayjs(value).format('MMM DD, YYYY')}
+        // Enhancement #5: Icon integration for dates
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-lg bg-machinery-100 flex items-center justify-center flex-shrink-0">
+            <HugeiconsIcon icon={Calendar01Icon} size={16} className="text-machinery-600" />
           </div>
-          <div className="text-machinery-500 text-xs">
-            {dayjs(value).format('HH:mm')} • {dayjs(value).fromNow()}
+          <div className="text-sm">
+            <div className="text-machinery-700 font-medium">
+              {dayjs(value).format('MMM DD, YYYY')}
+            </div>
+            <div className="text-machinery-500 text-xs">
+              {dayjs(value).format('HH:mm')} • {dayjs(value).fromNow()}
+            </div>
           </div>
         </div>
       ),
@@ -319,13 +345,18 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
       key: 'dueDate',
       title: 'Due Date',
       dataIndex: 'dueDate',
-      width: 120,
+      width: 160,
       render: (value: string) => {
         if (!value) {
           return (
-            <span className="text-machinery-400 italic text-sm">
-              No due date
-            </span>
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-machinery-100 flex items-center justify-center flex-shrink-0">
+                <HugeiconsIcon icon={Clock01Icon} size={16} className="text-machinery-400" />
+              </div>
+              <span className="text-machinery-400 italic text-sm">
+                No due date
+              </span>
+            </div>
           );
         }
         
@@ -335,21 +366,34 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
         const isToday = dueDate.isSame(now, 'day');
         const isTomorrow = dueDate.isSame(now.add(1, 'day'), 'day');
         
+        // Enhancement #5: Icon with contextual color
+        const iconBgColor = isOverdue ? 'bg-warning-100' : 
+                           isToday ? 'bg-maintenance-100' : 
+                           'bg-machinery-100';
+        const iconColor = isOverdue ? 'text-warning-600' : 
+                         isToday ? 'text-maintenance-600' : 
+                         'text-machinery-600';
+        
         return (
-          <div className={`text-sm ${
-            isOverdue ? 'text-warning-600' : 
-            isToday ? 'text-maintenance-600' : 
-            isTomorrow ? 'text-steel-600' :
-            'text-machinery-700'
-          }`}>
-            <div className="font-medium">
-              {dueDate.format('MMM DD, YYYY')}
+          <div className="flex items-center gap-2">
+            <div className={`w-8 h-8 rounded-lg ${iconBgColor} flex items-center justify-center flex-shrink-0`}>
+              <HugeiconsIcon icon={Clock01Icon} size={16} className={iconColor} />
             </div>
-            <div className="text-xs">
-              {isOverdue ? `Overdue by ${now.diff(dueDate, 'day')} days` : 
-               isToday ? 'Due today' : 
-               isTomorrow ? 'Due tomorrow' :
-               dueDate.fromNow()}
+            <div className={`text-sm ${
+              isOverdue ? 'text-warning-600' : 
+              isToday ? 'text-maintenance-600' : 
+              isTomorrow ? 'text-steel-600' :
+              'text-machinery-700'
+            }`}>
+              <div className="font-medium">
+                {dueDate.format('MMM DD, YYYY')}
+              </div>
+              <div className="text-xs">
+                {isOverdue ? `Overdue by ${now.diff(dueDate, 'day')} days` : 
+                 isToday ? 'Due today' : 
+                 isTomorrow ? 'Due tomorrow' :
+                 dueDate.fromNow()}
+              </div>
             </div>
           </div>
         );
@@ -362,7 +406,8 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
       width: 140,
       align: 'center',
       render: (value: any, record: WorkOrder) => (
-        <div className="flex items-center gap-1">
+        // Enhancement #5: Action buttons with hover reveal
+        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           {onViewDetails && (
             <ProfessionalButton
               variant="ghost"
@@ -554,7 +599,7 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
   if (error) {
     return (
       <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-        <Icon icon="tabler:alert-circle" className="w-12 h-12 text-warning-500 mx-auto mb-4" />
+        <HugeiconsIcon icon={Alert01Icon} size={48} className="text-warning-500 mx-auto mb-4" />
         <h3 className="text-lg font-semibold text-machinery-900 mb-2">Error Loading Work Orders</h3>
         <p className="text-machinery-600">{error}</p>
       </div>
@@ -572,6 +617,7 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
       onBulkAction={handleBulkAction}
       onExport={handleExport}
       compactMode={compactMode}
+      density="comfortable"
       searchColumns={['title', 'description', 'workOrderNumber', 'issueType']}
       searchPlaceholder="Search work orders by title, description, number, or issue type..."
       emptyText="No work orders found"

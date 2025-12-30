@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Cancel01Icon, Add01Icon } from '@hugeicons/core-free-icons';
 import { Technician, Location } from '@/types/supabase';
 
 interface TechnicianFormDialogProps {
@@ -92,7 +93,7 @@ export const TechnicianFormDialog: React.FC<TechnicianFormDialogProps> = ({
             onClick={onClose}
             className="p-2 text-gray-400 hover:text-gray-600"
           >
-            <Icon icon="heroicons:x-mark" className="h-5 w-5" />
+            <HugeiconsIcon icon={Cancel01Icon} size={20} />
           </button>
         </div>
 
@@ -209,7 +210,7 @@ export const TechnicianFormDialog: React.FC<TechnicianFormDialogProps> = ({
                 onClick={handleAddSkill}
                 className="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
-                <Icon icon="heroicons:plus" className="h-4 w-4" />
+                <HugeiconsIcon icon={Add01Icon} size={16} />
               </button>
             </div>
             {formData.specializations && formData.specializations.length > 0 && (
@@ -225,7 +226,7 @@ export const TechnicianFormDialog: React.FC<TechnicianFormDialogProps> = ({
                       onClick={() => handleRemoveSkill(skill)}
                       className="ml-1 text-blue-600 hover:text-blue-800"
                     >
-                      <Icon icon="heroicons:x-mark" className="h-3 w-3" />
+                      <HugeiconsIcon icon={Cancel01Icon} size={12} />
                     </button>
                   </span>
                 ))}

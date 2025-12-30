@@ -1,6 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  Location01Icon,
+  AlertCircleIcon,
+  CheckmarkCircle01Icon,
+  Clock01Icon,
+  Cancel01Icon
+} from '@hugeicons/core-free-icons';
 import { WorkOrder, Location } from '@/types/supabase';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -324,7 +331,7 @@ export const WorkOrdersMap: React.FC<WorkOrdersMapProps> = ({
         <div className="absolute inset-0 flex items-center justify-center bg-gray-50/80 rounded-lg">
           <div className="text-center p-6">
             <div className="mx-auto w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center mb-3">
-              <Icon icon="tabler:map-pin-off" className="w-6 h-6 text-amber-600" />
+              <HugeiconsIcon icon={Cancel01Icon} size={24} className="text-amber-600" />
             </div>
             <h3 className="text-sm font-medium text-gray-900 mb-1">No Location Data</h3>
             <p className="text-xs text-gray-500 max-w-xs">

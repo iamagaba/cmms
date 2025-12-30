@@ -9,7 +9,15 @@
  */
 
 import React, { useState, useMemo } from "react";
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  RefreshIcon, 
+  Add01Icon, 
+  Task01Icon, 
+  Folder01Icon, 
+  CheckmarkCircle01Icon, 
+  AlertCircleIcon 
+} from '@hugeicons/core-free-icons';
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { WorkOrder, Location, Vehicle } from "@/types/supabase";
@@ -188,14 +196,14 @@ const ProfessionalCMMSDashboard = () => {
               onClick={() => window.location.reload()}
               className="inline-flex items-center gap-1.5 px-3 py-2 h-9 text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-md transition-colors"
             >
-              <Icon icon="tabler:refresh" className="w-4 h-4" />
+              <HugeiconsIcon icon={RefreshIcon} size={16} />
               Refresh
             </button>
             <button
               onClick={() => navigate('/work-orders')}
               className="inline-flex items-center gap-1.5 px-3 py-2 h-9 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md transition-colors"
             >
-              <Icon icon="tabler:plus" className="w-4 h-4" />
+              <HugeiconsIcon icon={Add01Icon} size={16} />
               New Work Order
             </button>
           </div>
@@ -208,27 +216,27 @@ const ProfessionalCMMSDashboard = () => {
               title: "Total Work Orders",
               value: metrics.totalOrders,
               subtitle: `${metrics.weeklyTrend >= 0 ? '+' : ''}${typeof metrics.weeklyTrend === 'number' ? metrics.weeklyTrend.toFixed(1) : '0'}% vs last week`,
-              icon: "tabler:clipboard-list",
+              icon: Task01Icon,
               color: "primary",
               onClick: () => navigate('/work-orders')
             },
             {
               title: "Open Orders",
               value: metrics.openOrders,
-              icon: "tabler:folder-open",
+              icon: Folder01Icon,
               color: "amber",
               onClick: () => navigate('/work-orders?status=open')
             },
             {
               title: "Completed Today",
               value: metrics.completedToday,
-              icon: "tabler:circle-check",
+              icon: CheckmarkCircle01Icon,
               color: "emerald"
             },
             {
               title: "Overdue Orders",
               value: metrics.overdueOrders,
-              icon: "tabler:alert-triangle",
+              icon: AlertCircleIcon,
               color: "red",
               onClick: () => navigate('/work-orders?status=overdue')
             }

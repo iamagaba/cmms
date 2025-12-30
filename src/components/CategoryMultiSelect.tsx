@@ -1,5 +1,10 @@
 import React, { useState } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  ArrowUp01Icon,
+  ArrowDown01Icon,
+  Tick01Icon
+} from '@hugeicons/core-free-icons';
 import { ItemCategory, ITEM_CATEGORY_LABELS } from '@/types/supabase';
 import { getCategoryBadgeColor, getCategoryIcon, ALL_CATEGORIES } from '@/utils/inventory-categorization-helpers';
 
@@ -43,15 +48,16 @@ export const CategoryMultiSelect: React.FC<CategoryMultiSelectProps> = ({
                 key={category}
                 className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border ${getCategoryBadgeColor(category)}`}
               >
-                <Icon icon={getCategoryIcon(category)} className="w-3 h-3" />
+                <HugeiconsIcon icon={getCategoryIcon(category)} size={12} />
                 {ITEM_CATEGORY_LABELS[category]}
               </span>
             ))
           )}
         </div>
-        <Icon 
-          icon={isOpen ? 'tabler:chevron-up' : 'tabler:chevron-down'} 
-          className="w-4 h-4 text-gray-400 flex-shrink-0" 
+        <HugeiconsIcon 
+          icon={isOpen ? ArrowUp01Icon : ArrowDown01Icon} 
+          size={16}
+          className="text-gray-400 flex-shrink-0" 
         />
       </button>
 
@@ -95,12 +101,13 @@ export const CategoryMultiSelect: React.FC<CategoryMultiSelectProps> = ({
                       : 'border-gray-300 dark:border-gray-600'
                   }`}>
                     {isSelected && (
-                      <Icon icon="tabler:check" className="w-3 h-3 text-white" />
+                      <HugeiconsIcon icon={Tick01Icon} size={12} className="text-white" />
                     )}
                   </div>
-                  <Icon 
+                  <HugeiconsIcon 
                     icon={getCategoryIcon(category)} 
-                    className={`w-4 h-4 ${isSelected ? 'text-purple-600' : 'text-gray-400'}`} 
+                    size={16}
+                    className={isSelected ? 'text-purple-600' : 'text-gray-400'} 
                   />
                   <span className="text-gray-900 dark:text-gray-100">
                     {ITEM_CATEGORY_LABELS[category]}
@@ -139,7 +146,7 @@ export const CategoryBadge: React.FC<CategoryBadgeProps> = ({
   
   return (
     <span className={`inline-flex items-center gap-1 rounded border font-medium ${getCategoryBadgeColor(category)} ${sizeClasses}`}>
-      {showIcon && <Icon icon={getCategoryIcon(category)} className={size === 'sm' ? 'w-3 h-3' : 'w-4 h-4'} />}
+      {showIcon && <HugeiconsIcon icon={getCategoryIcon(category)} size={size === 'sm' ? 12 : 16} className="text-current" />}
       {ITEM_CATEGORY_LABELS[category]}
     </span>
   );

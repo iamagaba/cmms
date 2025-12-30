@@ -823,13 +823,16 @@ export const Modal: React.FC<ModalProps> = ({ children, opened, onClose, title, 
   const sizeClass = modalSizeMap[size] || modalSizeMap.md;
   
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-[1050] overflow-y-auto">
       <div className="flex min-h-full items-center justify-center p-4">
         {/* Backdrop */}
-        <div className="fixed inset-0 bg-black/40 backdrop-blur-md backdrop-saturate-150 transition-opacity" onClick={onClose} />
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm backdrop-saturate-150 transition-opacity" onClick={onClose} />
         
         {/* Modal content */}
-        <div className={`relative bg-white rounded-lg shadow-xl w-full ${sizeClass} ${className}`}>
+        <div 
+          className={`relative bg-white rounded-lg shadow-xl w-full ${sizeClass} ${className}`}
+          onClick={(e) => e.stopPropagation()}
+        >
           {title && (
             <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
               <h3 className="text-lg font-semibold text-gray-900">{title}</h3>

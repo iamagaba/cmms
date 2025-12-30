@@ -6,7 +6,16 @@
  */
 
 import React, { useState } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  CheckmarkCircle01Icon,
+  Wrench01Icon,
+  Alert01Icon,
+  PowerIcon,
+  AnalyticsUpIcon,
+  AnalyticsDownIcon,
+  MinusSignIcon
+} from '@hugeicons/core-free-icons';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import ProfessionalCard from '@/components/ui/ProfessionalCard';
@@ -50,7 +59,7 @@ const defaultStatuses: AssetStatus[] = [
     id: 'operational',
     label: 'Operational',
     count: 142,
-    icon: 'tabler:check-circle',
+    icon: CheckmarkCircle01Icon,
     color: 'text-industrial-600',
     bgColor: 'bg-industrial-100',
     description: 'Assets running normally',
@@ -61,7 +70,7 @@ const defaultStatuses: AssetStatus[] = [
     id: 'maintenance',
     label: 'Under Maintenance',
     count: 8,
-    icon: 'tabler:tool',
+    icon: Wrench01Icon,
     color: 'text-maintenance-600',
     bgColor: 'bg-maintenance-100',
     description: 'Assets currently being serviced',
@@ -72,7 +81,7 @@ const defaultStatuses: AssetStatus[] = [
     id: 'attention',
     label: 'Needs Attention',
     count: 3,
-    icon: 'tabler:alert-triangle',
+    icon: Alert01Icon,
     color: 'text-warning-600',
     bgColor: 'bg-warning-100',
     description: 'Assets requiring immediate attention',
@@ -83,7 +92,7 @@ const defaultStatuses: AssetStatus[] = [
     id: 'offline',
     label: 'Offline',
     count: 2,
-    icon: 'tabler:power',
+    icon: PowerIcon,
     color: 'text-machinery-600',
     bgColor: 'bg-machinery-100',
     description: 'Assets currently offline',
@@ -108,9 +117,9 @@ const StatusCard: React.FC<StatusCardProps> = ({ status, onClick, index }) => {
 
   const getTrendIcon = () => {
     switch (status.trend?.direction) {
-      case 'up': return 'tabler:trending-up';
-      case 'down': return 'tabler:trending-down';
-      default: return 'tabler:minus';
+      case 'up': return AnalyticsUpIcon;
+      case 'down': return AnalyticsDownIcon;
+      default: return MinusSignIcon;
     }
   };
 
@@ -141,14 +150,14 @@ const StatusCard: React.FC<StatusCardProps> = ({ status, onClick, index }) => {
       >
         {/* Background pattern */}
         <div className="absolute top-0 right-0 w-16 h-16 opacity-5">
-          <Icon icon={status.icon} className="w-full h-full" />
+          <HugeiconsIcon icon={status.icon} size={20} className={cn(status.color)} />
         </div>
 
         <div className="relative z-10">
           {/* Header */}
           <div className="flex items-center gap-3 mb-3">
             <div className={cn('p-2 rounded-lg', status.bgColor)}>
-              <Icon icon={status.icon} className={cn('w-5 h-5', status.color)} />
+              <HugeiconsIcon icon={status.icon} size={20} className={cn(status.color)} />
             </div>
             <div className="flex-1 min-w-0">
               <h4 className="font-medium text-machinery-900 truncate">
@@ -196,7 +205,7 @@ const StatusCard: React.FC<StatusCardProps> = ({ status, onClick, index }) => {
             {/* Trend */}
             {status.trend && status.trend.direction !== 'neutral' && (
               <div className={cn('flex items-center gap-1 text-xs font-medium', getTrendColor())}>
-                <Icon icon={getTrendIcon()} className="w-3 h-3" />
+                <HugeiconsIcon icon={getTrendIcon()} size={12} />
                 <span>{status.trend.value}</span>
               </div>
             )}

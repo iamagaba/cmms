@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowRight01Icon } from '@hugeicons/core-free-icons';
 
 interface BreadcrumbItem {
   label: string;
@@ -18,7 +19,7 @@ export const SimpleBreadcrumbs: React.FC<SimpleBreadcrumbsProps> = ({ items }) =
       {items.map((item, index) => (
         <React.Fragment key={index}>
           {index > 0 && (
-            <Icon icon="tabler:chevron-right" className="w-3 h-3 text-neutral-400" />
+            <HugeiconsIcon icon={ArrowRight01Icon} size={12} className="text-neutral-400" />
           )}
           {item.href && !item.active ? (
             <Link

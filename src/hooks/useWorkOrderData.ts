@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Location, Customer, Vehicle, Profile, ServiceCategory, SlaPolicy } from "@/types/supabase";
+import { DiagnosticCategoryRow } from "@/types/diagnostic";
 import { useRealtimeData } from "@/context/RealtimeDataContext";
 
 export const useWorkOrderData = () => {
   // Use RealtimeDataContext for work orders and technicians (eliminates duplicate queries)
-  const { realtimeWorkOrders, realtimeTechnicians, isLoadingRealtimeData } = useRealtimeData();
+  const { realtimeWorkOrders, realtimeTechnicians, isLoadingRealtimeData, refreshData } = useRealtimeData();
 
   // Use real-time data for work orders and technicians
   const allWorkOrders = realtimeWorkOrders;
@@ -52,10 +53,10 @@ export const useWorkOrderData = () => {
     staleTime: 10 * 60 * 1000, // 10 minutes - profiles change less frequently
   });
 
-  const { data: serviceCategories, isLoading: isLoadingServiceCategories, error: serviceCategoriesError } = useQuery<ServiceCategory[]>({
-    queryKey: ['service_categories'],
+  const { data: serviceCategories, isLoading: isLoadingServiceCategories, error: serviceCategoriesError } = useQuery<DiagnosticCategoryRow[]>({
+    queryKey: ['diagnostic_categories'],
     queryFn: async () => {
-      const { data, error } = await supabase.from('service_categories').select('*');
+      const { data, error } = await supabase.from('diagnostic_categories').select('*');
       if (error) throw new Error(error.message);
       return data || [];
     },
@@ -96,6 +97,6 @@ export const useWorkOrderData = () => {
     slaPolicies: slaPolicies || [],
     isLoading,
     error,
-    refetch: () => { } // No need to refetch real-time data
+    refetch: refreshData
   };
 };

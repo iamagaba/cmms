@@ -1,5 +1,20 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  PackageIcon,
+  Add01Icon,
+  MinusSignIcon,
+  AlertCircleIcon,
+  InformationCircleIcon,
+  Settings02Icon,
+  Cancel01Icon,
+  Search01Icon,
+  Alert01Icon,
+  PackageRemoveIcon,
+  Tag01Icon,
+  NoteIcon,
+  Loading01Icon
+} from '@hugeicons/core-free-icons';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { 
@@ -164,7 +179,7 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800">
             <div>
               <div className="flex items-center gap-2">
-                <Icon icon="tabler:adjustments" className="w-6 h-6 text-purple-600" />
+                <HugeiconsIcon icon={Settings02Icon} size={24} className="text-purple-600" />
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
                   Stock Adjustment
                 </h2>
@@ -177,7 +192,7 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
               onClick={onClose}
               className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
-              <Icon icon="tabler:x" className="w-5 h-5" />
+              <HugeiconsIcon icon={Cancel01Icon} size={20} />
             </button>
           </div>
 
@@ -189,7 +204,7 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
               {validationErrors.length > 0 && (
                 <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-3">
                   <div className="flex items-start gap-2">
-                    <Icon icon="tabler:alert-circle" className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+                    <HugeiconsIcon icon={AlertCircleIcon} size={20} className="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
                     <div>
                       <p className="text-sm font-medium text-red-800 dark:text-red-300">Please fix the following errors:</p>
                       <ul className="mt-1 text-sm text-red-700 dark:text-red-400 list-disc list-inside">
@@ -205,7 +220,7 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
               {/* Item Search */}
               <div>
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
-                  <Icon icon="tabler:package" className="w-4 h-4 text-purple-600" />
+                  <HugeiconsIcon icon={PackageIcon} size={16} className="text-purple-600" />
                   Items to Adjust
                 </h3>
                 
@@ -214,7 +229,7 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
                     placeholder="Search by name or SKU..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    leftIcon={<Icon icon="tabler:search" className="w-4 h-4 text-gray-400" />}
+                    leftIcon={<HugeiconsIcon icon={Search01Icon} size={16} className="text-gray-400" />}
                   />
                   
                   {/* Search Results Dropdown */}
@@ -267,7 +282,7 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
                             onClick={() => handleRemoveItem(item.id)}
                             className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400"
                           >
-                            <Icon icon="tabler:x" className="w-4 h-4" />
+                            <HugeiconsIcon icon={Cancel01Icon} size={16} />
                           </button>
                         </div>
                         
@@ -299,7 +314,7 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
                             }`}>
                               {projected}
                               {isNegative && (
-                                <Icon icon="tabler:alert-triangle" className="w-3 h-3 inline ml-1" />
+                                <HugeiconsIcon icon={Alert01Icon} size={12} className="inline ml-1" />
                               )}
                             </p>
                           </div>
@@ -312,7 +327,7 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
 
               {lineItems.length === 0 && (
                 <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                  <Icon icon="tabler:package-off" className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <HugeiconsIcon icon={PackageRemoveIcon} size={32} className="mx-auto mb-2 opacity-50" />
                   <p className="text-sm">Search and add items to adjust</p>
                 </div>
               )}
@@ -320,7 +335,7 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
               {/* Reason Selection */}
               <div>
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
-                  <Icon icon="tabler:tag" className="w-4 h-4 text-purple-600" />
+                  <HugeiconsIcon icon={Tag01Icon} size={16} className="text-purple-600" />
                   Adjustment Reason
                 </h3>
                 
@@ -340,7 +355,7 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
               {/* Notes */}
               <div>
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
-                  <Icon icon="tabler:notes" className="w-4 h-4 text-purple-600" />
+                  <HugeiconsIcon icon={NoteIcon} size={16} className="text-purple-600" />
                   Notes
                   {reason === 'other' && <span className="text-red-500">*</span>}
                 </h3>
@@ -376,7 +391,7 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
               className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
               {batchMutation.isPending && (
-                <Icon icon="tabler:loader-2" className="w-4 h-4 animate-spin" />
+                <HugeiconsIcon icon={Loading01Icon} size={16} className="animate-spin" />
               )}
               Save Adjustment
             </button>

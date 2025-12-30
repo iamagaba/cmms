@@ -1,6 +1,18 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  FilterHorizontalIcon,
+  Search01Icon,
+  UserMultiple02Icon,
+  LinkSquare02Icon,
+  Car01Icon,
+  ClipboardIcon,
+  Clock01Icon,
+  Calendar01Icon,
+  ArrowRight01Icon,
+  UserMultipleIcon
+} from '@hugeicons/core-free-icons';
 import { supabase } from "@/integrations/supabase/client";
 import { Customer, Vehicle, WorkOrder } from "@/types/supabase";
 import { snakeToCamelCase } from "@/utils/data-helpers";
@@ -128,14 +140,14 @@ const CustomersPage = () => {
                 filtersOpen ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
               }`}
             >
-              <Icon icon="tabler:adjustments-horizontal" className="w-4 h-4" />
+              <HugeiconsIcon icon={FilterHorizontalIcon} size={16} />
             </button>
           </div>
 
           {/* Search */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Icon icon="tabler:search" className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+              <HugeiconsIcon icon={Search01Icon} size={16} className="text-gray-400 dark:text-gray-500" />
             </div>
             <input
               type="text"
@@ -183,7 +195,7 @@ const CustomersPage = () => {
           ) : filteredCustomers.length === 0 ? (
             <div className="p-6 text-center">
               <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Icon icon="tabler:users-off" className="w-6 h-6 text-gray-400 dark:text-gray-500" />
+                <HugeiconsIcon icon={UserMultiple02Icon} size={24} className="text-gray-400 dark:text-gray-500" />
               </div>
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No customers found</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -261,7 +273,7 @@ const CustomersPage = () => {
                     onClick={() => navigate(`/customers/${selectedCustomer.id}`)}
                     className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
                   >
-                    <Icon icon="tabler:external-link" className="w-4 h-4 mr-1.5" />
+                    <HugeiconsIcon icon={LinkSquare02Icon} size={16} className="mr-1.5" />
                     View Full Details
                   </button>
                 </div>
@@ -273,28 +285,28 @@ const CustomersPage = () => {
               <div className="grid grid-cols-4 divide-x divide-gray-200 dark:divide-gray-800">
                 <div className="px-6 py-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <Icon icon="tabler:car" className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <HugeiconsIcon icon={Car01Icon} size={16} className="text-blue-600 dark:text-blue-400" />
                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Vehicles</p>
                   </div>
                   <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{selectedCustomerStats?.vehicleCount || 0}</p>
                 </div>
                 <div className="px-6 py-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <Icon icon="tabler:clipboard-list" className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                    <HugeiconsIcon icon={ClipboardIcon} size={16} className="text-primary-600 dark:text-primary-400" />
                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Orders</p>
                   </div>
                   <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{selectedCustomerStats?.totalWorkOrders || 0}</p>
                 </div>
                 <div className="px-6 py-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <Icon icon="tabler:clock" className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                    <HugeiconsIcon icon={Clock01Icon} size={16} className="text-amber-600 dark:text-amber-400" />
                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Open Orders</p>
                   </div>
                   <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{selectedCustomerStats?.openWorkOrders || 0}</p>
                 </div>
                 <div className="px-6 py-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <Icon icon="tabler:calendar" className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <HugeiconsIcon icon={Calendar01Icon} size={16} className="text-emerald-600 dark:text-emerald-400" />
                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Customer Since</p>
                   </div>
                   <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
@@ -372,14 +384,14 @@ const CustomersPage = () => {
                                 <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
                                   {vehicle && (
                                     <span className="flex items-center gap-1">
-                                      <Icon icon="tabler:car" className="w-3 h-3" />
+                                      <HugeiconsIcon icon={Car01Icon} size={12} />
                                       {vehicle.license_plate}
                                     </span>
                                   )}
                                   <span>{dayjs(wo.created_at).fromNow()}</span>
                                 </div>
                               </div>
-                              <Icon icon="tabler:chevron-right" className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                              <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="text-gray-400 dark:text-gray-500" />
                             </div>
                           </div>
                         );
@@ -393,7 +405,7 @@ const CustomersPage = () => {
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Icon icon="tabler:users" className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+                <HugeiconsIcon icon={UserMultipleIcon} size={32} className="text-gray-400 dark:text-gray-500" />
               </div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Select a Customer</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm">

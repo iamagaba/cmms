@@ -17,13 +17,15 @@
  */
 
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowDown01Icon, Cancel01Icon, Download01Icon, Database01Icon, ArrowRight01Icon, Search01Icon } from '@hugeicons/core-free-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import ProfessionalDataTable, { TableColumn, TableProps } from './ProfessionalDataTable';
 import ProfessionalButton from './ProfessionalButton';
 import ProfessionalInput from './ProfessionalInput';
 import { WorkOrderStatusBadge, PriorityBadge } from './ProfessionalBadge';
+import Icon from '../icons/Icon';
 
 // ============================================
 // ENHANCED INTERFACES
@@ -84,6 +86,9 @@ export interface EnhancedTableProps<T = any> extends Omit<TableProps<T>, 'search
   compactMode?: boolean;
   stickyHeader?: boolean;
   virtualScrolling?: boolean;
+  
+  // Enhancement #10: Density options
+  density?: 'compact' | 'comfortable' | 'spacious';
   
   // Mobile responsiveness
   mobileBreakpoint?: number;
@@ -303,6 +308,78 @@ const BulkActionsBar = <T,>({
 };
 
 // ============================================
+// DENSITY CONTROL COMPONENT
+// ============================================
+
+interface DensityControlProps {
+  density: 'compact' | 'comfortable' | 'spacious';
+  onDensityChange: (density: 'compact' | 'comfortable' | 'spacious') => void;
+}
+
+const DensityControl: React.FC<DensityControlProps> = ({ density, onDensityChange }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
+  const densityOptions = [
+    { value: 'compact' as const, label: 'Compact', icon: 'tabler:list' },
+    { value: 'comfortable' as const, label: 'Comfortable', icon: 'tabler:layout-grid' },
+    { value: 'spacious' as const, label: 'Spacious', icon: 'tabler:layers' },
+  ];
+
+  return (
+    <div className="relative">
+      <ProfessionalButton
+        variant="outline"
+        size="sm"
+        icon="tabler:layout-grid"
+        onClick={() => setIsOpen(!isOpen)}
+        aria-label="Change table density"
+      >
+        Density
+      </ProfessionalButton>
+      
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+            className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-machinery-200 py-2 z-50"
+          >
+            {densityOptions.map((option) => (
+              <button
+                key={option.value}
+                onClick={() => {
+                  onDensityChange(option.value);
+                  setIsOpen(false);
+                }}
+                className={cn(
+                  'w-full px-4 py-2 text-left text-sm flex items-center gap-3',
+                  'hover:bg-machinery-50 transition-colors',
+                  density === option.value && 'bg-steel-50 text-steel-700 font-medium'
+                )}
+              >
+                <Icon icon={option.icon} className="w-4 h-4" />
+                {option.label}
+                {density === option.value && (
+                  <Icon icon="tabler:check" className="w-4 h-4 ml-auto text-steel-600" />
+                )}
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {isOpen && (
+        <div
+          className="fixed inset-0 z-40"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
+    </div>
+  );
+};
+
+// ============================================
 // EXPORT MENU
 // ============================================
 
@@ -343,7 +420,7 @@ const ExportMenu = <T,>({ exportOptions, data, onExport }: ExportMenuProps<T>) =
                 }}
                 className="w-full px-4 py-2 text-left text-sm text-machinery-700 hover:bg-machinery-50 flex items-center gap-3"
               >
-                <Icon icon={option.icon} className="w-4 h-4" />
+                <HugeiconsIcon icon={option.icon} size={16} />
                 {option.label}
               </button>
             ))}
@@ -389,24 +466,29 @@ const TableSkeleton: React.FC<{ columns: number; rows?: number }> = ({
   columns, 
   rows = 5 
 }) => (
-  <div className="animate-pulse">
+  <div>
     {/* Header skeleton */}
     <div className="bg-machinery-50 border-b border-machinery-200 p-4">
       <div className="flex gap-4">
         {Array.from({ length: columns }).map((_, i) => (
-          <div key={i} className="h-4 bg-machinery-200 rounded flex-1" />
+          <div key={i} className="h-4 bg-machinery-200 rounded flex-1 animate-pulse" />
         ))}
       </div>
     </div>
     
-    {/* Rows skeleton */}
+    {/* Enhancement #9: Rows skeleton with shimmer */}
     {Array.from({ length: rows }).map((_, rowIndex) => (
       <div key={rowIndex} className="border-b border-machinery-100 p-4">
         <div className="flex gap-4">
           {Array.from({ length: columns }).map((_, colIndex) => (
             <div 
               key={colIndex} 
-              className="h-4 bg-machinery-200 rounded flex-1"
+              className={cn(
+                'h-4 rounded flex-1',
+                'bg-gradient-to-r from-machinery-200 via-machinery-100 to-machinery-200',
+                'bg-[length:1000px_100%]',
+                'animate-shimmer'
+              )}
               style={{ 
                 animationDelay: `${(rowIndex * columns + colIndex) * 50}ms` 
               }}
@@ -423,21 +505,21 @@ const TableSkeleton: React.FC<{ columns: number; rows?: number }> = ({
 // ============================================
 
 interface EmptyStateProps {
-  icon?: string;
+  icon?: any;
   title?: string;
   description?: string;
   action?: React.ReactNode;
 }
 
 const EmptyState: React.FC<EmptyStateProps> = ({
-  icon = "tabler:database-off",
+  icon = Database01Icon,
   title = "No data available",
   description = "There are no items to display at the moment.",
   action,
 }) => (
   <div className="flex flex-col items-center justify-center py-12 px-4">
     <div className="w-16 h-16 bg-machinery-100 rounded-full flex items-center justify-center mb-4">
-      <Icon icon={icon} className="w-8 h-8 text-machinery-400" />
+      <HugeiconsIcon icon={Database01Icon} size={32} className="text-machinery-400" />
     </div>
     <h3 className="text-lg font-semibold text-machinery-700 mb-2">{title}</h3>
     <p className="text-machinery-500 text-center max-w-md mb-6">{description}</p>
@@ -491,10 +573,14 @@ const MobileTable = <T extends Record<string, any>>({
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.05 }}
             className={cn(
-              'bg-white border border-machinery-200 rounded-lg p-4 shadow-sm',
-              'transition-all duration-200',
-              isSelected && 'border-steel-300 bg-steel-50',
-              onRowClick && 'cursor-pointer hover:shadow-md'
+              // Enhancement #1: Visual depth for mobile cards
+              'bg-white border border-machinery-200 rounded-lg p-4',
+              'shadow-md ring-1 ring-black/5',
+              'transition-all duration-200 ease-out',
+              // Enhancement #2: Smooth hover for mobile
+              'active:scale-[0.98]',
+              isSelected && 'border-steel-300 bg-steel-50 shadow-lg',
+              onRowClick && 'cursor-pointer active:shadow-xl'
             )}
             onClick={() => onRowClick?.(record)}
           >
@@ -512,7 +598,13 @@ const MobileTable = <T extends Record<string, any>>({
                     }
                   }}
                   onClick={(e) => e.stopPropagation()}
-                  className="w-4 h-4 text-steel-600 border-machinery-300 rounded focus:ring-steel-500"
+                  className={cn(
+                    'w-4 h-4 rounded border-2 transition-all',
+                    'border-machinery-300 text-steel-600',
+                    'focus:ring-2 focus:ring-steel-500 focus:ring-offset-2',
+                    'checked:bg-steel-600 checked:border-steel-600',
+                    'hover:border-steel-400'
+                  )}
                 />
               </div>
             )}
@@ -567,6 +659,7 @@ const EnhancedDataTable = <T extends Record<string, any>>({
   expandableRows = false,
   renderExpandedRow,
   enableVirtualization = false,
+  density = 'comfortable', // Enhancement #10: Default density
   ariaLabel = "Data table",
   ariaDescription = "A table displaying data with filtering, sorting, and selection capabilities",
   
@@ -587,6 +680,7 @@ const EnhancedDataTable = <T extends Record<string, any>>({
   const [localFilters, setLocalFilters] = useState(activeFilters);
   const [searchValue, setSearchValue] = useState('');
   const [expandedRows, setExpandedRows] = useState<Set<string>>(new Set());
+  const [localDensity, setLocalDensity] = useState<'compact' | 'comfortable' | 'spacious'>(density);
   const tableRef = useRef<HTMLDivElement>(null);
   const isMobile = useResponsiveTable(mobileBreakpoint);
 
@@ -686,9 +780,10 @@ const EnhancedDataTable = <T extends Record<string, any>>({
               className="p-1 hover:bg-machinery-100 rounded focus:outline-none focus:ring-2 focus:ring-steel-500"
               aria-label={isExpanded ? "Collapse row" : "Expand row"}
             >
-              <Icon
-                icon={isExpanded ? "tabler:chevron-down" : "tabler:chevron-right"}
-                className="w-4 h-4 text-machinery-500"
+              <HugeiconsIcon
+                icon={isExpanded ? ArrowDown01Icon : ArrowRight01Icon}
+                size={16}
+                className="text-machinery-500"
               />
             </button>
           );
@@ -728,7 +823,13 @@ const EnhancedDataTable = <T extends Record<string, any>>({
   return (
     <div 
       ref={tableRef}
-      className={cn('bg-white rounded-lg shadow-sm overflow-hidden', className)}
+      className={cn(
+        // Enhancement #1: Visual hierarchy with depth
+        'bg-white rounded-lg overflow-hidden',
+        'shadow-md border border-machinery-200',
+        'ring-1 ring-black/5',
+        className
+      )}
       role="region"
       aria-label={ariaLabel}
       aria-description={ariaDescription}
@@ -761,7 +862,7 @@ const EnhancedDataTable = <T extends Record<string, any>>({
 
       {/* Search and Export Bar */}
       {(searchable || exportOptions.length > 0) && (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 border-b border-machinery-200">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 border-b border-machinery-200 bg-machinery-25/50">
           {searchable && (
             <ProfessionalInput
               icon="tabler:search"
@@ -773,17 +874,25 @@ const EnhancedDataTable = <T extends Record<string, any>>({
             />
           )}
           
-          {exportOptions.length > 0 && (
-            <ExportMenu
-              exportOptions={exportOptions}
-              data={processedData}
-              onExport={handleExport}
+          <div className="flex items-center gap-2">
+            {/* Enhancement #10: Density control */}
+            <DensityControl
+              density={localDensity}
+              onDensityChange={setLocalDensity}
             />
-          )}
+            
+            {exportOptions.length > 0 && (
+              <ExportMenu
+                exportOptions={exportOptions}
+                data={processedData}
+                onExport={handleExport}
+              />
+            )}
+          </div>
         </div>
       )}
 
-      {/* Table Content */}
+      {/* Table Content - Enhancement #1: Add subtle inner shadow */}
       {isMobile ? (
         <MobileTable
           data={processedData}
@@ -795,7 +904,10 @@ const EnhancedDataTable = <T extends Record<string, any>>({
           emptyText={emptyText}
         />
       ) : (
-        <div className={cn(stickyHeader && 'max-h-96 overflow-y-auto')}>
+        <div className={cn(
+          stickyHeader && 'max-h-96 overflow-y-auto',
+          'shadow-inner-sm'
+        )}>
           <ProfessionalDataTable
             {...baseProps}
             columns={enhancedColumns}
@@ -806,6 +918,8 @@ const EnhancedDataTable = <T extends Record<string, any>>({
             size={compactMode ? 'sm' : size}
             searchable={false} // We handle search above
             emptyText={emptyText}
+            striped={true} // Enhancement #6: Enable zebra striping
+            density={localDensity} // Enhancement #10: Pass density prop
           />
         </div>
       )}

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Wrench01Icon, AlertCircleIcon } from '@hugeicons/core-free-icons';
 import { DiagnosticSession } from '@/types/diagnostic';
 
 interface DiagnosticSummaryProps {
@@ -29,7 +30,7 @@ export const DiagnosticSummary: React.FC<DiagnosticSummaryProps> = ({ data }) =>
         <div className="mt-2">
             <div className="flex items-center gap-2 mb-2">
                 <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700 border border-purple-100">
-                    <Icon icon="mdi:tools" width={12} className="mr-1" />
+                    <HugeiconsIcon icon={Wrench01Icon} size={12} className="mr-1" />
                     {session.finalCategory || 'General Issue'}
                 </span>
                 {session.finalSubcategory && (
@@ -45,7 +46,7 @@ export const DiagnosticSummary: React.FC<DiagnosticSummaryProps> = ({ data }) =>
             <div className="grid grid-cols-1 gap-1">
                 {issues.length > 0 && (
                     <div className="flex items-start gap-2 text-gray-700 text-sm">
-                        <Icon icon="mdi:alert-circle-outline" width={16} className="text-orange-500 mt-0.5 flex-shrink-0" />
+                        <HugeiconsIcon icon={AlertCircleIcon} size={16} className="text-orange-500 mt-0.5 flex-shrink-0" />
                         <span className="line-clamp-2">
                             {issues.join(', ')}
                         </span>

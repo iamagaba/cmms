@@ -6,7 +6,14 @@
  */
 
 import React from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  AnalyticsUpIcon,
+  AnalyticsDownIcon,
+  MinusSignIcon,
+  ArrowRight01Icon
+} from '@hugeicons/core-free-icons';
+import { Icon } from '@/components/icons/Icon';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import ProfessionalCard from '@/components/ui/ProfessionalCard';
@@ -111,9 +118,9 @@ const KPICardSkeleton: React.FC<{ className?: string }> = ({ className }) => (
 
 const getTrendIcon = (direction: 'up' | 'down' | 'neutral') => {
   switch (direction) {
-    case 'up': return 'tabler:trending-up';
-    case 'down': return 'tabler:trending-down';
-    default: return 'tabler:minus';
+    case 'up': return AnalyticsUpIcon;
+    case 'down': return AnalyticsDownIcon;
+    default: return MinusSignIcon;
   }
 };
 
@@ -178,7 +185,7 @@ const ModernKPICard: React.FC<ModernKPICardProps> = ({
               )}
             </div>
             <div className={cn('p-2 rounded-lg flex-shrink-0 ml-3', classes.iconBg)}>
-              <Icon icon={icon} className={cn('w-5 h-5', classes.icon)} />
+              <HugeiconsIcon icon={icon} size={20} className={cn(classes.icon)} />
             </div>
           </div>
 
@@ -196,7 +203,7 @@ const ModernKPICard: React.FC<ModernKPICardProps> = ({
                 'flex items-center gap-1.5 text-xs font-medium',
                 getTrendColor(trend.direction)
               )}>
-                <Icon icon={getTrendIcon(trend.direction)} className="w-3.5 h-3.5" />
+                <HugeiconsIcon icon={getTrendIcon(trend.direction)} size={14} />
                 <span>{Math.abs(trend.value)}%</span>
                 <span className="text-gray-500">{trend.label}</span>
               </div>

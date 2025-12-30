@@ -1,5 +1,25 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Tick01Icon,
+  Search01Icon,
+  MoreVerticalIcon,
+  UserIcon,
+  Wrench01Icon,
+  Motorbike01Icon,
+  ArrowLeft01Icon,
+  InformationCircleIcon,
+  Add01Icon,
+  Call02Icon,
+  Message01Icon as MessageIcon,
+  ClipboardIcon,
+  StarIcon,
+  ArrowRight01Icon,
+  Cancel01Icon,
+  AlertCircleIcon,
+  TimelineIcon,
+  File01Icon as FileIcon
+} from '@hugeicons/core-free-icons';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Customer, Vehicle } from '@/types/supabase';
@@ -249,11 +269,11 @@ const Chat: React.FC = () => {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'sent':
-        return <Icon icon="tabler:check" className="w-4 h-4 text-gray-400" />;
+        return <HugeiconsIcon icon={Tick01Icon} size={16} className="text-gray-400" />;
       case 'delivered':
-        return <Icon icon="tabler:checks" className="w-4 h-4 text-gray-400" />;
+        return <HugeiconsIcon icon={Tick01Icon} size={16} className="text-gray-400" />;
       case 'read':
-        return <Icon icon="tabler:checks" className="w-4 h-4 text-blue-500" />;
+        return <HugeiconsIcon icon={Tick01Icon} size={16} className="text-blue-500" />;
       default:
         return null;
     }
@@ -313,10 +333,10 @@ const Chat: React.FC = () => {
             <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">WhatsApp Chats</h1>
             <div className="flex items-center gap-2">
               <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-                <Icon icon="tabler:search" className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                <HugeiconsIcon icon={Search01Icon} size={20} className="text-gray-500 dark:text-gray-400" />
               </button>
               <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-                <Icon icon="tabler:dots-vertical" className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                <HugeiconsIcon icon={MoreVerticalIcon} size={20} className="text-gray-500 dark:text-gray-400" />
               </button>
             </div>
           </div>
@@ -325,7 +345,7 @@ const Chat: React.FC = () => {
         {/* Search Bar */}
         <div className="p-3 border-b border-gray-100 dark:border-gray-800 space-y-3">
           <div className="relative">
-            <Icon icon="tabler:search" className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <HugeiconsIcon icon={Search01Icon} size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               value={searchQuery}
@@ -379,7 +399,7 @@ const Chat: React.FC = () => {
                 {/* Avatar with Priority Indicator */}
                 <div className="relative flex-shrink-0">
                   <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
-                    <Icon icon="tabler:user" className="w-6 h-6 text-white" />
+                    <HugeiconsIcon icon={UserIcon} size={24} className="text-white" />
                   </div>
                   {/* Priority Dot */}
                   <div className={`absolute -top-1 -right-1 w-4 h-4 rounded border-2 border-white dark:border-gray-900 ${getPriorityColor(chat.priority)}`} />
@@ -399,7 +419,7 @@ const Chat: React.FC = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       {chat.hasActiveWorkOrder && (
-                        <Icon icon="tabler:tool" className="w-4 h-4 text-orange-500" title="Active Work Order" />
+                        <HugeiconsIcon icon={Wrench01Icon} size={16} className="text-orange-500" title="Active Work Order" />
                       )}
                       <span className="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0">
                         {formatTime(chat.lastMessageTime)}
@@ -416,7 +436,7 @@ const Chat: React.FC = () => {
                       {/* License Plate */}
                       {chat.licensePlate && (
                         <span className="text-xs font-medium text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-900/30 px-2 py-0.5 rounded border border-primary-200 dark:border-primary-700 flex items-center gap-1">
-                          <Icon icon="tabler:motorbike" className="w-3 h-3" />
+                          <HugeiconsIcon icon={Motorbike01Icon} size={12} />
                           {chat.licensePlate}
                         </span>
                       )}
@@ -447,7 +467,7 @@ const Chat: React.FC = () => {
           {/* No Results */}
           {filteredChats.length === 0 && (
             <div className="p-8 text-center">
-              <Icon icon="tabler:search-off" className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+              <HugeiconsIcon icon={Search01Icon} size={48} className="text-gray-400 mx-auto mb-3" />
               <p className="text-gray-500 dark:text-gray-400">No chats found</p>
               <p className="text-sm text-gray-400 dark:text-gray-500">Try adjusting your search or filters</p>
             </div>
@@ -469,14 +489,14 @@ const Chat: React.FC = () => {
                       onClick={() => setSelectedChat(null)}
                       className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors lg:hidden"
                     >
-                      <Icon icon="tabler:arrow-left" className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                      <HugeiconsIcon icon={ArrowLeft01Icon} size={20} className="text-gray-500 dark:text-gray-400" />
                     </button>
                   )}
 
                   {/* Avatar with Priority */}
                   <div className="relative">
                     <div className="w-10 h-10 bg-green-500 rounded-lg flex items-center justify-center">
-                      <Icon icon="tabler:user" className="w-5 h-5 text-white" />
+                      <HugeiconsIcon icon={UserIcon} size={20} className="text-white" />
                     </div>
                     <div className={`absolute -top-1 -right-1 w-3 h-3 rounded border-2 border-white dark:border-gray-900 ${getPriorityColor(selectedChat.priority)}`} />
                   </div>
@@ -508,7 +528,7 @@ const Chat: React.FC = () => {
                       onClick={() => setShowCustomerDetails(!showCustomerDetails)}
                       className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors lg:hidden"
                     >
-                      <Icon icon="tabler:info-circle" className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                      <HugeiconsIcon icon={InformationCircleIcon} size={20} className="text-gray-500 dark:text-gray-400" />
                     </button>
                   )}
 
@@ -516,17 +536,17 @@ const Chat: React.FC = () => {
                     onClick={() => setIsCreateWorkOrderOpen(true)}
                     className={`${isMobileView ? 'px-3 py-2' : 'px-4 py-2'} bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2`}
                   >
-                    <Icon icon="tabler:plus" className="w-4 h-4" />
+                    <HugeiconsIcon icon={Add01Icon} size={16} />
                     {!isMobileView && 'Create Work Order'}
                   </button>
 
                   <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-                    <Icon icon="tabler:phone" className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                    <HugeiconsIcon icon={Call02Icon} size={20} className="text-gray-500 dark:text-gray-400" />
                   </button>
 
                   {!isMobileView && (
                     <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">
-                      <Icon icon="tabler:dots-vertical" className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                      <HugeiconsIcon icon={MoreVerticalIcon} size={20} className="text-gray-500 dark:text-gray-400" />
                     </button>
                   )}
                 </div>
@@ -538,7 +558,7 @@ const Chat: React.FC = () => {
               {selectedChat.messages.length === 0 ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-center">
-                    <Icon icon="tabler:message-circle-off" className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-3" />
+                    <HugeiconsIcon icon={MessageIcon} size={48} className="text-gray-400 dark:text-gray-500 mx-auto mb-3" />
                     <p className="text-gray-500 dark:text-gray-400">No messages yet</p>
                     <p className="text-sm text-gray-400 dark:text-gray-500">Start a conversation with this customer</p>
                   </div>
@@ -566,7 +586,7 @@ const Chat: React.FC = () => {
                         }">
                           {message.isFromCustomer && (
                             <div className="w-8 h-8 bg-green-500 rounded-lg flex items-center justify-center flex-shrink-0">
-                              <Icon icon="tabler:user" className="w-4 h-4 text-white" />
+                              <HugeiconsIcon icon={UserIcon} size={16} className="text-white" />
                             </div>
                           )}
                           <div
@@ -597,10 +617,10 @@ const Chat: React.FC = () => {
             <div className="bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800 p-4">
               <div className="flex items-center gap-3">
                 <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors" title="Attach file">
-                  <Icon icon="tabler:paperclip" className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                  <HugeiconsIcon icon={ClipboardIcon} size={20} className="text-gray-500 dark:text-gray-400" />
                 </button>
                 <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors" title="Send image">
-                  <Icon icon="tabler:photo" className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                  <HugeiconsIcon icon={FileIcon} size={20} className="text-gray-500 dark:text-gray-400" />
                 </button>
                 <div className="flex-1 relative">
                   <input
@@ -613,7 +633,7 @@ const Chat: React.FC = () => {
                     rows={1}
                   />
                   <button className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded" title="Add emoji">
-                    <Icon icon="tabler:mood-smile" className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                    <HugeiconsIcon icon={StarIcon} size={20} className="text-gray-500 dark:text-gray-400" />
                   </button>
                 </div>
                 <button
@@ -622,7 +642,7 @@ const Chat: React.FC = () => {
                   className="p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                   title="Send message"
                 >
-                  <Icon icon="tabler:send" className="w-5 h-5" />
+                  <HugeiconsIcon icon={ArrowRight01Icon} size={20} />
                 </button>
               </div>
 
@@ -635,7 +655,7 @@ const Chat: React.FC = () => {
         ) : (
           <div className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-gray-950">
             <div className="text-center">
-              <Icon icon="tabler:message-circle" className="w-16 h-16 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+              <HugeiconsIcon icon={MessageIcon} size={64} className="text-gray-400 dark:text-gray-500 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Select a chat to start messaging</h3>
               <p className="text-gray-500 dark:text-gray-400">Choose a conversation from the sidebar to view messages</p>
             </div>
@@ -653,7 +673,7 @@ const Chat: React.FC = () => {
                 onClick={() => setShowCustomerDetails(false)}
                 className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
               >
-                <Icon icon="tabler:x" className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                <HugeiconsIcon icon={Cancel01Icon} size={20} className="text-gray-500 dark:text-gray-400" />
               </button>
             )}
           </div>
@@ -664,7 +684,7 @@ const Chat: React.FC = () => {
               <div className="flex items-start gap-4 mb-4">
                 <div className="relative">
                   <div className="w-16 h-16 bg-green-500 rounded-lg flex items-center justify-center">
-                    <Icon icon="tabler:user" className="w-8 h-8 text-white" />
+                    <HugeiconsIcon icon={UserIcon} size={32} className="text-white" />
                   </div>
                   <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded border-2 border-white dark:border-gray-900 ${getPriorityColor(selectedChat.priority)}`} />
                 </div>
@@ -685,13 +705,13 @@ const Chat: React.FC = () => {
                   <div className="flex flex-wrap gap-2">
                     {selectedChat.licensePlate && (
                       <span className="inline-flex items-center gap-1 text-xs font-medium text-primary-700 dark:text-primary-400 bg-primary-100 dark:bg-primary-900/30 px-2 py-1 rounded border border-primary-200 dark:border-primary-800">
-                        <Icon icon="tabler:motorbike" className="w-3 h-3" />
+                        <HugeiconsIcon icon={Motorbike01Icon} size={12} />
                         {selectedChat.licensePlate}
                       </span>
                     )}
                     {selectedChat.hasActiveWorkOrder && (
                       <span className="inline-flex items-center gap-1 text-xs font-medium text-orange-700 dark:text-orange-400 bg-orange-100 dark:bg-orange-900/30 px-2 py-1 rounded border border-orange-200 dark:border-orange-800">
-                        <Icon icon="tabler:tool" className="w-3 h-3" />
+                        <HugeiconsIcon icon={Wrench01Icon} size={12} />
                         Active WO
                       </span>
                     )}
@@ -733,7 +753,7 @@ const Chat: React.FC = () => {
               ) : (
                 <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
                   <div className="flex items-center gap-2 mb-2">
-                    <Icon icon="tabler:alert-triangle" className="w-4 h-4 text-yellow-600 dark:text-yellow-400" />
+                    <HugeiconsIcon icon={AlertCircleIcon} size={16} className="text-yellow-600 dark:text-yellow-400" />
                     <span className="text-sm font-medium text-yellow-800 dark:text-yellow-300">Customer not in system</span>
                   </div>
                   <p className="text-xs text-yellow-700 dark:text-yellow-400 mb-2">
@@ -750,7 +770,7 @@ const Chat: React.FC = () => {
             {customerDetails && (
               <div>
                 <h5 className="font-medium text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
-                  <Icon icon="tabler:timeline" className="w-4 h-4" />
+                  <HugeiconsIcon icon={TimelineIcon} size={16} />
                   Service Timeline
                 </h5>
                 <div className="space-y-3">

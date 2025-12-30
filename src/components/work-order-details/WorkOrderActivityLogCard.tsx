@@ -1,5 +1,6 @@
 import React from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { TimelineIcon, Clock01Icon } from '@hugeicons/core-free-icons';
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -42,7 +43,7 @@ export const WorkOrderActivityLogCard: React.FC<WorkOrderActivityLogCardProps> =
     return 'text-gray-600 bg-gray-100';
   };
 
-  const sortedLog = [...activityLog].sort((a, b) => 
+  const sortedLog = [...activityLog].sort((a, b) =>
     new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
   );
 
@@ -61,7 +62,7 @@ export const WorkOrderActivityLogCard: React.FC<WorkOrderActivityLogCardProps> =
       <div className="px-3 py-2">
         {sortedLog.length === 0 ? (
           <div className="text-center py-4">
-            <Icon icon="tabler:history-off" className="w-6 h-6 text-gray-300 mx-auto mb-1" />
+            <HugeiconsIcon icon={Clock01Icon} size={24} className="text-gray-300 mx-auto mb-1" />
             <p className="text-xs text-gray-400">No activity recorded yet</p>
           </div>
         ) : (
@@ -76,20 +77,20 @@ export const WorkOrderActivityLogCard: React.FC<WorkOrderActivityLogCardProps> =
                 <div key={index} className="flex gap-2 relative pb-2.5 last:pb-0">
                   {/* Timeline connector line */}
                   {!isLast && (
-                    <div 
-                      className="absolute left-3 w-px bg-gray-200" 
-                      style={{ 
+                    <div
+                      className="absolute left-3 w-px bg-gray-200"
+                      style={{
                         top: '28px',
                         height: 'calc(100% - 32px)'
                       }}
                     />
                   )}
-                  
+
                   {/* Activity icon */}
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 relative z-10 ${getActivityColor(entry.activity)}`}>
-                    <Icon icon={getActivityIcon(entry.activity)} className="w-3 h-3" />
+                    <HugeiconsIcon icon={TimelineIcon} size={12} />
                   </div>
-                  
+
                   {/* Activity content */}
                   <div className="flex-1 min-w-0 pt-0.5">
                     <p className="text-xs text-gray-900 leading-snug">{entry.activity}</p>

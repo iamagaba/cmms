@@ -7,7 +7,15 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  Menu01Icon,
+  Cancel01Icon,
+  Home01Icon,
+  Settings01Icon,
+  MoreVerticalIcon
+} from '@hugeicons/core-free-icons';
+import { Icon } from '@/components/icons/Icon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useResponsive } from '@/utils/responsive';
@@ -358,7 +366,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
                 className="p-2 hover:bg-machinery-50 rounded-lg transition-colors"
                 aria-label="Close navigation"
               >
-                <Icon icon="tabler:x" className="w-6 h-6 text-machinery-600" />
+                <HugeiconsIcon icon={Cancel01Icon} size={24} className="text-machinery-600" />
               </button>
             </div>
 
@@ -446,7 +454,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         
         {hasMoreItems && (
           <button className="flex-1 flex flex-col items-center justify-center py-2 px-1 min-h-[64px] text-machinery-500">
-            <Icon icon="tabler:dots-vertical" className="w-6 h-6 mb-1" />
+            <HugeiconsIcon icon={MoreVerticalIcon} size={24} className="mb-1" />
             <span className="text-xs font-medium">More</span>
           </button>
         )}

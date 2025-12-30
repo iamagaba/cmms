@@ -1,5 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Motorbike01Icon,
+  Cancel01Icon,
+  Tick01Icon,
+  UserIcon,
+  Search01Icon,
+  CheckmarkCircle01Icon,
+  InformationCircleIcon,
+  Wrench01Icon,
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
+  Loading01Icon
+} from '@hugeicons/core-free-icons';
 import { Vehicle, Customer } from '@/types/supabase';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -260,7 +273,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
             <div>
               <div className="flex items-center gap-2">
-                <Icon icon="tabler:motorbike" className="w-6 h-6 text-primary-600" />
+                <HugeiconsIcon icon={Motorbike01Icon} size={24} className="text-primary-600" />
                 <h2 className="text-xl font-semibold text-gray-900">
                   {vehicle ? 'Edit Asset' : 'Create New Asset'}
                 </h2>
@@ -271,7 +284,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
               onClick={onClose}
               className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
             >
-              <Icon icon="tabler:x" className="w-5 h-5" />
+              <HugeiconsIcon icon={Cancel01Icon} size={20} />
             </button>
           </div>
 
@@ -280,9 +293,9 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
             <div className="px-6 py-4 border-b border-gray-200 bg-white">
               <div className="flex items-center justify-between">
                 {[
-                  { num: 1, label: 'Owner Info', icon: 'tabler:user' },
-                  { num: 2, label: 'Bike Details', icon: 'tabler:motorbike' },
-                  { num: 3, label: 'Technical Info', icon: 'tabler:tool' }
+                  { num: 1, label: 'Owner Info', icon: UserIcon },
+                  { num: 2, label: 'Bike Details', icon: Motorbike01Icon },
+                  { num: 3, label: 'Technical Info', icon: Wrench01Icon }
                 ].map((step, idx) => (
                   <div key={step.num} className="flex items-center flex-1">
                     <div className="flex flex-col items-center">
@@ -290,7 +303,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                         step.num === currentStep ? 'bg-primary-600 text-white ring-4 ring-primary-100' :
                         step.num < currentStep ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-600'
                       }`}>
-                        {step.num < currentStep ? <Icon icon="tabler:check" width={20} /> : <Icon icon={step.icon} width={20} />}
+                        {step.num < currentStep ? <HugeiconsIcon icon={Tick01Icon} size={20} /> : <HugeiconsIcon icon={step.icon} size={20} />}
                       </div>
                       <span className={`text-xs mt-1 font-medium ${
                         step.num === currentStep ? 'text-primary-600' :
@@ -318,7 +331,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
           {(currentStep === 1 || vehicle) && (
           <div>
             <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Icon icon="tabler:user" className="w-5 h-5 text-primary-600" />
+              <HugeiconsIcon icon={UserIcon} size={20} className="text-primary-600" />
               Owner Information
             </h3>
             <div className="space-y-4">
@@ -362,7 +375,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                     placeholder="Search by name or phone number"
                     className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   />
-                  <Icon icon="tabler:search" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <HugeiconsIcon icon={Search01Icon} size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 </div>
                 
                 {/* Dropdown results */}
@@ -379,7 +392,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                           <div className="text-sm font-medium text-gray-900">{customer.name || 'No name'}</div>
                           <div className="text-xs text-gray-500">{customer.phone || 'No phone'}</div>
                         </div>
-                        <Icon icon="tabler:check" className="w-4 h-4 text-primary-600 opacity-0 group-hover:opacity-100" />
+                        <HugeiconsIcon icon={Tick01Icon} size={16} className="text-primary-600 opacity-0 group-hover:opacity-100" />
                       </button>
                     ))}
                   </div>
@@ -430,7 +443,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
               {formData.customer_id && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Icon icon="tabler:user-check" className="w-4 h-4 text-green-600" />
+                    <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="text-green-600" />
                     <span className="text-sm text-green-900">Existing customer selected</span>
                   </div>
                   <button
@@ -455,7 +468,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
           {(currentStep === 2 || vehicle) && (
           <div>
             <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Icon icon="tabler:motorbike" className="w-5 h-5 text-primary-600" />
+              <HugeiconsIcon icon={Motorbike01Icon} size={20} className="text-primary-600" />
               Bike Details
             </h3>
             <div className="space-y-4">
@@ -535,7 +548,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
               {formData.date_of_manufacture && (
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                   <div className="flex items-start gap-2">
-                    <Icon icon="tabler:info-circle" className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <HugeiconsIcon icon={InformationCircleIcon} size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
                     <div>
                       <p className="text-sm font-medium text-blue-900">Warranty Information</p>
                       <p className="text-xs text-blue-700 mt-1">
@@ -566,7 +579,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
               {ownershipType !== 'Business' && (
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
                   <div className="flex items-start gap-2">
-                    <Icon icon="tabler:info-circle" className="w-4 h-4 text-gray-500 flex-shrink-0 mt-0.5" />
+                    <HugeiconsIcon icon={InformationCircleIcon} size={16} className="text-gray-500 flex-shrink-0 mt-0.5" />
                     <p className="text-xs text-gray-600">
                       Only company-owned bikes (Business ownership) can be marked as Emergency Bikes.
                     </p>
@@ -581,7 +594,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
           {(currentStep === 3 || vehicle) && (
           <div>
             <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <Icon icon="tabler:tool" className="w-5 h-5 text-primary-600" />
+              <HugeiconsIcon icon={Wrench01Icon} size={20} className="text-primary-600" />
               Technical Information
             </h3>
             <div className="space-y-4">
@@ -661,7 +674,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                   disabled={isSaving}
                   className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
                 >
-                  <Icon icon="tabler:arrow-left" className="w-4 h-4" />
+                  <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
                   Back
                 </button>
               )}
@@ -693,7 +706,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                   className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2"
                 >
                   Next
-                  <Icon icon="tabler:arrow-right" className="w-4 h-4" />
+                  <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
                 </button>
               ) : (
                 <button
@@ -702,7 +715,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                   disabled={isSaving}
                   className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
                 >
-                  {isSaving && <Icon icon="tabler:loader-2" className="w-4 h-4 animate-spin" />}
+                  {isSaving && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin" />}
                   {vehicle ? 'Update Asset' : 'Create Asset'}
                 </button>
               )}

@@ -1,7 +1,25 @@
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  UserCircleIcon,
+  ClipboardIcon,
+  Edit01Icon,
+  Mail01Icon,
+  Call02Icon,
+  Car01Icon,
+  LinkSquare02Icon,
+  Clock01Icon,
+  Alert01Icon,
+  CheckmarkCircle01Icon,
+  ArrowRight01Icon,
+  Motorbike01Icon,
+  TimelineIcon,
+  Add01Icon,
+  InformationCircleIcon,
+  Location01Icon
+} from '@hugeicons/core-free-icons';
 import { Stack, Button, Skeleton } from '@/components/tailwind-components';
 import { supabase } from '@/integrations/supabase/client';
 import { Customer, Vehicle, WorkOrder } from '@/types/supabase';
@@ -82,7 +100,7 @@ const CustomerDetails = () => {
     return (
       <div className="w-full px-6 py-6">
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-12 text-center">
-          <Icon icon="mdi:alert-circle" className="mx-auto text-gray-400 dark:text-gray-500 mb-4" width={64} />
+          <HugeiconsIcon icon={Alert01Icon} className="mx-auto text-gray-400 dark:text-gray-500 mb-4" size={64} />
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Customer Not Found</h3>
           <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">The customer you're looking for doesn't exist.</p>
           <Button onClick={() => navigate('/customers')}>Back to Customers</Button>
@@ -112,10 +130,10 @@ const CustomerDetails = () => {
               onClick={() => navigate('/customers')}
               className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 flex items-center gap-1 transition-colors"
             >
-              <Icon icon="tabler:chevron-left" width={16} />
+              <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="rotate-180" />
               Customers
             </button>
-            <Icon icon="tabler:chevron-right" width={14} className="text-gray-400 dark:text-gray-500" />
+            <HugeiconsIcon icon={ArrowRight01Icon} size={14} className="text-gray-400 dark:text-gray-500" />
             <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{customer.name}</span>
           </div>
           <div className="flex items-center gap-2">
@@ -123,7 +141,7 @@ const CustomerDetails = () => {
               onClick={() => navigate(`/work-orders?customer=${id}`)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
             >
-              <Icon icon="tabler:clipboard-list" width={16} />
+              <HugeiconsIcon icon={ClipboardIcon} size={16} />
               <span className="hidden sm:inline">View Work Orders</span>
               <span className="sm:hidden">Work Orders</span>
             </button>
@@ -131,7 +149,7 @@ const CustomerDetails = () => {
               onClick={() => navigate(`/customers`)}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
             >
-              <Icon icon="tabler:edit" width={16} />
+              <HugeiconsIcon icon={Edit01Icon} size={16} />
               <span className="hidden sm:inline">Edit Customer</span>
               <span className="sm:hidden">Edit</span>
             </button>
@@ -155,7 +173,7 @@ const CustomerDetails = () => {
                 </span>
                 {customer.email && (
                   <span className="px-2.5 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                    <Icon icon="tabler:mail" width={12} className="inline mr-1" />
+                    <HugeiconsIcon icon={Mail01Icon} size={12} className="inline mr-1" />
                     Verified
                   </span>
                 )}
@@ -172,12 +190,12 @@ const CustomerDetails = () => {
               onClick={() => navigate(`/assets?customer=${id}`)}
             >
               <div className="flex items-center gap-2 mb-1">
-                <Icon icon="tabler:car" className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                <HugeiconsIcon icon={Car01Icon} className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Vehicles</p>
               </div>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{totalVehicles}</p>
               <div className="mt-2 flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
-                <Icon icon="tabler:arrow-right" className="w-3 h-3" />
+                <HugeiconsIcon icon={ArrowRight01Icon} className="w-3 h-3" />
                 <span>View vehicles</span>
               </div>
             </div>
@@ -187,25 +205,25 @@ const CustomerDetails = () => {
               onClick={() => navigate(`/work-orders?customer=${id}`)}
             >
               <div className="flex items-center gap-2 mb-1">
-                <Icon icon="tabler:clipboard-list" className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                <HugeiconsIcon icon={ClipboardIcon} className="w-4 h-4 text-primary-600 dark:text-primary-400" />
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Work Orders</p>
               </div>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{totalWorkOrders}</p>
               <div className="mt-2 flex items-center gap-1 text-xs text-primary-600 dark:text-primary-400">
-                <Icon icon="tabler:arrow-right" className="w-3 h-3" />
+                <HugeiconsIcon icon={ArrowRight01Icon} className="w-3 h-3" />
                 <span>View all</span>
               </div>
             </div>
 
             <div className="px-6 py-4">
               <div className="flex items-center gap-2 mb-1">
-                <Icon icon="tabler:clock" className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                <HugeiconsIcon icon={Clock01Icon} className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Open Work Orders</p>
               </div>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{openWorkOrders}</p>
               {openWorkOrders > 0 && (
                 <div className="mt-2 flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
-                  <Icon icon="tabler:alert-circle" className="w-3 h-3" />
+                  <HugeiconsIcon icon={Alert01Icon} className="w-3 h-3" />
                   <span>Needs attention</span>
                 </div>
               )}
@@ -213,7 +231,7 @@ const CustomerDetails = () => {
 
             <div className="px-6 py-4">
               <div className="flex items-center gap-2 mb-1">
-                <Icon icon="tabler:circle-check" className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <HugeiconsIcon icon={CheckmarkCircle01Icon} className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Completed</p>
               </div>
               <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{completedWorkOrders}</p>
@@ -227,7 +245,7 @@ const CustomerDetails = () => {
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                  <Icon icon="tabler:address-book" width={18} className="text-gray-600 dark:text-gray-400" />
+                  <HugeiconsIcon icon={UserCircleIcon} size={18} className="text-gray-600 dark:text-gray-400" />
                   Contact Information
                 </h3>
                 {customer.phone && (
@@ -235,7 +253,7 @@ const CustomerDetails = () => {
                     href={`tel:${customer.phone}`}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
                   >
-                    <Icon icon="tabler:phone" width={14} />
+                    <HugeiconsIcon icon={Call02Icon} size={14} />
                     Call Customer
                   </a>
                 )}
@@ -266,7 +284,7 @@ const CustomerDetails = () => {
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                  <Icon icon="tabler:car" width={18} className="text-gray-600 dark:text-gray-400" />
+                  <HugeiconsIcon icon={Car01Icon} size={18} className="text-gray-600 dark:text-gray-400" />
                   Vehicles
                 </h3>
                 <button
@@ -274,7 +292,7 @@ const CustomerDetails = () => {
                   className="inline-flex items-center gap-1 text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors"
                 >
                   View All
-                  <Icon icon="tabler:arrow-right" width={14} />
+                  <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
                 </button>
               </div>
               {vehicles && vehicles.length > 0 ? (
@@ -288,7 +306,7 @@ const CustomerDetails = () => {
                       <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3 flex-1 min-w-0">
                           <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
-                            <Icon icon="tabler:motorbike" className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                            <HugeiconsIcon icon={Motorbike01Icon} className="w-5 h-5 text-gray-600 dark:text-gray-400" />
                           </div>
                           <div className="min-w-0">
                             <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">
@@ -299,7 +317,7 @@ const CustomerDetails = () => {
                             </p>
                           </div>
                         </div>
-                        <Icon icon="tabler:chevron-right" className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors flex-shrink-0" />
+                        <HugeiconsIcon icon={ArrowRight01Icon} className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors flex-shrink-0" />
                       </div>
                     </div>
                   ))}
@@ -315,7 +333,7 @@ const CustomerDetails = () => {
               ) : (
                 <div className="text-center py-12">
                   <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-3">
-                    <Icon icon="tabler:car-off" className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+                    <HugeiconsIcon icon={Car01Icon} className="w-8 h-8 text-gray-400 dark:text-gray-500" />
                   </div>
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No Vehicles</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">This customer doesn't have any vehicles yet</p>
@@ -323,7 +341,7 @@ const CustomerDetails = () => {
                     onClick={() => navigate(`/assets/new?customer=${id}`)}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
                   >
-                    <Icon icon="tabler:plus" width={14} />
+                    <HugeiconsIcon icon={Add01Icon} size={14} />
                     Add Vehicle
                   </button>
                 </div>
@@ -334,7 +352,7 @@ const CustomerDetails = () => {
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                  <Icon icon="tabler:history" width={18} className="text-gray-600 dark:text-gray-400" />
+                  <HugeiconsIcon icon={TimelineIcon} size={18} className="text-gray-600 dark:text-gray-400" />
                   Service History
                 </h3>
                 <button
@@ -342,7 +360,7 @@ const CustomerDetails = () => {
                   className="inline-flex items-center gap-1 text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors"
                 >
                   View All
-                  <Icon icon="tabler:arrow-right" width={14} />
+                  <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
                 </button>
               </div>
               {workOrders && workOrders.length > 0 ? (
@@ -373,13 +391,13 @@ const CustomerDetails = () => {
                             </div>
                             <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">{wo.description || wo.service || 'General Service'}</p>
                           </div>
-                          <Icon icon="tabler:chevron-right" className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors flex-shrink-0 mt-1" />
+                          <HugeiconsIcon icon={ArrowRight01Icon} className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors flex-shrink-0 mt-1" />
                         </div>
                         <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
                           <span className="flex items-center gap-1">
                             {vehicle && (
                               <>
-                                <Icon icon="tabler:car" className="w-3 h-3" />
+                                <HugeiconsIcon icon={Car01Icon} className="w-3 h-3" />
                                 {vehicle.license_plate}
                               </>
                             )}
@@ -401,7 +419,7 @@ const CustomerDetails = () => {
               ) : (
                 <div className="text-center py-12">
                   <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-3">
-                    <Icon icon="tabler:clipboard-off" className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+                    <HugeiconsIcon icon={ClipboardIcon} className="w-8 h-8 text-gray-400 dark:text-gray-500" />
                   </div>
                   <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No Service History</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">This customer hasn't had any work orders yet</p>
@@ -409,7 +427,7 @@ const CustomerDetails = () => {
                     onClick={() => navigate(`/work-orders/new?customer=${id}`)}
                     className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
                   >
-                    <Icon icon="tabler:plus" width={14} />
+                    <HugeiconsIcon icon={Add01Icon} size={14} />
                     Create Work Order
                   </button>
                 </div>
@@ -420,7 +438,7 @@ const CustomerDetails = () => {
           {(customer.notes || customer.created_at) && (
             <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
               <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                <Icon icon="tabler:info-circle" width={18} className="text-gray-600 dark:text-gray-400" />
+                <HugeiconsIcon icon={InformationCircleIcon} size={18} className="text-gray-600 dark:text-gray-400" />
                 Additional Information
               </h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

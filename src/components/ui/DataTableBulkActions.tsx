@@ -6,7 +6,8 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Cancel01Icon, Tick01Icon, Keyboard01Icon } from '@hugeicons/core-free-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { BulkAction } from './EnhancedProfessionalDataTable';
@@ -100,7 +101,7 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
           {/* Header */}
           <div className="flex items-start gap-4 mb-4">
             <div className={cn('flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center', styles.iconBg)}>
-              <Icon icon={styles.icon} className={cn('w-5 h-5', styles.iconColor)} />
+              {/* TODO: Convert styles.icon prop to use HugeiconsIcon component */}
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-semibold text-machinery-900 mb-2">
@@ -189,7 +190,7 @@ const BulkActionButton: React.FC<BulkActionButtonProps> = ({
       )}
       title={action.shortcut ? `${action.label} (${action.shortcut})` : action.label}
     >
-      <Icon icon={action.icon} className="w-4 h-4" />
+      {/* TODO: Convert action.icon prop to use HugeiconsIcon component */}
       <span>{action.label}</span>
       {selectedCount > 0 && (
         <span className="ml-1 px-1.5 py-0.5 text-xs bg-black bg-opacity-20 rounded">
@@ -297,7 +298,7 @@ const DataTableBulkActions = <T,>({
           {/* Selection Info */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <Icon icon="tabler:check" className="w-4 h-4 text-steel-600" />
+              <HugeiconsIcon icon={Tick01Icon} size={16} className="text-steel-600" />
               <span className="text-sm font-medium text-steel-700">
                 {selectedCount} of {totalCount} selected
               </span>
@@ -333,7 +334,7 @@ const DataTableBulkActions = <T,>({
             )}
             title="Clear selection (Esc)"
           >
-            <Icon icon="tabler:x" className="w-4 h-4" />
+            <HugeiconsIcon icon={Cancel01Icon} size={16} />
             <span>Clear selection</span>
           </button>
         </div>
@@ -342,7 +343,7 @@ const DataTableBulkActions = <T,>({
         {bulkActions.some(action => action.shortcut) && (
           <div className="mt-2 pt-2 border-t border-steel-200">
             <div className="flex items-center gap-4 text-xs text-machinery-500">
-              <Icon icon="tabler:keyboard" className="w-3 h-3" />
+              <HugeiconsIcon icon={Keyboard01Icon} size={12} />
               <span>Keyboard shortcuts:</span>
               {bulkActions
                 .filter(action => action.shortcut)

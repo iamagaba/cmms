@@ -1,5 +1,6 @@
 import { StatusBadge } from '@/components/badges';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { UserIcon, Location01Icon, AlertCircleIcon, CheckmarkCircle01Icon } from '@hugeicons/core-free-icons';
 import { WorkOrder, Technician, Vehicle } from '@/types/supabase';
 import { formatDistanceToNow, isPast, isValid } from 'date-fns';
 import React from 'react';
@@ -57,7 +58,7 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
           {tech.avatar ? (
             <img src={tech.avatar} alt={tech.name} className="w-full h-full object-cover" />
           ) : (
-            <Icon icon="tabler:user" width="12" height="12" />
+            <HugeiconsIcon icon={UserIcon} size={12} />
           )}
         </div>
         <span className="text-xs truncate max-w-[100px]">{tech.name}</span>
@@ -69,7 +70,7 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
 
   const renderAddress = (address: string) => address ? (
     <div className="flex items-center gap-1">
-      <Icon icon="tabler:map-pin" className="w-3 h-3 text-gray-500" />
+      <HugeiconsIcon icon={Location01Icon} className="w-3 h-3 text-gray-500" size={12} />
       <span className="text-xs truncate max-w-[150px]" title={address}>{address}</span>
     </div>
   ) : <span className="text-xs text-gray-400">N/A</span>;
@@ -96,7 +97,7 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
     <div className="bg-white border border-slate-100 shadow-sm h-full flex flex-col rounded-xl overflow-hidden">
       <div className="p-4 border-b border-slate-50 flex items-center gap-3">
         <div className="w-6 h-6 rounded-full flex items-center justify-center bg-rose-50 text-rose-500">
-          <Icon icon="tabler:alert-triangle" className="w-4 h-4" />
+          <HugeiconsIcon icon={AlertCircleIcon} className="w-4 h-4" size={16} />
         </div>
         <div>
           <span className="text-sm font-bold text-slate-800 block">Urgent Work Orders</span>
@@ -122,7 +123,7 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
           ) : (
             <div className="flex flex-col items-center justify-center py-8 gap-2">
               <div className="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center">
-                <Icon icon="tabler:circle-check" className="w-5 h-5 text-emerald-500" />
+                <HugeiconsIcon icon={CheckmarkCircle01Icon} className="w-5 h-5 text-emerald-500" size={20} />
               </div>
               <span className="text-xs font-medium text-slate-500">No urgent work orders</span>
             </div>

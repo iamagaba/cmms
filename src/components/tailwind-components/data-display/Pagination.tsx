@@ -1,7 +1,8 @@
 import { ActionIcon } from '../feedback/ActionIcon';
 import { Group } from '../layout/Group';
 import { Text } from '../typography/Text';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowLeft01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons';
 import { clsx } from 'clsx';
 
 export interface PaginationProps {
@@ -85,7 +86,7 @@ export function Pagination({
                     color="gray"
                     style={{ width: buttonSize, height: buttonSize }}
                 >
-                    <Icon icon="tabler:chevron-left" />
+                    <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
                 </ActionIcon>
             )}
 
@@ -128,7 +129,7 @@ export function Pagination({
                     color="gray"
                     style={{ width: buttonSize, height: buttonSize }}
                 >
-                    <Icon icon="tabler:chevron-right" />
+                    <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
                 </ActionIcon>
             )}
         </Group>

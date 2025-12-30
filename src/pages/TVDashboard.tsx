@@ -13,7 +13,13 @@ import { useQuery } from '@tanstack/react-query';
 import * as RGL from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  RefreshIcon,
+  Add01Icon,
+  Cancel01Icon,
+  CheckmarkCircle01Icon
+} from '@hugeicons/core-free-icons';
 
 dayjs.extend(isBetween);
 
@@ -699,7 +705,7 @@ export default function TVDashboard() {
                     className="flex items-center gap-2 px-3 py-2 text-sm font-medium bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm rounded-lg border border-white/10 transition-colors"
                     title="Reset to Default Layout"
                 >
-                    <Icon icon="heroicons:arrow-path" className="w-4 h-4" />
+                    <HugeiconsIcon icon={RefreshIcon} size={16} />
                     <span>Reset</span>
                 </button>
 
@@ -707,7 +713,7 @@ export default function TVDashboard() {
                     onClick={() => setViewMode('edit')}
                     className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white shadow-lg shadow-primary-500/30 transition-all font-bold uppercase text-sm tracking-wide"
                 >
-                    <Icon icon="heroicons:plus" className="w-5 h-5" />
+                    <Add01Icon size={20} />
                     <span className="hidden sm:inline">Add Widget</span>
                 </button>
             </div>
@@ -725,7 +731,7 @@ export default function TVDashboard() {
                                 onClick={() => setViewMode('view')}
                                 className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
                             >
-                                <Icon icon="heroicons:x-mark" className="w-6 h-6 dark:text-white" />
+                                <Cancel01Icon size={24} className="dark:text-white" />
                             </button>
                         </div>
 
@@ -746,12 +752,13 @@ export default function TVDashboard() {
                                     >
                                         <div className="flex items-start gap-4">
                                             <div className="p-3 bg-neutral-100 dark:bg-neutral-700 rounded-lg">
-                                                <Icon icon={widget.icon} className="w-6 h-6 text-neutral-600 dark:text-neutral-300" />
+                                                {/* Widget icons are defined in WIDGET_REGISTRY - keeping original icon strings for now */}
+                                                <div className="w-6 h-6 text-neutral-600 dark:text-neutral-300" />
                                             </div>
                                             <div className="flex-1">
                                                 <div className="flex justify-between items-center">
                                                     <h3 className="font-bold text-neutral-900 dark:text-white mb-1">{widget.title}</h3>
-                                                    {activeWidgets.includes(id) && <Icon icon="heroicons:check-circle" className="w-5 h-5 text-emerald-500" />}
+                                                    {activeWidgets.includes(id) && <CheckmarkCircle01Icon size={20} className="text-emerald-500" />}
                                                 </div>
                                                 <p className="text-sm text-neutral-500 dark:text-neutral-400">{widget.description}</p>
                                             </div>

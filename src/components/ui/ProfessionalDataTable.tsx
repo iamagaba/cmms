@@ -7,7 +7,15 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  ArrowUp01Icon,
+  ArrowDown01Icon,
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
+  Search01Icon,
+  DatabaseOffIcon
+} from '@hugeicons/core-free-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import ProfessionalButton from './ProfessionalButton';
@@ -54,6 +62,8 @@ export interface TableProps<T = any> {
   size?: 'sm' | 'base' | 'lg';
   striped?: boolean;
   bordered?: boolean;
+  // Enhancement #10: Density options
+  density?: 'compact' | 'comfortable' | 'spacious';
 }
 
 // ============================================
@@ -68,6 +78,7 @@ interface TableHeaderProps<T> {
   allSelected: boolean;
   onSelectAll: () => void;
   size: 'sm' | 'base' | 'lg';
+  density: 'compact' | 'comfortable' | 'spacious';
 }
 
 const TableHeader = <T,>({
@@ -78,18 +89,22 @@ const TableHeader = <T,>({
   allSelected,
   onSelectAll,
   size,
+  density,
 }: TableHeaderProps<T>) => {
-  const sizeClasses = {
-    sm: 'px-3 py-2 text-xs',
-    base: 'px-4 py-3 text-sm',
-    lg: 'px-6 py-4 text-base',
+  // Enhancement #10: Density-based sizing
+  const densityClasses = {
+    compact: 'px-3 py-1.5 text-xs',
+    comfortable: 'px-4 py-3 text-sm',
+    spacious: 'px-6 py-4 text-base',
   };
+
+  const sizeClasses = densityClasses[density];
 
   return (
     <thead className="bg-machinery-50 border-b border-machinery-200">
       <tr>
         {selectable && (
-          <th className={cn('w-12', sizeClasses[size])}>
+          <th className={cn('w-12', sizeClasses)}>
             <input
               type="checkbox"
               checked={allSelected}
@@ -104,7 +119,7 @@ const TableHeader = <T,>({
             className={cn(
               'font-semibold text-machinery-700 text-left',
               'border-b border-machinery-200',
-              sizeClasses[size],
+              sizeClasses,
               column.align === 'center' && 'text-center',
               column.align === 'right' && 'text-right',
               column.className
@@ -118,8 +133,9 @@ const TableHeader = <T,>({
               >
                 <span>{column.title}</span>
                 <div className="flex flex-col">
-                  <Icon
-                    icon="tabler:chevron-up"
+                  <HugeiconsIcon
+                    icon={ArrowUp01Icon}
+                    size={12}
                     className={cn(
                       'w-3 h-3 -mb-1',
                       sortConfig?.key === column.key && sortConfig.direction === 'asc'
@@ -127,8 +143,9 @@ const TableHeader = <T,>({
                         : 'text-machinery-400'
                     )}
                   />
-                  <Icon
-                    icon="tabler:chevron-down"
+                  <HugeiconsIcon
+                    icon={ArrowDown01Icon}
+                    size={12}
                     className={cn(
                       'w-3 h-3',
                       sortConfig?.key === column.key && sortConfig.direction === 'desc'
@@ -163,6 +180,7 @@ interface TableRowProps<T> {
   selectable: boolean;
   size: 'sm' | 'base' | 'lg';
   striped: boolean;
+  density: 'compact' | 'comfortable' | 'spacious';
 }
 
 const TableRow = <T,>({
@@ -176,12 +194,16 @@ const TableRow = <T,>({
   selectable,
   size,
   striped,
+  density,
 }: TableRowProps<T>) => {
-  const sizeClasses = {
-    sm: 'px-3 py-2 text-sm',
-    base: 'px-4 py-3 text-sm',
-    lg: 'px-6 py-4 text-base',
+  // Enhancement #10: Density-based sizing
+  const densityClasses = {
+    compact: 'px-3 py-1.5 text-xs',
+    comfortable: 'px-4 py-3 text-sm',
+    spacious: 'px-6 py-4 text-base',
   };
+
+  const sizeClasses = densityClasses[density];
 
   return (
     <motion.tr
@@ -189,22 +211,32 @@ const TableRow = <T,>({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.2, delay: index * 0.02 }}
       className={cn(
-        'border-b border-machinery-100 transition-colors',
-        'hover:bg-steel-50 cursor-pointer',
-        selected && 'bg-steel-100',
-        striped && index % 2 === 1 && 'bg-machinery-25',
-        onClick && 'hover:bg-steel-50'
+        'group border-b border-machinery-100',
+        'transition-all duration-200 ease-out',
+        // Enhancement #2: Smooth hover with gradient and scale
+        'hover:bg-gradient-to-r hover:from-steel-50 hover:to-transparent',
+        'hover:shadow-sm hover:scale-[1.002]',
+        onClick && 'cursor-pointer',
+        selected && 'bg-steel-100 shadow-sm',
+        // Enhancement #6: Zebra striping with subtle opacity
+        striped && index % 2 === 1 && 'bg-machinery-25/30'
       )}
       onClick={onClick}
     >
       {selectable && (
-        <td className={cn('w-12', sizeClasses[size])}>
+        <td className={cn('w-12', sizeClasses)}>
           <input
             type="checkbox"
             checked={selected}
             onChange={onSelect}
             onClick={(e) => e.stopPropagation()}
-            className="w-4 h-4 text-steel-600 border-machinery-300 rounded focus:ring-steel-500"
+            className={cn(
+              'w-4 h-4 rounded border-2 transition-all',
+              'border-machinery-300 text-steel-600',
+              'focus:ring-2 focus:ring-steel-500 focus:ring-offset-2',
+              'checked:bg-steel-600 checked:border-steel-600',
+              'hover:border-steel-400'
+            )}
           />
         </td>
       )}
@@ -217,7 +249,7 @@ const TableRow = <T,>({
             key={column.key}
             className={cn(
               'text-machinery-700',
-              sizeClasses[size],
+              sizeClasses,
               column.align === 'center' && 'text-center',
               column.align === 'right' && 'text-right',
               column.className
@@ -294,7 +326,7 @@ const TablePagination: React.FC<PaginationProps> = ({
         <ProfessionalButton
           variant="outline"
           size="sm"
-          icon="tabler:chevron-left"
+          icon={ArrowLeft01Icon}
           disabled={current === 1}
           onClick={() => onChange(current - 1, pageSize)}
         >
@@ -326,7 +358,7 @@ const TablePagination: React.FC<PaginationProps> = ({
         <ProfessionalButton
           variant="outline"
           size="sm"
-          iconRight="tabler:chevron-right"
+          iconRight={ArrowRight01Icon}
           disabled={current === totalPages}
           onClick={() => onChange(current + 1, pageSize)}
         >
@@ -359,6 +391,7 @@ const ProfessionalDataTable = <T extends Record<string, any>>({
   size = 'base',
   striped = false,
   bordered = true,
+  density = 'comfortable', // Enhancement #10: Default density
 }: TableProps<T>) => {
   const [sortConfig, setSortConfig] = useState<{ key: string; direction: 'asc' | 'desc' } | null>(null);
   const [searchValue, setSearchValue] = useState('');
@@ -439,12 +472,18 @@ const ProfessionalDataTable = <T extends Record<string, any>>({
   );
 
   return (
-    <div className={cn('bg-white rounded-lg shadow-sm overflow-hidden', className)}>
+    <div className={cn(
+      // Enhancement #1: Visual hierarchy with depth
+      'bg-white rounded-lg overflow-hidden',
+      'shadow-md border border-machinery-200',
+      'ring-1 ring-black/5',
+      className
+    )}>
       {/* Search Bar */}
       {searchable && (
-        <div className="p-4 border-b border-machinery-200">
+        <div className="p-4 border-b border-machinery-200 bg-machinery-25/50">
           <ProfessionalInput
-            icon="tabler:search"
+            icon={Search01Icon}
             placeholder={searchPlaceholder}
             value={searchValue}
             onChange={(e) => handleSearch(e.target.value)}
@@ -453,8 +492,8 @@ const ProfessionalDataTable = <T extends Record<string, any>>({
         </div>
       )}
 
-      {/* Table */}
-      <div className="overflow-x-auto">
+      {/* Table - Enhancement #1: Add subtle inner shadow for depth */}
+      <div className="overflow-x-auto shadow-inner-sm">
         <table className="w-full">
           <TableHeader
             columns={columns}
@@ -464,21 +503,44 @@ const ProfessionalDataTable = <T extends Record<string, any>>({
             allSelected={allSelected}
             onSelectAll={handleSelectAll}
             size={size}
+            density={density}
           />
           <tbody>
             <AnimatePresence>
               {loading ? (
-                // Loading skeleton
+                // Enhancement #9: Loading skeleton with shimmer
                 Array.from({ length: 5 }).map((_, index) => (
                   <tr key={`loading-${index}`} className="border-b border-machinery-100">
                     {selectable && (
-                      <td className="px-4 py-3">
+                      <td className={cn(
+                        'w-12',
+                        density === 'compact' ? 'px-3 py-1.5' : 
+                        density === 'comfortable' ? 'px-4 py-3' : 
+                        'px-6 py-4'
+                      )}>
                         <div className="w-4 h-4 bg-machinery-200 rounded animate-pulse" />
                       </td>
                     )}
                     {columns.map((column) => (
-                      <td key={column.key} className="px-4 py-3">
-                        <div className="h-4 bg-machinery-200 rounded animate-pulse" />
+                      <td 
+                        key={column.key} 
+                        className={cn(
+                          density === 'compact' ? 'px-3 py-1.5' : 
+                          density === 'comfortable' ? 'px-4 py-3' : 
+                          'px-6 py-4'
+                        )}
+                      >
+                        <div 
+                          className={cn(
+                            'h-4 rounded',
+                            'bg-gradient-to-r from-machinery-200 via-machinery-100 to-machinery-200',
+                            'bg-[length:1000px_100%]',
+                            'animate-shimmer'
+                          )}
+                          style={{ 
+                            animationDelay: `${(index * columns.length + columns.indexOf(column)) * 50}ms` 
+                          }}
+                        />
                       </td>
                     ))}
                   </tr>
@@ -491,7 +553,7 @@ const ProfessionalDataTable = <T extends Record<string, any>>({
                     className="px-4 py-12 text-center text-machinery-500"
                   >
                     <div className="flex flex-col items-center gap-3">
-                      <Icon icon="tabler:database-off" className="w-12 h-12 text-machinery-300" />
+                      <HugeiconsIcon icon={DatabaseOffIcon} size={48} className="text-machinery-300" />
                       <span>{emptyText}</span>
                     </div>
                   </td>
@@ -513,6 +575,7 @@ const ProfessionalDataTable = <T extends Record<string, any>>({
                       selectable={selectable}
                       size={size}
                       striped={striped}
+                      density={density}
                     />
                   );
                 })

@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  FileIcon,
+  Download01Icon,
+  Calendar01Icon,
+  PackageIcon,
+  Cancel01Icon,
+  Store01Icon,
+  Loading01Icon,
+  ChartBarOffIcon
+} from '@hugeicons/core-free-icons';
 import {
   useInventoryValuation,
   useStockMovementHistory,
@@ -50,7 +60,7 @@ export const InventoryReportsPanel: React.FC<InventoryReportsPanelProps> = ({
             </p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-            <Icon icon="tabler:x" className="w-5 h-5 text-gray-500" />
+            <HugeiconsIcon icon={Cancel01Icon} size={20} className="text-gray-500" />
           </button>
         </div>
 
@@ -66,7 +76,7 @@ export const InventoryReportsPanel: React.FC<InventoryReportsPanelProps> = ({
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
             >
-              <Icon icon={tab.icon} className="w-4 h-4" />
+              {/* TODO: Convert tab.icon prop to use HugeiconsIcon component */}
               {tab.label}
             </button>
           ))}
@@ -765,7 +775,7 @@ const CostAnalysisReport: React.FC = () => {
               <div key={supplier.supplier_id || idx} className="flex items-center justify-between p-3 bg-white dark:bg-gray-700 rounded-lg">
                 <div className="flex items-center gap-3">
                   <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                    <Icon icon="tabler:building-store" className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <HugeiconsIcon icon={Store01Icon} size={16} className="text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -846,7 +856,7 @@ const StatCard: React.FC<{
     <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
       <div className="flex items-center gap-3 mb-2">
         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${colorClasses[color]}`}>
-          <Icon icon={icon} className="w-4 h-4" />
+          {/* TODO: Convert icon prop to use HugeiconsIcon component */}
         </div>
       </div>
       <p className="text-xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
@@ -857,13 +867,13 @@ const StatCard: React.FC<{
 
 const LoadingState: React.FC = () => (
   <div className="flex items-center justify-center py-12">
-    <Icon icon="tabler:loader-2" className="w-8 h-8 animate-spin text-purple-600" />
+    <HugeiconsIcon icon={Loading01Icon} size={32} className="animate-spin text-purple-600" />
   </div>
 );
 
 const EmptyState: React.FC<{ message: string }> = ({ message }) => (
   <div className="text-center py-12">
-    <Icon icon="tabler:chart-bar-off" className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+    <HugeiconsIcon icon={ChartBarOffIcon} size={48} className="text-gray-300 mx-auto mb-3" />
     <p className="text-sm text-gray-500">{message}</p>
   </div>
 );

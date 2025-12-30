@@ -1,6 +1,26 @@
 import React, { useState } from 'react';
 import { WorkOrder, Technician, Location, Customer, Vehicle, Profile } from '@/types/supabase';
-import { Icon } from '@iconify/react';
+import { DiagnosticCategoryRow } from '@/types/diagnostic';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  CircleIcon,
+  Loading03Icon,
+  CheckmarkCircle01Icon,
+  PauseIcon,
+  CancelCircleIcon,
+  ArrowUp01Icon,
+  MinusSignIcon,
+  ArrowDown01Icon,
+  ClipboardIcon,
+  MoreVerticalIcon,
+  ViewIcon,
+  Edit01Icon,
+  Delete01Icon,
+  ArrowLeft02Icon,
+  ArrowRight02Icon,
+  ArrowLeft01Icon,
+  ArrowRight01Icon
+} from '@hugeicons/core-free-icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -31,6 +51,7 @@ interface EnhancedWorkOrderDataTableProps {
   customers: Customer[];
   vehicles: Vehicle[];
   profiles: Profile[];
+  serviceCategories?: DiagnosticCategoryRow[];
   onEdit: (workOrder: WorkOrder) => void;
   onDelete: (workOrder: WorkOrder) => void;
   onUpdateWorkOrder: (id: string, updates: Partial<WorkOrder>) => void;
@@ -46,19 +67,19 @@ interface EnhancedWorkOrderDataTableProps {
 }
 
 // Status configuration with colors and icons
-const STATUS_CONFIG: Record<string, { bg: string; text: string; border: string; icon: string; dot: string }> = {
-  'Open': { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', icon: 'tabler:circle-dot', dot: 'bg-blue-500' },
-  'In Progress': { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', icon: 'tabler:loader', dot: 'bg-amber-500' },
-  'Completed': { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', icon: 'tabler:circle-check', dot: 'bg-emerald-500' },
-  'On Hold': { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-200', icon: 'tabler:player-pause', dot: 'bg-slate-400' },
-  'Cancelled': { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', icon: 'tabler:circle-x', dot: 'bg-red-500' },
+const STATUS_CONFIG: Record<string, { bg: string; text: string; border: string; icon: any; dot: string }> = {
+  'Open': { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', icon: CircleIcon, dot: 'bg-blue-500' },
+  'In Progress': { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', icon: Loading03Icon, dot: 'bg-amber-500' },
+  'Completed': { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', icon: CheckmarkCircle01Icon, dot: 'bg-emerald-500' },
+  'On Hold': { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-200', icon: PauseIcon, dot: 'bg-slate-400' },
+  'Cancelled': { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', icon: CancelCircleIcon, dot: 'bg-red-500' },
 };
 
 // Priority configuration
-const PRIORITY_CONFIG: Record<string, { color: string; icon: string; label: string }> = {
-  'High': { color: 'text-red-600', icon: 'tabler:arrow-up', label: 'High' },
-  'Medium': { color: 'text-amber-600', icon: 'tabler:minus', label: 'Medium' },
-  'Low': { color: 'text-emerald-600', icon: 'tabler:arrow-down', label: 'Low' },
+const PRIORITY_CONFIG: Record<string, { color: string; icon: any; label: string }> = {
+  'High': { color: 'text-red-600', icon: ArrowUp01Icon, label: 'High' },
+  'Medium': { color: 'text-amber-600', icon: MinusSignIcon, label: 'Medium' },
+  'Low': { color: 'text-emerald-600', icon: ArrowDown01Icon, label: 'Low' },
 };
 
 // Loading skeleton row
@@ -82,6 +103,7 @@ export function EnhancedWorkOrderDataTable({
   technicians,
   vehicles,
   customers,
+  serviceCategories,
   onEdit,
   onDelete,
   onViewDetails,
@@ -164,21 +186,27 @@ export function EnhancedWorkOrderDataTable({
   const isColumnVisible = (columnKey: string) => visibleColumns.includes(columnKey);
 
   // Helper to get vehicle info
-  const getVehicleInfo = (vehicleId?: string) => {
+  const getVehicleInfo = (vehicleId?: string | null) => {
     if (!vehicleId) return null;
     return vehicles?.find(v => v.id === vehicleId);
   };
 
   // Helper to get customer info
-  const getCustomerInfo = (customerId?: string) => {
+  const getCustomerInfo = (customerId?: string | null) => {
     if (!customerId) return null;
     return customers?.find(c => c.id === customerId);
   };
 
   // Helper to get technician info
-  const getTechnicianInfo = (techId?: string) => {
+  const getTechnicianInfo = (techId?: string | null) => {
     if (!techId) return null;
     return technicians?.find(t => t.id === techId);
+  };
+
+  // Helper to get service category info
+  const getServiceCategoryInfo = (serviceId?: string | null) => {
+    if (!serviceId) return null;
+    return serviceCategories?.find(c => c.id === serviceId);
   };
 
   // Close menu when clicking outside
@@ -191,7 +219,7 @@ export function EnhancedWorkOrderDataTable({
           <thead>
             <tr className="bg-gray-50 border-b border-gray-200">
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Work Order</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Service</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Issue</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Vehicle</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
               <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Priority</th>
@@ -211,7 +239,7 @@ export function EnhancedWorkOrderDataTable({
     return (
       <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
         <div className="mx-auto w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-          <Icon icon="tabler:clipboard-off" className="w-8 h-8 text-gray-400" />
+          <HugeiconsIcon icon={ClipboardIcon} size={32} className="text-gray-400" />
         </div>
         <h3 className="text-lg font-medium text-gray-900 mb-1">No work orders found</h3>
         <p className="text-sm text-gray-500 max-w-sm mx-auto">
@@ -236,7 +264,7 @@ export function EnhancedWorkOrderDataTable({
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-36">Work Order</th>
               )}
               {isColumnVisible('service') && (
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-48">Service</th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-48">Issue</th>
               )}
               {isColumnVisible('vehicleCustomer') && (
                 <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-44">Vehicle / Customer</th>
@@ -287,44 +315,49 @@ export function EnhancedWorkOrderDataTable({
                   onClick={() => onViewDetails(wo.id)}
                   className="group hover:bg-primary-50/50 cursor-pointer transition-colors duration-150"
                 >
-                  {/* Work Order Number - Clean, no status bar or relative date */}
+                  {/* Work Order Number - Shows license plate as main identifier */}
                   {isColumnVisible('workOrderNumber') && (
                     <td className="px-4 py-2.5">
-                      <span className="text-sm font-semibold text-primary-600 group-hover:text-primary-700">
-                        {wo.workOrderNumber || `WO-${wo.id.substring(0, 6).toUpperCase()}`}
-                      </span>
-                    </td>
-                  )}
-
-                  {/* Service Description - 2 line clamp */}
-                  {isColumnVisible('service') && (
-                    <td className="px-4 py-2.5">
-                      <p className="text-sm font-medium text-gray-900 capitalize line-clamp-2" title={wo.service || wo.initialDiagnosis || 'General Service'}>
-                        {wo.service || wo.initialDiagnosis || 'General Service'}
-                      </p>
-                    </td>
-                  )}
-
-                  {/* Vehicle / Customer - 2 line clamp */}
-                  {isColumnVisible('vehicleCustomer') && (
-                    <td className="px-4 py-2.5">
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
-                          {vehicle?.license_plate || wo.customerName || 'N/A'}
+                        <p className="text-sm font-semibold text-primary-600 group-hover:text-primary-700 truncate">
+                          {vehicle?.license_plate || 'N/A'}
                         </p>
                         <p className="text-xs text-gray-500 truncate">
-                          {vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() : (customer?.name || '')}
+                          {wo.workOrderNumber || `WO-${wo.id.substring(0, 6).toUpperCase()}`}
                         </p>
                       </div>
                     </td>
                   )}
 
-                  {/* Status */}
+                  {/* Issue Description - 2 line clamp */}
+                  {isColumnVisible('service') && (
+                    <td className="px-4 py-2.5">
+                      <p className="text-sm font-medium text-gray-900 capitalize line-clamp-2" title={getServiceCategoryInfo(wo.service)?.label || getServiceCategoryInfo(wo.service)?.name || wo.service || wo.initialDiagnosis || 'General Service'}>
+                        {getServiceCategoryInfo(wo.service)?.label || getServiceCategoryInfo(wo.service)?.name || wo.service || wo.initialDiagnosis || 'General Service'}
+                      </p>
+                    </td>
+                  )}
+
+                  {/* Vehicle / Customer - Shows vehicle make/model and customer name */}
+                  {isColumnVisible('vehicleCustomer') && (
+                    <td className="px-4 py-2.5">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || 'N/A' : 'N/A'}
+                        </p>
+                        <p className="text-xs text-gray-500 truncate">
+                          {customer?.name || wo.customerName || '—'}
+                        </p>
+                      </div>
+                    </td>
+                  )}
+
+                  {/* Status - Shows full status text with colored badge */}
                   {isColumnVisible('status') && (
                     <td className="px-4 py-2.5">
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border}`}>
-                        <span className={`w-1.5 h-1.5 rounded ${statusConfig.dot}`} />
-                        <span className="truncate">{wo.status || 'Open'}</span>
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot}`} />
+                        <span>{wo.status || 'Open'}</span>
                       </span>
                     </td>
                   )}
@@ -333,7 +366,7 @@ export function EnhancedWorkOrderDataTable({
                   {isColumnVisible('priority') && (
                     <td className="px-4 py-2.5">
                       <div className={`inline-flex items-center gap-1 ${priorityConfig.color}`}>
-                        <Icon icon={priorityConfig.icon} className="w-3.5 h-3.5" />
+                        <HugeiconsIcon icon={priorityConfig.icon} size={14} />
                         <span className="text-xs font-medium">{wo.priority || 'Medium'}</span>
                       </div>
                     </td>
@@ -416,7 +449,7 @@ export function EnhancedWorkOrderDataTable({
                       }}
                       className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
                     >
-                      <Icon icon="tabler:dots-vertical" className="w-4 h-4" />
+                      <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
                     </button>
 
                     {/* Dropdown Menu */}
@@ -430,7 +463,7 @@ export function EnhancedWorkOrderDataTable({
                           }}
                           className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                         >
-                          <Icon icon="tabler:eye" className="w-4 h-4 text-gray-500" />
+                          <HugeiconsIcon icon={ViewIcon} size={16} className="text-gray-500" />
                           View Details
                         </button>
                         <button
@@ -441,7 +474,7 @@ export function EnhancedWorkOrderDataTable({
                           }}
                           className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                         >
-                          <Icon icon="tabler:edit" className="w-4 h-4 text-gray-500" />
+                          <HugeiconsIcon icon={Edit01Icon} size={16} className="text-gray-500" />
                           Edit
                         </button>
                         <div className="border-t border-gray-100 my-1" />
@@ -453,7 +486,7 @@ export function EnhancedWorkOrderDataTable({
                           }}
                           className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
                         >
-                          <Icon icon="tabler:trash" className="w-4 h-4" />
+                          <HugeiconsIcon icon={Delete01Icon} size={16} />
                           Delete
                         </button>
                       </div>
@@ -486,7 +519,7 @@ export function EnhancedWorkOrderDataTable({
                 className="px-2 py-1 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 title="First page"
               >
-                <Icon icon="tabler:chevrons-left" className="w-4 h-4" />
+                <HugeiconsIcon icon={ArrowLeft02Icon} size={16} />
               </button>
 
               {/* Previous Page */}
@@ -496,7 +529,7 @@ export function EnhancedWorkOrderDataTable({
                 className="px-2 py-1 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 title="Previous page"
               >
-                <Icon icon="tabler:chevron-left" className="w-4 h-4" />
+                <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
               </button>
 
               {/* Page Numbers */}
@@ -507,8 +540,8 @@ export function EnhancedWorkOrderDataTable({
                       key={index}
                       onClick={() => handlePageChange(page)}
                       className={`min-w-[32px] px-2 py-1 text-sm rounded transition-colors ${currentPage === page
-                          ? 'bg-primary-600 text-white font-medium'
-                          : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                        ? 'bg-primary-600 text-white font-medium'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
                         }`}
                     >
                       {page}
@@ -528,7 +561,7 @@ export function EnhancedWorkOrderDataTable({
                 className="px-2 py-1 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 title="Next page"
               >
-                <Icon icon="tabler:chevron-right" className="w-4 h-4" />
+                <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
               </button>
 
               {/* Last Page */}
@@ -538,7 +571,7 @@ export function EnhancedWorkOrderDataTable({
                 className="px-2 py-1 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 title="Last page"
               >
-                <Icon icon="tabler:chevrons-right" className="w-4 h-4" />
+                <HugeiconsIcon icon={ArrowRight02Icon} size={16} />
               </button>
             </div>
           )}

@@ -1,0 +1,2592 @@
+{
+  "summary": {
+    "totalUniqueIcons": 232,
+    "totalUsages": 903,
+    "filesWithIcons": 131
+  },
+  "topIcons": [
+    {
+      "icon": "tabler:x",
+      "count": 48
+    },
+    {
+      "icon": "tabler:plus",
+      "count": 31
+    },
+    {
+      "icon": "tabler:check",
+      "count": 29
+    },
+    {
+      "icon": "tabler:search",
+      "count": 25
+    },
+    {
+      "icon": "tabler:user",
+      "count": 21
+    },
+    {
+      "icon": "tabler:info-circle",
+      "count": 21
+    },
+    {
+      "icon": "tabler:chevron-right",
+      "count": 21
+    },
+    {
+      "icon": "tabler:trash",
+      "count": 20
+    },
+    {
+      "icon": "tabler:loader-2",
+      "count": 19
+    },
+    {
+      "icon": "tabler:clipboard-list",
+      "count": 19
+    },
+    {
+      "icon": "tabler:alert-circle",
+      "count": 18
+    },
+    {
+      "icon": "tabler:arrow-right",
+      "count": 18
+    },
+    {
+      "icon": "tabler:clock",
+      "count": 16
+    },
+    {
+      "icon": "tabler:motorbike",
+      "count": 16
+    },
+    {
+      "icon": "tabler:alert-triangle",
+      "count": 16
+    },
+    {
+      "icon": "tabler:car",
+      "count": 14
+    },
+    {
+      "icon": "tabler:currency-dollar",
+      "count": 14
+    },
+    {
+      "icon": "tabler:dots-vertical",
+      "count": 13
+    },
+    {
+      "icon": "tabler:circle-check",
+      "count": 13
+    },
+    {
+      "icon": "tabler:edit",
+      "count": 13
+    },
+    {
+      "icon": "tabler:refresh",
+      "count": 12
+    },
+    {
+      "icon": "tabler:map-pin",
+      "count": 12
+    },
+    {
+      "icon": "tabler:tool",
+      "count": 11
+    },
+    {
+      "icon": "tabler:package",
+      "count": 11
+    },
+    {
+      "icon": "tabler:chart-bar",
+      "count": 10
+    },
+    {
+      "icon": "tabler:chart-line",
+      "count": 9
+    },
+    {
+      "icon": "tabler:download",
+      "count": 8
+    },
+    {
+      "icon": "tabler:loader",
+      "count": 8
+    },
+    {
+      "icon": "tabler:clipboard-off",
+      "count": 8
+    },
+    {
+      "icon": "mdi:refresh",
+      "count": 8
+    }
+  ],
+  "allIcons": [
+    {
+      "icon": "ant-design:plus-outlined",
+      "count": 1
+    },
+    {
+      "icon": "flat-color-icons:google",
+      "count": 1
+    },
+    {
+      "icon": "heroicons:arrow-path",
+      "count": 1
+    },
+    {
+      "icon": "heroicons:bars-3",
+      "count": 1
+    },
+    {
+      "icon": "heroicons:bolt",
+      "count": 1
+    },
+    {
+      "icon": "heroicons:calendar",
+      "count": 1
+    },
+    {
+      "icon": "heroicons:check-badge",
+      "count": 1
+    },
+    {
+      "icon": "heroicons:check-circle",
+      "count": 2
+    },
+    {
+      "icon": "heroicons:clipboard-document-list",
+      "count": 1
+    },
+    {
+      "icon": "heroicons:clock",
+      "count": 1
+    },
+    {
+      "icon": "heroicons:exclamation-triangle",
+      "count": 1
+    },
+    {
+      "icon": "heroicons:map",
+      "count": 1
+    },
+    {
+      "icon": "heroicons:plus",
+      "count": 2
+    },
+    {
+      "icon": "heroicons:user",
+      "count": 1
+    },
+    {
+      "icon": "heroicons:wrench",
+      "count": 1
+    },
+    {
+      "icon": "heroicons:wrench-screwdriver",
+      "count": 1
+    },
+    {
+      "icon": "heroicons:x-mark",
+      "count": 4
+    },
+    {
+      "icon": "mdi:account",
+      "count": 1
+    },
+    {
+      "icon": "mdi:alert-circle",
+      "count": 4
+    },
+    {
+      "icon": "mdi:alert-circle-outline",
+      "count": 2
+    },
+    {
+      "icon": "mdi:arrow-left",
+      "count": 2
+    },
+    {
+      "icon": "mdi:bug",
+      "count": 2
+    },
+    {
+      "icon": "mdi:calendar-blank",
+      "count": 1
+    },
+    {
+      "icon": "mdi:calendar-clock",
+      "count": 1
+    },
+    {
+      "icon": "mdi:car",
+      "count": 1
+    },
+    {
+      "icon": "mdi:check",
+      "count": 2
+    },
+    {
+      "icon": "mdi:check-circle",
+      "count": 6
+    },
+    {
+      "icon": "mdi:chevron-down",
+      "count": 1
+    },
+    {
+      "icon": "mdi:chevron-right",
+      "count": 2
+    },
+    {
+      "icon": "mdi:clipboard-text",
+      "count": 1
+    },
+    {
+      "icon": "mdi:close",
+      "count": 5
+    },
+    {
+      "icon": "mdi:close-circle",
+      "count": 1
+    },
+    {
+      "icon": "mdi:code-tags",
+      "count": 1
+    },
+    {
+      "icon": "mdi:help-circle",
+      "count": 1
+    },
+    {
+      "icon": "mdi:information",
+      "count": 1
+    },
+    {
+      "icon": "mdi:information-slab-circle",
+      "count": 1
+    },
+    {
+      "icon": "mdi:lightbulb-on",
+      "count": 1
+    },
+    {
+      "icon": "mdi:loading",
+      "count": 3
+    },
+    {
+      "icon": "mdi:magnify",
+      "count": 1
+    },
+    {
+      "icon": "mdi:map-marker",
+      "count": 3
+    },
+    {
+      "icon": "mdi:motorbike",
+      "count": 2
+    },
+    {
+      "icon": "mdi:note-text-outline",
+      "count": 1
+    },
+    {
+      "icon": "mdi:pencil",
+      "count": 2
+    },
+    {
+      "icon": "mdi:phone",
+      "count": 2
+    },
+    {
+      "icon": "mdi:refresh",
+      "count": 8
+    },
+    {
+      "icon": "mdi:reload",
+      "count": 3
+    },
+    {
+      "icon": "mdi:send",
+      "count": 1
+    },
+    {
+      "icon": "mdi:store-marker-outline",
+      "count": 1
+    },
+    {
+      "icon": "mdi:tools",
+      "count": 1
+    },
+    {
+      "icon": "mdi:wifi-off",
+      "count": 1
+    },
+    {
+      "icon": "ph:chart-pie",
+      "count": 1
+    },
+    {
+      "icon": "ph:currency-dollar-fill",
+      "count": 1
+    },
+    {
+      "icon": "ph:flow-arrow-fill",
+      "count": 1
+    },
+    {
+      "icon": "ph:gear",
+      "count": 1
+    },
+    {
+      "icon": "ph:info-fill",
+      "count": 1
+    },
+    {
+      "icon": "ph:list-bullets-fill",
+      "count": 1
+    },
+    {
+      "icon": "ph:map-pin-fill",
+      "count": 1
+    },
+    {
+      "icon": "ph:package",
+      "count": 1
+    },
+    {
+      "icon": "ph:timer-fill",
+      "count": 1
+    },
+    {
+      "icon": "ph:users",
+      "count": 1
+    },
+    {
+      "icon": "tabler:accessibility",
+      "count": 1
+    },
+    {
+      "icon": "tabler:activity",
+      "count": 3
+    },
+    {
+      "icon": "tabler:address-book",
+      "count": 1
+    },
+    {
+      "icon": "tabler:adjustments",
+      "count": 1
+    },
+    {
+      "icon": "tabler:adjustments-horizontal",
+      "count": 6
+    },
+    {
+      "icon": "tabler:alert-circle",
+      "count": 18
+    },
+    {
+      "icon": "tabler:alert-triangle",
+      "count": 16
+    },
+    {
+      "icon": "tabler:archive",
+      "count": 1
+    },
+    {
+      "icon": "tabler:arrow-down",
+      "count": 2
+    },
+    {
+      "icon": "tabler:arrow-left",
+      "count": 4
+    },
+    {
+      "icon": "tabler:arrow-right",
+      "count": 18
+    },
+    {
+      "icon": "tabler:arrow-up",
+      "count": 4
+    },
+    {
+      "icon": "tabler:arrows-exchange",
+      "count": 3
+    },
+    {
+      "icon": "tabler:bell",
+      "count": 3
+    },
+    {
+      "icon": "tabler:bell-off",
+      "count": 1
+    },
+    {
+      "icon": "tabler:bike",
+      "count": 4
+    },
+    {
+      "icon": "tabler:bike-off",
+      "count": 1
+    },
+    {
+      "icon": "tabler:building",
+      "count": 7
+    },
+    {
+      "icon": "tabler:building-off",
+      "count": 1
+    },
+    {
+      "icon": "tabler:building-store",
+      "count": 3
+    },
+    {
+      "icon": "tabler:building-warehouse",
+      "count": 2
+    },
+    {
+      "icon": "tabler:bulb",
+      "count": 1
+    },
+    {
+      "icon": "tabler:calendar",
+      "count": 5
+    },
+    {
+      "icon": "tabler:calendar-check",
+      "count": 2
+    },
+    {
+      "icon": "tabler:calendar-event",
+      "count": 1
+    },
+    {
+      "icon": "tabler:calendar-time",
+      "count": 4
+    },
+    {
+      "icon": "tabler:car",
+      "count": 14
+    },
+    {
+      "icon": "tabler:car-off",
+      "count": 2
+    },
+    {
+      "icon": "tabler:category",
+      "count": 3
+    },
+    {
+      "icon": "tabler:chart-bar",
+      "count": 10
+    },
+    {
+      "icon": "tabler:chart-bar-off",
+      "count": 2
+    },
+    {
+      "icon": "tabler:chart-donut",
+      "count": 1
+    },
+    {
+      "icon": "tabler:chart-line",
+      "count": 9
+    },
+    {
+      "icon": "tabler:chart-pie",
+      "count": 4
+    },
+    {
+      "icon": "tabler:check",
+      "count": 29
+    },
+    {
+      "icon": "tabler:checkbox",
+      "count": 1
+    },
+    {
+      "icon": "tabler:checks",
+      "count": 3
+    },
+    {
+      "icon": "tabler:chevron-down",
+      "count": 6
+    },
+    {
+      "icon": "tabler:chevron-left",
+      "count": 7
+    },
+    {
+      "icon": "tabler:chevron-right",
+      "count": 21
+    },
+    {
+      "icon": "tabler:chevron-up",
+      "count": 2
+    },
+    {
+      "icon": "tabler:chevrons-left",
+      "count": 2
+    },
+    {
+      "icon": "tabler:chevrons-right",
+      "count": 2
+    },
+    {
+      "icon": "tabler:circle-check",
+      "count": 13
+    },
+    {
+      "icon": "tabler:circle-check-filled",
+      "count": 1
+    },
+    {
+      "icon": "tabler:circle-dot",
+      "count": 1
+    },
+    {
+      "icon": "tabler:circle-x",
+      "count": 1
+    },
+    {
+      "icon": "tabler:click",
+      "count": 1
+    },
+    {
+      "icon": "tabler:clipboard-check",
+      "count": 3
+    },
+    {
+      "icon": "tabler:clipboard-list",
+      "count": 19
+    },
+    {
+      "icon": "tabler:clipboard-off",
+      "count": 8
+    },
+    {
+      "icon": "tabler:clock",
+      "count": 16
+    },
+    {
+      "icon": "tabler:clock-exclamation",
+      "count": 1
+    },
+    {
+      "icon": "tabler:clock-off",
+      "count": 2
+    },
+    {
+      "icon": "tabler:clock-pause",
+      "count": 5
+    },
+    {
+      "icon": "tabler:columns",
+      "count": 1
+    },
+    {
+      "icon": "tabler:contrast",
+      "count": 1
+    },
+    {
+      "icon": "tabler:currency-dollar",
+      "count": 14
+    },
+    {
+      "icon": "tabler:dashboard",
+      "count": 1
+    },
+    {
+      "icon": "tabler:database",
+      "count": 1
+    },
+    {
+      "icon": "tabler:database-off",
+      "count": 1
+    },
+    {
+      "icon": "tabler:device-desktop",
+      "count": 2
+    },
+    {
+      "icon": "tabler:device-mobile",
+      "count": 1
+    },
+    {
+      "icon": "tabler:dots",
+      "count": 2
+    },
+    {
+      "icon": "tabler:dots-vertical",
+      "count": 13
+    },
+    {
+      "icon": "tabler:download",
+      "count": 8
+    },
+    {
+      "icon": "tabler:edit",
+      "count": 13
+    },
+    {
+      "icon": "tabler:external-link",
+      "count": 2
+    },
+    {
+      "icon": "tabler:eye",
+      "count": 5
+    },
+    {
+      "icon": "tabler:file",
+      "count": 1
+    },
+    {
+      "icon": "tabler:file-spreadsheet",
+      "count": 1
+    },
+    {
+      "icon": "tabler:file-type-pdf",
+      "count": 2
+    },
+    {
+      "icon": "tabler:filter",
+      "count": 3
+    },
+    {
+      "icon": "tabler:filter-off",
+      "count": 1
+    },
+    {
+      "icon": "tabler:flag",
+      "count": 2
+    },
+    {
+      "icon": "tabler:folder",
+      "count": 1
+    },
+    {
+      "icon": "tabler:folder-open",
+      "count": 3
+    },
+    {
+      "icon": "tabler:forms",
+      "count": 1
+    },
+    {
+      "icon": "tabler:gauge",
+      "count": 1
+    },
+    {
+      "icon": "tabler:hash",
+      "count": 2
+    },
+    {
+      "icon": "tabler:hierarchy-2",
+      "count": 2
+    },
+    {
+      "icon": "tabler:history",
+      "count": 4
+    },
+    {
+      "icon": "tabler:history-off",
+      "count": 3
+    },
+    {
+      "icon": "tabler:home",
+      "count": 6
+    },
+    {
+      "icon": "tabler:icons",
+      "count": 1
+    },
+    {
+      "icon": "tabler:inbox",
+      "count": 3
+    },
+    {
+      "icon": "tabler:info-circle",
+      "count": 21
+    },
+    {
+      "icon": "tabler:keyboard",
+      "count": 1
+    },
+    {
+      "icon": "tabler:layout",
+      "count": 2
+    },
+    {
+      "icon": "tabler:layout-2",
+      "count": 1
+    },
+    {
+      "icon": "tabler:layout-distribute-horizontal",
+      "count": 2
+    },
+    {
+      "icon": "tabler:layout-distribute-vertical",
+      "count": 2
+    },
+    {
+      "icon": "tabler:layout-grid",
+      "count": 1
+    },
+    {
+      "icon": "tabler:layout-kanban",
+      "count": 1
+    },
+    {
+      "icon": "tabler:license",
+      "count": 3
+    },
+    {
+      "icon": "tabler:lifebuoy",
+      "count": 3
+    },
+    {
+      "icon": "tabler:lightbulb",
+      "count": 1
+    },
+    {
+      "icon": "tabler:list",
+      "count": 4
+    },
+    {
+      "icon": "tabler:list-numbers",
+      "count": 1
+    },
+    {
+      "icon": "tabler:list-tree",
+      "count": 1
+    },
+    {
+      "icon": "tabler:loader",
+      "count": 8
+    },
+    {
+      "icon": "tabler:loader-2",
+      "count": 19
+    },
+    {
+      "icon": "tabler:lock",
+      "count": 1
+    },
+    {
+      "icon": "tabler:login",
+      "count": 1
+    },
+    {
+      "icon": "tabler:mail",
+      "count": 4
+    },
+    {
+      "icon": "tabler:map",
+      "count": 2
+    },
+    {
+      "icon": "tabler:map-off",
+      "count": 1
+    },
+    {
+      "icon": "tabler:map-pin",
+      "count": 12
+    },
+    {
+      "icon": "tabler:map-pin-off",
+      "count": 2
+    },
+    {
+      "icon": "tabler:menu-2",
+      "count": 1
+    },
+    {
+      "icon": "tabler:message",
+      "count": 2
+    },
+    {
+      "icon": "tabler:message-circle",
+      "count": 2
+    },
+    {
+      "icon": "tabler:message-circle-off",
+      "count": 1
+    },
+    {
+      "icon": "tabler:minus",
+      "count": 1
+    },
+    {
+      "icon": "tabler:mood-smile",
+      "count": 1
+    },
+    {
+      "icon": "tabler:moon",
+      "count": 1
+    },
+    {
+      "icon": "tabler:motorbike",
+      "count": 16
+    },
+    {
+      "icon": "tabler:notes",
+      "count": 1
+    },
+    {
+      "icon": "tabler:notes-off",
+      "count": 1
+    },
+    {
+      "icon": "tabler:package",
+      "count": 11
+    },
+    {
+      "icon": "tabler:package-import",
+      "count": 3
+    },
+    {
+      "icon": "tabler:package-off",
+      "count": 5
+    },
+    {
+      "icon": "tabler:palette",
+      "count": 3
+    },
+    {
+      "icon": "tabler:paperclip",
+      "count": 1
+    },
+    {
+      "icon": "tabler:pencil",
+      "count": 3
+    },
+    {
+      "icon": "tabler:phone",
+      "count": 7
+    },
+    {
+      "icon": "tabler:phone-off",
+      "count": 2
+    },
+    {
+      "icon": "tabler:photo",
+      "count": 1
+    },
+    {
+      "icon": "tabler:plus",
+      "count": 31
+    },
+    {
+      "icon": "tabler:plus-minus",
+      "count": 3
+    },
+    {
+      "icon": "tabler:progress",
+      "count": 1
+    },
+    {
+      "icon": "tabler:question-mark",
+      "count": 1
+    },
+    {
+      "icon": "tabler:receipt",
+      "count": 4
+    },
+    {
+      "icon": "tabler:receipt-2",
+      "count": 1
+    },
+    {
+      "icon": "tabler:refresh",
+      "count": 12
+    },
+    {
+      "icon": "tabler:repeat",
+      "count": 1
+    },
+    {
+      "icon": "tabler:report-analytics",
+      "count": 1
+    },
+    {
+      "icon": "tabler:ruler",
+      "count": 1
+    },
+    {
+      "icon": "tabler:ruler-measure",
+      "count": 1
+    },
+    {
+      "icon": "tabler:search",
+      "count": 25
+    },
+    {
+      "icon": "tabler:search-off",
+      "count": 2
+    },
+    {
+      "icon": "tabler:send",
+      "count": 1
+    },
+    {
+      "icon": "tabler:settings",
+      "count": 5
+    },
+    {
+      "icon": "tabler:share",
+      "count": 1
+    },
+    {
+      "icon": "tabler:shield-check",
+      "count": 7
+    },
+    {
+      "icon": "tabler:sparkles",
+      "count": 1
+    },
+    {
+      "icon": "tabler:stack-2",
+      "count": 2
+    },
+    {
+      "icon": "tabler:star",
+      "count": 1
+    },
+    {
+      "icon": "tabler:status-change",
+      "count": 2
+    },
+    {
+      "icon": "tabler:sun",
+      "count": 1
+    },
+    {
+      "icon": "tabler:table",
+      "count": 4
+    },
+    {
+      "icon": "tabler:tag",
+      "count": 2
+    },
+    {
+      "icon": "tabler:tags",
+      "count": 1
+    },
+    {
+      "icon": "tabler:timeline",
+      "count": 2
+    },
+    {
+      "icon": "tabler:tool",
+      "count": 11
+    },
+    {
+      "icon": "tabler:tools",
+      "count": 3
+    },
+    {
+      "icon": "tabler:tools-off",
+      "count": 1
+    },
+    {
+      "icon": "tabler:transfer",
+      "count": 1
+    },
+    {
+      "icon": "tabler:trash",
+      "count": 20
+    },
+    {
+      "icon": "tabler:trending-up",
+      "count": 3
+    },
+    {
+      "icon": "tabler:truck",
+      "count": 1
+    },
+    {
+      "icon": "tabler:typography",
+      "count": 1
+    },
+    {
+      "icon": "tabler:upload",
+      "count": 1
+    },
+    {
+      "icon": "tabler:user",
+      "count": 21
+    },
+    {
+      "icon": "tabler:user-check",
+      "count": 6
+    },
+    {
+      "icon": "tabler:user-circle",
+      "count": 2
+    },
+    {
+      "icon": "tabler:user-off",
+      "count": 1
+    },
+    {
+      "icon": "tabler:user-plus",
+      "count": 1
+    },
+    {
+      "icon": "tabler:users",
+      "count": 6
+    },
+    {
+      "icon": "tabler:users-off",
+      "count": 2
+    },
+    {
+      "icon": "tabler:x",
+      "count": 48
+    },
+    {
+      "icon": "tabler:x-circle",
+      "count": 1
+    }
+  ],
+  "fileBreakdown": [
+    {
+      "file": "\\src\\components\\AdjustmentHistoryPanel.tsx",
+      "iconCount": 3,
+      "icons": [
+        "tabler:alert-circle",
+        "tabler:filter",
+        "tabler:history-off"
+      ]
+    },
+    {
+      "file": "\\src\\components\\advanced\\AdvancedThemeControls.tsx",
+      "iconCount": 5,
+      "icons": [
+        "tabler:check",
+        "tabler:download",
+        "tabler:upload",
+        "tabler:refresh",
+        "tabler:x"
+      ]
+    },
+    {
+      "file": "\\src\\components\\advanced\\ProfessionalCharts.tsx",
+      "iconCount": 3,
+      "icons": [
+        "tabler:clipboard-check",
+        "tabler:clock",
+        "tabler:trending-up"
+      ]
+    },
+    {
+      "file": "\\src\\components\\advanced\\ProfessionalDataTable.tsx",
+      "iconCount": 1,
+      "icons": [
+        "tabler:filter"
+      ]
+    },
+    {
+      "file": "\\src\\components\\advanced\\ProfessionalForm.tsx",
+      "iconCount": 4,
+      "icons": [
+        "tabler:alert-circle"
+      ]
+    },
+    {
+      "file": "\\src\\components\\advanced\\ProfessionalModal.tsx",
+      "iconCount": 2,
+      "icons": [
+        "tabler:x"
+      ]
+    },
+    {
+      "file": "\\src\\components\\AssetFormDialog.tsx",
+      "iconCount": 14,
+      "icons": [
+        "tabler:motorbike",
+        "tabler:x",
+        "tabler:check",
+        "tabler:user",
+        "tabler:search",
+        "tabler:user-check",
+        "tabler:info-circle",
+        "tabler:tool",
+        "tabler:arrow-left",
+        "tabler:arrow-right",
+        "tabler:loader-2"
+      ]
+    },
+    {
+      "file": "\\src\\components\\cards\\ModernAssetCard.tsx",
+      "iconCount": 7,
+      "icons": [
+        "tabler:motorbike",
+        "tabler:gauge",
+        "tabler:user",
+        "tabler:dots",
+        "tabler:trash",
+        "tabler:dots-vertical"
+      ]
+    },
+    {
+      "file": "\\src\\components\\CategoryMultiSelect.tsx",
+      "iconCount": 1,
+      "icons": [
+        "tabler:check"
+      ]
+    },
+    {
+      "file": "\\src\\components\\CustodyFilterButtons.tsx",
+      "iconCount": 3,
+      "icons": [
+        "tabler:list",
+        "tabler:tool",
+        "tabler:user"
+      ]
+    },
+    {
+      "file": "\\src\\components\\CycleCountDialog.tsx",
+      "iconCount": 5,
+      "icons": [
+        "tabler:clipboard-check",
+        "tabler:x",
+        "tabler:check",
+        "tabler:loader-2"
+      ]
+    },
+    {
+      "file": "\\src\\components\\dashboard\\ActivityFeed.tsx",
+      "iconCount": 2,
+      "icons": [
+        "tabler:chevron-right",
+        "tabler:inbox"
+      ]
+    },
+    {
+      "file": "\\src\\components\\dashboard\\ModernKPICard.tsx",
+      "iconCount": 1,
+      "icons": [
+        "tabler:arrow-right"
+      ]
+    },
+    {
+      "file": "\\src\\components\\dashboard\\PriorityWorkOrders.tsx",
+      "iconCount": 4,
+      "icons": [
+        "tabler:alert-triangle",
+        "tabler:chevron-right",
+        "tabler:car",
+        "tabler:shield-check"
+      ]
+    },
+    {
+      "file": "\\src\\components\\dashboard\\ProfessionalDashboard.tsx",
+      "iconCount": 13,
+      "icons": [
+        "tabler:dashboard",
+        "tabler:refresh",
+        "tabler:chart-line",
+        "tabler:clipboard-list",
+        "tabler:folder-open",
+        "tabler:circle-check",
+        "tabler:clock",
+        "tabler:activity",
+        "tabler:currency-dollar",
+        "tabler:list",
+        "tabler:table",
+        "tabler:settings",
+        "tabler:chevron-right"
+      ]
+    },
+    {
+      "file": "\\src\\components\\dashboard\\QuickActionsPanel.tsx",
+      "iconCount": 1,
+      "icons": [
+        "tabler:chevron-right"
+      ]
+    },
+    {
+      "file": "\\src\\components\\dashboard\\StatRibbon.tsx",
+      "iconCount": 1,
+      "icons": [
+        "tabler:chevron-right"
+      ]
+    },
+    {
+      "file": "\\src\\components\\dashboard\\TechniciansList.tsx",
+      "iconCount": 2,
+      "icons": [
+        "tabler:users"
+      ]
+    },
+    {
+      "file": "\\src\\components\\dashboard\\WorkOrderTrendsChart.tsx",
+      "iconCount": 1,
+      "icons": [
+        "tabler:chart-line"
+      ]
+    },
+    {
+      "file": "\\src\\components\\DeleteConfirmationDialog.tsx",
+      "iconCount": 2,
+      "icons": [
+        "tabler:alert-triangle",
+        "tabler:loader-2"
+      ]
+    },
+    {
+      "file": "\\src\\components\\demo\\CoreComponentsDemo.tsx",
+      "iconCount": 13,
+      "icons": [
+        "tabler:plus",
+        "tabler:edit",
+        "tabler:trash",
+        "tabler:share",
+        "tabler:search",
+        "tabler:info-circle",
+        "tabler:dots-vertical",
+        "tabler:device-desktop",
+        "tabler:tools",
+        "tabler:chart-line",
+        "tabler:currency-dollar",
+        "tabler:alert-triangle"
+      ]
+    },
+    {
+      "file": "\\src\\components\\demo\\DesignSystemDemo.tsx",
+      "iconCount": 70,
+      "icons": [
+        "tabler:palette",
+        "tabler:layout",
+        "tabler:forms",
+        "tabler:search",
+        "tabler:mail",
+        "tabler:tag",
+        "tabler:info-circle",
+        "tabler:tool",
+        "tabler:user",
+        "tabler:car",
+        "tabler:calendar",
+        "tabler:inbox",
+        "tabler:clipboard-list",
+        "tabler:chart-bar",
+        "tabler:circle-check",
+        "tabler:clock",
+        "tabler:alert-triangle",
+        "tabler:lightbulb",
+        "tabler:typography",
+        "tabler:click",
+        "tabler:plus",
+        "tabler:loader",
+        "tabler:refresh",
+        "tabler:trash",
+        "tabler:x",
+        "tabler:edit",
+        "tabler:dots-vertical",
+        "tabler:table",
+        "tabler:bell",
+        "tabler:message",
+        "tabler:star",
+        "tabler:archive",
+        "tabler:icons",
+        "tabler:home",
+        "tabler:alert-circle",
+        "tabler:sparkles",
+        "tabler:ruler"
+      ]
+    },
+    {
+      "file": "\\src\\components\\demos\\ThemeDemo.tsx",
+      "iconCount": 14,
+      "icons": [
+        "tabler:layout-2",
+        "tabler:plus",
+        "tabler:edit",
+        "tabler:download",
+        "tabler:settings",
+        "tabler:trash",
+        "tabler:device-desktop",
+        "tabler:hash",
+        "tabler:status-change",
+        "tabler:check",
+        "tabler:clock",
+        "tabler:alert-circle",
+        "tabler:info-circle",
+        "tabler:minus"
+      ]
+    },
+    {
+      "file": "\\src\\components\\DensityToggle.tsx",
+      "iconCount": 2,
+      "icons": [
+        "tabler:layout-distribute-vertical",
+        "tabler:layout-distribute-horizontal"
+      ]
+    },
+    {
+      "file": "\\src\\components\\diagnostic\\config\\CategoryManager.tsx",
+      "iconCount": 5,
+      "icons": [
+        "tabler:plus",
+        "tabler:pencil",
+        "tabler:trash",
+        "tabler:x",
+        "tabler:loader-2"
+      ]
+    },
+    {
+      "file": "\\src\\components\\diagnostic\\config\\FollowupQuestionManager.tsx",
+      "iconCount": 2,
+      "icons": [
+        "tabler:plus",
+        "tabler:x"
+      ]
+    },
+    {
+      "file": "\\src\\components\\diagnostic\\config\\OptionManager.tsx",
+      "iconCount": 5,
+      "icons": [
+        "tabler:plus",
+        "tabler:check",
+        "tabler:arrow-right",
+        "tabler:pencil",
+        "tabler:trash"
+      ]
+    },
+    {
+      "file": "\\src\\components\\diagnostic\\config\\QuestionEditor.tsx",
+      "iconCount": 2,
+      "icons": [
+        "tabler:x",
+        "tabler:loader-2"
+      ]
+    },
+    {
+      "file": "\\src\\components\\diagnostic\\config\\QuestionFlowView.tsx",
+      "iconCount": 6,
+      "icons": [
+        "tabler:repeat",
+        "tabler:check",
+        "tabler:tool",
+        "tabler:list-numbers",
+        "tabler:loader-2",
+        "tabler:hierarchy-2"
+      ]
+    },
+    {
+      "file": "\\src\\components\\diagnostic\\config\\QuestionTreeView.tsx",
+      "iconCount": 5,
+      "icons": [
+        "tabler:search",
+        "tabler:plus",
+        "tabler:folder",
+        "tabler:pencil",
+        "tabler:trash"
+      ]
+    },
+    {
+      "file": "\\src\\components\\diagnostic\\DiagnosticTool.tsx",
+      "iconCount": 9,
+      "icons": [
+        "mdi:loading",
+        "mdi:alert-circle",
+        "mdi:lightbulb-on",
+        "mdi:check-circle",
+        "mdi:close-circle",
+        "mdi:arrow-left",
+        "mdi:help-circle",
+        "mdi:chevron-right"
+      ]
+    },
+    {
+      "file": "\\src\\components\\docs\\ComponentDocumentation.tsx",
+      "iconCount": 2,
+      "icons": [
+        "tabler:check",
+        "tabler:x"
+      ]
+    },
+    {
+      "file": "\\src\\components\\EnhancedWorkOrderDataTable.tsx",
+      "iconCount": 9,
+      "icons": [
+        "tabler:clipboard-off",
+        "tabler:dots-vertical",
+        "tabler:eye",
+        "tabler:edit",
+        "tabler:trash",
+        "tabler:chevrons-left",
+        "tabler:chevron-left",
+        "tabler:chevron-right",
+        "tabler:chevrons-right"
+      ]
+    },
+    {
+      "file": "\\src\\components\\error\\ErrorBoundary.tsx",
+      "iconCount": 5,
+      "icons": [
+        "mdi:refresh",
+        "mdi:reload",
+        "mdi:bug",
+        "tabler:refresh"
+      ]
+    },
+    {
+      "file": "\\src\\components\\error\\ErrorFallback.tsx",
+      "iconCount": 10,
+      "icons": [
+        "mdi:refresh",
+        "mdi:reload",
+        "mdi:loading",
+        "mdi:wifi-off"
+      ]
+    },
+    {
+      "file": "\\src\\components\\error\\ErrorReporting.tsx",
+      "iconCount": 4,
+      "icons": [
+        "mdi:check-circle",
+        "mdi:bug",
+        "mdi:code-tags",
+        "mdi:send"
+      ]
+    },
+    {
+      "file": "\\src\\components\\ErrorBoundary.tsx",
+      "iconCount": 1,
+      "icons": [
+        "mdi:alert-circle"
+      ]
+    },
+    {
+      "file": "\\src\\components\\examples\\AdvancedThemeDemo.tsx",
+      "iconCount": 10,
+      "icons": [
+        "tabler:palette",
+        "tabler:sun",
+        "tabler:moon",
+        "tabler:contrast",
+        "tabler:layout-grid",
+        "tabler:accessibility",
+        "tabler:check"
+      ]
+    },
+    {
+      "file": "\\src\\components\\InventoryItemFormDialog.tsx",
+      "iconCount": 8,
+      "icons": [
+        "tabler:package",
+        "tabler:x",
+        "tabler:info-circle",
+        "tabler:tags",
+        "tabler:ruler-measure",
+        "tabler:map-pin",
+        "tabler:loader-2"
+      ]
+    },
+    {
+      "file": "\\src\\components\\InventoryPartsUsagePanel.tsx",
+      "iconCount": 4,
+      "icons": [
+        "tabler:loader-2",
+        "tabler:clipboard-off",
+        "tabler:clock",
+        "tabler:tool"
+      ]
+    },
+    {
+      "file": "\\src\\components\\InventoryReportsPanel.tsx",
+      "iconCount": 23,
+      "icons": [
+        "tabler:x",
+        "tabler:package",
+        "tabler:stack-2",
+        "tabler:currency-dollar",
+        "tabler:chart-bar",
+        "tabler:arrow-down",
+        "tabler:arrow-up",
+        "tabler:arrows-exchange",
+        "tabler:receipt",
+        "tabler:clock-pause",
+        "tabler:alert-triangle",
+        "tabler:chart-line",
+        "tabler:package-import",
+        "tabler:trending-up",
+        "tabler:category",
+        "tabler:building-store",
+        "tabler:loader-2",
+        "tabler:chart-bar-off"
+      ]
+    },
+    {
+      "file": "\\src\\components\\InventoryTransactionsPanel.tsx",
+      "iconCount": 2,
+      "icons": [
+        "tabler:x",
+        "tabler:chevron-right"
+      ]
+    },
+    {
+      "file": "\\src\\components\\layout\\ProfessionalNavigation.tsx",
+      "iconCount": 5,
+      "icons": [
+        "tabler:dots",
+        "tabler:chevrons-left",
+        "tabler:chevron-left",
+        "tabler:chevron-right",
+        "tabler:chevrons-right"
+      ]
+    },
+    {
+      "file": "\\src\\components\\layout\\ProfessionalPageLayout.tsx",
+      "iconCount": 1,
+      "icons": [
+        "tabler:chevron-right"
+      ]
+    },
+    {
+      "file": "\\src\\components\\layout\\ProfessionalSidebar.tsx",
+      "iconCount": 5,
+      "icons": [
+        "tabler:tools",
+        "tabler:search",
+        "tabler:x",
+        "tabler:search-off",
+        "tabler:user"
+      ]
+    },
+    {
+      "file": "\\src\\components\\maps\\WorkOrdersMap.tsx",
+      "iconCount": 1,
+      "icons": [
+        "tabler:map-pin-off"
+      ]
+    },
+    {
+      "file": "\\src\\components\\navigation\\ModernBreadcrumbs.tsx",
+      "iconCount": 7,
+      "icons": [
+        "tabler:arrow-left",
+        "tabler:chevron-down",
+        "tabler:chevron-right",
+        "tabler:search",
+        "tabler:x"
+      ]
+    },
+    {
+      "file": "\\src\\components\\navigation\\ResponsiveNavigation.tsx",
+      "iconCount": 3,
+      "icons": [
+        "tabler:x",
+        "tabler:dots-vertical",
+        "tabler:menu-2"
+      ]
+    },
+    {
+      "file": "\\src\\components\\PartsUsageAnalyticsPanel.tsx",
+      "iconCount": 10,
+      "icons": [
+        "tabler:x",
+        "tabler:loader-2",
+        "tabler:package",
+        "tabler:currency-dollar",
+        "tabler:receipt",
+        "tabler:chart-line",
+        "tabler:car",
+        "tabler:category"
+      ]
+    },
+    {
+      "file": "\\src\\components\\reports\\InventoryReport.tsx",
+      "iconCount": 22,
+      "icons": [
+        "tabler:package",
+        "tabler:stack-2",
+        "tabler:currency-dollar",
+        "tabler:chart-bar",
+        "tabler:arrow-down",
+        "tabler:arrow-up",
+        "tabler:arrows-exchange",
+        "tabler:receipt",
+        "tabler:clock-pause",
+        "tabler:alert-triangle",
+        "tabler:chart-line",
+        "tabler:package-import",
+        "tabler:trending-up",
+        "tabler:category",
+        "tabler:building-store",
+        "tabler:loader-2",
+        "tabler:chart-bar-off"
+      ]
+    },
+    {
+      "file": "\\src\\components\\settings\\ConfigurationTab.tsx",
+      "iconCount": 2,
+      "icons": [
+        "tabler:list-tree",
+        "tabler:hierarchy-2"
+      ]
+    },
+    {
+      "file": "\\src\\components\\settings\\HelpTab.tsx",
+      "iconCount": 8,
+      "icons": [
+        "tabler:bulb",
+        "tabler:question-mark",
+        "tabler:list",
+        "tabler:check",
+        "tabler:arrow-right",
+        "tabler:alert-triangle"
+      ]
+    },
+    {
+      "file": "\\src\\components\\ShrinkageRecordDialog.tsx",
+      "iconCount": 3,
+      "icons": [
+        "tabler:alert-triangle",
+        "tabler:x",
+        "tabler:loader-2"
+      ]
+    },
+    {
+      "file": "\\src\\components\\StockAdjustmentDialog.tsx",
+      "iconCount": 11,
+      "icons": [
+        "tabler:adjustments",
+        "tabler:x",
+        "tabler:alert-circle",
+        "tabler:package",
+        "tabler:search",
+        "tabler:alert-triangle",
+        "tabler:package-off",
+        "tabler:tag",
+        "tabler:notes",
+        "tabler:loader-2"
+      ]
+    },
+    {
+      "file": "\\src\\components\\StockReceiptDialog.tsx",
+      "iconCount": 4,
+      "icons": [
+        "tabler:package-import",
+        "tabler:x",
+        "tabler:trash",
+        "tabler:loader-2"
+      ]
+    },
+    {
+      "file": "\\src\\components\\StockTransferDialog.tsx",
+      "iconCount": 7,
+      "icons": [
+        "tabler:transfer",
+        "tabler:x",
+        "tabler:building-warehouse",
+        "tabler:arrow-right",
+        "tabler:trash",
+        "tabler:loader-2"
+      ]
+    },
+    {
+      "file": "\\src\\components\\StorageLocationFields.tsx",
+      "iconCount": 1,
+      "icons": [
+        "tabler:map-pin"
+      ]
+    },
+    {
+      "file": "\\src\\components\\SupplierSelect.tsx",
+      "iconCount": 4,
+      "icons": [
+        "tabler:search",
+        "tabler:x",
+        "tabler:check",
+        "tabler:plus"
+      ]
+    },
+    {
+      "file": "\\src\\components\\tables\\ModernAssetDataTable.tsx",
+      "iconCount": 11,
+      "icons": [
+        "tabler:motorbike",
+        "tabler:map-pin",
+        "tabler:calendar",
+        "tabler:clipboard-list",
+        "tabler:eye",
+        "tabler:dots-vertical",
+        "tabler:edit",
+        "tabler:trash",
+        "tabler:chevron-left",
+        "tabler:chevron-right"
+      ]
+    },
+    {
+      "file": "\\src\\components\\tables\\ModernWorkOrderDataTable.tsx",
+      "iconCount": 6,
+      "icons": [
+        "tabler:user",
+        "tabler:car",
+        "tabler:eye",
+        "tabler:edit",
+        "tabler:dots-vertical",
+        "tabler:alert-circle"
+      ]
+    },
+    {
+      "file": "\\src\\components\\tables\\ProfessionalWorkOrderTable.tsx",
+      "iconCount": 5,
+      "icons": [
+        "tabler:user",
+        "tabler:car",
+        "tabler:eye",
+        "tabler:edit",
+        "tabler:dots-vertical"
+      ]
+    },
+    {
+      "file": "\\src\\components\\tailwind-components\\data-display\\Pagination.tsx",
+      "iconCount": 2,
+      "icons": [
+        "tabler:chevron-left",
+        "tabler:chevron-right"
+      ]
+    },
+    {
+      "file": "\\src\\components\\tailwind-components\\feedback\\Alert.tsx",
+      "iconCount": 1,
+      "icons": [
+        "mdi:close"
+      ]
+    },
+    {
+      "file": "\\src\\components\\tailwind-components\\overlays\\Drawer.tsx",
+      "iconCount": 1,
+      "icons": [
+        "mdi:close"
+      ]
+    },
+    {
+      "file": "\\src\\components\\tailwind-components\\overlays\\Modal.tsx",
+      "iconCount": 1,
+      "icons": [
+        "mdi:close"
+      ]
+    },
+    {
+      "file": "\\src\\components\\TechnicianFormDialog.tsx",
+      "iconCount": 3,
+      "icons": [
+        "heroicons:x-mark",
+        "heroicons:plus"
+      ]
+    },
+    {
+      "file": "\\src\\components\\TechnicianFormDrawer.tsx",
+      "iconCount": 12,
+      "icons": [
+        "tabler:x",
+        "tabler:user",
+        "tabler:mail",
+        "tabler:phone",
+        "tabler:circle-dot",
+        "tabler:map-pin",
+        "tabler:clipboard-list",
+        "tabler:tool",
+        "tabler:plus",
+        "tabler:check",
+        "tabler:tools-off"
+      ]
+    },
+    {
+      "file": "\\src\\components\\tv\\DashboardWidgetWrapper.tsx",
+      "iconCount": 2,
+      "icons": [
+        "heroicons:x-mark",
+        "heroicons:bars-3"
+      ]
+    },
+    {
+      "file": "\\src\\components\\tv\\Layout.tsx",
+      "iconCount": 1,
+      "icons": [
+        "heroicons:wrench-screwdriver"
+      ]
+    },
+    {
+      "file": "\\src\\components\\tv\\TVWidgets.tsx",
+      "iconCount": 4,
+      "icons": [
+        "heroicons:check-circle",
+        "heroicons:clipboard-document-list",
+        "heroicons:user",
+        "heroicons:calendar"
+      ]
+    },
+    {
+      "file": "\\src\\components\\tv\\WorkOrderMapWidget.tsx",
+      "iconCount": 1,
+      "icons": [
+        "heroicons:map"
+      ]
+    },
+    {
+      "file": "\\src\\components\\ui\\DataTableBulkActions.tsx",
+      "iconCount": 3,
+      "icons": [
+        "tabler:check",
+        "tabler:x",
+        "tabler:keyboard"
+      ]
+    },
+    {
+      "file": "\\src\\components\\ui\\DataTableExportMenu.tsx",
+      "iconCount": 8,
+      "icons": [
+        "tabler:download",
+        "tabler:x",
+        "tabler:chevron-right",
+        "tabler:check",
+        "tabler:database",
+        "tabler:info-circle"
+      ]
+    },
+    {
+      "file": "\\src\\components\\ui\\DataTableFilterBar.tsx",
+      "iconCount": 2,
+      "icons": [
+        "tabler:x",
+        "tabler:filter"
+      ]
+    },
+    {
+      "file": "\\src\\components\\ui\\DataTableMobile.tsx",
+      "iconCount": 2,
+      "icons": [
+        "tabler:check",
+        "tabler:x"
+      ]
+    },
+    {
+      "file": "\\src\\components\\ui\\EnhancedDataTable.tsx",
+      "iconCount": 4,
+      "icons": [
+        "tabler:x",
+        "tabler:download",
+        "tabler:search"
+      ]
+    },
+    {
+      "file": "\\src\\components\\ui\\EnhancedProfessionalDataTable.tsx",
+      "iconCount": 5,
+      "icons": [
+        "tabler:alert-circle",
+        "tabler:chevron-up",
+        "tabler:chevron-down",
+        "tabler:search"
+      ]
+    },
+    {
+      "file": "\\src\\components\\ui\\LoadingExamples.tsx",
+      "iconCount": 1,
+      "icons": [
+        "tabler:plus"
+      ]
+    },
+    {
+      "file": "\\src\\components\\ui\\ProfessionalDataTable.tsx",
+      "iconCount": 5,
+      "icons": [
+        "tabler:chevron-up",
+        "tabler:chevron-down",
+        "tabler:chevron-left",
+        "tabler:search",
+        "tabler:database-off"
+      ]
+    },
+    {
+      "file": "\\src\\components\\ui\\ProfessionalEnhancedDataTable.tsx",
+      "iconCount": 6,
+      "icons": [
+        "tabler:x",
+        "tabler:download",
+        "tabler:alert-circle",
+        "tabler:refresh",
+        "tabler:search"
+      ]
+    },
+    {
+      "file": "\\src\\components\\ui\\ProfessionalInput.tsx",
+      "iconCount": 3,
+      "icons": [
+        "tabler:alert-circle",
+        "tabler:circle-check",
+        "tabler:chevron-down"
+      ]
+    },
+    {
+      "file": "\\src\\components\\ui\\SimpleBreadcrumbs.tsx",
+      "iconCount": 1,
+      "icons": [
+        "tabler:chevron-right"
+      ]
+    },
+    {
+      "file": "\\src\\components\\ui\\ThemeControls.tsx",
+      "iconCount": 4,
+      "icons": [
+        "tabler:palette",
+        "tabler:x",
+        "tabler:refresh"
+      ]
+    },
+    {
+      "file": "\\src\\components\\ui\\__tests__\\phase2-integration.test.tsx",
+      "iconCount": 2,
+      "icons": [
+        "tabler:plus",
+        "tabler:alert-triangle"
+      ]
+    },
+    {
+      "file": "\\src\\components\\ui\\__tests__\\ProfessionalCard.test.tsx",
+      "iconCount": 2,
+      "icons": [
+        "tabler:settings",
+        "tabler:chart-line"
+      ]
+    },
+    {
+      "file": "\\src\\components\\ui\\__tests__\\ProfessionalLoading.test.tsx",
+      "iconCount": 1,
+      "icons": [
+        "tabler:plus"
+      ]
+    },
+    {
+      "file": "\\src\\components\\UnitOfMeasureSelect.tsx",
+      "iconCount": 1,
+      "icons": [
+        "tabler:info-circle"
+      ]
+    },
+    {
+      "file": "\\src\\components\\UrgentWorkOrdersTable.tsx",
+      "iconCount": 4,
+      "icons": [
+        "tabler:user",
+        "tabler:map-pin",
+        "tabler:alert-triangle",
+        "tabler:circle-check"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-order-details\\AssignEmergencyBikeModal.tsx",
+      "iconCount": 7,
+      "icons": [
+        "tabler:bike",
+        "tabler:x",
+        "tabler:info-circle",
+        "tabler:bike-off",
+        "tabler:circle-check-filled",
+        "tabler:check"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-order-details\\ConfirmationCallDialog.tsx",
+      "iconCount": 12,
+      "icons": [
+        "tabler:phone",
+        "tabler:x",
+        "tabler:user",
+        "tabler:check",
+        "tabler:phone-off",
+        "tabler:alert-circle",
+        "tabler:calendar-check",
+        "tabler:x-circle"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-order-details\\WorkOrderActivityLogCard.tsx",
+      "iconCount": 1,
+      "icons": [
+        "tabler:history-off"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-order-details\\WorkOrderCostSummaryCard.tsx",
+      "iconCount": 7,
+      "icons": [
+        "tabler:plus",
+        "tabler:package",
+        "tabler:package-off",
+        "tabler:trash",
+        "tabler:clock",
+        "tabler:circle-check",
+        "tabler:progress"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-order-details\\WorkOrderCustomerVehicleCard.tsx",
+      "iconCount": 4,
+      "icons": [
+        "tabler:user",
+        "tabler:phone",
+        "tabler:motorbike"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-order-details\\WorkOrderDetailsInfoCard.tsx",
+      "iconCount": 9,
+      "icons": [
+        "tabler:flag",
+        "tabler:lifebuoy",
+        "tabler:hash",
+        "tabler:calendar",
+        "tabler:clock",
+        "tabler:device-mobile",
+        "tabler:building",
+        "tabler:clock-pause"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-order-details\\WorkOrderLocationMapCard.tsx",
+      "iconCount": 3,
+      "icons": [
+        "tabler:map-pin",
+        "tabler:building",
+        "tabler:map-off"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-order-details\\WorkOrderNotesCard.tsx",
+      "iconCount": 2,
+      "icons": [
+        "tabler:plus",
+        "tabler:notes-off"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-order-details\\WorkOrderOverviewCards.tsx",
+      "iconCount": 7,
+      "icons": [
+        "tabler:license",
+        "tabler:user",
+        "tabler:motorbike",
+        "tabler:calendar-time",
+        "tabler:shield-check",
+        "tabler:map-pin",
+        "tabler:user-check"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-order-details\\WorkOrderPartsUsedCard.tsx",
+      "iconCount": 4,
+      "icons": [
+        "tabler:plus",
+        "tabler:package-off",
+        "tabler:package",
+        "tabler:trash"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-order-details\\WorkOrderRelatedHistoryCard.tsx",
+      "iconCount": 2,
+      "icons": [
+        "tabler:history",
+        "tabler:history-off"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-order-details\\WorkOrderServiceLifecycleCard.tsx",
+      "iconCount": 2,
+      "icons": [
+        "tabler:clock-pause",
+        "tabler:motorbike"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-order-details\\WorkOrderSidebar.tsx",
+      "iconCount": 2,
+      "icons": [
+        "tabler:search",
+        "tabler:clipboard-off"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-orders\\CreateWorkOrderForm.tsx",
+      "iconCount": 5,
+      "icons": [
+        "mdi:close",
+        "mdi:check",
+        "tabler:arrow-right"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-orders\\MapboxLocationPicker.tsx",
+      "iconCount": 4,
+      "icons": [
+        "mdi:map-marker",
+        "mdi:check-circle",
+        "mdi:information"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-orders\\SectionCard.tsx",
+      "iconCount": 3,
+      "icons": [
+        "mdi:check",
+        "mdi:pencil",
+        "mdi:chevron-down"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-orders\\steps\\CustomerVehicleStep.tsx",
+      "iconCount": 10,
+      "icons": [
+        "mdi:magnify",
+        "mdi:loading",
+        "mdi:motorbike",
+        "mdi:chevron-right",
+        "mdi:alert-circle-outline",
+        "mdi:check-circle",
+        "mdi:account",
+        "mdi:phone",
+        "mdi:close"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-orders\\steps\\DiagnosticStep.tsx",
+      "iconCount": 3,
+      "icons": [
+        "mdi:check-circle",
+        "mdi:pencil",
+        "mdi:clipboard-text"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-orders\\steps\\ReviewSubmitStep.tsx",
+      "iconCount": 2,
+      "icons": [
+        "mdi:information-slab-circle",
+        "mdi:check-circle"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-orders\\summaries\\DetailsSummary.tsx",
+      "iconCount": 4,
+      "icons": [
+        "mdi:store-marker-outline",
+        "mdi:calendar-clock",
+        "mdi:calendar-blank",
+        "mdi:note-text-outline"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-orders\\summaries\\DiagnosticSummary.tsx",
+      "iconCount": 2,
+      "icons": [
+        "mdi:tools",
+        "mdi:alert-circle-outline"
+      ]
+    },
+    {
+      "file": "\\src\\components\\work-orders\\summaries\\VehicleSummary.tsx",
+      "iconCount": 3,
+      "icons": [
+        "mdi:car",
+        "mdi:map-marker",
+        "mdi:phone"
+      ]
+    },
+    {
+      "file": "\\src\\components\\WorkOrderDetailsDrawer.tsx",
+      "iconCount": 9,
+      "icons": [
+        "tabler:external-link",
+        "tabler:x",
+        "tabler:license",
+        "tabler:user",
+        "tabler:motorbike",
+        "tabler:calendar-time",
+        "tabler:shield-check",
+        "tabler:map-pin",
+        "tabler:user-check"
+      ]
+    },
+    {
+      "file": "\\src\\components\\WorkOrderPartsDialog.tsx",
+      "iconCount": 5,
+      "icons": [
+        "tabler:x",
+        "tabler:search",
+        "tabler:package-off",
+        "tabler:trash",
+        "tabler:clock-off"
+      ]
+    },
+    {
+      "file": "\\src\\components\\WorkOrderStepper\\WorkOrderStepper.tsx",
+      "iconCount": 1,
+      "icons": [
+        "tabler:clock-pause"
+      ]
+    },
+    {
+      "file": "\\src\\pages\\AssetDetails.tsx",
+      "iconCount": 22,
+      "icons": [
+        "mdi:alert-circle",
+        "tabler:clipboard-list",
+        "tabler:edit",
+        "tabler:motorbike",
+        "tabler:lifebuoy",
+        "tabler:shield-check",
+        "tabler:user-circle",
+        "tabler:phone",
+        "tabler:info-circle",
+        "tabler:arrow-right",
+        "tabler:clock",
+        "tabler:alert-circle",
+        "tabler:circle-check",
+        "tabler:history",
+        "tabler:clipboard-off",
+        "tabler:plus",
+        "tabler:circle-x"
+      ]
+    },
+    {
+      "file": "\\src\\pages\\Assets.tsx",
+      "iconCount": 17,
+      "icons": [
+        "tabler:search",
+        "tabler:adjustments-horizontal",
+        "tabler:plus",
+        "tabler:car-off",
+        "tabler:car",
+        "tabler:clipboard-list",
+        "tabler:motorbike",
+        "tabler:edit",
+        "tabler:trash",
+        "tabler:clock",
+        "tabler:clock-off",
+        "tabler:receipt-2",
+        "tabler:map-pin",
+        "tabler:clipboard-off"
+      ]
+    },
+    {
+      "file": "\\src\\pages\\Chat.tsx",
+      "iconCount": 29,
+      "icons": [
+        "tabler:check",
+        "tabler:checks",
+        "tabler:search",
+        "tabler:dots-vertical",
+        "tabler:user",
+        "tabler:tool",
+        "tabler:motorbike",
+        "tabler:search-off",
+        "tabler:arrow-left",
+        "tabler:info-circle",
+        "tabler:plus",
+        "tabler:phone",
+        "tabler:message-circle-off",
+        "tabler:paperclip",
+        "tabler:photo",
+        "tabler:mood-smile",
+        "tabler:send",
+        "tabler:message-circle",
+        "tabler:x",
+        "tabler:alert-triangle",
+        "tabler:timeline"
+      ]
+    },
+    {
+      "file": "\\src\\pages\\CustomerDetails.tsx",
+      "iconCount": 28,
+      "icons": [
+        "mdi:alert-circle",
+        "tabler:chevron-left",
+        "tabler:chevron-right",
+        "tabler:clipboard-list",
+        "tabler:edit",
+        "tabler:mail",
+        "tabler:car",
+        "tabler:arrow-right",
+        "tabler:clock",
+        "tabler:alert-circle",
+        "tabler:circle-check",
+        "tabler:address-book",
+        "tabler:phone",
+        "tabler:motorbike",
+        "tabler:car-off",
+        "tabler:plus",
+        "tabler:history",
+        "tabler:clipboard-off",
+        "tabler:info-circle"
+      ]
+    },
+    {
+      "file": "\\src\\pages\\Customers.tsx",
+      "iconCount": 11,
+      "icons": [
+        "tabler:adjustments-horizontal",
+        "tabler:search",
+        "tabler:users-off",
+        "tabler:external-link",
+        "tabler:car",
+        "tabler:clipboard-list",
+        "tabler:clock",
+        "tabler:calendar",
+        "tabler:chevron-right",
+        "tabler:users"
+      ]
+    },
+    {
+      "file": "\\src\\pages\\EnhancedDashboard.tsx",
+      "iconCount": 7,
+      "icons": [
+        "tabler:refresh",
+        "tabler:plus",
+        "tabler:clipboard-list",
+        "tabler:folder-open",
+        "tabler:circle-check",
+        "tabler:clock",
+        "tabler:arrow-right"
+      ]
+    },
+    {
+      "file": "\\src\\pages\\ImprovedDashboard.tsx",
+      "iconCount": 9,
+      "icons": [
+        "tabler:refresh",
+        "tabler:plus",
+        "tabler:clipboard-list",
+        "tabler:folder-open",
+        "tabler:circle-check",
+        "tabler:clock",
+        "tabler:activity",
+        "tabler:currency-dollar",
+        "tabler:arrow-right"
+      ]
+    },
+    {
+      "file": "\\src\\pages\\Inventory.tsx",
+      "iconCount": 21,
+      "icons": [
+        "tabler:alert-triangle",
+        "tabler:refresh",
+        "tabler:search",
+        "tabler:adjustments-horizontal",
+        "tabler:plus-minus",
+        "tabler:arrows-exchange",
+        "tabler:chart-bar",
+        "tabler:report-analytics",
+        "tabler:plus",
+        "tabler:package-off",
+        "tabler:package",
+        "tabler:edit",
+        "tabler:trash",
+        "tabler:building-store"
+      ]
+    },
+    {
+      "file": "\\src\\pages\\Locations.tsx",
+      "iconCount": 21,
+      "icons": [
+        "tabler:adjustments-horizontal",
+        "tabler:search",
+        "tabler:building",
+        "tabler:x",
+        "tabler:users",
+        "tabler:clipboard-list",
+        "tabler:check",
+        "tabler:map-pin-off",
+        "tabler:users-off",
+        "tabler:clipboard-off",
+        "tabler:list",
+        "tabler:map",
+        "tabler:building-off",
+        "tabler:user-check"
+      ]
+    },
+    {
+      "file": "\\src\\pages\\Login.tsx",
+      "iconCount": 7,
+      "icons": [
+        "tabler:tools",
+        "tabler:mail",
+        "tabler:alert-circle",
+        "tabler:lock",
+        "tabler:login",
+        "flat-color-icons:google"
+      ]
+    },
+    {
+      "file": "\\src\\pages\\ProfessionalCMMSDashboard.tsx",
+      "iconCount": 2,
+      "icons": [
+        "tabler:refresh",
+        "tabler:plus"
+      ]
+    },
+    {
+      "file": "\\src\\pages\\Reports.tsx",
+      "iconCount": 29,
+      "icons": [
+        "tabler:file-type-pdf",
+        "tabler:file-spreadsheet",
+        "tabler:clipboard-check",
+        "tabler:circle-check",
+        "tabler:currency-dollar",
+        "tabler:tool",
+        "tabler:chart-pie",
+        "tabler:chart-bar",
+        "tabler:chart-line",
+        "tabler:flag",
+        "tabler:table",
+        "tabler:car",
+        "tabler:clock",
+        "tabler:chart-donut",
+        "tabler:receipt",
+        "tabler:truck",
+        "tabler:activity",
+        "tabler:calendar-time"
+      ]
+    },
+    {
+      "file": "\\src\\pages\\Scheduling.tsx",
+      "iconCount": 10,
+      "icons": [
+        "tabler:calendar-event",
+        "tabler:calendar",
+        "tabler:timeline",
+        "tabler:chevron-left",
+        "tabler:chevron-right",
+        "tabler:users",
+        "tabler:calendar-check",
+        "tabler:clock",
+        "tabler:user-check",
+        "tabler:alert-triangle"
+      ]
+    },
+    {
+      "file": "\\src\\pages\\Settings.tsx",
+      "iconCount": 15,
+      "icons": [
+        "tabler:user",
+        "tabler:user-circle",
+        "tabler:loader-2",
+        "tabler:layout-distribute-vertical",
+        "tabler:check",
+        "tabler:layout-distribute-horizontal",
+        "tabler:info-circle",
+        "tabler:file",
+        "tabler:checks",
+        "tabler:bell-off",
+        "tabler:settings",
+        "tabler:home",
+        "tabler:chevron-right"
+      ]
+    },
+    {
+      "file": "\\src\\pages\\Technicians.tsx",
+      "iconCount": 13,
+      "icons": [
+        "tabler:search",
+        "tabler:adjustments-horizontal",
+        "tabler:plus",
+        "tabler:user-off",
+        "tabler:clipboard-list",
+        "tabler:edit",
+        "tabler:trash",
+        "tabler:check",
+        "tabler:chart-line",
+        "tabler:map-pin",
+        "tabler:clipboard-off",
+        "tabler:user"
+      ]
+    },
+    {
+      "file": "\\src\\pages\\TVDashboard.tsx",
+      "iconCount": 9,
+      "icons": [
+        "heroicons:exclamation-triangle",
+        "heroicons:clock",
+        "heroicons:wrench",
+        "heroicons:bolt",
+        "heroicons:check-badge",
+        "heroicons:arrow-path",
+        "heroicons:plus",
+        "heroicons:x-mark",
+        "heroicons:check-circle"
+      ]
+    },
+    {
+      "file": "\\src\\pages\\WorkOrderDetailsEnhanced.tsx",
+      "iconCount": 28,
+      "icons": [
+        "tabler:clock-exclamation",
+        "tabler:bike",
+        "tabler:check",
+        "tabler:arrow-left",
+        "tabler:license",
+        "tabler:user",
+        "tabler:motorbike",
+        "tabler:calendar-time",
+        "tabler:shield-check",
+        "tabler:map-pin",
+        "tabler:user-check",
+        "tabler:info-circle",
+        "tabler:message-circle",
+        "tabler:history",
+        "tabler:package",
+        "tabler:clock",
+        "ph:info-fill",
+        "ph:list-bullets-fill",
+        "ph:map-pin-fill",
+        "ph:timer-fill",
+        "ph:flow-arrow-fill",
+        "ph:currency-dollar-fill",
+        "ph:chart-pie",
+        "ph:package",
+        "ph:users",
+        "ph:gear"
+      ]
+    },
+    {
+      "file": "\\src\\pages\\WorkOrders.tsx",
+      "iconCount": 28,
+      "icons": [
+        "tabler:car",
+        "tabler:user",
+        "ant-design:plus-outlined",
+        "tabler:alert-triangle",
+        "tabler:refresh",
+        "tabler:download",
+        "tabler:adjustments-horizontal",
+        "tabler:plus",
+        "tabler:x",
+        "tabler:search",
+        "tabler:filter-off",
+        "tabler:checkbox",
+        "tabler:status-change",
+        "tabler:chevron-down",
+        "tabler:user-plus",
+        "tabler:trash",
+        "tabler:table",
+        "tabler:layout-kanban",
+        "tabler:map",
+        "tabler:columns",
+        "tabler:check"
+      ]
+    }
+  ]
+}

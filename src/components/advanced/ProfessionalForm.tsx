@@ -7,7 +7,12 @@
  */
 
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  AlertCircleIcon,
+  ArrowUp01Icon,
+  ArrowDown01Icon
+} from '@hugeicons/core-free-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import ProfessionalInput, { ProfessionalTextarea, ProfessionalSelect } from '@/components/ui/ProfessionalInput';
@@ -274,7 +279,7 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({
           </div>
           {error && (
             <p className="text-sm text-warning-600 flex items-center gap-1">
-              <Icon icon="tabler:alert-circle" className="w-4 h-4" />
+              <HugeiconsIcon icon={AlertCircleIcon} size={16} />
               {error}
             </p>
           )}
@@ -314,7 +319,7 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({
           </div>
           {error && (
             <p className="text-sm text-warning-600 flex items-center gap-1">
-              <Icon icon="tabler:alert-circle" className="w-4 h-4" />
+              <HugeiconsIcon icon={AlertCircleIcon} size={16} />
               {error}
             </p>
           )}
@@ -343,7 +348,7 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({
             )}
             {error && (
               <p className="text-sm text-warning-600 flex items-center gap-1 mt-1">
-                <Icon icon="tabler:alert-circle" className="w-4 h-4" />
+                <HugeiconsIcon icon={AlertCircleIcon} size={16} />
                 {error}
               </p>
             )}
@@ -409,7 +414,7 @@ const FieldRenderer: React.FC<FieldRendererProps> = ({
           </div>
           {error && (
             <p className="text-sm text-warning-600 flex items-center gap-1">
-              <Icon icon="tabler:alert-circle" className="w-4 h-4" />
+              <HugeiconsIcon icon={AlertCircleIcon} size={16} />
               {error}
             </p>
           )}
@@ -475,7 +480,7 @@ const FormSectionComponent: React.FC<FormSectionProps> = ({
           <div className="flex items-center gap-3">
             {section.icon && (
               <div className="w-8 h-8 bg-steel-100 rounded-lg flex items-center justify-center">
-                <Icon icon={section.icon} className="w-4 h-4 text-steel-600" />
+                <HugeiconsIcon icon={AlertCircleIcon} className="w-4 h-4 text-steel-600" />
               </div>
             )}
             <div>
@@ -495,9 +500,9 @@ const FormSectionComponent: React.FC<FormSectionProps> = ({
               onClick={() => setIsCollapsed(!isCollapsed)}
               className="p-2 text-machinery-500 hover:text-machinery-700 rounded-lg hover:bg-machinery-100"
             >
-              <Icon 
-                icon={isCollapsed ? 'tabler:chevron-down' : 'tabler:chevron-up'} 
-                className="w-5 h-5" 
+              <HugeiconsIcon 
+                icon={isCollapsed ? ArrowDown01Icon : ArrowUp01Icon} 
+                size={20} 
               />
             </button>
           )}

@@ -13,7 +13,17 @@ import {
   Container,
   Skeleton
 } from '@/components/tailwind-components';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  InformationCircleIcon, 
+  AlertCircleIcon, 
+  Alert01Icon, 
+  AlertSquareIcon, 
+  RefreshIcon, 
+  ReloadIcon, 
+  Loading01Icon, 
+  WifiOffIcon 
+} from '@hugeicons/core-free-icons';
 
 export interface ErrorFallbackProps {
   error?: Error;
@@ -97,10 +107,10 @@ export function ErrorFallback({
 
   const getErrorIcon = () => {
     const icons = {
-      low: 'mdi:information',
-      medium: 'mdi:alert',
-      high: 'mdi:alert-circle',
-      critical: 'mdi:alert-octagon'
+      low: InformationCircleIcon,
+      medium: AlertCircleIcon,
+      high: AlertCircleIcon,
+      critical: AlertSquareIcon
     };
     return icons[severity];
   };
@@ -129,7 +139,7 @@ export function ErrorFallback({
         <Card shadow="md" padding="xl" radius="md">
           <Stack align="center" gap="lg">
             <Box c={color}>
-              <Icon icon={icon} width={64} height={64} />
+              <HugeiconsIcon icon={icon} size={64} />
             </Box>
 
             <Stack align="center" gap="xs">
@@ -153,7 +163,7 @@ export function ErrorFallback({
                 {showRetry && resetError && (
                   <Button
                     onClick={resetError}
-                    leftSection={<Icon icon="mdi:refresh" width={16} height={16} />}
+                    leftSection={<HugeiconsIcon icon={RefreshIcon} size={16} />}
                     size="lg"
                   >
                     Try Again
@@ -164,7 +174,7 @@ export function ErrorFallback({
                   <Button
                     onClick={handleReload}
                     variant="outline"
-                    leftSection={<Icon icon="mdi:reload" width={16} height={16} />}
+                    leftSection={<HugeiconsIcon icon={ReloadIcon} size={16} />}
                     size="lg"
                   >
                     Refresh Page
@@ -184,7 +194,7 @@ export function ErrorFallback({
       <Alert
         color={color}
         title="Section Error"
-        icon={<Icon icon={icon} width={20} height={20} />}
+        icon={<HugeiconsIcon icon={icon} size={20} />}
         withCloseButton={false}
       >
         <Stack gap="sm">
@@ -198,7 +208,7 @@ export function ErrorFallback({
                   variant="light"
                   color={color}
                   onClick={resetError}
-                  leftSection={<Icon icon="mdi:refresh" width={14} height={14} />}
+                  leftSection={<HugeiconsIcon icon={RefreshIcon} size={14} />}
                 >
                   Retry
                 </Button>
@@ -210,7 +220,7 @@ export function ErrorFallback({
                   variant="outline"
                   color={color}
                   onClick={handleReload}
-                  leftSection={<Icon icon="mdi:reload" width={14} height={14} />}
+                  leftSection={<HugeiconsIcon icon={ReloadIcon} size={14} />}
                 >
                   Reload
                 </Button>
@@ -234,7 +244,7 @@ export function ErrorFallback({
   return (
     <Alert
       color={color}
-      icon={<Icon icon={icon} width={16} height={16} />}
+      icon={<HugeiconsIcon icon={icon} size={16} />}
       withCloseButton={false}
     >
       <Group justify="space-between" align="center">
@@ -249,7 +259,7 @@ export function ErrorFallback({
               onClick={resetError}
               aria-label="Retry"
             >
-              <Icon icon="mdi:refresh" width={14} height={14} />
+              <HugeiconsIcon icon={RefreshIcon} size={14} />
             </ActionIcon>
           )}
 
@@ -280,7 +290,7 @@ export function LoadingErrorFallback({
             variant="light"
             size="sm"
             onClick={onRetry}
-            leftSection={<Icon icon="mdi:refresh" width={14} height={14} />}
+            leftSection={<HugeiconsIcon icon={RefreshIcon} size={14} />}
           >
             Retry Loading
           </Button>
@@ -292,7 +302,7 @@ export function LoadingErrorFallback({
   return (
     <Alert
       color="yellow"
-      icon={<Icon icon="mdi:loading" width={16} height={16} />}
+      icon={<HugeiconsIcon icon={Loading01Icon} size={16} />}
     >
       <Group justify="space-between" align="center">
         <Text size="sm">{message}</Text>
@@ -303,7 +313,7 @@ export function LoadingErrorFallback({
             onClick={onRetry}
             aria-label="Retry"
           >
-            <Icon icon="mdi:refresh" width={14} height={14} />
+            <HugeiconsIcon icon={RefreshIcon} size={14} />
           </ActionIcon>
         )}
       </Group>
@@ -323,7 +333,7 @@ export function NetworkErrorFallback({
     <Alert
       color="orange"
       title="Connection Issue"
-      icon={<Icon icon="mdi:wifi-off" width={16} height={16} />}
+      icon={<HugeiconsIcon icon={WifiOffIcon} size={16} />}
     >
       <Stack gap="sm">
         <Text size="sm">
@@ -339,7 +349,7 @@ export function NetworkErrorFallback({
             variant="light"
             color="orange"
             onClick={onRetry}
-            leftSection={<Icon icon="mdi:refresh" width={14} height={14} />}
+            leftSection={<HugeiconsIcon icon={RefreshIcon} size={14} />}
           >
             Try Again
           </Button>

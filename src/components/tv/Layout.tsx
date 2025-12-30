@@ -1,5 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  WifiIcon,
+  WifiOffIcon,
+  UserIcon,
+  Location01Icon,
+  Wrench01Icon,
+  Sun01Icon,
+  Moon01Icon
+} from '@hugeicons/core-free-icons';
 import { useSession } from '@/context/SessionContext';
 import { Location } from '@/types/supabase';
 
@@ -42,7 +51,7 @@ export const TVLayout = ({ children, lastUpdated, selectedLocation, locations, o
                 <header className="h-20 bg-neutral-100 dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 flex items-center justify-between px-8 shadow-sm z-10 relative transition-colors duration-300">
                     <div className="flex items-center gap-4">
                         <div className="w-12 h-12 bg-primary-600 rounded-lg flex items-center justify-center shadow-primary-900/20 dark:shadow-primary-900/50 shadow-lg">
-                            <Icon icon="heroicons:wrench-screwdriver" className="w-8 h-8 text-white" />
+                            <HugeiconsIcon icon={Wrench01Icon} size={32} className="text-white" />
                         </div>
                         <div>
                             <h1 className="text-2xl font-bold tracking-tight text-neutral-900 dark:text-white/90 font-display">MAINTENANCE COMMAND</h1>
@@ -68,7 +77,7 @@ export const TVLayout = ({ children, lastUpdated, selectedLocation, locations, o
                             onClick={() => setIsDarkMode(!isDarkMode)}
                             className="p-2 rounded-full bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors cursor-pointer"
                         >
-                            <Icon icon={isDarkMode ? "heroicons:sun" : "heroicons:moon"} className="w-6 h-6" />
+                            <HugeiconsIcon icon={isDarkMode ? Sun01Icon : Moon01Icon} size={24} />
                         </button>
 
                         <select

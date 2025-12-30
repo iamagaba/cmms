@@ -6,7 +6,8 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowDown01Icon, Search01Icon, Tick01Icon, Cancel01Icon } from '@hugeicons/core-free-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { TableColumn } from './EnhancedProfessionalDataTable';
@@ -219,7 +220,7 @@ const MobileEmptyState: React.FC<MobileEmptyStateProps> = ({
 }) => (
   <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
     <div className="w-20 h-20 bg-machinery-100 rounded-full flex items-center justify-center mb-6">
-      <Icon icon={icon} className="w-10 h-10 text-machinery-400" />
+      {/* TODO: Convert icon prop to use HugeiconsIcon component */}
     </div>
     <h3 className="text-lg font-semibold text-machinery-700 mb-3">{title}</h3>
     <p className="text-machinery-500 text-center max-w-sm mb-6 leading-relaxed">{description}</p>
@@ -289,7 +290,7 @@ const MobileSelectionHeader: React.FC<MobileSelectionHeaderProps> = ({
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Icon icon="tabler:check" className="w-4 h-4 text-steel-600" />
+          <HugeiconsIcon icon={Tick01Icon} size={16} className="text-steel-600" />
           <span className="text-sm font-medium text-steel-700">
             {selectedCount} of {totalCount} selected
           </span>
@@ -308,7 +309,7 @@ const MobileSelectionHeader: React.FC<MobileSelectionHeaderProps> = ({
             onClick={onClearSelection}
             className="p-1 text-machinery-500 hover:text-machinery-700 transition-colors"
           >
-            <Icon icon="tabler:x" className="w-4 h-4" />
+            <HugeiconsIcon icon={Cancel01Icon} size={16} />
           </button>
         </div>
       </div>

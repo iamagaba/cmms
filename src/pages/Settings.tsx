@@ -8,7 +8,28 @@ import { useSystemSettings } from '@/context/SystemSettingsContext';
 import { useDensity } from '@/context/DensityContext';
 import { useNotifications } from '@/context/NotificationsContext';
 import { formatDistanceToNow } from 'date-fns';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  UserIcon,
+  UserIcon as UserCircleIcon,
+  Loading01Icon,
+  GridIcon,
+  GridIcon as GridViewIcon,
+  Tick01Icon,
+  InformationCircleIcon,
+  FileIcon,
+  CheckmarkCircle01Icon,
+  Notification01Icon,
+  Notification01Icon as NotificationOffIcon,
+  Notification01Icon as Notification02Icon,
+  Settings01Icon,
+  Settings02Icon,
+  Settings01Icon as ColorsIcon,
+  InformationCircleIcon as HelpCircleIcon,
+  GridIcon as ServerStackIcon,
+  Home01Icon,
+  ArrowRight01Icon
+} from '@hugeicons/core-free-icons';
 import { useForm, Controller } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import ConfigurationTab from '@/components/settings/ConfigurationTab';
@@ -109,7 +130,7 @@ const ProfileTab = () => {
               />
             ) : (
               <div className="w-20 h-20 rounded-full border-2 border-gray-200 dark:border-gray-700 bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                <Icon icon="tabler:user" className="w-10 h-10 text-primary-600 dark:text-primary-400" />
+                <HugeiconsIcon icon={UserIcon} size={40} className="text-primary-600 dark:text-primary-400" />
               </div>
             )}
           </div>
@@ -137,7 +158,7 @@ const ProfileTab = () => {
       {/* Profile Form */}
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-          <Icon icon="tabler:user-circle" className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+          <HugeiconsIcon icon={UserCircleIcon} size={20} className="text-primary-600 dark:text-primary-400" />
           Personal Information
         </h3>
 
@@ -188,7 +209,7 @@ const ProfileTab = () => {
               className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
               {updateProfileMutation.isPending && (
-                <Icon icon="tabler:loader-2" className="w-4 h-4 animate-spin" />
+                <HugeiconsIcon icon={Loading01Icon} size={16} className="animate-spin" />
               )}
               Save Changes
             </button>
@@ -227,7 +248,7 @@ const AppearanceTab = () => {
           >
             <div className={`p-2 rounded-lg ${densityMode === 'cozy' ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
               }`}>
-              <Icon icon="tabler:layout-distribute-vertical" className="w-6 h-6" />
+              <HugeiconsIcon icon={GridIcon} size={24} />
             </div>
             <div className="flex-1 text-left">
               <div className="flex items-center gap-2">
@@ -242,7 +263,7 @@ const AppearanceTab = () => {
                 More spacing and larger elements for comfortable viewing
               </p>
               <div className="mt-3 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                <Icon icon="tabler:check" className="w-4 h-4" />
+                <HugeiconsIcon icon={Tick01Icon} size={16} />
                 <span>Better readability</span>
               </div>
             </div>
@@ -258,7 +279,7 @@ const AppearanceTab = () => {
           >
             <div className={`p-2 rounded-lg ${densityMode === 'compact' ? 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400' : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
               }`}>
-              <Icon icon="tabler:layout-distribute-horizontal" className="w-6 h-6" />
+              <HugeiconsIcon icon={GridViewIcon} size={24} />
             </div>
             <div className="flex-1 text-left">
               <div className="flex items-center gap-2">
@@ -273,7 +294,7 @@ const AppearanceTab = () => {
                 Reduced spacing to display more information on screen
               </p>
               <div className="mt-3 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
-                <Icon icon="tabler:check" className="w-4 h-4" />
+                <HugeiconsIcon icon={Tick01Icon} size={16} />
                 <span>More data visible</span>
               </div>
             </div>
@@ -282,7 +303,7 @@ const AppearanceTab = () => {
 
         <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
           <div className="flex gap-3">
-            <Icon icon="tabler:info-circle" className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
+            <HugeiconsIcon icon={InformationCircleIcon} size={20} className="text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
             <div>
               <p className="text-sm font-medium text-blue-900 dark:text-blue-100">Density affects all pages</p>
               <p className="text-xs text-blue-700 dark:text-blue-300 mt-1">
@@ -300,7 +321,7 @@ const AppearanceTab = () => {
           <div className={`border border-gray-200 dark:border-gray-700 rounded-lg ${densityMode === 'cozy' ? 'p-4' : 'p-2'}`}>
             <div className="flex items-center gap-3">
               <div className={`${densityMode === 'cozy' ? 'w-10 h-10' : 'w-8 h-8'} rounded-lg bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center`}>
-                <Icon icon="tabler:file" className={`${densityMode === 'cozy' ? 'w-5 h-5' : 'w-4 h-4'} text-primary-600 dark:text-primary-400`} />
+                <HugeiconsIcon icon={FileIcon} size={densityMode === 'cozy' ? 20 : 16} className="text-primary-600 dark:text-primary-400" />
               </div>
               <div>
                 <p className={`${densityMode === 'cozy' ? 'text-sm' : 'text-xs'} font-medium text-gray-900 dark:text-gray-100`}>
@@ -337,7 +358,7 @@ const NotificationsTab = () => {
             onClick={markAllAsRead}
             className="px-4 py-2 text-sm font-medium text-primary-700 dark:text-primary-300 bg-primary-50 dark:bg-primary-900/30 rounded-lg hover:bg-primary-100 dark:hover:bg-primary-900/50 transition-colors flex items-center gap-2"
           >
-            <Icon icon="tabler:checks" className="w-4 h-4" />
+            <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} />
             Mark all as read
           </button>
         )}
@@ -346,7 +367,7 @@ const NotificationsTab = () => {
       {notifications.length === 0 ? (
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-12 text-center">
           <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Icon icon="tabler:bell-off" className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+            <HugeiconsIcon icon={NotificationOffIcon} size={32} className="text-gray-400 dark:text-gray-500" />
           </div>
           <h4 className="text-base font-medium text-gray-900 dark:text-gray-100 mb-1">No notifications yet</h4>
           <p className="text-sm text-gray-600 dark:text-gray-400">We'll let you know when something arrives</p>
@@ -368,9 +389,9 @@ const NotificationsTab = () => {
                     className={`p-2 rounded-full ${isRead ? 'bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400' : 'bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400'
                       }`}
                   >
-                    <Icon
-                      icon={isRead ? 'tabler:bell' : 'tabler:bell-ringing'}
-                      className="w-5 h-5"
+                    <HugeiconsIcon
+                      icon={isRead ? Notification01Icon : Notification02Icon}
+                      size={20}
                     />
                   </div>
 
@@ -424,7 +445,7 @@ const SystemTab = () => {
         {/* General Settings */}
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-            <Icon icon="tabler:settings" className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+            <HugeiconsIcon icon={Settings01Icon} size={20} className="text-primary-600 dark:text-primary-400" />
             General Settings
           </h3>
 
@@ -500,12 +521,12 @@ const SettingsBreadcrumb = () => (
   <header className="w-full sticky top-0 px-4 py-3 bg-white/85 dark:bg-gray-900/85 backdrop-blur-md backdrop-saturate-150 border-b border-gray-200 dark:border-gray-800 z-50">
     <div className="flex items-center gap-2 text-sm">
       <Link to="/" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 flex items-center gap-1">
-        <Icon icon="tabler:home" className="w-4 h-4" />
+        <HugeiconsIcon icon={Home01Icon} size={16} />
         <span>Home</span>
       </Link>
-      <Icon icon="tabler:chevron-right" className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+      <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="text-gray-400 dark:text-gray-500" />
       <span className="font-medium text-gray-900 dark:text-gray-100 flex items-center gap-1">
-        <Icon icon="tabler:settings" className="w-4 h-4" />
+        <HugeiconsIcon icon={Settings01Icon} size={16} />
         Settings
       </span>
     </div>
@@ -539,37 +560,37 @@ const SettingsPage = () => {
     {
       key: 'profile',
       label: 'Profile',
-      icon: 'tabler:user',
+      icon: UserIcon,
       roles: ['user', 'admin'],
     },
     {
       key: 'appearance',
       label: 'Appearance',
-      icon: 'tabler:palette',
+      icon: ColorsIcon,
       roles: ['user', 'admin'],
     },
     {
       key: 'notifications',
       label: 'Notifications',
-      icon: 'tabler:bell',
+      icon: Notification01Icon,
       roles: ['user', 'admin'],
     },
     {
       key: 'configuration',
       label: 'Configuration',
-      icon: 'tabler:settings-2',
+      icon: Settings02Icon,
       roles: ['admin'],
     },
     {
       key: 'system',
       label: 'System',
-      icon: 'tabler:server',
+      icon: ServerStackIcon,
       roles: ['admin'],
     },
     {
       key: 'help',
       label: 'Help',
-      icon: 'tabler:help-circle',
+      icon: HelpCircleIcon,
       roles: ['user', 'admin'],
     },
   ];
@@ -618,7 +639,7 @@ const SettingsPage = () => {
                       : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100'
                       }`}
                   >
-                    <Icon icon={tab.icon} className={`w-5 h-5 ${isActive ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500'}`} />
+                    <HugeiconsIcon icon={tab.icon} size={20} className={isActive ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-gray-500'} />
                     <span>{tab.label}</span>
                   </button>
                 );

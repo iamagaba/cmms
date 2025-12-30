@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Alert01Icon, Loading03Icon } from '@hugeicons/core-free-icons';
 
 interface DeleteConfirmationDialogProps {
     isOpen: boolean;
@@ -50,7 +51,7 @@ export const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> =
                             <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 p-6 text-left align-middle shadow-xl transition-all border border-gray-100 dark:border-gray-700">
                                 <div className="flex items-start gap-4">
                                     <div className="flex-shrink-0 w-10 h-10 rounded-full bg-error-50 dark:bg-error-900/30 flex items-center justify-center">
-                                        <Icon icon="tabler:alert-triangle" className="w-5 h-5 text-error-600 dark:text-error-400" />
+                                        <HugeiconsIcon icon={Alert01Icon} size={20} className="text-error-600 dark:text-error-400" />
                                     </div>
                                     <div className="flex-1">
                                         <Dialog.Title
@@ -85,7 +86,7 @@ export const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> =
                                                 onClick={onConfirm}
                                                 disabled={isDeleting}
                                             >
-                                                {isDeleting && <Icon icon="tabler:loader-2" className="w-4 h-4 animate-spin" />}
+                                                {isDeleting && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin" />}
                                                 {isDeleting ? 'Deleting...' : 'Delete'}
                                             </button>
                                         </div>

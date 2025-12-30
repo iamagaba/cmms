@@ -1,5 +1,4 @@
 import React from 'react';
-import { Icon } from '@iconify/react';
 
 export const OnHoldReasonDialog = ({ isOpen, onClose, onSave }: any) => {
     if (!isOpen) return null;

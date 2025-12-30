@@ -6,7 +6,14 @@
  */
 
 import React from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  Add01Icon,
+  CalendarAdd01Icon,
+  Search01Icon,
+  FileTextIcon,
+  ArrowRight01Icon
+} from '@hugeicons/core-free-icons';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
@@ -43,7 +50,7 @@ const useDefaultActions = (): QuickAction[] => {
     {
       id: 'new-work-order',
       label: 'New Work Order',
-      icon: 'tabler:plus',
+      icon: Add01Icon,
       color: 'bg-steel-500',
       hoverColor: 'hover:bg-steel-600',
       description: 'Create a new maintenance request',
@@ -53,7 +60,7 @@ const useDefaultActions = (): QuickAction[] => {
     {
       id: 'schedule-maintenance',
       label: 'Schedule Maintenance',
-      icon: 'tabler:calendar-plus',
+      icon: CalendarAdd01Icon,
       color: 'bg-industrial-500',
       hoverColor: 'hover:bg-industrial-600',
       description: 'Plan preventive maintenance',
@@ -63,7 +70,7 @@ const useDefaultActions = (): QuickAction[] => {
     {
       id: 'asset-inspection',
       label: 'Asset Inspection',
-      icon: 'tabler:search',
+      icon: Search01Icon,
       color: 'bg-maintenance-500',
       hoverColor: 'hover:bg-maintenance-600',
       description: 'Inspect equipment status',
@@ -73,7 +80,7 @@ const useDefaultActions = (): QuickAction[] => {
     {
       id: 'generate-report',
       label: 'Generate Report',
-      icon: 'tabler:file-text',
+      icon: FileTextIcon,
       color: 'bg-machinery-500',
       hoverColor: 'hover:bg-machinery-600',
       description: 'Create maintenance reports',
@@ -107,7 +114,7 @@ const QuickActionButton: React.FC<QuickActionButtonProps> = ({ action, index }) 
       title={action.description}
     >
       <div className="flex-shrink-0 w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center">
-        <Icon icon={action.icon} className="w-4 h-4 text-gray-700" />
+        <HugeiconsIcon icon={action.icon} size={16} className="text-gray-700" />
       </div>
       
       <div className="flex-1 min-w-0">
@@ -116,7 +123,7 @@ const QuickActionButton: React.FC<QuickActionButtonProps> = ({ action, index }) 
         </div>
       </div>
       
-      <Icon icon="tabler:chevron-right" className="w-4 h-4 text-gray-400 flex-shrink-0" />
+      <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="text-gray-400 flex-shrink-0" />
     </motion.button>
   );
 };

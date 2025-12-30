@@ -1,6 +1,12 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  AlertCircleIcon,
+  InformationCircleIcon,
+  CheckmarkCircle01Icon,
+  Cancel01Icon
+} from '@hugeicons/core-free-icons';
 
 export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
     /** Alert variant */
@@ -71,9 +77,10 @@ export function Alert({
             {...props}
         >
             <div className="flex">
+                {/* TODO: Convert icon prop to use HugeiconsIcon component - needs refactoring */}
                 {icon && (
                     <div className="flex-shrink-0">
-                        <Icon icon={icon} className="h-5 w-5" />
+                        {/* Icon prop temporarily disabled */}
                     </div>
                 )}
                 <div className={cn('flex-1', icon && 'ml-3')}>
@@ -88,7 +95,7 @@ export function Alert({
                             onClick={onClose}
                             className="inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2"
                         >
-                            <Icon icon="mdi:close" className="h-5 w-5" />
+                            <HugeiconsIcon icon={Cancel01Icon} size={20} />
                         </button>
                     </div>
                 )}

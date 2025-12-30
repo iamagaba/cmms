@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Settings01Icon, TreeIcon, ListViewIcon, FlowIcon } from '@hugeicons/core-free-icons';
 import CategoryManager from '@/components/diagnostic/config/CategoryManager';
 import QuestionTreeView from '@/components/diagnostic/config/QuestionTreeView';
 import QuestionFlowView from '@/components/diagnostic/config/QuestionFlowView';
@@ -22,7 +23,7 @@ const DiagnosticsTab = () => {
                             : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                             }`}
                     >
-                        <Icon icon="tabler:list-tree" className="w-4 h-4" />
+                        <HugeiconsIcon icon={ListViewIcon} size={16} />
                         Questions List
                     </button>
                     <button
@@ -32,7 +33,7 @@ const DiagnosticsTab = () => {
                             : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                             }`}
                     >
-                        <Icon icon="tabler:hierarchy-2" className="w-4 h-4" />
+                        <HugeiconsIcon icon={FlowIcon} size={16} />
                         Flow Visualizer
                     </button>
                 </div>

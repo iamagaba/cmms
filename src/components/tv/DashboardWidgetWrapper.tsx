@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { MoreVerticalIcon, Cancel01Icon, Menu01Icon } from '@hugeicons/core-free-icons';
 
 interface DashboardWidgetWrapperProps {
     children: React.ReactNode;
@@ -45,10 +46,10 @@ export const DashboardWidgetWrapper = React.forwardRef<HTMLDivElement, Dashboard
                                     onMouseDown={(e) => e.stopPropagation()}
                                     className="p-1 rounded-full bg-error-100 text-error-600 hover:bg-error-200 dark:bg-error-900/30 dark:text-error-400 dark:hover:bg-error-900/50 cursor-pointer transition-colors"
                                 >
-                                    <Icon icon="heroicons:x-mark" className="w-4 h-4" />
+                                    <HugeiconsIcon icon={Cancel01Icon} size={16} />
                                 </button>
                                 <div className="cursor-grab active:cursor-grabbing p-1 text-neutral-400">
-                                    <Icon icon="heroicons:bars-3" className="w-4 h-4" />
+                                    <HugeiconsIcon icon={Menu01Icon} size={16} />
                                 </div>
                             </div>
                         )}

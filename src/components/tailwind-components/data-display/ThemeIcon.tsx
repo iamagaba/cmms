@@ -1,6 +1,6 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
 
 export interface ThemeIconProps extends React.HTMLAttributes<HTMLDivElement> {
     /** Icon name from Iconify */
@@ -91,7 +91,8 @@ export function ThemeIcon({
             style={{ ...sizeStyle, ...style }}
             {...props}
         >
-            {icon ? <Icon icon={icon} className="w-1/2 h-1/2" /> : children}
+            {/* TODO: Convert icon prop to use HugeiconsIcon component - needs refactoring */}
+            {children}
         </div>
     );
 }

@@ -7,7 +7,28 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  Home01Icon, 
+  RefreshIcon, 
+  TimelineIcon, 
+  ClipboardIcon, 
+  FolderOpenIcon, 
+  CheckmarkCircle01Icon, 
+  Clock01Icon, 
+  ActivityIcon, 
+  TagIcon, 
+  MenuIcon, 
+  TableIcon, 
+  Settings01Icon, 
+  ArrowRight01Icon, 
+  Add01Icon, 
+  CalendarAdd01Icon, 
+  Search01Icon, 
+  FileIcon, 
+  AlertCircleIcon, 
+  Calendar01Icon 
+} from '@hugeicons/core-free-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import dayjs from 'dayjs';
@@ -58,7 +79,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
       <div className="flex items-center gap-3">
         {icon && (
           <div className="p-2 bg-steel-100 rounded-lg">
-            <Icon icon={icon} className="w-5 h-5 text-steel-600" />
+            <HugeiconsIcon icon={icon} size={20} className="text-steel-600" />
           </div>
         )}
         <div>
@@ -94,28 +115,28 @@ const QuickActionsPanel: React.FC = () => {
     {
       id: 'new-work-order',
       label: 'New Work Order',
-      icon: 'tabler:plus',
+      icon: Add01Icon,
       color: 'bg-steel-500 hover:bg-steel-600',
       onClick: () => console.log('New work order')
     },
     {
       id: 'schedule-maintenance',
       label: 'Schedule Maintenance',
-      icon: 'tabler:calendar-plus',
+      icon: CalendarAdd01Icon,
       color: 'bg-industrial-500 hover:bg-industrial-600',
       onClick: () => console.log('Schedule maintenance')
     },
     {
       id: 'asset-inspection',
       label: 'Asset Inspection',
-      icon: 'tabler:search',
+      icon: Search01Icon,
       color: 'bg-maintenance-500 hover:bg-maintenance-600',
       onClick: () => console.log('Asset inspection')
     },
     {
       id: 'generate-report',
       label: 'Generate Report',
-      icon: 'tabler:file-text',
+      icon: FileIcon,
       color: 'bg-machinery-500 hover:bg-machinery-600',
       onClick: () => console.log('Generate report')
     }
@@ -136,7 +157,7 @@ const QuickActionsPanel: React.FC = () => {
               action.color
             )}
           >
-            <Icon icon={action.icon} className="w-6 h-6 mb-2" />
+            <HugeiconsIcon icon={action.icon} size={24} className="mb-2" />
             <div className="text-sm font-medium">{action.label}</div>
           </motion.button>
         ))}
@@ -157,7 +178,7 @@ const ActivityFeed: React.FC = () => {
       title: 'Work Order #WO-2024-001 completed',
       description: 'Pump maintenance completed by John Smith',
       timestamp: '2 minutes ago',
-      icon: 'tabler:check-circle',
+      icon: CheckmarkCircle01Icon,
       color: 'text-industrial-600'
     },
     {
@@ -166,7 +187,7 @@ const ActivityFeed: React.FC = () => {
       title: 'High temperature alert',
       description: 'Motor B-202 temperature exceeds threshold',
       timestamp: '15 minutes ago',
-      icon: 'tabler:alert-triangle',
+      icon: AlertCircleIcon,
       color: 'text-warning-600'
     },
     {
@@ -175,7 +196,7 @@ const ActivityFeed: React.FC = () => {
       title: 'Preventive maintenance scheduled',
       description: 'Valve C-303 scheduled for next week',
       timestamp: '1 hour ago',
-      icon: 'tabler:calendar',
+      icon: Calendar01Icon,
       color: 'text-steel-600'
     }
   ];
@@ -193,7 +214,7 @@ const ActivityFeed: React.FC = () => {
         {activities.map((activity) => (
           <div key={activity.id} className="flex items-start gap-3">
             <div className={cn('p-1.5 rounded-full bg-machinery-100', activity.color)}>
-              <Icon icon={activity.icon} className="w-4 h-4" />
+              <HugeiconsIcon icon={activity.icon} size={16} />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-machinery-900">{activity.title}</p>
@@ -232,7 +253,7 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
     <ProfessionalPageLayout
       title="Dashboard Overview"
       subtitle="Monitor your CMMS operations and key performance indicators"
-      icon="tabler:dashboard"
+      icon={Home01Icon}
       className={className}
       actions={
         <div className="flex items-center gap-3">
@@ -257,7 +278,7 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
           <ProfessionalButton
             variant="outline"
             size="sm"
-            icon="tabler:refresh"
+            icon={RefreshIcon}
             onClick={() => window.location.reload()}
           >
             Refresh
@@ -270,13 +291,13 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
         <DashboardSection
           title="Key Performance Indicators"
           subtitle="Real-time metrics for your maintenance operations"
-          icon="tabler:chart-line"
+          icon={TimelineIcon}
         >
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6">
             <ModernKPICard
               title="Total Work Orders"
               value={kpiData.totalWorkOrders.value}
-              icon="tabler:clipboard-list"
+              icon={ClipboardIcon}
               color="primary"
               trend={kpiData.totalWorkOrders.trend}
               subtitle="All time"
@@ -287,7 +308,7 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
             <ModernKPICard
               title="Open Orders"
               value={kpiData.openOrders.value}
-              icon="tabler:folder-open"
+              icon={FolderOpenIcon}
               color="warning"
               trend={kpiData.openOrders.trend}
               subtitle="Pending completion"
@@ -298,7 +319,7 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
             <ModernKPICard
               title="Completed Today"
               value={kpiData.completedToday.value}
-              icon="tabler:circle-check"
+              icon={CheckmarkCircle01Icon}
               color="success"
               trend={kpiData.completedToday.trend}
               subtitle="Since midnight"
@@ -307,7 +328,7 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
             <ModernKPICard
               title="Avg Response Time"
               value={kpiData.avgResponseTime.value}
-              icon="tabler:clock"
+              icon={Clock01Icon}
               color="info"
               trend={kpiData.avgResponseTime.trend}
               subtitle="Time to first response"
@@ -316,7 +337,7 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
             <ModernKPICard
               title="Asset Uptime"
               value={kpiData.assetUptime.value}
-              icon="tabler:activity"
+              icon={ActivityIcon}
               color="success"
               trend={kpiData.assetUptime.trend}
               subtitle="Overall availability"
@@ -325,7 +346,7 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
             <ModernKPICard
               title="Maintenance Costs"
               value={kpiData.maintenanceCosts.value}
-              icon="tabler:currency-dollar"
+              icon={TagIcon}
               color="primary"
               trend={kpiData.maintenanceCosts.trend}
               subtitle="This month"
@@ -341,18 +362,18 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
             <DashboardSection
               title="Recent Work Orders"
               subtitle="Latest maintenance requests and their current status"
-              icon="tabler:list"
+              icon={MenuIcon}
               action={{
                 label: 'View All',
                 onClick: () => console.log('View all work orders'),
-                icon: 'tabler:arrow-right'
+                icon: ArrowRight01Icon
               }}
             >
               <ProfessionalCard>
                 <div className="p-6">
                   {/* Work orders table would go here */}
                   <div className="text-center py-12 text-machinery-500">
-                    <Icon icon="tabler:table" className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                    <HugeiconsIcon icon={TableIcon} size={48} className="mx-auto mb-4 opacity-50" />
                     <p className="text-lg font-medium mb-2">Work Orders Table</p>
                     <p className="text-sm">Integration with existing UrgentWorkOrdersTable component</p>
                   </div>
@@ -364,7 +385,7 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
             <DashboardSection
               title="Asset Status Overview"
               subtitle="Current status of critical assets"
-              icon="tabler:settings"
+              icon={Settings01Icon}
             >
               <AssetStatusOverview 
                 onStatusClick={(status) => console.log('Navigate to assets:', status.id)}
@@ -417,9 +438,10 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
                     </div>
                     <div className="flex items-center gap-2">
                       <div className="text-sm font-medium text-steel-600">{item.date}</div>
-                      <Icon 
-                        icon="tabler:chevron-right" 
-                        className="w-4 h-4 text-machinery-400 opacity-0 group-hover:opacity-100 transition-opacity" 
+                      <HugeiconsIcon 
+                        icon={ArrowRight01Icon} 
+                        size={16}
+                        className="text-machinery-400 opacity-0 group-hover:opacity-100 transition-opacity" 
                       />
                     </div>
                   </motion.div>

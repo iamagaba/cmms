@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Icon } from '@iconify/react';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/tailwind-components';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  Cancel01Icon,
+  Tick01Icon,
+  ArrowRight01Icon
+} from '@hugeicons/core-free-icons';
 import { DiagnosticSession } from '@/types/diagnostic';
 import { CustomerVehicleStep } from './steps/CustomerVehicleStep';
 import { DiagnosticStep } from './steps/DiagnosticStep';
@@ -216,44 +223,7 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
     }
   }, [isOpen, initialData]);
 
-  // Auto-advance Logic
-  useEffect(() => {
-    // Only auto-advance if we are in a section that is NOT yet marked as completed
-    // This allows users to go back and edit without being auto-forwarded immediately
-    if (completedSections.includes(activeSection) || !isOpen) return;
 
-    let shouldAdvance = false;
-
-    // Check validity based on active section
-    // We check raw data here to strictly match "user finished filling info"
-    switch (activeSection) {
-      case 0: // Vehicle & Customer
-        // Ensure phone is reasonable length (e.g. at least 6 digits) before advancing
-        if (formData.vehicleId && formData.customerLocation && formData.contactPhone && formData.contactPhone.length >= 6) {
-          shouldAdvance = true;
-        }
-        break;
-      case 1: // Diagnostic
-        if (formData.diagnosticSession) {
-          shouldAdvance = true;
-        }
-        break;
-      case 2: // Details
-        if (formData.serviceLocationId && formData.priority) {
-          shouldAdvance = true;
-        }
-        break;
-    }
-
-    if (shouldAdvance) {
-      // Debounce the advance to give user a moment to see their entry
-      const timer = setTimeout(() => {
-        // We use handleToggleSection to reuse the validation and state updating logic
-        handleToggleSection(activeSection + 1);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [formData, activeSection, completedSections, isOpen]);
 
   if (!isOpen) return null;
 
@@ -275,7 +245,7 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
             <p className="text-sm text-gray-500 mt-0.5">Fill in the details below</p>
           </div>
           <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg">
-            <Icon icon="mdi:close" width={24} height={24} />
+            <HugeiconsIcon icon={Cancel01Icon} size={24} />
           </button>
         </div>
 
@@ -294,7 +264,7 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
                       ? 'bg-success-600 text-white'
                       : 'bg-gray-100 text-gray-500 group-hover:bg-purple-100 group-hover:text-purple-600'
                     }`}>
-                    {completedSections.includes(idx) && idx !== activeSection ? <Icon icon="mdi:check" width={16} /> : idx + 1}
+                    {completedSections.includes(idx) && idx !== activeSection ? <HugeiconsIcon icon={Tick01Icon} size={16} /> : idx + 1}
                   </div>
                   <span className={`text-sm font-medium whitespace-nowrap hidden sm:block ${idx === activeSection
                     ? 'text-brand-600'
@@ -330,6 +300,21 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
             hasErrors={sectionErrors[0]}
           >
             <CustomerVehicleStep data={formData} onChange={updateFormData} initialLicensePlate={initialData?.licensePlate} />
+            <div className="flex justify-end pt-4 border-t border-gray-100 mt-4">
+              <Button onClick={() => handleToggleSection(1)} size="sm">
+                Next: Diagnostic
+                <motion.div
+                  animate={{ x: [0, 4, 0] }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 1.5,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="ml-2" />
+                </motion.div>
+              </Button>
+            </div>
           </SectionCard>
 
           <SectionCard
@@ -343,6 +328,21 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
             hasErrors={sectionErrors[1]}
           >
             <DiagnosticStep data={formData} onChange={updateFormData} />
+            <div className="flex justify-end pt-4 border-t border-gray-100 mt-4">
+              <Button onClick={() => handleToggleSection(2)} size="sm">
+                Next: details
+                <motion.div
+                  animate={{ x: [0, 4, 0] }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 1.5,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="ml-2" />
+                </motion.div>
+              </Button>
+            </div>
           </SectionCard>
 
           <SectionCard
@@ -356,6 +356,21 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
             hasErrors={sectionErrors[2]}
           >
             <AdditionalDetailsStep data={formData} onChange={updateFormData} />
+            <div className="flex justify-end pt-4 border-t border-gray-100 mt-4">
+              <Button onClick={() => handleToggleSection(3)} size="sm">
+                Next: Review & Submit
+                <motion.div
+                  animate={{ x: [0, 4, 0] }}
+                  transition={{
+                    repeat: Infinity,
+                    duration: 1.5,
+                    ease: "easeInOut"
+                  }}
+                >
+                  <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="ml-2" />
+                </motion.div>
+              </Button>
+            </div>
           </SectionCard>
 
           <SectionCard

@@ -1,7 +1,8 @@
 
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Add01Icon, Tick01Icon, ArrowRight01Icon, Edit01Icon, Delete01Icon } from '@hugeicons/core-free-icons';
 import { useForm } from 'react-hook-form';
 import { Dialog } from '@headlessui/react';
 import { DiagnosticOptionRow, DiagnosticQuestionRow } from '@/types/diagnostic';
@@ -64,7 +65,7 @@ const OptionManager = ({ questionId }: OptionManagerProps) => {
                     onClick={handleCreate}
                     className="text-xs flex items-center gap-1 px-2 py-1 bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded hover:bg-primary-100 dark:hover:bg-primary-900/50"
                 >
-                    <Icon icon="tabler:plus" className="w-3 h-3" />
+                    <HugeiconsIcon icon={Add01Icon} size={12} />
                     Add Option
                 </button>
             </div>
@@ -84,12 +85,12 @@ const OptionManager = ({ questionId }: OptionManagerProps) => {
                                     <div className="text-xs text-gray-500 flex items-center gap-2 mt-0.5">
                                         {opt.is_solution ? (
                                             <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                                                <Icon icon="tabler:check" className="w-3 h-3" />
+                                                <HugeiconsIcon icon={Tick01Icon} size={12} />
                                                 Solution
                                             </span>
                                         ) : (
                                             <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
-                                                <Icon icon="tabler:arrow-right" className="w-3 h-3" />
+                                                <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
                                                 To: {opt.next_question_id || 'End'}
                                             </span>
                                         )}
@@ -103,14 +104,14 @@ const OptionManager = ({ questionId }: OptionManagerProps) => {
                                     onClick={() => handleEdit(opt)}
                                     className="p-1.5 text-gray-500 hover:text-primary-600 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
                                 >
-                                    <Icon icon="tabler:pencil" className="w-4 h-4" />
+                                    <HugeiconsIcon icon={Edit01Icon} size={16} />
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => handleDelete(opt.id)}
                                     className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
                                 >
-                                    <Icon icon="tabler:trash" className="w-4 h-4" />
+                                    <HugeiconsIcon icon={Delete01Icon} size={16} />
                                 </button>
                             </div>
                         </div>

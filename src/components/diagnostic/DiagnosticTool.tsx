@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Loading01Icon, AlertCircleIcon, StarIcon, CheckmarkCircle01Icon, Cancel01Icon, ArrowLeft01Icon, InformationCircleIcon, ArrowRight01Icon } from '@hugeicons/core-free-icons';
 import { Stack, Button, Group, Card } from '@/components/tailwind-components';
 import { DiagnosticSession, DiagnosticAnswer, DiagnosticOption } from '@/types/diagnostic';
 import { getQuestionByLogicalId } from '@/api/diagnosticConfigApi';
@@ -190,7 +191,7 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
   if (isLoading) {
     return (
       <Card p="lg" className="flex justify-center py-12">
-        <Icon icon="mdi:loading" className="animate-spin text-primary-600" width={32} height={32} />
+        <HugeiconsIcon icon={Loading01Icon} size={32} className="animate-spin text-primary-600" />
       </Card>
     );
   }
@@ -198,7 +199,7 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
   if (error || !currentQuestion) {
     return (
       <Card p="lg" className="text-center">
-        <Icon icon="mdi:alert-circle" className="text-red-500 mx-auto mb-4" width={48} height={48} />
+        <HugeiconsIcon icon={AlertCircleIcon} size={48} className="text-red-500 mx-auto mb-4" />
         <p className="text-gray-700">
           {error ? 'Failed to load question.' : 'Diagnostic question not found.'}
         </p>
@@ -216,7 +217,7 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
           {/* Header */}
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <Icon icon="mdi:lightbulb-on" className="text-green-600" width={24} height={24} />
+              <HugeiconsIcon icon={StarIcon} size={24} className="text-green-600" />
             </div>
             <div>
               <h3 className="text-lg font-semibold text-gray-900">Possible Solution Found</h3>
@@ -246,7 +247,7 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
               <Button
                 variant="filled"
                 onClick={() => handleSolutionResponse(true)}
-                leftSection={<Icon icon="mdi:check-circle" width={20} height={20} />}
+                leftSection={<HugeiconsIcon icon={CheckmarkCircle01Icon} size={20} />}
                 className="bg-green-600 hover:bg-green-700"
               >
                 Yes, Issue Resolved
@@ -254,7 +255,7 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
               <Button
                 variant="outline"
                 onClick={() => handleSolutionResponse(false)}
-                leftSection={<Icon icon="mdi:close-circle" width={20} height={20} />}
+                leftSection={<HugeiconsIcon icon={Cancel01Icon} size={20} />}
               >
                 No, Still Having Issues
               </Button>
@@ -263,7 +264,7 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
 
           {/* Back Button */}
           <Button variant="subtle" onClick={handleBack} className="w-full">
-            <Icon icon="mdi:arrow-left" width={16} height={16} className="mr-2" />
+            <HugeiconsIcon icon={ArrowLeft01Icon} size={16} className="mr-2" />
             Go Back
           </Button>
         </Stack>
@@ -301,7 +302,7 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
             <div className="mb-6">
               <div className="flex items-start gap-3 mb-3">
                 <div className="w-9 h-9 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Icon icon="mdi:help-circle" className="text-primary-600" width={18} height={18} />
+                  <HugeiconsIcon icon={InformationCircleIcon} size={18} className="text-primary-600" />
                 </div>
                 <div className="flex-1">
                   <h3 className="text-base font-semibold text-gray-900 mb-0.5">
@@ -324,7 +325,7 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
                     >
                       <div className="flex items-center justify-between">
                         <span className="font-medium text-gray-900 group-hover:text-primary-700 transition-colors">{option.label}</span>
-                        <Icon icon="mdi:chevron-right" className="text-gray-400 group-hover:text-primary-500 transition-colors" width={20} height={20} />
+                        <HugeiconsIcon icon={ArrowRight01Icon} size={20} className="text-gray-400 group-hover:text-primary-500 transition-colors" />
                       </div>
                     </button>
                   ))}
@@ -372,7 +373,7 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
         {/* Navigation */}
         <Group justify="space-between" className="pt-2 border-t border-gray-100 mt-2">
           <Button variant="subtle" onClick={handleBack} disabled={session.answers.length === 0}>
-            <Icon icon="mdi:arrow-left" width={16} height={16} className="mr-2" />
+            <HugeiconsIcon icon={ArrowLeft01Icon} size={16} className="mr-2" />
             Back
           </Button>
           <Button variant="outline" onClick={onCancel}>

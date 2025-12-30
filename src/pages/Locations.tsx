@@ -1,6 +1,20 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Stack, Text, Skeleton, SimpleGrid } from '@/components/tailwind-components';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Settings02Icon,
+  Search01Icon,
+  Building01Icon,
+  Cancel01Icon,
+  UserIcon,
+  NoteIcon,
+  Tick01Icon,
+  Delete01Icon,
+  Location01Icon,
+  ListViewIcon,
+  MapsIcon,
+  CheckmarkCircle01Icon
+} from '@hugeicons/core-free-icons';
 import { useQuery } from '@tanstack/react-query';
 import { useDisclosure } from '@/hooks/tailwind';
 import { supabase } from '@/integrations/supabase/client';
@@ -115,7 +129,7 @@ const LocationsPage: React.FC = () => {
       const el = document.createElement('div');
       el.className = 'location-marker';
       el.style.cssText = 'position:relative;cursor:pointer;';
-      el.innerHTML = `<div style="width:36px;height:36px;background:#7c3aed;border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>${(stats?.openOrders || 0) > 0 ? `<div style="position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;background:#ef4444;border:2px solid white;border-radius:9999px;font-size:9px;font-weight:700;color:white;display:flex;align-items:center;justify-content:center;">${stats?.openOrders}</div>` : ''}`;
+      el.innerHTML = `<div style="width:36px;height:36px;background:#7c3aed;border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><svg size={16}  viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>${(stats?.openOrders || 0) > 0 ? `<div style="position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;background:#ef4444;border:2px solid white;border-radius:9999px;font-size:9px;font-weight:700;color:white;display:flex;align-items:center;justify-content:center;">${stats?.openOrders}</div>` : ''}`;
       el.addEventListener('click', () => setSelectedLocation(loc));
       new mapboxgl.Marker({ element: el }).setLngLat([loc.lng!, loc.lat!]).addTo(map.current!);
     });
@@ -193,14 +207,14 @@ const LocationsPage: React.FC = () => {
                   showFilters ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                 }`}
               >
-                <Icon icon="tabler:adjustments-horizontal" className="w-4 h-4" />
+                <HugeiconsIcon icon={Settings02Icon} className="w-4 h-4" />
               </button>
             </div>
 
             {/* Search */}
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Icon icon="tabler:search" className="w-4 h-4 text-gray-400" />
+                <HugeiconsIcon icon={Search01Icon} className="w-4 h-4 text-gray-400" />
               </div>
               <input
                 type="text"
@@ -229,7 +243,7 @@ const LocationsPage: React.FC = () => {
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center text-primary-700 dark:text-primary-300 flex-shrink-0">
-                        <Icon icon="tabler:building" className="w-5 h-5" />
+                        <HugeiconsIcon icon={Building01Icon} className="w-5 h-5" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
@@ -258,7 +272,7 @@ const LocationsPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center text-primary-700 dark:text-primary-300">
-                  <Icon icon="tabler:building" className="w-6 h-6" />
+                  <HugeiconsIcon icon={Building01Icon} className="w-6 h-6" />
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{selectedLocation.name}</h2>
@@ -271,7 +285,7 @@ const LocationsPage: React.FC = () => {
                 onClick={() => setSelectedLocation(null)}
                 className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
               >
-                <Icon icon="tabler:x" className="w-4 h-4" />
+                <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -281,21 +295,21 @@ const LocationsPage: React.FC = () => {
             <div className="grid grid-cols-3 divide-x divide-gray-200 dark:divide-gray-800">
               <div className="px-6 py-4">
                 <div className="flex items-center gap-2 mb-1">
-                  <Icon icon="tabler:users" className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                  <HugeiconsIcon icon={UserIcon} className="w-4 h-4 text-primary-600 dark:text-primary-400" />
                   <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Technicians</p>
                 </div>
                 <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{selectedStats?.technicians.length || 0}</p>
               </div>
               <div className="px-6 py-4">
                 <div className="flex items-center gap-2 mb-1">
-                  <Icon icon="tabler:clipboard-list" className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                  <HugeiconsIcon icon={NoteIcon} className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Open Orders</p>
                 </div>
                 <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{selectedStats?.openOrders || 0}</p>
               </div>
               <div className="px-6 py-4">
                 <div className="flex items-center gap-2 mb-1">
-                  <Icon icon="tabler:check" className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <HugeiconsIcon icon={Tick01Icon} className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Completed</p>
                 </div>
                 <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
@@ -318,7 +332,7 @@ const LocationsPage: React.FC = () => {
                 ) : (
                   <div className="h-[300px] flex items-center justify-center bg-gray-50 dark:bg-gray-800">
                     <div className="text-center">
-                      <Icon icon="tabler:map-pin-off" className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
+                      <HugeiconsIcon icon={Location01Icon} className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
                       <p className="text-sm text-gray-500 dark:text-gray-400">No coordinates available</p>
                     </div>
                   </div>
@@ -333,7 +347,7 @@ const LocationsPage: React.FC = () => {
                 <div className="p-4">
                   {(selectedStats?.technicians.length || 0) === 0 ? (
                     <div className="text-center py-8">
-                      <Icon icon="tabler:users-off" className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
+                      <HugeiconsIcon icon={UserIcon} className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
                       <p className="text-sm text-gray-500 dark:text-gray-400">No technicians assigned</p>
                     </div>
                   ) : (
@@ -370,7 +384,7 @@ const LocationsPage: React.FC = () => {
                 <div className="max-h-[400px] overflow-y-auto">
                   {(selectedStats?.workOrders.length || 0) === 0 ? (
                     <div className="text-center py-12">
-                      <Icon icon="tabler:clipboard-off" className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
+                      <HugeiconsIcon icon={NoteIcon} className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
                       <p className="text-sm text-gray-500 dark:text-gray-400">No work orders at this location</p>
                     </div>
                   ) : (
@@ -418,7 +432,7 @@ const LocationsPage: React.FC = () => {
                   viewMode === 'list' ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                 }`}
               >
-                <Icon icon="tabler:list" className="w-4 h-4" />
+                <HugeiconsIcon icon={ListViewIcon} className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setViewMode('map')}
@@ -426,7 +440,7 @@ const LocationsPage: React.FC = () => {
                   viewMode === 'map' ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                 }`}
               >
-                <Icon icon="tabler:map" className="w-4 h-4" />
+                <HugeiconsIcon icon={MapsIcon} className="w-4 h-4" />
               </button>
             </div>
           </div>
@@ -434,7 +448,7 @@ const LocationsPage: React.FC = () => {
           {/* Search */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Icon icon="tabler:search" className="w-4 h-4 text-gray-400" />
+              <HugeiconsIcon icon={Search01Icon} className="w-4 h-4 text-gray-400" />
             </div>
             <input
               type="text"
@@ -451,7 +465,7 @@ const LocationsPage: React.FC = () => {
           {filteredLocations.length === 0 ? (
             <div className="p-6 text-center">
               <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Icon icon="tabler:building-off" className="w-6 h-6 text-gray-400" />
+                <HugeiconsIcon icon={Location01Icon} className="w-6 h-6 text-gray-400" />
               </div>
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No locations found</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">Add your first service center</p>
@@ -469,7 +483,7 @@ const LocationsPage: React.FC = () => {
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center text-primary-700 dark:text-primary-300 flex-shrink-0">
-                        <Icon icon="tabler:building" className="w-5 h-5" />
+                        <HugeiconsIcon icon={Building01Icon} className="w-5 h-5" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
@@ -507,28 +521,28 @@ const LocationsPage: React.FC = () => {
               <div className="grid grid-cols-4 divide-x divide-gray-200 dark:divide-gray-800">
                 <div className="px-6 py-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <Icon icon="tabler:building" className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                    <HugeiconsIcon icon={Building01Icon} className="w-4 h-4 text-primary-600 dark:text-primary-400" />
                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Centers</p>
                   </div>
                   <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{overallStats.total}</p>
                 </div>
                 <div className="px-6 py-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <Icon icon="tabler:users" className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                    <HugeiconsIcon icon={UserIcon} className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">With Technicians</p>
                   </div>
                   <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{overallStats.withTechnicians}</p>
                 </div>
                 <div className="px-6 py-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <Icon icon="tabler:clipboard-list" className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                    <HugeiconsIcon icon={NoteIcon} className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Active Orders</p>
                   </div>
                   <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{overallStats.withOpenOrders}</p>
                 </div>
                 <div className="px-6 py-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <Icon icon="tabler:user-check" className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+                    <HugeiconsIcon icon={CheckmarkCircle01Icon} className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Technicians</p>
                   </div>
                   <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{overallStats.totalTechnicians}</p>
@@ -545,7 +559,7 @@ const LocationsPage: React.FC = () => {
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                <Icon icon="tabler:building" className="w-8 h-8 text-gray-400" />
+                <HugeiconsIcon icon={Building01Icon} className="w-8 h-8 text-gray-400" />
               </div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Select a Service Center</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm">

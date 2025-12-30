@@ -184,6 +184,8 @@ export default {
                 lg: "0px 12px 32px -4px rgba(0, 0, 0, 0.08), 0px 4px 8px -2px rgba(0, 0, 0, 0.08)",
                 overlay:
                     "0px 12px 32px -4px rgba(0, 0, 0, 0.08), 0px 4px 8px -2px rgba(0, 0, 0, 0.08)",
+                // Enhancement #1: Custom inner shadow for depth
+                'inner-sm': 'inset 0 1px 2px 0 rgba(0, 0, 0, 0.05)',
             },
             borderRadius: {
                 sm: "2px",
@@ -199,6 +201,8 @@ export default {
                 "fade-in": "fadeIn 250ms cubic-bezier(0.4, 0, 0.2, 1)",
                 "slide-up": "slideUp 250ms cubic-bezier(0.4, 0, 0.2, 1)",
                 "scale-in": "scaleIn 150ms cubic-bezier(0.4, 0, 0.2, 1)",
+                // Enhancement #9: Shimmer animation for loading states
+                "shimmer": "shimmer 2s infinite linear",
             },
             keyframes: {
                 fadeIn: {
@@ -212,6 +216,11 @@ export default {
                 scaleIn: {
                     "0%": { transform: "scale(0.95)", opacity: "0" },
                     "100%": { transform: "scale(1)", opacity: "1" },
+                },
+                // Enhancement #9: Shimmer keyframes
+                shimmer: {
+                    "0%": { backgroundPosition: "-1000px 0" },
+                    "100%": { backgroundPosition: "1000px 0" },
                 },
             },
             // Subframe container padding helpers (optional but harmless)

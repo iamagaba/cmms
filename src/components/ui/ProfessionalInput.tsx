@@ -7,7 +7,13 @@
  */
 
 import React, { forwardRef, useState } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  AlertCircleIcon,
+  CheckmarkCircle01Icon,
+  ArrowDown01Icon
+} from '@hugeicons/core-free-icons';
+import { Icon } from '@/components/icons/Icon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -241,7 +247,7 @@ const FieldWrapper: React.FC<FieldWrapperProps> = ({
             transition={{ duration: 0.2 }}
             className="flex items-center gap-2 text-sm text-warning-600 dark:text-warning-400"
           >
-            <Icon icon="tabler:alert-circle" className="w-4 h-4 flex-shrink-0" />
+            <HugeiconsIcon icon={AlertCircleIcon} size={16} className="flex-shrink-0" />
             <span>{error}</span>
           </motion.div>
         )}
@@ -253,7 +259,7 @@ const FieldWrapper: React.FC<FieldWrapperProps> = ({
             transition={{ duration: 0.2 }}
             className="flex items-center gap-2 text-sm text-industrial-600 dark:text-industrial-400"
           >
-            <Icon icon="tabler:circle-check" className="w-4 h-4 flex-shrink-0" />
+            <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="flex-shrink-0" />
             <span>{success}</span>
           </motion.div>
         )}
@@ -300,8 +306,9 @@ const ProfessionalInput = forwardRef<HTMLInputElement, ProfessionalInputProps>(
             'absolute left-0 top-0 h-full flex items-center pointer-events-none',
             sizeConfig.iconContainer
           )}>
-            <Icon 
+            <HugeiconsIcon 
               icon={icon} 
+              size={16}
               className={cn(sizeConfig.icon, stateConfig.icon)} 
             />
           </div>
@@ -346,8 +353,9 @@ const ProfessionalInput = forwardRef<HTMLInputElement, ProfessionalInputProps>(
             {loading ? (
               <InputLoadingSpinner size={size} />
             ) : iconRight ? (
-              <Icon 
+              <HugeiconsIcon 
                 icon={iconRight} 
+                size={16}
                 className={cn(sizeConfig.icon, stateConfig.icon)} 
               />
             ) : null}
@@ -599,8 +607,9 @@ const ProfessionalSelect = forwardRef<HTMLSelectElement, ProfessionalSelectProps
           {loading ? (
             <InputLoadingSpinner size={size} />
           ) : (
-            <Icon 
-              icon="tabler:chevron-down" 
+            <HugeiconsIcon 
+              icon={ArrowDown01Icon} 
+              size={16}
               className={cn(sizeConfig.icon, stateConfig.icon)} 
             />
           )}

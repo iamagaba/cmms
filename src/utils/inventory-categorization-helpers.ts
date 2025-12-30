@@ -5,6 +5,20 @@ import {
   ITEM_CATEGORY_LABELS,
   UNIT_OF_MEASURE_LABELS 
 } from '@/types/supabase';
+import { IconSvgElement } from '@hugeicons/react';
+import {
+  FlashIcon,
+  Settings01Icon,
+  PackageIcon,
+  DropletIcon,
+  SecurityCheckIcon,
+  Wrench01Icon,
+  NutIcon,
+  FilterIcon,
+  BatteryFullIcon,
+  TireIcon,
+  MoreHorizontalIcon
+} from '@hugeicons/core-free-icons';
 
 /**
  * Format storage location for display
@@ -82,19 +96,19 @@ export function getCategoryBadgeColor(category: ItemCategory): string {
 /**
  * Get category icon
  */
-export function getCategoryIcon(category: ItemCategory): string {
-  const icons: Record<ItemCategory, string> = {
-    electrical: 'tabler:bolt',
-    mechanical: 'tabler:settings',
-    consumables: 'tabler:package',
-    fluids: 'tabler:droplet',
-    safety: 'tabler:shield-check',
-    tools: 'tabler:tool',
-    fasteners: 'tabler:screw',
-    filters: 'tabler:filter',
-    batteries: 'tabler:battery-charging',
-    tires: 'tabler:wheel',
-    other: 'tabler:dots',
+export function getCategoryIcon(category: ItemCategory): IconSvgElement {
+  const icons: Record<ItemCategory, IconSvgElement> = {
+    electrical: FlashIcon,
+    mechanical: Settings01Icon,
+    consumables: PackageIcon,
+    fluids: DropletIcon,
+    safety: SecurityCheckIcon,
+    tools: Wrench01Icon,
+    fasteners: NutIcon,
+    filters: FilterIcon,
+    batteries: BatteryFullIcon,
+    tires: TireIcon,
+    other: MoreHorizontalIcon,
   };
   return icons[category] || icons.other;
 }

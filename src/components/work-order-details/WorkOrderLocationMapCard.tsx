@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Location01Icon, Building01Icon, MapsOffIcon } from '@hugeicons/core-free-icons';
 import { WorkOrder, Location } from '@/types/supabase';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -45,7 +46,7 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
 
     try {
       mapboxgl.accessToken = MAPBOX_TOKEN;
-      
+
       const centerLat = customerLat ?? serviceCenterLat ?? -1.2921;
       const centerLng = customerLng ?? serviceCenterLng ?? 36.8219;
 
@@ -117,7 +118,7 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
           </button>
         )}
       </div>
-      
+
       {/* Use divide-y for sections */}
       <div className="divide-y divide-gray-100">
         {/* Address Info */}
@@ -125,7 +126,7 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
           <div className="px-3 py-2 space-y-1.5">
             {customerAddress && (
               <div className="flex items-start gap-1.5">
-                <Icon icon="tabler:map-pin" className="w-3 h-3 text-red-500 mt-0.5 flex-shrink-0" />
+                <HugeiconsIcon icon={Location01Icon} size={12} className="text-red-500 mt-0.5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-gray-500">Customer</p>
                   <p className="text-xs text-gray-900">{customerAddress}</p>
@@ -134,7 +135,7 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
             )}
             {location && (
               <div className="flex items-start gap-1.5">
-                <Icon icon="tabler:building" className="w-3 h-3 text-blue-500 mt-0.5 flex-shrink-0" />
+                <HugeiconsIcon icon={Building01Icon} size={12} className="text-blue-500 mt-0.5 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-xs text-gray-500">Service Center</p>
                   <p className="text-xs text-gray-900">{location.name}</p>
@@ -152,7 +153,7 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
           ) : (
             <div className="h-24 bg-gray-100 rounded flex items-center justify-center">
               <div className="text-center">
-                <Icon icon="tabler:map-off" className="w-6 h-6 text-gray-300 mx-auto mb-1" />
+                <HugeiconsIcon icon={MapsOffIcon} size={24} className="text-gray-300 mx-auto mb-1" />
                 <p className="text-xs text-gray-400">No location data</p>
               </div>
             </div>

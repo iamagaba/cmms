@@ -7,7 +7,30 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  Sun01Icon,
+  Moon02Icon,
+  Computer01Icon,
+  Layout01Icon,
+  Layout02Icon,
+  LayoutDistributeVerticalIcon,
+  ArrowUp01Icon,
+  ArrowDown01Icon,
+  Tick01Icon,
+  PaletteIcon,
+  Layout01Icon as LayoutIcon,
+  BrandAbstractIcon,
+  AccessibilityIcon,
+  TemplateIcon,
+  RefreshIcon,
+  Cancel01Icon,
+  Download01Icon,
+  Upload01Icon,
+  ContrastIcon,
+  PlayerPauseIcon,
+  FocusIcon
+} from '@hugeicons/core-free-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import ProfessionalButton from '@/components/ui/ProfessionalButton';
@@ -34,9 +57,9 @@ const ThemeModeControls: React.FC = () => {
   const { theme, setTheme } = useAdvancedTheme();
   
   const modeOptions = [
-    { id: 'light', label: 'Light', icon: 'tabler:sun' },
-    { id: 'dark', label: 'Dark', icon: 'tabler:moon' },
-    { id: 'auto', label: 'Auto', icon: 'tabler:device-desktop' },
+    { id: 'light', label: 'Light', icon: Sun01Icon },
+    { id: 'dark', label: 'Dark', icon: Moon02Icon },
+    { id: 'auto', label: 'Auto', icon: Computer01Icon },
   ];
   
   return (
@@ -56,7 +79,7 @@ const ThemeModeControls: React.FC = () => {
                 : 'border-machinery-200 bg-white text-machinery-600'
             )}
           >
-            <Icon icon={option.icon} className="w-6 h-6" />
+            <HugeiconsIcon icon={option.icon} size={24} />
             <span className="text-sm font-medium">{option.label}</span>
           </button>
         ))}
@@ -73,9 +96,9 @@ const DensityControls: React.FC = () => {
   const { theme, setTheme } = useAdvancedTheme();
   
   const densityOptions = [
-    { id: 'compact', label: 'Compact', icon: 'tabler:layout-grid', description: 'More content, less spacing' },
-    { id: 'comfortable', label: 'Comfortable', icon: 'tabler:layout-2', description: 'Balanced spacing' },
-    { id: 'spacious', label: 'Spacious', icon: 'tabler:layout-distribute-vertical', description: 'More spacing, easier reading' },
+    { id: 'compact', label: 'Compact', icon: Layout01Icon, description: 'More content, less spacing' },
+    { id: 'comfortable', label: 'Comfortable', icon: Layout02Icon, description: 'Balanced spacing' },
+    { id: 'spacious', label: 'Spacious', icon: LayoutDistributeVerticalIcon, description: 'More spacing, easier reading' },
   ];
   
   return (
@@ -95,13 +118,13 @@ const DensityControls: React.FC = () => {
                 : 'border-machinery-200 bg-white'
             )}
           >
-            <Icon icon={option.icon} className="w-5 h-5 text-steel-600" />
+            <HugeiconsIcon icon={option.icon} size={20} />
             <div className="flex-1">
               <div className="font-medium text-machinery-900">{option.label}</div>
               <div className="text-sm text-machinery-600">{option.description}</div>
             </div>
             {theme.density === option.id && (
-              <Icon icon="tabler:check" className="w-5 h-5 text-steel-600" />
+              <HugeiconsIcon icon={Tick01Icon} size={20} />
             )}
           </button>
         ))}
@@ -323,25 +346,25 @@ const AccessibilityControls: React.FC = () => {
       key: 'highContrast' as const,
       label: 'High Contrast',
       description: 'Increase contrast for better visibility',
-      icon: 'tabler:contrast',
+      icon: ContrastIcon,
     },
     {
       key: 'reducedMotion' as const,
       label: 'Reduced Motion',
       description: 'Minimize animations and transitions',
-      icon: 'tabler:player-pause',
+      icon: PlayerPauseIcon,
     },
     {
       key: 'focusVisible' as const,
       label: 'Focus Indicators',
       description: 'Show focus rings for keyboard navigation',
-      icon: 'tabler:focus',
+      icon: FocusIcon,
     },
     {
       key: 'screenReaderOptimized' as const,
       label: 'Screen Reader Optimized',
       description: 'Enhanced screen reader support',
-      icon: 'tabler:accessibility',
+      icon: AccessibilityIcon,
     },
   ];
   
@@ -353,7 +376,7 @@ const AccessibilityControls: React.FC = () => {
         {accessibilityOptions.map((option) => (
           <div key={option.key} className="flex items-center justify-between p-3 bg-machinery-50 rounded-lg">
             <div className="flex items-center gap-3">
-              <Icon icon={option.icon} className="w-5 h-5 text-steel-600" />
+              <HugeiconsIcon icon={option.icon} size={20} />
               <div>
                 <div className="font-medium text-machinery-900">{option.label}</div>
                 <div className="text-sm text-machinery-600">{option.description}</div>
@@ -440,7 +463,7 @@ const PresetControls: React.FC = () => {
           <ProfessionalButton
             variant="outline"
             size="sm"
-            icon="tabler:download"
+            icon={Download01Icon}
             onClick={() => {
               const theme = exportTheme();
               const blob = new Blob([theme], { type: 'application/json' });
@@ -466,7 +489,7 @@ const PresetControls: React.FC = () => {
             <ProfessionalButton
               variant="primary"
               size="sm"
-              icon="tabler:upload"
+              icon={Upload01Icon}
               onClick={handleImport}
               disabled={!importValue.trim()}
               className="w-full"
@@ -493,11 +516,11 @@ const AdvancedThemeControls: React.FC<AdvancedThemeControlsProps> = ({
   const { resetTheme } = useAdvancedTheme();
   
   const tabs = [
-    { id: 'appearance', label: 'Appearance', icon: 'tabler:palette' },
-    { id: 'layout', label: 'Layout', icon: 'tabler:layout' },
-    { id: 'brand', label: 'Brand', icon: 'tabler:brand-abstract' },
-    { id: 'accessibility', label: 'Accessibility', icon: 'tabler:accessibility' },
-    { id: 'presets', label: 'Presets', icon: 'tabler:template' },
+    { id: 'appearance', label: 'Appearance', icon: PaletteIcon },
+    { id: 'layout', label: 'Layout', icon: LayoutIcon },
+    { id: 'brand', label: 'Brand', icon: BrandAbstractIcon },
+    { id: 'accessibility', label: 'Accessibility', icon: AccessibilityIcon },
+    { id: 'presets', label: 'Presets', icon: TemplateIcon },
   ];
   
   const renderTabContent = () => {
@@ -559,7 +582,7 @@ const AdvancedThemeControls: React.FC<AdvancedThemeControlsProps> = ({
           <ProfessionalButton
             variant="outline"
             size="sm"
-            icon="tabler:refresh"
+            icon={RefreshIcon}
             onClick={resetTheme}
           >
             Reset
@@ -568,7 +591,7 @@ const AdvancedThemeControls: React.FC<AdvancedThemeControlsProps> = ({
             <ProfessionalButton
               variant="ghost"
               size="sm"
-              icon="tabler:x"
+              icon={Cancel01Icon}
               onClick={onClose}
             />
           )}

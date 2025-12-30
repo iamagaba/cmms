@@ -1,7 +1,8 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Add01Icon, Cancel01Icon } from '@hugeicons/core-free-icons';
 import { useForm } from 'react-hook-form';
 import { Dialog } from '@headlessui/react';
 import { DiagnosticFollowupQuestionRow, DiagnosticQuestionRow } from '@/types/diagnostic';
@@ -45,7 +46,7 @@ const FollowupQuestionManager = ({ optionId }: FollowupQuestionManagerProps) => 
                     onClick={() => setIsAddModalOpen(true)}
                     className="text-xs flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded hover:bg-gray-200 dark:hover:bg-gray-700"
                 >
-                    <Icon icon="tabler:plus" className="w-3 h-3" />
+                    <HugeiconsIcon icon={Add01Icon} size={12} />
                     Add Follow-up
                 </button>
             </div>
@@ -70,7 +71,7 @@ const FollowupQuestionManager = ({ optionId }: FollowupQuestionManagerProps) => 
                                 onClick={() => deleteMutation.mutate(fq.id)}
                                 className="text-gray-400 hover:text-red-500"
                             >
-                                <Icon icon="tabler:x" className="w-4 h-4" />
+                                <HugeiconsIcon icon={Cancel01Icon} size={16} />
                             </button>
                         </div>
                     ))}

@@ -6,7 +6,8 @@
  */
 
 import React from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { AnalyticsUpIcon, AnalyticsDownIcon, MinusSignIcon, CircleIcon, CheckmarkCircle01Icon, Alert01Icon, AlertCircleIcon } from '@hugeicons/core-free-icons';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -195,17 +196,17 @@ const TrendIndicator: React.FC<TrendIndicatorProps> = ({
   const getIcon = () => {
     switch (direction) {
       case 'up':
-        return 'tabler:trending-up';
+        return AnalyticsUpIcon;
       case 'down':
-        return 'tabler:trending-down';
+        return AnalyticsDownIcon;
       default:
-        return 'tabler:minus';
+        return MinusSignIcon;
     }
   };
 
   return (
     <div className={cn('flex items-center gap-1', colors.trend[direction])}>
-      <Icon icon={getIcon()} className={cn('w-4 h-4', sizes.trend)} />
+      <HugeiconsIcon icon={getIcon()} size={16} className={sizes.trend} />
       {changePercentage !== undefined && (
         <span className={cn('font-medium', sizes.trend)}>
           {Math.abs(changePercentage).toFixed(1)}%
@@ -276,19 +277,20 @@ interface StatusIndicatorProps {
 
 const StatusIndicator: React.FC<StatusIndicatorProps> = ({ status, size }) => {
   const statusConfig = {
-    normal: { color: 'text-machinery-400', icon: 'tabler:circle' },
-    good: { color: 'text-success-500', icon: 'tabler:circle-check' },
-    warning: { color: 'text-warning-500', icon: 'tabler:alert-triangle' },
-    critical: { color: 'text-error-500', icon: 'tabler:alert-circle' },
+    normal: { color: 'text-machinery-400', icon: CircleIcon },
+    good: { color: 'text-success-500', icon: CheckmarkCircle01Icon },
+    warning: { color: 'text-warning-500', icon: Alert01Icon },
+    critical: { color: 'text-error-500', icon: AlertCircleIcon },
   };
 
   const config = statusConfig[status];
   const sizes = sizeMappings[size];
 
   return (
-    <Icon
+    <HugeiconsIcon
       icon={config.icon}
-      className={cn('w-4 h-4', config.color, sizes.iconSize)}
+      size={16}
+      className={cn(config.color, sizes.iconSize)}
     />
   );
 };
@@ -430,7 +432,7 @@ const ProfessionalMetricCard: React.FC<MetricCardProps> = ({
                 colors.bg,
                 sizes.icon
               )}>
-                <Icon icon={icon} className={cn(colors.icon, sizes.iconSize)} />
+                <HugeiconsIcon icon={icon} size={size === 'sm' ? 16 : size === 'lg' ? 24 : 20} className={colors.icon} />
               </div>
             )}
           </div>

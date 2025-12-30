@@ -1,7 +1,8 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Add01Icon, FolderIcon, Edit01Icon, Delete01Icon, Cancel01Icon, Loading01Icon } from '@hugeicons/core-free-icons';
 import { useForm } from 'react-hook-form';
 import { showSuccess, showError } from '@/utils/toast';
 import {
@@ -96,7 +97,7 @@ const CategoryManager = ({
                     onClick={handleCreate}
                     className="flex items-center gap-2 px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
                 >
-                    <Icon icon="tabler:plus" className="w-4 h-4" />
+                    <HugeiconsIcon icon={Add01Icon} size={16} />
                     {viewMode === 'full' && "Add Category"}
                 </button>
             </div>
@@ -119,7 +120,7 @@ const CategoryManager = ({
                             <div className="flex justify-between items-start mb-2">
                                 <div className="flex items-center gap-2">
                                     <div className="w-8 h-8 rounded bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400">
-                                        <Icon icon={cat.icon || 'tabler:folder'} className="w-5 h-5" />
+                                        <HugeiconsIcon icon={FolderIcon} size={20} />
                                     </div>
                                     <h4 className="font-semibold text-gray-900 dark:text-gray-100">{cat.label}</h4>
                                 </div>
@@ -129,14 +130,14 @@ const CategoryManager = ({
                                         className="p-1 text-gray-500 hover:text-primary-600 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
                                         title="Edit"
                                     >
-                                        <Icon icon="tabler:pencil" className="w-4 h-4" />
+                                        <HugeiconsIcon icon={Edit01Icon} size={16} />
                                     </button>
                                     <button
                                         onClick={(e) => handleDelete(cat.id, cat.label, e)}
                                         className="p-1 text-gray-500 hover:text-red-600 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
                                         title="Delete"
                                     >
-                                        <Icon icon="tabler:trash" className="w-4 h-4" />
+                                        <HugeiconsIcon icon={Delete01Icon} size={16} />
                                     </button>
                                 </div>
                             </div>
@@ -197,7 +198,7 @@ const CategoryModal = ({ isOpen, onClose, initialData, onSubmit, isSubmitting }:
                         {initialData ? 'Edit Category' : 'New Category'}
                     </h3>
                     <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                        <Icon icon="tabler:x" className="w-5 h-5" />
+                        <HugeiconsIcon icon={Cancel01Icon} size={20} />
                     </button>
                 </div>
 
@@ -276,7 +277,7 @@ const CategoryModal = ({ isOpen, onClose, initialData, onSubmit, isSubmitting }:
                             disabled={isSubmitting}
                             className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 flex items-center gap-2"
                         >
-                            {isSubmitting && <Icon icon="tabler:loader-2" className="w-4 h-4 animate-spin" />}
+                            {isSubmitting && <HugeiconsIcon icon={Loading01Icon} size={16} className="animate-spin" />}
                             {initialData ? 'Save Changes' : 'Create Category'}
                         </button>
                     </div>

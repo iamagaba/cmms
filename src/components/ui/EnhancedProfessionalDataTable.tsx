@@ -20,7 +20,9 @@
  */
 
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowDown01Icon, ArrowRight01Icon, Database01Icon, Search01Icon, AlertCircleIcon } from '@hugeicons/core-free-icons';
+import { Icon } from '@/components/icons/Icon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { designTokens } from '@/theme/professional-design-tokens';
@@ -258,21 +260,21 @@ const TableSkeleton: React.FC<TableSkeletonProps> = ({ columns, rows = 5, size }
 // ============================================
 
 interface EmptyStateProps {
-  icon?: string;
+  icon?: any;
   title?: string;
   description?: string;
   action?: React.ReactNode;
 }
 
 const EmptyState: React.FC<EmptyStateProps> = ({
-  icon = "tabler:database-off",
+  icon = Database01Icon,
   title = "No data available",
   description = "There are no items to display at the moment.",
   action,
 }) => (
   <div className="flex flex-col items-center justify-center py-16 px-4">
     <div className="w-16 h-16 bg-machinery-100 rounded-full flex items-center justify-center mb-6">
-      <Icon icon={icon} className="w-8 h-8 text-machinery-400" />
+      <HugeiconsIcon icon={icon} size={32} className="text-machinery-400" />
     </div>
     <h3 className="text-lg font-semibold text-machinery-700 mb-2">{title}</h3>
     <p className="text-machinery-500 text-center max-w-md mb-6">{description}</p>
@@ -292,7 +294,7 @@ interface ErrorStateProps {
 const ErrorState: React.FC<ErrorStateProps> = ({ error, onRetry }) => (
   <div className="flex flex-col items-center justify-center py-16 px-4">
     <div className="w-16 h-16 bg-warning-100 rounded-full flex items-center justify-center mb-6">
-      <Icon icon="tabler:alert-circle" className="w-8 h-8 text-warning-500" />
+      <HugeiconsIcon icon={AlertCircleIcon} size={32} className="text-warning-500" />
     </div>
     <h3 className="text-lg font-semibold text-machinery-700 mb-2">Error Loading Data</h3>
     <p className="text-machinery-500 text-center max-w-md mb-6">{error}</p>

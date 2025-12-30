@@ -10,7 +10,19 @@ import {
     SortingState,
 } from '@tanstack/react-table';
 import { Vehicle } from '@/types/supabase';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+    Motorbike01Icon,
+    Location01Icon,
+    Calendar01Icon,
+    ClipboardIcon,
+    View01Icon,
+    MoreVerticalIcon,
+    Edit01Icon,
+    Delete01Icon,
+    ArrowLeft01Icon,
+    ArrowRight01Icon
+} from '@hugeicons/core-free-icons';
 import { useDensity } from '@/context/DensityContext';
 
 // Define the shape of our data (EnhancedAsset effectively)
@@ -57,13 +69,14 @@ export const ModernAssetDataTable = ({
         document.addEventListener('click', handleClickOutside);
         return () => document.removeEventListener('click', handleClickOutside);
     }, [openMenuId]);
+
     const columns = useMemo(() => [
         columnHelper.accessor('license_plate', {
             header: 'Asset',
             cell: info => (
                 <div className="flex items-center gap-2">
                     <div className="w-7 h-7 rounded bg-primary-50 text-primary-600 flex items-center justify-center border border-primary-100">
-                        <Icon icon="tabler:motorbike" className="w-3.5 h-3.5" />
+                        <HugeiconsIcon icon={Motorbike01Icon} size={14} />
                     </div>
                     <div>
                         <div className="text-xs font-semibold text-gray-900">{info.getValue()}</div>
@@ -89,7 +102,7 @@ export const ModernAssetDataTable = ({
             header: 'Location',
             cell: info => (
                 <div className="flex items-center gap-1.5 text-gray-700">
-                    <Icon icon="tabler:map-pin" className="w-3.5 h-3.5 text-gray-400" />
+                    <HugeiconsIcon icon={Location01Icon} size={14} className="text-gray-400" />
                     <span className="text-xs font-medium">{info.getValue()?.name || 'Unassigned'}</span>
                 </div>
             )
@@ -100,7 +113,6 @@ export const ModernAssetDataTable = ({
                 const status = info.getValue() as string;
                 const statusColors: Record<string, string> = {
                     'Normal': 'bg-green-100 text-green-800 border-green-200',
-                    'Available': 'bg-green-100 text-green-800 border-green-200',
                     'In Repair': 'bg-amber-100 text-amber-800 border-amber-200',
                     'Decommissioned': 'bg-red-100 text-red-800 border-red-200',
                 };
@@ -135,7 +147,7 @@ export const ModernAssetDataTable = ({
                 
                 return (
                     <div className="flex items-center gap-1.5">
-                        <Icon icon="tabler:calendar" className="w-3.5 h-3.5 text-gray-400" />
+                        <HugeiconsIcon icon={Calendar01Icon} size={14} className="text-gray-400" />
                         <span className="text-xs text-gray-700">{ageText}</span>
                     </div>
                 );
@@ -149,7 +161,7 @@ export const ModernAssetDataTable = ({
                 const workOrderCount = workOrders?.filter(wo => wo.vehicle_id === vehicleId || wo.vehicleId === vehicleId).length || 0;
                 return (
                     <div className="flex items-center gap-1.5">
-                        <Icon icon="tabler:clipboard-list" className="w-3.5 h-3.5 text-gray-400" />
+                        <HugeiconsIcon icon={ClipboardIcon} size={14} className="text-gray-400" />
                         <span className="text-xs font-medium text-gray-700">{workOrderCount}</span>
                     </div>
                 );
@@ -167,7 +179,7 @@ export const ModernAssetDataTable = ({
                             className="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all"
                             title="View Details"
                         >
-                            <Icon icon="tabler:eye" className="w-4 h-4" />
+                            <HugeiconsIcon icon={View01Icon} size={16} />
                         </button>
                         <div className="relative">
                             <button
@@ -178,7 +190,7 @@ export const ModernAssetDataTable = ({
                                 className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-all"
                                 type="button"
                             >
-                                <Icon icon="tabler:dots-vertical" className="w-4 h-4" />
+                                <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
                             </button>
                             {isOpen && (
                                 <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
@@ -190,7 +202,7 @@ export const ModernAssetDataTable = ({
                                         }}
                                         className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                                     >
-                                        <Icon icon="tabler:edit" className="w-4 h-4" />
+                                        <HugeiconsIcon icon={Edit01Icon} size={16} />
                                         Edit Asset
                                     </button>
                                     <button
@@ -201,7 +213,7 @@ export const ModernAssetDataTable = ({
                                         }}
                                         className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                                     >
-                                        <Icon icon="tabler:eye" className="w-4 h-4" />
+                                        <HugeiconsIcon icon={View01Icon} size={16} />
                                         View Details
                                     </button>
                                     <div className="border-t border-gray-200 my-1" />
@@ -213,7 +225,7 @@ export const ModernAssetDataTable = ({
                                         }}
                                         className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
                                     >
-                                        <Icon icon="tabler:trash" className="w-4 h-4" />
+                                        <HugeiconsIcon icon={Delete01Icon} size={16} />
                                         Delete
                                     </button>
                                 </div>
@@ -303,14 +315,14 @@ export const ModernAssetDataTable = ({
                         disabled={!table.getCanPreviousPage()}
                         className="px-2 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                        <Icon icon="tabler:chevron-left" className="w-3.5 h-3.5" />
+                        <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
                     </button>
                     <button
                         onClick={() => table.nextPage()}
                         disabled={!table.getCanNextPage()}
                         className="px-2 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                     >
-                        <Icon icon="tabler:chevron-right" className="w-3.5 h-3.5" />
+                        <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
                     </button>
                 </div>
             </div>

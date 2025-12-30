@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { AlertCircleIcon, ArrowRight01Icon, Car01Icon, Calendar01Icon, SecurityCheckIcon } from '@hugeicons/core-free-icons';
 import { WorkOrder, Vehicle } from "@/types/supabase";
 import dayjs from "dayjs";
 import { cn } from '@/lib/utils';
@@ -22,7 +23,7 @@ export const PriorityWorkOrders: React.FC<PriorityWorkOrdersProps> = ({ workOrde
             <div className="px-6 py-4 border-b border-gray-200">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <Icon icon="tabler:alert-triangle" className="w-4 h-4 text-gray-500" />
+                        <HugeiconsIcon icon={AlertCircleIcon} size={16} className="text-gray-500" />
                         <div>
                             <h3 className="text-sm font-semibold text-gray-900">Priority Work Orders</h3>
                             <p className="text-xs text-gray-500 mt-0.5">High priority items requiring attention</p>
@@ -74,13 +75,13 @@ export const PriorityWorkOrders: React.FC<PriorityWorkOrdersProps> = ({ workOrde
                                             </div>
                                             <p className="text-xs text-gray-600 line-clamp-1">{order.description || order.service || 'General Service'}</p>
                                         </div>
-                                        <Icon icon="tabler:chevron-right" className="w-4 h-4 text-gray-400 group-hover:text-purple-600 transition-colors flex-shrink-0 mt-1" />
+                                        <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="text-gray-400 group-hover:text-purple-600 transition-colors flex-shrink-0 mt-1" />
                                     </div>
                                     <div className="flex items-center justify-between text-xs">
                                         <div className="flex items-center gap-3 text-gray-500">
                                             {vehicle && (
                                                 <span className="flex items-center gap-1">
-                                                    <Icon icon="tabler:car" className="w-3.5 h-3.5" />
+                                                    <HugeiconsIcon icon={Car01Icon} size={14} />
                                                     {vehicle.license_plate}
                                                 </span>
                                             )}
@@ -89,7 +90,7 @@ export const PriorityWorkOrders: React.FC<PriorityWorkOrdersProps> = ({ workOrde
                                                     'flex items-center gap-1 font-medium',
                                                     isOverdue ? 'text-red-600' : 'text-gray-600'
                                                 )}>
-                                                    <Icon icon={isOverdue ? "tabler:alert-triangle" : "tabler:calendar"} className="w-3.5 h-3.5" />
+                                                    <HugeiconsIcon icon={isOverdue ? AlertCircleIcon : Calendar01Icon} size={14} />
                                                     {dayjs(order.dueDate).format('MMM D')}
                                                     {isOverdue && ' (Overdue)'}
                                                 </span>
@@ -102,7 +103,7 @@ export const PriorityWorkOrders: React.FC<PriorityWorkOrdersProps> = ({ workOrde
                     </div>
                 ) : (
                     <div className="h-32 flex flex-col items-center justify-center text-gray-500">
-                        <Icon icon="tabler:shield-check" className="w-8 h-8 text-emerald-200 mb-2" />
+                        <HugeiconsIcon icon={SecurityCheckIcon} size={32} className="text-emerald-200 mb-2" />
                         <p className="text-sm font-medium text-gray-900 mb-1">All Clear!</p>
                         <p className="text-xs text-gray-500">No high priority work orders</p>
                     </div>

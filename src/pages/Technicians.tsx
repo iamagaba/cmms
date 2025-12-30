@@ -1,5 +1,17 @@
 import React, { useState, useMemo } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Search01Icon,
+  Settings02Icon,
+  Add01Icon,
+  UserIcon,
+  NoteIcon,
+  Edit01Icon,
+  Delete01Icon,
+  Tick01Icon,
+  TimelineIcon,
+  Location01Icon
+} from '@hugeicons/core-free-icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Technician, WorkOrder, Location } from '@/types/supabase';
@@ -230,15 +242,6 @@ const TechniciansPage: React.FC = () => {
     technicianMutation.mutate(technicianData);
   };
 
-  // Calculate metrics
-  const metrics = useMemo(() => {
-    const total = enhancedTechnicians.length;
-    const available = enhancedTechnicians.filter(t => t.status === 'available').length;
-    const busy = enhancedTechnicians.filter(t => t.status === 'busy').length;
-    const offline = enhancedTechnicians.filter(t => t.status === 'offline').length;
-    return { total, available, busy, offline };
-  }, [enhancedTechnicians]);
-
   const hasActiveFilters = searchQuery || filters.status.length > 0 || filters.specialization.length > 0 || filters.location.length > 0;
 
   // Loading state
@@ -274,29 +277,8 @@ const TechniciansPage: React.FC = () => {
         {/* Header with Stat Ribbon */}
         <div className="border-b border-gray-200 dark:border-gray-800">
           {/* Page Title */}
-          <div className="p-4 pb-3">
+          <div className="p-4 pb-4">
             <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Technicians</h1>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Team management and assignments</p>
-          </div>
-
-          {/* Stat Ribbon */}
-          <div className="info-bar">
-            <div className="info-bar-item">
-              <span className="text-gray-500">Total:</span>
-              <span className="font-semibold text-gray-900">{metrics.total ?? 0}</span>
-            </div>
-            <div className="info-bar-divider" />
-            <div className="info-bar-item">
-              <span className="font-semibold text-industrial-700">{metrics.available ?? 0}</span>
-            </div>
-            <div className="info-bar-divider" />
-            <div className="info-bar-item">
-              <span className="font-semibold text-maintenance-700">{metrics.busy ?? 0}</span>
-            </div>
-            <div className="info-bar-divider" />
-            <div className="info-bar-item">
-              <span className="font-semibold text-gray-500">{metrics.offline ?? 0}</span>
-            </div>
           </div>
 
           {/* Search */}
@@ -305,7 +287,7 @@ const TechniciansPage: React.FC = () => {
               placeholder="Search technicians..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              leftIcon={<Icon icon="tabler:search" className="w-3.5 h-3.5 text-gray-400" />}
+              leftIcon={<HugeiconsIcon icon={Search01Icon} className="w-3.5 h-3.5 text-gray-400" />}
             />
           </div>
 
@@ -318,17 +300,19 @@ const TechniciansPage: React.FC = () => {
                 : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700'
                 }`}
             >
-              <Icon icon="tabler:adjustments-horizontal" className="w-3.5 h-3.5" />
+              <HugeiconsIcon icon={Settings02Icon} className="w-3.5 h-3.5" />
               Filters
               {hasActiveFilters && (
-                <span className="w-1.5 h-1.5 rounded-full bg-primary-600 dark:bg-primary-400" />
+                <span className="inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-primary-600 dark:bg-primary-500 text-white text-[10px] font-semibold">
+                  {[searchQuery, filters.status.length > 0, filters.specialization.length > 0, filters.location.length > 0].filter(Boolean).length}
+                </span>
               )}
             </button>
             <button
               onClick={handleAddTechnician}
               className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-md transition-colors"
             >
-              <Icon icon="tabler:plus" className="w-3.5 h-3.5" />
+              <HugeiconsIcon icon={Add01Icon} className="w-3.5 h-3.5" />
               Add Technician
             </button>
           </div>
@@ -383,7 +367,7 @@ const TechniciansPage: React.FC = () => {
         <div className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
           {filteredTechnicians.length === 0 ? (
             <div className="empty-state">
-              <Icon icon="tabler:user-off" className="empty-state-icon" />
+              <HugeiconsIcon icon={UserIcon} className="empty-state-icon" />
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No technicians found</p>
               <p className="empty-state-text">
                 {hasActiveFilters ? "Try adjusting your filters" : "Add your first technician to get started"}
@@ -435,7 +419,7 @@ const TechniciansPage: React.FC = () => {
                       <span>{tech.email}</span>
                       {tech.openTasks > 0 && (
                         <span className="flex items-center gap-1">
-                          <Icon icon="tabler:clipboard-list" className="w-3 h-3" />
+                          <HugeiconsIcon icon={NoteIcon} className="w-3 h-3" />
                           {tech.openTasks} WO{tech.openTasks !== 1 ? 's' : ''}
                         </span>
                       )}
@@ -493,14 +477,14 @@ const TechniciansPage: React.FC = () => {
                   onClick={() => handleEditTechnician(selectedTechnician)}
                   className="px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg shadow-sm transition-colors flex items-center gap-2"
                 >
-                  <Icon icon="tabler:edit" className="w-4 h-4" />
+                  <HugeiconsIcon icon={Edit01Icon} className="w-4 h-4" />
                   Edit
                 </button>
                 <button
                   onClick={() => handleDeleteClick(selectedTechnician)}
                   className="px-3 py-1.5 text-sm font-medium text-error-600 dark:text-error-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:bg-error-50 dark:hover:bg-error-900/20 rounded-lg shadow-sm transition-colors flex items-center gap-2"
                 >
-                  <Icon icon="tabler:trash" className="w-4 h-4" />
+                  <HugeiconsIcon icon={Delete01Icon} className="w-4 h-4" />
                   Delete
                 </button>
               </div>
@@ -515,7 +499,7 @@ const TechniciansPage: React.FC = () => {
                     <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-0.5">{selectedTechnician.openTasks}</p>
                   </div>
                   <div className="w-8 h-8 rounded-lg bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center">
-                    <Icon icon="tabler:clipboard-list" className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                    <HugeiconsIcon icon={NoteIcon} className="w-4 h-4 text-primary-600 dark:text-primary-400" />
                   </div>
                 </div>
               </div>
@@ -527,7 +511,7 @@ const TechniciansPage: React.FC = () => {
                     <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-0.5">{selectedTechnician.completedTasks}</p>
                   </div>
                   <div className="w-8 h-8 rounded-lg bg-industrial-50 dark:bg-industrial-900/30 flex items-center justify-center">
-                    <Icon icon="tabler:check" className="w-4 h-4 text-industrial-600 dark:text-industrial-400" />
+                    <HugeiconsIcon icon={Tick01Icon} className="w-4 h-4 text-industrial-600 dark:text-industrial-400" />
                   </div>
                 </div>
               </div>
@@ -539,7 +523,7 @@ const TechniciansPage: React.FC = () => {
                     <p className="text-xl font-bold text-gray-900 dark:text-gray-100 mt-0.5">{Math.round(selectedTechnician.efficiency)}%</p>
                   </div>
                   <div className="w-8 h-8 rounded-lg bg-maintenance-50 dark:bg-maintenance-900/30 flex items-center justify-center">
-                    <Icon icon="tabler:chart-line" className="w-4 h-4 text-maintenance-600 dark:text-maintenance-400" />
+                    <HugeiconsIcon icon={TimelineIcon} className="w-4 h-4 text-maintenance-600 dark:text-maintenance-400" />
                   </div>
                 </div>
               </div>
@@ -553,7 +537,7 @@ const TechniciansPage: React.FC = () => {
                     </p>
                   </div>
                   <div className="w-8 h-8 rounded-lg bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center">
-                    <Icon icon="tabler:map-pin" className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                    <HugeiconsIcon icon={Location01Icon} className="w-4 h-4 text-primary-600 dark:text-primary-400" />
                   </div>
                 </div>
               </div>
@@ -675,7 +659,7 @@ const TechniciansPage: React.FC = () => {
                   <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-8">
                     <div className="text-center">
                       <div className="mx-auto w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center mb-3">
-                        <Icon icon="tabler:clipboard-off" className="w-6 h-6 text-gray-400 dark:text-gray-500" />
+                        <HugeiconsIcon icon={NoteIcon} className="w-6 h-6 text-gray-400 dark:text-gray-500" />
                       </div>
                       <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No work orders</p>
                       <p className="text-xs text-gray-500 dark:text-gray-400">This technician has no assigned work orders</p>
@@ -688,7 +672,7 @@ const TechniciansPage: React.FC = () => {
         ) : (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <Icon icon="tabler:user" className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+              <HugeiconsIcon icon={UserIcon} className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">Select a Technician</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400">Choose a technician from the list to view details</p>
             </div>

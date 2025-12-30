@@ -1,6 +1,15 @@
 
 import React from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  AnalyticsUpIcon,
+  AnalyticsDownIcon,
+  AlertCircleIcon,
+  CheckmarkCircle01Icon,
+  ClipboardIcon,
+  UserIcon,
+  Calendar01Icon
+} from '@hugeicons/core-free-icons';
 import ReactECharts from 'echarts-for-react';
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
@@ -40,7 +49,7 @@ export const MetricCard = ({ label, value, sublabel, variant = 'normal', icon }:
 
             <div className="flex items-center justify-between mb-4">
                 <span className="opacity-70 font-medium tracking-wider text-sm uppercase">{label}</span>
-                {icon && <Icon icon={icon} className="w-6 h-6 opacity-60" />}
+                {/* TODO: Convert icon prop to use HugeiconsIcon component */}
             </div>
 
             <div className="flex flex-col">
@@ -81,7 +90,7 @@ export const ActiveWorkOrderList = ({ workOrders, assetLookup, techLookup }: Act
             >
                 {workOrders.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center text-neutral-500 opacity-50">
-                        <Icon icon="heroicons:check-circle" className="w-16 h-16 mb-4" />
+                        <HugeiconsIcon icon={CheckmarkCircle01Icon} size={64} className="mb-4" />
                         <span className="text-xl font-medium">No Active Work</span>
                     </div>
                 ) : (
@@ -100,7 +109,7 @@ export const ActiveWorkOrderList = ({ workOrders, assetLookup, techLookup }: Act
                                         <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isUrgent ? 'bg-error-100 text-error-600 dark:bg-error-900/30 dark:text-error-500' : 'bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-500'
                                             }`}>
 
-                                            <Icon icon="heroicons:clipboard-document-list" className="w-6 h-6" />
+                                            <HugeiconsIcon icon={ClipboardIcon} size={24} />
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-2">
@@ -122,7 +131,7 @@ export const ActiveWorkOrderList = ({ workOrders, assetLookup, techLookup }: Act
                                         </div>
                                         {wo.assignedTechnicianId && (
                                             <span className="text-xs font-medium text-neutral-500 flex items-center gap-1">
-                                                <Icon icon="heroicons:user" className="w-3 h-3" />
+                                                <HugeiconsIcon icon={UserIcon} size={12} />
                                                 {techName}
                                             </span>
                                         )}
@@ -233,7 +242,7 @@ export const UpNextSchedule = ({ orders }: UpNextScheduleProps) => {
             <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar">
                 {orders.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-10 text-neutral-500 opacity-60">
-                        <Icon icon="heroicons:calendar" className="w-12 h-12 mb-3" />
+                        <HugeiconsIcon icon={Calendar01Icon} size={48} className="mb-3" />
                         <span className="text-sm font-medium">No Appointments (24h)</span>
                     </div>
                 ) : (

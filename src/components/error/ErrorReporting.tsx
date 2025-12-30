@@ -10,7 +10,8 @@ import {
   Divider,
   Title
 } from '@/components/tailwind-components';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { CheckmarkCircle01Icon, BugIcon, CodeIcon, ArrowUp01Icon, ArrowDown01Icon, SentIcon } from '@hugeicons/core-free-icons';
 import { showSuccess, showError } from '@/utils/toast';
 
 export interface ErrorReport {
@@ -100,7 +101,7 @@ export function ErrorReportingModal({
     return (
       <Modal opened={opened} onClose={onClose} title="Error Report Sent">
         <Stack align="center" gap="md">
-          <Icon icon="mdi:check-circle" width={48} height={48} color="green" />
+          <HugeiconsIcon icon={CheckmarkCircle01Icon} size={48} color="green" />
           <Text className="text-center">
             Your error report has been sent successfully. Thank you for helping us improve the application.
           </Text>
@@ -119,7 +120,7 @@ export function ErrorReportingModal({
       <Stack gap="md">
         <Alert
           color="red"
-          icon={<Icon icon="mdi:bug" width={16} height={16} />}
+          icon={<HugeiconsIcon icon={BugIcon} size={16} />}
           title="Error Detected"
         >
           <Text size="sm">
@@ -163,13 +164,12 @@ export function ErrorReportingModal({
             className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors"
           >
             <span className="flex items-center gap-2">
-              <Icon icon="mdi:code-tags" width={16} height={16} />
+              <HugeiconsIcon icon={CodeIcon} size={16} />
               <span className="font-medium">Technical Details</span>
             </span>
-            <Icon
-              icon={showDetails ? "mdi:chevron-up" : "mdi:chevron-down"}
-              width={20}
-              height={20}
+            <HugeiconsIcon
+              icon={showDetails ? ArrowUp01Icon : ArrowDown01Icon}
+              size={20}
             />
           </button>
           {showDetails && (
@@ -217,7 +217,7 @@ export function ErrorReportingModal({
           <Button
             onClick={handleSubmit}
             loading={isSubmitting}
-            leftSection={<Icon icon="mdi:send" width={16} height={16} />}
+            leftSection={<HugeiconsIcon icon={SentIcon} size={16} />}
           >
             Send Report
           </Button>

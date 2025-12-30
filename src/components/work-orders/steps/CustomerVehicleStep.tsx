@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Search01Icon, Loading01Icon, Motorbike01Icon, ArrowRight01Icon, AlertCircleIcon, CheckmarkCircle01Icon, UserIcon, Call02Icon, Cancel01Icon } from '@hugeicons/core-free-icons';
 import { Stack } from '@/components/tailwind-components';
 import { MapboxLocationPicker } from '../MapboxLocationPicker';
 import { supabase } from '@/integrations/supabase/client';
@@ -122,16 +123,16 @@ export const CustomerVehicleStep: React.FC<CustomerVehicleStepProps> = ({
                 }`}
               autoFocus
             />
-            <Icon
-              icon="mdi:magnify"
+            <HugeiconsIcon
+              icon={Search01Icon}
               className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-              width={18}
+              size={18}
             />
             {isSearching && (
-              <Icon
-                icon="mdi:loading"
+              <HugeiconsIcon
+                icon={Loading01Icon}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-primary-500 animate-spin"
-                width={18}
+                size={18}
               />
             )}
           </div>
@@ -148,7 +149,7 @@ export const CustomerVehicleStep: React.FC<CustomerVehicleStepProps> = ({
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0">
-                      <Icon icon="mdi:motorbike" className="text-primary-600" width={20} />
+                      <HugeiconsIcon icon={Motorbike01Icon} className="text-primary-600" size={20} />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold text-gray-900">
@@ -158,7 +159,7 @@ export const CustomerVehicleStep: React.FC<CustomerVehicleStepProps> = ({
                         {vehicle.make} {vehicle.model} • {vehicle.customers?.name || 'No owner'}
                       </div>
                     </div>
-                    <Icon icon="mdi:chevron-right" className="text-gray-400" width={20} />
+                    <HugeiconsIcon icon={ArrowRight01Icon} className="text-gray-400" size={20} />
                   </div>
                 </button>
               ))}
@@ -168,7 +169,7 @@ export const CustomerVehicleStep: React.FC<CustomerVehicleStepProps> = ({
           {/* No Results */}
           {showResults && searchResults.length === 0 && !isSearching && searchQuery.length >= 2 && (
             <div className="absolute z-10 w-full mt-2 bg-white border border-gray-200 rounded-lg shadow-lg p-4 text-center">
-              <Icon icon="mdi:alert-circle-outline" className="mx-auto text-gray-400 mb-2" width={32} />
+              <HugeiconsIcon icon={AlertCircleIcon} className="mx-auto text-gray-400 mb-2" size={32} />
               <p className="text-sm text-gray-600">No vehicles found matching "{searchQuery}"</p>
             </div>
           )}
@@ -179,7 +180,7 @@ export const CustomerVehicleStep: React.FC<CustomerVehicleStepProps> = ({
           <div className="flex justify-between items-start">
             <div className="flex gap-3">
               <div className="w-10 h-10 rounded-lg bg-green-50 flex items-center justify-center flex-shrink-0 border border-green-100">
-                <Icon icon="mdi:check-circle" className="w-5 h-5 text-green-600" />
+                <HugeiconsIcon icon={CheckmarkCircle01Icon} className="w-5 h-5 text-green-600" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -188,19 +189,19 @@ export const CustomerVehicleStep: React.FC<CustomerVehicleStepProps> = ({
 
                 <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
                   <div className="flex items-center gap-1.5">
-                    <Icon icon="mdi:motorbike" width={14} className="text-gray-400" />
+                    <HugeiconsIcon icon={Motorbike01Icon} size={14} className="text-gray-400" />
                     <span className="text-sm text-gray-700 font-medium">
                       {selectedVehicle.make} {selectedVehicle.model} <span className="text-gray-400 font-normal">{selectedVehicle.year}</span>
                     </span>
                   </div>
                   <div className="w-px h-3 bg-gray-200 self-center hidden sm:block"></div>
                   <div className="flex items-center gap-1.5">
-                    <Icon icon="mdi:account" width={14} className="text-gray-400" />
+                    <HugeiconsIcon icon={UserIcon} size={14} className="text-gray-400" />
                     <span className="text-sm text-gray-700">{selectedVehicle.customers?.name || 'N/A'}</span>
                   </div>
                   <div className="w-px h-3 bg-gray-200 self-center hidden sm:block"></div>
                   <div className="flex items-center gap-1.5">
-                    <Icon icon="mdi:phone" width={14} className="text-gray-400" />
+                    <HugeiconsIcon icon={Call02Icon} size={14} className="text-gray-400" />
                     <span className="text-sm text-gray-700">{selectedVehicle.customers?.phone || 'N/A'}</span>
                   </div>
                 </div>
@@ -212,7 +213,7 @@ export const CustomerVehicleStep: React.FC<CustomerVehicleStepProps> = ({
               className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-md transition-all opacity-0 group-hover:opacity-100"
               title="Remove vehicle"
             >
-              <Icon icon="mdi:close" width={18} />
+              <HugeiconsIcon icon={Cancel01Icon} size={18} />
             </button>
           </div>
         </div>

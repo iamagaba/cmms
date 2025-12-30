@@ -8,7 +8,24 @@
 
 import React, { useState, useMemo } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Home01Icon,
+  ClipboardIcon,
+  Building01Icon,
+  Store01Icon,
+  Wrench01Icon,
+  PackageIcon,
+  Location01Icon,
+  Calendar01Icon,
+  TimelineIcon,
+  MessageIcon,
+  Settings01Icon,
+  GridIcon,
+  Search01Icon,
+  Cancel01Icon,
+  UserIcon
+} from '@hugeicons/core-free-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -20,7 +37,7 @@ interface NavigationItem {
   id: string;
   label: string;
   href: string;
-  icon: string;
+  icon: any; // Hugeicons icon object
   description?: string;
   badge?: string | number;
   isActive?: boolean;
@@ -46,7 +63,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'dashboard',
         label: 'Dashboard',
         href: '/',
-        icon: 'tabler:layout-dashboard',
+        icon: Home01Icon,
         description: 'Overview and metrics',
         keywords: ['home', 'overview', 'metrics', 'stats'],
       },
@@ -54,7 +71,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'work-orders',
         label: 'Work Orders',
         href: '/work-orders',
-        icon: 'tabler:clipboard-check',
+        icon: ClipboardIcon,
         description: 'Maintenance requests and tasks',
         keywords: ['work', 'orders', 'tasks', 'maintenance', 'requests'],
       },
@@ -62,7 +79,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'assets',
         label: 'Assets',
         href: '/assets',
-        icon: 'tabler:building-factory-2',
+        icon: Building01Icon,
         description: 'Equipment and machinery',
         keywords: ['assets', 'equipment', 'machinery', 'vehicles'],
       },
@@ -78,7 +95,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'customers',
         label: 'Customers',
         href: '/customers',
-        icon: 'tabler:building-store',
+        icon: Store01Icon,
         description: 'Customer management',
         keywords: ['customers', 'clients', 'contacts'],
       },
@@ -86,7 +103,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'technicians',
         label: 'Technicians',
         href: '/technicians',
-        icon: 'tabler:tool',
+        icon: Wrench01Icon,
         description: 'Staff and assignments',
         keywords: ['technicians', 'staff', 'team', 'workers'],
       },
@@ -94,7 +111,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'inventory',
         label: 'Inventory',
         href: '/inventory',
-        icon: 'tabler:box-seam',
+        icon: PackageIcon,
         description: 'Parts and supplies',
         keywords: ['inventory', 'parts', 'supplies', 'stock'],
       },
@@ -102,7 +119,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'locations',
         label: 'Service Centers',
         href: '/locations',
-        icon: 'tabler:building-warehouse',
+        icon: Location01Icon,
         description: 'Maintenance locations and facilities',
         keywords: ['locations', 'service', 'centers', 'facilities', 'sites'],
       },
@@ -118,7 +135,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'scheduling',
         label: 'Scheduling',
         href: '/scheduling',
-        icon: 'tabler:calendar-event',
+        icon: Calendar01Icon,
         description: 'Maintenance planning',
         keywords: ['scheduling', 'calendar', 'planning', 'appointments'],
       },
@@ -126,7 +143,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'reports',
         label: 'Reports',
         href: '/reports',
-        icon: 'tabler:chart-line',
+        icon: TimelineIcon,
         description: 'Analytics and insights',
         keywords: ['reports', 'analytics', 'insights', 'data'],
       },
@@ -142,7 +159,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'chat',
         label: 'Chat',
         href: '/chat',
-        icon: 'tabler:messages',
+        icon: MessageIcon,
         description: 'WhatsApp customer support',
         keywords: ['chat', 'messages', 'whatsapp', 'support'],
       },
@@ -150,7 +167,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'settings',
         label: 'Settings',
         href: '/settings',
-        icon: 'tabler:settings',
+        icon: Settings01Icon,
         description: 'Configuration and preferences',
         keywords: ['settings', 'config', 'preferences', 'options'],
       },
@@ -158,7 +175,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'design-system',
         label: 'Design System',
         href: '/design-system',
-        icon: 'tabler:palette',
+        icon: GridIcon,
         description: 'UI components and design tokens',
         keywords: ['design', 'system', 'components', 'ui', 'tokens', 'theme'],
       },
@@ -230,9 +247,9 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
         'flex items-center justify-center flex-shrink-0',
         isActive ? 'text-purple-700' : 'text-gray-400'
       )}>
-        <Icon
+        <HugeiconsIcon
           icon={item.icon}
-          className={isCollapsed ? 'w-5 h-5' : 'w-4 h-4'}
+          size={isCollapsed ? 20 : 16}
         />
       </div>
 
@@ -412,7 +429,7 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
       )}>
         {/* Logo */}
         <div className="flex items-center justify-center w-10 h-10 bg-primary-600 rounded-xl shadow-lg flex-shrink-0">
-          <Icon icon="tabler:tools" className="w-6 h-6 text-white" />
+          <HugeiconsIcon icon={Wrench01Icon} size={24} className="text-white" />
         </div>
 
         {/* Brand Name */}
@@ -448,7 +465,7 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
           >
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-                <Icon icon="tabler:search" className="w-3.5 h-3.5 text-gray-400" />
+                <HugeiconsIcon icon={Search01Icon} size={14} className="text-gray-400" />
               </div>
               <input
                 type="text"
@@ -463,7 +480,7 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
                   onClick={() => setSearchQuery('')}
                   className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 hover:bg-gray-100 rounded transition-colors"
                 >
-                  <Icon icon="tabler:x" className="w-3 h-3 text-gray-500" />
+                  <HugeiconsIcon icon={Cancel01Icon} size={12} className="text-gray-500" />
                 </button>
               )}
             </div>
@@ -484,7 +501,7 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
         ) : (
           isExpanded && searchQuery && (
             <div className="text-center py-8 text-gray-500">
-              <Icon icon="tabler:search-off" className="w-8 h-8 mx-auto mb-2 text-gray-400" />
+              <HugeiconsIcon icon={Search01Icon} size={32} className="mx-auto mb-2 text-gray-400" />
               <p className="text-sm">No results found</p>
               <p className="text-xs mt-1">Try a different search term</p>
             </div>
@@ -502,7 +519,7 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
           !isExpanded && 'justify-center'
         )}>
           <div className="w-8 h-8 bg-primary-600 rounded-full flex items-center justify-center">
-            <Icon icon="tabler:user" className="w-4 h-4 text-white" />
+            <HugeiconsIcon icon={UserIcon} size={16} className="text-white" />
           </div>
 
           <AnimatePresence>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowDown01Icon, ArrowUp01Icon } from '@hugeicons/core-free-icons';
 
 export interface SelectOption {
     value: string;
@@ -103,11 +104,10 @@ export function Select({
                     <span className={cn(!selectedOption && 'text-gray-400')}>
                         {selectedOption?.label || placeholder}
                     </span>
-                    <Icon
-                        icon={isOpen ? 'mdi:chevron-up' : 'mdi:chevron-down'}
+                    <HugeiconsIcon
+                        icon={isOpen ? ArrowUp01Icon : ArrowDown01Icon}
                         className="text-gray-400"
-                        width={20}
-                        height={20}
+                        size={20}
                     />
                 </button>
 

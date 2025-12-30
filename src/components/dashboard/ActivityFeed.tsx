@@ -6,7 +6,18 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  CheckmarkCircle01Icon,
+  Alert01Icon,
+  Calendar01Icon,
+  UserIcon,
+  Settings01Icon,
+  UserAdd01Icon,
+  ArrowRight01Icon,
+  InboxIcon
+} from '@hugeicons/core-free-icons';
+import { Icon } from '@/components/icons/Icon';
 import { motion, AnimatePresence } from 'framer-motion';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -50,31 +61,31 @@ export interface ActivityFeedProps {
 
 const activityTypeConfig = {
   work_order_completed: {
-    defaultIcon: 'tabler:check-circle',
+    defaultIcon: CheckmarkCircle01Icon,
     defaultColor: 'text-industrial-600',
     bgColor: 'bg-industrial-50',
     borderColor: 'border-industrial-200'
   },
   asset_alert: {
-    defaultIcon: 'tabler:alert-triangle',
+    defaultIcon: Alert01Icon,
     defaultColor: 'text-warning-600',
     bgColor: 'bg-warning-50',
     borderColor: 'border-warning-200'
   },
   maintenance_scheduled: {
-    defaultIcon: 'tabler:calendar',
+    defaultIcon: Calendar01Icon,
     defaultColor: 'text-steel-600',
     bgColor: 'bg-steel-50',
     borderColor: 'border-steel-200'
   },
   user_action: {
-    defaultIcon: 'tabler:user',
+    defaultIcon: UserIcon,
     defaultColor: 'text-machinery-600',
     bgColor: 'bg-machinery-50',
     borderColor: 'border-machinery-200'
   },
   system_event: {
-    defaultIcon: 'tabler:settings',
+    defaultIcon: Settings01Icon,
     defaultColor: 'text-machinery-600',
     bgColor: 'bg-machinery-50',
     borderColor: 'border-machinery-200'
@@ -92,7 +103,7 @@ const mockActivities: Activity[] = [
     title: 'Work Order #WO-2024-001 completed',
     description: 'Pump maintenance completed by John Smith',
     timestamp: dayjs().subtract(2, 'minutes').toISOString(),
-    icon: 'tabler:check-circle',
+    icon: CheckmarkCircle01Icon,
     color: 'text-industrial-600',
     priority: 'medium',
     userName: 'John Smith'
@@ -103,7 +114,7 @@ const mockActivities: Activity[] = [
     title: 'High temperature alert',
     description: 'Motor B-202 temperature exceeds threshold (85°C)',
     timestamp: dayjs().subtract(15, 'minutes').toISOString(),
-    icon: 'tabler:alert-triangle',
+    icon: Alert01Icon,
     color: 'text-warning-600',
     priority: 'high'
   },
@@ -113,7 +124,7 @@ const mockActivities: Activity[] = [
     title: 'Preventive maintenance scheduled',
     description: 'Valve C-303 scheduled for next week',
     timestamp: dayjs().subtract(1, 'hour').toISOString(),
-    icon: 'tabler:calendar',
+    icon: Calendar01Icon,
     color: 'text-steel-600',
     priority: 'low',
     userName: 'System'
@@ -124,7 +135,7 @@ const mockActivities: Activity[] = [
     title: 'Emergency repair completed',
     description: 'Conveyor belt repair finished ahead of schedule',
     timestamp: dayjs().subtract(2, 'hours').toISOString(),
-    icon: 'tabler:check-circle',
+    icon: CheckmarkCircle01Icon,
     color: 'text-industrial-600',
     priority: 'high',
     userName: 'Mike Johnson'
@@ -135,7 +146,7 @@ const mockActivities: Activity[] = [
     title: 'New technician assigned',
     description: 'Sarah Wilson assigned to Area A maintenance team',
     timestamp: dayjs().subtract(3, 'hours').toISOString(),
-    icon: 'tabler:user-plus',
+    icon: UserAdd01Icon,
     color: 'text-machinery-600',
     priority: 'low',
     userName: 'Admin'
@@ -291,7 +302,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
           </AnimatePresence>
         ) : (
           <div className="text-center py-12 px-6 text-gray-500">
-            <Icon icon="tabler:inbox" className="w-10 h-10 mx-auto mb-3 opacity-40" />
+            <HugeiconsIcon icon={InboxIcon} size={40} className="mx-auto mb-3 opacity-40" />
             <p className="text-sm">No recent activity</p>
           </div>
         )}

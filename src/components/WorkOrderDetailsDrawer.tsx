@@ -1,8 +1,24 @@
 import React, { useEffect, useState } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  LinkSquare02Icon,
+  Cancel01Icon,
+  NoteIcon,
+  UserIcon,
+  Motorbike01Icon,
+  Calendar01Icon,
+  LockIcon,
+  Location01Icon,
+  CheckmarkCircle01Icon,
+  InformationCircleIcon,
+  TagIcon,
+  Clock01Icon,
+  MapsIcon
+} from '@hugeicons/core-free-icons';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { WorkOrder, Technician, Location, Customer, Vehicle, WorkOrderPart, Profile } from '@/types/supabase';
+import { DiagnosticCategoryRow } from '@/types/diagnostic';
 import { snakeToCamelCase } from '@/utils/data-helpers';
 import { Skeleton } from '@/components/tailwind-components';
 import dayjs from 'dayjs';
@@ -15,6 +31,8 @@ import { WorkOrderCostSummaryCard } from '@/components/work-order-details/WorkOr
 import { WorkOrderActivityLogCard } from '@/components/work-order-details/WorkOrderActivityLogCard';
 import { WorkOrderLocationMapCard } from '@/components/work-order-details/WorkOrderLocationMapCard';
 import { WorkOrderRelatedHistoryCard } from '@/components/work-order-details/WorkOrderRelatedHistoryCard';
+import { ConfirmationCallDialog } from '@/components/work-order-details/ConfirmationCallDialog';
+import { WorkOrderOverviewCards } from '@/components/work-order-details/WorkOrderOverviewCards';
 
 dayjs.extend(relativeTime);
 
@@ -24,13 +42,14 @@ interface WorkOrderDetailsDrawerProps {
   workOrderId?: string | null;
 }
 
-export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({ 
-  open, 
-  onClose, 
-  workOrderId 
+export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
+  open,
+  onClose,
+  workOrderId
 }) => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'overview' | 'parts' | 'activity' | 'location'>('overview');
+  const [isConfirmationCallDialogOpen, setIsConfirmationCallDialogOpen] = useState(false);
 
   // Fetch work order
   const { data: workOrder, isLoading: isLoadingWorkOrder } = useQuery<WorkOrder | null>({
@@ -137,6 +156,17 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
     },
   });
 
+  // Fetch diagnostic categories
+  const { data: serviceCategories } = useQuery<DiagnosticCategoryRow[]>({
+    queryKey: ['diagnostic_categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('diagnostic_categories').select('*');
+      if (error) return [];
+      return data || [];
+    },
+    staleTime: 10 * 60 * 1000,
+  });
+
   const profileMap = new Map(
     (profiles || []).map(p => [p.id, `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Unknown'])
   );
@@ -163,9 +193,9 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
     <div className="fixed inset-0 z-50 flex justify-end" onClick={onClose}>
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/20 backdrop-blur-md backdrop-saturate-150" />
-      
+
       {/* Drawer - Increased width to 800px */}
-      <div 
+      <div
         className="relative w-full max-w-4xl bg-white shadow-2xl h-full flex flex-col animate-in slide-in-from-right duration-300"
         onClick={e => e.stopPropagation()}
       >
@@ -185,14 +215,14 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
               onClick={handleViewFullPage}
               className="px-3 py-1.5 text-sm font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-colors flex items-center gap-1.5"
             >
-              <Icon icon="tabler:external-link" className="w-4 h-4" />
+              <HugeiconsIcon icon={LinkSquare02Icon} size={16} />
               Full Page
             </button>
             <button
               onClick={onClose}
               className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
             >
-              <Icon icon="tabler:x" className="w-5 h-5" />
+              <HugeiconsIcon icon={Cancel01Icon} size={20} />
             </button>
           </div>
         </div>
@@ -200,90 +230,124 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
         {/* Stepper */}
         {workOrder && (
           <div className="flex-shrink-0">
-            <WorkOrderStepper workOrder={workOrder} profileMap={profileMap} />
+            <WorkOrderStepper 
+              workOrder={workOrder} 
+              profileMap={profileMap}
+              onConfirmationClick={() => setIsConfirmationCallDialogOpen(true)}
+            />
           </div>
         )}
 
-        {/* Info Strip - Customer, Vehicle, Location, Assigned */}
+        {/* Info Strip - Improved */}
         {workOrder && (
-          <div className="flex-shrink-0 px-4 py-2.5 bg-white border-b border-gray-200">
-            <div className="flex items-center gap-6 text-xs">
-              {/* Customer */}
+          <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-3">
+            <div className="flex items-center gap-3 text-sm">
+              {/* License Plate */}
               <div className="flex items-center gap-2">
-                <Icon icon="tabler:user" className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-500">Customer:</span>
-                <span className="font-medium text-gray-900">
-                  {customer?.name || workOrder.customerName || 'Unknown'}
+                <HugeiconsIcon icon={NoteIcon} size={16} className="text-purple-600" />
+                <span className="font-semibold text-purple-900 text-xs">
+                  {vehicle?.license_plate || vehicle?.licensePlate || 'N/A'}
                 </span>
-                {(customer?.phone || workOrder.customerPhone) && (
-                  <span className="text-gray-600">
-                    • {customer?.phone || workOrder.customerPhone}
-                  </span>
-                )}
               </div>
 
-              {/* Asset - Smart display logic */}
-              <div className="flex items-center gap-2">
-                <Icon icon="tabler:motorbike" className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-500">Asset:</span>
-                <span className="font-medium text-gray-900">
+              <div className="h-4 w-px bg-gray-300" />
+
+              {/* Customer */}
+              <div className="flex items-center gap-1.5">
+                <HugeiconsIcon icon={UserIcon} size={14} className="text-gray-400" />
+                <span className="text-gray-900 font-medium text-xs">
+                  {customer?.name || workOrder.customerName || 'N/A'}
+                </span>
+              </div>
+
+              <div className="h-4 w-px bg-gray-300" />
+
+              {/* Vehicle Model */}
+              <div className="flex items-center gap-1.5">
+                <HugeiconsIcon icon={Motorbike01Icon} size={14} className="text-gray-400" />
+                <span className="text-gray-700 text-xs">
+                  {vehicle ? `${vehicle.make} ${vehicle.model}` : 'N/A'}
+                </span>
+              </div>
+
+              <div className="h-4 w-px bg-gray-300" />
+
+              {/* Asset Age */}
+              {vehicle?.year && (
+                <>
+                  <div className="flex items-center gap-1.5">
+                    <HugeiconsIcon icon={Calendar01Icon} size={14} className="text-gray-400" />
+                    <span className="text-gray-700 text-xs">
+                      {(() => {
+                        const purchaseDate = dayjs(`${vehicle.year}-01-01`);
+                        const today = dayjs();
+                        const years = today.diff(purchaseDate, 'year');
+                        const months = today.diff(purchaseDate, 'month') % 12;
+                        const days = today.diff(purchaseDate, 'day');
+                        if (years >= 1) return `${years} yr${years > 1 ? 's' : ''}`;
+                        else if (months >= 1) return `${months} mo`;
+                        else return `${days} d`;
+                      })()}
+                    </span>
+                  </div>
+                  <div className="h-4 w-px bg-gray-300" />
+                </>
+              )}
+
+              {/* Warranty Status */}
+              <div className="flex items-center gap-1.5">
+                <HugeiconsIcon icon={LockIcon} size={14} className={(() => {
+                  if (!vehicle?.warranty_end_date) return 'text-gray-400';
+                  const warrantyEnd = dayjs(vehicle.warranty_end_date);
+                  const today = dayjs();
+                  if (warrantyEnd.isBefore(today)) return 'text-red-600';
+                  const daysRemaining = warrantyEnd.diff(today, 'day');
+                  if (daysRemaining <= 30) return 'text-amber-600';
+                  return 'text-emerald-600';
+                })()} />
+                <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${(() => {
+                  if (!vehicle?.warranty_end_date) return 'bg-gray-50 text-gray-600 border-gray-200';
+                  const warrantyEnd = dayjs(vehicle.warranty_end_date);
+                  const today = dayjs();
+                  if (warrantyEnd.isBefore(today)) return 'bg-red-50 text-red-700 border-red-200';
+                  const daysRemaining = warrantyEnd.diff(today, 'day');
+                  if (daysRemaining <= 30) return 'bg-amber-50 text-amber-700 border-amber-200';
+                  return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                })()}`}>
                   {(() => {
-                    const licensePlate = vehicle?.license_plate;
-                    const make = vehicle?.make;
-                    const model = vehicle?.model;
-                    
-                    // If we have license plate, show it with make/model
-                    if (licensePlate && (make || model)) {
-                      return `${licensePlate} - ${make || ''} ${model || ''}`.trim();
-                    }
-                    // If only license plate
-                    if (licensePlate) {
-                      return licensePlate;
-                    }
-                    // If only make/model, show as unassigned
-                    if (make || model) {
-                      return `${make || ''} ${model || ''}`.trim() + ' (Unassigned)';
-                    }
-                    // Nothing available
-                    return 'Not assigned';
+                    if (!vehicle?.warranty_end_date) return 'No warranty';
+                    const warrantyEnd = dayjs(vehicle.warranty_end_date);
+                    const today = dayjs();
+                    if (warrantyEnd.isBefore(today)) return 'Expired';
+                    const daysRemaining = warrantyEnd.diff(today, 'day');
+                    if (daysRemaining <= 30) return `${daysRemaining}d left`;
+                    const monthsRemaining = warrantyEnd.diff(today, 'month');
+                    return `${monthsRemaining}mo left`;
                   })()}
                 </span>
               </div>
 
-              {/* Location - Only show if has value */}
-              {location?.name && (
-                <div className="flex items-center gap-2">
-                  <Icon icon="tabler:map-pin" className="w-4 h-4 text-gray-400" />
-                  <span className="text-gray-500">Location:</span>
-                  <span className="font-medium text-gray-900">
-                    {location.name}
-                  </span>
-                </div>
-              )}
+              {/* Double divider for section break */}
+              <div className="h-4 w-px bg-gray-400" />
+              <div className="h-4 w-px bg-gray-400 -ml-2" />
 
-              {/* Assigned Technician */}
-              <div className="flex items-center gap-2">
-                <Icon icon="tabler:user-cog" className="w-4 h-4 text-gray-400" />
-                <span className="text-gray-500">Assigned:</span>
-                <span className="font-medium text-gray-900">
-                  {technician?.name || 'Unassigned'}
+              {/* Location */}
+              <div className="flex items-center gap-1.5">
+                <HugeiconsIcon icon={Location01Icon} size={14} className="text-gray-400" />
+                <span className="text-gray-700 text-xs">
+                  {location?.name || workOrder.serviceCenter || 'N/A'}
                 </span>
               </div>
 
-              {/* Priority - Use pill style matching the body badge */}
-              {workOrder.priority && (
-                <div className="flex items-center gap-2">
-                  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${
-                    workOrder.priority === 'Critical' ? 'bg-red-100 text-red-700' :
-                    workOrder.priority === 'High' ? 'bg-orange-100 text-orange-700' :
-                    workOrder.priority === 'Medium' ? 'bg-amber-100 text-amber-700' :
-                    'bg-emerald-100 text-emerald-700'
-                  }`}>
-                    <Icon icon="tabler:flag" className="w-3 h-3" />
-                    {workOrder.priority}
-                  </span>
-                </div>
-              )}
+              <div className="h-4 w-px bg-gray-300" />
+
+              {/* Assigned Technician */}
+              <div className="flex items-center gap-1.5">
+                <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} className={technician ? 'text-emerald-600' : 'text-amber-600'} />
+                <span className={`text-xs font-medium ${technician ? 'text-emerald-700' : 'text-amber-700'}`}>
+                  {technician?.name || 'Unassigned'}
+                </span>
+              </div>
             </div>
           </div>
         )}
@@ -291,21 +355,20 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
         {/* Tabs - Full width border */}
         <div className="flex border-b border-gray-200 px-4 flex-shrink-0 bg-white">
           {[
-            { key: 'overview', label: 'Overview', icon: 'tabler:info-circle' },
-            { key: 'parts', label: 'Parts & Cost', icon: 'tabler:receipt' },
-            { key: 'activity', label: 'Activity', icon: 'tabler:history' },
-            { key: 'location', label: 'Location', icon: 'tabler:map-pin' },
+            { key: 'overview', label: 'Overview', icon: InformationCircleIcon },
+            { key: 'parts', label: 'Parts & Cost', icon: TagIcon },
+            { key: 'activity', label: 'Activity', icon: Clock01Icon },
+            { key: 'location', label: 'Location', icon: MapsIcon },
           ].map(tab => (
             <button
               key={tab.key}
               onClick={() => setActiveTab(tab.key as any)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
-                activeTab === tab.key 
-                  ? 'border-primary-600 text-primary-600' 
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-              }`}
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.key
+                ? 'border-primary-600 text-primary-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
             >
-              <Icon icon={tab.icon} className="w-4 h-4" />
+              <HugeiconsIcon icon={tab.icon} size={16} />
               {tab.label}
             </button>
           ))}
@@ -326,11 +389,14 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
                   {/* Work Order Details */}
                   <WorkOrderDetailsInfoCard
                     workOrder={workOrder}
+                    customer={customer || null}
+                    vehicle={vehicle || null}
                     technician={technician || null}
                     allTechnicians={allTechnicians || []}
                     allLocations={allLocations || []}
+                    serviceCategories={serviceCategories || []}
                   />
-                  
+
                   {/* Related History */}
                   <WorkOrderRelatedHistoryCard
                     workOrder={workOrder}
@@ -378,6 +444,23 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Confirmation Call Dialog */}
+      {workOrder && (
+        <ConfirmationCallDialog
+          isOpen={isConfirmationCallDialogOpen}
+          onClose={() => setIsConfirmationCallDialogOpen(false)}
+          onConfirm={async (notes, outcome, appointmentDate) => {
+            // For drawer mode, just close and let user go to full page for full functionality
+            setIsConfirmationCallDialogOpen(false);
+            // Navigate to full page to complete the action
+            navigate(`/work-orders/${workOrderId}`);
+          }}
+          workOrderNumber={workOrder.workOrderNumber || workOrder.id || ''}
+          customerName={customer?.name || workOrder.customerName}
+          customerPhone={customer?.phone || workOrder.customerPhone}
+        />
+      )}
     </div>
   );
 };

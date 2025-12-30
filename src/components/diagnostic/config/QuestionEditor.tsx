@@ -3,7 +3,8 @@ import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Dialog } from '@headlessui/react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Edit01Icon, Add01Icon, Cancel01Icon, Loading01Icon } from '@hugeicons/core-free-icons';
 import { DiagnosticQuestionRow, DiagnosticCategoryRow } from '@/types/diagnostic';
 import { createQuestion, updateQuestion, getCategories } from '@/api/diagnosticConfigApi';
 import { showSuccess, showError } from '@/utils/toast';
@@ -87,11 +88,11 @@ const QuestionEditor = ({ isOpen, onClose, questionId, initialData }: QuestionEd
                 <Dialog.Panel className="mx-auto max-w-2xl w-full bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-800 flex flex-col max-h-[90vh]">
                     <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-800">
                         <Dialog.Title className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                            <Icon icon={isEditing ? 'tabler:pencil' : 'tabler:plus'} className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+                            <HugeiconsIcon icon={isEditing ? Edit01Icon : Add01Icon} size={20} className="text-primary-600 dark:text-primary-400" />
                             {isEditing ? 'Edit Question' : 'New Question'}
                         </Dialog.Title>
                         <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
-                            <Icon icon="tabler:x" className="w-5 h-5" />
+                            <HugeiconsIcon icon={Cancel01Icon} size={20} />
                         </button>
                     </div>
 
@@ -202,7 +203,7 @@ const QuestionEditor = ({ isOpen, onClose, questionId, initialData }: QuestionEd
                             disabled={mutation.isPending}
                             className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50 flex items-center gap-2"
                         >
-                            {mutation.isPending && <Icon icon="tabler:loader-2" className="w-4 h-4 animate-spin" />}
+                            {mutation.isPending && <HugeiconsIcon icon={Loading01Icon} size={16} className="animate-spin" />}
                             {isEditing ? 'Save Changes' : 'Create Question'}
                         </button>
                     </div>

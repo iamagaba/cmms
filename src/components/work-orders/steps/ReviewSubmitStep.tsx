@@ -1,5 +1,6 @@
 import React from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { InformationCircleIcon, CheckmarkCircle01Icon } from '@hugeicons/core-free-icons';
 
 import { Button } from '@/components/tailwind-components';
 
@@ -29,7 +30,7 @@ export const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
     return (
         <div className="space-y-4">
             <div className="rounded-lg bg-blue-50/50 border border-blue-100 p-3 flex gap-2.5">
-                <Icon icon="mdi:information-slab-circle" width={24} className="text-blue-600 mt-0.5" />
+                <HugeiconsIcon icon={InformationCircleIcon} size={24} className="text-blue-600 mt-0.5" />
                 <div>
                     <h4 className="text-sm font-semibold text-blue-900">Review Details</h4>
                     <p className="text-sm text-blue-700 mt-0.5">
@@ -43,7 +44,7 @@ export const ReviewSubmitStep: React.FC<ReviewSubmitStepProps> = ({
                     onClick={onSubmit}
                     loading={isSubmitting}
                     className="w-full sm:w-auto px-8 py-2.5 h-11 text-base shadow-sm hover:shadow-md transition-all"
-                    leftSection={!isSubmitting && <Icon icon="mdi:check-circle" width={20} />}
+                    leftSection={!isSubmitting && <HugeiconsIcon icon={CheckmarkCircle01Icon} size={20} />}
                 >
                     {isSubmitting ? 'Submitting...' : 'Submit'}
                 </Button>

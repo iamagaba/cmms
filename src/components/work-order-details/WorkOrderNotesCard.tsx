@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Add01Icon,
+  FileIcon,
+  StethoscopeIcon,
+  Tick01Icon,
+  NoteIcon
+} from '@hugeicons/core-free-icons';
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -32,7 +39,7 @@ export const WorkOrderNotesCard: React.FC<WorkOrderNotesCardProps> = ({
 
   // Combine existing notes from work order fields
   const existingNotes: Note[] = [];
-  
+
   if (workOrder.initialDiagnosis) {
     existingNotes.push({
       id: 'diagnosis',
@@ -43,7 +50,7 @@ export const WorkOrderNotesCard: React.FC<WorkOrderNotesCardProps> = ({
       type: 'diagnosis',
     });
   }
-  
+
   if (workOrder.serviceNotes) {
     existingNotes.push({
       id: 'service-notes',
@@ -54,7 +61,7 @@ export const WorkOrderNotesCard: React.FC<WorkOrderNotesCardProps> = ({
       type: 'note',
     });
   }
-  
+
   if (workOrder.maintenanceNotes) {
     existingNotes.push({
       id: 'maintenance-notes',
@@ -67,9 +74,9 @@ export const WorkOrderNotesCard: React.FC<WorkOrderNotesCardProps> = ({
   }
 
   const typeConfig = {
-    note: { icon: 'tabler:note', color: 'text-gray-600', bg: 'bg-gray-100', label: 'Note' },
-    diagnosis: { icon: 'tabler:stethoscope', color: 'text-blue-600', bg: 'bg-blue-100', label: 'Diagnosis' },
-    resolution: { icon: 'tabler:check', color: 'text-emerald-600', bg: 'bg-emerald-100', label: 'Resolution' },
+    note: { icon: NoteIcon, color: 'text-gray-600', bg: 'bg-gray-100', label: 'Note' },
+    diagnosis: { icon: StethoscopeIcon, color: 'text-blue-600', bg: 'bg-blue-100', label: 'Diagnosis' },
+    resolution: { icon: Tick01Icon, color: 'text-emerald-600', bg: 'bg-emerald-100', label: 'Resolution' },
   };
 
   const handleSubmit = () => {
@@ -96,7 +103,7 @@ export const WorkOrderNotesCard: React.FC<WorkOrderNotesCardProps> = ({
             onClick={() => setIsExpanded(!isExpanded)}
             className="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
           >
-            <Icon icon="tabler:plus" className="w-3 h-3" />
+            <HugeiconsIcon icon={Add01Icon} size={12} />
             Add
           </button>
         )}
@@ -111,11 +118,10 @@ export const WorkOrderNotesCard: React.FC<WorkOrderNotesCardProps> = ({
                 <button
                   key={type}
                   onClick={() => setNoteType(type)}
-                  className={`px-2 py-1 rounded text-xs font-medium transition-colors ${
-                    noteType === type
+                  className={`px-2 py-1 rounded text-xs font-medium transition-colors ${noteType === type
                       ? `${typeConfig[type].bg} ${typeConfig[type].color}`
                       : 'bg-white text-gray-500 hover:bg-gray-100'
-                  }`}
+                    }`}
                 >
                   {typeConfig[type].label}
                 </button>
@@ -149,7 +155,7 @@ export const WorkOrderNotesCard: React.FC<WorkOrderNotesCardProps> = ({
         {/* Existing Notes */}
         {existingNotes.length === 0 ? (
           <div className="text-center py-4">
-            <Icon icon="tabler:notes-off" className="w-6 h-6 text-gray-300 mx-auto mb-1" />
+            <HugeiconsIcon icon={FileIcon} size={24} className="text-gray-300 mx-auto mb-1" />
             <p className="text-xs text-gray-400">No notes yet</p>
           </div>
         ) : (
@@ -159,7 +165,7 @@ export const WorkOrderNotesCard: React.FC<WorkOrderNotesCardProps> = ({
               return (
                 <div key={note.id} className="flex gap-2 py-2 first:pt-0 last:pb-0">
                   <div className={`w-6 h-6 rounded-full ${config.bg} flex items-center justify-center flex-shrink-0`}>
-                    <Icon icon={config.icon} className={`w-3 h-3 ${config.color}`} />
+                    <HugeiconsIcon icon={config.icon} size={12} className={config.color} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 mb-0.5">

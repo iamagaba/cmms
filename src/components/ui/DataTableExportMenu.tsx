@@ -6,7 +6,15 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  Download01Icon, 
+  Cancel01Icon, 
+  Tick01Icon, 
+  Database01Icon, 
+  InformationCircleIcon 
+} from '@hugeicons/core-free-icons';
+import { Icon } from '@/components/icons/Icon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ExportOption } from './EnhancedProfessionalDataTable';
@@ -53,7 +61,7 @@ const ExportProgress: React.FC<ExportProgressProps> = ({
       <div className="bg-white border border-machinery-200 rounded-lg shadow-lg p-4 min-w-80">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Icon icon="tabler:download" className="w-4 h-4 text-steel-600" />
+            <HugeiconsIcon icon={Download01Icon} size={16} className="text-steel-600" />
             <span className="text-sm font-medium text-machinery-700">
               Exporting as {format.toUpperCase()}
             </span>
@@ -63,7 +71,7 @@ const ExportProgress: React.FC<ExportProgressProps> = ({
               onClick={onCancel}
               className="text-machinery-400 hover:text-machinery-600 transition-colors"
             >
-              <Icon icon="tabler:x" className="w-4 h-4" />
+              <HugeiconsIcon icon={Cancel01Icon} size={16} />
             </button>
           )}
         </div>
@@ -133,7 +141,7 @@ const ExportOptionButton: React.FC<ExportOptionButtonProps> = ({
           'focus:outline-none focus:bg-machinery-50'
         )}
       >
-        <Icon icon={option.icon} className="w-4 h-4 text-machinery-500" />
+        {/* TODO: Convert option.icon prop to use HugeiconsIcon component */}
         <div className="flex-1">
           <div className="font-medium">{option.label}</div>
           <div className="text-xs text-machinery-500">
@@ -163,7 +171,7 @@ const ExportOptionButton: React.FC<ExportOptionButtonProps> = ({
               onClick={() => handleExport(true)}
               className="w-full flex items-center gap-3 px-4 py-3 text-left text-machinery-700 hover:bg-machinery-50 transition-colors"
             >
-              <Icon icon="tabler:check" className="w-4 h-4 text-steel-600" />
+              <HugeiconsIcon icon={Tick01Icon} size={16} className="text-steel-600" />
               <div>
                 <div className="font-medium">Export Selected</div>
                 <div className="text-xs text-machinery-500">
@@ -176,7 +184,7 @@ const ExportOptionButton: React.FC<ExportOptionButtonProps> = ({
               onClick={() => handleExport(false)}
               className="w-full flex items-center gap-3 px-4 py-3 text-left text-machinery-700 hover:bg-machinery-50 transition-colors"
             >
-              <Icon icon="tabler:database" className="w-4 h-4 text-machinery-500" />
+              <HugeiconsIcon icon={Database01Icon} size={16} className="text-machinery-500" />
               <div>
                 <div className="font-medium">Export All</div>
                 <div className="text-xs text-machinery-500">
@@ -279,7 +287,7 @@ const DataTableExportMenu = <T,>({
             'disabled:opacity-50 disabled:cursor-not-allowed'
           )}
         >
-          <Icon icon="tabler:download" className="w-4 h-4" />
+          <HugeiconsIcon icon={Download01Icon} size={16} />
           <span>Export</span>
           <Icon 
             icon={isOpen ? "tabler:chevron-up" : "tabler:chevron-down"} 
@@ -299,7 +307,7 @@ const DataTableExportMenu = <T,>({
               {/* Header */}
               <div className="px-4 py-2 border-b border-machinery-200">
                 <div className="flex items-center gap-2">
-                  <Icon icon="tabler:download" className="w-4 h-4 text-steel-600" />
+                  <HugeiconsIcon icon={Download01Icon} size={16} className="text-steel-600" />
                   <span className="text-sm font-medium text-machinery-700">
                     Export Data
                   </span>
@@ -326,7 +334,7 @@ const DataTableExportMenu = <T,>({
               {/* Footer */}
               <div className="px-4 py-2 border-t border-machinery-200">
                 <div className="flex items-center gap-2 text-xs text-machinery-500">
-                  <Icon icon="tabler:info-circle" className="w-3 h-3" />
+                  <HugeiconsIcon icon={InformationCircleIcon} size={12} />
                   <span>
                     Exports include all visible columns and applied filters
                   </span>

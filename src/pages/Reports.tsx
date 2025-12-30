@@ -1,6 +1,29 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  Home01Icon,
+  Wrench01Icon,
+  UserIcon,
+  ClipboardIcon,
+  Car01Icon,
+  Tag01Icon as TagIcon,
+  PackageIcon,
+  File01Icon as FileIcon,
+  TimelineIcon,
+  CheckmarkCircle01Icon,
+  Clock01Icon,
+  Flag01Icon as FlagIcon,
+  Coins01Icon as CoinsDollarIcon,
+  BarChartIcon as Chart01Icon,
+  ChartHistogramIcon,
+  ChartLineData01Icon,
+  TableIcon,
+  Car01Icon as TruckIcon,
+  ActivityIcon as Activity01Icon,
+  Calendar01Icon as CalendarCheckIn01Icon,
+  Invoice01Icon as ReceiptDollarIcon,
+} from '@hugeicons/core-free-icons';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Stack, Button, Group, Card, Badge, Skeleton, Select, Tabs } from '@/components/tailwind-components';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,13 +34,13 @@ import type { EChartsOption } from 'echarts';
 import { professionalColors } from '@/theme/professional-colors';
 import InventoryReport from '@/components/reports/InventoryReport';
 
-type ReportType = 'overview' | 'technician' | 'workorder' | 'asset' | 'financial' | 'inventory';
+type ReportType = 'overview' | 'technician' | 'workorder' | 'asset' | 'financial' | 'inventory' | 'fleet';
 type DateRange = '7days' | '30days' | '90days' | 'year' | 'custom';
 
 const Reports: React.FC = () => {
   const [searchParams] = useSearchParams();
   const tabFromUrl = searchParams.get('tab') as ReportType | null;
-  
+
   const [reportType, setReportType] = useState<ReportType>(tabFromUrl || 'overview');
   const [dateRange, setDateRange] = useState<DateRange>('30days');
   const [startDate, setStartDate] = useState(dayjs().subtract(30, 'days').format('YYYY-MM-DD'));
@@ -34,7 +57,7 @@ const Reports: React.FC = () => {
   const handleDateRangeChange = (range: DateRange) => {
     setDateRange(range);
     const today = dayjs();
-    
+
     switch (range) {
       case '7days':
         setStartDate(today.subtract(7, 'days').format('YYYY-MM-DD'));
@@ -144,7 +167,7 @@ const Reports: React.FC = () => {
               onClick={handleExportPDF}
               className="p-2 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
-              <Icon icon="tabler:file-type-pdf" className="w-4 h-4" />
+              <HugeiconsIcon icon={FileIcon} size={16} />
             </button>
           </div>
 
@@ -193,23 +216,23 @@ const Reports: React.FC = () => {
             <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Report Type</label>
             <div className="space-y-1">
               {[
-                { id: 'overview', label: 'Overview', icon: 'tabler:dashboard' },
-                { id: 'technician', label: 'Technician Performance', icon: 'tabler:users' },
-                { id: 'workorder', label: 'Work Order Analysis', icon: 'tabler:clipboard-list' },
-                { id: 'asset', label: 'Asset Reports', icon: 'tabler:car' },
-                { id: 'financial', label: 'Financial Summary', icon: 'tabler:currency-dollar' },
-                { id: 'inventory', label: 'Inventory Reports', icon: 'tabler:package' },
+                { id: 'overview', label: 'Overview', icon: Home01Icon },
+                { id: 'fleet', label: 'Fleet Overview', icon: Car01Icon },
+                { id: 'technician', label: 'Technician Performance', icon: UserIcon },
+                { id: 'workorder', label: 'Work Order Analysis', icon: ClipboardIcon },
+                { id: 'asset', label: 'Asset Reports', icon: Car01Icon },
+                { id: 'financial', label: 'Financial Summary', icon: TagIcon },
+                { id: 'inventory', label: 'Inventory Reports', icon: PackageIcon },
               ].map((report) => (
                 <button
                   key={report.id}
                   onClick={() => setReportType(report.id as ReportType)}
-                  className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${
-                    reportType === report.id
-                      ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium'
-                      : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
-                  }`}
+                  className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${reportType === report.id
+                    ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
+                    }`}
                 >
-                  <Icon icon={report.icon} className="w-4 h-4" />
+                  <HugeiconsIcon icon={report.icon} size={16} />
                   {report.label}
                 </button>
               ))}
@@ -225,14 +248,14 @@ const Reports: React.FC = () => {
               onClick={handleExportPDF}
               className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
             >
-              <Icon icon="tabler:file-type-pdf" className="w-4 h-4" />
+              <HugeiconsIcon icon={FileIcon} size={16} />
               Export PDF
             </button>
             <button
               onClick={handleExportExcel}
               className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
             >
-              <Icon icon="tabler:file-spreadsheet" className="w-4 h-4" />
+              <HugeiconsIcon icon={FileIcon} size={16} />
               Export Excel
             </button>
           </div>
@@ -258,17 +281,19 @@ const Reports: React.FC = () => {
             <div>
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {reportType === 'overview' ? 'Overview Report' :
-                 reportType === 'technician' ? 'Technician Performance' :
-                 reportType === 'workorder' ? 'Work Order Analysis' :
-                 reportType === 'asset' ? 'Asset Reports' : 
-                 reportType === 'financial' ? 'Financial Summary' : 'Inventory Reports'}
+                  reportType === 'technician' ? 'Technician Performance' :
+                    reportType === 'workorder' ? 'Work Order Analysis' :
+                      reportType === 'asset' ? 'Asset Reports' :
+                        reportType === 'fleet' ? 'Fleet Overview' :
+                          reportType === 'financial' ? 'Financial Summary' : 'Inventory Reports'}
               </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 {reportType === 'overview' ? 'Comprehensive insights and performance metrics' :
-                 reportType === 'technician' ? 'Individual technician performance analysis' :
-                 reportType === 'workorder' ? 'Work order trends and patterns' :
-                 reportType === 'asset' ? 'Asset maintenance and service history' : 
-                 reportType === 'financial' ? 'Revenue and cost analysis' : 'Inventory valuation, movement, and analytics'}
+                  reportType === 'technician' ? 'Individual technician performance analysis' :
+                    reportType === 'workorder' ? 'Work order trends and patterns' :
+                      reportType === 'asset' ? 'Asset maintenance and service history' :
+                        reportType === 'fleet' ? 'Fleet status, health, and availability metrics' :
+                          reportType === 'financial' ? 'Revenue and cost analysis' : 'Inventory valuation, movement, and analytics'}
               </p>
             </div>
           </div>
@@ -283,6 +308,13 @@ const Reports: React.FC = () => {
               vehicles={vehicles || []}
               startDate={startDate}
               endDate={endDate}
+            />
+          )}
+
+          {reportType === 'fleet' && (
+            <FleetOverviewReport
+              vehicles={vehicles || []}
+              workOrders={workOrders || []}
             />
           )}
 
@@ -326,7 +358,7 @@ const CHART_COLORS = {
   primary: professionalColors.chart.primary,
   extended: professionalColors.chart.extended,
   gradients: professionalColors.chart.gradients,
-  
+
   // Semantic colors for specific use cases
   steelBlue: professionalColors.steelBlue[500],
   safetyOrange: professionalColors.safetyOrange[500],
@@ -334,13 +366,13 @@ const CHART_COLORS = {
   maintenanceYellow: professionalColors.maintenanceYellow[500],
   warningRed: professionalColors.warningRed[500],
   machineryGray: professionalColors.machineryGray[500],
-  
+
   // Status colors
   pending: professionalColors.maintenanceYellow[500],
   inProgress: professionalColors.steelBlue[500],
   completed: professionalColors.industrialGreen[500],
   onHold: professionalColors.safetyOrange[500],
-  
+
   // Priority colors
   urgent: professionalColors.warningRed[600],
   high: professionalColors.safetyOrange[600],
@@ -362,12 +394,12 @@ const OverviewReport: React.FC<{
     const inProgress = workOrders.filter(wo => wo.status === 'in_progress').length;
     const pending = workOrders.filter(wo => wo.status === 'pending').length;
     const onHold = workOrders.filter(wo => wo.status === 'on_hold').length;
-    
+
     const completionRate = total > 0 ? ((completed / total) * 100).toFixed(1) : '0';
-    
+
     const totalCost = workOrders.reduce((sum, wo) => sum + (wo.total_cost || 0), 0);
     const avgCost = total > 0 ? (totalCost / total) : 0;
-    
+
     const activeTechnicians = technicians.filter(t => t.status === 'active').length;
     const totalVehicles = vehicles.length;
 
@@ -404,7 +436,7 @@ const OverviewReport: React.FC<{
   // Timeline data - group by day
   const timelineData = useMemo(() => {
     const grouped: Record<string, { date: string; completed: number; created: number }> = {};
-    
+
     workOrders.forEach(wo => {
       const createdDate = dayjs(wo.created_at).format('MMM DD');
       if (!grouped[createdDate]) {
@@ -416,7 +448,7 @@ const OverviewReport: React.FC<{
       }
     });
 
-    return Object.values(grouped).sort((a, b) => 
+    return Object.values(grouped).sort((a, b) =>
       dayjs(a.date, 'MMM DD').valueOf() - dayjs(b.date, 'MMM DD').valueOf()
     );
   }, [workOrders]);
@@ -429,7 +461,7 @@ const OverviewReport: React.FC<{
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Work Orders</span>
             <div className="p-2 bg-primary-50 dark:bg-primary-900/30 rounded-lg">
-              <Icon icon="tabler:clipboard-check" className="text-primary-600 dark:text-primary-400" width={20} height={20} />
+              <HugeiconsIcon icon={ClipboardIcon} size={20} className="text-primary-600 dark:text-primary-400" />
             </div>
           </div>
           <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</div>
@@ -442,7 +474,7 @@ const OverviewReport: React.FC<{
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Completion Rate</span>
             <div className="p-2 bg-green-50 dark:bg-green-900/30 rounded-lg">
-              <Icon icon="tabler:circle-check" className="text-green-600 dark:text-green-400" width={20} height={20} />
+              <HugeiconsIcon icon={CheckmarkCircle01Icon} size={20} className="text-green-600 dark:text-green-400" />
             </div>
           </div>
           <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.completionRate}%</div>
@@ -455,7 +487,7 @@ const OverviewReport: React.FC<{
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Revenue</span>
             <div className="p-2 bg-green-50 dark:bg-green-900/30 rounded-lg">
-              <Icon icon="tabler:currency-dollar" className="text-green-600 dark:text-green-400" width={20} height={20} />
+              <HugeiconsIcon icon={CoinsDollarIcon} size={20} className="text-green-600 dark:text-green-400" />
             </div>
           </div>
           <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">
@@ -470,7 +502,7 @@ const OverviewReport: React.FC<{
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Technicians</span>
             <div className="p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
-              <Icon icon="tabler:tool" className="text-purple-600 dark:text-purple-400" width={20} height={20} />
+              <HugeiconsIcon icon={Wrench01Icon} size={20} className="text-purple-600 dark:text-purple-400" />
             </div>
           </div>
           <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.activeTechnicians}</div>
@@ -485,7 +517,7 @@ const OverviewReport: React.FC<{
         {/* Status Distribution Pie Chart */}
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-            <Icon icon="tabler:chart-pie" className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+            <HugeiconsIcon icon={Chart01Icon} size={20} className="text-primary-600 dark:text-primary-400" />
             Status Distribution
           </h3>
           <ReactECharts
@@ -534,7 +566,7 @@ const OverviewReport: React.FC<{
         {/* Priority Distribution Bar Chart */}
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-            <Icon icon="tabler:chart-bar" className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+            <HugeiconsIcon icon={ChartHistogramIcon} size={20} className="text-primary-600 dark:text-primary-400" />
             Priority Distribution
           </h3>
           <ReactECharts
@@ -566,7 +598,7 @@ const OverviewReport: React.FC<{
                   type: 'bar',
                   data: priorityChartData.map(item => ({
                     value: item.count,
-                    itemStyle: { 
+                    itemStyle: {
                       color: item.color,
                       borderRadius: [8, 8, 0, 0],
                     },
@@ -583,7 +615,7 @@ const OverviewReport: React.FC<{
       {/* Timeline Chart */}
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-          <Icon icon="tabler:chart-line" className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+          <HugeiconsIcon icon={ChartLineData01Icon} size={20} className="text-primary-600 dark:text-primary-400" />
           Work Orders Timeline
         </h3>
         <ReactECharts
@@ -714,7 +746,7 @@ const TechnicianPerformanceReport: React.FC<{
       {/* Performance Comparison Chart */}
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6 mb-6">
         <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-          <Icon icon="tabler:chart-bar" className="w-5 h-5 text-primary-600 dark:text-primary-400" />
+          <HugeiconsIcon icon={ChartHistogramIcon} size={20} className="text-primary-600 dark:text-primary-400" />
           Technician Performance Comparison
         </h3>
         <ReactECharts
@@ -774,18 +806,17 @@ const TechnicianPerformanceReport: React.FC<{
             <div className="flex items-start justify-between mb-4">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
-                  <Icon icon="tabler:tool" className="w-6 h-6 text-primary-600 dark:text-primary-400" />
+                  <HugeiconsIcon icon={Wrench01Icon} size={24} className="text-primary-600 dark:text-primary-400" />
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{tech.name}</h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400">{tech.specialization}</p>
                 </div>
               </div>
-              <span className={`px-3 py-1 rounded text-xs font-medium ${
-                tech.status === 'active' 
-                  ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' 
-                  : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
-              }`}>
+              <span className={`px-3 py-1 rounded text-xs font-medium ${tech.status === 'active'
+                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                }`}>
                 {tech.status}
               </span>
             </div>
@@ -879,7 +910,7 @@ const WorkOrderAnalysisReport: React.FC<{
       {/* Service Type Bar Chart */}
       <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <Icon icon="tabler:chart-bar" className="w-5 h-5 text-primary-600" />
+          <HugeiconsIcon icon={ChartHistogramIcon} size={20} className="text-primary-600" />
           Work Orders by Service Type
         </h3>
         <ReactECharts
@@ -924,7 +955,7 @@ const WorkOrderAnalysisReport: React.FC<{
         {/* Status Distribution */}
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Icon icon="tabler:chart-pie" className="w-5 h-5 text-primary-600" />
+            <HugeiconsIcon icon={Chart01Icon} size={20} className="text-primary-600" />
             By Status
           </h3>
           <ReactECharts
@@ -973,7 +1004,7 @@ const WorkOrderAnalysisReport: React.FC<{
         {/* Priority List */}
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Icon icon="tabler:flag" className="w-5 h-5 text-primary-600" />
+            <HugeiconsIcon icon={FlagIcon} size={20} className="text-primary-600" />
             By Priority
           </h3>
           <div className="space-y-3">
@@ -999,7 +1030,7 @@ const WorkOrderAnalysisReport: React.FC<{
                     <div className="w-full bg-white/50 rounded-full h-2">
                       <div
                         className="h-2 rounded-full"
-                        style={{ 
+                        style={{
                           width: `${percentage}%`,
                           backgroundColor: colors.bar
                         }}
@@ -1025,7 +1056,7 @@ const AssetReport: React.FC<{
     return vehicles.map(vehicle => {
       const vehicleWorkOrders = workOrders.filter(wo => wo.vehicle_id === vehicle.id);
       const totalCost = vehicleWorkOrders.reduce((sum, wo) => sum + (wo.total_cost || 0), 0);
-      
+
       return {
         ...vehicle,
         workOrderCount: vehicleWorkOrders.length,
@@ -1048,7 +1079,7 @@ const AssetReport: React.FC<{
       {/* Top Vehicles Chart */}
       <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <Icon icon="tabler:chart-bar" className="w-5 h-5 text-primary-600" />
+          <HugeiconsIcon icon={ChartHistogramIcon} size={20} className="text-primary-600" />
           Top 10 Vehicles by Service Frequency
         </h3>
         <ReactECharts
@@ -1104,7 +1135,7 @@ const AssetReport: React.FC<{
       {/* Detailed Table */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <Icon icon="tabler:table" className="w-5 h-5 text-primary-600" />
+          <HugeiconsIcon icon={TableIcon} size={20} className="text-primary-600" />
           All Vehicles Service History
         </h3>
         <div className="overflow-x-auto">
@@ -1122,18 +1153,17 @@ const AssetReport: React.FC<{
               {vehicleStats.slice(0, 20).map((vehicle, index) => (
                 <tr key={vehicle.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
                   <td className="py-3 px-4">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${
-                      index === 0 ? 'bg-yellow-100 text-yellow-700' :
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${index === 0 ? 'bg-yellow-100 text-yellow-700' :
                       index === 1 ? 'bg-gray-100 text-gray-700' :
-                      index === 2 ? 'bg-orange-100 text-orange-700' :
-                      'bg-gray-50 text-gray-600'
-                    }`}>
+                        index === 2 ? 'bg-orange-100 text-orange-700' :
+                          'bg-gray-50 text-gray-600'
+                      }`}>
                       {index + 1}
                     </div>
                   </td>
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-2">
-                      <Icon icon="tabler:car" className="w-4 h-4 text-gray-400" />
+                      <HugeiconsIcon icon={Car01Icon} size={16} className="text-gray-400" />
                       <span className="text-sm font-medium text-gray-900">{vehicle.registration_number}</span>
                     </div>
                   </td>
@@ -1171,11 +1201,11 @@ const FinancialReport: React.FC<{
     const totalRevenue = workOrders.reduce((sum, wo) => sum + (wo.total_cost || 0), 0);
     const totalLabor = workOrders.reduce((sum, wo) => sum + (wo.labor_cost || 0), 0);
     const totalParts = workOrders.reduce((sum, wo) => sum + (wo.parts_cost || 0), 0);
-    
+
     const completedRevenue = workOrders
       .filter(wo => wo.status === 'completed')
       .reduce((sum, wo) => sum + (wo.total_cost || 0), 0);
-    
+
     const pendingRevenue = workOrders
       .filter(wo => wo.status === 'pending' || wo.status === 'in_progress')
       .reduce((sum, wo) => sum + (wo.total_cost || 0), 0);
@@ -1210,7 +1240,7 @@ const FinancialReport: React.FC<{
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-600">Total Revenue</span>
             <div className="p-2 bg-gray-50 rounded-lg">
-              <Icon icon="tabler:currency-dollar" className="text-gray-600" width={20} height={20} />
+              <HugeiconsIcon icon={CoinsDollarIcon} size={20} className="text-gray-600" />
             </div>
           </div>
           <div className="text-3xl font-bold text-gray-900">
@@ -1222,7 +1252,7 @@ const FinancialReport: React.FC<{
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-600">Completed Revenue</span>
             <div className="p-2 bg-green-50 rounded-lg">
-              <Icon icon="tabler:circle-check" className="text-green-600" width={20} height={20} />
+              <HugeiconsIcon icon={CheckmarkCircle01Icon} size={20} className="text-green-600" />
             </div>
           </div>
           <div className="text-3xl font-bold text-green-600">
@@ -1234,7 +1264,7 @@ const FinancialReport: React.FC<{
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-600">Pending Revenue</span>
             <div className="p-2 bg-yellow-50 rounded-lg">
-              <Icon icon="tabler:clock" className="text-yellow-600" width={20} height={20} />
+              <HugeiconsIcon icon={Clock01Icon} size={20} className="text-yellow-600" />
             </div>
           </div>
           <div className="text-3xl font-bold text-yellow-600">
@@ -1248,7 +1278,7 @@ const FinancialReport: React.FC<{
         {/* Revenue Breakdown Pie Chart */}
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Icon icon="tabler:chart-pie" className="w-5 h-5 text-primary-600" />
+            <HugeiconsIcon icon={Chart01Icon} size={20} className="text-primary-600" />
             Revenue by Status
           </h3>
           <ReactECharts
@@ -1300,7 +1330,7 @@ const FinancialReport: React.FC<{
         {/* Cost Breakdown Pie Chart */}
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <Icon icon="tabler:chart-donut" className="w-5 h-5 text-primary-600" />
+            <HugeiconsIcon icon={Chart01Icon} size={20} className="text-primary-600" />
             Cost Breakdown
           </h3>
           <ReactECharts
@@ -1353,7 +1383,7 @@ const FinancialReport: React.FC<{
       {/* Detailed Breakdown */}
       <div className="bg-white border border-gray-200 rounded-lg p-6">
         <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <Icon icon="tabler:receipt" className="w-5 h-5 text-primary-600" />
+          <HugeiconsIcon icon={ReceiptDollarIcon} size={20} className="text-primary-600" />
           Detailed Cost Analysis
         </h3>
         <div className="space-y-4">
@@ -1367,7 +1397,7 @@ const FinancialReport: React.FC<{
             <div className="w-full bg-gray-200 rounded-full h-3">
               <div
                 className="h-3 rounded-full transition-all"
-                style={{ 
+                style={{
                   width: `${(financialStats.totalLabor / financialStats.totalRevenue) * 100}%`,
                   backgroundColor: CHART_COLORS.steelBlue
                 }}
@@ -1388,7 +1418,7 @@ const FinancialReport: React.FC<{
             <div className="w-full bg-gray-200 rounded-full h-3">
               <div
                 className="h-3 rounded-full transition-all"
-                style={{ 
+                style={{
                   width: `${(financialStats.totalParts / financialStats.totalRevenue) * 100}%`,
                   backgroundColor: CHART_COLORS.industrialGreen
                 }}
@@ -1410,6 +1440,117 @@ const FinancialReport: React.FC<{
               </span>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+
+// Fleet Overview Report
+const FleetOverviewReport: React.FC<{
+  vehicles: Vehicle[];
+  workOrders: WorkOrder[];
+}> = ({ vehicles, workOrders }) => {
+  const stats = useMemo(() => {
+    const total = vehicles.length;
+    const active = vehicles.filter(v => v.status === 'Active').length;
+    const maintenance = vehicles.filter(v => v.status === 'Maintenance').length;
+    const outOfService = vehicles.filter(v => v.status === 'Out of Service').length;
+
+    // Calculate availability rate
+    const availabilityRate = total > 0 ? ((active / total) * 100).toFixed(1) : '0';
+
+    // Calculate average age (mock calculation based on year)
+    const currentYear = new Date().getFullYear();
+    const totalAge = vehicles.reduce((sum, v) => sum + (currentYear - (v.year || currentYear)), 0);
+    const avgAge = total > 0 ? (totalAge / total).toFixed(1) : '0';
+
+    return { total, active, maintenance, outOfService, availabilityRate, avgAge };
+  }, [vehicles]);
+
+  // Status Chart Data
+  const statusData = useMemo(() => [
+    { name: 'Active', value: stats.active, color: CHART_COLORS.industrialGreen },
+    { name: 'Maintenance', value: stats.maintenance, color: CHART_COLORS.maintenanceYellow },
+    { name: 'Out of Service', value: stats.outOfService, color: CHART_COLORS.warningRed },
+  ], [stats]);
+
+  return (
+    <div className="space-y-6">
+      {/* Metrics Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Total Fleet */}
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Fleet Size</span>
+            <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+              <HugeiconsIcon icon={TruckIcon} size={20} className="text-blue-600 dark:text-blue-400" />
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</div>
+        </div>
+
+        {/* Availability Rate */}
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Availability Rate</span>
+            <div className="p-2 bg-green-50 dark:bg-green-900/30 rounded-lg">
+              <HugeiconsIcon icon={Activity01Icon} size={20} className="text-green-600 dark:text-green-400" />
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.availabilityRate}%</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{stats.active} vehicles available</div>
+        </div>
+
+        {/* In Maintenance */}
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">In Maintenance</span>
+            <div className="p-2 bg-yellow-50 dark:bg-yellow-900/30 rounded-lg">
+              <HugeiconsIcon icon={Wrench01Icon} size={20} className="text-yellow-600 dark:text-yellow-400" />
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.maintenance}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1"> Currently being serviced</div>
+        </div>
+
+        {/* Average Age */}
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Average Age</span>
+            <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <HugeiconsIcon icon={CalendarCheckIn01Icon} size={20} className="text-gray-600 dark:text-gray-400" />
+            </div>
+          </div>
+          <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.avgAge}</div>
+          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Years</div>
+        </div>
+      </div>
+
+      {/* Charts */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Status Distribution */}
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+            <HugeiconsIcon icon={Chart01Icon} size={20} className="text-primary-600 dark:text-primary-400" />
+            Fleet Status Distribution
+          </h3>
+          <ReactECharts
+            option={{
+              tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+              legend: { bottom: 0 },
+              series: [{
+                type: 'pie',
+                radius: ['40%', '70%'],
+                avoidLabelOverlap: false,
+                itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
+                label: { show: true, formatter: '{b}: {c}' },
+                data: statusData.map(item => ({ value: item.value, name: item.name, itemStyle: { color: item.color } }))
+              }]
+            }}
+            style={{ height: '300px' }}
+          />
         </div>
       </div>
     </div>

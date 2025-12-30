@@ -1,5 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { Add01Icon, Building01Icon, Cancel01Icon, Tick01Icon } from '@hugeicons/core-free-icons';
+import { Icon } from '@/components/icons/Icon';
 import { useSuppliers, useCreateSupplier } from '@/hooks/useSuppliers';
 import { Supplier } from '@/types/supabase';
 
@@ -111,7 +113,7 @@ export const SupplierSelect: React.FC<SupplierSelectProps> = ({
                 onClick={() => handleSelect(null)}
                 className="w-full px-3 py-2 text-left text-sm text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center gap-2"
               >
-                <Icon icon="tabler:x" className="w-4 h-4" />
+                <HugeiconsIcon icon={Cancel01Icon} size={16} />
                 Clear selection
               </button>
             )}
@@ -141,7 +143,7 @@ export const SupplierSelect: React.FC<SupplierSelectProps> = ({
                     )}
                   </div>
                   {supplier.id === value && (
-                    <Icon icon="tabler:check" className="w-4 h-4 text-purple-600" />
+                    <HugeiconsIcon icon={Tick01Icon} size={16} className="text-purple-600" />
                   )}
                 </button>
               ))
@@ -188,7 +190,7 @@ export const SupplierSelect: React.FC<SupplierSelectProps> = ({
                   onClick={() => setShowCreateForm(true)}
                   className="w-full px-3 py-1.5 text-sm text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/30 rounded flex items-center gap-2"
                 >
-                  <Icon icon="tabler:plus" className="w-4 h-4" />
+                  <HugeiconsIcon icon={Add01Icon} size={16} />
                   Add new supplier
                 </button>
               )}

@@ -1,5 +1,14 @@
 import React from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import { 
+  Add01Icon,
+  CheckmarkCircle01Icon,
+  Loading01Icon,
+  Clock01Icon,
+  Motorbike01Icon,
+  AlertCircleIcon,
+  Cancel01Icon
+} from '@hugeicons/core-free-icons';
 import { WorkOrder, Vehicle, EmergencyBikeAssignment } from '@/types/supabase';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -17,11 +26,11 @@ interface WorkOrderServiceLifecycleCardProps {
 }
 
 const LIFECYCLE_STAGES = [
-  { key: 'Open', label: 'Created', icon: 'tabler:circle-plus' },
-  { key: 'Confirmation', label: 'Confirmed', icon: 'tabler:circle-check' },
-  { key: 'Ready', label: 'Ready', icon: 'tabler:circle-dot' },
-  { key: 'In Progress', label: 'In Progress', icon: 'tabler:progress' },
-  { key: 'Completed', label: 'Completed', icon: 'tabler:circle-check-filled' },
+  { key: 'Open', label: 'Created', icon: Add01Icon },
+  { key: 'Confirmation', label: 'Confirmed', icon: CheckmarkCircle01Icon },
+  { key: 'Ready', label: 'Ready', icon: Clock01Icon },
+  { key: 'In Progress', label: 'In Progress', icon: Loading01Icon },
+  { key: 'Completed', label: 'Completed', icon: CheckmarkCircle01Icon },
 ];
 
 const STATUS_ORDER = ['Open', 'Confirmation', 'Ready', 'In Progress', 'Completed'];
@@ -64,7 +73,7 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
       <div className="px-3 py-2">
         {isOnHold && (
           <div className="mb-2 bg-amber-50 border border-amber-200 rounded px-2 py-1.5 flex items-center gap-1.5">
-            <Icon icon="tabler:clock-pause" className="w-3 h-3 text-amber-600" />
+            <HugeiconsIcon icon={Clock01Icon} size={12} className="text-amber-600" />
             <span className="text-xs font-medium text-amber-700">On Hold</span>
           </div>
         )}
@@ -73,7 +82,7 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
         {emergencyAssignment && emergencyBike && (
           <div className="mb-2 bg-blue-50 border border-blue-200 rounded px-2 py-1.5">
             <div className="flex items-center gap-1.5 mb-0.5">
-              <Icon icon="tabler:motorbike" className="w-3 h-3 text-blue-600" />
+              <HugeiconsIcon icon={Motorbike01Icon} size={12} className="text-blue-600" />
               <span className="text-xs font-medium text-blue-700">Emergency Bike</span>
             </div>
             <p className="text-xs text-blue-800">
@@ -105,7 +114,7 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
                   <div className={`absolute left-[11px] top-6 w-px h-6 ${isCompleted && currentIndex > index ? 'bg-emerald-500' : 'bg-gray-200'}`} />
                 )}
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${bgColor} ${isCurrent ? 'ring-2 ring-blue-500' : ''}`}>
-                  <Icon icon={stage.icon} className={`w-3 h-3 ${iconColor}`} />
+                  <HugeiconsIcon icon={stage.icon} size={12} className={iconColor} />
                 </div>
                 <div className={`pb-4 ${isLast ? 'pb-0' : ''}`}>
                   <p className={`text-xs font-medium ${textColor}`}>{stage.label}</p>

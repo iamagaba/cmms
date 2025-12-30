@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Icon } from '@iconify/react';
+import { HugeiconsIcon } from '@hugeicons/react';
+import {
+  PackageIcon,
+  Cancel01Icon,
+  InformationCircleIcon,
+  Tag01Icon,
+  RulerIcon,
+  Location01Icon,
+  Loading03Icon
+} from '@hugeicons/core-free-icons';
+import { Icon } from '@/components/icons/Icon';
 import { InventoryItem, ItemCategory, UnitOfMeasure } from '@/types/supabase';
 import { CategoryMultiSelect } from './CategoryMultiSelect';
 import { SupplierSelect } from './SupplierSelect';
@@ -143,7 +153,7 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
             <div>
               <div className="flex items-center gap-2">
-                <Icon icon="tabler:package" className="w-6 h-6 text-purple-600" />
+                <HugeiconsIcon icon={PackageIcon} size={24} className="text-purple-600" />
                 <h2 className="text-xl font-semibold text-gray-900">
                   {item ? 'Edit Inventory Item' : 'Add New Inventory Item'}
                 </h2>
@@ -156,7 +166,7 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
               onClick={onClose}
               className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
             >
-              <Icon icon="tabler:x" className="w-5 h-5" />
+              <HugeiconsIcon icon={Cancel01Icon} size={20} />
             </button>
           </div>
 
@@ -167,7 +177,7 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
               {/* Basic Information */}
               <div>
                 <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <Icon icon="tabler:info-circle" className="w-5 h-5 text-purple-600" />
+                  <HugeiconsIcon icon={InformationCircleIcon} size={20} className="text-purple-600" />
                   Basic Information
                 </h3>
                 <div className="space-y-4">
@@ -217,7 +227,7 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
               {/* Categorization */}
               <div>
                 <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <Icon icon="tabler:tags" className="w-5 h-5 text-purple-600" />
+                  <HugeiconsIcon icon={Tag01Icon} size={20} className="text-purple-600" />
                   Categorization
                 </h3>
                 <div className="space-y-4">
@@ -246,7 +256,7 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
               {/* Unit of Measure */}
               <div>
                 <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <Icon icon="tabler:ruler-measure" className="w-5 h-5 text-purple-600" />
+                  <HugeiconsIcon icon={RulerIcon} size={20} className="text-purple-600" />
                   Unit of Measure
                 </h3>
                 <UnitOfMeasureSelect
@@ -260,7 +270,7 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
               {/* Storage Location */}
               <div>
                 <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <Icon icon="tabler:map-pin" className="w-5 h-5 text-purple-600" />
+                  <HugeiconsIcon icon={Location01Icon} size={20} className="text-purple-600" />
                   Storage Location
                 </h3>
                 <StorageLocationFields
@@ -276,7 +286,7 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
               {/* Stock Information */}
               <div>
                 <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <Icon icon="tabler:package" className="w-5 h-5 text-purple-600" />
+                  <HugeiconsIcon icon={PackageIcon} size={20} className="text-purple-600" />
                   Stock Information
                 </h3>
                 <div className="space-y-4">
@@ -401,7 +411,7 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
               disabled={isSaving}
               className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
-              {isSaving && <Icon icon="tabler:loader-2" className="w-4 h-4 animate-spin" />}
+              {isSaving && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin" />}
               {item ? 'Update Item' : 'Create Item'}
             </button>
           </div>

@@ -31,10 +31,10 @@ class SimpleNotificationSystem {
   show(config: EnhancedNotificationConfig): string {
     const id = config.id || `notification-${++this.idCounter}`;
     this.notifications.set(id, { ...config, id });
-    
+
     // Simple console log for now
     console.log(`[${config.type?.toUpperCase() || 'INFO'}] ${config.message}`);
-    
+
     return id;
   }
 
@@ -90,8 +90,8 @@ export const showCriticalNotification = (message: string, config?: Partial<Enhan
 };
 
 export const showActionNotification = (
-  message: string, 
-  actions: NotificationAction[], 
+  message: string,
+  actions: NotificationAction[],
   config?: Partial<EnhancedNotificationConfig>
 ) => {
   return notificationSystem.show({ ...config, message, actions, type: 'user-action' });

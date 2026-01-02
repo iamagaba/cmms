@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   FilterHorizontalIcon,
@@ -17,12 +17,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { Customer, Vehicle, WorkOrder } from "@/types/supabase";
 import { snakeToCamelCase } from "@/utils/data-helpers";
 import { useNavigate } from "react-router-dom";
-import AppBreadcrumb from '@/components/Breadcrumbs';
 import dayjs from "dayjs";
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+import { useMediaQuery } from '@/hooks/tailwind';
+import { ArrowLeft01Icon } from '@hugeicons/core-free-icons';
+
+dayjs.extend(relativeTime);
 
 const CustomersPage = () => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
+  const isMobile = useMediaQuery('(max-width: 768px)');
   const [searchTerm, setSearchTerm] = useState('');
   const [customerTypeFilter, setCustomerTypeFilter] = useState<string>('all');
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -64,7 +69,7 @@ const CustomersPage = () => {
   // Calculate metrics
   const metrics = useMemo(() => {
     if (!customers) return { total: 0, individual: 0, business: 0, fleet: 0 };
-    
+
     return {
       total: customers.length,
       individual: customers.filter(c => c.customerType === 'individual').length,
@@ -76,7 +81,7 @@ const CustomersPage = () => {
   // Filter customers
   const filteredCustomers = useMemo(() => {
     if (!customers) return [];
-    
+
     let filtered = customers;
 
     // Search filter
@@ -84,15 +89,13 @@ const CustomersPage = () => {
       const query = searchTerm.toLowerCase();
       filtered = filtered.filter(c =>
         c.name?.toLowerCase().includes(query) ||
-        c.email?.toLowerCase().includes(query) ||
-        c.phone?.toLowerCase().includes(query) ||
-        c.company?.toLowerCase().includes(query)
+        c.phone?.toLowerCase().includes(query)
       );
     }
 
     // Type filter
     if (customerTypeFilter !== 'all') {
-      filtered = filtered.filter(c => c.customerType === customerTypeFilter);
+      filtered = filtered.filter(c => (c.customerType || c.customer_type) === customerTypeFilter);
     }
 
     return filtered;
@@ -103,7 +106,7 @@ const CustomersPage = () => {
     const customerVehicles = vehicles?.filter(v => v.customerId === customerId) || [];
     const customerWorkOrders = workOrders?.filter(wo => wo.customerId === customerId) || [];
     const openWorkOrders = customerWorkOrders.filter(wo => wo.status !== 'Completed' && wo.status !== 'Cancelled');
-    
+
     return {
       vehicleCount: customerVehicles.length,
       totalWorkOrders: customerWorkOrders.length,
@@ -129,16 +132,15 @@ const CustomersPage = () => {
   return (
     <div className="flex h-screen bg-white dark:bg-gray-950">
       {/* Left Panel - Customer List */}
-      <div className="w-80 border-r border-gray-200 dark:border-gray-800 flex flex-col bg-white dark:bg-gray-900">
+      <div className={`${isMobile ? (selectedCustomerId ? 'hidden' : 'w-full') : 'w-80'} border-r border-gray-200 dark:border-gray-800 flex flex-col bg-white dark:bg-gray-900`}>
         {/* Header */}
         <div className="px-4 py-4 border-b border-gray-200 dark:border-gray-800">
           <div className="flex items-center justify-between mb-3">
             <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Customers</h1>
             <button
               onClick={() => setFiltersOpen(!filtersOpen)}
-              className={`p-2 rounded-lg transition-colors ${
-                filtersOpen ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-              }`}
+              className={`p-2 rounded-lg transition-colors ${filtersOpen ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+                }`}
             >
               <HugeiconsIcon icon={FilterHorizontalIcon} size={16} />
             </button>
@@ -169,9 +171,9 @@ const CustomersPage = () => {
                   className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
                   <option value="all">All Types</option>
-                  <option value="individual">Individual</option>
-                  <option value="business">Business</option>
-                  <option value="fleet">Fleet</option>
+                  <option value="Cash">Cash</option>
+                  <option value="WATU">WATU</option>
+                  <option value="B2B">B2B</option>
                 </select>
               </div>
             </div>
@@ -207,13 +209,12 @@ const CustomersPage = () => {
               {filteredCustomers.map((customer) => {
                 const stats = getCustomerStats(customer.id);
                 const isSelected = selectedCustomerId === customer.id;
-                
+
                 return (
                   <div
                     key={customer.id}
-                    className={`p-4 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${
-                      isSelected ? 'bg-primary-50 dark:bg-primary-900/20 border-r-2 border-primary-500' : ''
-                    }`}
+                    className={`p-4 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${isSelected ? 'bg-primary-50 dark:bg-primary-900/20 border-r-2 border-primary-500' : ''
+                      }`}
                     onClick={() => handleViewDetails(customer.id)}
                   >
                     <div className="flex items-center gap-3">
@@ -225,12 +226,11 @@ const CustomersPage = () => {
                           <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
                             {customer.name}
                           </h3>
-                          <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${
-                            customer.customerType === 'individual' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' :
-                            customer.customerType === 'business' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' :
-                            'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                          }`}>
-                            {customer.customerType || 'Individual'}
+                          <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${(customer.customerType || customer.customer_type) === 'Cash' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' :
+                              (customer.customerType || customer.customer_type) === 'B2B' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' :
+                                'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                            }`}>
+                            {customer.customerType || customer.customer_type || 'Unknown'}
                           </span>
                         </div>
                         <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400">
@@ -251,21 +251,27 @@ const CustomersPage = () => {
       </div>
 
       {/* Right Panel - Customer Details */}
-      <div className="flex-1 flex flex-col bg-white dark:bg-gray-950">
+      <div className={`${isMobile ? (selectedCustomerId ? 'flex-1 w-full' : 'hidden') : 'flex-1'} flex flex-col bg-white dark:bg-gray-950`}>
         {selectedCustomer ? (
           <>
             {/* Header */}
             <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
+                  {isMobile && (
+                    <button
+                      onClick={() => setSelectedCustomerId(null)}
+                      className="mr-2 p-1 -ml-2 text-gray-500 hover:text-gray-900"
+                    >
+                      <HugeiconsIcon icon={ArrowLeft01Icon} size={24} />
+                    </button>
+                  )}
                   <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-primary-700 dark:text-primary-300 font-semibold text-lg">
                     {selectedCustomer.name ? selectedCustomer.name.charAt(0).toUpperCase() : 'C'}
                   </div>
                   <div>
                     <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{selectedCustomer.name}</h2>
-                    {selectedCustomer.company && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{selectedCustomer.company}</p>
-                    )}
+                    {/* Removed company display as it does not exist in type */}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -329,18 +335,7 @@ const CustomersPage = () => {
                         <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{selectedCustomer.phone}</div>
                       </div>
                     )}
-                    {selectedCustomer.email && (
-                      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                        <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Email</div>
-                        <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{selectedCustomer.email}</div>
-                      </div>
-                    )}
-                    {selectedCustomer.address && (
-                      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                        <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Address</div>
-                        <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{selectedCustomer.address}</div>
-                      </div>
-                    )}
+                    {/* Removed Email and Address as they do not exist in type */}
                   </div>
                 </div>
 
@@ -373,11 +368,10 @@ const CustomersPage = () => {
                                   <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                                     {wo.workOrderNumber || `WO-${wo.id.substring(0, 6).toUpperCase()}`}
                                   </span>
-                                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                                    wo.status === 'Completed' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300' :
+                                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${wo.status === 'Completed' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300' :
                                     wo.status === 'In Progress' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300' :
-                                    'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'
-                                  }`}>
+                                      'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'
+                                    }`}>
                                     {wo.status}
                                   </span>
                                 </div>

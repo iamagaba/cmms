@@ -103,6 +103,14 @@ const PRIORITY_CONFIG = {
 const WorkOrdersPage = () => {
   // Component state
   const [view, setView] = useState<WorkOrderView>('table');
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
+  // Default to cards view on mobile
+  useEffect(() => {
+    if (isMobile) {
+      setView('cards');
+    }
+  }, [isMobile]);
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
   const [editingWorkOrder, setEditingWorkOrder] = useState<WorkOrder | null>(null);
   const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
@@ -1149,6 +1157,19 @@ const WorkOrdersPage = () => {
               </div>
             </div>
           </ErrorBoundary>
+
+          {/* Floating Action Button for Mobile */}
+          {isMobile && (
+            <div className="fixed bottom-20 right-4 z-30">
+              <button
+                onClick={onCreateNew}
+                className="flex items-center justify-center w-14 h-14 bg-primary-600 text-white rounded-full shadow-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-transform active:scale-95"
+                aria-label="Create Work Order"
+              >
+                <HugeiconsIcon icon={Add01Icon} size={24} />
+              </button>
+            </div>
+          )}
 
           {/* Work Order Details Drawer */}
           <WorkOrderDetailsDrawer

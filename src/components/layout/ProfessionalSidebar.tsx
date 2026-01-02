@@ -191,17 +191,20 @@ interface ProfessionalSidebarProps {
   className?: string;
   collapsed?: boolean;
   onToggleCollapse?: () => void;
+  onNavigate?: () => void;
 }
 
 interface NavigationItemProps {
   item: NavigationItem;
   isCollapsed: boolean;
   isActive: boolean;
+  onNavigate?: () => void;
 }
 
 interface NavigationSectionProps {
   section: NavigationSection;
   isCollapsed: boolean;
+  onNavigate?: () => void;
 }
 
 // ============================================
@@ -212,6 +215,7 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
   item,
   isCollapsed,
   isActive,
+  onNavigate,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
@@ -241,6 +245,7 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onClick={onNavigate}
     >
       {/* Icon - larger when collapsed for better visibility */}
       <div className={cn(
@@ -339,6 +344,7 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
 const NavigationSectionComponent: React.FC<NavigationSectionProps> = ({
   section,
   isCollapsed,
+  onNavigate,
 }) => {
   const location = useLocation();
 
@@ -356,6 +362,7 @@ const NavigationSectionComponent: React.FC<NavigationSectionProps> = ({
               item={item}
               isCollapsed={isCollapsed}
               isActive={isActive}
+              onNavigate={onNavigate}
             />
           );
         })}
@@ -372,6 +379,7 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
   className,
   collapsed = false,
   onToggleCollapse,
+  onNavigate,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -496,6 +504,7 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
               key={section.id}
               section={section}
               isCollapsed={!isExpanded}
+              onNavigate={onNavigate}
             />
           ))
         ) : (

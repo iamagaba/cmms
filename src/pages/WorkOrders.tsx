@@ -2,24 +2,13 @@ import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import {
   Stack,
   Button,
-  Card,
-  Checkbox,
-  Tabs,
   Menu,
-  Alert,
   Skeleton,
-  Container,
   Title,
   Text,
   Group,
-  Badge,
-  ActionIcon,
-  TextInput,
   MultiSelect,
-  Paper,
-  Box,
-  Grid,
-  ThemeIcon
+  Paper
 } from '@/components/tailwind-components';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -29,33 +18,27 @@ import {
   Alert01Icon,
   RefreshIcon,
   Download01Icon,
-  FilterHorizontalIcon,
+  FilterIcon,
   Cancel01Icon,
   Search01Icon,
   CheckmarkCircle01Icon,
   ArrowDown01Icon,
   ArrowUp01Icon,
   Delete01Icon,
-  GridIcon,
   ListViewIcon,
   Location01Icon,
-  Layers01Icon,
   Tick01Icon,
   Clock01Icon,
   PauseIcon,
   AlertCircleIcon,
   Menu01Icon,
-  MapsIcon,
-  TableIcon,
-  KanbanIcon,
   FilterRemoveIcon,
   UserAdd01Icon,
   LayoutTwoColumnIcon
 } from '@hugeicons/core-free-icons';
 import { useDisclosure, useMediaQuery } from '@/hooks/tailwind';
 import { EnhancedWorkOrderDataTable } from "@/components/EnhancedWorkOrderDataTable";
-import { ALL_COLUMNS, REQUIRED_COLUMNS, OPTIONAL_COLUMNS } from "@/components/work-order-columns-constants";
-import AppBreadcrumb from "@/components/Breadcrumbs";
+import { REQUIRED_COLUMNS, OPTIONAL_COLUMNS } from "@/components/work-order-columns-constants";
 import { WorkOrderDetailsDrawer } from "@/components/WorkOrderDetailsDrawer";
 import { CreateWorkOrderForm } from "@/components/work-orders/CreateWorkOrderForm";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
@@ -83,7 +66,7 @@ import { WorkOrdersMap } from "@/components/maps/WorkOrdersMap";
 dayjs.extend(isBetween);
 dayjs.extend(relativeTime);
 
-type WorkOrderView = 'table' | 'kanban' | 'calendar' | 'map' | 'progress' | 'cards';
+type WorkOrderView = 'table' | 'map' | 'progress';
 
 // Enhanced status and priority configurations
 const STATUS_CONFIG = {
@@ -105,12 +88,6 @@ const WorkOrdersPage = () => {
   const [view, setView] = useState<WorkOrderView>('table');
   const isMobile = useMediaQuery('(max-width: 768px)');
 
-  // Default to cards view on mobile
-  useEffect(() => {
-    if (isMobile) {
-      setView('cards');
-    }
-  }, [isMobile]);
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
   const [editingWorkOrder, setEditingWorkOrder] = useState<WorkOrder | null>(null);
   const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
@@ -133,7 +110,6 @@ const WorkOrdersPage = () => {
 
 
   const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 300);
-  const isMobile = useMediaQuery('(max-width: 768px)');
 
   // Handler to open the new work order form dialog
   const onCreateNew = () => {
@@ -394,8 +370,8 @@ const WorkOrdersPage = () => {
   }, [processedWorkOrders, vehicles, technicians]);
 
   // Filter options
-  const statusOptions = Object.keys(STATUS_CONFIG);
-  const priorityOptions = Object.keys(PRIORITY_CONFIG);
+  const statusOptions = Object.keys(STATUS_CONFIG).map(status => ({ value: status, label: status }));
+  const priorityOptions = Object.keys(PRIORITY_CONFIG).map(priority => ({ value: priority, label: priority }));
   const technicianOptions = technicians?.map(t => ({ value: t.id, label: t.name })) || [];
   const locationOptions = locations?.map(l => ({ value: l.id, label: l.name })) || [];
 
@@ -442,94 +418,7 @@ const WorkOrdersPage = () => {
 
   const handleVisibleColumnsChange = setVisibleColumns;
 
-  // Enhanced Work Order Card Component for Kanban
-  const WorkOrderCard = ({ workOrder }: { workOrder: WorkOrder }) => {
-    const vehicle = vehicles?.find(v => v.id === workOrder.vehicleId);
-    const customer = customers?.find(c => c.id === workOrder.customerId);
-    const technician = technicians?.find(t => t.id === workOrder.assignedTechnicianId);
-    const hasLoaner = !!((workOrder as any).hasActiveLoaner ?? (workOrder as any).has_active_loaner);
-    const isOverdue = workOrder.slaDue && dayjs(workOrder.slaDue).isBefore(dayjs()) && workOrder.status !== 'Completed';
 
-    // Priority styling
-    const priorityStyles: Record<string, { text: string; bg: string; border: string }> = {
-      'High': { text: 'text-red-700', bg: 'bg-red-50', border: 'border-red-200' },
-      'Medium': { text: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-200' },
-      'Low': { text: 'text-emerald-700', bg: 'bg-emerald-50', border: 'border-emerald-200' },
-    };
-    const priorityStyle = priorityStyles[workOrder.priority || 'Medium'] || priorityStyles['Medium'];
-
-    return (
-      <div
-        className="relative group bg-white border border-gray-200 rounded-lg hover:border-gray-300 hover:shadow-sm transition-all cursor-pointer"
-        onClick={() => handleViewDetails(workOrder.id)}
-      >
-        {/* Header */}
-        <div className="px-3 py-2.5 border-b border-gray-100 flex items-center justify-between">
-          <span className="text-sm font-semibold text-primary-600 group-hover:text-primary-700">
-            {workOrder.workOrderNumber || `WO-${workOrder.id.substring(0, 6).toUpperCase()}`}
-          </span>
-          <div className="flex items-center gap-1.5">
-            {hasLoaner && (
-              <span className="px-1.5 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-medium rounded border border-blue-200">
-                LOANER
-              </span>
-            )}
-            {isOverdue && (
-              <span className="px-1.5 py-0.5 bg-red-50 text-red-600 text-[10px] font-medium rounded border border-red-200">
-                OVERDUE
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Body */}
-        <div className="p-3 space-y-2.5">
-          {/* Service Title */}
-          <h3 className="text-sm font-medium text-gray-900 line-clamp-2 capitalize">
-            {workOrder.service || workOrder.description || 'General Service'}
-          </h3>
-
-          {/* Vehicle & Customer */}
-          <div className="space-y-1.5">
-            <div className="flex items-center gap-2 text-xs text-gray-600">
-              <HugeiconsIcon icon={Car01Icon} size={14} className="text-gray-400 flex-shrink-0" />
-              <span className="truncate">
-                {vehicle?.license_plate || 'N/A'}
-                {vehicle?.make && ` • ${vehicle.make}`}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-gray-600">
-              <HugeiconsIcon icon={UserIcon} size={14} className="text-gray-400 flex-shrink-0" />
-              <span className="truncate">
-                {customer?.name || workOrder.customerName || 'N/A'}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="px-3 py-2 bg-gray-50 border-t border-gray-100 flex items-center justify-between">
-          <div className="flex items-center gap-2 min-w-0">
-            {technician ? (
-              <>
-                <div className="w-5 h-5 rounded bg-primary-100 flex items-center justify-center flex-shrink-0">
-                  <span className="text-[9px] font-semibold text-primary-700">
-                    {technician.name.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-                <span className="text-xs text-gray-600 truncate">{technician.name}</span>
-              </>
-            ) : (
-              <span className="text-xs text-gray-400 italic">Unassigned</span>
-            )}
-          </div>
-          <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${priorityStyle.text} ${priorityStyle.bg} ${priorityStyle.border}`}>
-            {workOrder.priority || 'Medium'}
-          </span>
-        </div>
-      </div>
-    );
-  };
 
   // Define pageActions for AppBreadcrumb (e.g., bulk actions, add button)
   const pageActions = (
@@ -576,12 +465,12 @@ const WorkOrdersPage = () => {
           {/* Header Skeleton */}
           <div className="flex justify-between items-start">
             <div>
-              <Skeleton height={32} width={180} radius="md" />
-              <Skeleton height={16} width={280} radius="md" mt={8} />
+              <Skeleton height="32px" width="180px" radius="md" />
+              <Skeleton height="16px" width="280px" radius="md" mt={8} />
             </div>
             <div className="flex gap-2">
-              <Skeleton height={36} width={100} radius="md" />
-              <Skeleton height={36} width={140} radius="md" />
+              <Skeleton height="36px" width="100px" radius="md" />
+              <Skeleton height="36px" width="140px" radius="md" />
             </div>
           </div>
 
@@ -591,10 +480,10 @@ const WorkOrdersPage = () => {
               <div key={i} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
                 <div className="flex justify-between">
                   <div>
-                    <Skeleton height={14} width={60} radius="md" />
-                    <Skeleton height={28} width={40} radius="md" mt={8} />
+                    <Skeleton height="14px" width="60px" radius="md" />
+                    <Skeleton height="28px" width="40px" radius="md" mt={8} />
                   </div>
-                  <Skeleton height={48} width={48} radius="lg" />
+                  <Skeleton height="48px" width="48px" radius="lg" />
                 </div>
               </div>
             ))}
@@ -602,22 +491,22 @@ const WorkOrdersPage = () => {
 
           {/* Search Skeleton */}
           <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-            <Skeleton height={44} radius="lg" />
+            <Skeleton height="44px" radius="lg" />
           </div>
 
           {/* Table Skeleton */}
           <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
             <div className="p-4 border-b border-gray-100 dark:border-gray-800">
-              <Skeleton height={32} width={200} radius="md" />
+              <Skeleton height="32px" width="200px" radius="md" />
             </div>
             <div className="divide-y divide-gray-100 dark:divide-gray-800">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="p-4 flex items-center gap-4">
-                  <Skeleton height={40} width={4} radius="md" />
-                  <Skeleton height={16} width={100} radius="md" />
-                  <Skeleton height={16} width={200} radius="md" className="flex-1" />
-                  <Skeleton height={24} width={80} radius="md" />
-                  <Skeleton height={16} width={60} radius="md" />
+                  <Skeleton height="40px" width="4px" radius="md" />
+                  <Skeleton height="16px" width="100px" radius="md" />
+                  <Skeleton height="16px" width="200px" radius="md" className="flex-1" />
+                  <Skeleton height="24px" width="80px" radius="md" />
+                  <Skeleton height="16px" width="60px" radius="md" />
                 </div>
               ))}
             </div>
@@ -629,18 +518,14 @@ const WorkOrdersPage = () => {
 
   return (
     <ErrorBoundary>
-      <div className="w-full h-screen flex flex-col bg-white dark:bg-gray-950">
+      <div className="w-full h-[calc(100vh-2rem)] flex flex-col bg-white dark:bg-gray-950 overflow-hidden">
         <Stack gap="md" className="flex-1 flex flex-col overflow-hidden">
-          {/* Page Header */}
-          <div className="flex-none px-6 pt-4 pb-4 border-b border-gray-200 dark:border-gray-800">
-            <div className="flex items-center justify-between">
-              <div>
-                <Title order={1} className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                  Work Orders
-                </Title>
-              </div>
-
-              <Group gap="sm">
+          <div className="flex-none px-6 pt-6 pb-2">
+            <div className="flex items-center justify-between mb-4">
+              <Title order={1} className="text-xl font-bold font-brand text-gray-900 dark:text-gray-100">
+                Work Orders
+              </Title>
+              <div className="flex items-center gap-2">
                 <Button
                   variant="subtle"
                   size="sm"
@@ -650,83 +535,132 @@ const WorkOrdersPage = () => {
                 >
                   <HugeiconsIcon icon={Download01Icon} size={18} />
                 </Button>
-                <Button
-                  variant={filtersOpened ? 'light' : 'subtle'}
-                  size="sm"
-                  onClick={toggleFilters}
-                  className={filtersOpened ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'}
-                >
-                  <Group gap="xs">
-                    <HugeiconsIcon icon={FilterHorizontalIcon} size={18} />
-                    <span>Filters</span>
-                    {hasActiveFilters && (
-                      <span className="inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-primary-600 dark:bg-primary-500 text-white text-[10px] font-semibold">
-                        {[searchQuery, statusFilter.length > 0, priorityFilter.length > 0, technicianFilter.length > 0, locationFilter.length > 0].filter(Boolean).length}
-                      </span>
-                    )}
-                  </Group>
-                </Button>
+                <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
+                  <button
+                    onClick={() => setView('table')}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all ${view === 'table'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-900'
+                      }`}
+                  >
+                    <HugeiconsIcon icon={ListViewIcon} size={14} />
+                    Table
+                  </button>
+                  <button
+                    onClick={() => setView('map')}
+                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all ${view === 'map'
+                      ? 'bg-white text-gray-900 shadow-sm'
+                      : 'text-gray-500 hover:text-gray-900'
+                      }`}
+                  >
+                    <HugeiconsIcon icon={Location01Icon} size={14} />
+                    Map
+                  </button>
+                </div>
                 <button
                   onClick={onCreateNew}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors ml-2"
                 >
                   <HugeiconsIcon icon={Add01Icon} size={16} />
                   <span>{isMobile ? 'New' : 'New Work Order'}</span>
                 </button>
-              </Group>
+              </div>
+            </div>
+
+            {/* Command Bar */}
+            <div className="flex items-center gap-3">
+              <div className="relative flex-1">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <HugeiconsIcon icon={Search01Icon} size={16} className="text-gray-400 dark:text-gray-500" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  className="w-full pl-9 pr-4 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg text-sm font-ui focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                  >
+                    <HugeiconsIcon icon={Cancel01Icon} size={14} />
+                  </button>
+                )}
+              </div>
+              <Button
+                variant={filtersOpened ? 'light' : 'subtle'}
+                size="sm"
+                onClick={toggleFilters}
+                className={`border ${filtersOpened ? 'border-primary-200 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+              >
+                <Group gap="xs">
+                  <HugeiconsIcon icon={FilterIcon} size={16} />
+                  <span>Filters</span>
+                  {hasActiveFilters && (
+                    <span className="inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-primary-600 dark:bg-primary-500 text-white text-[10px] font-semibold">
+                      {[searchQuery, statusFilter.length > 0, priorityFilter.length > 0, technicianFilter.length > 0, locationFilter.length > 0].filter(Boolean).length}
+                    </span>
+                  )}
+                </Group>
+              </Button>
             </div>
           </div>
 
-          {/* Active Filters Display - Always visible when filters are active */}
+
+
+          {/* Active Filters Display - "Ribbon" Style */}
           {hasActiveFilters && !filtersOpened && (
-            <div className="flex flex-wrap items-center gap-2 px-1">
-              <span className="text-xs text-gray-500 dark:text-gray-400">Active filters:</span>
+            <div className="flex flex-wrap items-center gap-2 px-6 pb-2">
               {statusFilter.map(status => (
-                <span key={status} className="inline-flex items-center gap-1 px-2.5 py-1 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded text-xs font-medium border border-blue-200 dark:border-blue-800">
+                <span key={status} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-md text-xs font-medium border border-purple-200 dark:border-purple-800">
                   {status}
-                  <button onClick={() => setStatusFilter(statusFilter.filter(s => s !== status))} className="hover:text-blue-900 dark:hover:text-blue-100">
-                    <HugeiconsIcon icon={Cancel01Icon} size={12} />
+                  <button onClick={() => setStatusFilter(statusFilter.filter(s => s !== status))} className="hover:text-purple-900 dark:hover:text-purple-100 flex items-center justify-center">
+                    <HugeiconsIcon icon={Cancel01Icon} size={14} />
                   </button>
                 </span>
               ))}
               {priorityFilter.map(priority => (
-                <span key={priority} className="inline-flex items-center gap-1 px-2.5 py-1 bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 rounded text-xs font-medium border border-amber-200 dark:border-amber-800">
+                <span key={priority} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-md text-xs font-medium border border-purple-200 dark:border-purple-800">
                   {priority}
-                  <button onClick={() => setPriorityFilter(priorityFilter.filter(p => p !== priority))} className="hover:text-amber-900 dark:hover:text-amber-100">
-                    <HugeiconsIcon icon={Cancel01Icon} size={12} />
+                  <button onClick={() => setPriorityFilter(priorityFilter.filter(p => p !== priority))} className="hover:text-purple-900 dark:hover:text-purple-100 flex items-center justify-center">
+                    <HugeiconsIcon icon={Cancel01Icon} size={14} />
                   </button>
                 </span>
               ))}
               {technicianFilter.length > 0 && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded text-xs font-medium border border-purple-200 dark:border-purple-800">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-md text-xs font-medium border border-purple-200 dark:border-purple-800">
                   {technicianFilter.length} technician{technicianFilter.length > 1 ? 's' : ''}
-                  <button onClick={() => setTechnicianFilter([])} className="hover:text-purple-900 dark:hover:text-purple-100">
-                    <HugeiconsIcon icon={Cancel01Icon} size={12} />
+                  <button onClick={() => setTechnicianFilter([])} className="hover:text-purple-900 dark:hover:text-purple-100 flex items-center justify-center">
+                    <HugeiconsIcon icon={Cancel01Icon} size={14} />
                   </button>
                 </span>
               )}
               {locationFilter.length > 0 && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 rounded text-xs font-medium border border-emerald-200 dark:border-emerald-800">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-md text-xs font-medium border border-purple-200 dark:border-purple-800">
                   {locationFilter.length} location{locationFilter.length > 1 ? 's' : ''}
-                  <button onClick={() => setLocationFilter([])} className="hover:text-emerald-900 dark:hover:text-emerald-100">
-                    <HugeiconsIcon icon={Cancel01Icon} size={12} />
+                  <button onClick={() => setLocationFilter([])} className="hover:text-purple-900 dark:hover:text-purple-100 flex items-center justify-center">
+                    <HugeiconsIcon icon={Cancel01Icon} size={14} />
                   </button>
                 </span>
               )}
               {searchQuery && (
-                <span className="inline-flex items-center gap-1 px-2.5 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded text-xs font-medium border border-gray-200 dark:border-gray-700">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-md text-xs font-medium border border-gray-200 dark:border-gray-700">
                   Search: {searchQuery}
-                  <button onClick={() => setSearchQuery('')} className="hover:text-gray-900 dark:hover:text-gray-100">
-                    <HugeiconsIcon icon={Cancel01Icon} size={12} />
+                  <button onClick={() => setSearchQuery('')} className="hover:text-gray-900 dark:hover:text-gray-100 flex items-center justify-center">
+                    <HugeiconsIcon icon={Cancel01Icon} size={14} />
                   </button>
                 </span>
               )}
-              <button
-                onClick={clearAllFilters}
-                className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline ml-2"
-              >
-                Clear all
-              </button>
+              {(statusFilter.length > 0 || priorityFilter.length > 0 || technicianFilter.length > 0 || locationFilter.length > 0 || searchQuery) && (
+                <button
+                  onClick={clearAllFilters}
+                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline ml-2"
+                >
+                  Clear all filters
+                </button>
+              )}
             </div>
           )}
 
@@ -734,28 +668,6 @@ const WorkOrdersPage = () => {
           {filtersOpened && (
             <Paper p="md" withBorder className="rounded-lg bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
               <Stack gap="md">
-                {/* Search Bar */}
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <HugeiconsIcon icon={Search01Icon} size={20} className="text-gray-400 dark:text-gray-500" />
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Search by work order #, vehicle, customer, or technician..."
-                    className="w-full pl-11 pr-10 py-3 bg-gray-50 border border-gray-200 rounded-lg text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                  {searchQuery && (
-                    <button
-                      onClick={() => setSearchQuery('')}
-                      className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600"
-                    >
-                      <HugeiconsIcon icon={Cancel01Icon} size={16} />
-                    </button>
-                  )}
-                </div>
-
                 {/* Filter Dropdowns */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div>
@@ -851,13 +763,13 @@ const WorkOrdersPage = () => {
                       </button>
                     </Menu.Target>
                     <Menu.Dropdown>
-                      {statusOptions.map(status => (
+                      {statusOptions.map(option => (
                         <Menu.Item
-                          key={status}
-                          leftSection={<HugeiconsIcon icon={STATUS_CONFIG[status as keyof typeof STATUS_CONFIG]?.icon} size={14} />}
-                          onClick={() => handleBulkStatusUpdate(status)}
+                          key={option.value}
+                          leftSection={<HugeiconsIcon icon={STATUS_CONFIG[option.value as keyof typeof STATUS_CONFIG]?.icon} size={14} />}
+                          onClick={() => handleBulkStatusUpdate(option.value)}
                         >
-                          {status}
+                          {option.label}
                         </Menu.Item>
                       ))}
                     </Menu.Dropdown>
@@ -889,7 +801,7 @@ const WorkOrdersPage = () => {
                   </Menu>
 
                   <button
-                    onClick={handleBulkDelete}
+                    onClick={handleBulkDeleteClick}
                     className="flex items-center gap-2 px-3 py-1.5 bg-white border border-red-200 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
                   >
                     <HugeiconsIcon icon={Delete01Icon} size={16} />
@@ -910,122 +822,89 @@ const WorkOrdersPage = () => {
           {/* View Toggle and Content */}
           <ErrorBoundary>
             <div className="flex-1 flex flex-col overflow-hidden">
-              {/* View Toggle Header */}
-              <div className="flex-none flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gray-50/50">
-                <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
+
+
+              {view === 'table' && (
+                <div className="relative">
                   <button
-                    onClick={() => setView('table')}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all border ${view === 'table'
-                      ? 'bg-white text-gray-900 border-gray-200'
-                      : 'text-gray-600 hover:text-gray-900 border-transparent hover:border-gray-200'
-                      }`}
+                    onClick={() => setColumnMenuOpened(!columnMenuOpened)}
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
                   >
-                    <HugeiconsIcon icon={TableIcon} size={16} />
-                    Table
+                    <HugeiconsIcon icon={LayoutTwoColumnIcon} size={16} />
+                    <span>Columns</span>
+                    <HugeiconsIcon icon={columnMenuOpened ? ArrowUp01Icon : ArrowDown01Icon} size={12} />
                   </button>
-                  <button
-                    onClick={() => setView('cards')}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all border ${view === 'cards'
-                      ? 'bg-white text-gray-900 border-gray-200'
-                      : 'text-gray-600 hover:text-gray-900 border-transparent hover:border-gray-200'
-                      }`}
-                  >
-                    <HugeiconsIcon icon={KanbanIcon} size={16} />
-                    Kanban
-                  </button>
-                  <button
-                    onClick={() => setView('map')}
-                    className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-all border ${view === 'map'
-                      ? 'bg-white text-gray-900 border-gray-200'
-                      : 'text-gray-600 hover:text-gray-900 border-transparent hover:border-gray-200'
-                      }`}
-                  >
-                    <HugeiconsIcon icon={MapsIcon} size={16} />
-                    Map
-                  </button>
-                </div>
 
-                {view === 'table' && (
-                  <div className="relative">
-                    <button
-                      onClick={() => setColumnMenuOpened(!columnMenuOpened)}
-                      className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-                    >
-                      <HugeiconsIcon icon={LayoutTwoColumnIcon} size={16} />
-                      <span>Columns</span>
-                      <HugeiconsIcon icon={columnMenuOpened ? ArrowUp01Icon : ArrowDown01Icon} size={12} />
-                    </button>
+                  {columnMenuOpened && (
+                    <>
+                      {/* Backdrop */}
+                      <div
+                        className="fixed inset-0 z-10"
+                        onClick={() => setColumnMenuOpened(false)}
+                      />
 
-                    {columnMenuOpened && (
-                      <>
-                        {/* Backdrop */}
-                        <div
-                          className="fixed inset-0 z-10"
-                          onClick={() => setColumnMenuOpened(false)}
-                        />
-
-                        {/* Dropdown Menu */}
-                        <div className="absolute right-0 top-full mt-1 z-20 w-56 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
-                          {/* Header */}
-                          <div className="px-3 py-2 bg-gray-50 border-b border-gray-200">
-                            <p className="text-xs font-medium text-gray-700">
-                              Show columns ({visibleColumns.length}/{MAX_VISIBLE_COLUMNS})
-                            </p>
-                          </div>
-
-                          {/* Column List - Only show optional columns */}
-                          <div className="max-h-64 overflow-y-auto py-1">
-                            {OPTIONAL_COLUMNS.map(col => {
-                              const isChecked = visibleColumns.includes(col.value);
-                              const isDisabled = !isChecked && visibleColumns.length >= MAX_VISIBLE_COLUMNS;
-
-                              return (
-                                <button
-                                  key={col.value}
-                                  onClick={() => !isDisabled && toggleColumn(col.value)}
-                                  disabled={isDisabled}
-                                  className={`w-full flex items-center gap-3 px-3 py-2 text-left text-sm transition-colors ${isDisabled
-                                    ? 'cursor-not-allowed opacity-50'
-                                    : 'hover:bg-gray-50 cursor-pointer'
-                                    }`}
-                                >
-                                  {/* Custom Checkbox */}
-                                  <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${isChecked
-                                    ? 'bg-primary-600 border-primary-600'
-                                    : 'border-gray-300 bg-white'
-                                    }`}>
-                                    {isChecked && (
-                                      <HugeiconsIcon icon={Tick01Icon} size={12} className="text-white" />
-                                    )}
-                                  </div>
-
-                                  {/* Label */}
-                                  <span className={isChecked ? 'text-gray-900 font-medium' : 'text-gray-600'}>
-                                    {col.label}
-                                  </span>
-                                </button>
-                              );
-                            })}
-                          </div>
-
-                          {/* Footer */}
-                          <div className="px-3 py-2 bg-gray-50 border-t border-gray-200">
-                            <button
-                              onClick={resetColumnsToDefault}
-                              className="text-xs text-primary-600 hover:text-primary-700 font-medium"
-                            >
-                              Reset to defaults
-                            </button>
-                          </div>
+                      {/* Dropdown Menu */}
+                      <div className="absolute right-0 top-full mt-1 z-20 w-56 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                        {/* Header */}
+                        <div className="px-3 py-2 bg-gray-50 border-b border-gray-200">
+                          <p className="text-xs font-medium text-gray-700">
+                            Show columns ({visibleColumns.length}/{MAX_VISIBLE_COLUMNS})
+                          </p>
                         </div>
-                      </>
-                    )}
-                  </div>
-                )}
-              </div>
+
+                        {/* Column List - Only show optional columns */}
+                        <div className="max-h-64 overflow-y-auto py-1">
+                          {OPTIONAL_COLUMNS.map(col => {
+                            const isChecked = visibleColumns.includes(col.value);
+                            const isDisabled = !isChecked && visibleColumns.length >= MAX_VISIBLE_COLUMNS;
+
+                            return (
+                              <button
+                                key={col.value}
+                                onClick={() => !isDisabled && toggleColumn(col.value)}
+                                disabled={isDisabled}
+                                className={`w-full flex items-center gap-3 px-3 py-2 text-left text-sm transition-colors ${isDisabled
+                                  ? 'cursor-not-allowed opacity-50'
+                                  : 'hover:bg-gray-50 cursor-pointer'
+                                  }`}
+                              >
+                                {/* Custom Checkbox */}
+                                <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${isChecked
+                                  ? 'bg-primary-600 border-primary-600'
+                                  : 'border-gray-300 bg-white'
+                                  }`}>
+                                  {isChecked && (
+                                    <HugeiconsIcon icon={Tick01Icon} size={12} className="text-white" />
+                                  )}
+                                </div>
+
+                                {/* Label */}
+                                <span className={isChecked ? 'text-gray-900 font-medium' : 'text-gray-600'}>
+                                  {col.label}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="px-3 py-2 bg-gray-50 border-t border-gray-200">
+                          <button
+                            onClick={resetColumnsToDefault}
+                            className="text-xs text-primary-600 hover:text-primary-700 font-medium"
+                          >
+                            Reset to defaults
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+
 
               {/* Content Area - No overflow here, let children handle it */}
-              <div className="flex-1 min-h-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400">
+              <div className="flex-1 min-h-0 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent hover:scrollbar-thumb-gray-400 overscroll-y-contain">
                 {view === 'table' && (
                   <EnhancedWorkOrderDataTable
                     workOrders={preset === 'active-loaners' ? processedWorkOrders.filter(wo => (wo as any).hasActiveLoaner ?? (wo as any).has_active_loaner) : processedWorkOrders}
@@ -1042,108 +921,6 @@ const WorkOrdersPage = () => {
                     loading={isLoading}
                     visibleColumns={visibleColumns}
                   />
-                )}
-                {view === 'cards' && (
-                  <div className="flex-1 flex overflow-hidden">
-                    {/* Kanban Board */}
-                    <div className="flex-1 flex gap-4 p-4 overflow-x-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-                      {/* Open Column */}
-                      <div className="flex-shrink-0 w-80 flex flex-col bg-gray-50 rounded-lg border border-gray-200">
-                        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white rounded-t-lg">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded bg-blue-500" />
-                            <span className="text-sm font-semibold text-gray-900">Open</span>
-                          </div>
-                          <span className="px-2 py-0.5 bg-blue-50 text-blue-700 text-xs font-medium rounded border border-blue-200">
-                            {processedWorkOrders.filter(wo => wo.status === 'Open').length}
-                          </span>
-                        </div>
-                        <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-[200px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-                          {processedWorkOrders.filter(wo => wo.status === 'Open').length === 0 ? (
-                            <div className="flex items-center justify-center h-24 text-xs text-gray-400">
-                              No open work orders
-                            </div>
-                          ) : (
-                            processedWorkOrders.filter(wo => wo.status === 'Open').map(workOrder => (
-                              <WorkOrderCard key={workOrder.id} workOrder={workOrder} />
-                            ))
-                          )}
-                        </div>
-                      </div>
-
-                      {/* In Progress Column */}
-                      <div className="flex-shrink-0 w-80 flex flex-col bg-gray-50 rounded-lg border border-gray-200">
-                        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white rounded-t-lg">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded bg-amber-500" />
-                            <span className="text-sm font-semibold text-gray-900">In Progress</span>
-                          </div>
-                          <span className="px-2 py-0.5 bg-amber-50 text-amber-700 text-xs font-medium rounded border border-amber-200">
-                            {processedWorkOrders.filter(wo => wo.status === 'In Progress').length}
-                          </span>
-                        </div>
-                        <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-[200px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-                          {processedWorkOrders.filter(wo => wo.status === 'In Progress').length === 0 ? (
-                            <div className="flex items-center justify-center h-24 text-xs text-gray-400">
-                              No work orders in progress
-                            </div>
-                          ) : (
-                            processedWorkOrders.filter(wo => wo.status === 'In Progress').map(workOrder => (
-                              <WorkOrderCard key={workOrder.id} workOrder={workOrder} />
-                            ))
-                          )}
-                        </div>
-                      </div>
-
-                      {/* On Hold Column */}
-                      <div className="flex-shrink-0 w-80 flex flex-col bg-gray-50 rounded-lg border border-gray-200">
-                        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white rounded-t-lg">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded bg-slate-400" />
-                            <span className="text-sm font-semibold text-gray-900">On Hold</span>
-                          </div>
-                          <span className="px-2 py-0.5 bg-slate-50 text-slate-600 text-xs font-medium rounded border border-slate-200">
-                            {processedWorkOrders.filter(wo => wo.status === 'On Hold').length}
-                          </span>
-                        </div>
-                        <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-[200px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-                          {processedWorkOrders.filter(wo => wo.status === 'On Hold').length === 0 ? (
-                            <div className="flex items-center justify-center h-24 text-xs text-gray-400">
-                              No work orders on hold
-                            </div>
-                          ) : (
-                            processedWorkOrders.filter(wo => wo.status === 'On Hold').map(workOrder => (
-                              <WorkOrderCard key={workOrder.id} workOrder={workOrder} />
-                            ))
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Completed Column */}
-                      <div className="flex-shrink-0 w-80 flex flex-col bg-gray-50 rounded-lg border border-gray-200">
-                        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white rounded-t-lg">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded bg-emerald-500" />
-                            <span className="text-sm font-semibold text-gray-900">Completed</span>
-                          </div>
-                          <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 text-xs font-medium rounded border border-emerald-200">
-                            {processedWorkOrders.filter(wo => wo.status === 'Completed').length}
-                          </span>
-                        </div>
-                        <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-[200px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-                          {processedWorkOrders.filter(wo => wo.status === 'Completed').length === 0 ? (
-                            <div className="flex items-center justify-center h-24 text-xs text-gray-400">
-                              No completed work orders
-                            </div>
-                          ) : (
-                            processedWorkOrders.filter(wo => wo.status === 'Completed').map(workOrder => (
-                              <WorkOrderCard key={workOrder.id} workOrder={workOrder} />
-                            ))
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
                 )}
                 {view === 'map' && (
                   <div className="flex-1 p-4 min-h-[500px]">
@@ -1200,8 +977,8 @@ const WorkOrdersPage = () => {
             isDeleting={isDeleting}
           />
         </Stack>
-      </div>
-    </ErrorBoundary>
+      </div >
+    </ErrorBoundary >
   );
 };
 

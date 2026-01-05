@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/tailwind-components';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
+import {
   Cancel01Icon,
   Tick01Icon,
   ArrowRight01Icon
@@ -19,6 +19,7 @@ import { DetailsSummary } from './summaries/DetailsSummary';
 import { supabase } from '@/integrations/supabase/client';
 import { showSuccess, showError } from '@/utils/toast';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
+import { useRealtimeData } from '@/context/RealtimeDataContext';
 
 interface WorkOrderFormData {
   // Step 1
@@ -50,6 +51,7 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
   initialData
 }) => {
   const queryClient = useQueryClient();
+  const { refreshData } = useRealtimeData();
 
   //State for section tracking
   const [completedSections, setCompletedSections] = useState<number[]>([]);
@@ -192,6 +194,7 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
 
       showSuccess(`Work Order ${workOrderNumber} created successfully!`);
       queryClient.invalidateQueries({ queryKey: ['work-orders'] });
+      await refreshData();
 
       onClose();
     } catch (error: any) {

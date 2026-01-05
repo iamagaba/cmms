@@ -4,13 +4,12 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Settings02Icon,
   Search01Icon,
-  Building01Icon,
   Cancel01Icon,
   UserIcon,
   NoteIcon,
   Tick01Icon,
   Delete01Icon,
-  Location01Icon,
+  Location03Icon,
   ListViewIcon,
   MapsIcon,
   CheckmarkCircle01Icon
@@ -203,9 +202,8 @@ const LocationsPage: React.FC = () => {
               <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Service Centers</h1>
               <button
                 onClick={toggleFilters}
-                className={`p-2 rounded-lg transition-colors ${
-                  showFilters ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-                }`}
+                className={`p-2 rounded-lg transition-colors ${showFilters ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  }`}
               >
                 <HugeiconsIcon icon={Settings02Icon} className="w-4 h-4" />
               </button>
@@ -232,18 +230,17 @@ const LocationsPage: React.FC = () => {
               {filteredLocations.map((location) => {
                 const stats = locationStats.get(location.id);
                 const isSelected = selectedLocation?.id === location.id;
-                
+
                 return (
                   <div
                     key={location.id}
-                    className={`p-4 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${
-                      isSelected ? 'bg-primary-50 dark:bg-primary-900/30 border-r-2 border-primary-500' : ''
-                    }`}
+                    className={`p-4 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${isSelected ? 'bg-primary-50 dark:bg-primary-900/30 border-r-2 border-primary-500' : ''
+                      }`}
                     onClick={() => setSelectedLocation(location)}
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center text-primary-700 dark:text-primary-300 flex-shrink-0">
-                        <HugeiconsIcon icon={Building01Icon} className="w-5 h-5" />
+                        <HugeiconsIcon icon={Location03Icon} className="w-5 h-5" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
@@ -272,7 +269,7 @@ const LocationsPage: React.FC = () => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center text-primary-700 dark:text-primary-300">
-                  <HugeiconsIcon icon={Building01Icon} className="w-6 h-6" />
+                  <HugeiconsIcon icon={Location03Icon} className="w-6 h-6" />
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{selectedLocation.name}</h2>
@@ -332,7 +329,7 @@ const LocationsPage: React.FC = () => {
                 ) : (
                   <div className="h-[300px] flex items-center justify-center bg-gray-50 dark:bg-gray-800">
                     <div className="text-center">
-                      <HugeiconsIcon icon={Location01Icon} className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
+                      <HugeiconsIcon icon={Location03Icon} className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
                       <p className="text-sm text-gray-500 dark:text-gray-400">No coordinates available</p>
                     </div>
                   </div>
@@ -361,11 +358,10 @@ const LocationsPage: React.FC = () => {
                             <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{tech.name}</p>
                             <p className="text-xs text-gray-500 dark:text-gray-400">{tech.email || tech.phone || 'No contact'}</p>
                           </div>
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${
-                            tech.status === 'available' ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' :
+                          <span className={`px-2 py-1 rounded text-xs font-medium ${tech.status === 'available' ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' :
                             tech.status === 'busy' ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' :
-                            'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
-                          }`}>
+                              'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
+                            }`}>
                             {tech.status || 'offline'}
                           </span>
                         </div>
@@ -428,17 +424,15 @@ const LocationsPage: React.FC = () => {
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setViewMode('list')}
-                className={`p-2 rounded-lg transition-colors ${
-                  viewMode === 'list' ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-                }`}
+                className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  }`}
               >
                 <HugeiconsIcon icon={ListViewIcon} className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setViewMode('map')}
-                className={`p-2 rounded-lg transition-colors ${
-                  viewMode === 'map' ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-                }`}
+                className={`p-2 rounded-lg transition-colors ${viewMode === 'map' ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+                  }`}
               >
                 <HugeiconsIcon icon={MapsIcon} className="w-4 h-4" />
               </button>
@@ -465,7 +459,7 @@ const LocationsPage: React.FC = () => {
           {filteredLocations.length === 0 ? (
             <div className="p-6 text-center">
               <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3">
-                <HugeiconsIcon icon={Location01Icon} className="w-6 h-6 text-gray-400" />
+                <HugeiconsIcon icon={Location03Icon} className="w-6 h-6 text-gray-400" />
               </div>
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No locations found</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">Add your first service center</p>
@@ -474,7 +468,7 @@ const LocationsPage: React.FC = () => {
             <div className="divide-y divide-gray-100 dark:divide-gray-800">
               {filteredLocations.map((location) => {
                 const stats = locationStats.get(location.id);
-                
+
                 return (
                   <div
                     key={location.id}
@@ -483,7 +477,7 @@ const LocationsPage: React.FC = () => {
                   >
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center text-primary-700 dark:text-primary-300 flex-shrink-0">
-                        <HugeiconsIcon icon={Building01Icon} className="w-5 h-5" />
+                        <HugeiconsIcon icon={Location03Icon} className="w-5 h-5" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
@@ -521,7 +515,7 @@ const LocationsPage: React.FC = () => {
               <div className="grid grid-cols-4 divide-x divide-gray-200 dark:divide-gray-800">
                 <div className="px-6 py-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <HugeiconsIcon icon={Building01Icon} className="w-4 h-4 text-primary-600 dark:text-primary-400" />
+                    <HugeiconsIcon icon={Location03Icon} className="w-4 h-4 text-primary-600 dark:text-primary-400" />
                     <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Centers</p>
                   </div>
                   <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{overallStats.total}</p>
@@ -559,7 +553,7 @@ const LocationsPage: React.FC = () => {
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                <HugeiconsIcon icon={Building01Icon} className="w-8 h-8 text-gray-400" />
+                <HugeiconsIcon icon={Location03Icon} className="w-8 h-8 text-gray-400" />
               </div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Select a Service Center</h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm">

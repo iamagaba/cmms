@@ -9,9 +9,13 @@ export default {
         extend: {
             // Subframe GOGO Maintenance Hub typography
             fontFamily: {
-                sans: ['Geist', 'system-ui', 'sans-serif'],
-                display: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
-                mono: ['Geist Mono', 'Consolas', 'monospace'],
+                sans: ['var(--font-family-ui)', 'system-ui', 'sans-serif'],
+                display: ['var(--font-family-brand)', 'system-ui', 'sans-serif'],
+                mono: ['var(--font-family-data)', 'Consolas', 'monospace'],
+                brand: ['var(--font-family-brand)', 'sans-serif'],
+                ui: ['var(--font-family-ui)', 'sans-serif'],
+                utility: ['var(--font-family-utility)', 'sans-serif'],
+                data: ['var(--font-family-data)', 'monospace'],
             },
             // Subframe theme colors, mapped onto existing semantic names
             colors: {

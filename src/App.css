@@ -10,8 +10,38 @@
 
 /* Global defaults for enterprise design */
 @layer base {
+  :root {
+    font-family: var(--font-family-ui);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
   body {
     @apply text-sm text-gray-900 bg-white;
+    font-family: var(--font-family-ui);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-family-brand);
+  }
+
+  input,
+  button,
+  select,
+  textarea {
+    font-family: var(--font-family-ui);
+  }
+
+  code,
+  pre,
+  .font-mono,
+  .font-data {
+    font-family: var(--font-family-data) !important;
   }
 }
 

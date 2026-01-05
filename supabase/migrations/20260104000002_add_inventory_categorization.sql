@@ -20,17 +20,40 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_suppliers_name ON suppliers(LOWER(name));
 -- RLS for suppliers
 ALTER TABLE suppliers ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Users can view suppliers"
-  ON suppliers FOR SELECT TO authenticated USING (true);
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'suppliers' AND policyname = 'Users can view suppliers'
+  ) THEN
+    CREATE POLICY "Users can view suppliers"
+      ON suppliers FOR SELECT TO authenticated USING (true);
+  END IF;
 
-CREATE POLICY "Users can insert suppliers"
-  ON suppliers FOR INSERT TO authenticated WITH CHECK (true);
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'suppliers' AND policyname = 'Users can insert suppliers'
+  ) THEN
+    CREATE POLICY "Users can insert suppliers"
+      ON suppliers FOR INSERT TO authenticated WITH CHECK (true);
+  END IF;
 
-CREATE POLICY "Users can update suppliers"
-  ON suppliers FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'suppliers' AND policyname = 'Users can update suppliers'
+  ) THEN
+    CREATE POLICY "Users can update suppliers"
+      ON suppliers FOR UPDATE TO authenticated USING (true) WITH CHECK (true);
+  END IF;
 
-CREATE POLICY "Users can delete suppliers"
-  ON suppliers FOR DELETE TO authenticated USING (true);
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE tablename = 'suppliers' AND policyname = 'Users can delete suppliers'
+  ) THEN
+    CREATE POLICY "Users can delete suppliers"
+      ON suppliers FOR DELETE TO authenticated USING (true);
+  END IF;
+END $$;
 
 -- Add new columns to inventory_items
 ALTER TABLE inventory_items
@@ -50,14 +73,30 @@ CREATE INDEX IF NOT EXISTS idx_inventory_items_warehouse ON inventory_items(ware
 CREATE INDEX IF NOT EXISTS idx_inventory_items_categories ON inventory_items USING GIN(categories);
 
 -- Add constraint for units_per_package
-ALTER TABLE inventory_items
-  ADD CONSTRAINT chk_units_per_package CHECK (units_per_package >= 1);
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint 
+    WHERE conname = 'chk_units_per_package'
+  ) THEN
+    ALTER TABLE inventory_items
+      ADD CONSTRAINT chk_units_per_package CHECK (units_per_package >= 1);
+  END IF;
+END $$;
 
 -- Add constraint for valid unit_of_measure
-ALTER TABLE inventory_items
-  ADD CONSTRAINT chk_unit_of_measure CHECK (unit_of_measure IN (
-    'each', 'pair', 'box', 'case', 'pack', 'roll', 'gallon', 'liter', 'pound', 'kilogram'
-  ));
+DO $$ 
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint 
+    WHERE conname = 'chk_unit_of_measure'
+  ) THEN
+    ALTER TABLE inventory_items
+      ADD CONSTRAINT chk_unit_of_measure CHECK (unit_of_measure IN (
+        'each', 'pair', 'box', 'case', 'pack', 'roll', 'gallon', 'liter', 'pound', 'kilogram'
+      ));
+  END IF;
+END $$;
 
 -- Comments
 COMMENT ON TABLE suppliers IS 'Vendors and suppliers for inventory items';

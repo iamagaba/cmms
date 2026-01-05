@@ -8,26 +8,24 @@
  * MIGRATED TO ENTERPRISE DESIGN SYSTEM ✅
  */
 
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
+import { Title } from '@/components/tailwind-components';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-  RefreshIcon, 
-  Add01Icon, 
-  Task01Icon, 
-  Folder01Icon, 
-  CheckmarkCircle01Icon, 
-  AlertCircleIcon 
+import {
+  RefreshIcon,
+  Add01Icon,
+  Task01Icon,
+  Folder01Icon,
+  CheckmarkCircle01Icon,
+  AlertCircleIcon
 } from '@hugeicons/core-free-icons';
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { WorkOrder, Location, Vehicle } from "@/types/supabase";
 import dayjs from "dayjs";
 import isBetween from 'dayjs/plugin/isBetween';
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { useSession } from "@/context/SessionContext";
 import { useRealtimeData } from "@/context/RealtimeDataContext";
-import { useDensity } from "@/context/DensityContext";
-import { showSuccess, showError } from "@/utils/toast";
 
 // Enterprise Design System Components
 // (Panel components removed - using direct divs with enterprise styling)
@@ -38,7 +36,7 @@ import { TechniciansList } from "@/components/dashboard/TechniciansList";
 
 // Legacy Components
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
-import { WorkOrderDetailsDrawer } from "@/components/WorkOrderDetailsDrawer";
+import WorkOrderDetailsDrawer from "@/components/WorkOrderDetailsDrawer";
 
 dayjs.extend(isBetween);
 
@@ -48,23 +46,9 @@ dayjs.extend(isBetween);
 
 const ProfessionalCMMSDashboard = () => {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
-  const [selectedLocation, setSelectedLocation] = useState<string>('all');
+  const [selectedLocation] = useState<string>('all');
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
-  const { session } = useSession();
-  const { isCompact } = useDensity();
-
-  // Safe access to realtime data
-  let realtimeWorkOrders: WorkOrder[] = [];
-  let realtimeTechnicians: any[] = [];
-  try {
-    const realtimeData = useRealtimeData();
-    realtimeWorkOrders = realtimeData.realtimeWorkOrders || [];
-    realtimeTechnicians = realtimeData.realtimeTechnicians || [];
-  } catch (error) {
-    console.warn('Error accessing realtime data:', error);
-  }
 
   // Data queries
   const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({
@@ -77,6 +61,15 @@ const ProfessionalCMMSDashboard = () => {
     staleTime: 5 * 60 * 1000,
   });
 
+  // Safe access to realtime data
+  const {
+    realtimeWorkOrders = [],
+    realtimeTechnicians = [],
+    isLoadingRealtimeData = false
+  } = useRealtimeData() || {};
+
+  const isLoading = isLoadingLocations || isLoadingRealtimeData;
+
   const { data: vehicles } = useQuery<Vehicle[]>({
     queryKey: ['vehicles'],
     queryFn: async () => {
@@ -88,17 +81,7 @@ const ProfessionalCMMSDashboard = () => {
   });
 
   // Mutations
-  const workOrderMutation = useMutation({
-    mutationFn: async (workOrderData: Partial<WorkOrder>) => {
-      const { error } = await supabase.from('work_orders').upsert([workOrderData]);
-      if (error) throw new Error(error.message);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['work_orders'] });
-      showSuccess('Work order has been updated.');
-    },
-    onError: (error) => showError(error.message)
-  });
+
 
   // Event handlers
   const handleViewDetails = (workOrderId: string) => {
@@ -167,7 +150,7 @@ const ProfessionalCMMSDashboard = () => {
       : realtimeWorkOrders.filter((wo: WorkOrder) => wo.locationId === selectedLocation);
   }, [realtimeWorkOrders, selectedLocation]);
 
-  const isLoading = isLoadingLocations;
+
 
   if (isLoading) {
     return (
@@ -186,7 +169,9 @@ const ProfessionalCMMSDashboard = () => {
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900">Dashboard</h1>
+            <Title order={1} className="font-brand font-bold text-machinery-900 tracking-tight">
+              Operations Dashboard
+            </Title>
             <p className="text-sm text-gray-600 mt-1">
               {dayjs().format('dddd, MMMM D, YYYY')} • {locations?.length || 0} locations active
             </p>

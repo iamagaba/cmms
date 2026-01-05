@@ -50,7 +50,7 @@ export const StatRibbon: React.FC<StatRibbonProps> = ({ stats }) => {
                                         {stat.title}
                                     </p>
                                 </div>
-                                <p className="text-2xl font-bold text-gray-900">
+                                <p className="text-2xl font-bold font-data text-gray-900 dark:text-gray-100">
                                     {typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}
                                 </p>
                                 {stat.subtitle && (

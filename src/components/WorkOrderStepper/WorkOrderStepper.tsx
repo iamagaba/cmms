@@ -92,8 +92,15 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
         if ((workOrder as any).createdAt) return dayjs((workOrder as any).createdAt);
         break;
       case 'Confirmation':
+        if (workOrder.confirmation_status_entered_at) return dayjs(workOrder.confirmation_status_entered_at);
+        if ((workOrder as any).confirmationStatusEnteredAt) return dayjs((workOrder as any).confirmationStatusEnteredAt);
+        // Fallback for legacy data
         if (workOrder.confirmed_at) return dayjs(workOrder.confirmed_at);
         if ((workOrder as any).confirmedAt) return dayjs((workOrder as any).confirmedAt);
+        break;
+      case 'Ready':
+        if (workOrder.ready_at) return dayjs(workOrder.ready_at);
+        if ((workOrder as any).readyAt) return dayjs((workOrder as any).readyAt);
         break;
       case 'In Progress':
         if (workOrder.work_started_at) return dayjs(workOrder.work_started_at);
@@ -151,7 +158,7 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
     if (stepKey === 'Open') {
       nextTimestamp = getStepTimestamp('Confirmation') || getStepTimestamp('In Progress') || getStepTimestamp('Completed');
     } else if (stepKey === 'Confirmation') {
-      nextTimestamp = getStepTimestamp('In Progress') || getStepTimestamp('Completed');
+      nextTimestamp = getStepTimestamp('Ready') || getStepTimestamp('In Progress') || getStepTimestamp('Completed');
     } else if (stepKey === 'Ready') {
       nextTimestamp = getStepTimestamp('In Progress') || getStepTimestamp('Completed');
     } else if (stepKey === 'In Progress') {
@@ -261,19 +268,7 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
   return (
     <>
       <style>{rippleStyles}</style>
-      <div className="bg-white border-b border-gray-200 px-3 py-2">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-xs font-semibold text-gray-700">
-            Progress: <span className={`${currentStatus === 'Completed' ? 'text-emerald-600' : currentStatus === 'On Hold' ? 'text-amber-600' : 'text-purple-600'}`}>{currentStatus}</span>
-          </h3>
-          {isOnHold && (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-amber-100 text-amber-700">
-              <HugeiconsIcon icon={Clock01Icon} className="w-2.5 h-2.5" size={10} />
-              On Hold
-            </span>
-          )}
-        </div>
-
+      <div className="bg-white border-b border-gray-200 px-3 py-3">
         {/* Horizontal Stepper - Compact */}
         <div className="flex items-start justify-between gap-1">
           {STEPS.map((step, index) => {

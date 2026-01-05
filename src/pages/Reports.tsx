@@ -29,8 +29,9 @@ import { Stack, Button, Group, Card, Badge, Skeleton, Select, Tabs } from '@/com
 import { supabase } from '@/integrations/supabase/client';
 import { WorkOrder, Technician, Vehicle } from '@/types/supabase';
 import dayjs from 'dayjs';
-import ReactECharts from 'echarts-for-react';
-import type { EChartsOption } from 'echarts';
+import { PieChart } from '@mui/x-charts/PieChart';
+import { BarChart } from '@mui/x-charts/BarChart';
+import { LineChart } from '@mui/x-charts/LineChart';
 import { professionalColors } from '@/theme/professional-colors';
 import InventoryReport from '@/components/reports/InventoryReport';
 
@@ -426,11 +427,14 @@ const OverviewReport: React.FC<{
   ], [stats]);
 
   const priorityChartData = useMemo(() => {
-    return ['urgent', 'high', 'medium', 'low'].map(priority => ({
-      name: priority.charAt(0).toUpperCase() + priority.slice(1),
-      count: workOrders.filter(wo => wo.priority === priority).length,
-      color: CHART_COLORS[priority as keyof typeof CHART_COLORS] as string,
-    }));
+    return ['urgent', 'high', 'medium', 'low'].map(priority => {
+      const priorityKey = priority.charAt(0).toUpperCase() + priority.slice(1);
+      return {
+        name: priorityKey,
+        count: workOrders.filter(wo => wo.priority?.toLowerCase() === priority).length,
+        color: CHART_COLORS[priority as keyof typeof CHART_COLORS] as string,
+      };
+    });
   }, [workOrders]);
 
   // Timeline data - group by day
@@ -520,95 +524,65 @@ const OverviewReport: React.FC<{
             <HugeiconsIcon icon={Chart01Icon} size={20} className="text-primary-600 dark:text-primary-400" />
             Status Distribution
           </h3>
-          <ReactECharts
-            option={{
-              tooltip: {
-                trigger: 'item',
-                formatter: '{b}: {c} ({d}%)',
-              },
-              legend: {
-                bottom: 10,
-                left: 'center',
-              },
-              series: [
+          {statusChartData.some(item => item.value > 0) ? (
+            <PieChart
+              series={[
                 {
-                  type: 'pie',
-                  radius: ['40%', '70%'],
-                  avoidLabelOverlap: false,
-                  itemStyle: {
-                    borderRadius: 10,
-                    borderColor: '#fff',
-                    borderWidth: 2,
-                  },
-                  label: {
-                    show: true,
-                    formatter: '{b}: {d}%',
-                  },
-                  emphasis: {
-                    label: {
-                      show: true,
-                      fontSize: 14,
-                      fontWeight: 'bold',
-                    },
-                  },
-                  data: statusChartData.map(item => ({
+                  data: statusChartData.map((item, index) => ({
+                    id: index,
                     value: item.value,
-                    name: item.name,
-                    itemStyle: { color: item.color },
+                    label: item.name,
+                    color: item.color,
                   })),
+                  highlightScope: { faded: 'global', highlighted: 'item' },
+                  valueFormatter: (value) => `${value.value}`,
                 },
-              ],
-            }}
-            style={{ height: '350px' }}
-          />
+              ]}
+              height={350}
+              slotProps={{
+                legend: {
+                  direction: 'row',
+                  position: { vertical: 'bottom', horizontal: 'middle' },
+                  padding: 0,
+                },
+              }}
+            />
+          ) : (
+            <div className="h-[350px] flex items-center justify-center text-gray-400">No data available</div>
+          )}
         </div>
 
-        {/* Priority Distribution Bar Chart */}
+        {/* Priority Distribution Pie Chart */}
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
             <HugeiconsIcon icon={ChartHistogramIcon} size={20} className="text-primary-600 dark:text-primary-400" />
             Priority Distribution
           </h3>
-          <ReactECharts
-            option={{
-              tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                  type: 'shadow',
-                },
-              },
-              grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '3%',
-                containLabel: true,
-              },
-              xAxis: {
-                type: 'category',
-                data: priorityChartData.map(item => item.name),
-                axisTick: {
-                  alignWithLabel: true,
-                },
-              },
-              yAxis: {
-                type: 'value',
-              },
-              series: [
+          {priorityChartData.length > 0 ? (
+            <PieChart
+              series={[
                 {
-                  type: 'bar',
-                  data: priorityChartData.map(item => ({
+                  data: priorityChartData.map((item, index) => ({
+                    id: index,
                     value: item.count,
-                    itemStyle: {
-                      color: item.color,
-                      borderRadius: [8, 8, 0, 0],
-                    },
+                    label: item.name,
+                    color: item.color,
                   })),
-                  barWidth: '60%',
+                  highlightScope: { faded: 'global', highlighted: 'item' },
                 },
-              ],
-            }}
-            style={{ height: '350px' }}
-          />
+              ]}
+              height={350}
+              slotProps={{
+                legend: {
+                  direction: 'row',
+                  position: { vertical: 'bottom', horizontal: 'middle' },
+                  padding: 0,
+                },
+              }}
+            />
+          ) : (
+            <div className="h-[350px] flex items-center justify-center text-gray-400">No data available</div>
+          )}
         </div>
       </div>
 
@@ -618,89 +592,42 @@ const OverviewReport: React.FC<{
           <HugeiconsIcon icon={ChartLineData01Icon} size={20} className="text-primary-600 dark:text-primary-400" />
           Work Orders Timeline
         </h3>
-        <ReactECharts
-          option={{
-            tooltip: {
-              trigger: 'axis',
-              axisPointer: {
-                type: 'cross',
-              },
-            },
-            legend: {
-              data: ['Created', 'Completed'],
-              bottom: 10,
-            },
-            grid: {
-              left: '3%',
-              right: '4%',
-              bottom: '15%',
-              containLabel: true,
-            },
-            xAxis: {
-              type: 'category',
-              boundaryGap: false,
-              data: timelineData.map(item => item.date),
-            },
-            yAxis: {
-              type: 'value',
-            },
-            series: [
+        {timelineData.length > 0 ? (
+          <LineChart
+            xAxis={[
               {
-                name: 'Created',
-                type: 'line',
-                smooth: true,
-                areaStyle: {
-                  color: {
-                    type: 'linear',
-                    x: 0,
-                    y: 0,
-                    x2: 0,
-                    y2: 1,
-                    colorStops: [
-                      { offset: 0, color: CHART_COLORS.steelBlue + '40' },
-                      { offset: 1, color: CHART_COLORS.steelBlue + '00' },
-                    ],
-                  },
-                },
-                lineStyle: {
-                  color: CHART_COLORS.steelBlue,
-                  width: 2,
-                },
-                itemStyle: {
-                  color: CHART_COLORS.steelBlue,
-                },
+                scaleType: 'point',
+                data: timelineData.map(item => item.date),
+              },
+            ]}
+            series={[
+              {
+                label: 'Created',
                 data: timelineData.map(item => item.created),
+                color: CHART_COLORS.steelBlue,
+                area: true,
+                showMark: false,
               },
               {
-                name: 'Completed',
-                type: 'line',
-                smooth: true,
-                areaStyle: {
-                  color: {
-                    type: 'linear',
-                    x: 0,
-                    y: 0,
-                    x2: 0,
-                    y2: 1,
-                    colorStops: [
-                      { offset: 0, color: CHART_COLORS.industrialGreen + '40' },
-                      { offset: 1, color: CHART_COLORS.industrialGreen + '00' },
-                    ],
-                  },
-                },
-                lineStyle: {
-                  color: CHART_COLORS.industrialGreen,
-                  width: 2,
-                },
-                itemStyle: {
-                  color: CHART_COLORS.industrialGreen,
-                },
+                label: 'Completed',
                 data: timelineData.map(item => item.completed),
+                color: CHART_COLORS.industrialGreen,
+                area: true,
+                showMark: false,
               },
-            ],
-          }}
-          style={{ height: '350px' }}
-        />
+            ]}
+            height={350}
+            slotProps={{
+              legend: {
+                direction: 'row',
+                position: { vertical: 'bottom', horizontal: 'middle' },
+                padding: 0,
+              },
+            }}
+          />
+        ) : (
+          <div className="h-[350px] flex items-center justify-center text-gray-400">No data available</div>
+        )}
       </div>
     </div>
   );
@@ -749,104 +676,102 @@ const TechnicianPerformanceReport: React.FC<{
           <HugeiconsIcon icon={ChartHistogramIcon} size={20} className="text-primary-600 dark:text-primary-400" />
           Technician Performance Comparison
         </h3>
-        <ReactECharts
-          option={{
-            tooltip: {
-              trigger: 'axis',
-              axisPointer: {
-                type: 'shadow',
-              },
-            },
-            legend: {
-              data: ['Completed', 'In Progress'],
-              bottom: 10,
-            },
-            grid: {
-              left: '3%',
-              right: '4%',
-              bottom: '15%',
-              containLabel: true,
-            },
-            xAxis: {
-              type: 'category',
-              data: technicianChartData.map(item => item.name),
-            },
-            yAxis: {
-              type: 'value',
-            },
-            series: [
+        {technicianChartData.length > 0 ? (
+          <BarChart
+            xAxis={[
               {
-                name: 'Completed',
-                type: 'bar',
+                scaleType: 'band',
+                data: technicianChartData.map(item => item.name),
+              },
+            ]}
+            series={[
+              {
+                label: 'Completed',
                 data: technicianChartData.map(item => item.completed),
-                itemStyle: {
-                  color: CHART_COLORS.completed,
-                  borderRadius: [8, 8, 0, 0],
-                },
+                color: CHART_COLORS.completed,
+                stack: 'total',
               },
               {
-                name: 'In Progress',
-                type: 'bar',
+                label: 'In Progress',
                 data: technicianChartData.map(item => item.inProgress),
-                itemStyle: {
-                  color: CHART_COLORS.inProgress,
-                  borderRadius: [8, 8, 0, 0],
-                },
+                color: CHART_COLORS.inProgress,
+                stack: 'total',
               },
-            ],
-          }}
-          style={{ height: '400px' }}
-        />
+            ]}
+            height={400}
+            slotProps={{
+              legend: {
+                direction: 'row',
+                position: { vertical: 'bottom', horizontal: 'middle' },
+                padding: 0,
+              },
+            }}
+          />
+        ) : (
+          <div className="h-[400px] flex items-center justify-center text-gray-400">No data available</div>
+        )}
       </div>
 
-      {/* Individual Technician Cards */}
-      <div className="space-y-4">
-        {technicianStats.map(tech => (
-          <div key={tech.id} className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-            <div className="flex items-start justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center">
-                  <HugeiconsIcon icon={Wrench01Icon} size={24} className="text-primary-600 dark:text-primary-400" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{tech.name}</h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">{tech.specialization}</p>
-                </div>
-              </div>
-              <span className={`px-3 py-1 rounded text-xs font-medium ${tech.status === 'active'
-                ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
-                }`}>
-                {tech.status}
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-              <div className="text-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Total WOs</div>
-                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{tech.total}</div>
-              </div>
-              <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded-lg">
-                <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Completed</div>
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400">{tech.completed}</div>
-              </div>
-              <div className="text-center p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-                <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">In Progress</div>
-                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">{tech.inProgress}</div>
-              </div>
-              <div className="text-center p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg">
-                <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Completion Rate</div>
-                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">{tech.completionRate}%</div>
-              </div>
-              <div className="text-center p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg">
-                <div className="text-xs text-gray-600 dark:text-gray-400 mb-1">Revenue</div>
-                <div className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-                  {(tech.totalRevenue / 1000000).toFixed(1)}M
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
+      {/* Technician Performance Table */}
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                <th className="text-left py-1.5 px-3 font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Technician</th>
+                <th className="text-center py-1.5 px-3 font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Status</th>
+                <th className="text-center py-1.5 px-3 font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Total WOs</th>
+                <th className="text-center py-1.5 px-3 font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Completed</th>
+                <th className="text-center py-1.5 px-3 font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">In Progress</th>
+                <th className="text-center py-1.5 px-3 font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Completion Rate</th>
+                <th className="text-right py-1.5 px-3 font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Revenue</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+              {technicianStats.map(tech => (
+                <tr key={tech.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                  <td className="py-1.5 px-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-8 h-8 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center flex-shrink-0">
+                        <HugeiconsIcon icon={Wrench01Icon} size={16} className="text-primary-600 dark:text-primary-400" />
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-900 dark:text-gray-100">{tech.name}</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400">{tech.specialization}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="py-1.5 px-3 text-center">
+                    <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${
+                      tech.status === 'active'
+                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                        : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400'
+                    }`}>
+                      {tech.status}
+                    </span>
+                  </td>
+                  <td className="py-1.5 px-3 text-center">
+                    <span className="font-semibold text-gray-900 dark:text-gray-100">{tech.total}</span>
+                  </td>
+                  <td className="py-1.5 px-3 text-center">
+                    <span className="font-semibold text-green-600 dark:text-green-400">{tech.completed}</span>
+                  </td>
+                  <td className="py-1.5 px-3 text-center">
+                    <span className="font-semibold text-blue-600 dark:text-blue-400">{tech.inProgress}</span>
+                  </td>
+                  <td className="py-1.5 px-3 text-center">
+                    <span className="font-semibold text-purple-600 dark:text-purple-400">{tech.completionRate}%</span>
+                  </td>
+                  <td className="py-1.5 px-3 text-right">
+                    <span className="font-semibold text-emerald-600 dark:text-emerald-400">
+                      UGX {(tech.totalRevenue / 1000000).toFixed(1)}M
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
@@ -886,7 +811,7 @@ const WorkOrderAnalysisReport: React.FC<{
       }));
   }, [analysis.byServiceType]);
 
-  // Status chart data
+  // Status chart data with proper colors
   const statusChartData = useMemo(() => {
     const statusColors: Record<string, string> = {
       pending: CHART_COLORS.pending,
@@ -905,6 +830,28 @@ const WorkOrderAnalysisReport: React.FC<{
       }));
   }, [analysis.byStatus]);
 
+  // Priority chart data with proper colors
+  const priorityChartData = useMemo(() => {
+    const priorityColors: Record<string, string> = {
+      urgent: CHART_COLORS.urgent,
+      high: CHART_COLORS.high,
+      medium: CHART_COLORS.medium,
+      low: CHART_COLORS.low,
+    };
+
+    return Object.entries(analysis.byPriority)
+      .sort(([, a], [, b]) => b - a)
+      .map(([priority, count]) => {
+        const priorityLower = priority.toLowerCase();
+        const priorityKey = priority.charAt(0).toUpperCase() + priority.slice(1);
+        return {
+          name: priorityKey,
+          value: count,
+          color: priorityColors[priorityLower] || CHART_COLORS.machineryGray,
+        };
+      });
+  }, [analysis.byPriority]);
+
   return (
     <div className="space-y-6">
       {/* Service Type Bar Chart */}
@@ -913,41 +860,26 @@ const WorkOrderAnalysisReport: React.FC<{
           <HugeiconsIcon icon={ChartHistogramIcon} size={20} className="text-primary-600" />
           Work Orders by Service Type
         </h3>
-        <ReactECharts
-          option={{
-            tooltip: {
-              trigger: 'axis',
-              axisPointer: {
-                type: 'shadow',
-              },
-            },
-            grid: {
-              left: '15%',
-              right: '4%',
-              bottom: '3%',
-              containLabel: true,
-            },
-            xAxis: {
-              type: 'value',
-            },
-            yAxis: {
-              type: 'category',
-              data: serviceTypeChartData.map(item => item.name),
-            },
-            series: [
+        {serviceTypeChartData.length > 0 ? (
+          <BarChart
+            yAxis={[
               {
-                type: 'bar',
-                data: serviceTypeChartData.map(item => item.value),
-                itemStyle: {
-                  color: CHART_COLORS.steelBlue,
-                  borderRadius: [0, 8, 8, 0],
-                },
-                barWidth: '60%',
+                scaleType: 'band',
+                data: serviceTypeChartData.map(item => item.name),
               },
-            ],
-          }}
-          style={{ height: '400px' }}
-        />
+            ]}
+            series={[
+              {
+                data: serviceTypeChartData.map(item => item.value),
+                color: CHART_COLORS.steelBlue,
+              },
+            ]}
+            layout="horizontal"
+            height={400}
+          />
+        ) : (
+          <div className="h-[400px] flex items-center justify-center text-gray-400">No data available</div>
+        )}
       </div>
 
       {/* Status and Priority Grid */}
@@ -958,89 +890,64 @@ const WorkOrderAnalysisReport: React.FC<{
             <HugeiconsIcon icon={Chart01Icon} size={20} className="text-primary-600" />
             By Status
           </h3>
-          <ReactECharts
-            option={{
-              tooltip: {
-                trigger: 'item',
-                formatter: '{b}: {c} ({d}%)',
-              },
-              legend: {
-                bottom: 10,
-                left: 'center',
-              },
-              series: [
+          {statusChartData.length > 0 ? (
+            <PieChart
+              series={[
                 {
-                  type: 'pie',
-                  radius: '70%',
-                  center: ['50%', '45%'],
-                  itemStyle: {
-                    borderRadius: 8,
-                    borderColor: '#fff',
-                    borderWidth: 2,
-                  },
-                  label: {
-                    show: true,
-                    formatter: '{b}: {d}%',
-                  },
-                  emphasis: {
-                    label: {
-                      show: true,
-                      fontSize: 14,
-                      fontWeight: 'bold',
-                    },
-                  },
-                  data: statusChartData.map(item => ({
+                  data: statusChartData.map((item, index) => ({
+                    id: index,
                     value: item.value,
-                    name: item.name,
-                    itemStyle: { color: item.color },
+                    label: item.name,
+                    color: item.color,
                   })),
+                  highlightScope: { faded: 'global', highlighted: 'item' },
                 },
-              ],
-            }}
-            style={{ height: '350px' }}
-          />
+              ]}
+              height={350}
+              slotProps={{
+                legend: {
+                  direction: 'row',
+                  position: { vertical: 'bottom', horizontal: 'middle' },
+                  padding: 0,
+                },
+              }}
+            />
+          ) : (
+            <div className="h-[350px] flex items-center justify-center text-gray-400">No data available</div>
+          )}
         </div>
 
-        {/* Priority List */}
+        {/* Priority Distribution */}
         <div className="bg-white border border-gray-200 rounded-lg p-6">
           <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <HugeiconsIcon icon={FlagIcon} size={20} className="text-primary-600" />
             By Priority
           </h3>
-          <div className="space-y-3">
-            {Object.entries(analysis.byPriority)
-              .sort(([, a], [, b]) => b - a)
-              .map(([priority, count]) => {
-                const total = workOrders.length;
-                const percentage = ((count / total) * 100).toFixed(1);
-                const priorityColors: Record<string, { bg: string; text: string; bar: string }> = {
-                  urgent: { bg: 'bg-red-50', text: 'text-red-700', bar: professionalColors.warningRed[600] },
-                  high: { bg: 'bg-orange-50', text: 'text-orange-700', bar: professionalColors.safetyOrange[600] },
-                  medium: { bg: 'bg-yellow-50', text: 'text-yellow-700', bar: professionalColors.maintenanceYellow[600] },
-                  low: { bg: 'bg-green-50', text: 'text-green-700', bar: professionalColors.industrialGreen[500] },
-                };
-                const colors = priorityColors[priority] || { bg: 'bg-gray-50', text: 'text-gray-700', bar: professionalColors.machineryGray[500] };
-
-                return (
-                  <div key={priority} className={`p-4 ${colors.bg} rounded-lg`}>
-                    <div className="flex items-center justify-between mb-2">
-                      <span className={`text-sm font-semibold ${colors.text} capitalize`}>{priority}</span>
-                      <span className={`text-lg font-bold ${colors.text}`}>{count}</span>
-                    </div>
-                    <div className="w-full bg-white/50 rounded-full h-2">
-                      <div
-                        className="h-2 rounded-full"
-                        style={{
-                          width: `${percentage}%`,
-                          backgroundColor: colors.bar
-                        }}
-                      />
-                    </div>
-                    <div className="text-xs text-gray-600 mt-1">{percentage}% of total</div>
-                  </div>
-                );
-              })}
-          </div>
+          {priorityChartData.length > 0 ? (
+            <PieChart
+              series={[
+                {
+                  data: priorityChartData.map((item, index) => ({
+                    id: index,
+                    value: item.value,
+                    label: item.name,
+                    color: item.color,
+                  })),
+                  highlightScope: { faded: 'global', highlighted: 'item' },
+                },
+              ]}
+              height={350}
+              slotProps={{
+                legend: {
+                  direction: 'row',
+                  position: { vertical: 'bottom', horizontal: 'middle' },
+                  padding: 0,
+                },
+              }}
+            />
+          ) : (
+            <div className="h-[350px] flex items-center justify-center text-gray-400">No data available</div>
+          )}
         </div>
       </div>
     </div>
@@ -1082,78 +989,53 @@ const AssetReport: React.FC<{
           <HugeiconsIcon icon={ChartHistogramIcon} size={20} className="text-primary-600" />
           Top 10 Vehicles by Service Frequency
         </h3>
-        <ReactECharts
-          option={{
-            tooltip: {
-              trigger: 'axis',
-              axisPointer: {
-                type: 'shadow',
-              },
-              formatter: (params: any) => {
-                const data = params[0];
-                return `${data.name}<br/>Work Orders: ${data.value}`;
-              },
-            },
-            grid: {
-              left: '15%',
-              right: '4%',
-              bottom: '3%',
-              containLabel: true,
-            },
-            xAxis: {
-              type: 'value',
-            },
-            yAxis: {
-              type: 'category',
-              data: top10VehiclesChartData.map(item => item.name),
-              axisLabel: {
-                fontSize: 11,
-              },
-            },
-            series: [
+        {top10VehiclesChartData.length > 0 ? (
+          <BarChart
+            yAxis={[
               {
-                name: 'Work Orders',
-                type: 'bar',
-                data: top10VehiclesChartData.map(item => item.workOrders),
-                itemStyle: {
-                  color: CHART_COLORS.steelBlue,
-                  borderRadius: [0, 8, 8, 0],
-                },
-                barWidth: '60%',
-                label: {
-                  show: true,
-                  position: 'right',
-                  formatter: '{c}',
-                },
+                scaleType: 'band',
+                data: top10VehiclesChartData.map(item => item.name),
               },
-            ],
-          }}
-          style={{ height: '450px' }}
-        />
+            ]}
+            series={[
+              {
+                data: top10VehiclesChartData.map(item => item.workOrders),
+                color: CHART_COLORS.steelBlue,
+                label: 'Work Orders',
+              },
+            ]}
+            layout="horizontal"
+            height={450}
+          />
+        ) : (
+          <div className="h-[450px] flex items-center justify-center text-gray-400">No data available</div>
+        )}
       </div>
 
       {/* Detailed Table */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <HugeiconsIcon icon={TableIcon} size={20} className="text-primary-600" />
-          All Vehicles Service History
-        </h3>
+      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
+          <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
+            <HugeiconsIcon icon={TableIcon} size={16} className="text-primary-600" />
+            All Vehicles Service History
+          </h3>
+        </div>
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full text-sm">
             <thead>
-              <tr className="border-b-2 border-gray-200">
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Rank</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Vehicle</th>
-                <th className="text-left py-3 px-4 text-sm font-semibold text-gray-700">Make/Model</th>
-                <th className="text-center py-3 px-4 text-sm font-semibold text-gray-700">Work Orders</th>
-                <th className="text-right py-3 px-4 text-sm font-semibold text-gray-700">Total Cost</th>
+              <tr className="bg-gray-50 border-b border-gray-200">
+                <th className="text-left py-1.5 px-3 font-semibold text-gray-600 uppercase tracking-wider text-xs">Rank</th>
+                <th className="text-left py-1.5 px-3 font-semibold text-gray-600 uppercase tracking-wider text-xs">Vehicle</th>
+                <th className="text-left py-1.5 px-3 font-semibold text-gray-600 uppercase tracking-wider text-xs">Make/Model</th>
+                <th className="text-center py-1.5 px-3 font-semibold text-gray-600 uppercase tracking-wider text-xs">Work Orders</th>
+                <th className="text-right py-1.5 px-3 font-semibold text-gray-600 uppercase tracking-wider text-xs">Total Cost</th>
               </tr>
             </thead>
             <tbody>
               {vehicleStats.slice(0, 20).map((vehicle, index) => (
                 <tr key={vehicle.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
-                  <td className="py-3 px-4">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold ${index === 0 ? 'bg-yellow-100 text-yellow-700' :
+                  <td className="py-1.5 px-3">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${index === 0 ? 'bg-yellow-100 text-yellow-700' :
                       index === 1 ? 'bg-gray-100 text-gray-700' :
                         index === 2 ? 'bg-orange-100 text-orange-700' :
                           'bg-gray-50 text-gray-600'
@@ -1161,21 +1043,21 @@ const AssetReport: React.FC<{
                       {index + 1}
                     </div>
                   </td>
-                  <td className="py-3 px-4">
+                  <td className="py-1.5 px-3">
                     <div className="flex items-center gap-2">
-                      <HugeiconsIcon icon={Car01Icon} size={16} className="text-gray-400" />
-                      <span className="text-sm font-medium text-gray-900">{vehicle.registration_number}</span>
+                      <HugeiconsIcon icon={Car01Icon} size={14} className="text-gray-400" />
+                      <span className="font-medium text-gray-900">{vehicle.registration_number}</span>
                     </div>
                   </td>
-                  <td className="py-3 px-4 text-sm text-gray-600">
+                  <td className="py-1.5 px-3 text-gray-600">
                     {vehicle.make} {vehicle.model}
                   </td>
-                  <td className="py-3 px-4 text-center">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-primary-100 text-primary-700">
+                  <td className="py-1.5 px-3 text-center">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-700">
                       {vehicle.workOrderCount}
                     </span>
                   </td>
-                  <td className="py-3 px-4 text-sm font-semibold text-right text-gray-900">
+                  <td className="py-1.5 px-3 text-right font-semibold text-gray-900">
                     UGX {(vehicle.totalCost / 1000000).toFixed(2)}M
                   </td>
                 </tr>
@@ -1184,7 +1066,7 @@ const AssetReport: React.FC<{
           </table>
         </div>
         {vehicleStats.length > 20 && (
-          <div className="mt-4 text-center text-sm text-gray-500">
+          <div className="px-4 py-2 bg-gray-50 border-t border-gray-200 text-center text-xs text-gray-500">
             Showing top 20 of {vehicleStats.length} vehicles
           </div>
         )}
@@ -1281,50 +1163,32 @@ const FinancialReport: React.FC<{
             <HugeiconsIcon icon={Chart01Icon} size={20} className="text-primary-600" />
             Revenue by Status
           </h3>
-          <ReactECharts
-            option={{
-              tooltip: {
-                trigger: 'item',
-                formatter: (params: any) => {
-                  const value = (params.value / 1000000).toFixed(2);
-                  return `${params.name}: UGX ${value}M (${params.percent}%)`;
-                },
-              },
-              legend: {
-                bottom: 10,
-                left: 'center',
-              },
-              series: [
+          {revenueBreakdownData.some(item => item.value > 0) ? (
+            <PieChart
+              series={[
                 {
-                  type: 'pie',
-                  radius: ['40%', '70%'],
-                  center: ['50%', '45%'],
-                  itemStyle: {
-                    borderRadius: 10,
-                    borderColor: '#fff',
-                    borderWidth: 2,
-                  },
-                  label: {
-                    show: true,
-                    formatter: '{b}: {d}%',
-                  },
-                  emphasis: {
-                    label: {
-                      show: true,
-                      fontSize: 14,
-                      fontWeight: 'bold',
-                    },
-                  },
-                  data: revenueBreakdownData.map(item => ({
+                  data: revenueBreakdownData.map((item, index) => ({
+                    id: index,
                     value: item.value,
-                    name: item.name,
-                    itemStyle: { color: item.color },
+                    label: item.name,
+                    color: item.color,
                   })),
+                  highlightScope: { faded: 'global', highlighted: 'item' },
+                  valueFormatter: (value) => `UGX ${(value.value / 1000000).toFixed(2)}M`,
                 },
-              ],
-            }}
-            style={{ height: '350px' }}
-          />
+              ]}
+              height={350}
+              slotProps={{
+                legend: {
+                  direction: 'row',
+                  position: { vertical: 'bottom', horizontal: 'middle' },
+                  padding: 0,
+                },
+              }}
+            />
+          ) : (
+            <div className="h-[350px] flex items-center justify-center text-gray-400">No data available</div>
+          )}
         </div>
 
         {/* Cost Breakdown Pie Chart */}
@@ -1333,50 +1197,32 @@ const FinancialReport: React.FC<{
             <HugeiconsIcon icon={Chart01Icon} size={20} className="text-primary-600" />
             Cost Breakdown
           </h3>
-          <ReactECharts
-            option={{
-              tooltip: {
-                trigger: 'item',
-                formatter: (params: any) => {
-                  const value = (params.value / 1000000).toFixed(2);
-                  return `${params.name}: UGX ${value}M (${params.percent}%)`;
-                },
-              },
-              legend: {
-                bottom: 10,
-                left: 'center',
-              },
-              series: [
+          {costBreakdownData.some(item => item.value > 0) ? (
+            <PieChart
+              series={[
                 {
-                  type: 'pie',
-                  radius: ['40%', '70%'],
-                  center: ['50%', '45%'],
-                  itemStyle: {
-                    borderRadius: 10,
-                    borderColor: '#fff',
-                    borderWidth: 2,
-                  },
-                  label: {
-                    show: true,
-                    formatter: '{b}: {d}%',
-                  },
-                  emphasis: {
-                    label: {
-                      show: true,
-                      fontSize: 14,
-                      fontWeight: 'bold',
-                    },
-                  },
-                  data: costBreakdownData.map(item => ({
+                  data: costBreakdownData.map((item, index) => ({
+                    id: index,
                     value: item.value,
-                    name: item.name,
-                    itemStyle: { color: item.color },
+                    label: item.name,
+                    color: item.color,
                   })),
+                  highlightScope: { faded: 'global', highlighted: 'item' },
+                  valueFormatter: (value) => `UGX ${(value.value / 1000000).toFixed(2)}M`,
                 },
-              ],
-            }}
-            style={{ height: '350px' }}
-          />
+              ]}
+              height={350}
+              slotProps={{
+                legend: {
+                  direction: 'row',
+                  position: { vertical: 'bottom', horizontal: 'middle' },
+                  padding: 0,
+                },
+              }}
+            />
+          ) : (
+            <div className="h-[350px] flex items-center justify-center text-gray-400">No data available</div>
+          )}
         </div>
       </div>
 
@@ -1386,58 +1232,64 @@ const FinancialReport: React.FC<{
           <HugeiconsIcon icon={ReceiptDollarIcon} size={20} className="text-primary-600" />
           Detailed Cost Analysis
         </h3>
-        <div className="space-y-4">
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700">Labor Costs</span>
-              <span className="text-sm font-semibold text-gray-900">
+        {financialStats.totalRevenue > 0 ? (
+          <BarChart
+            xAxis={[
+              {
+                scaleType: 'band',
+                data: ['Labor Costs', 'Parts Costs'],
+              },
+            ]}
+            series={[
+              {
+                data: [
+                  (financialStats.totalLabor / financialStats.totalRevenue) * 100,
+                  (financialStats.totalParts / financialStats.totalRevenue) * 100,
+                ],
+                label: '% of Total Revenue',
+                valueFormatter: (value) => `${value.toFixed(1)}%`,
+                color: CHART_COLORS.steelBlue,
+              },
+            ]}
+            height={300}
+            slotProps={{
+              legend: {
+                direction: 'row',
+                position: { vertical: 'bottom', horizontal: 'middle' },
+                padding: 0,
+              },
+            }}
+          />
+        ) : (
+          <div className="h-[300px] flex items-center justify-center text-gray-400">No data available</div>
+        )}
+        
+        <div className="mt-6 pt-4 border-t border-gray-200">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <p className="text-xs text-gray-600 mb-1">Labor Costs</p>
+              <p className="text-lg font-bold text-gray-900">
                 UGX {(financialStats.totalLabor / 1000000).toFixed(2)}M
-              </span>
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                {((financialStats.totalLabor / financialStats.totalRevenue) * 100).toFixed(1)}%
+              </p>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div
-                className="h-3 rounded-full transition-all"
-                style={{
-                  width: `${(financialStats.totalLabor / financialStats.totalRevenue) * 100}%`,
-                  backgroundColor: CHART_COLORS.steelBlue
-                }}
-              />
-            </div>
-            <div className="text-xs text-gray-500 mt-1">
-              {((financialStats.totalLabor / financialStats.totalRevenue) * 100).toFixed(1)}% of total revenue
-            </div>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700">Parts Costs</span>
-              <span className="text-sm font-semibold text-gray-900">
+            <div className="text-center p-4 bg-gray-50 rounded-lg">
+              <p className="text-xs text-gray-600 mb-1">Parts Costs</p>
+              <p className="text-lg font-bold text-gray-900">
                 UGX {(financialStats.totalParts / 1000000).toFixed(2)}M
-              </span>
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                {((financialStats.totalParts / financialStats.totalRevenue) * 100).toFixed(1)}%
+              </p>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
-              <div
-                className="h-3 rounded-full transition-all"
-                style={{
-                  width: `${(financialStats.totalParts / financialStats.totalRevenue) * 100}%`,
-                  backgroundColor: CHART_COLORS.industrialGreen
-                }}
-              />
-            </div>
-            <div className="text-xs text-gray-500 mt-1">
-              {((financialStats.totalParts / financialStats.totalRevenue) * 100).toFixed(1)}% of total revenue
-            </div>
-          </div>
-
-          <div className="pt-4 border-t border-gray-200">
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-              <div>
-                <span className="text-sm font-medium text-gray-700">Average Order Value</span>
-                <p className="text-xs text-gray-500 mt-1">Per work order</p>
-              </div>
-              <span className="text-2xl font-bold text-gray-900">
+            <div className="text-center p-4 bg-primary-50 rounded-lg">
+              <p className="text-xs text-gray-600 mb-1">Avg Order Value</p>
+              <p className="text-lg font-bold text-primary-700">
                 UGX {(financialStats.avgOrderValue / 1000).toFixed(0)}K
-              </span>
+              </p>
+              <p className="text-xs text-gray-500 mt-1">Per work order</p>
             </div>
           </div>
         </div>
@@ -1454,27 +1306,40 @@ const FleetOverviewReport: React.FC<{
 }> = ({ vehicles, workOrders }) => {
   const stats = useMemo(() => {
     const total = vehicles.length;
-    const active = vehicles.filter(v => v.status === 'Active').length;
-    const maintenance = vehicles.filter(v => v.status === 'Maintenance').length;
-    const outOfService = vehicles.filter(v => v.status === 'Out of Service').length;
+    
+    // Use exact status values from your system
+    const normal = vehicles.filter(v => v.status === 'Normal').length;
+    const inRepair = vehicles.filter(v => v.status === 'In Repair').length;
+    const decommissioned = vehicles.filter(v => v.status === 'Decommissioned').length;
 
-    // Calculate availability rate
-    const availabilityRate = total > 0 ? ((active / total) * 100).toFixed(1) : '0';
+    // Calculate availability rate (Normal vehicles are available)
+    const availabilityRate = total > 0 ? ((normal / total) * 100).toFixed(1) : '0';
 
     // Calculate average age (mock calculation based on year)
     const currentYear = new Date().getFullYear();
     const totalAge = vehicles.reduce((sum, v) => sum + (currentYear - (v.year || currentYear)), 0);
     const avgAge = total > 0 ? (totalAge / total).toFixed(1) : '0';
 
-    return { total, active, maintenance, outOfService, availabilityRate, avgAge };
+    return { 
+      total, 
+      active: normal, // Normal = Active/Available
+      maintenance: inRepair, // In Repair = Maintenance
+      outOfService: decommissioned, // Decommissioned = Out of Service
+      availabilityRate, 
+      avgAge 
+    };
   }, [vehicles]);
 
-  // Status Chart Data
-  const statusData = useMemo(() => [
-    { name: 'Active', value: stats.active, color: CHART_COLORS.industrialGreen },
-    { name: 'Maintenance', value: stats.maintenance, color: CHART_COLORS.maintenanceYellow },
-    { name: 'Out of Service', value: stats.outOfService, color: CHART_COLORS.warningRed },
-  ], [stats]);
+  // Status Chart Data - using your exact status values
+  const statusData = useMemo(() => {
+    const data = [
+      { name: 'Normal', value: stats.active, color: CHART_COLORS.industrialGreen },
+      { name: 'In Repair', value: stats.maintenance, color: CHART_COLORS.maintenanceYellow },
+      { name: 'Decommissioned', value: stats.outOfService, color: CHART_COLORS.warningRed },
+    ];
+    
+    return data.filter(item => item.value > 0);
+  }, [stats]);
 
   return (
     <div className="space-y-6">
@@ -1536,21 +1401,31 @@ const FleetOverviewReport: React.FC<{
             <HugeiconsIcon icon={Chart01Icon} size={20} className="text-primary-600 dark:text-primary-400" />
             Fleet Status Distribution
           </h3>
-          <ReactECharts
-            option={{
-              tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
-              legend: { bottom: 0 },
-              series: [{
-                type: 'pie',
-                radius: ['40%', '70%'],
-                avoidLabelOverlap: false,
-                itemStyle: { borderRadius: 10, borderColor: '#fff', borderWidth: 2 },
-                label: { show: true, formatter: '{b}: {c}' },
-                data: statusData.map(item => ({ value: item.value, name: item.name, itemStyle: { color: item.color } }))
-              }]
-            }}
-            style={{ height: '300px' }}
-          />
+          {statusData.some(item => item.value > 0) ? (
+            <PieChart
+              series={[
+                {
+                  data: statusData.map((item, index) => ({
+                    id: index,
+                    value: item.value,
+                    label: item.name,
+                    color: item.color,
+                  })),
+                  highlightScope: { faded: 'global', highlighted: 'item' },
+                },
+              ]}
+              height={300}
+              slotProps={{
+                legend: {
+                  direction: 'row',
+                  position: { vertical: 'bottom', horizontal: 'middle' },
+                  padding: 0,
+                },
+              }}
+            />
+          ) : (
+            <div className="h-[300px] flex items-center justify-center text-gray-400">No data available</div>
+          )}
         </div>
       </div>
     </div>

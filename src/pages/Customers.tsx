@@ -2,9 +2,8 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
-  FilterHorizontalIcon,
+  FilterIcon,
   Search01Icon,
-  UserMultiple02Icon,
   LinkSquare02Icon,
   Car01Icon,
   ClipboardIcon,
@@ -130,7 +129,7 @@ const CustomersPage = () => {
   const selectedCustomerStats = selectedCustomerId ? getCustomerStats(selectedCustomerId) : null;
 
   return (
-    <div className="flex h-screen bg-white dark:bg-gray-950">
+    <div className="flex h-[calc(100vh-2rem)] w-full bg-white dark:bg-gray-950 overflow-hidden">
       {/* Left Panel - Customer List */}
       <div className={`${isMobile ? (selectedCustomerId ? 'hidden' : 'w-full') : 'w-80'} border-r border-gray-200 dark:border-gray-800 flex flex-col bg-white dark:bg-gray-900`}>
         {/* Header */}
@@ -142,7 +141,7 @@ const CustomersPage = () => {
               className={`p-2 rounded-lg transition-colors ${filtersOpen ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                 }`}
             >
-              <HugeiconsIcon icon={FilterHorizontalIcon} size={16} />
+              <HugeiconsIcon icon={FilterIcon} size={16} />
             </button>
           </div>
 
@@ -181,7 +180,7 @@ const CustomersPage = () => {
         </div>
 
         {/* Customer List */}
-        <div className="flex-1 overflow-y-auto">
+        <div className="flex-1 overflow-y-auto overscroll-y-contain">
           {isLoading ? (
             <div className="p-4 space-y-3">
               {[...Array(8)].map((_, i) => (
@@ -197,7 +196,7 @@ const CustomersPage = () => {
           ) : filteredCustomers.length === 0 ? (
             <div className="p-6 text-center">
               <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3">
-                <HugeiconsIcon icon={UserMultiple02Icon} size={24} className="text-gray-400 dark:text-gray-500" />
+                <HugeiconsIcon icon={UserMultipleIcon} size={24} className="text-gray-400 dark:text-gray-500" />
               </div>
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No customers found</p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -227,8 +226,8 @@ const CustomersPage = () => {
                             {customer.name}
                           </h3>
                           <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${(customer.customerType || customer.customer_type) === 'Cash' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' :
-                              (customer.customerType || customer.customer_type) === 'B2B' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' :
-                                'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                            (customer.customerType || customer.customer_type) === 'B2B' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' :
+                              'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
                             }`}>
                             {customer.customerType || customer.customer_type || 'Unknown'}
                           </span>
@@ -323,7 +322,7 @@ const CustomersPage = () => {
             </div>
 
             {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6">
+            <div className="flex-1 overflow-y-auto p-6 overscroll-y-contain">
               <div className="space-y-6">
                 {/* Contact Information */}
                 <div>

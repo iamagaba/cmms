@@ -23,6 +23,7 @@ interface AssetFormDialogProps {
   onClose: () => void;
   onSave: (vehicleData: Partial<Vehicle>) => Promise<void>;
   vehicle?: Vehicle;
+  customers?: Customer[];
 }
 
 export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClose, onSave, vehicle }) => {
@@ -91,7 +92,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
         customer_id: vehicle.customer_id || '',
         date_of_manufacture: vehicle.date_of_manufacture || undefined,
       });
-      
+
       // Load existing customer data if editing
       if (vehicle.customer_id && customers) {
         const customer = customers.find(c => c.id === vehicle.customer_id);
@@ -124,23 +125,23 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validate required fields
     if (!ownerName || !ownerPhone) {
       alert('Please provide owner name and phone number');
       return;
     }
-    
+
     if (!formData.license_plate || !formData.make || !formData.model || !formData.vin || !formData.year) {
       alert('Please fill in all required fields (License Plate, Make, Model, VIN, Year)');
       return;
     }
-    
+
     setIsSaving(true);
     try {
       // Create or update customer if name or phone is provided
       let customerId = formData.customer_id;
-      
+
       if (ownerName || ownerPhone) {
         if (customerId) {
           // Update existing customer
@@ -151,7 +152,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
               phone: ownerPhone || null,
             })
             .eq('id', customerId);
-          
+
           if (error) {
             console.error('Error updating customer:', error);
             throw error;
@@ -166,7 +167,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
             })
             .select()
             .single();
-          
+
           if (error) {
             console.error('Error creating customer:', error);
             throw error;
@@ -174,23 +175,23 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
           customerId = newCustomer.id;
         }
       }
-      
+
       // Calculate warranty dates if date_of_manufacture is provided
       const dataToSave = { ...formData, customer_id: customerId };
-      
+
       // Set is_company_asset based on ownership type
       dataToSave.is_company_asset = ownershipType === 'Business';
-      
+
       // Ensure optional fields are null if empty (not empty strings)
       if (!dataToSave.motor_number || dataToSave.motor_number.trim() === '') {
         dataToSave.motor_number = null;
       }
-      
+
       // Ensure mileage is a number or null
-      if (!dataToSave.mileage) {
+      if (dataToSave.mileage === undefined || dataToSave.mileage === null || isNaN(dataToSave.mileage)) {
         dataToSave.mileage = null;
       }
-      
+
       // VIN and year are required by database - ensure they have values
       if (!dataToSave.vin || dataToSave.vin.trim() === '') {
         alert('VIN is required');
@@ -200,26 +201,26 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
         alert('Year is required');
         return;
       }
-      
+
       if (formData.date_of_manufacture) {
         const manufactureDate = new Date(formData.date_of_manufacture);
         const warrantyEndDate = new Date(manufactureDate);
         warrantyEndDate.setFullYear(warrantyEndDate.getFullYear() + 1);
-        
+
         dataToSave.warranty_start_date = formData.date_of_manufacture;
         dataToSave.warranty_end_date = warrantyEndDate.toISOString();
         dataToSave.warranty_months = 12;
       }
-      
+
       console.log('=== FORM SUBMIT DEBUG ===');
       console.log('Form data before processing:', formData);
       console.log('Owner info:', { ownerName, ownerPhone, ownershipType });
       console.log('Customer ID:', customerId);
       console.log('Final data to save:', dataToSave);
-      
+
       await onSave(dataToSave);
       console.log('Asset saved successfully, closing dialog');
-      
+
       // Reset form and close dialog
       setFormData({
         license_plate: '',
@@ -262,10 +263,10 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50 transition-opacity" onClick={onClose} />
-      
+
       {/* Drawer */}
       <div className="absolute inset-y-0 right-0 flex max-w-full">
-        <div 
+        <div
           className="w-screen max-w-2xl bg-white shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out translate-x-0"
           onClick={(e) => e.stopPropagation()}
         >
@@ -299,23 +300,20 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                 ].map((step, idx) => (
                   <div key={step.num} className="flex items-center flex-1">
                     <div className="flex flex-col items-center">
-                      <div className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${
-                        step.num === currentStep ? 'bg-primary-600 text-white ring-4 ring-primary-100' :
+                      <div className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${step.num === currentStep ? 'bg-primary-600 text-white ring-4 ring-primary-100' :
                         step.num < currentStep ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-600'
-                      }`}>
+                        }`}>
                         {step.num < currentStep ? <HugeiconsIcon icon={Tick01Icon} size={20} /> : <HugeiconsIcon icon={step.icon} size={20} />}
                       </div>
-                      <span className={`text-xs mt-1 font-medium ${
-                        step.num === currentStep ? 'text-primary-600' :
+                      <span className={`text-xs mt-1 font-medium ${step.num === currentStep ? 'text-primary-600' :
                         step.num < currentStep ? 'text-green-600' : 'text-gray-500'
-                      }`}>
+                        }`}>
                         {step.label}
                       </span>
                     </div>
                     {idx < 2 && (
-                      <div className={`flex-1 h-1 mx-3 rounded transition-all ${
-                        step.num < currentStep ? 'bg-green-600' : 'bg-gray-200'
-                      }`} />
+                      <div className={`flex-1 h-1 mx-3 rounded transition-all ${step.num < currentStep ? 'bg-green-600' : 'bg-gray-200'
+                        }`} />
                     )}
                   </div>
                 ))}
@@ -326,330 +324,329 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
           {/* Form - Scrollable */}
           <form id="asset-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
             <div className="p-6 space-y-6">
-          
-          {/* STEP 1: Owner Information */}
-          {(currentStep === 1 || vehicle) && (
-          <div>
-            <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <HugeiconsIcon icon={UserIcon} size={20} className="text-primary-600" />
-              Owner Information
-            </h3>
-            <div className="space-y-4">
-              {/* Ownership Type */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Asset Ownership Type <span className="text-red-500">*</span>
-                </label>
-                <div className="grid grid-cols-3 gap-3">
-                  {(['Individual', 'WATU', 'Business'] as const).map((type) => (
-                    <button
-                      key={type}
-                      type="button"
-                      onClick={() => setOwnershipType(type)}
-                      className={`px-4 py-3 rounded-lg border-2 text-sm font-medium transition-all ${
-                        ownershipType === type
-                          ? 'border-primary-600 bg-primary-50 text-primary-700'
-                          : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
-                      }`}
-                    >
-                      {type}
-                    </button>
-                  ))}
-                </div>
-              </div>
 
-              {/* Search existing customer */}
-              <div className="relative">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Search Existing Owner
-                </label>
-                <div className="relative">
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => {
-                      setSearchQuery(e.target.value);
-                      setShowCustomerDropdown(e.target.value.length > 0);
-                    }}
-                    onFocus={() => setShowCustomerDropdown(searchQuery.length > 0)}
-                    placeholder="Search by name or phone number"
-                    className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  />
-                  <HugeiconsIcon icon={Search01Icon} size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                </div>
-                
-                {/* Dropdown results */}
-                {showCustomerDropdown && filteredCustomers.length > 0 && (
-                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                    {filteredCustomers.map((customer) => (
-                      <button
-                        key={customer.id}
-                        type="button"
-                        onClick={() => handleSelectCustomer(customer)}
-                        className="w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center justify-between group"
-                      >
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{customer.name || 'No name'}</div>
-                          <div className="text-xs text-gray-500">{customer.phone || 'No phone'}</div>
+              {/* STEP 1: Owner Information */}
+              {(currentStep === 1 || vehicle) && (
+                <div>
+                  <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <HugeiconsIcon icon={UserIcon} size={20} className="text-primary-600" />
+                    Owner Information
+                  </h3>
+                  <div className="space-y-4">
+                    {/* Ownership Type */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        Asset Ownership Type <span className="text-red-500">*</span>
+                      </label>
+                      <div className="grid grid-cols-3 gap-3">
+                        {(['Individual', 'WATU', 'Business'] as const).map((type) => (
+                          <button
+                            key={type}
+                            type="button"
+                            onClick={() => setOwnershipType(type)}
+                            className={`px-4 py-3 rounded-lg border-2 text-sm font-medium transition-all ${ownershipType === type
+                              ? 'border-primary-600 bg-primary-50 text-primary-700'
+                              : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
+                              }`}
+                          >
+                            {type}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Search existing customer */}
+                    <div className="relative">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Search Existing Owner
+                      </label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => {
+                            setSearchQuery(e.target.value);
+                            setShowCustomerDropdown(e.target.value.length > 0);
+                          }}
+                          onFocus={() => setShowCustomerDropdown(searchQuery.length > 0)}
+                          placeholder="Search by name or phone number"
+                          className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        />
+                        <HugeiconsIcon icon={Search01Icon} size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                      </div>
+
+                      {/* Dropdown results */}
+                      {showCustomerDropdown && filteredCustomers.length > 0 && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                          {filteredCustomers.map((customer) => (
+                            <button
+                              key={customer.id}
+                              type="button"
+                              onClick={() => handleSelectCustomer(customer)}
+                              className="w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center justify-between group"
+                            >
+                              <div>
+                                <div className="text-sm font-medium text-gray-900">{customer.name || 'No name'}</div>
+                                <div className="text-xs text-gray-500">{customer.phone || 'No phone'}</div>
+                              </div>
+                              <HugeiconsIcon icon={Tick01Icon} size={16} className="text-primary-600 opacity-0 group-hover:opacity-100" />
+                            </button>
+                          ))}
                         </div>
-                        <HugeiconsIcon icon={Tick01Icon} size={16} className="text-primary-600 opacity-0 group-hover:opacity-100" />
-                      </button>
-                    ))}
+                      )}
+                    </div>
+
+                    {/* Divider */}
+                    <div className="relative">
+                      <div className="absolute inset-0 flex items-center">
+                        <div className="w-full border-t border-gray-300"></div>
+                      </div>
+                      <div className="relative flex justify-center text-xs">
+                        <span className="px-2 bg-white text-gray-500">or enter new owner details</span>
+                      </div>
+                    </div>
+
+                    {/* Owner name */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Owner Name <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={ownerName}
+                        onChange={(e) => setOwnerName(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        placeholder="Enter owner's full name"
+                      />
+                    </div>
+
+                    {/* Owner phone */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Owner Phone Number <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="tel"
+                        required
+                        value={ownerPhone}
+                        onChange={(e) => setOwnerPhone(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        placeholder="Enter phone number"
+                      />
+                    </div>
+
+                    {/* Selected customer indicator */}
+                    {formData.customer_id && (
+                      <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="text-green-600" />
+                          <span className="text-sm text-green-900">Existing customer selected</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setFormData({ ...formData, customer_id: '' });
+                            setOwnerName('');
+                            setOwnerPhone('');
+                          }}
+                          className="text-xs text-green-700 hover:text-green-900 underline"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    )}
                   </div>
-                )}
-              </div>
-
-              {/* Divider */}
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300"></div>
                 </div>
-                <div className="relative flex justify-center text-xs">
-                  <span className="px-2 bg-white text-gray-500">or enter new owner details</span>
-                </div>
-              </div>
 
-              {/* Owner name */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Owner Name <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={ownerName}
-                  onChange={(e) => setOwnerName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="Enter owner's full name"
-                />
-              </div>
+              )}
 
-              {/* Owner phone */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Owner Phone Number <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="tel"
-                  required
-                  value={ownerPhone}
-                  onChange={(e) => setOwnerPhone(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="Enter phone number"
-                />
-              </div>
+              {/* STEP 2: Bike Details */}
+              {(currentStep === 2 || vehicle) && (
+                <div>
+                  <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <HugeiconsIcon icon={Motorbike01Icon} size={20} className="text-primary-600" />
+                    Bike Details
+                  </h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        License Plate <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.license_plate}
+                        onChange={(e) => setFormData({ ...formData, license_plate: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        placeholder="Enter license plate"
+                      />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Make <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.make}
+                          onChange={(e) => setFormData({ ...formData, make: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          placeholder="e.g., TVS"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Model <span className="text-red-500">*</span>
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={formData.model}
+                          onChange={(e) => setFormData({ ...formData, model: e.target.value })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          placeholder="e.g., iQube"
+                        />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Production Date</label>
+                        <input
+                          type="date"
+                          value={formData.date_of_manufacture ? formData.date_of_manufacture.split('T')[0] : ''}
+                          onChange={(e) => {
+                            const dateValue = e.target.value ? new Date(e.target.value).toISOString() : undefined;
+                            const year = e.target.value ? new Date(e.target.value).getFullYear() : undefined;
+                            setFormData({ ...formData, date_of_manufacture: dateValue, year });
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                          Status <span className="text-red-500">*</span>
+                        </label>
+                        <select
+                          required
+                          value={formData.status || 'Normal'}
+                          onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        >
+                          <option value="Normal">Normal</option>
+                          <option value="In Repair">In Repair</option>
+                          <option value="Decommissioned">Decommissioned</option>
+                        </select>
+                      </div>
+                    </div>
 
-              {/* Selected customer indicator */}
-              {formData.customer_id && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="text-green-600" />
-                    <span className="text-sm text-green-900">Existing customer selected</span>
+                    {/* Warranty Information - Auto-calculated */}
+                    {formData.date_of_manufacture && (
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div className="flex items-start gap-2">
+                          <HugeiconsIcon icon={InformationCircleIcon} size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
+                          <div>
+                            <p className="text-sm font-medium text-blue-900">Warranty Information</p>
+                            <p className="text-xs text-blue-700 mt-1">
+                              A 1-year warranty will be automatically set from the production date ({new Date(formData.date_of_manufacture).toLocaleDateString()}) to {new Date(new Date(formData.date_of_manufacture).setFullYear(new Date(formData.date_of_manufacture).getFullYear() + 1)).toLocaleDateString()}.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Emergency Bike Flag - Only for Business ownership */}
+                    {ownershipType === 'Business' && (
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="is_emergency_bike"
+                          checked={formData.is_emergency_bike || false}
+                          onChange={(e) => setFormData({ ...formData, is_emergency_bike: e.target.checked })}
+                          className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                        />
+                        <label htmlFor="is_emergency_bike" className="text-sm font-medium text-gray-700">
+                          Mark as Emergency Bike
+                        </label>
+                      </div>
+                    )}
+
+                    {/* Info message for non-business ownership */}
+                    {ownershipType !== 'Business' && (
+                      <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                        <div className="flex items-start gap-2">
+                          <HugeiconsIcon icon={InformationCircleIcon} size={16} className="text-gray-500 flex-shrink-0 mt-0.5" />
+                          <p className="text-xs text-gray-600">
+                            Only company-owned bikes (Business ownership) can be marked as Emergency Bikes.
+                          </p>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFormData({ ...formData, customer_id: '' });
-                      setOwnerName('');
-                      setOwnerPhone('');
-                    }}
-                    className="text-xs text-green-700 hover:text-green-900 underline"
-                  >
-                    Clear
-                  </button>
                 </div>
               )}
-            </div>
-          </div>
 
-          )}
-
-          {/* STEP 2: Bike Details */}
-          {(currentStep === 2 || vehicle) && (
-          <div>
-            <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <HugeiconsIcon icon={Motorbike01Icon} size={20} className="text-primary-600" />
-              Bike Details
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  License Plate <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.license_plate}
-                  onChange={(e) => setFormData({ ...formData, license_plate: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="Enter license plate"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
+              {/* STEP 3: Technical Information */}
+              {(currentStep === 3 || vehicle) && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Make <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.make}
-                    onChange={(e) => setFormData({ ...formData, make: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="e.g., TVS"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Model <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formData.model}
-                    onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                    placeholder="e.g., iQube"
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Production Date</label>
-                  <input
-                    type="date"
-                    value={formData.date_of_manufacture ? formData.date_of_manufacture.split('T')[0] : ''}
-                    onChange={(e) => {
-                      const dateValue = e.target.value ? new Date(e.target.value).toISOString() : undefined;
-                      const year = e.target.value ? new Date(e.target.value).getFullYear() : undefined;
-                      setFormData({ ...formData, date_of_manufacture: dateValue, year });
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Status <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    required
-                    value={formData.status}
-                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  >
-                    <option value="Normal">Normal</option>
-                    <option value="In Repair">In Repair</option>
-                    <option value="Decommissioned">Decommissioned</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Warranty Information - Auto-calculated */}
-              {formData.date_of_manufacture && (
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <div className="flex items-start gap-2">
-                    <HugeiconsIcon icon={InformationCircleIcon} size={20} className="text-blue-600 flex-shrink-0 mt-0.5" />
+                  <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <HugeiconsIcon icon={Wrench01Icon} size={20} className="text-primary-600" />
+                    Technical Information
+                  </h3>
+                  <div className="space-y-4">
                     <div>
-                      <p className="text-sm font-medium text-blue-900">Warranty Information</p>
-                      <p className="text-xs text-blue-700 mt-1">
-                        A 1-year warranty will be automatically set from the production date ({new Date(formData.date_of_manufacture).toLocaleDateString()}) to {new Date(new Date(formData.date_of_manufacture).setFullYear(new Date(formData.date_of_manufacture).getFullYear() + 1)).toLocaleDateString()}.
-                      </p>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        VIN <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        value={formData.vin}
+                        onChange={(e) => setFormData({ ...formData, vin: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        placeholder="Vehicle Identification Number"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Year <span className="text-red-500">*</span>
+                      </label>
+                      <input
+                        type="number"
+                        required
+                        min="1900"
+                        max={new Date().getFullYear() + 1}
+                        value={formData.year || ''}
+                        onChange={(e) => setFormData({ ...formData, year: e.target.value ? parseInt(e.target.value) : new Date().getFullYear() })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        placeholder="Manufacturing year"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Motor Number</label>
+                      <input
+                        type="text"
+                        value={formData.motor_number || ''}
+                        onChange={(e) => setFormData({ ...formData, motor_number: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        placeholder="Motor/Engine Number"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Mileage (km)</label>
+                      <input
+                        type="number"
+                        min="0"
+                        value={formData.mileage ?? ''}
+                        onChange={(e) => setFormData({ ...formData, mileage: e.target.value === '' ? undefined : parseInt(e.target.value) })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        placeholder="Current mileage"
+                      />
                     </div>
                   </div>
                 </div>
               )}
-
-              {/* Emergency Bike Flag - Only for Business ownership */}
-              {ownershipType === 'Business' && (
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="is_emergency_bike"
-                    checked={formData.is_emergency_bike || false}
-                    onChange={(e) => setFormData({ ...formData, is_emergency_bike: e.target.checked })}
-                    className="w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
-                  />
-                  <label htmlFor="is_emergency_bike" className="text-sm font-medium text-gray-700">
-                    Mark as Emergency Bike
-                  </label>
-                </div>
-              )}
-              
-              {/* Info message for non-business ownership */}
-              {ownershipType !== 'Business' && (
-                <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                  <div className="flex items-start gap-2">
-                    <HugeiconsIcon icon={InformationCircleIcon} size={16} className="text-gray-500 flex-shrink-0 mt-0.5" />
-                    <p className="text-xs text-gray-600">
-                      Only company-owned bikes (Business ownership) can be marked as Emergency Bikes.
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-          )}
-
-          {/* STEP 3: Technical Information */}
-          {(currentStep === 3 || vehicle) && (
-          <div>
-            <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <HugeiconsIcon icon={Wrench01Icon} size={20} className="text-primary-600" />
-              Technical Information
-            </h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  VIN <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={formData.vin}
-                  onChange={(e) => setFormData({ ...formData, vin: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="Vehicle Identification Number"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Year <span className="text-red-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  required
-                  min="1900"
-                  max={new Date().getFullYear() + 1}
-                  value={formData.year || ''}
-                  onChange={(e) => setFormData({ ...formData, year: e.target.value ? parseInt(e.target.value) : new Date().getFullYear() })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="Manufacturing year"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Motor Number</label>
-                <input
-                  type="text"
-                  value={formData.motor_number}
-                  onChange={(e) => setFormData({ ...formData, motor_number: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="Motor/Engine Number"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Mileage (km)</label>
-                <input
-                  type="number"
-                  min="0"
-                  value={formData.mileage || ''}
-                  onChange={(e) => setFormData({ ...formData, mileage: e.target.value ? parseInt(e.target.value) : undefined })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="Current mileage"
-                />
-              </div>
-            </div>
-          </div>
-          )}
 
             </div>
           </form>
@@ -664,7 +661,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
             >
               Cancel
             </button>
-            
+
             <div className="flex items-center gap-3">
               {/* Back button - only show when not on first step and not editing */}
               {!vehicle && currentStep > 1 && (
@@ -678,7 +675,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                   Back
                 </button>
               )}
-              
+
               {/* Next/Submit button */}
               {!vehicle && currentStep < 3 ? (
                 <button
@@ -715,7 +712,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                   disabled={isSaving}
                   className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
                 >
-                  {isSaving && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin" />}
+                  {isSaving && <HugeiconsIcon icon={Loading01Icon} size={16} className="animate-spin" />}
                   {vehicle ? 'Update Asset' : 'Create Asset'}
                 </button>
               )}

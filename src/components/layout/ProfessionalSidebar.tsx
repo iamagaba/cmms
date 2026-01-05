@@ -6,24 +6,23 @@
  * Features smooth animations, active states, search, collapsible sections, and accessibility support.
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Home01Icon,
   ClipboardIcon,
   Building01Icon,
-  Store01Icon,
+  UserMultipleIcon,
   Wrench01Icon,
-  PackageIcon,
-  Location01Icon,
+  Archive01Icon,
+  Location03Icon,
   Calendar01Icon,
-  TimelineIcon,
+  ChartLineData01Icon,
   MessageIcon,
   Settings01Icon,
-  GridIcon,
-  Search01Icon,
-  Cancel01Icon,
+  WebDesign02Icon,
+
   UserIcon
 } from '@hugeicons/core-free-icons';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -95,7 +94,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'customers',
         label: 'Customers',
         href: '/customers',
-        icon: Store01Icon,
+        icon: UserMultipleIcon,
         description: 'Customer management',
         keywords: ['customers', 'clients', 'contacts'],
       },
@@ -111,7 +110,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'inventory',
         label: 'Inventory',
         href: '/inventory',
-        icon: PackageIcon,
+        icon: Archive01Icon,
         description: 'Parts and supplies',
         keywords: ['inventory', 'parts', 'supplies', 'stock'],
       },
@@ -119,7 +118,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'locations',
         label: 'Service Centers',
         href: '/locations',
-        icon: Location01Icon,
+        icon: Location03Icon,
         description: 'Maintenance locations and facilities',
         keywords: ['locations', 'service', 'centers', 'facilities', 'sites'],
       },
@@ -143,7 +142,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'reports',
         label: 'Reports',
         href: '/reports',
-        icon: TimelineIcon,
+        icon: ChartLineData01Icon,
         description: 'Analytics and insights',
         keywords: ['reports', 'analytics', 'insights', 'data'],
       },
@@ -175,7 +174,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'design-system',
         label: 'Design System',
         href: '/design-system',
-        icon: GridIcon,
+        icon: WebDesign02Icon,
         description: 'UI components and design tokens',
         keywords: ['design', 'system', 'components', 'ui', 'tokens', 'theme'],
       },
@@ -255,6 +254,7 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
         <HugeiconsIcon
           icon={item.icon}
           size={isCollapsed ? 20 : 16}
+          strokeWidth={isActive ? 2 : 1.5}
         />
       </div>
 
@@ -269,7 +269,7 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
             className="flex-1 min-w-0"
           >
             <span className={cn(
-              'text-sm leading-tight',
+              'text-sm leading-tight font-ui',
               isActive && 'font-semibold'
             )}>
               {item.label}
@@ -378,11 +378,10 @@ const NavigationSectionComponent: React.FC<NavigationSectionProps> = ({
 const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
   className,
   collapsed = false,
-  onToggleCollapse,
+
   onNavigate,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const isExpanded = isHovered || !collapsed;
 
   // Notify parent about hover state for content resizing
@@ -391,22 +390,8 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
     window.dispatchEvent(event);
   }, [isExpanded]);
 
-  // Filter navigation items based on search
-  const filteredSections = useMemo(() => {
-    if (!searchQuery.trim()) return navigationConfig;
-
-    const query = searchQuery.toLowerCase();
-    return navigationConfig
-      .map(section => ({
-        ...section,
-        items: section.items.filter(item =>
-          item.label.toLowerCase().includes(query) ||
-          item.description?.toLowerCase().includes(query) ||
-          item.keywords?.some(keyword => keyword.includes(query))
-        )
-      }))
-      .filter(section => section.items.length > 0);
-  }, [searchQuery]);
+  // Filter navigation items based on search - Simplified to direct return
+  const filteredSections = navigationConfig;
 
   return (
     <aside
@@ -461,61 +446,18 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
         </AnimatePresence>
       </div>
 
-      {/* Search Bar - matches WorkOrderSidebar exactly */}
-      <AnimatePresence>
-        {isExpanded && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.15 }}
-            className="px-4 py-3 border-b border-gray-200"
-          >
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-                <HugeiconsIcon icon={Search01Icon} size={14} className="text-gray-400" />
-              </div>
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search navigation..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
-              />
-              {searchQuery && (
-                <button
-                  type="button"
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 hover:bg-gray-100 rounded transition-colors"
-                >
-                  <HugeiconsIcon icon={Cancel01Icon} size={12} className="text-gray-500" />
-                </button>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
 
       {/* Navigation */}
       <nav className="flex-1 py-1 overflow-y-auto scrollbar-hide">
-        {filteredSections.length > 0 ? (
-          filteredSections.map((section) => (
-            <NavigationSectionComponent
-              key={section.id}
-              section={section}
-              isCollapsed={!isExpanded}
-              onNavigate={onNavigate}
-            />
-          ))
-        ) : (
-          isExpanded && searchQuery && (
-            <div className="text-center py-8 text-gray-500">
-              <HugeiconsIcon icon={Search01Icon} size={32} className="mx-auto mb-2 text-gray-400" />
-              <p className="text-sm">No results found</p>
-              <p className="text-xs mt-1">Try a different search term</p>
-            </div>
-          )
-        )}
+        {filteredSections.map((section) => (
+          <NavigationSectionComponent
+            key={section.id}
+            section={section}
+            isCollapsed={!isExpanded}
+            onNavigate={onNavigate}
+          />
+        ))}
       </nav>
 
       {/* Footer */}

@@ -30,7 +30,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { WorkOrder, Technician, Location, Customer, Vehicle, WorkOrderPart, Profile, SlaPolicy, EmergencyBikeAssignment } from "@/types/supabase";
 import { DiagnosticCategoryRow } from '@/types/diagnostic';
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, Component, ErrorInfo, ReactNode } from "react";
 import { showSuccess, showError } from "@/utils/toast";
 import { camelToSnakeCase, snakeToCamelCase } from "@/utils/data-helpers";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
@@ -64,6 +64,34 @@ import { WorkOrderSidebar } from "@/components/work-order-details/WorkOrderSideb
 import { WorkOrderPartsUsedCard } from "@/components/work-order-details/WorkOrderPartsUsedCard";
 import { ConfirmationCallDialog } from "@/components/work-order-details/ConfirmationCallDialog";
 import { WorkOrderPartsDialog } from "@/components/WorkOrderPartsDialog";
+
+// Simple inline error boundary for debugging
+class DebugErrorBoundary extends Component<{ children: ReactNode }, { hasError: boolean; error: Error | null }> {
+  constructor(props: { children: ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    console.error('WorkOrderDetailsEnhanced Error:', error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-8 bg-red-50 border border-red-200 rounded-lg m-4">
+          <h2 className="text-xl font-bold text-red-800 mb-2">Something went wrong</h2>
+          <p className="text-red-700 mb-4">{this.state.error?.message}</p>
+          <pre className="text-xs bg-red-100 p-4 rounded overflow-auto max-h-64">
+            {this.state.error?.stack}
+          </pre>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 // Import work order helper functions
 import {
@@ -791,7 +819,7 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
 
   // Main Render
   return (
-    <>
+    <DebugErrorBoundary>
       {!isDrawerMode && (
         <AppBreadcrumb
           backButton={backButton}
@@ -1281,20 +1309,19 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
       <AssignTechnicianModal
         open={isAssignModalOpen}
         technicians={allTechnicians || []}
-        workOrders={(realtimeWorkOrders as WorkOrder[]) || []}
-        onCancel={() => { setIsAssignModalOpen(false); setPendingUpdates(null); setOptimisticWorkOrder(null); }}
-        onConfirm={(technicianId) => {
+        onClose={() => { setIsAssignModalOpen(false); setPendingUpdates(null); setOptimisticWorkOrder(null); }}
+        onAssign={(technicianId) => {
           const merged: Partial<WorkOrder> = { ...(pendingUpdates || {}), status: 'In Progress', assignedTechnicianId: technicianId };
-          console.log('🔧 AssignTechnicianModal onConfirm - pendingUpdates:', pendingUpdates);
-          console.log('🔧 AssignTechnicianModal onConfirm - merged updates:', merged);
-          console.log('🔧 AssignTechnicianModal onConfirm - current workOrder status:', workOrder?.status);
+          console.log('🔧 AssignTechnicianModal onAssign - pendingUpdates:', pendingUpdates);
+          console.log('🔧 AssignTechnicianModal onAssign - merged updates:', merged);
+          console.log('🔧 AssignTechnicianModal onAssign - current workOrder status:', workOrder?.status);
           setIsAssignModalOpen(false);
           setPendingUpdates(null);
           // Set optimistic state to ensure UI reflects the change immediately
           setOptimisticWorkOrder(merged);
           handleUpdateWorkOrder(merged);
         }}
-        loading={workOrderMutation.isPending}
+        isAssigning={workOrderMutation.isPending}
       />
 
       {/* Emergency bike assignment modal */}
@@ -1338,7 +1365,7 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
           workOrderNumber={workOrder.workOrderNumber}
         />
       )}
-    </>
+    </DebugErrorBoundary>
   );
 };
 

@@ -10,10 +10,11 @@ import {
   BarChartIcon,
   FileIcon,
   Add01Icon,
-  PackageIcon,
-  Edit01Icon,
+  Archive01Icon,
+  PencilEdit02Icon,
   Delete01Icon,
-  Store01Icon
+  Store01Icon,
+  PackageIcon,
 } from '@hugeicons/core-free-icons';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -339,7 +340,7 @@ const InventoryPage: React.FC = () => {
 
 
   return (
-    <div className="flex h-screen w-full bg-white dark:bg-gray-900 overflow-hidden">
+    <div className="flex h-[calc(100vh-2rem)] w-full bg-white dark:bg-gray-900 overflow-hidden">
       {/* List Column - Inventory List */}
       <div className="w-80 flex-none border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex flex-col">
         {/* Header with Stat Ribbon */}
@@ -519,10 +520,10 @@ const InventoryPage: React.FC = () => {
         </div>
 
         {/* Inventory List */}
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto overscroll-y-contain">
           {filteredItems.length === 0 ? (
             <div className="empty-state">
-              <HugeiconsIcon icon={PackageIcon} className="empty-state-icon" />
+              <HugeiconsIcon icon={Archive01Icon} className="empty-state-icon" />
               <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No items found</p>
               <p className="empty-state-text">
                 {hasActiveFilters ? "Try adjusting your filters" : "Add your first inventory item to get started"}
@@ -547,7 +548,7 @@ const InventoryPage: React.FC = () => {
                     <div className="flex items-center justify-between mb-2">
                       <div className="flex items-center gap-2">
                         <div size={8} className=" rounded-md bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                          <HugeiconsIcon icon={PackageIcon} size={20} className=" text-purple-600 dark:text-purple-400" />
+                          <HugeiconsIcon icon={Archive01Icon} size={20} className=" text-purple-600 dark:text-purple-400" />
                         </div>
                         <div>
                           <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
@@ -603,7 +604,7 @@ const InventoryPage: React.FC = () => {
                         className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
                         title="Edit"
                       >
-                        <HugeiconsIcon icon={Edit01Icon} size={16} className=" text-gray-600 dark:text-gray-400" />
+                        <HugeiconsIcon icon={PencilEdit02Icon} size={16} className=" text-gray-600 dark:text-gray-400" />
                       </button>
                       <button
                         onClick={(e) => {
@@ -625,271 +626,275 @@ const InventoryPage: React.FC = () => {
       </div>
 
       {/* Detail Column */}
-      <div className="flex-1 overflow-auto bg-white dark:bg-gray-900">
+      <div className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-gray-900">
         {selectedItem ? (
-          <div className="p-6">
-            {/* Item Header */}
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
-                  {selectedItem.name || 'Unnamed Item'}
-                </h2>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                  {selectedItem.sku ? `SKU: ${selectedItem.sku}` : 'No SKU assigned'}
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleQuickAdjust(selectedItem)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-                >
-                  <HugeiconsIcon icon={PlusMinusIcon} size={20} className="" />
-                  Adjust Stock
-                </button>
-                <button
-                  onClick={() => handleEdit(selectedItem)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
-                >
-                  <HugeiconsIcon icon={Edit01Icon} size={20} className="" />
-                  Edit
-                </button>
-                <button
-                  onClick={() => handleDeleteClick(selectedItem)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors"
-                >
-                  <HugeiconsIcon icon={Delete01Icon} size={20} className="" />
-                  Delete
-                </button>
-              </div>
-            </div>
-
-            {/* Item Details */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Basic Information */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide border-b border-gray-200 dark:border-gray-700 pb-2">Basic Information</h3>
-                <div className="space-y-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-                  <div>
-                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Item Name</label>
-                    <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.name || 'Not specified'}</p>
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">SKU</label>
-                    <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5 font-mono">{selectedItem.sku || 'Not assigned'}</p>
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Description</label>
-                    <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.description || 'No description'}</p>
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Unit Price</label>
-                    <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">UGX {(selectedItem.unit_price ?? 0).toLocaleString()}</p>
-                  </div>
-                  {/* Categories */}
-                  <div>
-                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Categories</label>
-                    <div className="mt-1 flex flex-wrap gap-1">
-                      {(selectedItem.categories || []).length > 0 ? (
-                        selectedItem.categories!.map(cat => (
-                          <CategoryBadge key={cat} category={cat} size="sm" />
-                        ))
-                      ) : (
-                        <div className="w-full text-center py-3 px-4 bg-white dark:bg-gray-900 rounded-md border border-dashed border-gray-300 dark:border-gray-600">
-                          <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">No categories assigned</p>
-                          <button
-                            onClick={() => handleEdit(selectedItem)}
-                            className="inline-flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
-                          >
-                            <HugeiconsIcon icon={Add01Icon} size={14} className="" />
-                            Add Categories
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+          <div className="flex flex-col h-full">
+            <div className="flex-none p-6 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 z-10">
+              {/* Item Header */}
+              <div className="flex items-center justify-between mb-0">
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                    {selectedItem.name || 'Unnamed Item'}
+                  </h2>
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                    {selectedItem.sku ? `SKU: ${selectedItem.sku}` : 'No SKU assigned'}
+                  </p>
                 </div>
-              </div>
-
-              {/* Stock Information */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide border-b border-gray-200 dark:border-gray-700 pb-2">Stock Information</h3>
-                <div className="space-y-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-                  <div>
-                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Quantity on Hand</label>
-                    <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5 font-semibold">
-                      {formatQuantityWithUnit(selectedItem.quantity_on_hand ?? 0, selectedItem.unit_of_measure, selectedItem.units_per_package)}
-                    </p>
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Reorder Level</label>
-                    <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.reorder_level ?? 0}</p>
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Status</label>
-                    <div className="mt-0.5">
-                      {(() => {
-                        const qty = selectedItem.quantity_on_hand ?? 0;
-                        const reorderLvl = selectedItem.reorder_level ?? 0;
-                        const isLowStock = qty > 0 && qty <= reorderLvl;
-                        const isOutOfStock = qty === 0;
-
-                        return (
-                          <span className={`px-2 py-0.5 rounded text-xs font-medium border ${isOutOfStock ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800' :
-                            isLowStock ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800' :
-                              'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
-                            }`}>
-                            {isOutOfStock ? 'Out of Stock' : isLowStock ? 'Low Stock' : 'In Stock'}
-                          </span>
-                        );
-                      })()}
-                    </div>
-                  </div>
-                  <div>
-                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Total Value</label>
-                    <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5 font-semibold">
-                      UGX {((selectedItem.quantity_on_hand ?? 0) * (selectedItem.unit_price ?? 0)).toLocaleString()}
-                    </p>
-                  </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleQuickAdjust(selectedItem)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                  >
+                    <HugeiconsIcon icon={PlusMinusIcon} size={20} className="" />
+                    Adjust Stock
+                  </button>
+                  <button
+                    onClick={() => handleEdit(selectedItem)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                  >
+                    <HugeiconsIcon icon={PencilEdit02Icon} size={20} className="" />
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(selectedItem)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors"
+                  >
+                    <HugeiconsIcon icon={Delete01Icon} size={20} className="" />
+                    Delete
+                  </button>
                 </div>
               </div>
             </div>
 
-            {/* Supplier & Storage Location */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
-              {/* Supplier Information */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide border-b border-gray-200 dark:border-gray-700 pb-2">Supplier</h3>
-                <div className="space-y-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
-                  {selectedItem.supplier ? (
-                    <>
-                      <div>
-                        <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Supplier Name</label>
-                        <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.supplier.name}</p>
+            <div className="flex-1 overflow-auto p-6 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent overscroll-y-contain">
+              {/* Item Details */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Basic Information */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide border-b border-gray-200 dark:border-gray-700 pb-2">Basic Information</h3>
+                  <div className="space-y-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Item Name</label>
+                      <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.name || 'Not specified'}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">SKU</label>
+                      <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5 font-mono">{selectedItem.sku || 'Not assigned'}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Description</label>
+                      <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.description || 'No description'}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Unit Price</label>
+                      <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">UGX {(selectedItem.unit_price ?? 0).toLocaleString()}</p>
+                    </div>
+                    {/* Categories */}
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Categories</label>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {(selectedItem.categories || []).length > 0 ? (
+                          selectedItem.categories!.map(cat => (
+                            <CategoryBadge key={cat} category={cat} size="sm" />
+                          ))
+                        ) : (
+                          <div className="w-full text-center py-3 px-4 bg-white dark:bg-gray-900 rounded-md border border-dashed border-gray-300 dark:border-gray-600">
+                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">No categories assigned</p>
+                            <button
+                              onClick={() => handleEdit(selectedItem)}
+                              className="inline-flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
+                            >
+                              <HugeiconsIcon icon={Add01Icon} size={14} className="" />
+                              Add Categories
+                            </button>
+                          </div>
+                        )}
                       </div>
-                      {selectedItem.supplier.contact_name && (
-                        <div>
-                          <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Contact</label>
-                          <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.supplier.contact_name}</p>
-                        </div>
-                      )}
-                      {selectedItem.supplier.phone && (
-                        <div>
-                          <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Phone</label>
-                          <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.supplier.phone}</p>
-                        </div>
-                      )}
-                      {selectedItem.supplier.email && (
-                        <div>
-                          <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Email</label>
-                          <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.supplier.email}</p>
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <div className="text-center py-6">
-                      <div size={12} className=" bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <HugeiconsIcon icon={Store01Icon} size={24} className=" text-gray-400 dark:text-gray-500" />
-                      </div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No Supplier Assigned</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Add a supplier to track vendor information</p>
-                      <button
-                        onClick={() => handleEdit(selectedItem)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-md transition-colors"
-                      >
-                        <HugeiconsIcon icon={Add01Icon} size={16} className="" />
-                        Add Supplier
-                      </button>
                     </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Storage Location */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide">Storage Location</h3>
-                <div className="space-y-3">
-                  <div>
-                    <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Location</label>
-                    <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5 font-mono">
-                      {formatStorageLocation(selectedItem)}
-                    </p>
                   </div>
-                  {selectedItem.warehouse && (
-                    <div className="grid grid-cols-2 gap-2 text-xs">
-                      {selectedItem.zone && (
-                        <div>
-                          <label className="text-gray-500 dark:text-gray-400">Zone</label>
-                          <p className="text-gray-900 dark:text-gray-100">{selectedItem.zone}</p>
-                        </div>
-                      )}
-                      {selectedItem.aisle && (
-                        <div>
-                          <label className="text-gray-500 dark:text-gray-400">Aisle</label>
-                          <p className="text-gray-900 dark:text-gray-100">{selectedItem.aisle}</p>
-                        </div>
-                      )}
-                      {selectedItem.bin && (
-                        <div>
-                          <label className="text-gray-500 dark:text-gray-400">Bin</label>
-                          <p className="text-gray-900 dark:text-gray-100">{selectedItem.bin}</p>
-                        </div>
-                      )}
-                      {selectedItem.shelf && (
-                        <div>
-                          <label className="text-gray-500 dark:text-gray-400">Shelf</label>
-                          <p className="text-gray-900 dark:text-gray-100">{selectedItem.shelf}</p>
-                        </div>
-                      )}
+                </div>
+
+                {/* Stock Information */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide border-b border-gray-200 dark:border-gray-700 pb-2">Stock Information</h3>
+                  <div className="space-y-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Quantity on Hand</label>
+                      <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5 font-semibold">
+                        {formatQuantityWithUnit(selectedItem.quantity_on_hand ?? 0, selectedItem.unit_of_measure, selectedItem.units_per_package)}
+                      </p>
                     </div>
-                  )}
-                </div>
-              </div>
-            </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Reorder Level</label>
+                      <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.reorder_level ?? 0}</p>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Status</label>
+                      <div className="mt-0.5">
+                        {(() => {
+                          const qty = selectedItem.quantity_on_hand ?? 0;
+                          const reorderLvl = selectedItem.reorder_level ?? 0;
+                          const isLowStock = qty > 0 && qty <= reorderLvl;
+                          const isOutOfStock = qty === 0;
 
-            {/* Adjustment History */}
-            <div className="mt-8">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
-                  Stock Adjustment History
-                </h3>
-                <button
-                  onClick={() => setShowHistory(!showHistory)}
-                  className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
-                >
-                  {showHistory ? 'Hide' : 'Show'} History
-                </button>
-              </div>
-              {showHistory && (
-                <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
-                  <AdjustmentHistoryPanel
-                    inventoryItemId={selectedItem.id}
-                    maxHeight="300px"
-                  />
+                          return (
+                            <span className={`px-2 py-0.5 rounded text-xs font-medium border ${isOutOfStock ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800' :
+                              isLowStock ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800' :
+                                'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
+                              }`}>
+                              {isOutOfStock ? 'Out of Stock' : isLowStock ? 'Low Stock' : 'In Stock'}
+                            </span>
+                          );
+                        })()}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Total Value</label>
+                      <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5 font-semibold">
+                        UGX {((selectedItem.quantity_on_hand ?? 0) * (selectedItem.unit_price ?? 0)).toLocaleString()}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              )}
-            </div>
+              </div>
 
-            {/* Work Order Usage */}
-            <div className="mt-8">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
-                  Work Order Usage
-                </h3>
-                <button
-                  onClick={() => setShowWorkOrderUsage(!showWorkOrderUsage)}
-                  className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
-                >
-                  {showWorkOrderUsage ? 'Hide' : 'Show'} Usage
-                </button>
-              </div>
-              {showWorkOrderUsage && (
-                <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
-                  <InventoryPartsUsagePanel
-                    inventoryItemId={selectedItem.id}
-                    maxHeight="400px"
-                  />
+              {/* Supplier & Storage Location */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+                {/* Supplier Information */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide border-b border-gray-200 dark:border-gray-700 pb-2">Supplier</h3>
+                  <div className="space-y-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+                    {selectedItem.supplier ? (
+                      <>
+                        <div>
+                          <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Supplier Name</label>
+                          <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.supplier.name}</p>
+                        </div>
+                        {selectedItem.supplier.contact_name && (
+                          <div>
+                            <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Contact</label>
+                            <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.supplier.contact_name}</p>
+                          </div>
+                        )}
+                        {selectedItem.supplier.phone && (
+                          <div>
+                            <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Phone</label>
+                            <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.supplier.phone}</p>
+                          </div>
+                        )}
+                        {selectedItem.supplier.email && (
+                          <div>
+                            <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Email</label>
+                            <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.supplier.email}</p>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <div className="text-center py-6">
+                        <div className=" bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
+                          <HugeiconsIcon icon={Store01Icon} size={24} className=" text-gray-400 dark:text-gray-500" />
+                        </div>
+                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No Supplier Assigned</p>
+                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Add a supplier to track vendor information</p>
+                        <button
+                          onClick={() => handleEdit(selectedItem)}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-md transition-colors"
+                        >
+                          <HugeiconsIcon icon={Add01Icon} size={16} className="" />
+                          Add Supplier
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              )}
+
+                {/* Storage Location */}
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide">Storage Location</h3>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Location</label>
+                      <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5 font-mono">
+                        {formatStorageLocation(selectedItem)}
+                      </p>
+                    </div>
+                    {selectedItem.warehouse && (
+                      <div className="grid grid-cols-2 gap-2 text-xs">
+                        {selectedItem.zone && (
+                          <div>
+                            <label className="text-gray-500 dark:text-gray-400">Zone</label>
+                            <p className="text-gray-900 dark:text-gray-100">{selectedItem.zone}</p>
+                          </div>
+                        )}
+                        {selectedItem.aisle && (
+                          <div>
+                            <label className="text-gray-500 dark:text-gray-400">Aisle</label>
+                            <p className="text-gray-900 dark:text-gray-100">{selectedItem.aisle}</p>
+                          </div>
+                        )}
+                        {selectedItem.bin && (
+                          <div>
+                            <label className="text-gray-500 dark:text-gray-400">Bin</label>
+                            <p className="text-gray-900 dark:text-gray-100">{selectedItem.bin}</p>
+                          </div>
+                        )}
+                        {selectedItem.shelf && (
+                          <div>
+                            <label className="text-gray-500 dark:text-gray-400">Shelf</label>
+                            <p className="text-gray-900 dark:text-gray-100">{selectedItem.shelf}</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Adjustment History */}
+              <div className="mt-8">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
+                    Stock Adjustment History
+                  </h3>
+                  <button
+                    onClick={() => setShowHistory(!showHistory)}
+                    className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
+                  >
+                    {showHistory ? 'Hide' : 'Show'} History
+                  </button>
+                </div>
+                {showHistory && (
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+                    <AdjustmentHistoryPanel
+                      inventoryItemId={selectedItem.id}
+                      maxHeight="300px"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Work Order Usage */}
+              <div className="mt-8">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
+                    Work Order Usage
+                  </h3>
+                  <button
+                    onClick={() => setShowWorkOrderUsage(!showWorkOrderUsage)}
+                    className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
+                  >
+                    {showWorkOrderUsage ? 'Hide' : 'Show'} Usage
+                  </button>
+                </div>
+                {showWorkOrderUsage && (
+                  <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+                    <InventoryPartsUsagePanel
+                      inventoryItemId={selectedItem.id}
+                      maxHeight="400px"
+                    />
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         ) : (

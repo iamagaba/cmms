@@ -1,6 +1,7 @@
 import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { ThemeProvider as MuiThemeProvider, createTheme } from '@mui/material/styles';
 import AppLayout from "./components/layout/AppLayout";
 import { ErrorProvider } from "./providers/ErrorProvider";
 import { ComprehensiveErrorProvider } from "./components/error/ComprehensiveErrorProvider";
@@ -11,6 +12,13 @@ import { SystemSettingsProvider } from "./context/SystemSettingsContext";
 import { RealtimeDataProvider } from "@/context/RealtimeDataContext";
 import { DensityProvider } from "@/context/DensityContext";
 import './App.css';
+
+// Create a minimal MUI theme for MUI X Charts
+const muiTheme = createTheme({
+  palette: {
+    mode: 'light',
+  },
+});
 
 
 // Mobile components removed - they should only be used in mobile-web/ directory
@@ -108,36 +116,38 @@ const AppContent = () => {
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <BrowserRouter>
-      <ComprehensiveErrorProvider
-        enableGlobalErrorHandling={true}
-        enablePerformanceMonitoring={false}
-        enableErrorReporting={true}
-        enableErrorDashboard={true}
-        maxRetries={3}
-        feature="app"
-      >
-        <ErrorProvider
-          enableGlobalErrorHandling={false}
+  <MuiThemeProvider theme={muiTheme}>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <ComprehensiveErrorProvider
+          enableGlobalErrorHandling={true}
           enablePerformanceMonitoring={false}
+          enableErrorReporting={true}
+          enableErrorDashboard={true}
           maxRetries={3}
+          feature="app"
         >
-          <SessionProvider>
-            <SystemSettingsProvider>
-              <NotificationsProvider>
-                <RealtimeDataProvider>
-                  <DensityProvider>
-                    <AppContent />
-                  </DensityProvider>
-                </RealtimeDataProvider>
-              </NotificationsProvider>
-            </SystemSettingsProvider>
-          </SessionProvider>
-        </ErrorProvider>
-      </ComprehensiveErrorProvider>
-    </BrowserRouter>
-  </QueryClientProvider>
+          <ErrorProvider
+            enableGlobalErrorHandling={false}
+            enablePerformanceMonitoring={false}
+            maxRetries={3}
+          >
+            <SessionProvider>
+              <SystemSettingsProvider>
+                <NotificationsProvider>
+                  <RealtimeDataProvider>
+                    <DensityProvider>
+                      <AppContent />
+                    </DensityProvider>
+                  </RealtimeDataProvider>
+                </NotificationsProvider>
+              </SystemSettingsProvider>
+            </SessionProvider>
+          </ErrorProvider>
+        </ComprehensiveErrorProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
+  </MuiThemeProvider>
 );
 
 export default App;

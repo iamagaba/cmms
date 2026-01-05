@@ -8,7 +8,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
+import {
   Menu01Icon,
   Cancel01Icon,
   Home01Icon,
@@ -43,11 +43,11 @@ export interface ResponsiveNavigationProps {
   logo?: React.ReactNode;
   userMenu?: React.ReactNode;
   className?: string;
-  
+
   // Desktop sidebar props
   collapsible?: boolean;
   defaultCollapsed?: boolean;
-  
+
   // Mobile props
   mobileVariant?: 'drawer' | 'bottom' | 'top';
   showMobileToggle?: boolean;
@@ -130,25 +130,26 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
           )}
           title={isCollapsed ? item.label : undefined}
         >
-          <Icon 
-            icon={item.icon} 
+          <Icon
+            icon={item.icon}
             className={cn(
               'flex-shrink-0 transition-colors',
               isActive ? 'text-steel-600' : 'text-machinery-500',
               isCollapsed ? 'w-6 h-6' : 'w-5 h-5'
-            )} 
+            )}
+            strokeWidth={isActive ? 2 : 1.5}
           />
-          
+
           {!isCollapsed && (
             <>
               <span className="flex-1 truncate">{item.label}</span>
-              
+
               {item.badge && (
                 <span className="px-2 py-0.5 text-xs bg-steel-600 text-white rounded-full">
                   {item.badge}
                 </span>
               )}
-              
+
               {hasChildren && (
                 <Icon
                   icon={isExpanded ? "tabler:chevron-down" : "tabler:chevron-right"}
@@ -196,7 +197,7 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
         {!isCollapsed && logo && (
           <div className="flex-1">{logo}</div>
         )}
-        
+
         {collapsible && (
           <button
             onClick={toggleCollapse}
@@ -295,22 +296,23 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
             level > 0 && 'ml-8 text-sm'
           )}
         >
-          <Icon 
-            icon={item.icon} 
+          <Icon
+            icon={item.icon}
             className={cn(
               'flex-shrink-0 w-6 h-6',
               isActive ? 'text-steel-600' : 'text-machinery-500'
-            )} 
+            )}
+            strokeWidth={isActive ? 2 : 1.5}
           />
-          
+
           <span className="flex-1">{item.label}</span>
-          
+
           {item.badge && (
             <span className="px-2 py-1 text-xs bg-steel-600 text-white rounded-full">
               {item.badge}
             </span>
           )}
-          
+
           {hasChildren && (
             <Icon
               icon={isExpanded ? "tabler:chevron-down" : "tabler:chevron-right"}
@@ -420,7 +422,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       <div className="flex">
         {visibleItems.map((item) => {
           const isActive = activeItem === item.id;
-          
+
           return (
             <button
               key={item.id}
@@ -435,9 +437,10 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
               )}
             >
               <div className="relative">
-                <Icon 
-                  icon={item.icon} 
-                  className="w-6 h-6 mb-1" 
+                <Icon
+                  icon={item.icon}
+                  className="w-6 h-6 mb-1"
+                  strokeWidth={isActive ? 2 : 1.5}
                 />
                 {item.badge && (
                   <span className="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs bg-steel-600 text-white rounded-full min-w-[18px] text-center">
@@ -451,7 +454,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
             </button>
           );
         })}
-        
+
         {hasMoreItems && (
           <button className="flex-1 flex flex-col items-center justify-center py-2 px-1 min-h-[64px] text-machinery-500">
             <HugeiconsIcon icon={MoreVerticalIcon} size={24} className="mb-1" />

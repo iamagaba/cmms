@@ -11,18 +11,23 @@
  * - Professional weight distribution for industrial contexts
  */
 
-// ============================================
-// FONT FAMILIES
-// ============================================
-
-/**
- * Primary font stack optimized for professional applications
- * Inter provides excellent readability and modern appearance
- */
 export const fontFamilies = {
-  sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-  display: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
-  mono: ['JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', 'monospace'],
+  // Geist for UI/Product
+  sans: ['Geist', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
+  // Plus Jakarta Sans for Brand/Marketing/Display
+  display: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+  // IBM Plex Sans for Utility/Technical Content
+  utility: ['"IBM Plex Sans"', 'Inter', 'sans-serif'],
+  // IBM Plex Mono for Technical Data/Metrics
+  mono: ['"IBM Plex Mono"', 'Menlo', 'Monaco', 'Courier New', 'monospace'],
+} as const;
+
+// Semantic Tier Mapping for ease of use in Tailwind/CSS
+export const fontTiers = {
+  ui: fontFamilies.sans,
+  brand: fontFamilies.display,
+  utility: fontFamilies.utility,
+  data: fontFamilies.mono,
 } as const;
 
 // ============================================
@@ -39,49 +44,49 @@ export const fontSizes = {
     fontSize: '0.75rem',    // 12px
     lineHeight: '1rem',     // 16px
   },
-  
+
   // Small text for secondary information
   sm: {
     fontSize: '0.875rem',   // 14px
     lineHeight: '1.25rem',  // 20px
   },
-  
+
   // Base text size for body content
   base: {
     fontSize: '1rem',       // 16px
     lineHeight: '1.5rem',   // 24px
   },
-  
+
   // Large text for emphasis
   lg: {
     fontSize: '1.125rem',   // 18px
     lineHeight: '1.75rem',  // 28px
   },
-  
+
   // Extra large for section headers
   xl: {
     fontSize: '1.25rem',    // 20px
     lineHeight: '1.75rem',  // 28px
   },
-  
+
   // 2X large for page headers
   '2xl': {
     fontSize: '1.5rem',     // 24px
     lineHeight: '2rem',     // 32px
   },
-  
+
   // 3X large for major headings
   '3xl': {
     fontSize: '1.875rem',   // 30px
     lineHeight: '2.25rem',  // 36px
   },
-  
+
   // 4X large for hero text
   '4xl': {
     fontSize: '2.25rem',    // 36px
     lineHeight: '2.5rem',   // 40px
   },
-  
+
   // 5X large for display text
   '5xl': {
     fontSize: '3rem',       // 48px
@@ -155,43 +160,43 @@ export const typographyPresets = {
     fontWeight: fontWeights.bold,
     letterSpacing: letterSpacing.tight,
   },
-  
+
   // Main page headings
   h1: {
-    fontFamily: fontFamilies.sans,
+    fontFamily: fontFamilies.display,
     fontSize: fontSizes['3xl'].fontSize,
     lineHeight: fontSizes['3xl'].lineHeight,
     fontWeight: fontWeights.bold,
     letterSpacing: letterSpacing.tight,
   },
-  
+
   // Section headings
   h2: {
-    fontFamily: fontFamilies.sans,
+    fontFamily: fontFamilies.display,
     fontSize: fontSizes['2xl'].fontSize,
     lineHeight: fontSizes['2xl'].lineHeight,
     fontWeight: fontWeights.semibold,
     letterSpacing: letterSpacing.tight,
   },
-  
+
   // Subsection headings
   h3: {
-    fontFamily: fontFamilies.sans,
+    fontFamily: fontFamilies.display,
     fontSize: fontSizes.xl.fontSize,
     lineHeight: fontSizes.xl.lineHeight,
     fontWeight: fontWeights.semibold,
     letterSpacing: letterSpacing.normal,
   },
-  
+
   // Component headings
   h4: {
-    fontFamily: fontFamilies.sans,
+    fontFamily: fontFamilies.display,
     fontSize: fontSizes.lg.fontSize,
     lineHeight: fontSizes.lg.lineHeight,
-    fontWeight: fontWeights.medium,
+    fontWeight: fontWeights.semibold,
     letterSpacing: letterSpacing.normal,
   },
-  
+
   // Body text - large
   bodyLarge: {
     fontFamily: fontFamilies.sans,
@@ -200,7 +205,7 @@ export const typographyPresets = {
     fontWeight: fontWeights.normal,
     letterSpacing: letterSpacing.normal,
   },
-  
+
   // Body text - regular
   body: {
     fontFamily: fontFamilies.sans,
@@ -209,16 +214,16 @@ export const typographyPresets = {
     fontWeight: fontWeights.normal,
     letterSpacing: letterSpacing.normal,
   },
-  
+
   // Body text - small
   bodySmall: {
-    fontFamily: fontFamilies.sans,
+    fontFamily: fontFamilies.utility,
     fontSize: fontSizes.sm.fontSize,
     lineHeight: fontSizes.sm.lineHeight,
     fontWeight: fontWeights.normal,
     letterSpacing: letterSpacing.normal,
   },
-  
+
   // Caption text
   caption: {
     fontFamily: fontFamilies.sans,
@@ -227,16 +232,16 @@ export const typographyPresets = {
     fontWeight: fontWeights.normal,
     letterSpacing: letterSpacing.wide,
   },
-  
+
   // Labels and form text
   label: {
-    fontFamily: fontFamilies.sans,
+    fontFamily: fontFamilies.utility,
     fontSize: fontSizes.sm.fontSize,
     lineHeight: fontSizes.sm.lineHeight,
     fontWeight: fontWeights.medium,
     letterSpacing: letterSpacing.normal,
   },
-  
+
   // Button text
   button: {
     fontFamily: fontFamilies.sans,
@@ -245,7 +250,7 @@ export const typographyPresets = {
     fontWeight: fontWeights.medium,
     letterSpacing: letterSpacing.wide,
   },
-  
+
   // Code and monospace text
   code: {
     fontFamily: fontFamilies.mono,
@@ -254,10 +259,10 @@ export const typographyPresets = {
     fontWeight: fontWeights.normal,
     letterSpacing: letterSpacing.normal,
   },
-  
+
   // Overline text (uppercase labels)
   overline: {
-    fontFamily: fontFamilies.sans,
+    fontFamily: fontFamilies.utility,
     fontSize: fontSizes.xs.fontSize,
     lineHeight: fontSizes.xs.lineHeight,
     fontWeight: fontWeights.semibold,
@@ -294,7 +299,7 @@ export const responsiveTypography = {
       lineHeight: fontSizes.lg.lineHeight,
     },
   },
-  
+
   // Tablet typography (640px - 1024px)
   tablet: {
     display: {
@@ -310,7 +315,7 @@ export const responsiveTypography = {
       lineHeight: fontSizes['2xl'].lineHeight,
     },
   },
-  
+
   // Desktop typography (1024px+)
   desktop: {
     // Uses default typography presets
@@ -325,9 +330,9 @@ export const responsiveTypography = {
  * Generate CSS styles from typography preset
  */
 export function getTypographyStyles(preset: keyof typeof typographyPresets) {
-  const styles = typographyPresets[preset];
+  const styles: any = typographyPresets[preset];
   return {
-    fontFamily: styles.fontFamily.join(', '),
+    fontFamily: Array.isArray(styles.fontFamily) ? styles.fontFamily.join(', ') : styles.fontFamily,
     fontSize: styles.fontSize,
     lineHeight: styles.lineHeight,
     fontWeight: styles.fontWeight,

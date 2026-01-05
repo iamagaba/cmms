@@ -1,6 +1,6 @@
 import React from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { TimelineIcon, Clock01Icon } from '@hugeicons/core-free-icons';
+import { Clock02Icon, Clock01Icon } from '@hugeicons/core-free-icons';
 import { WorkOrder, Vehicle } from '@/types/supabase';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -55,8 +55,8 @@ export const WorkOrderRelatedHistoryCard: React.FC<WorkOrderRelatedHistoryCardPr
       {/* Header */}
       <div className="px-4 py-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <HugeiconsIcon icon={TimelineIcon} size={16} className="text-gray-500" />
-          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Vehicle History</h3>
+          <HugeiconsIcon icon={Clock02Icon} size={16} className="text-gray-500" />
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">History</h3>
           {vehicleHistory && vehicleHistory.length > 0 && (
             <span className="bg-gray-200 text-gray-600 text-[10px] px-1.5 py-0.5 rounded-full font-medium">
               {vehicleHistory.length}

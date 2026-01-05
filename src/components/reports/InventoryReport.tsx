@@ -124,77 +124,99 @@ const ValuationReport: React.FC = () => {
 
       <div className="grid grid-cols-2 gap-6">
         {/* Value by Category */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Value by Category</h3>
-          <div className="space-y-3 max-h-64 overflow-auto">
-            {Object.entries(data.itemsByCategory)
-              .sort(([, a], [, b]) => b.value - a.value)
-              .map(([category, stats]) => (
-                <div key={category} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                      {ITEM_CATEGORY_LABELS[category as keyof typeof ITEM_CATEGORY_LABELS] || category}
-                    </p>
-                    <p className="text-xs text-gray-500">{stats.count} items</p>
-                  </div>
-                  <span className="text-sm font-semibold text-emerald-600">
-                    {formatCurrency(stats.value)}
-                  </span>
-                </div>
-              ))}
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+          <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Value by Category</h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                  <th className="py-1.5 px-3 text-left font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Category</th>
+                  <th className="py-1.5 px-3 text-right font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Items</th>
+                  <th className="py-1.5 px-3 text-right font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Value</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                {Object.entries(data.itemsByCategory)
+                  .sort(([, a], [, b]) => b.value - a.value)
+                  .map(([category, stats]) => (
+                    <tr key={category} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                      <td className="py-1.5 px-3 text-gray-900 dark:text-gray-100 font-medium">
+                        {ITEM_CATEGORY_LABELS[category as keyof typeof ITEM_CATEGORY_LABELS] || category}
+                      </td>
+                      <td className="py-1.5 px-3 text-right text-gray-600 dark:text-gray-400">{stats.count}</td>
+                      <td className="py-1.5 px-3 text-right font-semibold text-emerald-600 dark:text-emerald-400">
+                        {formatCurrency(stats.value)}
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
           </div>
         </div>
 
         {/* Value by Warehouse */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Value by Warehouse</h3>
-          <div className="space-y-3 max-h-64 overflow-auto">
-            {Object.entries(data.itemsByWarehouse)
-              .sort(([, a], [, b]) => b.value - a.value)
-              .map(([warehouse, stats]) => (
-                <div key={warehouse} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                  <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{warehouse}</p>
-                    <p className="text-xs text-gray-500">{stats.count} items</p>
-                  </div>
-                  <span className="text-sm font-semibold text-emerald-600">
-                    {formatCurrency(stats.value)}
-                  </span>
-                </div>
-              ))}
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+          <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Value by Warehouse</h3>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                  <th className="py-1.5 px-3 text-left font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Warehouse</th>
+                  <th className="py-1.5 px-3 text-right font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Items</th>
+                  <th className="py-1.5 px-3 text-right font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Value</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                {Object.entries(data.itemsByWarehouse)
+                  .sort(([, a], [, b]) => b.value - a.value)
+                  .map(([warehouse, stats]) => (
+                    <tr key={warehouse} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                      <td className="py-1.5 px-3 text-gray-900 dark:text-gray-100 font-medium">{warehouse}</td>
+                      <td className="py-1.5 px-3 text-right text-gray-600 dark:text-gray-400">{stats.count}</td>
+                      <td className="py-1.5 px-3 text-right font-semibold text-emerald-600 dark:text-emerald-400">
+                        {formatCurrency(stats.value)}
+                      </td>
+                    </tr>
+                  ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
 
       {/* Top Value Items */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Top 10 Highest Value Items</h3>
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+        <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Top 10 Highest Value Items</h3>
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
-                <th className="pb-2 font-medium">Item</th>
-                <th className="pb-2 font-medium">SKU</th>
-                <th className="pb-2 font-medium text-right">Qty</th>
-                <th className="pb-2 font-medium text-right">Unit Price</th>
-                <th className="pb-2 font-medium text-right">Total Value</th>
+              <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                <th className="py-1.5 px-3 text-left font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Item</th>
+                <th className="py-1.5 px-3 text-left font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">SKU</th>
+                <th className="py-1.5 px-3 text-right font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Qty</th>
+                <th className="py-1.5 px-3 text-right font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Unit Price</th>
+                <th className="py-1.5 px-3 text-right font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Total Value</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {data.topValueItems.map((item, idx) => (
-                <tr key={item.id}>
-                  <td className="py-2">
+                <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <td className="py-1.5 px-3">
                     <div className="flex items-center gap-2">
-                      <span className="w-5 h-5 flex items-center justify-center bg-primary-100 dark:bg-primary-900/30 text-primary-600 rounded text-xs font-medium">
-                        {idx + 1}
-                      </span>
+                      <span className="text-gray-500 dark:text-gray-400 font-medium">{idx + 1}</span>
                       <span className="font-medium text-gray-900 dark:text-gray-100">{item.name}</span>
                     </div>
                   </td>
-                  <td className="py-2 text-gray-500">{item.sku || '-'}</td>
-                  <td className="py-2 text-right text-gray-900 dark:text-gray-100">{item.quantity_on_hand}</td>
-                  <td className="py-2 text-right text-gray-900 dark:text-gray-100">{formatCurrency(item.unit_price)}</td>
-                  <td className="py-2 text-right font-semibold text-emerald-600">
+                  <td className="py-1.5 px-3 text-gray-600 dark:text-gray-400 font-mono">{item.sku || '-'}</td>
+                  <td className="py-1.5 px-3 text-right text-gray-900 dark:text-gray-100">{item.quantity_on_hand}</td>
+                  <td className="py-1.5 px-3 text-right text-gray-900 dark:text-gray-100">{formatCurrency(item.unit_price)}</td>
+                  <td className="py-1.5 px-3 text-right font-semibold text-emerald-600 dark:text-emerald-400">
                     {formatCurrency(item.total_value)}
                   </td>
                 </tr>
@@ -309,24 +331,24 @@ const StockMovementReport: React.FC = () => {
         <div className="overflow-x-auto max-h-80">
           <table className="w-full text-sm">
             <thead className="sticky top-0 bg-white dark:bg-gray-900">
-              <tr className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
-                <th className="pb-2 font-medium">Date</th>
-                <th className="pb-2 font-medium">Item</th>
-                <th className="pb-2 font-medium">Reason</th>
-                <th className="pb-2 font-medium text-right">Change</th>
-                <th className="pb-2 font-medium text-right">After</th>
-                <th className="pb-2 font-medium">By</th>
+              <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                <th className="py-1.5 px-3 text-left font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Date</th>
+                <th className="py-1.5 px-3 text-left font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Item</th>
+                <th className="py-1.5 px-3 text-left font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Reason</th>
+                <th className="py-1.5 px-3 text-right font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Change</th>
+                <th className="py-1.5 px-3 text-right font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">After</th>
+                <th className="py-1.5 px-3 text-left font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">By</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
               {data.records.slice(0, 50).map(record => (
-                <tr key={record.id}>
-                  <td className="py-2 text-gray-500">{dayjs(record.created_at).format('MMM D, HH:mm')}</td>
-                  <td className="py-2">
+                <tr key={record.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <td className="py-1.5 px-3 text-gray-500">{dayjs(record.created_at).format('MMM D, HH:mm')}</td>
+                  <td className="py-1.5 px-3">
                     <p className="font-medium text-gray-900 dark:text-gray-100">{record.item_name}</p>
                     {record.item_sku && <p className="text-xs text-gray-500">{record.item_sku}</p>}
                   </td>
-                  <td className="py-2">
+                  <td className="py-1.5 px-3">
                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${
                       record.quantity_delta > 0 
                         ? 'bg-emerald-100 text-emerald-700' 
@@ -335,13 +357,13 @@ const StockMovementReport: React.FC = () => {
                       {REASON_LABELS[record.reason] || record.reason}
                     </span>
                   </td>
-                  <td className={`py-2 text-right font-medium ${
+                  <td className={`py-1.5 px-3 text-right font-medium ${
                     record.quantity_delta > 0 ? 'text-emerald-600' : 'text-red-600'
                   }`}>
                     {record.quantity_delta > 0 ? '+' : ''}{record.quantity_delta}
                   </td>
-                  <td className="py-2 text-right text-gray-900 dark:text-gray-100">{record.quantity_after}</td>
-                  <td className="py-2 text-gray-500">{record.created_by_name || '-'}</td>
+                  <td className="py-1.5 px-3 text-right text-gray-900 dark:text-gray-100">{record.quantity_after}</td>
+                  <td className="py-1.5 px-3 text-gray-500">{record.created_by_name || '-'}</td>
                 </tr>
               ))}
             </tbody>
@@ -428,28 +450,28 @@ const SlowMovingReport: React.FC = () => {
           <div className="overflow-x-auto max-h-64">
             <table className="w-full text-sm">
               <thead className="sticky top-0 bg-white dark:bg-gray-900">
-                <tr className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
-                  <th className="pb-2 font-medium">Item</th>
-                  <th className="pb-2 font-medium">Warehouse</th>
-                  <th className="pb-2 font-medium text-right">Qty</th>
-                  <th className="pb-2 font-medium text-right">Value</th>
-                  <th className="pb-2 font-medium text-right">Days Idle</th>
-                  <th className="pb-2 font-medium">Last Movement</th>
+                <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                  <th className="py-1.5 px-3 text-left font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Item</th>
+                  <th className="py-1.5 px-3 text-left font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Warehouse</th>
+                  <th className="py-1.5 px-3 text-right font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Qty</th>
+                  <th className="py-1.5 px-3 text-right font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Value</th>
+                  <th className="py-1.5 px-3 text-right font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Days Idle</th>
+                  <th className="py-1.5 px-3 text-left font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider text-xs">Last Movement</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                 {slowMoving.slice(0, 20).map(item => (
-                  <tr key={item.id}>
-                    <td className="py-2">
+                  <tr key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-800">
+                    <td className="py-1.5 px-3">
                       <p className="font-medium text-gray-900 dark:text-gray-100">{item.name}</p>
                       {item.sku && <p className="text-xs text-gray-500">{item.sku}</p>}
                     </td>
-                    <td className="py-2 text-gray-500">{item.warehouse || '-'}</td>
-                    <td className="py-2 text-right text-gray-900 dark:text-gray-100">{item.quantity_on_hand}</td>
-                    <td className="py-2 text-right font-medium text-orange-600">
+                    <td className="py-1.5 px-3 text-gray-500">{item.warehouse || '-'}</td>
+                    <td className="py-1.5 px-3 text-right text-gray-900 dark:text-gray-100">{item.quantity_on_hand}</td>
+                    <td className="py-1.5 px-3 text-right font-medium text-orange-600">
                       {formatCurrency(item.total_value)}
                     </td>
-                    <td className="py-2 text-right">
+                    <td className="py-1.5 px-3 text-right">
                       <span className={`px-2 py-0.5 rounded text-xs font-medium ${
                         item.days_since_movement >= 180 
                           ? 'bg-red-100 text-red-700' 
@@ -458,7 +480,7 @@ const SlowMovingReport: React.FC = () => {
                         {item.days_since_movement} days
                       </span>
                     </td>
-                    <td className="py-2 text-gray-500">
+                    <td className="py-1.5 px-3 text-gray-500">
                       {item.last_movement_date 
                         ? dayjs(item.last_movement_date).format('MMM D, YYYY')
                         : 'Never'}

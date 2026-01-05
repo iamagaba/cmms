@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Tick01Icon, Edit01Icon, ArrowDown01Icon } from '@hugeicons/core-free-icons';
+import { Tick01Icon, PencilEdit02Icon, ArrowDown01Icon } from '@hugeicons/core-free-icons';
 import { cn } from '@/lib/utils';
 // Button import removed as it is no longer used for 'Continue'
 
@@ -115,7 +115,7 @@ export const SectionCard: React.FC<SectionCardProps> = ({
                         </div>
 
                         <button className="text-gray-400 opacity-0 group-hover:opacity-100 hover:text-purple-600 transition-all p-2 -mr-2">
-                            <HugeiconsIcon icon={Edit01Icon} size={18} />
+                            <HugeiconsIcon icon={PencilEdit02Icon} size={18} />
                         </button>
                     </div>
                 </div>

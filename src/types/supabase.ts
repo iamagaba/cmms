@@ -337,6 +337,10 @@ export type Database = {
           updated_at: string
           vin: string
           year: number
+          status: string | null
+          warranty_start_date: string | null
+          warranty_end_date: string | null
+          warranty_months: number | null
         }
         Insert: {
           battery_capacity?: number | null
@@ -355,6 +359,10 @@ export type Database = {
           updated_at?: string
           vin: string
           year: number
+          status?: string | null
+          warranty_start_date?: string | null
+          warranty_end_date?: string | null
+          warranty_months?: number | null
         }
         Update: {
           battery_capacity?: number | null
@@ -373,6 +381,10 @@ export type Database = {
           updated_at?: string
           vin?: string
           year?: number
+          status?: string | null
+          warranty_start_date?: string | null
+          warranty_end_date?: string | null
+          warranty_months?: number | null
         }
         Relationships: [
           {
@@ -793,6 +805,7 @@ export interface Vehicle {
   model: string; // Required in database
   year: number; // Required in database
   license_plate: string; // Required in database
+  registration_number?: string | null; // Alias for license_plate in some contexts
   battery_capacity?: number | null;
   customer_id?: string | null;
   // Ownership flags
@@ -867,8 +880,8 @@ export interface WorkOrder {
   description: string | null;
   service: string | null;
   serviceNotes: string | null;
-  status: 'Open' | 'Confirmation' | 'On Hold' | 'Ready' | 'In Progress' | 'Completed' | null;
-  priority: 'High' | 'Medium' | 'Low' | 'Critical' | null;
+  status: 'Open' | 'Confirmation' | 'On Hold' | 'Ready' | 'In Progress' | 'Completed' | 'Cancelled' | null;
+  priority: 'Urgent' | 'High' | 'Medium' | 'Low' | null;
   channel: string | null;
   technicianId: string | null;
   assignedTechnicianId: string | null;
@@ -891,7 +904,9 @@ export interface WorkOrder {
   vehicleId: string | null;
   created_by?: string | null;
   service_category_id: string | null;
+  confirmation_status_entered_at?: string | null;
   confirmed_at: string | null;
+  ready_at: string | null;
   work_started_at: string | null;
   sla_timers_paused_at: string | null;
   total_paused_duration_seconds: number | null;
@@ -909,6 +924,7 @@ export interface WorkOrder {
   confirmation_call_notes?: string | null;
   confirmation_call_by?: string | null;
   confirmation_call_at?: string | null;
+  last_call_attempt_at?: string | null;
 }
 
 // Item Categories

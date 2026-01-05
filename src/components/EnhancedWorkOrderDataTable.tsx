@@ -14,12 +14,14 @@ import {
   ClipboardIcon,
   MoreVerticalIcon,
   ViewIcon,
-  Edit01Icon,
+  PencilEdit02Icon,
   Delete01Icon,
   ArrowLeft02Icon,
   ArrowRight02Icon,
   ArrowLeft01Icon,
-  ArrowRight01Icon
+  ArrowRight01Icon,
+  Car01Icon,
+  UserIcon
 } from '@hugeicons/core-free-icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -316,13 +318,26 @@ export function EnhancedWorkOrderDataTable({
                   className="group hover:bg-primary-50/50 cursor-pointer transition-colors duration-150"
                 >
                   {/* Work Order Number - Shows license plate as main identifier */}
+                  {/* Work Order / Vehicle - Combined Column */}
                   {isColumnVisible('workOrderNumber') && (
                     <td className="px-4 py-2.5">
                       <div className="min-w-0">
-                        <p className="text-sm font-semibold text-primary-600 group-hover:text-primary-700 truncate">
-                          {vehicle?.license_plate || 'N/A'}
-                        </p>
-                        <p className="text-xs text-gray-500 truncate">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          {vehicle ? (
+                            <p className="text-sm font-bold font-data text-gray-900 group-hover:text-primary-700 truncate">
+                              {vehicle.license_plate}
+                              <span className="ml-2 font-normal text-gray-500 font-sans">
+                                {`${vehicle.make || ''} ${vehicle.model || ''}`.trim()}
+                              </span>
+                            </p>
+                          ) : (
+                            <div className="flex items-center gap-1.5 text-gray-400">
+                              <HugeiconsIcon icon={Car01Icon} size={14} />
+                              <span className="text-sm font-medium text-gray-500">Unassigned</span>
+                            </div>
+                          )}
+                        </div>
+                        <p className="text-xs text-primary-600 font-data truncate">
                           {wo.workOrderNumber || `WO-${wo.id.substring(0, 6).toUpperCase()}`}
                         </p>
                       </div>
@@ -339,15 +354,18 @@ export function EnhancedWorkOrderDataTable({
                   )}
 
                   {/* Vehicle / Customer - Shows vehicle make/model and customer name */}
+                  {/* Customer - Dedicated Column */}
                   {isColumnVisible('vehicleCustomer') && (
                     <td className="px-4 py-2.5">
                       <div className="min-w-0">
                         <p className="text-sm font-medium text-gray-900 truncate">
-                          {vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || 'N/A' : 'N/A'}
-                        </p>
-                        <p className="text-xs text-gray-500 truncate">
                           {customer?.name || wo.customerName || '—'}
                         </p>
+                        {customer?.phone && (
+                          <p className="text-xs text-gray-500 truncate">
+                            {customer.phone}
+                          </p>
+                        )}
                       </div>
                     </td>
                   )}
@@ -377,15 +395,22 @@ export function EnhancedWorkOrderDataTable({
                     <td className="px-4 py-2.5">
                       {technician ? (
                         <div className="flex items-center gap-2 min-w-0">
-                          <div className="w-6 h-6 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0">
-                            <span className="text-[10px] font-semibold text-primary-700">
-                              {technician.name.charAt(0).toUpperCase()}
-                            </span>
+                          <div className="relative">
+                            <div className="w-6 h-6 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0 border border-primary-200">
+                              <span className="text-[10px] font-bold text-primary-700">
+                                {technician.name.charAt(0).toUpperCase()}
+                              </span>
+                            </div>
+                            <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></div>
                           </div>
-                          <span className="text-sm text-gray-700 truncate">{technician.name}</span>
+                          <span className="text-sm text-gray-700 truncate font-medium">{technician.name}</span>
                         </div>
                       ) : (
-                        <span className="text-xs text-gray-400 italic">Unassigned</span>
+                        <div className="flex items-center gap-2 text-gray-400 opacity-60">
+                          <div className="w-6 h-6 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
+                            <HugeiconsIcon icon={UserIcon} size={12} className="text-gray-400" />
+                          </div>
+                        </div>
                       )}
                     </td>
                   )}
@@ -393,8 +418,8 @@ export function EnhancedWorkOrderDataTable({
                   {/* Created Date - Relative time format */}
                   {isColumnVisible('createdAt') && (
                     <td className="px-4 py-2.5">
-                      <span className="text-sm text-gray-700" title={dayjs(wo.created_at).format('MMM D, YYYY h:mm A')}>
-                        {formatRelativeTime(wo.created_at)}
+                      <span className="text-sm text-gray-700 font-data" title={dayjs(wo.created_at).format('MMM D, YYYY h:mm A')}>
+                        {formatRelativeTime(wo.created_at || new Date())}
                       </span>
                     </td>
                   )}
@@ -402,7 +427,7 @@ export function EnhancedWorkOrderDataTable({
                   {/* Scheduled Date */}
                   {isColumnVisible('scheduledDate') && (
                     <td className="px-4 py-2.5">
-                      <span className="text-sm text-gray-700">
+                      <span className="text-sm text-gray-700 font-data">
                         {wo.scheduledDate ? dayjs(wo.scheduledDate).format('MMM D, YYYY') : '—'}
                       </span>
                     </td>
@@ -411,7 +436,7 @@ export function EnhancedWorkOrderDataTable({
                   {/* Due Date */}
                   {isColumnVisible('dueDate') && (
                     <td className="px-4 py-2.5">
-                      <span className="text-sm text-gray-700">
+                      <span className="text-sm text-gray-700 font-data">
                         {wo.dueDate ? dayjs(wo.dueDate).format('MMM D, YYYY') : '—'}
                       </span>
                     </td>
@@ -474,7 +499,7 @@ export function EnhancedWorkOrderDataTable({
                           }}
                           className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
                         >
-                          <HugeiconsIcon icon={Edit01Icon} size={16} className="text-gray-500" />
+                          <HugeiconsIcon icon={PencilEdit02Icon} size={16} className="text-gray-500" />
                           Edit
                         </button>
                         <div className="border-t border-gray-100 my-1" />

@@ -8,6 +8,7 @@
 
 import React, { forwardRef } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
+import { Loading03Icon } from '@hugeicons/core-free-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -20,22 +21,22 @@ export interface LoadingSpinnerProps extends React.HTMLAttributes<HTMLDivElement
    * Spinner size
    */
   size?: 'xs' | 'sm' | 'base' | 'lg' | 'xl';
-  
+
   /**
    * Spinner variant with industrial design
    */
   variant?: 'default' | 'industrial' | 'minimal' | 'dots';
-  
+
   /**
    * Color theme
    */
   theme?: 'default' | 'primary' | 'success' | 'warning' | 'error';
-  
+
   /**
    * Loading text to display
    */
   text?: string;
-  
+
   /**
    * Whether to show the spinner inline
    */
@@ -47,22 +48,22 @@ export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {
    * Skeleton variant for different content types
    */
   variant?: 'text' | 'circular' | 'rectangular' | 'rounded';
-  
+
   /**
    * Width of the skeleton
    */
   width?: string | number;
-  
+
   /**
    * Height of the skeleton
    */
   height?: string | number;
-  
+
   /**
    * Number of lines for text skeleton
    */
   lines?: number;
-  
+
   /**
    * Animation type
    */
@@ -74,22 +75,22 @@ export interface LoadingStateProps extends React.HTMLAttributes<HTMLDivElement> 
    * Whether the component is loading
    */
   loading: boolean;
-  
+
   /**
    * Loading spinner props
    */
   spinnerProps?: Omit<LoadingSpinnerProps, 'className'>;
-  
+
   /**
    * Skeleton props for content placeholder
    */
   skeletonProps?: Omit<SkeletonProps, 'className'>;
-  
+
   /**
    * Loading overlay variant
    */
   overlay?: 'none' | 'blur' | 'dim' | 'full';
-  
+
   /**
    * Minimum loading time in ms to prevent flashing
    */
@@ -203,7 +204,7 @@ const LoadingSpinner = forwardRef<HTMLDivElement, LoadingSpinnerProps>(
                 sizeConfig.border,
                 themeConfig.border
               )} />
-              
+
               {/* Inner rotating element */}
               <div className={cn(
                 'absolute inset-0 rounded-full',
@@ -212,7 +213,7 @@ const LoadingSpinner = forwardRef<HTMLDivElement, LoadingSpinnerProps>(
                 themeConfig.active,
                 'border-t-2'
               )} />
-              
+
               {/* Center dot */}
               <div className={cn(
                 'absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2',
@@ -277,13 +278,11 @@ const LoadingSpinner = forwardRef<HTMLDivElement, LoadingSpinnerProps>(
               }}
               className={cn(
                 sizeConfig.size,
-                'rounded-full',
-                sizeConfig.border,
-                themeConfig.border,
-                'border-t-transparent',
-                themeConfig.active
+                themeConfig.text
               )}
-            />
+            >
+              <HugeiconsIcon icon={Loading03Icon} className="w-full h-full" />
+            </motion.div>
           );
       }
     };
@@ -438,9 +437,9 @@ export const CardSkeleton: React.FC<SkeletonPatternProps & React.HTMLAttributes<
   </div>
 );
 
-export const TableSkeleton: React.FC<SkeletonPatternProps & { rows?: number; columns?: number } & React.HTMLAttributes<HTMLDivElement>> = ({ 
-  className, 
-  rows = 5, 
+export const TableSkeleton: React.FC<SkeletonPatternProps & { rows?: number; columns?: number } & React.HTMLAttributes<HTMLDivElement>> = ({
+  className,
+  rows = 5,
   columns = 4,
   ...props
 }) => (
@@ -451,7 +450,7 @@ export const TableSkeleton: React.FC<SkeletonPatternProps & { rows?: number; col
         <Skeleton key={`header-${i}`} variant="text" width="80%" />
       ))}
     </div>
-    
+
     {/* Rows */}
     {Array.from({ length: rows }).map((_, rowIndex) => (
       <div key={`row-${rowIndex}`} className="grid gap-4" style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}>
@@ -463,8 +462,8 @@ export const TableSkeleton: React.FC<SkeletonPatternProps & { rows?: number; col
   </div>
 );
 
-export const FormSkeleton: React.FC<SkeletonPatternProps & { fields?: number } & React.HTMLAttributes<HTMLDivElement>> = ({ 
-  className, 
+export const FormSkeleton: React.FC<SkeletonPatternProps & { fields?: number } & React.HTMLAttributes<HTMLDivElement>> = ({
+  className,
   fields = 4,
   ...props
 }) => (
@@ -489,7 +488,7 @@ export const DashboardSkeleton: React.FC<SkeletonPatternProps & React.HTMLAttrib
       <Skeleton variant="text" width="30%" height={32} />
       <Skeleton variant="rectangular" width={120} height={40} />
     </div>
-    
+
     {/* Metrics */}
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
       {Array.from({ length: 4 }).map((_, i) => (
@@ -502,7 +501,7 @@ export const DashboardSkeleton: React.FC<SkeletonPatternProps & React.HTMLAttrib
         </div>
       ))}
     </div>
-    
+
     {/* Chart area */}
     <div className="p-6 border border-machinery-200 rounded-lg">
       <Skeleton variant="text" width="25%" className="mb-4" />
@@ -615,7 +614,7 @@ interface LoadingButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   loadingText?: string;
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
   size?: 'sm' | 'base' | 'lg';
-  icon?: string;
+  icon?: any;
 }
 
 const LoadingButton = forwardRef<HTMLButtonElement, LoadingButtonProps>(
@@ -634,7 +633,7 @@ const LoadingButton = forwardRef<HTMLButtonElement, LoadingButtonProps>(
     ref
   ) => {
     const sizeConfig = spinnerSizes[size];
-    
+
     const variantStyles = {
       primary: 'bg-steel-600 hover:bg-steel-700 text-white',
       secondary: 'bg-machinery-600 hover:bg-machinery-700 text-white',
@@ -708,9 +707,3 @@ export {
   LoadingButton,
 };
 
-export type {
-  LoadingSpinnerProps,
-  SkeletonProps,
-  LoadingStateProps,
-  LoadingButtonProps,
-};

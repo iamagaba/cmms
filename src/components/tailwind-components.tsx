@@ -196,7 +196,7 @@ interface TabsContextType {
   setActiveTab: (value: string) => void;
 }
 
-const TabsContext = React.createContext<TabsContextType>({ activeTab: '1', setActiveTab: () => {} });
+const TabsContext = React.createContext<TabsContextType>({ activeTab: '1', setActiveTab: () => { } });
 
 export const Tabs: React.FC<TabsProps> & {
   List: React.FC<{ children: React.ReactNode }>;
@@ -231,9 +231,8 @@ const TabsTab: React.FC<{ value: string; children: React.ReactNode; leftSection?
   return (
     <button
       onClick={() => setActiveTab(value)}
-      className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
-        isActive ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-      }`}
+      className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+        }`}
     >
       {leftSection}
       {children}
@@ -358,11 +357,11 @@ export const Text: React.FC<TextProps> = ({ children, size = 'md', color, c, wei
   }
   const alignClass = ta === 'center' ? 'text-center' : ta === 'right' ? 'text-right' : '';
   const marginClass = mt ? marginTopMap[mt] || '' : '';
-  
+
   let colorClass = 'text-gray-700';
   if (c === 'dimmed') colorClass = 'text-gray-500';
   else if (color) colorClass = `text-${color}`;
-  
+
   return <p className={`${sizeClass} ${weightClass} ${colorClass} ${alignClass} ${marginClass} ${className}`} style={style}>{children}</p>;
 };
 
@@ -454,7 +453,7 @@ export const ThemeIcon: React.FC<ThemeIconProps> = ({
 }) => {
   const sizeClass = themeIconSizeMap[size] || themeIconSizeMap.md;
   const radiusClass = themeIconRadiusMap[radius] || 'rounded-lg';
-  
+
   let variantClass = '';
   if (color === 'blue') {
     if (variant === 'filled') variantClass = 'bg-blue-600 text-white';
@@ -484,7 +483,7 @@ interface SimpleGridProps {
 export const SimpleGrid: React.FC<SimpleGridProps> = ({ children, cols = 1, spacing = 'md', className = '' }) => {
   const spacingClass = gutterMap[spacing] || 'gap-4';
   let colsClass = 'grid-cols-1';
-  
+
   if (typeof cols === 'number') {
     const colsMap: Record<number, string> = {
       1: 'grid-cols-1', 2: 'grid-cols-2', 3: 'grid-cols-3', 4: 'grid-cols-4',
@@ -673,7 +672,7 @@ export const Badge: React.FC<BadgeProps> = ({ children, color = 'gray', variant 
   const sizeClass = badgeSizeMap[size] || badgeSizeMap.sm;
   const colorClass = badgeColorMap[color]?.[variant] || badgeColorMap.gray.filled;
   const borderClass = variant === 'outline' ? 'border' : '';
-  
+
   return (
     <span className={`inline-flex items-center font-medium rounded ${sizeClass} ${colorClass} ${borderClass} ${className}`}>
       {children}
@@ -699,10 +698,10 @@ const progressSizeMap = {
 export const Progress: React.FC<ProgressProps> = ({ value, size = 'md', color = 'primary', className = '' }) => {
   const sizeClass = progressSizeMap[size] || progressSizeMap.md;
   const clampedValue = Math.min(100, Math.max(0, value));
-  
+
   return (
     <div className={`bg-gray-200 rounded-full overflow-hidden ${sizeClass} ${className}`}>
-      <div 
+      <div
         className="bg-primary-600 h-full transition-all duration-300 ease-out"
         style={{ width: `${clampedValue}%` }}
       />
@@ -819,17 +818,17 @@ const modalSizeMap = {
 
 export const Modal: React.FC<ModalProps> = ({ children, opened, onClose, title, size = 'md', className = '' }) => {
   if (!opened) return null;
-  
+
   const sizeClass = modalSizeMap[size] || modalSizeMap.md;
-  
+
   return (
     <div className="fixed inset-0 z-[1050] overflow-y-auto">
       <div className="flex min-h-full items-center justify-center p-4">
         {/* Backdrop */}
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm backdrop-saturate-150 transition-opacity" onClick={onClose} />
-        
+
         {/* Modal content */}
-        <div 
+        <div
           className={`relative bg-white rounded-lg shadow-xl w-full ${sizeClass} ${className}`}
           onClick={(e) => e.stopPropagation()}
         >
@@ -894,7 +893,7 @@ export const Checkbox: React.FC<CheckboxProps> & {
 const CheckboxGroup: React.FC<CheckboxGroupProps> = ({ children, value = [], onChange, className = '' }) => {
   const handleChange = (checkboxValue: string, isChecked: boolean) => {
     if (!onChange) return;
-    
+
     if (isChecked) {
       onChange([...value, checkboxValue]);
     } else {
@@ -949,7 +948,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
 
   const handleToggle = (itemValue: string) => {
     if (!onChange) return;
-    
+
     if (value.includes(itemValue)) {
       onChange(value.filter(v => v !== itemValue));
     } else {
@@ -969,7 +968,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
   return (
     <div className={`relative ${className}`}>
       {label && <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>}
-      
+
       <div className="relative">
         <button
           type="button"
@@ -1019,7 +1018,7 @@ export const MultiSelect: React.FC<MultiSelectProps> = ({
                 />
               </div>
             )}
-            
+
             <div className="py-1">
               {filteredData.length === 0 ? (
                 <div className="px-3 py-2 text-sm text-gray-500">No items found</div>
@@ -1057,19 +1056,19 @@ interface PaperProps {
   withBorder?: boolean;
 }
 
-export const Paper: React.FC<PaperProps> = ({ 
-  children, 
-  className = '', 
-  p = 'md', 
-  shadow, 
-  radius = 'md', 
-  withBorder = false 
+export const Paper: React.FC<PaperProps> = ({
+  children,
+  className = '',
+  p = 'md',
+  shadow,
+  radius = 'md',
+  withBorder = false
 }) => {
   const paddingClass = cardPaddingMap[p] || 'p-4';
   const shadowClass = shadow ? cardShadowMap[shadow] || '' : '';
   const radiusClass = cardRadiusMap[radius] || 'rounded-lg';
   const borderClass = withBorder ? 'border border-gray-200' : '';
-  
+
   return (
     <div className={`bg-white ${radiusClass} ${shadowClass} ${borderClass} ${paddingClass} ${className}`}>
       {children}

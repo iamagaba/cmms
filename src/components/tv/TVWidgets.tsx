@@ -10,7 +10,8 @@ import {
   UserIcon,
   Calendar01Icon
 } from '@hugeicons/core-free-icons';
-import ReactECharts from 'echarts-for-react';
+import { BarChart } from '@mui/x-charts/BarChart';
+import { PieChart } from '@mui/x-charts/PieChart';
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -154,76 +155,69 @@ export const ActiveWorkOrderList = ({ workOrders, assetLookup, techLookup }: Act
 // ============================================
 
 export const WeeklyTrendChart = ({ data }: { data: any[] }) => {
-    const option = {
-        backgroundColor: 'transparent',
-        grid: { top: 10, right: 10, bottom: 20, left: 30, containLabel: true },
-        xAxis: {
-            type: 'category',
-            data: data.map(d => d.date),
-            axisLine: { show: false },
-            axisTick: { show: false },
-            axisLabel: { color: '#94a3b8' }
-        },
-        yAxis: {
-            type: 'value',
-            splitLine: { show: true, lineStyle: { color: '#334155', type: 'dashed' } },
-            axisLabel: { color: '#94a3b8' }
-        },
-        series: [{
-            data: data.map(d => d.count),
-            type: 'bar',
-            barWidth: '40%',
-            itemStyle: {
-                color: {
-                    type: 'linear',
-                    x: 0, y: 0, x2: 0, y2: 1,
-                    colorStops: [
-                        { offset: 0, color: '#9333ea' },  // Primary-600
-                        { offset: 1, color: '#581c87' }   // Primary-900
-                    ]
-                },
-                borderRadius: [4, 4, 0, 0]
-            }
-        }]
-    };
+    // Handle empty data
+    if (!data || data.length === 0) {
+        return (
+            <div className="h-full w-full min-h-[12rem] flex items-center justify-center text-gray-400 text-sm">
+                No data available
+            </div>
+        );
+    }
 
     return (
         <div className="h-full w-full min-h-[12rem]">
-            <ReactECharts option={option} style={{ height: '100%', width: '100%' }} opts={{ renderer: 'svg' }} />
+            <BarChart
+                xAxis={[
+                    {
+                        scaleType: 'band',
+                        data: data.map(d => d.date),
+                    },
+                ]}
+                series={[
+                    {
+                        data: data.map(d => d.count),
+                        color: '#9333ea',
+                    },
+                ]}
+                height={200}
+            />
         </div>
     );
 };
 
 export const TeamStatusChart = ({ data }: { data: { status: string, count: number }[] }) => {
-    const option = {
-        backgroundColor: 'transparent',
-        color: ['#10b981', '#f59e0b', '#ef4444', '#64748b'], // Emerald, Amber, Red, Slate
-        series: [
-            {
-                name: 'TechStatus',
-                type: 'pie',
-                radius: ['50%', '70%'],
-                avoidLabelOverlap: false,
-                label: {
-                    show: false,
-                    position: 'center'
-                },
-                emphasis: {
-                    label: {
-                        show: true,
-                        fontSize: 20,
-                        fontWeight: 'bold',
-                        color: '#fff'
-                    }
-                },
-                labelLine: { show: false },
-                data: data.map(d => ({ value: d.count, name: d.status }))
-            }
-        ]
-    };
+    const colors = ['#10b981', '#f59e0b', '#ef4444', '#64748b']; // Emerald, Amber, Red, Slate
+    
+    // Handle empty data
+    if (!data || data.length === 0) {
+        return (
+            <div className="h-full w-full min-h-[12rem] flex items-center justify-center text-gray-400 text-sm">
+                No data available
+            </div>
+        );
+    }
+
     return (
         <div className="h-full w-full min-h-[12rem]">
-            <ReactECharts option={option} style={{ height: '100%', width: '100%' }} opts={{ renderer: 'svg' }} />
+            <PieChart
+                series={[
+                    {
+                        data: data.map((d, index) => ({
+                            id: index,
+                            value: d.count,
+                            label: d.status,
+                            color: colors[index % colors.length],
+                        })),
+                        innerRadius: '50%',
+                        outerRadius: '70%',
+                        highlightScope: { faded: 'global', highlighted: 'item' },
+                    },
+                ]}
+                height={200}
+                slotProps={{
+                    legend: { hidden: true },
+                }}
+            />
         </div>
     );
 }

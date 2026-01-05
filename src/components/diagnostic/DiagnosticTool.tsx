@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Loading01Icon, AlertCircleIcon, StarIcon, CheckmarkCircle01Icon, Cancel01Icon, ArrowLeft01Icon, InformationCircleIcon, ArrowRight01Icon } from '@hugeicons/core-free-icons';
+import { Loading03Icon, AlertCircleIcon, StarIcon, CheckmarkCircle01Icon, Cancel01Icon, ArrowLeft01Icon, InformationCircleIcon, ArrowRight01Icon } from '@hugeicons/core-free-icons';
 import { Stack, Button, Group, Card } from '@/components/tailwind-components';
 import { DiagnosticSession, DiagnosticAnswer, DiagnosticOption } from '@/types/diagnostic';
 import { getQuestionByLogicalId } from '@/api/diagnosticConfigApi';
@@ -191,7 +191,7 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
   if (isLoading) {
     return (
       <Card p="lg" className="flex justify-center py-12">
-        <HugeiconsIcon icon={Loading01Icon} size={32} className="animate-spin text-primary-600" />
+        <HugeiconsIcon icon={Loading03Icon} size={32} className="animate-spin text-primary-600" />
       </Card>
     );
   }

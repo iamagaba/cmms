@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { CheckmarkCircle01Icon, AlertCircleIcon, Edit01Icon, NoteIcon } from '@hugeicons/core-free-icons';
+import { CheckmarkCircle01Icon, AlertCircleIcon, PencilEdit02Icon, NoteIcon } from '@hugeicons/core-free-icons';
 import { Stack, Button, Card } from '@/components/tailwind-components';
 import { DiagnosticTool } from '@/components/diagnostic/DiagnosticTool';
 import { DiagnosticSession } from '@/types/diagnostic';
@@ -102,7 +102,7 @@ export const DiagnosticStep: React.FC<DiagnosticStepProps> = ({
               variant="outline"
               size="sm"
               onClick={handleEditDiagnostic}
-              leftSection={<HugeiconsIcon icon={Edit01Icon} size={16} />}
+              leftSection={<HugeiconsIcon icon={PencilEdit02Icon} size={16} />}
             >
               Edit Diagnostic
             </Button>

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Menu } from '@/components/tailwind-components';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { Motorbike01Icon, SpeedometerIcon, UserIcon, MoreHorizontalIcon, Delete01Icon, MoreVerticalIcon } from '@hugeicons/core-free-icons';
+import { Motorbike01Icon, DashboardSpeed01Icon as SpeedometerIcon, UserIcon, MoreHorizontalIcon, Delete01Icon, MoreVerticalIcon } from '@hugeicons/core-free-icons';
 import { Vehicle } from '@/types/supabase';
 import { cn } from '@/lib/utils';
 
@@ -82,7 +82,7 @@ export const DetailedAssetCard = ({ asset, onEdit, onDelete, onViewDetails }: {
                         <HugeiconsIcon icon={SpeedometerIcon} size={12} className="text-neutral-400" />
                         <span className="text-[10px] uppercase font-bold text-neutral-400">Mileage</span>
                     </div>
-                    <p className="text-xs font-bold text-neutral-700">{asset.mileage?.toLocaleString() || 0} km</p>
+                    <span className="text-sm font-semibold text-neutral-900 font-inconsolata">{(asset.mileage || 0).toLocaleString()} km</span>
                 </div>
                 <div className="bg-neutral-50 rounded-lg p-2 border border-neutral-100">
                     <div className="flex items-center gap-1.5 mb-0.5">

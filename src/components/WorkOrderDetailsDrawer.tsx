@@ -1,38 +1,36 @@
 import React, { useEffect, useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
-  LinkSquare02Icon,
+  FullScreenIcon,
   Cancel01Icon,
-  NoteIcon,
-  UserIcon,
-  Motorbike01Icon,
-  Calendar01Icon,
-  LockIcon,
-  Location01Icon,
-  CheckmarkCircle01Icon,
   InformationCircleIcon,
   TagIcon,
   Clock01Icon,
-  MapsIcon
+  MapsIcon,
+  Motorbike01Icon,
 } from '@hugeicons/core-free-icons';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { WorkOrder, Technician, Location, Customer, Vehicle, WorkOrderPart, Profile } from '@/types/supabase';
 import { DiagnosticCategoryRow } from '@/types/diagnostic';
-import { snakeToCamelCase } from '@/utils/data-helpers';
+import { snakeToCamelCase, camelToSnakeCase } from '@/utils/data-helpers';
 import { Skeleton } from '@/components/tailwind-components';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { useNavigate } from 'react-router-dom';
+import { showSuccess, showError } from "@/utils/toast";
+import { useSession } from "@/context/SessionContext";
 import WorkOrderStepper from '@/components/WorkOrderStepper/WorkOrderStepper';
 import { WorkOrderDetailsInfoCard } from '@/components/work-order-details/WorkOrderDetailsInfoCard';
-import { WorkOrderCustomerVehicleCard } from '@/components/work-order-details/WorkOrderCustomerVehicleCard';
+
 import { WorkOrderCostSummaryCard } from '@/components/work-order-details/WorkOrderCostSummaryCard';
 import { WorkOrderActivityLogCard } from '@/components/work-order-details/WorkOrderActivityLogCard';
 import { WorkOrderLocationMapCard } from '@/components/work-order-details/WorkOrderLocationMapCard';
 import { WorkOrderRelatedHistoryCard } from '@/components/work-order-details/WorkOrderRelatedHistoryCard';
-import { ConfirmationCallDialog } from '@/components/work-order-details/ConfirmationCallDialog';
-import { WorkOrderOverviewCards } from '@/components/work-order-details/WorkOrderOverviewCards';
+import { ConfirmationCallDialog } from './work-order-details/ConfirmationCallDialog';
+import { AssignTechnicianModal } from '@/components/work-order-details/AssignTechnicianModal';
+import { useWorkOrderMutations } from '@/hooks/useWorkOrderMutations';
+import { UgandaLicensePlate } from '@/components/ui/UgandaLicensePlate';
 
 dayjs.extend(relativeTime);
 
@@ -50,6 +48,7 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'overview' | 'parts' | 'activity' | 'location'>('overview');
   const [isConfirmationCallDialogOpen, setIsConfirmationCallDialogOpen] = useState(false);
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
 
   // Fetch work order
   const { data: workOrder, isLoading: isLoadingWorkOrder } = useQuery<WorkOrder | null>({
@@ -105,6 +104,13 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
       if (error) return [];
       return (data || []).map(l => snakeToCamelCase(l) as Location);
     },
+  });
+
+  const { updateWorkOrder } = useWorkOrderMutations({
+    serviceCategories: [],
+    slaPolicies: [],
+    technicians: allTechnicians || [],
+    locations: allLocations || []
   });
 
   // Fetch customer
@@ -171,6 +177,97 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
     (profiles || []).map(p => [p.id, `${p.first_name || ''} ${p.last_name || ''}`.trim() || 'Unknown'])
   );
 
+  const { session } = useSession();
+  const queryClient = useQueryClient();
+
+  // Mutation for updating work order
+  const workOrderMutation = useMutation({
+    mutationFn: async (workOrderData: Partial<WorkOrder>) => {
+      const snakeCaseData = camelToSnakeCase(workOrderData);
+      const { data, error } = await supabase
+        .from('work_orders')
+        .upsert([snakeCaseData])
+        .select();
+
+      if (error) throw new Error(error.message);
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['work_order_drawer', workOrderId] });
+      queryClient.invalidateQueries({ queryKey: ['work_orders'] });
+      // Also invalidate single work order query in case user navigates to full page
+      queryClient.invalidateQueries({ queryKey: ['work_order', workOrderId] });
+    },
+    onError: (error) => {
+      showError(error.message);
+    }
+  });
+
+  const handleAssignTechnician = (technicianId: string) => {
+    if (!workOrder) return;
+    updateWorkOrder(workOrder, {
+      status: 'In Progress',
+      assignedTechnicianId: technicianId,
+      work_started_at: new Date().toISOString()
+    });
+    setIsAssignModalOpen(false);
+  };
+
+
+
+  const handleConfirmationCall = async (notes: string, outcome: 'confirmed' | 'cancelled' | 'unreachable', appointmentDate?: string) => {
+    if (!workOrder) return;
+
+    try {
+      const now = new Date().toISOString();
+      const updates: Partial<WorkOrder> = {
+        id: workOrder.id,
+        confirmation_call_completed: outcome === 'confirmed' || outcome === 'cancelled',
+        confirmation_call_notes: notes,
+        confirmation_call_by: session?.user.id || null,
+        confirmation_call_at: now
+      };
+
+      // Update status based on outcome
+      if (outcome === 'confirmed') {
+        updates.status = 'Ready';
+        updates.confirmed_at = now;
+        updates.ready_at = now;
+        // If coming directly from Open, mark entry into confirmation flow as well
+        if (workOrder.status === 'Open') {
+          updates.confirmation_status_entered_at = now;
+        }
+        if (appointmentDate) {
+          updates.appointmentDate = appointmentDate;
+        }
+      } else if (outcome === 'unreachable') {
+        // Move to 'Confirmation' status if we made contact attempt but failed
+        if (workOrder.status === 'Open') {
+          updates.status = 'Confirmation';
+          updates.confirmation_status_entered_at = now;
+        }
+        updates.confirmation_call_completed = false;
+        updates.last_call_attempt_at = now;
+      }
+
+      workOrderMutation.mutate(updates, {
+        onSuccess: () => {
+          setIsConfirmationCallDialogOpen(false);
+          showSuccess(
+            outcome === 'confirmed'
+              ? 'Appointment scheduled successfully. Work Order is Ready.'
+              : outcome === 'cancelled'
+                ? 'Work order cancelled.'
+                : 'Call attempt logged. Will retry later.'
+          );
+        }
+      });
+
+    } catch (error: any) {
+      showError(error.message || 'Failed to save confirmation call');
+    }
+  };
+
   // Close on escape key
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -190,257 +287,277 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end" onClick={onClose}>
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/20 backdrop-blur-md backdrop-saturate-150" />
+    <>
+      <div className="fixed inset-0 z-50 flex justify-end" onClick={onClose}>
+        {/* Backdrop */}
+        <div className="absolute inset-0 bg-black/20 backdrop-blur-md backdrop-saturate-150" />
 
-      {/* Drawer - Increased width to 800px */}
-      <div
-        className="relative w-full max-w-4xl bg-white shadow-2xl h-full flex flex-col animate-in slide-in-from-right duration-300"
-        onClick={e => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white flex-shrink-0">
-          <div className="flex items-center gap-3">
-            {isLoadingWorkOrder ? (
-              <Skeleton height={24} width={120} radius="md" />
-            ) : (
-              <h2 className="text-lg font-semibold text-gray-900">
-                {workOrder?.workOrderNumber || 'Work Order'}
-              </h2>
-            )}
+        {/* Drawer - Increased width to 800px */}
+        <div
+          className="relative w-full max-w-4xl bg-white shadow-2xl h-full flex flex-col animate-in slide-in-from-right duration-300"
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-white flex-shrink-0">
+            <div className="flex items-center gap-3">
+              <button
+                onClick={onClose}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors self-start"
+              >
+                <HugeiconsIcon icon={Cancel01Icon} size={20} />
+              </button>
+              <div className="h-8 w-px bg-gray-200" />
+              {isLoadingWorkOrder ? (
+                <Skeleton height="24px" width="120px" radius="md" />
+              ) : (
+                <div className="flex items-center gap-3">
+                  {/* Work Order Number + Status Chip */}
+                  <h2 className="text-lg font-bold text-gray-900 leading-none">
+                    {workOrder?.workOrderNumber || 'Work Order'}
+                  </h2>
+                  
+                  {/* Status Chip - Same level as WO number */}
+                  {workOrder && (
+                    <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap ${
+                      workOrder.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' :
+                      workOrder.status === 'In Progress' ? 'bg-amber-100 text-amber-700' :
+                      workOrder.status === 'Ready' ? 'bg-blue-100 text-blue-700' :
+                      workOrder.status === 'Confirmation' ? 'bg-purple-100 text-purple-700' :
+                      workOrder.status === 'On Hold' ? 'bg-orange-100 text-orange-700' :
+                      'bg-gray-100 text-gray-700'
+                    }`}>
+                      <span className={`w-1.5 h-1.5 rounded-full animate-pulse ${
+                        workOrder.status === 'Completed' ? 'bg-emerald-500' :
+                        workOrder.status === 'In Progress' ? 'bg-amber-500' :
+                        workOrder.status === 'Ready' ? 'bg-blue-500' :
+                        workOrder.status === 'Confirmation' ? 'bg-purple-500' :
+                        workOrder.status === 'On Hold' ? 'bg-orange-500' :
+                        'bg-gray-500'
+                      }`} />
+                      {workOrder.status}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-2 self-start">
+              <button
+                onClick={handleViewFullPage}
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+              >
+                <HugeiconsIcon icon={FullScreenIcon} size={20} />
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleViewFullPage}
-              className="px-3 py-1.5 text-sm font-medium text-primary-600 hover:text-primary-700 hover:bg-primary-50 rounded-lg transition-colors flex items-center gap-1.5"
-            >
-              <HugeiconsIcon icon={LinkSquare02Icon} size={16} />
-              Full Page
-            </button>
-            <button
-              onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
-            >
-              <HugeiconsIcon icon={Cancel01Icon} size={20} />
-            </button>
-          </div>
-        </div>
 
-        {/* Stepper */}
-        {workOrder && (
-          <div className="flex-shrink-0">
-            <WorkOrderStepper 
-              workOrder={workOrder} 
-              profileMap={profileMap}
-              onConfirmationClick={() => setIsConfirmationCallDialogOpen(true)}
-            />
-          </div>
-        )}
 
-        {/* Info Strip - Improved */}
-        {workOrder && (
-          <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-3">
-            <div className="flex items-center gap-3 text-sm">
-              {/* License Plate */}
-              <div className="flex items-center gap-2">
-                <HugeiconsIcon icon={NoteIcon} size={16} className="text-purple-600" />
-                <span className="font-semibold text-purple-900 text-xs">
-                  {vehicle?.license_plate || vehicle?.licensePlate || 'N/A'}
-                </span>
-              </div>
 
-              <div className="h-4 w-px bg-gray-300" />
+          {/* Info Strip */}
+          {workOrder && (
+            <div className="flex-shrink-0 bg-white border-b border-gray-200 px-4 py-3">
+              <div className="flex items-start gap-6 w-full overflow-x-auto">
+                {/* License Plate */}
+                <div className="flex flex-col">
+                  <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1 leading-none">Plate</span>
+                  <span className="text-sm font-bold text-gray-900 leading-tight">
+                    {(vehicle as any)?.licensePlate || vehicle?.license_plate || '-'}
+                  </span>
+                </div>
 
-              {/* Customer */}
-              <div className="flex items-center gap-1.5">
-                <HugeiconsIcon icon={UserIcon} size={14} className="text-gray-400" />
-                <span className="text-gray-900 font-medium text-xs">
-                  {customer?.name || workOrder.customerName || 'N/A'}
-                </span>
-              </div>
+                {/* Model */}
+                <div className="flex flex-col">
+                  <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1 leading-none">Model</span>
+                  <span className="text-sm font-semibold text-gray-700 whitespace-nowrap leading-tight">
+                    {vehicle ? `${vehicle.make} ${vehicle.model}` : '-'}
+                  </span>
+                </div>
 
-              <div className="h-4 w-px bg-gray-300" />
-
-              {/* Vehicle Model */}
-              <div className="flex items-center gap-1.5">
-                <HugeiconsIcon icon={Motorbike01Icon} size={14} className="text-gray-400" />
-                <span className="text-gray-700 text-xs">
-                  {vehicle ? `${vehicle.make} ${vehicle.model}` : 'N/A'}
-                </span>
-              </div>
-
-              <div className="h-4 w-px bg-gray-300" />
-
-              {/* Asset Age */}
-              {vehicle?.year && (
-                <>
-                  <div className="flex items-center gap-1.5">
-                    <HugeiconsIcon icon={Calendar01Icon} size={14} className="text-gray-400" />
-                    <span className="text-gray-700 text-xs">
+                {/* Age */}
+                {vehicle?.year && (
+                  <div className="flex flex-col">
+                    <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1 leading-none">Age</span>
+                    <span className="text-sm font-semibold text-gray-700 whitespace-nowrap leading-tight">
                       {(() => {
                         const purchaseDate = dayjs(`${vehicle.year}-01-01`);
                         const today = dayjs();
-                        const years = today.diff(purchaseDate, 'year');
-                        const months = today.diff(purchaseDate, 'month') % 12;
-                        const days = today.diff(purchaseDate, 'day');
-                        if (years >= 1) return `${years} yr${years > 1 ? 's' : ''}`;
-                        else if (months >= 1) return `${months} mo`;
-                        else return `${days} d`;
+                        return `${today.diff(purchaseDate, 'day')} days`;
                       })()}
                     </span>
                   </div>
-                  <div className="h-4 w-px bg-gray-300" />
-                </>
-              )}
+                )}
 
-              {/* Warranty Status */}
-              <div className="flex items-center gap-1.5">
-                <HugeiconsIcon icon={LockIcon} size={14} className={(() => {
-                  if (!vehicle?.warranty_end_date) return 'text-gray-400';
-                  const warrantyEnd = dayjs(vehicle.warranty_end_date);
-                  const today = dayjs();
-                  if (warrantyEnd.isBefore(today)) return 'text-red-600';
-                  const daysRemaining = warrantyEnd.diff(today, 'day');
-                  if (daysRemaining <= 30) return 'text-amber-600';
-                  return 'text-emerald-600';
-                })()} />
-                <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded border ${(() => {
-                  if (!vehicle?.warranty_end_date) return 'bg-gray-50 text-gray-600 border-gray-200';
-                  const warrantyEnd = dayjs(vehicle.warranty_end_date);
-                  const today = dayjs();
-                  if (warrantyEnd.isBefore(today)) return 'bg-red-50 text-red-700 border-red-200';
-                  const daysRemaining = warrantyEnd.diff(today, 'day');
-                  if (daysRemaining <= 30) return 'bg-amber-50 text-amber-700 border-amber-200';
-                  return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-                })()}`}>
-                  {(() => {
-                    if (!vehicle?.warranty_end_date) return 'No warranty';
-                    const warrantyEnd = dayjs(vehicle.warranty_end_date);
-                    const today = dayjs();
-                    if (warrantyEnd.isBefore(today)) return 'Expired';
-                    const daysRemaining = warrantyEnd.diff(today, 'day');
-                    if (daysRemaining <= 30) return `${daysRemaining}d left`;
-                    const monthsRemaining = warrantyEnd.diff(today, 'month');
-                    return `${monthsRemaining}mo left`;
-                  })()}
-                </span>
-              </div>
-
-              {/* Double divider for section break */}
-              <div className="h-4 w-px bg-gray-400" />
-              <div className="h-4 w-px bg-gray-400 -ml-2" />
-
-              {/* Location */}
-              <div className="flex items-center gap-1.5">
-                <HugeiconsIcon icon={Location01Icon} size={14} className="text-gray-400" />
-                <span className="text-gray-700 text-xs">
-                  {location?.name || workOrder.serviceCenter || 'N/A'}
-                </span>
-              </div>
-
-              <div className="h-4 w-px bg-gray-300" />
-
-              {/* Assigned Technician */}
-              <div className="flex items-center gap-1.5">
-                <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} className={technician ? 'text-emerald-600' : 'text-amber-600'} />
-                <span className={`text-xs font-medium ${technician ? 'text-emerald-700' : 'text-amber-700'}`}>
-                  {technician?.name || 'Unassigned'}
-                </span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Tabs - Full width border */}
-        <div className="flex border-b border-gray-200 px-4 flex-shrink-0 bg-white">
-          {[
-            { key: 'overview', label: 'Overview', icon: InformationCircleIcon },
-            { key: 'parts', label: 'Parts & Cost', icon: TagIcon },
-            { key: 'activity', label: 'Activity', icon: Clock01Icon },
-            { key: 'location', label: 'Location', icon: MapsIcon },
-          ].map(tab => (
-            <button
-              key={tab.key}
-              onClick={() => setActiveTab(tab.key as any)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.key
-                ? 'border-primary-600 text-primary-600'
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                }`}
-            >
-              <HugeiconsIcon icon={tab.icon} size={16} />
-              {tab.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Content - Scrollable with thin scrollbar */}
-        <div className="flex-1 overflow-y-auto bg-gray-50 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
-          {isLoadingWorkOrder ? (
-            <div className="p-4 space-y-4">
-              <Skeleton height={100} radius="md" />
-              <Skeleton height={80} radius="md" />
-              <Skeleton height={120} radius="md" />
-            </div>
-          ) : workOrder ? (
-            <div className="p-4">
-              {activeTab === 'overview' && (
-                <div className="space-y-4">
-                  {/* Work Order Details */}
-                  <WorkOrderDetailsInfoCard
-                    workOrder={workOrder}
-                    customer={customer || null}
-                    vehicle={vehicle || null}
-                    technician={technician || null}
-                    allTechnicians={allTechnicians || []}
-                    allLocations={allLocations || []}
-                    serviceCategories={serviceCategories || []}
-                  />
-
-                  {/* Related History */}
-                  <WorkOrderRelatedHistoryCard
-                    workOrder={workOrder}
-                    customer={customer || null}
-                    vehicle={vehicle || null}
-                  />
+                {/* Warranty */}
+                <div className="flex flex-col">
+                  <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1 leading-none">Warranty</span>
+                  {vehicle?.warranty_end_date ? (
+                    <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full whitespace-nowrap w-fit ${(() => {
+                      const warrantyEnd = dayjs(vehicle.warranty_end_date);
+                      const today = dayjs();
+                      if (warrantyEnd.isBefore(today)) return 'bg-red-100 text-red-700';
+                      const daysRemaining = warrantyEnd.diff(today, 'day');
+                      if (daysRemaining <= 30) return 'bg-amber-100 text-amber-700';
+                      return 'bg-emerald-100 text-emerald-700';
+                    })()}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${(() => {
+                        const warrantyEnd = dayjs(vehicle.warranty_end_date);
+                        const today = dayjs();
+                        if (warrantyEnd.isBefore(today)) return 'bg-red-500';
+                        const daysRemaining = warrantyEnd.diff(today, 'day');
+                        if (daysRemaining <= 30) return 'bg-amber-500';
+                        return 'bg-emerald-500';
+                      })()}`} />
+                      {(() => {
+                        const warrantyEnd = dayjs(vehicle.warranty_end_date);
+                        const today = dayjs();
+                        if (warrantyEnd.isBefore(today)) return 'Expired';
+                        const daysRemaining = warrantyEnd.diff(today, 'day');
+                        if (daysRemaining <= 30) return `${daysRemaining}d left`;
+                        const monthsRemaining = warrantyEnd.diff(today, 'month');
+                        return `${monthsRemaining}mo left`;
+                      })()}
+                    </span>
+                  ) : (
+                    <span className="text-sm text-gray-400 leading-tight">-</span>
+                  )}
                 </div>
-              )}
 
-              {activeTab === 'parts' && (
-                <WorkOrderCostSummaryCard
-                  workOrder={workOrder}
-                  usedParts={usedParts || []}
-                />
-              )}
+                {/* Mileage */}
+                <div className="flex flex-col">
+                  <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1 leading-none">Mileage</span>
+                  <span className="text-sm font-bold text-gray-900 tabular-nums leading-tight">
+                    {(vehicle?.mileage || (workOrder as any)?.mileage) 
+                      ? `${(vehicle?.mileage || (workOrder as any)?.mileage).toLocaleString()} km`
+                      : '-'}
+                  </span>
+                </div>
 
-              {activeTab === 'activity' && (
-                <WorkOrderActivityLogCard
-                  workOrder={workOrder}
-                  profileMap={profileMap}
-                />
-              )}
+                <div className="h-10 w-px bg-gray-200 shrink-0" />
 
-              {activeTab === 'location' && (
-                <WorkOrderLocationMapCard
-                  workOrder={workOrder}
-                  location={location || null}
-                  allLocations={allLocations || []}
-                />
-              )}
-            </div>
-          ) : (
-            <div className="p-3 text-center text-gray-500 text-sm">
-              Work order not found
+                {/* Customer */}
+                <div className="flex flex-col">
+                  <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1 leading-none">Customer</span>
+                  <span className="text-sm font-semibold text-gray-900 leading-tight">
+                    {customer?.name || workOrder.customerName || '-'}
+                  </span>
+                </div>
+
+                {/* Phone */}
+                <div className="flex flex-col">
+                  <span className="text-[10px] uppercase tracking-wider font-semibold text-gray-400 mb-1 leading-none">Phone</span>
+                  <span className="text-sm font-semibold text-gray-700 leading-tight">
+                    {customer?.phone || workOrder.customerPhone || '-'}
+                  </span>
+                </div>
+              </div>
             </div>
           )}
-        </div>
 
-        {/* Footer - Simplified, no duplicate button */}
-        <div className="px-4 py-3 border-t border-gray-200 bg-white flex-shrink-0">
-          <div className="text-xs text-gray-500">
-            {workOrder?.created_at && (
-              <span>Created {dayjs(workOrder.created_at).format('MMM D, YYYY • h:mm A')}</span>
+
+          {/* Stepper */}
+          {
+            workOrder && (
+              <div className="flex-shrink-0">
+                <WorkOrderStepper
+                  workOrder={workOrder}
+                  profileMap={profileMap}
+                  onConfirmationClick={() => setIsConfirmationCallDialogOpen(true)}
+                />
+              </div>
+            )
+          }
+
+          {/* Assign Technician Modal */}
+          <AssignTechnicianModal
+            open={isAssignModalOpen}
+            onClose={() => setIsAssignModalOpen(false)}
+            technicians={allTechnicians || []}
+            onAssign={handleAssignTechnician}
+          />
+
+          {/* Tabs - Full width border */}
+          <div className="flex border-b border-gray-200 px-4 flex-shrink-0 bg-white">
+            {[
+              { key: 'overview', label: 'Overview', icon: InformationCircleIcon },
+              { key: 'location', label: 'Location', icon: MapsIcon },
+              { key: 'parts', label: 'Parts & Cost', icon: TagIcon },
+              { key: 'activity', label: 'Activity', icon: Clock01Icon },
+            ].map(tab => (
+              <button
+                key={tab.key}
+                onClick={() => setActiveTab(tab.key as any)}
+                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === tab.key
+                  ? 'border-primary-600 text-primary-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }`}
+              >
+                <HugeiconsIcon icon={tab.icon} size={16} />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Content - Scrollable with thin scrollbar */}
+          <div className="flex-1 overflow-y-auto bg-gray-50 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+            {isLoadingWorkOrder ? (
+              <div className="p-4 space-y-4">
+                <Skeleton height="100px" radius="md" />
+                <Skeleton height="80px" radius="md" />
+                <Skeleton height="120px" radius="md" />
+              </div>
+            ) : workOrder ? (
+              <div className="p-4">
+                {activeTab === 'overview' && (
+                  <div className="space-y-4">
+                    {/* Work Order Details */}
+                    <WorkOrderDetailsInfoCard
+                      workOrder={workOrder}
+                      allLocations={allLocations || []}
+                      serviceCategories={serviceCategories || []}
+                    />
+
+                    {/* Related History */}
+                    <WorkOrderRelatedHistoryCard
+                      workOrder={workOrder}
+                    />
+                  </div>
+                )}
+
+                {activeTab === 'parts' && (
+                  <WorkOrderCostSummaryCard
+                    workOrder={workOrder}
+                    usedParts={usedParts || []}
+                  />
+                )}
+
+                {activeTab === 'activity' && (
+                  <WorkOrderActivityLogCard
+                    workOrder={workOrder}
+                    profileMap={profileMap}
+                  />
+                )}
+
+                {activeTab === 'location' && (
+                  <WorkOrderLocationMapCard
+                    workOrder={workOrder}
+                    location={location || null}
+                    allLocations={allLocations || []}
+                  />
+                )}
+              </div>
+            ) : (
+              <div className="p-3 text-center text-gray-500 text-sm">
+                Work order not found
+              </div>
             )}
+          </div>
+
+          {/* Footer - Simplified, no duplicate button */}
+          <div className="px-4 py-3 border-t border-gray-200 bg-white flex-shrink-0">
+            <div className="text-xs text-gray-500">
+              {workOrder?.created_at && (
+                <span>Created {dayjs(workOrder.created_at).format('MMM D, YYYY • h:mm A')}</span>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -450,18 +567,13 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
         <ConfirmationCallDialog
           isOpen={isConfirmationCallDialogOpen}
           onClose={() => setIsConfirmationCallDialogOpen(false)}
-          onConfirm={async (notes, outcome, appointmentDate) => {
-            // For drawer mode, just close and let user go to full page for full functionality
-            setIsConfirmationCallDialogOpen(false);
-            // Navigate to full page to complete the action
-            navigate(`/work-orders/${workOrderId}`);
-          }}
+          onConfirm={handleConfirmationCall}
           workOrderNumber={workOrder.workOrderNumber || workOrder.id || ''}
-          customerName={customer?.name || workOrder.customerName}
-          customerPhone={customer?.phone || workOrder.customerPhone}
+          customerName={customer?.name || workOrder.customerName || ''}
+          customerPhone={customer?.phone || workOrder.customerPhone || ''}
         />
       )}
-    </div>
+    </>
   );
 };
 

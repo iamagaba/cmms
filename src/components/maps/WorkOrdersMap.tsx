@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
+import {
   Location01Icon,
   AlertCircleIcon,
   CheckmarkCircle01Icon,
@@ -58,8 +58,8 @@ export const WorkOrdersMap: React.FC<WorkOrdersMapProps> = ({
 
   // Filter work orders that have valid coordinates
   const workOrdersWithLocation = workOrders.filter(
-    wo => wo.customerLat && wo.customerLng && 
-          !isNaN(wo.customerLat) && !isNaN(wo.customerLng)
+    wo => wo.customerLat && wo.customerLng &&
+      !isNaN(wo.customerLat) && !isNaN(wo.customerLng)
   );
 
   // Initialize map
@@ -68,7 +68,7 @@ export const WorkOrdersMap: React.FC<WorkOrdersMapProps> = ({
 
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
-      style: 'mapbox://styles/mapbox/light-v11',
+      style: 'mapbox://styles/mapbox/streets-v11',
       center: [36.8219, -1.2921], // Default to Nairobi
       zoom: 11,
     });
@@ -115,7 +115,7 @@ export const WorkOrdersMap: React.FC<WorkOrdersMapProps> = ({
     workOrdersWithLocation.forEach(wo => {
       const statusColor = STATUS_COLORS[wo.status || 'Open'] || '#6b7280';
       const priorityColor = PRIORITY_COLORS[wo.priority || 'Medium'] || '#f59e0b';
-      
+
       // Create custom marker element
       const el = document.createElement('div');
       el.className = 'work-order-marker';
@@ -157,7 +157,7 @@ export const WorkOrdersMap: React.FC<WorkOrdersMapProps> = ({
 
       // Add hover effect
       el.addEventListener('mouseenter', () => {
-        el.querySelector('div')?.setAttribute('style', 
+        el.querySelector('div')?.setAttribute('style',
           el.querySelector('div')?.getAttribute('style')?.replace('transform: scale(1)', 'transform: scale(1.2)') || ''
         );
       });
@@ -168,7 +168,7 @@ export const WorkOrdersMap: React.FC<WorkOrdersMapProps> = ({
 
       // Get location/service center name
       const serviceCenter = wo.locationId ? locationMap.get(wo.locationId)?.name : null;
-      
+
       // Calculate time since creation
       const createdAt = wo.created_at ? dayjs(wo.created_at) : null;
       const timeSinceCreation = createdAt ? createdAt.fromNow() : 'Unknown';
@@ -305,8 +305,8 @@ export const WorkOrdersMap: React.FC<WorkOrdersMapProps> = ({
         <div className="space-y-1">
           {Object.entries(STATUS_COLORS).map(([status, color]) => (
             <div key={status} className="flex items-center gap-2">
-              <div 
-                className="w-3 h-3 rounded" 
+              <div
+                className="w-3 h-3 rounded"
                 style={{ backgroundColor: color }}
               />
               <span className="text-gray-600">{status}</span>

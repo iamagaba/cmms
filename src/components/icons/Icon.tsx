@@ -25,7 +25,7 @@ import {
   Add01Icon,
   Cancel01Icon,
   Tick01Icon,
-  Edit01Icon,
+  PencilEdit02Icon,
   Delete01Icon,
   RefreshIcon,
   Loading01Icon,
@@ -44,7 +44,7 @@ import {
   MessageIcon,
   StarIcon,
   InboxIcon,
-  FilterHorizontalIcon,
+  FilterIcon,
   MoreVerticalIcon,
   MoreHorizontalIcon,
   Download01Icon,
@@ -101,7 +101,7 @@ const iconMap: Record<string, any> = {
   'tabler:login': Login01Icon,
   'tabler:logout': Login01Icon,
   'flat-color-icons:google': UserIcon, // Fallback for Google icon
-  
+
   // Navigation & Arrows
   'tabler:chevron-up': ArrowUp01Icon,
   'tabler:chevron-down': ArrowDown01Icon,
@@ -111,20 +111,20 @@ const iconMap: Record<string, any> = {
   'tabler:arrow-down': ArrowDown01Icon,
   'tabler:arrow-right': ArrowRight01Icon,
   'tabler:arrow-left': ArrowLeft01Icon,
-  
+
   // Actions
   'tabler:search': Search01Icon,
   'tabler:plus': Add01Icon,
   'tabler:x': Cancel01Icon,
   'tabler:check': Tick01Icon,
-  'tabler:edit': Edit01Icon,
-  'tabler:pencil': Edit01Icon,
+  'tabler:edit': PencilEdit02Icon,
+  'tabler:pencil': PencilEdit02Icon,
   'tabler:trash': Delete01Icon,
   'tabler:refresh': RefreshIcon,
   'tabler:loader': Loading01Icon,
   'tabler:settings': Settings01Icon,
   'tabler:settings-2': Settings02Icon,
-  'tabler:filter': FilterHorizontalIcon,
+  'tabler:filter': FilterIcon,
   'tabler:dots-vertical': MoreVerticalIcon,
   'tabler:dots': MoreHorizontalIcon,
   'tabler:download': Download01Icon,
@@ -132,23 +132,23 @@ const iconMap: Record<string, any> = {
   'tabler:link': LinkSquare02Icon,
   'tabler:external-link': LinkIcon,
   'tabler:copy': Copy01Icon,
-  
+
   // Navigation
   'tabler:home': Home01Icon,
   'tabler:menu': Menu01Icon,
   'tabler:menu-2': Menu01Icon,
-  
+
   // Users
   'tabler:user': UserIcon,
   'tabler:users': UserIcon,
-  
+
   // Alerts & Status
   'tabler:alert-circle': AlertCircleIcon,
   'tabler:alert-triangle': Alert01Icon,
   'tabler:info-circle': InformationCircleIcon,
   'tabler:circle-check': CheckmarkCircle01Icon,
   'tabler:check-circle': CheckmarkCircle01Icon,
-  
+
   // Content
   'tabler:clipboard': ClipboardIcon,
   'tabler:clipboard-list': ClipboardIcon,
@@ -160,13 +160,13 @@ const iconMap: Record<string, any> = {
   'tabler:chart-line': TimelineIcon,
   'tabler:chart-bar': TimelineIcon,
   'tabler:chart-pie': TimelineIcon,
-  
+
   // Communication
   'tabler:bell': Notification01Icon,
   'tabler:message': MessageIcon,
   'tabler:mail': Mail01Icon,
   'tabler:phone': Call02Icon,
-  
+
   // Objects
   'tabler:star': StarIcon,
   'tabler:archive': InboxIcon,
@@ -179,21 +179,21 @@ const iconMap: Record<string, any> = {
   'tabler:photo': ImageIcon,
   'tabler:camera': CameraIcon,
   'tabler:printer': PrinterIcon,
-  
+
   // Security
   'tabler:lock': LockIcon,
   'tabler:lock-open': LockIcon,
   'tabler:eye': EyeIcon,
   'tabler:eye-off': EyeIcon,
   'tabler:shield': LockIcon,
-  
+
   // Location
   'tabler:location': Location01Icon,
   'tabler:map-pin': Location01Icon,
   'tabler:map': MapsIcon,
   'tabler:compass': MapsIcon,
   'tabler:globe': MapsIcon,
-  
+
   // Business
   'tabler:building': Building01Icon,
   'tabler:building-store': Store01Icon,
@@ -202,29 +202,29 @@ const iconMap: Record<string, any> = {
   'tabler:credit-card': ClipboardIcon,
   'tabler:shopping-cart': PackageIcon,
   'tabler:receipt': NoteIcon,
-  
+
   // Tools & Work
   'tabler:tool': Wrench01Icon,
   'tabler:wrench': Wrench01Icon,
   'tabler:hammer': Wrench01Icon,
   'tabler:screwdriver': Wrench01Icon,
-  
+
   // Vehicles
   'tabler:car': Car01Icon,
   'tabler:motorbike': Motorbike01Icon,
   'tabler:truck': Car01Icon,
   'tabler:plane': Car01Icon,
-  
+
   // Layout
   'tabler:layout-grid': GridIcon,
   'tabler:list': ListViewIcon,
   'tabler:layers': Layers01Icon,
-  
+
   // Theme
   'tabler:sun': SunIcon,
   'tabler:moon': MoonIcon,
   'tabler:palette': SunIcon,
-  
+
   // Tech
   'tabler:code': CodeIcon,
   'tabler:terminal': CodeIcon,
@@ -233,25 +233,25 @@ const iconMap: Record<string, any> = {
   'tabler:cpu': DatabaseIcon,
   'tabler:device-desktop': ComputerIcon,
   'tabler:device-mobile': ComputerIcon,
-  
+
   // Media
   'tabler:player-play': PlayIcon,
   'tabler:player-pause': PauseIcon,
   'tabler:player-stop': StopIcon,
   'tabler:volume': VolumeHighIcon,
-  
+
   // Social
   'tabler:heart': FavouriteIcon,
   'tabler:thumb-up': FavouriteIcon,
   'tabler:thumb-down': FavouriteIcon,
   'tabler:share': ShareIcon,
   'tabler:bookmark': BookmarkIcon,
-  
+
   // Tags & Labels
   'tabler:tag': TagIcon,
   'tabler:hash': TagIcon,
   'tabler:at': TagIcon,
-  
+
   // Misc
   'tabler:sparkles': StarIcon,
   'tabler:bulb': StarIcon,
@@ -261,7 +261,7 @@ const iconMap: Record<string, any> = {
   'tabler:gift': PackageIcon,
   'tabler:ruler': NoteIcon,
   'tabler:icons': GridIcon,
-  
+
   // Power & Connectivity
   'tabler:power': Settings01Icon,
   'tabler:plug': Settings01Icon,
@@ -313,7 +313,7 @@ export const Icon: React.FC<IconProps> = ({
 
   // If icon is a string (tabler:xxx format), map it to Hugeicons
   const mappedIcon = iconMap[icon];
-  
+
   if (!mappedIcon) {
     console.warn(`Icon "${icon}" not found in icon map. Using fallback.`);
     // Return a fallback icon
@@ -330,7 +330,7 @@ export const Icon: React.FC<IconProps> = ({
   }
 
   const pixelSize = size || sizeClassToPixels(className);
-  
+
   return (
     <HugeiconsIcon
       icon={mappedIcon}

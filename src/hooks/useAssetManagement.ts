@@ -30,7 +30,7 @@ export const useAssetManagement = () => {
 
     // --- Data Fetching ---
     const { data: vehicles, isLoading: isLoadingVehicles } = useQuery<Vehicle[]>({
-        queryKey: ['vehicles', searchTerm],
+        queryKey: ['vehicles'],
         queryFn: async () => {
             let query = supabase.from('vehicles').select('*');
             if (searchTerm) {
@@ -73,15 +73,56 @@ export const useAssetManagement = () => {
     const vehicleMutation = useMutation({
         mutationFn: async (vehicleData: Partial<Vehicle>) => {
             console.log('=== ASSET SAVE DEBUG ===');
-            console.log('Original vehicleData:', vehicleData);
+            console.log('Original vehicleData:', JSON.stringify(vehicleData, null, 2));
 
-            const payload = camelToSnakeCase(vehicleData);
-            console.log('Converted payload:', payload);
+            // Only include fields that exist in the database schema
+            const validFields = [
+                'id',
+                'license_plate',
+                'make',
+                'model',
+                'year',
+                'vin',
+                'motor_number',
+                'mileage',
+                'customer_id',
+                'is_company_asset',
+                'is_emergency_bike',
+                'date_of_manufacture',
+                'release_date',
+                'battery_capacity',
+                'status',
+                'warranty_start_date',
+                'warranty_end_date',
+                'warranty_months',
+            ];
+
+            // Build payload with only valid fields
+            const payload: Record<string, any> = {};
+            for (const field of validFields) {
+                const value = vehicleData[field as keyof typeof vehicleData];
+                if (value !== undefined) {
+                    payload[field] = value;
+                }
+            }
+
+            // Ensure empty strings become null for optional fields
+            if (payload.motor_number === '') payload.motor_number = null;
+            if (payload.customer_id === '') payload.customer_id = null;
+
+            console.log('Cleaned payload with valid fields only:', JSON.stringify(payload, null, 2));
 
             if (!vehicleData.id) {
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                delete (payload as any).id;
-                console.log('Final payload for insert:', payload);
+                delete payload.id;
+                
+                // Validate required fields before insert
+                const requiredFields = ['license_plate', 'make', 'model', 'vin', 'year'];
+                const missingFields = requiredFields.filter(field => !payload[field]);
+                if (missingFields.length > 0) {
+                    throw new Error(`Missing required fields: ${missingFields.join(', ')}`);
+                }
+
+                console.log('Final payload for insert:', JSON.stringify(payload, null, 2));
 
                 const { data, error } = await supabase.from('vehicles').insert([payload]).select();
                 console.log('Insert response - data:', data);
@@ -99,7 +140,10 @@ export const useAssetManagement = () => {
                 return data;
             } else {
                 console.log('Updating existing vehicle with ID:', vehicleData.id);
-                const { data, error } = await supabase.from('vehicles').update(payload).eq('id', vehicleData.id).select();
+                const updatePayload = { ...payload };
+                delete updatePayload.id; // Don't include id in update payload
+                
+                const { data, error } = await supabase.from('vehicles').update(updatePayload).eq('id', vehicleData.id).select();
                 console.log('Update response - data:', data);
                 console.log('Update response - error:', error);
 
@@ -118,7 +162,8 @@ export const useAssetManagement = () => {
         onSuccess: () => {
             console.log('Asset save successful, invalidating all vehicle queries');
             // Invalidate all vehicle queries regardless of search term
-            queryClient.invalidateQueries({ queryKey: ['vehicles'], exact: false });
+            queryClient.invalidateQueries({ queryKey: ['vehicles'] });
+            queryClient.refetchQueries({ queryKey: ['vehicles'] });
             showSuccess('Asset has been saved.');
         },
         onError: (error) => {
@@ -257,6 +302,17 @@ export const useAssetManagement = () => {
     const filteredVehicles = useMemo(() => {
         let filtered = enhancedAssets;
 
+        // Apply search term filter
+        if (searchTerm) {
+            const query = searchTerm.toLowerCase();
+            filtered = filtered.filter(asset => 
+                (asset.license_plate || '').toLowerCase().includes(query) ||
+                (asset.make || '').toLowerCase().includes(query) ||
+                (asset.model || '').toLowerCase().includes(query) ||
+                (asset.vin || '').toLowerCase().includes(query)
+            );
+        }
+
         // Apply age filter
         if (ageFilter !== 'all') {
             filtered = filtered.filter(asset => {
@@ -314,7 +370,26 @@ export const useAssetManagement = () => {
 
         // Apply asset status filter
         if (statusFilter !== 'all') {
-            filtered = filtered.filter(asset => asset.status === statusFilter);
+            filtered = filtered.filter(asset => {
+                // Use computed status logic to match what's displayed
+                const assetWorkOrders = workOrders?.filter(wo => wo.vehicleId === asset.id) || [];
+                const hasActiveWorkOrder = assetWorkOrders.some(wo =>
+                    wo.status === 'Open' ||
+                    wo.status === 'Confirmation' ||
+                    wo.status === 'Ready' ||
+                    wo.status === 'In Progress' ||
+                    wo.status === 'On Hold'
+                );
+
+                let computedStatus = 'Normal';
+                if (hasActiveWorkOrder) {
+                    computedStatus = 'In Repair';
+                } else if (asset.status === 'Decommissioned') {
+                    computedStatus = 'Decommissioned';
+                }
+
+                return computedStatus === statusFilter;
+            });
         }
 
         // Apply work orders filter
@@ -329,7 +404,7 @@ export const useAssetManagement = () => {
         }
 
         return filtered;
-    }, [enhancedAssets, ageFilter, modelFilter, productionDateFilter, emergencyOnly, customerTypeFilter, statusFilter, healthFilter, customers]);
+    }, [enhancedAssets, searchTerm, ageFilter, modelFilter, productionDateFilter, emergencyOnly, customerTypeFilter, statusFilter, healthFilter, customers, workOrders]);
 
     // --- Metrics ---
     const metrics: AssetMetrics = useMemo(() => {

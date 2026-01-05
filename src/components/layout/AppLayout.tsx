@@ -79,7 +79,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-machinery-200 p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         {/* Hamburger removed as it is in bottom nav */}
-                        <h1 className="text-lg font-semibold text-machinery-900 ml-1">GOGO CMMS</h1>
+                        <h1 className="text-lg font-bold font-brand text-machinery-900 ml-1">GOGO CMMS</h1>
                     </div>
                 </div>
 
@@ -114,15 +114,16 @@ export function AppLayout({ children }: AppLayoutProps) {
 
             {/* Main content - dynamic padding based on sidebar state and density */}
             <main
-                className="min-h-screen theme-transition transition-all duration-[400ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]"
+                className="min-h-screen theme-transition transition-all duration-[400ms] ease-[cubic-bezier(0.25,0.1,0.25,1)] pb-[80px] lg:pb-0"
                 style={{
                     paddingLeft: sidebarExpanded ? '280px' : '80px',
-                    paddingBottom: '80px', // Space for bottom nav on mobile
                 }}
             >
                 <div className="lg:hidden pt-16" /> {/* Mobile header spacing */}
                 <div className={isCompact ? 'p-2 lg:p-3' : 'p-3 lg:p-4'}>
-                    {children}
+                    <div className="max-w-[2400px] mx-auto w-full">
+                        {children}
+                    </div>
                 </div>
             </main>
         </div>

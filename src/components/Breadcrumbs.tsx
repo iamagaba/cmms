@@ -7,6 +7,7 @@ interface AppBreadcrumbProps {
   backButton?: React.ReactNode;
   onSearch?: (value: string) => void;
   searchBar?: React.ReactNode;
+  customBreadcrumbs?: any[];
 }
 
 const AppBreadcrumb: React.FC<AppBreadcrumbProps> = (props) => {

@@ -18,7 +18,7 @@ import {
     ClipboardIcon,
     View01Icon,
     MoreVerticalIcon,
-    Edit01Icon,
+    PencilEdit02Icon,
     Delete01Icon,
     ArrowLeft01Icon,
     ArrowRight01Icon
@@ -128,12 +128,12 @@ export const ModernAssetDataTable = ({
             cell: info => {
                 const createdAt = info.getValue();
                 if (!createdAt) return <span className="text-xs text-gray-500">-</span>;
-                
+
                 const now = new Date();
                 const created = new Date(createdAt);
                 const diffTime = Math.abs(now.getTime() - created.getTime());
                 const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-                
+
                 let ageText = '';
                 if (diffDays < 30) {
                     ageText = `${diffDays} days`;
@@ -144,7 +144,7 @@ export const ModernAssetDataTable = ({
                     const years = Math.floor(diffDays / 365);
                     ageText = `${years} year${years > 1 ? 's' : ''}`;
                 }
-                
+
                 return (
                     <div className="flex items-center gap-1.5">
                         <HugeiconsIcon icon={Calendar01Icon} size={14} className="text-gray-400" />
@@ -183,8 +183,8 @@ export const ModernAssetDataTable = ({
                         </button>
                         <div className="relative">
                             <button
-                                onClick={(e) => { 
-                                    e.stopPropagation(); 
+                                onClick={(e) => {
+                                    e.stopPropagation();
                                     setOpenMenuId(isOpen ? null : info.row.original.id);
                                 }}
                                 className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-lg transition-all"
@@ -195,19 +195,19 @@ export const ModernAssetDataTable = ({
                             {isOpen && (
                                 <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
                                     <button
-                                        onClick={(e) => { 
-                                            e.stopPropagation(); 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
                                             onEdit(info.row.original);
                                             setOpenMenuId(null);
                                         }}
                                         className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                                     >
-                                        <HugeiconsIcon icon={Edit01Icon} size={16} />
+                                        <HugeiconsIcon icon={PencilEdit02Icon} size={16} />
                                         Edit Asset
                                     </button>
                                     <button
-                                        onClick={(e) => { 
-                                            e.stopPropagation(); 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
                                             onViewDetails(info.row.original.id);
                                             setOpenMenuId(null);
                                         }}
@@ -218,8 +218,8 @@ export const ModernAssetDataTable = ({
                                     </button>
                                     <div className="border-t border-gray-200 my-1" />
                                     <button
-                                        onClick={(e) => { 
-                                            e.stopPropagation(); 
+                                        onClick={(e) => {
+                                            e.stopPropagation();
                                             onDelete(info.row.original);
                                             setOpenMenuId(null);
                                         }}

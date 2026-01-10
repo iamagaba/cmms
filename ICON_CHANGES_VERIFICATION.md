@@ -1,12 +1,13 @@
-# Icon Style Changes - Verification Guide
+# Icon System - Verification Guide (Updated)
 
 ## What Changed
 
-The icon styles have been updated to make them feel more professional and less "friendly":
+The icon system has been completely standardized with proper component-level control:
 
-1. **Increased stroke weight**: From 2.0 to 2.25 (small icons: 2.5, large icons: 2.15)
-2. **Sharper corners**: Changed from `round` to `square` linecaps and `miter` linejoins
-3. **Better rendering**: Added `geometricPrecision` for crisp display
+1. **Standardized Icon Sizes**: Named sizes (xs, sm, base, lg, xl, 2xl) instead of arbitrary pixels
+2. **Intelligent Stroke Weight**: Automatically adjusts based on icon size
+3. **Component-Level Control**: No more global CSS hacks with !important
+4. **Single Source of Truth**: All icons use the Icon component
 
 ## How to Verify Changes Are Applied
 
@@ -18,7 +19,7 @@ The icon styles have been updated to make them feel more professional and less "
 
 ### Step 2: Inspect an Icon in DevTools
 
-1. Right-click on any icon in the app (e.g., the search icon, filter icon, etc.)
+1. Right-click on any icon in the app (e.g., search icon, filter icon)
 2. Select "Inspect" or "Inspect Element"
 3. Look for the `<svg>` element in the HTML
 4. Check the `<path>` or `<line>` elements inside the SVG
@@ -27,67 +28,70 @@ The icon styles have been updated to make them feel more professional and less "
 **What to look for:**
 ```css
 stroke-width: 2.25 (or 2.5 for small icons, 2.15 for large icons)
-stroke-linecap: square
-stroke-linejoin: miter
 ```
 
-### Step 3: Visual Comparison
+**Note:** The stroke-width is now controlled via CSS variable `--icon-stroke-width` set by the Icon component, not global CSS rules.
 
-**Before (default Hugeicons):**
-- Stroke width: 2.0
-- Very rounded corners
-- Softer, friendlier appearance
+### Step 3: Check Icon Component Usage
 
-**After (adjusted):**
-- Stroke width: 2.25-2.5
-- Square corners
-- Sharper, more professional appearance
+Icons should now be used like this:
+
+```tsx
+import { Icon } from '@/components/ui/Icon';
+import { Search01Icon } from '@hugeicons/react';
+
+<Icon icon={Search01Icon} size="base" />
+```
 
 ### Step 4: Check Multiple Pages
 
-Visit these pages to see the icon changes across the app:
-- **Reports page** (`/reports`) - Many icons in the sidebar and charts
+Visit these pages to see the standardized icons:
+- **Reports page** (`/reports`) - Icons in sidebar and charts
 - **Scheduling page** (`/scheduling`) - Icons in header toolbar
 - **Work Orders page** (`/work-orders`) - Icons in filters and table
 - **Dashboard** (`/`) - Icons in cards and metrics
 
+## Architecture Changes
+
+### Old Approach (Removed) ❌
+- Global CSS file with `!important` rules
+- Size-specific selectors for every icon size
+- Hard to maintain and override
+- Band-aid solution
+
+### New Approach (Current) ✅
+- Component-level stroke-width control
+- Intelligent sizing based on icon dimensions
+- Clean CSS variable system
+- Easy to customize per-component
+
 ## Troubleshooting
 
-### If changes are NOT visible:
+### If icons look different than expected:
 
 1. **Clear browser cache completely**:
    - Chrome: Settings > Privacy > Clear browsing data > Cached images and files
    - Firefox: Settings > Privacy > Clear Data > Cached Web Content
    - Edge: Settings > Privacy > Clear browsing data > Cached images and files
 
-2. **Check CSS file is loaded**:
-   - Open DevTools > Network tab
-   - Refresh page
-   - Look for `icon-adjustments.css` in the list
-   - Click on it to verify the content matches the updated file
+2. **Check Icon component is being used**:
+   - Open DevTools > Elements
+   - Find an icon element
+   - Verify it's wrapped in a `<span>` with `--icon-stroke-width` style
 
-3. **Check CSS import order in App.tsx**:
-   - The import should be: `import './styles/icon-adjustments.css';`
-   - It should come AFTER `import './App.css';`
-
-4. **Verify CSS specificity**:
-   - All rules now have `!important` to override default styles
-   - If still not working, there may be inline styles overriding CSS
-
-### If changes are TOO subtle:
-
-The changes are intentionally subtle to maintain the modern SaaS aesthetic. If you want more dramatic changes:
-
-1. Increase stroke-width further (e.g., 2.5 → 3.0)
-2. The CSS file is at `src/styles/icon-adjustments.css`
-3. Edit the values and save
-4. Hard refresh browser
+3. **Verify CSS variable is applied**:
+   - Inspect SVG element
+   - Check computed styles for `stroke-width`
+   - Should see value from `--icon-stroke-width` variable
 
 ## Current Status
 
-✅ CSS file created: `src/styles/icon-adjustments.css`
-✅ CSS imported in App.tsx
-✅ All rules have `!important` for maximum specificity
-✅ Covers all icon sizes (12px, 14px, 16px, 18px, 20px, 24px, 32px)
+✅ Icon component with standardized sizes (ICON_SIZES)
+✅ Intelligent stroke-width adjustment
+✅ Clean CSS variable system (no !important)
+✅ Component-level control
+✅ Migration guide created
+✅ Border radius system documented
+✅ CSS hacks removed
 
-**Next step**: Hard refresh your browser and inspect icons to verify the changes are visible.
+**Next step**: Hard refresh your browser and verify icons render correctly with proper stroke-width.

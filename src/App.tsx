@@ -12,7 +12,6 @@ import { SystemSettingsProvider } from "./context/SystemSettingsContext";
 import { RealtimeDataProvider } from "@/context/RealtimeDataContext";
 import { DensityProvider } from "@/context/DensityContext";
 import './App.css';
-import './styles/icon-adjustments.css';
 import './styles/industrial-theme.css';
 
 // Create a minimal MUI theme for MUI X Charts

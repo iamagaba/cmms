@@ -43,6 +43,15 @@
   .font-data {
     font-family: var(--font-family-data) !important;
   }
+
+  /* Icon stroke-width control via CSS variable */
+  svg path,
+  svg line,
+  svg polyline,
+  svg polygon,
+  svg circle {
+    stroke-width: var(--icon-stroke-width, 2);
+  }
 }
 
 /* Material Icons */

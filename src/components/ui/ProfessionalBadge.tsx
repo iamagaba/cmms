@@ -7,9 +7,9 @@
  */
 
 import React, { forwardRef } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { Icon, ICON_SIZES } from '@/components/ui/Icon';
 
 // ============================================
 // COMPONENT INTERFACES
@@ -35,9 +35,9 @@ export interface ProfessionalBadgeProps
   size?: 'xs' | 'sm' | 'base' | 'lg';
   
   /**
-   * Icon to display before the badge text
+   * Icon to display before the badge text (Hugeicons icon component)
    */
-  icon?: string;
+  icon?: any;
   
   /**
    * Badge content
@@ -292,13 +292,10 @@ const ProfessionalBadge = forwardRef<HTMLSpanElement, ProfessionalBadgeProps>(
 
         {/* Icon */}
         {icon && (
-          <HugeiconsIcon 
+          <Icon 
             icon={icon} 
-            size={16}
-            className={cn(
-              'flex-shrink-0',
-              size === 'xs' ? 'w-3 h-3' : 'w-4 h-4'
-            )} 
+            size={size === 'xs' ? 'xs' : 'sm'}
+            className="flex-shrink-0"
           />
         )}
 

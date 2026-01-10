@@ -10,7 +10,7 @@
 import React, { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Icon } from '@/components/icons/Icon';
+import { Icon, ICON_SIZES, type IconSize } from '@/components/ui/Icon';
 import { useDensity } from '@/context/DensityContext';
 
 // ============================================
@@ -30,14 +30,14 @@ export interface ProfessionalButtonProps
   size?: 'sm' | 'base' | 'lg';
   
   /**
-   * Icon to display before the button text
+   * Icon to display before the button text (Hugeicons icon component)
    */
-  icon?: string;
+  icon?: any;
   
   /**
-   * Icon to display after the button text
+   * Icon to display after the button text (Hugeicons icon component)
    */
-  iconRight?: string;
+  iconRight?: any;
   
   /**
    * Loading state shows spinner and disables interaction
@@ -215,7 +215,7 @@ const ProfessionalButton = forwardRef<HTMLButtonElement, ProfessionalButtonProps
         {loading ? (
           <LoadingSpinner size={size} />
         ) : icon ? (
-          <Icon icon={icon} size={isCompact ? 14 : 16} className="flex-shrink-0" />
+          <Icon icon={icon} size={isCompact ? 'sm' : 'base'} className="flex-shrink-0" />
         ) : null}
 
         {/* Button text */}
@@ -230,7 +230,7 @@ const ProfessionalButton = forwardRef<HTMLButtonElement, ProfessionalButtonProps
 
         {/* Right icon */}
         {!loading && iconRight && (
-          <Icon icon={iconRight} size={isCompact ? 14 : 16} className="flex-shrink-0" />
+          <Icon icon={iconRight} size={isCompact ? 'sm' : 'base'} className="flex-shrink-0" />
         )}
       </motion.button>
     );
@@ -282,7 +282,7 @@ const ProfessionalButtonGroup: React.FC<ProfessionalButtonGroupProps> = ({
 
 interface ProfessionalIconButtonProps
   extends Omit<ProfessionalButtonProps, 'icon' | 'iconRight' | 'children'> {
-  icon: string;
+  icon: any; // Hugeicons icon component
   'aria-label': string;
 }
 
@@ -296,7 +296,12 @@ const ProfessionalIconButton = forwardRef<HTMLButtonElement, ProfessionalIconBut
       lg: isCompact ? 'w-9 h-9' : 'w-12 h-12',
     };
     
-    const iconSize = isCompact ? 16 : 20;
+    // Map button size to icon size using standardized sizes
+    const iconSizeMap: Record<'sm' | 'base' | 'lg', IconSize> = {
+      sm: isCompact ? 'xs' : 'sm',
+      base: isCompact ? 'sm' : 'base',
+      lg: isCompact ? 'base' : 'lg',
+    };
 
     return (
       <ProfessionalButton
@@ -309,7 +314,7 @@ const ProfessionalIconButton = forwardRef<HTMLButtonElement, ProfessionalIconBut
         )}
         {...props}
       >
-        <Icon icon={icon} size={iconSize} />
+        <Icon icon={icon} size={iconSizeMap[size]} />
       </ProfessionalButton>
     );
   }

@@ -219,14 +219,14 @@ export default {
                 'inner-sm': 'inset 0 1px 2px 0 rgba(0, 0, 0, 0.05)',
             },
             borderRadius: {
-                sm: "2px",
-                md: "4px",
-                DEFAULT: "4px",
-                lg: "8px",
-                full: "9999px",
-                // Component helpers
-                industrial: "8px",
-                component: "6px",
+                sm: "2px",      // Badges, tags, chips - minimal rounding
+                md: "4px",      // Buttons, inputs, tabs - DEFAULT for interactive controls
+                DEFAULT: "4px", // Same as md
+                lg: "8px",      // Cards, panels, modals - large containers
+                full: "9999px", // Avatars, circular buttons - perfect circles
+                // Component-specific aliases (see src/theme/border-radius-system.md)
+                industrial: "8px",  // Alias for lg - industrial aesthetic
+                component: "6px",   // Dropdowns, toasts, alerts - floating elements
             },
             animation: {
                 "fade-in": "fadeIn 250ms cubic-bezier(0.4, 0, 0.2, 1)",

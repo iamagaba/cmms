@@ -7,8 +7,11 @@
 
 import React from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
+import type { IconSvgElement } from '@hugeicons/react';
 import { cn } from '@/lib/utils';
 import ProfessionalButton from '@/components/ui/ProfessionalButton';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 // ============================================
 // INTERFACES
@@ -17,7 +20,7 @@ import ProfessionalButton from '@/components/ui/ProfessionalButton';
 export interface DashboardSectionProps {
   title: string;
   subtitle?: string;
-  icon?: string;
+  icon?: IconSvgElement;
   action?: {
     label: string;
     onClick: () => void;
@@ -44,8 +47,11 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
   headerClassName,
   contentClassName
 }) => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
+  
   return (
-    <section className={cn('space-y-4', className)}>
+    <section className={cn(spacing.section, className)}>
       {/* Section Header */}
       <div className={cn(
         'flex items-center justify-between',
@@ -53,16 +59,16 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
       )}>
         <div className="flex items-center gap-3">
           {icon && (
-            <div className="p-2 bg-steel-100 rounded-lg">
-              <HugeiconsIcon icon={icon} size={20} />
+            <div className={`${isCompact ? 'p-1.5' : 'p-2'} bg-steel-100 rounded-lg`}>
+              <HugeiconsIcon icon={icon} size={spacing.icon.md} />
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <h2 className="text-xl font-semibold text-machinery-900 truncate">
+            <h2 className={`${spacing.text.heading} font-semibold text-machinery-900 truncate`}>
               {title}
             </h2>
             {subtitle && (
-              <p className="text-sm text-machinery-600 mt-1 truncate">
+              <p className={`${spacing.text.caption} text-machinery-600 mt-1 truncate`}>
                 {subtitle}
               </p>
             )}
@@ -96,4 +102,3 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
 // ============================================
 
 export default DashboardSection;
-export type { DashboardSectionProps };

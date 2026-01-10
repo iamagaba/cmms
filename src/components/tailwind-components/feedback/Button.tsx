@@ -14,13 +14,17 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
     loading?: boolean;
     /** Disabled state */
     disabled?: boolean;
+    /** Left section (icon) */
+    leftSection?: React.ReactNode;
+    /** Right section (icon) */
+    rightSection?: React.ReactNode;
     children: React.ReactNode;
     className?: string;
 }
 
 const sizeMap = {
-    xs: 'px-2 py-1 text-xs h-7',
-    sm: 'px-3 py-1.5 text-sm h-8',
+    xs: 'px-2 py-0.5 text-[10px] h-6',
+    sm: 'px-2.5 py-1 text-xs h-7',
     md: 'px-4 py-2 text-sm h-9',
     lg: 'px-5 py-2.5 text-base h-10',
     xl: 'px-6 py-3 text-base h-11',
@@ -80,6 +84,8 @@ export function Button({
     fullWidth = false,
     loading = false,
     disabled = false,
+    leftSection,
+    rightSection,
     children,
     className,
     ...props
@@ -120,7 +126,9 @@ export function Button({
                     />
                 </svg>
             )}
+            {!loading && leftSection && <span className="mr-1.5">{leftSection}</span>}
             {children}
+            {rightSection && <span className="ml-1.5">{rightSection}</span>}
         </button>
     );
 }

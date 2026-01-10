@@ -238,10 +238,10 @@
   /* TYPOGRAPHY TOKENS - Hybrid System */
   /* ============================================ */
 
-  --font-family-ui: "Geist", "Inter", system-ui, -apple-system, sans-serif;
-  --font-family-brand: "Plus Jakarta Sans", "Inter", system-ui, sans-serif;
-  --font-family-utility: "IBM Plex Sans", "Inter", sans-serif;
-  --font-family-data: "IBM Plex Mono", Menlo, Monaco, Courier New, monospace;
+  --font-family-ui: "Geist", system-ui, -apple-system, sans-serif;
+  --font-family-brand: "Bricolage Grotesque", "Geist", system-ui, sans-serif;
+  --font-family-utility: "Geist", system-ui, sans-serif;
+  --font-family-data: "Geist Mono", Menlo, Monaco, Courier New, monospace;
 
   --font-family-sans: var(--font-family-ui);
   --font-family-display: var(--font-family-brand);

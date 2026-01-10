@@ -11,6 +11,20 @@
 /* ============================================ */
 
 :root {
+  /* ============================================ */
+  /* DENSITY MODE VARIABLES                       */
+  /* ============================================ */
+  
+  /* Default (Cozy) Density Variables */
+  --density-spacing-unit: 1rem;      /* 16px */
+  --density-input-height: 2.5rem;    /* 40px */
+  --density-button-height: 2.5rem;   /* 40px */
+  --density-card-padding: 1rem;      /* 16px */
+  --density-row-height: 2.5rem;      /* 40px */
+  --density-font-scale: 1;           /* 16px base */
+  --density-gap: 1rem;               /* 16px */
+  --density-page-padding: 1rem;      /* 16px */
+  
   /* Color Properties - Steel Blue (Primary) */
   --color-steelBlue-50: #f0f7ff;
   --color-steelBlue-100: #e0efff;
@@ -186,6 +200,22 @@
   --easing-easeIn: cubic-bezier(0.4, 0, 1, 1);
   --easing-easeInOut: cubic-bezier(0.4, 0, 0.2, 1);
   --easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+/* ============================================ */
+/* COMPACT DENSITY MODE OVERRIDES               */
+/* ============================================ */
+
+[data-density="compact"] {
+  /* Compact Density Variables - 20-25% reduction */
+  --density-spacing-unit: 0.75rem;   /* 12px */
+  --density-input-height: 2rem;      /* 32px */
+  --density-button-height: 2rem;     /* 32px */
+  --density-card-padding: 0.75rem;   /* 12px */
+  --density-row-height: 2rem;        /* 32px */
+  --density-font-scale: 0.875;       /* 14px base */
+  --density-gap: 0.75rem;            /* 12px */
+  --density-page-padding: 0.75rem;   /* 12px */
 }
 
 /* ============================================ */
@@ -559,6 +589,111 @@
     transform: scale(1);
     opacity: 1;
   }
+}
+
+/* ============================================ */
+/* DENSITY MODE SYSTEM                          */
+/* ============================================ */
+
+/* Density CSS Variables - Applied via data-density attribute */
+:root {
+  /* Default (Cozy) Density */
+  --density-input-height: 2.5rem;      /* 40px */
+  --density-button-height: 2.5rem;     /* 40px */
+  --density-card-padding: 1rem;        /* 16px */
+  --density-section-gap: 1rem;         /* 16px */
+  --density-row-height: 2.5rem;        /* 40px */
+  --density-page-padding: 1rem;        /* 16px */
+  --density-font-scale: 1;             /* 16px base */
+}
+
+[data-density="compact"] {
+  /* Compact Density - Desktop Optimized */
+  --density-input-height: 2rem;        /* 32px */
+  --density-button-height: 2rem;       /* 32px */
+  --density-card-padding: 0.75rem;     /* 12px */
+  --density-section-gap: 0.75rem;      /* 12px */
+  --density-row-height: 2rem;          /* 32px */
+  --density-page-padding: 0.75rem;     /* 12px */
+  --density-font-scale: 0.875;         /* 14px base */
+}
+
+[data-density="cozy"] {
+  /* Cozy Density - Comfortable */
+  --density-input-height: 2.5rem;      /* 40px */
+  --density-button-height: 2.5rem;     /* 40px */
+  --density-card-padding: 1rem;        /* 16px */
+  --density-section-gap: 1rem;         /* 16px */
+  --density-row-height: 2.5rem;        /* 40px */
+  --density-page-padding: 1rem;        /* 16px */
+  --density-font-scale: 1;             /* 16px base */
+}
+
+/* Density-Aware Utility Classes */
+.density-input {
+  height: var(--density-input-height);
+}
+
+.density-button {
+  height: var(--density-button-height);
+}
+
+.density-card-padding {
+  padding: var(--density-card-padding);
+}
+
+.density-section-gap {
+  gap: var(--density-section-gap);
+}
+
+.density-row {
+  height: var(--density-row-height);
+}
+
+.density-page-padding {
+  padding: var(--density-page-padding);
+}
+
+/* Compact Mode Overrides for Components */
+[data-density="compact"] .btn-primary,
+[data-density="compact"] .btn-secondary,
+[data-density="compact"] .btn-outline,
+[data-density="compact"] .btn-ghost,
+[data-density="compact"] .btn-danger,
+[data-density="compact"] .btn-success {
+  @apply h-8 px-3 py-1.5 text-xs;
+}
+
+[data-density="compact"] .input-base {
+  @apply h-8 px-3 py-1.5 text-xs;
+}
+
+[data-density="compact"] .card-base,
+[data-density="compact"] .card-elevated,
+[data-density="compact"] .card-outlined,
+[data-density="compact"] .card-filled {
+  @apply p-3;
+}
+
+[data-density="compact"] .status-success,
+[data-density="compact"] .status-warning,
+[data-density="compact"] .status-error,
+[data-density="compact"] .status-info,
+[data-density="compact"] .status-neutral {
+  @apply px-2 py-0.5 text-[10px];
+}
+
+/* Compact Mode Typography Adjustments */
+[data-density="compact"] h1 {
+  @apply text-base;
+}
+
+[data-density="compact"] h2 {
+  @apply text-sm;
+}
+
+[data-density="compact"] h3 {
+  @apply text-xs;
 }
 
 /* ============================================ */

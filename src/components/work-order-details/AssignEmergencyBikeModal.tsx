@@ -12,10 +12,10 @@ interface AssignEmergencyBikeModalProps {
   onAssign: (bikeId: string, notes: string) => Promise<void>;
 }
 
-const AssignEmergencyBikeModal: React.FC<AssignEmergencyBikeModalProps> = ({ 
-  open, 
-  onClose, 
-  onAssign 
+const AssignEmergencyBikeModal: React.FC<AssignEmergencyBikeModalProps> = ({
+  open,
+  onClose,
+  onAssign
 }) => {
   const [selectedBikeId, setSelectedBikeId] = useState<string>('');
   const [notes, setNotes] = useState('');
@@ -28,11 +28,12 @@ const AssignEmergencyBikeModal: React.FC<AssignEmergencyBikeModalProps> = ({
       const { data, error } = await supabase
         .from('vehicles')
         .select('*')
-        .eq('is_company_asset', true)
+        // .eq('is_company_asset', true) // Removed to ensure all emergency bikes show up
         .eq('is_emergency_bike', true)
-        .order('registration_number', { ascending: true });
+        .order('license_plate', { ascending: true });
 
       if (error) throw error;
+      console.log('🚲 Emergency bikes from DB:', data);
       return data as Vehicle[];
     },
     enabled: open,
@@ -44,11 +45,12 @@ const AssignEmergencyBikeModal: React.FC<AssignEmergencyBikeModalProps> = ({
     queryFn: async () => {
       const { data, error } = await supabase
         .from('emergency_bike_assignments')
-        .select('emergency_bike_id')
+        .select('emergency_bike_asset_id')
         .is('returned_at', null);
 
       if (error) throw error;
-      return data.map(a => a.emergency_bike_id);
+      console.log('🔒 Active assignments:', data);
+      return data.map(a => a.emergency_bike_asset_id);
     },
     enabled: open,
   });
@@ -56,6 +58,8 @@ const AssignEmergencyBikeModal: React.FC<AssignEmergencyBikeModalProps> = ({
   const availableBikes = emergencyBikes?.filter(
     bike => !activeAssignments?.includes(bike.id)
   ) || [];
+
+  console.log('✅ Available bikes after filter:', availableBikes);
 
   const handleAssign = async () => {
     if (!selectedBikeId) return;
@@ -92,7 +96,7 @@ const AssignEmergencyBikeModal: React.FC<AssignEmergencyBikeModalProps> = ({
       />
 
       {/* Dialog */}
-      <div 
+      <div
         className="fixed inset-0 flex items-center justify-center p-4"
         style={{ zIndex: 1050 }}
         role="dialog"
@@ -132,7 +136,7 @@ const AssignEmergencyBikeModal: React.FC<AssignEmergencyBikeModalProps> = ({
                 <div className="flex gap-3">
                   <HugeiconsIcon icon={InformationCircleIcon} className="text-blue-600 flex-shrink-0 mt-0.5" size={20} />
                   <div className="text-sm text-blue-800">
-                    Assign an emergency bike to the customer while their vehicle is being repaired. 
+                    Assign an emergency bike to the customer while their vehicle is being repaired.
                     The bike will be marked as in-use until the work order is completed.
                   </div>
                 </div>
@@ -162,18 +166,17 @@ const AssignEmergencyBikeModal: React.FC<AssignEmergencyBikeModalProps> = ({
                         key={bike.id}
                         type="button"
                         onClick={() => setSelectedBikeId(bike.id)}
-                        className={`w-full text-left p-3 rounded-lg border-2 transition-all ${
-                          selectedBikeId === bike.id
-                            ? 'border-orange-500 bg-orange-50 shadow-sm'
-                            : 'border-gray-200 hover:border-gray-300 bg-white'
-                        }`}
+                        className={`w-full text-left p-3 rounded-lg border-2 transition-all ${selectedBikeId === bike.id
+                          ? 'border-orange-500 bg-orange-50 shadow-sm'
+                          : 'border-gray-200 hover:border-gray-300 bg-white'
+                          }`}
                       >
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
-                              <HugeiconsIcon 
-                                icon={Motorbike01Icon} 
-                                className={selectedBikeId === bike.id ? 'text-orange-600' : 'text-gray-600'} 
+                              <HugeiconsIcon
+                                icon={Motorbike01Icon}
+                                className={selectedBikeId === bike.id ? 'text-orange-600' : 'text-gray-600'}
                                 size={18}
                               />
                               <span className="font-semibold text-gray-900 text-sm">

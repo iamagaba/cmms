@@ -330,10 +330,10 @@ const ModernBreadcrumbs: React.FC<ModernBreadcrumbsProps> = ({
         <header
             className={`w-full sticky top-0 ${compact ? 'px-3 py-2' : 'px-4 py-2.5'} ${className}`}
             style={{
-                backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                backgroundColor: 'rgba(255, 255, 255, 0.4)',
                 zIndex: designTokens.zIndex.sticky,
-                backdropFilter: 'blur(12px) saturate(180%)',
-                borderBottom: `1px solid ${professionalColors.neutral.border.primary}`
+                backdropFilter: 'blur(20px) saturate(180%)',
+                borderBottom: `1px solid rgba(226, 232, 240, 0.4)`
             }}
             role="banner"
         >

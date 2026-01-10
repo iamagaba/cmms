@@ -12,14 +12,14 @@
  */
 
 export const fontFamilies = {
-  // Geist for UI/Product
-  sans: ['Geist', 'Inter', 'system-ui', '-apple-system', 'sans-serif'],
-  // Plus Jakarta Sans for Brand/Marketing/Display
-  display: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
-  // IBM Plex Sans for Utility/Technical Content
-  utility: ['"IBM Plex Sans"', 'Inter', 'sans-serif'],
-  // IBM Plex Mono for Technical Data/Metrics
-  mono: ['"IBM Plex Mono"', 'Menlo', 'Monaco', 'Courier New', 'monospace'],
+  // Geist for UI/Product - clean, neutral, highly legible
+  sans: ['Geist', 'system-ui', '-apple-system', 'sans-serif'],
+  // Bricolage Grotesque for Brand/Display - industrial character with personality
+  display: ['"Bricolage Grotesque"', 'Geist', 'system-ui', 'sans-serif'],
+  // Geist for Utility/Technical Content - consistent with UI
+  utility: ['Geist', 'system-ui', 'sans-serif'],
+  // Geist Mono for Technical Data/Metrics - perfect pairing with Geist Sans
+  mono: ['"Geist Mono"', 'Menlo', 'Monaco', 'Courier New', 'monospace'],
 } as const;
 
 // Semantic Tier Mapping for ease of use in Tailwind/CSS

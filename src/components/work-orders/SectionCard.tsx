@@ -56,29 +56,29 @@ export const SectionCard: React.FC<SectionCardProps> = ({
             <div
                 ref={cardRef}
                 className={cn(
-                    "mb-4 rounded-lg border bg-white shadow-sm ring-1 ring-black/5 transition-all overflow-hidden",
+                    "mb-2 rounded-lg border bg-white shadow-sm ring-1 ring-black/5 transition-all overflow-hidden",
                     hasErrors ? "border-red-300 ring-red-100" : "border-purple-200 ring-purple-500/10"
                 )}
             >
-                <div className="p-4">
+                <div className="p-3">
                     {/* Section Header - Static when active */}
                     <div
-                        className="flex items-center gap-4 mb-3 pb-2.5 border-b border-gray-100 cursor-pointer"
+                        className="flex items-center gap-2 mb-2 pb-1.5 border-b border-gray-100 cursor-pointer"
                         onClick={onToggle} // Allow clicking header to collapse/validate? Or just for consistency
                     >
                         <div className={cn(
-                            "flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold shadow-sm transition-colors",
+                            "flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold shadow-sm transition-colors",
                             hasErrors ? "bg-red-50 text-red-600" : "bg-purple-600 text-white"
                         )}>
                             {index + 1}
                         </div>
                         <div>
-                            <h3 className="text-lg font-semibold text-gray-900 tracking-tight">{title}</h3>
+                            <h3 className="text-sm font-semibold text-gray-900 tracking-tight">{title}</h3>
                         </div>
                     </div>
 
                     {/* Form Content */}
-                    <div className="space-y-4 animate-fade-in">
+                    <div className="space-y-2 animate-fade-in">
                         {children}
                     </div>
 
@@ -95,27 +95,27 @@ export const SectionCard: React.FC<SectionCardProps> = ({
                 ref={cardRef}
                 onClick={onToggle}
                 className={cn(
-                    "mb-4 group rounded-lg border border-gray-200 bg-white transition-all cursor-pointer",
+                    "mb-2 group rounded-lg border border-gray-200 bg-white transition-all cursor-pointer",
                     "hover:border-purple-200 hover:shadow-sm"
                 )}
             >
-                <div className="p-5">
+                <div className="p-3">
                     <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-4 flex-1">
-                            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100 text-green-600 flex-shrink-0 mt-0.5">
-                                <HugeiconsIcon icon={Tick01Icon} size={18} className="stroke-2" />
+                        <div className="flex items-start gap-2 flex-1">
+                            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-green-100 text-green-600 flex-shrink-0 mt-0.5">
+                                <HugeiconsIcon icon={Tick01Icon} size={14} className="stroke-2" />
                             </div>
 
                             <div className="flex-1 min-w-0">
-                                <h3 className="text-sm font-semibold text-gray-900 group-hover:text-purple-700 transition-colors mb-1">{title}</h3>
-                                <div className="text-sm text-gray-600">
+                                <h3 className="text-xs font-semibold text-gray-900 group-hover:text-purple-700 transition-colors mb-0.5">{title}</h3>
+                                <div className="text-xs text-gray-600">
                                     {summary}
                                 </div>
                             </div>
                         </div>
 
-                        <button className="text-gray-400 opacity-0 group-hover:opacity-100 hover:text-purple-600 transition-all p-2 -mr-2">
-                            <HugeiconsIcon icon={PencilEdit02Icon} size={18} />
+                        <button className="text-gray-400 opacity-0 group-hover:opacity-100 hover:text-purple-600 transition-all p-1 -mr-1">
+                            <HugeiconsIcon icon={PencilEdit02Icon} size={14} />
                         </button>
                     </div>
                 </div>
@@ -131,15 +131,15 @@ export const SectionCard: React.FC<SectionCardProps> = ({
             ref={cardRef}
             onClick={!isLocked ? onToggle : undefined}
             className={cn(
-                "mb-4 rounded-lg border transition-all duration-200",
+                "mb-2 rounded-lg border transition-all duration-200",
                 isLocked
                     ? "border-gray-100 bg-gray-50/50 opacity-60 cursor-not-allowed"
                     : "border-gray-200 bg-white hover:border-purple-200 hover:shadow-sm cursor-pointer group"
             )}
         >
-            <div className="flex items-center gap-4 p-5">
+            <div className="flex items-center gap-2 p-3">
                 <div className={cn(
-                    "flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-colors",
+                    "flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold transition-colors",
                     isLocked
                         ? "bg-gray-200 text-gray-500"
                         : "bg-gray-100 text-gray-600 group-hover:bg-purple-50 group-hover:text-purple-600"
@@ -148,7 +148,7 @@ export const SectionCard: React.FC<SectionCardProps> = ({
                 </div>
                 <div className="flex-1">
                     <h3 className={cn(
-                        "text-sm font-medium transition-colors",
+                        "text-xs font-medium transition-colors",
                         isLocked ? "text-gray-400" : "text-gray-900 group-hover:text-purple-700"
                     )}>
                         {title}
@@ -157,7 +157,7 @@ export const SectionCard: React.FC<SectionCardProps> = ({
                 {!isLocked && (
                     <HugeiconsIcon
                         icon={ArrowDown01Icon}
-                        size={20}
+                        size={16}
                         className="text-gray-400 group-hover:text-purple-500"
                     />
                 )}

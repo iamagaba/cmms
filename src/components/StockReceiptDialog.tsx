@@ -12,6 +12,8 @@ import { InventoryItem, Supplier } from '@/types/supabase';
 import { useSuppliers } from '@/hooks/useSuppliers';
 import { useCreateStockReceipt } from '@/hooks/useInventoryTransactions';
 import { snakeToCamelCase } from '@/utils/data-helpers';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 interface StockReceiptDialogProps {
   isOpen: boolean;
@@ -42,6 +44,8 @@ export const StockReceiptDialog: React.FC<StockReceiptDialogProps> = ({
 
   const { data: suppliers } = useSuppliers();
   const createReceipt = useCreateStockReceipt();
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
 
   // Fetch inventory items
   const { data: inventoryItems } = useQuery<InventoryItem[]>({
@@ -129,31 +133,31 @@ export const StockReceiptDialog: React.FC<StockReceiptDialogProps> = ({
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-              <HugeiconsIcon icon={PackageReceiveIcon} size={20} className="text-emerald-600 dark:text-emerald-400" />
+        <div className={`flex items-center justify-between ${spacing.card} border-b border-gray-200 dark:border-gray-700`}>
+          <div className={`flex items-center ${spacing.gap}`}>
+            <div className={`${isCompact ? 'w-8 h-8' : 'w-10 h-10'} rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center`}>
+              <HugeiconsIcon icon={PackageReceiveIcon} size={spacing.icon.lg} className="text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Receive Stock</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Log incoming inventory from supplier</p>
+              <h2 className={`${spacing.text.heading} font-semibold text-gray-900 dark:text-gray-100`}>Receive Stock</h2>
+              <p className={`${spacing.text.body} text-gray-500 dark:text-gray-400`}>Log incoming inventory from supplier</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-            <HugeiconsIcon icon={Cancel01Icon} size={20} className="text-gray-500" />
+          <button onClick={onClose} className={`${isCompact ? 'p-1.5' : 'p-2'} hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg`}>
+            <HugeiconsIcon icon={Cancel01Icon} size={spacing.icon.lg} className="text-gray-500" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="p-6 space-y-6 max-h-[calc(90vh-180px)] overflow-y-auto">
+          <div className={`${spacing.card} ${spacing.section} max-h-[calc(90vh-180px)] overflow-y-auto`}>
             {/* Receipt Details */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className={`grid grid-cols-2 ${spacing.gap}`}>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Supplier</label>
+                <label className={`block ${spacing.text.body} font-medium text-gray-700 dark:text-gray-300 mb-1`}>Supplier</label>
                 <select
                   value={supplierId}
                   onChange={(e) => setSupplierId(e.target.value)}
-                  className="w-full h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+                  className={`w-full ${spacing.inputHeight} px-3 ${spacing.rounded} border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 ${spacing.text.body}`}
                 >
                   <option value="">Select supplier...</option>
                   {suppliers?.map(s => (
@@ -162,45 +166,45 @@ export const StockReceiptDialog: React.FC<StockReceiptDialogProps> = ({
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Received Date</label>
+                <label className={`block ${spacing.text.body} font-medium text-gray-700 dark:text-gray-300 mb-1`}>Received Date</label>
                 <input
                   type="date"
                   value={receivedDate}
                   onChange={(e) => setReceivedDate(e.target.value)}
-                  className="w-full h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+                  className={`w-full ${spacing.inputHeight} px-3 ${spacing.rounded} border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 ${spacing.text.body}`}
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">PO Number</label>
+                <label className={`block ${spacing.text.body} font-medium text-gray-700 dark:text-gray-300 mb-1`}>PO Number</label>
                 <input
                   type="text"
                   value={poNumber}
                   onChange={(e) => setPoNumber(e.target.value)}
                   placeholder="Optional"
-                  className="w-full h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+                  className={`w-full ${spacing.inputHeight} px-3 ${spacing.rounded} border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 ${spacing.text.body}`}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Invoice Number</label>
+                <label className={`block ${spacing.text.body} font-medium text-gray-700 dark:text-gray-300 mb-1`}>Invoice Number</label>
                 <input
                   type="text"
                   value={invoiceNumber}
                   onChange={(e) => setInvoiceNumber(e.target.value)}
                   placeholder="Optional"
-                  className="w-full h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+                  className={`w-full ${spacing.inputHeight} px-3 ${spacing.rounded} border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 ${spacing.text.body}`}
                 />
               </div>
             </div>
 
             {/* Add Items */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Add Items</label>
-              <div className="flex gap-2">
+              <label className={`block ${spacing.text.body} font-medium text-gray-700 dark:text-gray-300 ${spacing.mb}`}>Add Items</label>
+              <div className={`flex ${spacing.gap}`}>
                 <select
                   value={selectedItemId}
                   onChange={(e) => setSelectedItemId(e.target.value)}
-                  className="flex-1 h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+                  className={`flex-1 ${spacing.inputHeight} px-3 ${spacing.rounded} border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 ${spacing.text.body}`}
                 >
                   <option value="">Select item to add...</option>
                   {inventoryItems?.filter(i => !lineItems.some(li => li.inventory_item_id === i.id)).map(item => (
@@ -211,7 +215,7 @@ export const StockReceiptDialog: React.FC<StockReceiptDialogProps> = ({
                   type="button"
                   onClick={handleAddItem}
                   disabled={!selectedItemId}
-                  className="px-4 h-10 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                  className={`${spacing.button} bg-purple-600 text-white ${spacing.rounded} hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium`}
                 >
                   Add
                 </button>
@@ -220,59 +224,59 @@ export const StockReceiptDialog: React.FC<StockReceiptDialogProps> = ({
 
             {/* Line Items Table */}
             {lineItems.length > 0 && (
-              <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                <table className="w-full text-sm">
+              <div className={`border border-gray-200 dark:border-gray-700 ${spacing.roundedLg} overflow-hidden`}>
+                <table className={`w-full ${spacing.text.body}`}>
                   <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr>
-                      <th className="px-4 py-2 text-left font-medium text-gray-700 dark:text-gray-300">Item</th>
-                      <th className="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-300 w-24">Expected</th>
-                      <th className="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-300 w-24">Received</th>
-                      <th className="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-300 w-28">Unit Cost</th>
-                      <th className="px-4 py-2 w-12"></th>
+                      <th className={`${spacing.rowPadding} text-left font-medium text-gray-700 dark:text-gray-300`}>Item</th>
+                      <th className={`${spacing.rowPadding} text-center font-medium text-gray-700 dark:text-gray-300 w-24`}>Expected</th>
+                      <th className={`${spacing.rowPadding} text-center font-medium text-gray-700 dark:text-gray-300 w-24`}>Received</th>
+                      <th className={`${spacing.rowPadding} text-center font-medium text-gray-700 dark:text-gray-300 w-28`}>Unit Cost</th>
+                      <th className={`${spacing.rowPadding} w-12`}></th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                     {lineItems.map(li => (
                       <tr key={li.inventory_item_id}>
-                        <td className="px-4 py-2">
-                          <div className="font-medium text-gray-900 dark:text-gray-100">{li.item?.name}</div>
-                          <div className="text-xs text-gray-500">{li.item?.sku}</div>
+                        <td className={spacing.rowPadding}>
+                          <div className={`font-medium text-gray-900 dark:text-gray-100`}>{li.item?.name}</div>
+                          <div className={`${spacing.text.caption} text-gray-500`}>{li.item?.sku}</div>
                         </td>
-                        <td className="px-4 py-2">
+                        <td className={spacing.rowPadding}>
                           <input
                             type="number"
                             min="0"
                             value={li.quantity_expected}
                             onChange={(e) => handleUpdateItem(li.inventory_item_id, 'quantity_expected', parseInt(e.target.value) || 0)}
-                            className="w-full h-8 px-2 text-center rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                            className={`w-full ${spacing.inputHeight} px-2 text-center rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800`}
                           />
                         </td>
-                        <td className="px-4 py-2">
+                        <td className={spacing.rowPadding}>
                           <input
                             type="number"
                             min="0"
                             value={li.quantity_received}
                             onChange={(e) => handleUpdateItem(li.inventory_item_id, 'quantity_received', parseInt(e.target.value) || 0)}
-                            className="w-full h-8 px-2 text-center rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                            className={`w-full ${spacing.inputHeight} px-2 text-center rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800`}
                           />
                         </td>
-                        <td className="px-4 py-2">
+                        <td className={spacing.rowPadding}>
                           <input
                             type="number"
                             min="0"
                             step="0.01"
                             value={li.unit_cost || ''}
                             onChange={(e) => handleUpdateItem(li.inventory_item_id, 'unit_cost', parseFloat(e.target.value) || 0)}
-                            className="w-full h-8 px-2 text-center rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                            className={`w-full ${spacing.inputHeight} px-2 text-center rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800`}
                           />
                         </td>
-                        <td className="px-4 py-2">
+                        <td className={spacing.rowPadding}>
                           <button
                             type="button"
                             onClick={() => handleRemoveItem(li.inventory_item_id)}
-                            className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
+                            className={`${isCompact ? 'p-1' : 'p-1.5'} text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded`}
                           >
-                            <HugeiconsIcon icon={Delete01Icon} size={16} />
+                            <HugeiconsIcon icon={Delete01Icon} size={spacing.icon.sm} />
                           </button>
                         </td>
                       </tr>
@@ -284,23 +288,23 @@ export const StockReceiptDialog: React.FC<StockReceiptDialogProps> = ({
 
             {/* Notes */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+              <label className={`block ${spacing.text.body} font-medium text-gray-700 dark:text-gray-300 mb-1`}>Notes</label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                rows={2}
+                rows={isCompact ? 2 : 3}
                 placeholder="Optional notes..."
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+                className={`w-full px-3 py-2 ${spacing.roundedLg} border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 ${spacing.text.body}`}
               />
             </div>
 
             {/* Summary */}
             {lineItems.length > 0 && (
-              <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4 flex justify-between items-center">
-                <div className="text-sm text-gray-600 dark:text-gray-400">
+              <div className={`bg-gray-50 dark:bg-gray-800 ${spacing.roundedLg} ${spacing.card} flex justify-between items-center`}>
+                <div className={`${spacing.text.body} text-gray-600 dark:text-gray-400`}>
                   <span className="font-medium">{lineItems.length}</span> items, <span className="font-medium">{totalItems}</span> units
                 </div>
-                <div className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <div className={`${spacing.text.heading} font-semibold text-gray-900 dark:text-gray-100`}>
                   Total: UGX {totalValue.toLocaleString()}
                 </div>
               </div>
@@ -308,20 +312,20 @@ export const StockReceiptDialog: React.FC<StockReceiptDialogProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+          <div className={`flex items-center justify-end ${spacing.gap} ${spacing.card} border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800`}>
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+              className={`${spacing.button} font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 ${spacing.rounded}`}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={lineItems.length === 0 || createReceipt.isPending}
-              className="px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className={`${spacing.button} font-medium text-white bg-emerald-600 hover:bg-emerald-700 ${spacing.rounded} disabled:opacity-50 disabled:cursor-not-allowed flex items-center ${spacing.gap}`}
             >
-              {createReceipt.isPending && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin" />}
+              {createReceipt.isPending && <HugeiconsIcon icon={Loading03Icon} size={spacing.icon.sm} className="animate-spin" />}
               Receive Stock
             </button>
           </div>

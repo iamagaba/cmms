@@ -144,11 +144,12 @@ interface ButtonProps {
   loading?: boolean;
 }
 
+// Density-aware size map - uses CSS variables
 const sizeMap = {
-  xs: 'px-2 py-1 text-xs',
-  sm: 'px-3 py-1.5 text-sm',
-  md: 'px-4 py-2 text-sm',
-  lg: 'px-5 py-2.5 text-base',
+  xs: 'h-7 px-2 py-1 text-xs',
+  sm: 'h-8 px-3 py-1.5 text-sm',
+  md: 'px-4 py-2 text-sm [height:var(--density-button-height)]',
+  lg: 'h-11 px-5 py-2.5 text-base',
 };
 
 export const Button: React.FC<ButtonProps> = ({

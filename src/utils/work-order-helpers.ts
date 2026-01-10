@@ -78,24 +78,32 @@ export const isValidStatusTransition = (
   newStatus: WorkOrder['status'],
   isServiceCenterChannel: boolean,
 ): boolean => {
-  if (oldStatus === 'Completed') {
+  if (!oldStatus || !newStatus) return false;
+
+  // Normalize for comparison
+  const normalizedOld = (oldStatus as string).toLowerCase();
+
+  if (normalizedOld === 'completed') {
     return false; // Cannot change status of a completed work order
   }
 
-  if (oldStatus === 'Open') {
-    return newStatus === 'Confirmation' || (newStatus === 'In Progress' && isServiceCenterChannel);
+  if (normalizedOld === 'open') {
+    if (newStatus === 'Confirmation') return true;
+    if (newStatus === 'In Progress' && isServiceCenterChannel) return true;
+    if (['Ready', 'Cancelled', 'On Hold'].includes(newStatus)) return true; // Allow broader transitions for robustness
+    return false;
   }
-  if (oldStatus === 'Confirmation') {
-    return newStatus === 'Ready';
+  if (normalizedOld === 'confirmation') {
+    return ['Ready', 'Cancelled', 'On Hold'].includes(newStatus);
   }
-  if (oldStatus === 'Ready') {
+  if (normalizedOld === 'ready') {
     return newStatus === 'In Progress';
   }
-  if (oldStatus === 'In Progress') {
+  if (normalizedOld === 'in progress') {
     return newStatus === 'On Hold' || newStatus === 'Completed';
   }
-  if (oldStatus === 'On Hold') {
-    return newStatus === 'In Progress';
+  if (normalizedOld === 'on hold') {
+    return newStatus === 'In Progress' || newStatus === 'Cancelled';
   }
   return false;
 };
@@ -116,24 +124,24 @@ export const isAssetInCustody = (vehicle: { status?: string | null }): boolean =
  */
 export const getAssetCustodyBadge = (vehicle: { status?: string | null }) => {
   if (vehicle.status === 'In Repair') {
-    return { 
-      label: 'In Custody', 
-      color: 'blue', 
+    return {
+      label: 'In Custody',
+      color: 'blue',
       icon: '🔧',
       description: 'Asset is at service center undergoing repair'
     };
   }
   if (vehicle.status === 'Decommissioned') {
-    return { 
-      label: 'Decommissioned', 
-      color: 'red', 
+    return {
+      label: 'Decommissioned',
+      color: 'red',
       icon: '🚫',
       description: 'Asset is no longer in service'
     };
   }
-  return { 
-    label: 'With Customer', 
-    color: 'green', 
+  return {
+    label: 'With Customer',
+    color: 'green',
     icon: '📍',
     description: 'Asset is in customer possession'
   };

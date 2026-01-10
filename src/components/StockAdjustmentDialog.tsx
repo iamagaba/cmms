@@ -30,6 +30,8 @@ import {
 } from '@/utils/stock-adjustment-helpers';
 import { useBatchAdjustment } from '@/hooks/useStockAdjustments';
 import { Input } from '@/components/ui/enterprise';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 interface StockAdjustmentDialogProps {
   isOpen: boolean;
@@ -62,6 +64,8 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
   onSuccess,
   preselectedItem,
 }) => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const [lineItems, setLineItems] = useState<AdjustmentLineItem[]>([]);
   const [reason, setReason] = useState<AdjustmentReason | ''>('');
   const [notes, setNotes] = useState('');
@@ -176,23 +180,23 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800">
+          <div className={`flex items-center justify-between ${spacing.card} border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800`}>
             <div>
-              <div className="flex items-center gap-2">
-                <HugeiconsIcon icon={Settings02Icon} size={24} className="text-purple-600" />
-                <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+              <div className={`flex items-center ${spacing.gap}`}>
+                <HugeiconsIcon icon={Settings02Icon} size={spacing.icon.lg} className="text-purple-600" />
+                <h2 className={`${isCompact ? 'text-lg' : 'text-xl'} font-semibold text-gray-900 dark:text-gray-100`}>
                   Stock Adjustment
                 </h2>
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+              <p className={`${spacing.text.body} text-gray-500 dark:text-gray-400 mt-0.5`}>
                 Adjust quantities for one or more items
               </p>
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className={`${isCompact ? 'p-1.5' : 'p-2'} text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 ${spacing.roundedLg} hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors`}
             >
-              <HugeiconsIcon icon={Cancel01Icon} size={20} />
+              <HugeiconsIcon icon={Cancel01Icon} size={spacing.icon.md} />
             </button>
           </div>
 

@@ -24,6 +24,8 @@ import {
   useAvailableQuantity
 } from '@/hooks/useWorkOrderParts';
 import { formatQuantityWithUnit } from '@/utils/inventory-categorization-helpers';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 interface WorkOrderPartsDialogProps {
   isOpen: boolean;
@@ -40,6 +42,8 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
   workOrderId,
   workOrderNumber,
 }) => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const [activeTab, setActiveTab] = useState<TabType>('add');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
@@ -153,19 +157,19 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+      <div className={`relative bg-white dark:bg-gray-900 ${spacing.roundedLg} shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col`}>
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className={`flex items-center justify-between ${spacing.card} border-b border-gray-200 dark:border-gray-700`}>
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <h2 className={`${spacing.text.heading} font-semibold text-gray-900 dark:text-gray-100`}>
               Parts & Materials
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className={`${spacing.text.body} text-gray-500 dark:text-gray-400`}>
               {workOrderNumber ? `Work Order: ${workOrderNumber}` : 'Manage parts for this work order'}
             </p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-            <HugeiconsIcon icon={Cancel01Icon} size={20} className="text-gray-500" />
+          <button onClick={onClose} className={`${isCompact ? 'p-1.5' : 'p-2'} hover:bg-gray-100 dark:hover:bg-gray-800 ${spacing.roundedLg}`}>
+            <HugeiconsIcon icon={Cancel01Icon} size={spacing.icon.md} className="text-gray-500" />
           </button>
         </div>
 

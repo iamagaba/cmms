@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { File01Icon as FileIcon, Call02Icon, Wrench01Icon, CheckmarkCircle01Icon, Tick01Icon, Clock01Icon } from '@hugeicons/core-free-icons';
+import { File01Icon as FileIcon, Call02Icon, Wrench01Icon, CheckmarkCircle01Icon, Tick01Icon } from '@hugeicons/core-free-icons';
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
 
@@ -9,6 +9,9 @@ interface WorkOrderStepperProps {
   compact?: boolean;
   profileMap?: Map<string, string>;
   onConfirmationClick?: () => void;
+  onCompletionClick?: () => void;
+  onInProgressClick?: () => void;
+  onReadyClick?: () => void;
 }
 
 const STEPS = [
@@ -43,17 +46,23 @@ const formatDuration = (ms: number): string => {
   return '< 1m';
 };
 
-const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact = false, profileMap, onConfirmationClick }) => {
+const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact = false, profileMap, onConfirmationClick, onCompletionClick, onInProgressClick, onReadyClick }) => {
   const currentStatus = workOrder?.status || 'Open';
   const currentIndex = STATUS_ORDER.indexOf(currentStatus);
-  const isOnHold = currentStatus === 'On Hold';
   const [hoveredStep, setHoveredStep] = useState<string | null>(null);
 
   // Check if confirmation call is needed or if we're in confirmation status
   const needsConfirmationCall = workOrder?.status === 'Open' && !workOrder?.confirmation_call_completed;
-  const isConfirmationStep = workOrder?.status === 'Confirmation';
   // Make confirmation step clickable in Open or Confirmation status
   const canClickConfirmation = workOrder?.status === 'Open' || workOrder?.status === 'Confirmation';
+
+  // Make in-progress step clickable ONLY if currently In Progress (to resolve)
+  const canClickInProgress = workOrder?.status === 'In Progress';
+  // Make Ready step clickable if we are in Ready status
+  const canClickReady = workOrder?.status === 'Ready';
+
+  // Make completed step clickable if we are in Ready or In Progress status
+  const canClickCompletion = workOrder?.status === 'Ready' || workOrder?.status === 'In Progress';
 
   // Subtle animation styles
   const rippleStyles = `
@@ -183,6 +192,14 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
     return null;
   };
 
+  const isClickableStep = (stepKey: string) => {
+    if (stepKey === 'Confirmation' && canClickConfirmation && onConfirmationClick) return true;
+    if (stepKey === 'Ready' && canClickReady && onReadyClick) return true;
+    if (stepKey === 'In Progress' && canClickInProgress && onInProgressClick) return true;
+    if (stepKey === 'Completed' && canClickCompletion && onCompletionClick) return true;
+    return false;
+  };
+
   if (compact) {
     return (
       <>
@@ -191,33 +208,45 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
           {STEPS.map((step, index) => {
             const isCompleted = currentIndex > index;
             const isCurrent = STATUS_ORDER[index] === currentStatus;
+
+            // Treat "Completed" step as finished (Green) even if it's the current status
+            const showAsCompleted = isCompleted || (isCurrent && step.key === 'Completed');
+            const showAsCurrent = isCurrent && step.key !== 'Completed';
+
             const timestamp = getStepTimestamp(step.key);
             const duration = getStepDuration(step.key, index);
             const stepUser = getStepUser(step.key);
+            const clickable = isClickableStep(step.key);
 
             return (
               <React.Fragment key={step.key}>
                 <div
-                  className={`flex flex-col items-center min-w-[70px] relative group step-container ${step.key === 'Confirmation' && canClickConfirmation && onConfirmationClick ? 'cursor-pointer hover:opacity-80' : 'cursor-default'
+                  className={`flex flex-col items-center min-w-[70px] relative group step-container ${clickable ? 'cursor-pointer hover:opacity-80' : 'cursor-default'
                     }`}
                   onMouseEnter={() => setHoveredStep(step.key)}
                   onMouseLeave={() => setHoveredStep(null)}
                   onClick={() => {
                     if (step.key === 'Confirmation' && canClickConfirmation && onConfirmationClick) {
                       onConfirmationClick();
+                    } else if (step.key === 'Ready' && canClickReady && onReadyClick) {
+                      onReadyClick();
+                    } else if (step.key === 'In Progress' && canClickInProgress && onInProgressClick) {
+                      onInProgressClick();
+                    } else if (step.key === 'Completed' && canClickCompletion && onCompletionClick) {
+                      onCompletionClick();
                     }
                   }}
                 >
                   <div className="flex items-center gap-1">
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center relative transition-colors duration-200 ${isCurrent ? 'bg-purple-500 ripple-animation' :
-                      isCompleted ? 'bg-emerald-500' :
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center relative transition-colors duration-200 ${showAsCurrent ? 'bg-purple-500 ripple-animation' :
+                      showAsCompleted ? 'bg-emerald-500' :
                         'bg-gray-300'
                       }`}>
                       <HugeiconsIcon
-                        icon={isCompleted ? Tick01Icon : step.icon}
+                        icon={showAsCompleted ? Tick01Icon : step.icon}
                         size={10}
-                        className={`step-icon ${isCurrent ? 'text-white' :
-                          isCompleted ? 'text-white' :
+                        className={`step-icon ${showAsCurrent ? 'text-white' :
+                          showAsCompleted ? 'text-white' :
                             'text-gray-500'
                           }`}
                       />
@@ -225,8 +254,8 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
                         <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full border border-white animate-pulse" />
                       )}
                     </div>
-                    <span className={`text-xs font-medium transition-colors duration-200 ${isCurrent ? 'text-purple-600' :
-                      isCompleted ? 'text-emerald-600' :
+                    <span className={`text-xs font-medium transition-colors duration-200 ${showAsCurrent ? 'text-purple-600' :
+                      showAsCompleted ? 'text-emerald-600' :
                         'text-gray-400'
                       }`}>
                       {step.label}
@@ -244,6 +273,12 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
                     <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap z-10">
                       {step.key === 'Confirmation' && canClickConfirmation && onConfirmationClick ? (
                         'Click to make confirmation call'
+                      ) : step.key === 'Ready' && canClickReady && onReadyClick ? (
+                        'Click to assign technician and start work'
+                      ) : step.key === 'In Progress' && canClickInProgress && onInProgressClick ? (
+                        'Click to resolve work order'
+                      ) : step.key === 'Completed' && canClickCompletion && onCompletionClick ? (
+                        'Click to complete work order'
                       ) : stepUser ? (
                         `Changed by: ${stepUser}`
                       ) : null}
@@ -274,32 +309,44 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
           {STEPS.map((step, index) => {
             const isCompleted = currentIndex > index;
             const isCurrent = STATUS_ORDER[index] === currentStatus;
+
+            // Treat "Completed" step as finished (Green) even if it's the current status
+            const showAsCompleted = isCompleted || (isCurrent && step.key === 'Completed');
+            const showAsCurrent = isCurrent && step.key !== 'Completed';
+
             const isLast = index === STEPS.length - 1;
             const timestamp = getStepTimestamp(step.key);
             const duration = getStepDuration(step.key, index);
             const stepUser = getStepUser(step.key);
+            const clickable = isClickableStep(step.key);
 
             return (
               <React.Fragment key={step.key}>
                 <div
-                  className={`flex flex-col items-center flex-1 relative group step-container ${step.key === 'Confirmation' && canClickConfirmation && onConfirmationClick ? 'cursor-pointer hover:opacity-80' : 'cursor-default'
+                  className={`flex flex-col items-center flex-1 relative group step-container ${clickable ? 'cursor-pointer hover:opacity-80' : 'cursor-default'
                     }`}
                   onMouseEnter={() => setHoveredStep(step.key)}
                   onMouseLeave={() => setHoveredStep(null)}
                   onClick={() => {
                     if (step.key === 'Confirmation' && canClickConfirmation && onConfirmationClick) {
                       onConfirmationClick();
+                    } else if (step.key === 'Ready' && canClickReady && onReadyClick) {
+                      onReadyClick();
+                    } else if (step.key === 'In Progress' && canClickInProgress && onInProgressClick) {
+                      onInProgressClick();
+                    } else if (step.key === 'Completed' && canClickCompletion && onCompletionClick) {
+                      onCompletionClick();
                     }
                   }}
                 >
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center relative transition-colors duration-200 ${isCurrent ? 'bg-purple-500 ripple-animation' :
-                    isCompleted ? 'bg-emerald-500' :
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center relative transition-colors duration-200 ${showAsCurrent ? 'bg-purple-500 ripple-animation' :
+                    showAsCompleted ? 'bg-emerald-500' :
                       'bg-gray-300'
                     }`}>
                     <HugeiconsIcon
-                      icon={isCompleted ? Tick01Icon : step.icon}
-                      className={`w-4 h-4 step-icon ${isCurrent ? 'text-white' :
-                        isCompleted ? 'text-white' :
+                      icon={showAsCompleted ? Tick01Icon : step.icon}
+                      className={`w-4 h-4 step-icon ${showAsCurrent ? 'text-white' :
+                        showAsCompleted ? 'text-white' :
                           'text-gray-500'
                         }`}
                       size={16}
@@ -308,8 +355,8 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
                       <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-white animate-pulse" />
                     )}
                   </div>
-                  <span className={`text-xs mt-1 font-medium text-center transition-colors duration-200 leading-tight ${isCurrent ? 'text-purple-600' :
-                    isCompleted ? 'text-emerald-600' :
+                  <span className={`text-xs mt-1 font-medium text-center transition-colors duration-200 leading-tight ${showAsCurrent ? 'text-purple-600' :
+                    showAsCompleted ? 'text-emerald-600' :
                       'text-gray-400'
                     }`}>
                     {step.label}
@@ -328,6 +375,12 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
                     <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-3 py-2 rounded whitespace-nowrap z-10 shadow-lg">
                       {step.key === 'Confirmation' && canClickConfirmation && onConfirmationClick ? (
                         'Click to make confirmation call'
+                      ) : step.key === 'Ready' && canClickReady && onReadyClick ? (
+                        'Click to assign technician and start work'
+                      ) : step.key === 'In Progress' && canClickInProgress && onInProgressClick ? (
+                        'Click to resolve work order'
+                      ) : step.key === 'Completed' && canClickCompletion && onCompletionClick ? (
+                        'Click to complete work order'
                       ) : stepUser ? (
                         `Changed by: ${stepUser}`
                       ) : null}

@@ -2,6 +2,8 @@ import React from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Add01Icon, PackageIcon, Delete01Icon } from '@hugeicons/core-free-icons';
 import { WorkOrderPart } from '@/types/supabase';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 interface WorkOrderPartsUsedCardProps {
   usedParts: WorkOrderPart[];
@@ -18,6 +20,8 @@ export const WorkOrderPartsUsedCard: React.FC<WorkOrderPartsUsedCardProps> = ({
   handleAddPart,
   handleRemovePart,
 }) => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const totalCost = usedParts.reduce((sum, part) => {
     const price = part.price_at_time_of_use || part.inventory_items?.unit_price || 0;
     return sum + (price * part.quantity_used);

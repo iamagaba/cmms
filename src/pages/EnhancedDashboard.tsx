@@ -24,6 +24,8 @@ import { showSuccess, showInfo, showError } from "@/utils/toast";
 import { useNavigate } from 'react-router-dom';
 import UrgentWorkOrdersTable from "@/components/UrgentWorkOrdersTable";
 import { Skeleton, Stack, Text, Button, Group } from '@/components/tailwind-components';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
 import { WorkOrderDetailsDrawer } from "@/components/WorkOrderDetailsDrawer";
@@ -31,6 +33,8 @@ import { WorkOrderDetailsDrawer } from "@/components/WorkOrderDetailsDrawer";
 dayjs.extend(isBetween);
 
 const EnhancedDashboard = () => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();

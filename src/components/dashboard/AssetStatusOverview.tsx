@@ -19,6 +19,8 @@ import {
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import ProfessionalCard from '@/components/ui/ProfessionalCard';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 // ============================================
 // INTERFACES
@@ -142,7 +144,8 @@ const StatusCard: React.FC<StatusCardProps> = ({ status, onClick, index }) => {
     >
       <ProfessionalCard 
         className={cn(
-          'p-4 transition-all duration-200 relative overflow-hidden',
+          spacing.card,
+          'transition-all duration-200 relative overflow-hidden',
           isClickable && 'cursor-pointer hover:shadow-md',
           isHovered && 'ring-2 ring-steel-200'
         )}
@@ -228,10 +231,12 @@ const StatusCard: React.FC<StatusCardProps> = ({ status, onClick, index }) => {
 // LOADING SKELETON
 // ============================================
 
-const AssetStatusSkeleton: React.FC = () => (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-    {Array.from({ length: 4 }).map((_, index) => (
-      <ProfessionalCard key={index} className="p-4 animate-pulse">
+const AssetStatusSkeleton: React.FC = () => {
+  const spacing = useDensitySpacing();
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <ProfessionalCard key={index} className={`${spacing.card} animate-pulse`}>
         <div className="flex items-center gap-3 mb-3">
           <div className="w-9 h-9 bg-machinery-200 rounded-lg" />
           <div className="flex-1 space-y-1">
@@ -259,6 +264,8 @@ const AssetStatusOverview: React.FC<AssetStatusOverviewProps> = ({
   className,
   loading = false
 }) => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const displayStatuses = statuses || defaultStatuses;
   const totalAssets = displayStatuses.reduce((sum, status) => sum + status.count, 0);
 
@@ -273,7 +280,7 @@ const AssetStatusOverview: React.FC<AssetStatusOverviewProps> = ({
   return (
     <div className={className}>
       {/* Summary */}
-      <div className="mb-4 p-4 bg-machinery-50 rounded-lg">
+      <div className={`${spacing.mb} ${spacing.card} bg-machinery-50 rounded-lg`}>
         <div className="flex items-center justify-between">
           <div>
             <h4 className="text-lg font-semibold text-machinery-900">
@@ -305,7 +312,7 @@ const AssetStatusOverview: React.FC<AssetStatusOverviewProps> = ({
       </div>
 
       {/* Legend */}
-      <div className="mt-4 p-3 bg-machinery-50 rounded-lg">
+      <div className={`${spacing.mt} ${spacing.card} bg-machinery-50 rounded-lg`}>
         <div className="flex items-center justify-between text-xs">
           <span className="text-machinery-600">Status indicators:</span>
           <div className="flex items-center gap-4">

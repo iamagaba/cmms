@@ -1,5 +1,7 @@
 import dayjs from "dayjs";
 import weekOfYear from "dayjs/plugin/weekOfYear";
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 dayjs.extend(weekOfYear);
 
@@ -42,6 +44,8 @@ export const RepairActivityTimeline = ({
   selectedWeek?: number | null;
   onSelectWeek?: (week: number) => void;
 }) => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const year = dayjs().year();
   const weeksByMonth = getWeeksByMonth(year);
   const repairCounts = getRepairCountsByWeek(workOrders, year);
@@ -56,8 +60,8 @@ export const RepairActivityTimeline = ({
     return 'var(--mantine-color-gray-1)';
   }
   return (
-    <div style={{ background: 'var(--mantine-color-body)', borderRadius: 'var(--mantine-radius-md)', padding: 16, boxShadow: 'var(--mantine-shadow-sm)', overflowX: 'auto' }}>
-      <div style={{ fontWeight: 600, fontSize: 16, marginBottom: 12 }}>Repair Activity Timeline</div>
+    <div style={{ background: 'var(--mantine-color-body)', borderRadius: 'var(--mantine-radius-md)', padding: isCompact ? 12 : 16, boxShadow: 'var(--mantine-shadow-sm)', overflowX: 'auto' }}>
+      <div style={{ fontWeight: 600, fontSize: isCompact ? 14 : 16, marginBottom: isCompact ? 8 : 12 }}>Repair Activity Timeline</div>
       <div
         style={{
           display: 'grid',

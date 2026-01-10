@@ -1,8 +1,8 @@
 import React from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { InformationCircleIcon } from '@hugeicons/core-free-icons';
-import { UnitOfMeasure, UNIT_OF_MEASURE_LABELS } from '@/types/supabase';
-import { ALL_UNITS } from '@/utils/inventory-categorization-helpers';
+import { UnitOfMeasure } from '@/types/supabase';
+import { ALL_UNITS, UNIT_OF_MEASURE_LABELS } from '@/utils/inventory-categorization-helpers';
 
 interface UnitOfMeasureSelectProps {
   unit: UnitOfMeasure;

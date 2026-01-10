@@ -15,6 +15,8 @@ import { StockReceiptDialog } from './StockReceiptDialog';
 import { StockTransferDialog } from './StockTransferDialog';
 import { CycleCountDialog } from './CycleCountDialog';
 import { ShrinkageRecordDialog } from './ShrinkageRecordDialog';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 interface InventoryTransactionsPanelProps {
   isOpen: boolean;
@@ -85,6 +87,8 @@ export const InventoryTransactionsPanel: React.FC<InventoryTransactionsPanelProp
   isOpen,
   onClose,
 }) => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const [activeTransaction, setActiveTransaction] = useState<TransactionType>(null);
 
   const handleOpenTransaction = (type: TransactionType) => {
@@ -107,15 +111,15 @@ export const InventoryTransactionsPanel: React.FC<InventoryTransactionsPanelProp
       {/* Main Panel */}
       <div className="fixed inset-0 z-50 flex items-center justify-center">
         <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-        <div className="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-md">
+        <div className={`relative bg-white dark:bg-gray-900 ${spacing.roundedLg} shadow-xl w-full max-w-md`}>
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+          <div className={`flex items-center justify-between ${spacing.card} border-b border-gray-200 dark:border-gray-700`}>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Inventory Transactions</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Select a transaction type</p>
+              <h2 className={`${spacing.text.heading} font-semibold text-gray-900 dark:text-gray-100`}>Inventory Transactions</h2>
+              <p className={`${spacing.text.body} text-gray-500 dark:text-gray-400`}>Select a transaction type</p>
             </div>
-            <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-              <HugeiconsIcon icon={Cancel01Icon} size={20} className="text-gray-500" />
+            <button onClick={onClose} className={`${isCompact ? 'p-1.5' : 'p-2'} hover:bg-gray-100 dark:hover:bg-gray-800 ${spacing.roundedLg}`}>
+              <HugeiconsIcon icon={Cancel01Icon} size={spacing.icon.md} className="text-gray-500" />
             </button>
           </div>
 

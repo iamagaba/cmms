@@ -17,6 +17,8 @@ import { Vehicle, Customer } from '@/types/supabase';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { snakeToCamelCase } from '@/utils/data-helpers';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 interface AssetFormDialogProps {
   isOpen: boolean;
@@ -27,6 +29,8 @@ interface AssetFormDialogProps {
 }
 
 export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClose, onSave, vehicle }) => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<Partial<Vehicle>>({
     license_plate: '',
@@ -92,6 +96,21 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
         customer_id: vehicle.customer_id || '',
         date_of_manufacture: vehicle.date_of_manufacture || undefined,
       });
+
+      // Set ownership type based on vehicle data
+      if (vehicle.is_company_asset) {
+        setOwnershipType('Business');
+      } else if (vehicle.customer_id && customers) {
+        // Try to infer from customer type if possible, or default to Individual
+        const customer = customers.find(c => c.id === vehicle.customer_id);
+        if (customer?.customer_type === 'WATU') {
+          setOwnershipType('WATU');
+        } else {
+          setOwnershipType('Individual');
+        }
+      } else {
+        setOwnershipType('Individual');
+      }
 
       // Load existing customer data if editing
       if (vehicle.customer_id && customers) {
@@ -271,27 +290,27 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <div className={`flex items-center justify-between border-b border-gray-200 bg-gray-50 ${spacing.card}`}>
             <div>
               <div className="flex items-center gap-2">
-                <HugeiconsIcon icon={Motorbike01Icon} size={24} className="text-primary-600" />
-                <h2 className="text-xl font-semibold text-gray-900">
+                <HugeiconsIcon icon={Motorbike01Icon} size={spacing.icon.lg} className="text-primary-600" />
+                <h2 className={`${spacing.text.heading} font-semibold text-gray-900`}>
                   {vehicle ? 'Edit Asset' : 'Create New Asset'}
                 </h2>
               </div>
-              {!vehicle && <p className="text-sm text-gray-500 mt-0.5">Step {currentStep} of 3</p>}
+              {!vehicle && <p className={`${spacing.text.caption} text-gray-500 mt-0.5`}>Step {currentStep} of 3</p>}
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+              className={`${isCompact ? 'p-1.5' : 'p-2'} text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors`}
             >
-              <HugeiconsIcon icon={Cancel01Icon} size={20} />
+              <HugeiconsIcon icon={Cancel01Icon} size={spacing.icon.md} />
             </button>
           </div>
 
           {/* Progress Steps - Only show when creating new asset */}
           {!vehicle && (
-            <div className="px-6 py-4 border-b border-gray-200 bg-white">
+            <div className={`border-b border-gray-200 bg-white ${spacing.card}`}>
               <div className="flex items-center justify-between">
                 {[
                   { num: 1, label: 'Owner Info', icon: UserIcon },
@@ -300,12 +319,12 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                 ].map((step, idx) => (
                   <div key={step.num} className="flex items-center flex-1">
                     <div className="flex flex-col items-center">
-                      <div className={`flex items-center justify-center w-10 h-10 rounded-full transition-all ${step.num === currentStep ? 'bg-primary-600 text-white ring-4 ring-primary-100' :
+                      <div className={`flex items-center justify-center ${isCompact ? 'w-8 h-8' : 'w-10 h-10'} rounded-full transition-all ${step.num === currentStep ? 'bg-primary-600 text-white ring-4 ring-primary-100' :
                         step.num < currentStep ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-600'
                         }`}>
-                        {step.num < currentStep ? <HugeiconsIcon icon={Tick01Icon} size={20} /> : <HugeiconsIcon icon={step.icon} size={20} />}
+                        {step.num < currentStep ? <HugeiconsIcon icon={Tick01Icon} size={spacing.icon.md} /> : <HugeiconsIcon icon={step.icon} size={spacing.icon.md} />}
                       </div>
-                      <span className={`text-xs mt-1 font-medium ${step.num === currentStep ? 'text-primary-600' :
+                      <span className={`${spacing.text.caption} mt-1 font-medium ${step.num === currentStep ? 'text-primary-600' :
                         step.num < currentStep ? 'text-green-600' : 'text-gray-500'
                         }`}>
                         {step.label}
@@ -323,28 +342,28 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
 
           {/* Form - Scrollable */}
           <form id="asset-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
-            <div className="p-6 space-y-6">
+            <div className={`${spacing.card} ${spacing.section}`}>
 
               {/* STEP 1: Owner Information */}
               {(currentStep === 1 || vehicle) && (
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <HugeiconsIcon icon={UserIcon} size={20} className="text-primary-600" />
+                  <h3 className={`${spacing.text.subheading} font-semibold text-gray-900 ${spacing.mb} flex items-center gap-2`}>
+                    <HugeiconsIcon icon={UserIcon} size={spacing.icon.md} className="text-primary-600" />
                     Owner Information
                   </h3>
-                  <div className="space-y-4">
+                  <div className={spacing.section}>
                     {/* Ownership Type */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className={`block ${spacing.text.body} font-medium text-gray-700 mb-1`}>
                         Asset Ownership Type <span className="text-red-500">*</span>
                       </label>
-                      <div className="grid grid-cols-3 gap-3">
+                      <div className={`grid grid-cols-3 ${spacing.gap}`}>
                         {(['Individual', 'WATU', 'Business'] as const).map((type) => (
                           <button
                             key={type}
                             type="button"
                             onClick={() => setOwnershipType(type)}
-                            className={`px-4 py-3 rounded-lg border-2 text-sm font-medium transition-all ${ownershipType === type
+                            className={`${spacing.button} rounded-lg border-2 font-medium transition-all ${ownershipType === type
                               ? 'border-primary-600 bg-primary-50 text-primary-700'
                               : 'border-gray-200 bg-white text-gray-700 hover:border-gray-300'
                               }`}
@@ -357,7 +376,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
 
                     {/* Search existing customer */}
                     <div className="relative">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className={`block ${spacing.text.body} font-medium text-gray-700 mb-1`}>
                         Search Existing Owner
                       </label>
                       <div className="relative">
@@ -370,9 +389,9 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                           }}
                           onFocus={() => setShowCustomerDropdown(searchQuery.length > 0)}
                           placeholder="Search by name or phone number"
-                          className="w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className={`w-full ${spacing.input} pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500`}
                         />
-                        <HugeiconsIcon icon={Search01Icon} size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                        <HugeiconsIcon icon={Search01Icon} size={spacing.icon.sm} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                       </div>
 
                       {/* Dropdown results */}
@@ -383,13 +402,13 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                               key={customer.id}
                               type="button"
                               onClick={() => handleSelectCustomer(customer)}
-                              className="w-full px-3 py-2 text-left hover:bg-gray-50 flex items-center justify-between group"
+                              className={`w-full ${spacing.rowPadding} text-left hover:bg-gray-50 flex items-center justify-between group`}
                             >
                               <div>
-                                <div className="text-sm font-medium text-gray-900">{customer.name || 'No name'}</div>
-                                <div className="text-xs text-gray-500">{customer.phone || 'No phone'}</div>
+                                <div className={`${spacing.text.body} font-medium text-gray-900`}>{customer.name || 'No name'}</div>
+                                <div className={`${spacing.text.caption} text-gray-500`}>{customer.phone || 'No phone'}</div>
                               </div>
-                              <HugeiconsIcon icon={Tick01Icon} size={16} className="text-primary-600 opacity-0 group-hover:opacity-100" />
+                              <HugeiconsIcon icon={Tick01Icon} size={spacing.icon.sm} className="text-primary-600 opacity-0 group-hover:opacity-100" />
                             </button>
                           ))}
                         </div>
@@ -408,7 +427,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
 
                     {/* Owner name */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className={`block ${spacing.text.body} font-medium text-gray-700 mb-1`}>
                         Owner Name <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -416,14 +435,14 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                         required
                         value={ownerName}
                         onChange={(e) => setOwnerName(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        className={`w-full ${spacing.input} border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500`}
                         placeholder="Enter owner's full name"
                       />
                     </div>
 
                     {/* Owner phone */}
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className={`block ${spacing.text.body} font-medium text-gray-700 mb-1`}>
                         Owner Phone Number <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -431,7 +450,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                         required
                         value={ownerPhone}
                         onChange={(e) => setOwnerPhone(e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        className={`w-full ${spacing.input} border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500`}
                         placeholder="Enter phone number"
                       />
                     </div>
@@ -464,11 +483,11 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
               {/* STEP 2: Bike Details */}
               {(currentStep === 2 || vehicle) && (
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <HugeiconsIcon icon={Motorbike01Icon} size={20} className="text-primary-600" />
+                  <h3 className={`${spacing.text.subheading} font-semibold text-gray-900 ${spacing.mb} flex items-center gap-2`}>
+                    <HugeiconsIcon icon={Motorbike01Icon} size={spacing.icon.md} className="text-primary-600" />
                     Bike Details
                   </h3>
-                  <div className="space-y-4">
+                  <div className={spacing.section}>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         License Plate <span className="text-red-500">*</span>
@@ -590,11 +609,11 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
               {/* STEP 3: Technical Information */}
               {(currentStep === 3 || vehicle) && (
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <HugeiconsIcon icon={Wrench01Icon} size={20} className="text-primary-600" />
+                  <h3 className={`${spacing.text.subheading} font-semibold text-gray-900 ${spacing.mb} flex items-center gap-2`}>
+                    <HugeiconsIcon icon={Wrench01Icon} size={spacing.icon.md} className="text-primary-600" />
                     Technical Information
                   </h3>
-                  <div className="space-y-4">
+                  <div className={spacing.section}>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">
                         VIN <span className="text-red-500">*</span>
@@ -652,26 +671,26 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
           </form>
 
           {/* Footer Actions - Sticky */}
-          <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div className={`flex items-center justify-between border-t border-gray-200 bg-gray-50 ${spacing.card}`}>
             <button
               type="button"
               onClick={onClose}
               disabled={isSaving}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className={`${spacing.button} font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
             >
               Cancel
             </button>
 
-            <div className="flex items-center gap-3">
+            <div className={`flex items-center ${spacing.gap}`}>
               {/* Back button - only show when not on first step and not editing */}
               {!vehicle && currentStep > 1 && (
                 <button
                   type="button"
                   onClick={() => setCurrentStep(prev => prev - 1)}
                   disabled={isSaving}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                  className={`${spacing.button} font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2`}
                 >
-                  <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
+                  <HugeiconsIcon icon={ArrowLeft01Icon} size={spacing.icon.sm} />
                   Back
                 </button>
               )}
@@ -700,19 +719,19 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                     }
                     setCurrentStep(prev => prev + 1);
                   }}
-                  className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2"
+                  className={`${spacing.button} font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 transition-colors flex items-center gap-2`}
                 >
                   Next
-                  <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
+                  <HugeiconsIcon icon={ArrowRight01Icon} size={spacing.icon.sm} />
                 </button>
               ) : (
                 <button
                   type="submit"
                   form="asset-form"
                   disabled={isSaving}
-                  className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+                  className={`${spacing.button} font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2`}
                 >
-                  {isSaving && <HugeiconsIcon icon={Loading01Icon} size={16} className="animate-spin" />}
+                  {isSaving && <HugeiconsIcon icon={Loading01Icon} size={spacing.icon.sm} className="animate-spin" />}
                   {vehicle ? 'Update Asset' : 'Create Asset'}
                 </button>
               )}

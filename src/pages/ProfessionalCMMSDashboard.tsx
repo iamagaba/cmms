@@ -26,6 +26,8 @@ import dayjs from "dayjs";
 import isBetween from 'dayjs/plugin/isBetween';
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useRealtimeData } from "@/context/RealtimeDataContext";
+import { useDensitySpacing } from "@/hooks/useDensitySpacing";
+import { useDensity } from "@/context/DensityContext";
 
 // Enterprise Design System Components
 // (Panel components removed - using direct divs with enterprise styling)
@@ -49,6 +51,8 @@ const ProfessionalCMMSDashboard = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedLocation] = useState<string>('all');
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
 
   // Data queries
   const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({
@@ -165,28 +169,28 @@ const ProfessionalCMMSDashboard = () => {
 
   return (
     <div className="w-full">
-      <div className="space-y-4">
+      <div className={spacing.section}>
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between" style={spacing.gapInline}>
           <div>
             <Title order={1} className="font-brand font-bold text-machinery-900 tracking-tight">
               Operations Dashboard
             </Title>
-            <p className="text-sm text-gray-600 mt-1">
+            <p className={`text-sm text-gray-600 ${isCompact ? 'mt-0.5' : 'mt-1'}`}>
               {dayjs().format('dddd, MMMM D, YYYY')} • {locations?.length || 0} locations active
             </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => window.location.reload()}
-              className="inline-flex items-center gap-1.5 px-3 py-2 h-9 text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-md transition-colors"
+              className={`inline-flex items-center gap-1.5 px-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-md transition-colors ${spacing.button}`}
             >
               <HugeiconsIcon icon={RefreshIcon} size={16} />
               Refresh
             </button>
             <button
               onClick={() => navigate('/work-orders')}
-              className="inline-flex items-center gap-1.5 px-3 py-2 h-9 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md transition-colors"
+              className={`inline-flex items-center gap-1.5 px-3 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md transition-colors ${spacing.button}`}
             >
               <HugeiconsIcon icon={Add01Icon} size={16} />
               New Work Order
@@ -229,9 +233,9 @@ const ProfessionalCMMSDashboard = () => {
         />
 
         {/* Main Content Grid - Enterprise Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className={`grid grid-cols-1 lg:grid-cols-3 ${spacing.gap}`}>
           {/* Left Column */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className={`lg:col-span-2 ${spacing.section}`}>
             {/* Trends Chart */}
             <WorkOrderTrendsChart data={[]} />
 
@@ -243,7 +247,7 @@ const ProfessionalCMMSDashboard = () => {
           </div>
 
           {/* Right Column */}
-          <div className="space-y-4">
+          <div className={spacing.section}>
             <TechniciansList
               technicians={realtimeTechnicians}
               workOrders={filteredWorkOrders}
@@ -264,6 +268,7 @@ const ProfessionalCMMSDashboard = () => {
         onClose={handleCloseDrawer}
         workOrderId={searchParams.get('view') || undefined}
         open={!!searchParams.get('view')}
+        onWorkOrderChange={handleViewDetails}
       />
     </div>
   );

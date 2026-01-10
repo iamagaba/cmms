@@ -21,10 +21,13 @@ import {
   ArrowLeft01Icon,
   ArrowRight01Icon,
   Car01Icon,
-  UserIcon
+  UserIcon,
+  Motorbike01Icon
 } from '@hugeicons/core-free-icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useDensity } from '@/context/DensityContext';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
 
 dayjs.extend(relativeTime);
 
@@ -66,6 +69,7 @@ interface EnhancedWorkOrderDataTableProps {
   enableExport?: boolean;
   compactMode?: boolean;
   visibleColumns?: string[];
+  emergencyBikeAssignments?: any[]; // Array of active emergency bike assignments
 }
 
 // Status configuration with colors and icons
@@ -111,7 +115,12 @@ export function EnhancedWorkOrderDataTable({
   onViewDetails,
   loading = false,
   visibleColumns = DEFAULT_COLUMNS,
+  emergencyBikeAssignments = [],
 }: EnhancedWorkOrderDataTableProps) {
+
+  // Density hooks
+  const { isCompact } = useDensity();
+  const spacing = useDensitySpacing();
 
   // State for the 3-dot menu
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -216,20 +225,20 @@ export function EnhancedWorkOrderDataTable({
 
   if (loading) {
     return (
-      <div className="bg-white border border-gray-200 overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded overflow-hidden">
         <table className="min-w-full">
           <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Work Order</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Issue</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Vehicle</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Status</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Priority</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Assigned</th>
+            <tr className="bg-slate-50 border-b border-slate-200">
+              <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 uppercase tracking-wide">Work Order</th>
+              <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 uppercase tracking-wide">Issue</th>
+              <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 uppercase tracking-wide">Vehicle</th>
+              <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 uppercase tracking-wide">Status</th>
+              <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 uppercase tracking-wide">Priority</th>
+              <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 uppercase tracking-wide">Assigned</th>
               <th className="w-10"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-slate-100">
             {[...Array(5)].map((_, i) => <SkeletonRow key={i} />)}
           </tbody>
         </table>
@@ -239,12 +248,12 @@ export function EnhancedWorkOrderDataTable({
 
   if (workOrders.length === 0) {
     return (
-      <div className="bg-white border border-gray-200 rounded-lg p-12 text-center">
-        <div className="mx-auto w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center mb-4">
-          <HugeiconsIcon icon={ClipboardIcon} size={32} className="text-gray-400" />
+      <div className="bg-white border border-slate-200 rounded p-12 text-center">
+        <div className="mx-auto w-16 h-16 bg-slate-100 rounded flex items-center justify-center mb-4">
+          <HugeiconsIcon icon={ClipboardIcon} size={32} className="text-slate-400" />
         </div>
-        <h3 className="text-lg font-medium text-gray-900 mb-1">No work orders found</h3>
-        <p className="text-sm text-gray-500 max-w-sm mx-auto">
+        <h3 className="text-lg font-semibold text-slate-900 mb-1">No work orders found</h3>
+        <p className="text-sm text-slate-500 max-w-sm mx-auto">
           There are no work orders matching your criteria. Try adjusting your filters or create a new work order.
         </p>
       </div>
@@ -252,57 +261,57 @@ export function EnhancedWorkOrderDataTable({
   }
 
   return (
-    <div className="bg-white border border-gray-200 h-full flex flex-col">
+    <div className="bg-white dark:bg-gray-900 h-full flex flex-col overflow-hidden rounded">
       {/* Click outside to close menu */}
       {openMenuId && (
         <div className="fixed inset-0 z-10" onClick={closeMenu} />
       )}
 
-      <div className="flex-1">
+      <div className="flex-1 overflow-auto border border-slate-200 dark:border-gray-800 rounded">
         <table className="min-w-full table-fixed">
-          <thead>
-            <tr className="bg-gray-50 border-b border-gray-200">
+          <thead className="sticky top-0 z-[5]">
+            <tr className="bg-slate-50 dark:bg-gray-800 border-b border-slate-200 dark:border-gray-700 h-9">
               {isColumnVisible('workOrderNumber') && (
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-36">Work Order</th>
+                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-36">Work Order</th>
               )}
               {isColumnVisible('service') && (
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-48">Issue</th>
+                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-40">Issue</th>
               )}
               {isColumnVisible('vehicleCustomer') && (
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-44">Vehicle / Customer</th>
+                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-40">Vehicle / Customer</th>
               )}
               {isColumnVisible('status') && (
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-28">Status</th>
+                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-24">Status</th>
               )}
               {isColumnVisible('priority') && (
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-24">Priority</th>
+                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-20">Priority</th>
               )}
               {isColumnVisible('technician') && (
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-36">Technician</th>
+                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-32">Technician</th>
               )}
               {isColumnVisible('createdAt') && (
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-28">Created</th>
+                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-24">Created</th>
               )}
               {isColumnVisible('scheduledDate') && (
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-28">Scheduled</th>
+                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-24">Scheduled</th>
               )}
               {isColumnVisible('dueDate') && (
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-28">Due Date</th>
+                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-24">Due Date</th>
               )}
               {isColumnVisible('channel') && (
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-24">Channel</th>
+                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-20">Channel</th>
               )}
               {isColumnVisible('customerName') && (
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-36">Customer</th>
+                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-32">Customer</th>
               )}
               {isColumnVisible('location') && (
-                <th className="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider w-40">Location</th>
+                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-36">Location</th>
               )}
               {/* 3-dot menu column - always visible, minimal width */}
-              <th className="w-10 px-2"></th>
+              <th className="w-8 px-1"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100">
+          <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
             {paginatedWorkOrders.map((wo) => {
               const statusConfig = STATUS_CONFIG[wo.status || 'Open'] || STATUS_CONFIG['Open'];
               const priorityConfig = PRIORITY_CONFIG[wo.priority || 'Medium'] || PRIORITY_CONFIG['Medium'];
@@ -315,39 +324,46 @@ export function EnhancedWorkOrderDataTable({
                 <tr
                   key={wo.id}
                   onClick={() => onViewDetails(wo.id)}
-                  className="group hover:bg-primary-50/50 cursor-pointer transition-colors duration-150"
+                  className="group hover:bg-slate-50 dark:hover:bg-primary-900/10 cursor-pointer transition-colors duration-150"
                 >
                   {/* Work Order Number - Shows license plate as main identifier */}
                   {/* Work Order / Vehicle - Combined Column */}
                   {isColumnVisible('workOrderNumber') && (
-                    <td className="px-4 py-2.5">
+                    <td className="px-3 py-2">
                       <div className="min-w-0">
-                        <div className="flex items-center gap-2 mb-0.5">
+                        <div className="flex items-center gap-1.5 mb-0.5">
                           {vehicle ? (
-                            <p className="text-sm font-bold font-data text-gray-900 group-hover:text-primary-700 truncate">
+                            <p className="text-xs font-industrial-id text-purple-700 dark:text-gray-100 group-hover:text-purple-800 dark:group-hover:text-primary-400 truncate">
                               {vehicle.license_plate}
-                              <span className="ml-2 font-normal text-gray-500 font-sans">
+                              <span className="ml-1.5 font-normal text-slate-500 dark:text-gray-400 font-sans text-[10px]">
                                 {`${vehicle.make || ''} ${vehicle.model || ''}`.trim()}
                               </span>
                             </p>
                           ) : (
-                            <div className="flex items-center gap-1.5 text-gray-400">
-                              <HugeiconsIcon icon={Car01Icon} size={14} />
-                              <span className="text-sm font-medium text-gray-500">Unassigned</span>
+                            <div className="flex items-center gap-1 text-slate-400 dark:text-gray-500">
+                              <HugeiconsIcon icon={Car01Icon} size={12} />
+                              <span className="text-xs font-medium text-slate-500 dark:text-gray-400">Unassigned</span>
                             </div>
                           )}
                         </div>
-                        <p className="text-xs text-primary-600 font-data truncate">
-                          {wo.workOrderNumber || `WO-${wo.id.substring(0, 6).toUpperCase()}`}
-                        </p>
+                        <div className="flex items-center gap-1">
+                          <p className="text-[10px] text-slate-500 dark:text-primary-400 font-industrial-data truncate">
+                            {wo.workOrderNumber || `WO-${wo.id.substring(0, 6).toUpperCase()}`}
+                          </p>
+                          {emergencyBikeAssignments?.some(assignment => assignment.work_order_id === wo.id && !assignment.returned_at) && (
+                            <span className="inline-flex items-center px-1 py-0.5 rounded-sm text-[9px] font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-800" title="Emergency bike assigned">
+                              <HugeiconsIcon icon={Motorbike01Icon} size={9} />
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </td>
                   )}
 
                   {/* Issue Description - 2 line clamp */}
                   {isColumnVisible('service') && (
-                    <td className="px-4 py-2.5">
-                      <p className="text-sm font-medium text-gray-900 capitalize line-clamp-2" title={getServiceCategoryInfo(wo.service)?.label || getServiceCategoryInfo(wo.service)?.name || wo.service || wo.initialDiagnosis || 'General Service'}>
+                    <td className="px-3 py-1.5">
+                      <p className="text-xs font-medium text-gray-900 dark:text-gray-100 capitalize line-clamp-2" title={getServiceCategoryInfo(wo.service)?.label || getServiceCategoryInfo(wo.service)?.name || wo.service || wo.initialDiagnosis || 'General Service'}>
                         {getServiceCategoryInfo(wo.service)?.label || getServiceCategoryInfo(wo.service)?.name || wo.service || wo.initialDiagnosis || 'General Service'}
                       </p>
                     </td>
@@ -356,13 +372,13 @@ export function EnhancedWorkOrderDataTable({
                   {/* Vehicle / Customer - Shows vehicle make/model and customer name */}
                   {/* Customer - Dedicated Column */}
                   {isColumnVisible('vehicleCustomer') && (
-                    <td className="px-4 py-2.5">
+                    <td className="px-3 py-1.5">
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-gray-900 truncate">
+                        <p className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">
                           {customer?.name || wo.customerName || '—'}
                         </p>
                         {customer?.phone && (
-                          <p className="text-xs text-gray-500 truncate">
+                          <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">
                             {customer.phone}
                           </p>
                         )}
@@ -372,9 +388,9 @@ export function EnhancedWorkOrderDataTable({
 
                   {/* Status - Shows full status text with colored badge */}
                   {isColumnVisible('status') && (
-                    <td className="px-4 py-2.5">
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded text-xs font-medium border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot}`} />
+                    <td className="px-3 py-1.5">
+                      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border} dark:bg-opacity-30`}>
+                        <span className={`w-1 h-1 rounded-full ${statusConfig.dot}`} />
                         <span>{wo.status || 'Open'}</span>
                       </span>
                     </td>
@@ -382,33 +398,33 @@ export function EnhancedWorkOrderDataTable({
 
                   {/* Priority */}
                   {isColumnVisible('priority') && (
-                    <td className="px-4 py-2.5">
-                      <div className={`inline-flex items-center gap-1 ${priorityConfig.color}`}>
-                        <HugeiconsIcon icon={priorityConfig.icon} size={14} />
-                        <span className="text-xs font-medium">{wo.priority || 'Medium'}</span>
+                    <td className="px-3 py-1.5">
+                      <div className={`inline-flex items-center gap-0.5 ${priorityConfig.color}`}>
+                        <HugeiconsIcon icon={priorityConfig.icon} size={12} />
+                        <span className="text-[10px] font-medium">{wo.priority || 'Medium'}</span>
                       </div>
                     </td>
                   )}
 
                   {/* Technician */}
                   {isColumnVisible('technician') && (
-                    <td className="px-4 py-2.5">
+                    <td className="px-3 py-1.5">
                       {technician ? (
-                        <div className="flex items-center gap-2 min-w-0">
+                        <div className="flex items-center gap-1.5 min-w-0">
                           <div className="relative">
-                            <div className="w-6 h-6 rounded-lg bg-primary-100 flex items-center justify-center flex-shrink-0 border border-primary-200">
-                              <span className="text-[10px] font-bold text-primary-700">
+                            <div className="w-5 h-5 rounded bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0 border border-primary-200 dark:border-primary-800">
+                              <span className="text-[9px] font-bold text-primary-700 dark:text-primary-300">
                                 {technician.name.charAt(0).toUpperCase()}
                               </span>
                             </div>
-                            <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></div>
+                            <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-green-500 border border-white dark:border-gray-900 rounded-full"></div>
                           </div>
-                          <span className="text-sm text-gray-700 truncate font-medium">{technician.name}</span>
+                          <span className="text-xs text-gray-700 dark:text-gray-300 truncate font-medium">{technician.name}</span>
                         </div>
                       ) : (
-                        <div className="flex items-center gap-2 text-gray-400 opacity-60">
-                          <div className="w-6 h-6 rounded-full border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50">
-                            <HugeiconsIcon icon={UserIcon} size={12} className="text-gray-400" />
+                        <div className="flex items-center gap-1.5 text-gray-400 dark:text-gray-500 opacity-60">
+                          <div className="w-5 h-5 rounded border border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+                            <HugeiconsIcon icon={UserIcon} size={10} className="text-gray-400 dark:text-gray-500" />
                           </div>
                         </div>
                       )}
@@ -417,8 +433,8 @@ export function EnhancedWorkOrderDataTable({
 
                   {/* Created Date - Relative time format */}
                   {isColumnVisible('createdAt') && (
-                    <td className="px-4 py-2.5">
-                      <span className="text-sm text-gray-700 font-data" title={dayjs(wo.created_at).format('MMM D, YYYY h:mm A')}>
+                    <td className="px-3 py-1.5">
+                      <span className="text-xs text-gray-700 dark:text-gray-300 font-data" title={dayjs(wo.created_at).format('MMM D, YYYY h:mm A')}>
                         {formatRelativeTime(wo.created_at || new Date())}
                       </span>
                     </td>
@@ -426,8 +442,8 @@ export function EnhancedWorkOrderDataTable({
 
                   {/* Scheduled Date */}
                   {isColumnVisible('scheduledDate') && (
-                    <td className="px-4 py-2.5">
-                      <span className="text-sm text-gray-700 font-data">
+                    <td className="px-3 py-1.5">
+                      <span className="text-xs text-gray-700 dark:text-gray-300 font-data">
                         {wo.scheduledDate ? dayjs(wo.scheduledDate).format('MMM D, YYYY') : '—'}
                       </span>
                     </td>
@@ -435,8 +451,8 @@ export function EnhancedWorkOrderDataTable({
 
                   {/* Due Date */}
                   {isColumnVisible('dueDate') && (
-                    <td className="px-4 py-2.5">
-                      <span className="text-sm text-gray-700 font-data">
+                    <td className="px-3 py-1.5">
+                      <span className="text-xs text-gray-700 dark:text-gray-300 font-data">
                         {wo.dueDate ? dayjs(wo.dueDate).format('MMM D, YYYY') : '—'}
                       </span>
                     </td>
@@ -444,51 +460,51 @@ export function EnhancedWorkOrderDataTable({
 
                   {/* Channel */}
                   {isColumnVisible('channel') && (
-                    <td className="px-4 py-2.5">
-                      <span className="text-sm text-gray-700 truncate block">{wo.channel || '—'}</span>
+                    <td className="px-3 py-1.5">
+                      <span className="text-xs text-gray-700 dark:text-gray-300 truncate block">{wo.channel || '—'}</span>
                     </td>
                   )}
 
                   {/* Customer Name */}
                   {isColumnVisible('customerName') && (
-                    <td className="px-4 py-2.5">
-                      <span className="text-sm text-gray-700 truncate block">{wo.customerName || customer?.name || '—'}</span>
+                    <td className="px-3 py-1.5">
+                      <span className="text-xs text-gray-700 dark:text-gray-300 truncate block">{wo.customerName || customer?.name || '—'}</span>
                     </td>
                   )}
 
                   {/* Location */}
                   {isColumnVisible('location') && (
-                    <td className="px-4 py-2.5">
-                      <span className="text-sm text-gray-700 truncate block" title={wo.customerAddress || ''}>
+                    <td className="px-3 py-1.5">
+                      <span className="text-xs text-gray-700 dark:text-gray-300 truncate block" title={wo.customerAddress || ''}>
                         {wo.customerAddress || '—'}
                       </span>
                     </td>
                   )}
 
                   {/* 3-dot Actions Menu */}
-                  <td className="px-2 py-2.5 relative">
+                  <td className="px-1 py-1.5 relative">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         setOpenMenuId(isMenuOpen ? null : wo.id);
                       }}
-                      className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                      className="p-1 rounded text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     >
-                      <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
+                      <HugeiconsIcon icon={MoreVerticalIcon} size={14} />
                     </button>
 
                     {/* Dropdown Menu */}
                     {isMenuOpen && (
-                      <div className="absolute right-0 top-full mt-1 z-20 w-40 bg-white border border-gray-200 rounded-lg shadow-lg py-1 overflow-hidden">
+                      <div className="absolute right-0 top-full mt-1 z-20 w-36 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-0.5 overflow-hidden">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             onViewDetails(wo.id);
                             closeMenu();
                           }}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          className="w-full flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
-                          <HugeiconsIcon icon={ViewIcon} size={16} className="text-gray-500" />
+                          <HugeiconsIcon icon={ViewIcon} size={12} className="text-gray-500 dark:text-gray-400" />
                           View Details
                         </button>
                         <button
@@ -497,21 +513,21 @@ export function EnhancedWorkOrderDataTable({
                             onEdit(wo);
                             closeMenu();
                           }}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                          className="w-full flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
                         >
-                          <HugeiconsIcon icon={PencilEdit02Icon} size={16} className="text-gray-500" />
+                          <HugeiconsIcon icon={PencilEdit02Icon} size={12} className="text-gray-500 dark:text-gray-400" />
                           Edit
                         </button>
-                        <div className="border-t border-gray-100 my-1" />
+                        <div className="border-t border-gray-100 dark:border-gray-700 my-0.5" />
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
                             onDelete(wo);
                             closeMenu();
                           }}
-                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                          className="w-full flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                         >
-                          <HugeiconsIcon icon={Delete01Icon} size={16} />
+                          <HugeiconsIcon icon={Delete01Icon} size={12} />
                           Delete
                         </button>
                       </div>
@@ -525,54 +541,54 @@ export function EnhancedWorkOrderDataTable({
       </div>
 
       {/* Pagination Footer */}
-      <div className="flex-none px-4 py-3 bg-gray-50 border-t border-gray-200">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+      <div className="flex-none px-3 py-2 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
           {/* Left: Showing X-Y of Z */}
-          <div className="flex items-center gap-4">
-            <p className="text-sm text-gray-600">
+          <div className="flex items-center gap-3">
+            <p className="text-[10px] text-gray-600 dark:text-gray-400">
               Showing <span className="font-medium">{startIndex + 1}</span> to <span className="font-medium">{Math.min(endIndex, workOrders.length)}</span> of <span className="font-medium">{workOrders.length}</span> work orders
             </p>
           </div>
 
           {/* Center: Page Navigation */}
           {totalPages > 1 && (
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-0.5">
               {/* First Page */}
               <button
                 onClick={() => handlePageChange(1)}
                 disabled={currentPage === 1}
-                className="px-2 py-1 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-1.5 py-1 text-[10px] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 title="First page"
               >
-                <HugeiconsIcon icon={ArrowLeft02Icon} size={16} />
+                <HugeiconsIcon icon={ArrowLeft02Icon} size={12} />
               </button>
 
               {/* Previous Page */}
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="px-2 py-1 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-1.5 py-1 text-[10px] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 title="Previous page"
               >
-                <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
+                <HugeiconsIcon icon={ArrowLeft01Icon} size={12} />
               </button>
 
               {/* Page Numbers */}
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-0.5">
                 {getPageNumbers().map((page, index) => (
                   typeof page === 'number' ? (
                     <button
                       key={index}
                       onClick={() => handlePageChange(page)}
-                      className={`min-w-[32px] px-2 py-1 text-sm rounded transition-colors ${currentPage === page
+                      className={`min-w-[24px] px-1.5 py-1 text-[10px] rounded transition-colors ${currentPage === page
                         ? 'bg-primary-600 text-white font-medium'
-                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700'
                         }`}
                     >
                       {page}
                     </button>
                   ) : (
-                    <span key={index} className="px-2 py-1 text-sm text-gray-400">
+                    <span key={index} className="px-1 py-1 text-[10px] text-gray-400 dark:text-gray-500">
                       {page}
                     </span>
                   )
@@ -583,34 +599,34 @@ export function EnhancedWorkOrderDataTable({
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="px-2 py-1 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-1.5 py-1 text-[10px] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 title="Next page"
               >
-                <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
+                <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
               </button>
 
               {/* Last Page */}
               <button
                 onClick={() => handlePageChange(totalPages)}
                 disabled={currentPage === totalPages}
-                className="px-2 py-1 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="px-1.5 py-1 text-[10px] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 title="Last page"
               >
-                <HugeiconsIcon icon={ArrowRight02Icon} size={16} />
+                <HugeiconsIcon icon={ArrowRight02Icon} size={12} />
               </button>
             </div>
           )}
 
           {/* Right: Items per page selector */}
-          <div className="flex items-center gap-2">
-            <label htmlFor="items-per-page" className="text-sm text-gray-600 whitespace-nowrap">
+          <div className="flex items-center gap-1.5">
+            <label htmlFor="items-per-page" className="text-[10px] text-gray-600 dark:text-gray-400 whitespace-nowrap">
               Per page:
             </label>
             <select
               id="items-per-page"
               value={itemsPerPage}
               onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-              className="px-2 py-1 text-sm border border-gray-300 rounded-lg bg-white text-gray-700 hover:border-gray-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+              className="px-1.5 py-1 text-[10px] border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-transparent transition-colors"
             >
               <option value={10}>10</option>
               <option value={25}>25</option>

@@ -5,8 +5,8 @@ import {
   ArrowDown01Icon,
   Tick01Icon
 } from '@hugeicons/core-free-icons';
-import { ItemCategory, ITEM_CATEGORY_LABELS } from '@/types/supabase';
-import { getCategoryBadgeColor, getCategoryIcon, ALL_CATEGORIES } from '@/utils/inventory-categorization-helpers';
+import { ItemCategory } from '@/types/supabase';
+import { getCategoryBadgeColor, getCategoryIcon, ALL_CATEGORIES, ITEM_CATEGORY_LABELS } from '@/utils/inventory-categorization-helpers';
 
 interface CategoryMultiSelectProps {
   value: ItemCategory[];

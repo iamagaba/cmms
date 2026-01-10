@@ -7,8 +7,6 @@ import {
   Settings02Icon,
   PlusMinusIcon,
   ArrowDataTransferHorizontalIcon,
-  BarChartIcon,
-  FileIcon,
   Add01Icon,
   Archive01Icon,
   PencilEdit02Icon,
@@ -16,7 +14,6 @@ import {
   Store01Icon,
   PackageIcon,
 } from '@hugeicons/core-free-icons';
-import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { InventoryItem, ItemCategory, Supplier } from '@/types/supabase';
@@ -30,15 +27,14 @@ import { AdjustmentHistoryPanel } from '@/components/AdjustmentHistoryPanel';
 import { CategoryBadge } from '@/components/CategoryMultiSelect';
 import { InventoryTransactionsPanel } from '@/components/InventoryTransactionsPanel';
 import { InventoryPartsUsagePanel } from '@/components/InventoryPartsUsagePanel';
-import { PartsUsageAnalyticsPanel } from '@/components/PartsUsageAnalyticsPanel';
 import { useSuppliers } from '@/hooks/useSuppliers';
 import {
   formatStorageLocation,
   formatQuantityWithUnit,
   getUniqueWarehouses,
-  ALL_CATEGORIES
+  ALL_CATEGORIES,
+  ITEM_CATEGORY_LABELS
 } from '@/utils/inventory-categorization-helpers';
-import { ITEM_CATEGORY_LABELS } from '@/types/supabase';
 
 // Filter types
 interface InventoryFilters {
@@ -73,9 +69,6 @@ const InventoryPage: React.FC = () => {
 
   // Transactions Panel State
   const [transactionsPanelOpen, setTransactionsPanelOpen] = useState(false);
-
-  // Analytics Panel State
-  const [analyticsPanelOpen, setAnalyticsPanelOpen] = useState(false);
 
   const [filters, setFilters] = useState<InventoryFilters>({
     stockStatus: 'all',
@@ -346,90 +339,80 @@ const InventoryPage: React.FC = () => {
         {/* Header with Stat Ribbon */}
         <div className="border-b border-gray-200 dark:border-gray-800">
           {/* Page Title */}
-          <div className="p-4 pb-4">
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Inventory</h1>
+          <div className="px-3 py-2">
+            <h1 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Inventory</h1>
           </div>
 
           {/* Search */}
-          <div className="p-4 pt-3">
-            <Input
-              placeholder="Search inventory..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              leftIcon={<HugeiconsIcon icon={Search01Icon} size={16} className=" text-gray-400" />}
-            />
+          <div className="px-3 py-2">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <HugeiconsIcon icon={Search01Icon} size={14} className="text-gray-400 dark:text-gray-500" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search inventory..."
+                className="w-full pl-10 pr-4 py-1.5 text-xs border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
 
           {/* Filters Toggle */}
-          <div className="px-4 pb-3 flex items-center justify-between">
+          <div className="px-3 py-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setFiltersOpen(!filtersOpen)}
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors ${filtersOpen || hasActiveFilters
+                className={`inline-flex items-center gap-1.5 px-2 py-1.5 text-xs font-medium rounded-md transition-colors ${filtersOpen || hasActiveFilters
                   ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700'
                   : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700'
                   }`}
               >
-                <HugeiconsIcon icon={Settings02Icon} size={16} className="" />
+                <HugeiconsIcon icon={Settings02Icon} size={14} className="" />
                 Filters
                 {hasActiveFilters && (
-                  <span className="inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-purple-600 text-white text-[10px] font-semibold">
+                  <span className="inline-flex items-center justify-center min-w-[16px] h-3.5 px-1 rounded-full bg-purple-600 text-white text-[10px] font-semibold">
                     {[searchTerm, filters.stockStatus !== 'all', filters.category !== 'all', filters.categories.length > 0, filters.supplierId !== 'all', filters.warehouse !== 'all'].filter(Boolean).length}
                   </span>
                 )}
               </button>
               <button
                 onClick={handleOpenBatchAdjustment}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md transition-colors"
+                className="inline-flex items-center gap-1.5 px-2 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md transition-colors"
                 title="Adjust Stock"
               >
-                <HugeiconsIcon icon={PlusMinusIcon} size={16} className="" />
+                <HugeiconsIcon icon={PlusMinusIcon} size={14} className="" />
                 Adjust
               </button>
               <button
                 onClick={() => setTransactionsPanelOpen(true)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md transition-colors"
+                className="inline-flex items-center gap-1.5 px-2 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md transition-colors"
                 title="Inventory Transactions"
               >
-                <HugeiconsIcon icon={ArrowDataTransferHorizontalIcon} size={16} className="" />
+                <HugeiconsIcon icon={ArrowDataTransferHorizontalIcon} size={14} className="" />
                 Transactions
               </button>
-              <button
-                onClick={() => setAnalyticsPanelOpen(true)}
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md transition-colors"
-                title="Parts Usage Analytics"
-              >
-                <HugeiconsIcon icon={BarChartIcon} size={16} className="" />
-                Analytics
-              </button>
-              <Link
-                to="/reports?tab=inventory"
-                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md transition-colors"
-                title="Inventory Reports"
-              >
-                <HugeiconsIcon icon={FileIcon} size={16} className="" />
-                Reports
-              </Link>
             </div>
             <button
               onClick={() => { setEditingItem(null); setIsDialogOpen(true); }}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md transition-colors"
+              className="inline-flex items-center gap-1.5 px-2 py-1.5 text-xs font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md transition-colors"
             >
-              <HugeiconsIcon icon={Add01Icon} size={16} className="" />
+              <HugeiconsIcon icon={Add01Icon} size={14} className="" />
               Add Item
             </button>
           </div>
 
           {/* Advanced Filters */}
           {filtersOpen && (
-            <div className="px-4 pb-4 border-t border-gray-100 dark:border-gray-800 pt-3 space-y-3">
+            <div className="px-3 pb-3 border-t border-gray-100 dark:border-gray-800 pt-2 space-y-2">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                  <label className="block text-[10px] font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
                   <select
                     value={filters.stockStatus}
                     onChange={(e) => setFilters({ ...filters, stockStatus: e.target.value })}
-                    className="h-9 w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2.5 py-1 text-xs dark:text-gray-200"
+                    className="h-7 w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2.5 py-1 text-xs dark:text-gray-200"
                   >
                     <option value="all">All</option>
                     <option value="in-stock">In Stock</option>
@@ -438,11 +421,11 @@ const InventoryPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Sort</label>
+                  <label className="block text-[10px] font-medium text-gray-700 dark:text-gray-300 mb-1">Sort</label>
                   <select
                     value={filters.sortBy}
                     onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
-                    className="h-9 w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2.5 py-1 text-xs dark:text-gray-200"
+                    className="h-7 w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2.5 py-1 text-xs dark:text-gray-200"
                   >
                     <option value="name">Name</option>
                     <option value="sku">SKU</option>
@@ -454,7 +437,7 @@ const InventoryPage: React.FC = () => {
 
               {/* Category Filter */}
               <div>
-                <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Categories</label>
+                <label className="block text-[10px] font-medium text-gray-700 dark:text-gray-300 mb-1">Categories</label>
                 <div className="flex flex-wrap gap-1">
                   {ALL_CATEGORIES.slice(0, 6).map(cat => (
                     <button
@@ -466,7 +449,7 @@ const InventoryPage: React.FC = () => {
                           : [...filters.categories, cat];
                         setFilters({ ...filters, categories: newCategories });
                       }}
-                      className={`px-2 py-0.5 text-xs rounded border transition-colors ${filters.categories.includes(cat)
+                      className={`px-2 py-0.5 text-[10px] rounded border transition-colors ${filters.categories.includes(cat)
                         ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700'
                         : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-gray-300'
                         }`}
@@ -480,11 +463,11 @@ const InventoryPage: React.FC = () => {
               {/* Supplier & Warehouse Filters */}
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Supplier</label>
+                  <label className="block text-[10px] font-medium text-gray-700 dark:text-gray-300 mb-1">Supplier</label>
                   <select
                     value={filters.supplierId}
                     onChange={(e) => setFilters({ ...filters, supplierId: e.target.value })}
-                    className="h-9 w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2.5 py-1 text-xs dark:text-gray-200"
+                    className="h-7 w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2.5 py-1 text-xs dark:text-gray-200"
                   >
                     <option value="all">All Suppliers</option>
                     {suppliers?.map(s => (
@@ -493,11 +476,11 @@ const InventoryPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Warehouse</label>
+                  <label className="block text-[10px] font-medium text-gray-700 dark:text-gray-300 mb-1">Warehouse</label>
                   <select
                     value={filters.warehouse}
                     onChange={(e) => setFilters({ ...filters, warehouse: e.target.value })}
-                    className="h-9 w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2.5 py-1 text-xs dark:text-gray-200"
+                    className="h-7 w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2.5 py-1 text-xs dark:text-gray-200"
                   >
                     <option value="all">All Warehouses</option>
                     {uniqueWarehouses.map(w => (
@@ -510,7 +493,7 @@ const InventoryPage: React.FC = () => {
               {hasActiveFilters && (
                 <button
                   onClick={handleClearFilters}
-                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline"
+                  className="text-[10px] text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline"
                 >
                   Clear all filters
                 </button>
@@ -524,7 +507,7 @@ const InventoryPage: React.FC = () => {
           {filteredItems.length === 0 ? (
             <div className="empty-state">
               <HugeiconsIcon icon={Archive01Icon} className="empty-state-icon" />
-              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No items found</p>
+              <p className="text-xs font-medium text-gray-900 dark:text-gray-100 mb-1">No items found</p>
               <p className="empty-state-text">
                 {hasActiveFilters ? "Try adjusting your filters" : "Add your first inventory item to get started"}
               </p>
@@ -545,22 +528,22 @@ const InventoryPage: React.FC = () => {
                     className={`group relative list-row cursor-pointer ${isSelected ? 'list-row-active' : ''}`}
                     onClick={() => handleSelectItem(item)}
                   >
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center justify-between mb-1.5">
                       <div className="flex items-center gap-2">
-                        <div size={8} className=" rounded-md bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                          <HugeiconsIcon icon={Archive01Icon} size={20} className=" text-purple-600 dark:text-purple-400" />
+                        <div className="w-7 h-7 rounded-md bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
+                          <HugeiconsIcon icon={Archive01Icon} size={14} className=" text-purple-600 dark:text-purple-400" />
                         </div>
                         <div>
-                          <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                          <p className="text-xs font-semibold text-gray-900 dark:text-gray-100">
                             {item.name || 'Unnamed Item'}
                           </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                          <p className="text-[10px] text-gray-500 dark:text-gray-400">
                             {item.sku || 'No SKU'}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
-                        <span className={`px-2 py-0.5 rounded text-xs font-medium border ${isOutOfStock ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800' :
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${isOutOfStock ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800' :
                           isLowStock ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800' :
                             'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
                           }`}>
@@ -570,16 +553,16 @@ const InventoryPage: React.FC = () => {
                     </div>
                     {/* Category badges */}
                     {itemCategories.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mb-2">
+                      <div className="flex flex-wrap gap-1 mb-1.5">
                         {itemCategories.slice(0, 2).map(cat => (
                           <CategoryBadge key={cat} category={cat} size="sm" showIcon={false} />
                         ))}
                         {itemCategories.length > 2 && (
-                          <span className="text-xs text-gray-400">+{itemCategories.length - 2}</span>
+                          <span className="text-[10px] text-gray-400">+{itemCategories.length - 2}</span>
                         )}
                       </div>
                     )}
-                    <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-400">
                       <span>{formatQuantityWithUnit(qty, item.unit_of_measure, item.units_per_package)}</span>
                       <span>UGX {(item.unit_price ?? 0).toLocaleString()}</span>
                     </div>
@@ -591,30 +574,30 @@ const InventoryPage: React.FC = () => {
                           e.stopPropagation();
                           handleQuickAdjust(item);
                         }}
-                        className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                        className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
                         title="Adjust Stock"
                       >
-                        <HugeiconsIcon icon={PlusMinusIcon} size={16} className=" text-gray-600 dark:text-gray-400" />
+                        <HugeiconsIcon icon={PlusMinusIcon} size={14} className=" text-gray-600 dark:text-gray-400" />
                       </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEdit(item);
                         }}
-                        className="p-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                        className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
                         title="Edit"
                       >
-                        <HugeiconsIcon icon={PencilEdit02Icon} size={16} className=" text-gray-600 dark:text-gray-400" />
+                        <HugeiconsIcon icon={PencilEdit02Icon} size={14} className=" text-gray-600 dark:text-gray-400" />
                       </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDeleteClick(item);
                         }}
-                        className="p-1.5 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors"
+                        className="p-1 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors"
                         title="Delete"
                       >
-                        <HugeiconsIcon icon={Delete01Icon} size={16} className=" text-red-600 dark:text-red-400" />
+                        <HugeiconsIcon icon={Delete01Icon} size={14} className=" text-red-600 dark:text-red-400" />
                       </button>
                     </div>
                   </div>
@@ -629,82 +612,82 @@ const InventoryPage: React.FC = () => {
       <div className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-gray-900">
         {selectedItem ? (
           <div className="flex flex-col h-full">
-            <div className="flex-none p-6 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 z-10">
+            <div className="flex-none px-3 py-2 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 z-10">
               {/* Item Header */}
               <div className="flex items-center justify-between mb-0">
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                  <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
                     {selectedItem.name || 'Unnamed Item'}
                   </h2>
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
                     {selectedItem.sku ? `SKU: ${selectedItem.sku}` : 'No SKU assigned'}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleQuickAdjust(selectedItem)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                    className="inline-flex items-center gap-1.5 px-2 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
                   >
-                    <HugeiconsIcon icon={PlusMinusIcon} size={20} className="" />
+                    <HugeiconsIcon icon={PlusMinusIcon} size={14} className="" />
                     Adjust Stock
                   </button>
                   <button
                     onClick={() => handleEdit(selectedItem)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
+                    className="inline-flex items-center gap-1.5 px-2 py-1.5 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-md transition-colors"
                   >
-                    <HugeiconsIcon icon={PencilEdit02Icon} size={20} className="" />
+                    <HugeiconsIcon icon={PencilEdit02Icon} size={14} className="" />
                     Edit
                   </button>
                   <button
                     onClick={() => handleDeleteClick(selectedItem)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors"
+                    className="inline-flex items-center gap-1.5 px-2 py-1.5 text-xs font-medium text-red-700 dark:text-red-400 bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors"
                   >
-                    <HugeiconsIcon icon={Delete01Icon} size={20} className="" />
+                    <HugeiconsIcon icon={Delete01Icon} size={14} className="" />
                     Delete
                   </button>
                 </div>
               </div>
             </div>
 
-            <div className="flex-1 overflow-auto p-6 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent overscroll-y-contain">
+            <div className="flex-1 overflow-auto px-3 py-2 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent overscroll-y-contain">
               {/* Item Details */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 {/* Basic Information */}
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide border-b border-gray-200 dark:border-gray-700 pb-2">Basic Information</h3>
-                  <div className="space-y-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+                <div className="space-y-2">
+                  <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700 pb-1.5">Basic Information</h3>
+                  <div className="space-y-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg px-3 py-2">
                     <div>
-                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Item Name</label>
-                      <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.name || 'Not specified'}</p>
+                      <label className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Item Name</label>
+                      <p className="text-xs text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.name || 'Not specified'}</p>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">SKU</label>
-                      <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5 font-mono">{selectedItem.sku || 'Not assigned'}</p>
+                      <label className="text-[10px] font-medium text-gray-500 dark:text-gray-400">SKU</label>
+                      <p className="text-xs text-gray-900 dark:text-gray-100 mt-0.5 font-mono">{selectedItem.sku || 'Not assigned'}</p>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Description</label>
-                      <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.description || 'No description'}</p>
+                      <label className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Description</label>
+                      <p className="text-xs text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.description || 'No description'}</p>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Unit Price</label>
-                      <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">UGX {(selectedItem.unit_price ?? 0).toLocaleString()}</p>
+                      <label className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Unit Price</label>
+                      <p className="text-xs text-gray-900 dark:text-gray-100 mt-0.5">UGX {(selectedItem.unit_price ?? 0).toLocaleString()}</p>
                     </div>
                     {/* Categories */}
                     <div>
-                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Categories</label>
+                      <label className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Categories</label>
                       <div className="mt-1 flex flex-wrap gap-1">
                         {(selectedItem.categories || []).length > 0 ? (
                           selectedItem.categories!.map(cat => (
                             <CategoryBadge key={cat} category={cat} size="sm" />
                           ))
                         ) : (
-                          <div className="w-full text-center py-3 px-4 bg-white dark:bg-gray-900 rounded-md border border-dashed border-gray-300 dark:border-gray-600">
-                            <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">No categories assigned</p>
+                          <div className="w-full text-center py-2 px-3 bg-white dark:bg-gray-900 rounded-md border border-dashed border-gray-300 dark:border-gray-600">
+                            <p className="text-[10px] text-gray-500 dark:text-gray-400 mb-1.5">No categories assigned</p>
                             <button
                               onClick={() => handleEdit(selectedItem)}
-                              className="inline-flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
+                              className="inline-flex items-center gap-1 text-[10px] text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
                             >
-                              <HugeiconsIcon icon={Add01Icon} size={14} className="" />
+                              <HugeiconsIcon icon={Add01Icon} size={12} className="" />
                               Add Categories
                             </button>
                           </div>
@@ -715,21 +698,21 @@ const InventoryPage: React.FC = () => {
                 </div>
 
                 {/* Stock Information */}
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide border-b border-gray-200 dark:border-gray-700 pb-2">Stock Information</h3>
-                  <div className="space-y-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+                <div className="space-y-2">
+                  <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700 pb-1.5">Stock Information</h3>
+                  <div className="space-y-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg px-3 py-2">
                     <div>
-                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Quantity on Hand</label>
-                      <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5 font-semibold">
+                      <label className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Quantity on Hand</label>
+                      <p className="text-xs text-gray-900 dark:text-gray-100 mt-0.5 font-semibold">
                         {formatQuantityWithUnit(selectedItem.quantity_on_hand ?? 0, selectedItem.unit_of_measure, selectedItem.units_per_package)}
                       </p>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Reorder Level</label>
-                      <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.reorder_level ?? 0}</p>
+                      <label className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Reorder Level</label>
+                      <p className="text-xs text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.reorder_level ?? 0}</p>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Status</label>
+                      <label className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Status</label>
                       <div className="mt-0.5">
                         {(() => {
                           const qty = selectedItem.quantity_on_hand ?? 0;
@@ -738,7 +721,7 @@ const InventoryPage: React.FC = () => {
                           const isOutOfStock = qty === 0;
 
                           return (
-                            <span className={`px-2 py-0.5 rounded text-xs font-medium border ${isOutOfStock ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800' :
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${isOutOfStock ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800' :
                               isLowStock ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800' :
                                 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
                               }`}>
@@ -749,8 +732,8 @@ const InventoryPage: React.FC = () => {
                       </div>
                     </div>
                     <div>
-                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Total Value</label>
-                      <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5 font-semibold">
+                      <label className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Total Value</label>
+                      <p className="text-xs text-gray-900 dark:text-gray-100 mt-0.5 font-semibold">
                         UGX {((selectedItem.quantity_on_hand ?? 0) * (selectedItem.unit_price ?? 0)).toLocaleString()}
                       </p>
                     </div>
@@ -759,48 +742,48 @@ const InventoryPage: React.FC = () => {
               </div>
 
               {/* Supplier & Storage Location */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mt-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 mt-4">
                 {/* Supplier Information */}
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide border-b border-gray-200 dark:border-gray-700 pb-2">Supplier</h3>
-                  <div className="space-y-3 bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4">
+                <div className="space-y-2">
+                  <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700 pb-1.5">Supplier</h3>
+                  <div className="space-y-2 bg-gray-50 dark:bg-gray-800/50 rounded-lg px-3 py-2">
                     {selectedItem.supplier ? (
                       <>
                         <div>
-                          <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Supplier Name</label>
-                          <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.supplier.name}</p>
+                          <label className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Supplier Name</label>
+                          <p className="text-xs text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.supplier.name}</p>
                         </div>
                         {selectedItem.supplier.contact_name && (
                           <div>
-                            <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Contact</label>
-                            <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.supplier.contact_name}</p>
+                            <label className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Contact</label>
+                            <p className="text-xs text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.supplier.contact_name}</p>
                           </div>
                         )}
                         {selectedItem.supplier.phone && (
                           <div>
-                            <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Phone</label>
-                            <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.supplier.phone}</p>
+                            <label className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Phone</label>
+                            <p className="text-xs text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.supplier.phone}</p>
                           </div>
                         )}
                         {selectedItem.supplier.email && (
                           <div>
-                            <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Email</label>
-                            <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.supplier.email}</p>
+                            <label className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Email</label>
+                            <p className="text-xs text-gray-900 dark:text-gray-100 mt-0.5">{selectedItem.supplier.email}</p>
                           </div>
                         )}
                       </>
                     ) : (
-                      <div className="text-center py-6">
-                        <div className=" bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-3">
-                          <HugeiconsIcon icon={Store01Icon} size={24} className=" text-gray-400 dark:text-gray-500" />
+                      <div className="text-center py-4">
+                        <div className=" bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-2">
+                          <HugeiconsIcon icon={Store01Icon} size={20} className=" text-gray-400 dark:text-gray-500" />
                         </div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No Supplier Assigned</p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">Add a supplier to track vendor information</p>
+                        <p className="text-xs font-medium text-gray-900 dark:text-gray-100 mb-0.5">No Supplier Assigned</p>
+                        <p className="text-[10px] text-gray-500 dark:text-gray-400 mb-2">Add a supplier to track vendor information</p>
                         <button
                           onClick={() => handleEdit(selectedItem)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-md transition-colors"
+                          className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-medium text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/30 hover:bg-purple-100 dark:hover:bg-purple-900/50 rounded-md transition-colors"
                         >
-                          <HugeiconsIcon icon={Add01Icon} size={16} className="" />
+                          <HugeiconsIcon icon={Add01Icon} size={12} className="" />
                           Add Supplier
                         </button>
                       </div>
@@ -809,12 +792,12 @@ const InventoryPage: React.FC = () => {
                 </div>
 
                 {/* Storage Location */}
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide">Storage Location</h3>
-                  <div className="space-y-3">
+                <div className="space-y-2">
+                  <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400">Storage Location</h3>
+                  <div className="space-y-2">
                     <div>
-                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">Location</label>
-                      <p className="text-sm text-gray-900 dark:text-gray-100 mt-0.5 font-mono">
+                      <label className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Location</label>
+                      <p className="text-xs text-gray-900 dark:text-gray-100 mt-0.5 font-mono">
                         {formatStorageLocation(selectedItem)}
                       </p>
                     </div>
@@ -822,25 +805,25 @@ const InventoryPage: React.FC = () => {
                       <div className="grid grid-cols-2 gap-2 text-xs">
                         {selectedItem.zone && (
                           <div>
-                            <label className="text-gray-500 dark:text-gray-400">Zone</label>
+                            <label className="text-[10px] text-gray-500 dark:text-gray-400">Zone</label>
                             <p className="text-gray-900 dark:text-gray-100">{selectedItem.zone}</p>
                           </div>
                         )}
                         {selectedItem.aisle && (
                           <div>
-                            <label className="text-gray-500 dark:text-gray-400">Aisle</label>
+                            <label className="text-[10px] text-gray-500 dark:text-gray-400">Aisle</label>
                             <p className="text-gray-900 dark:text-gray-100">{selectedItem.aisle}</p>
                           </div>
                         )}
                         {selectedItem.bin && (
                           <div>
-                            <label className="text-gray-500 dark:text-gray-400">Bin</label>
+                            <label className="text-[10px] text-gray-500 dark:text-gray-400">Bin</label>
                             <p className="text-gray-900 dark:text-gray-100">{selectedItem.bin}</p>
                           </div>
                         )}
                         {selectedItem.shelf && (
                           <div>
-                            <label className="text-gray-500 dark:text-gray-400">Shelf</label>
+                            <label className="text-[10px] text-gray-500 dark:text-gray-400">Shelf</label>
                             <p className="text-gray-900 dark:text-gray-100">{selectedItem.shelf}</p>
                           </div>
                         )}
@@ -851,14 +834,14 @@ const InventoryPage: React.FC = () => {
               </div>
 
               {/* Adjustment History */}
-              <div className="mt-8">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
+              <div className="mt-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400">
                     Stock Adjustment History
                   </h3>
                   <button
                     onClick={() => setShowHistory(!showHistory)}
-                    className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
+                    className="text-[10px] text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
                   >
                     {showHistory ? 'Hide' : 'Show'} History
                   </button>
@@ -874,14 +857,14 @@ const InventoryPage: React.FC = () => {
               </div>
 
               {/* Work Order Usage */}
-              <div className="mt-8">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide">
+              <div className="mt-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-xs font-semibold text-gray-500 dark:text-gray-400">
                     Work Order Usage
                   </h3>
                   <button
                     onClick={() => setShowWorkOrderUsage(!showWorkOrderUsage)}
-                    className="text-xs text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
+                    className="text-[10px] text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300"
                   >
                     {showWorkOrderUsage ? 'Hide' : 'Show'} Usage
                   </button>
@@ -900,9 +883,9 @@ const InventoryPage: React.FC = () => {
         ) : (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <HugeiconsIcon icon={PackageIcon} size={48} className=" text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-1">Select an Item</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Choose an inventory item from the list to view details</p>
+              <HugeiconsIcon icon={PackageIcon} size={40} className=" text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">Select an Item</h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Choose an inventory item from the list to view details</p>
             </div>
           </div>
         )}
@@ -942,12 +925,6 @@ const InventoryPage: React.FC = () => {
       <InventoryTransactionsPanel
         isOpen={transactionsPanelOpen}
         onClose={() => setTransactionsPanelOpen(false)}
-      />
-
-      {/* Parts Usage Analytics Panel */}
-      <PartsUsageAnalyticsPanel
-        isOpen={analyticsPanelOpen}
-        onClose={() => setAnalyticsPanelOpen(false)}
       />
     </div>
   );

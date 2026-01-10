@@ -34,6 +34,8 @@ import { BarChart } from '@mui/x-charts/BarChart';
 import { LineChart } from '@mui/x-charts/LineChart';
 import { professionalColors } from '@/theme/professional-colors';
 import InventoryReport from '@/components/reports/InventoryReport';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 type ReportType = 'overview' | 'technician' | 'workorder' | 'asset' | 'financial' | 'inventory' | 'fleet';
 type DateRange = '7days' | '30days' | '90days' | 'year' | 'custom';
@@ -41,6 +43,8 @@ type DateRange = '7days' | '30days' | '90days' | 'year' | 'custom';
 const Reports: React.FC = () => {
   const [searchParams] = useSearchParams();
   const tabFromUrl = searchParams.get('tab') as ReportType | null;
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
 
   const [reportType, setReportType] = useState<ReportType>(tabFromUrl || 'overview');
   const [dateRange, setDateRange] = useState<DateRange>('30days');
@@ -159,26 +163,26 @@ const Reports: React.FC = () => {
   return (
     <div className="flex h-screen bg-white dark:bg-gray-900">
       {/* Left Panel - Report Navigation & Controls */}
-      <div className="w-80 border-r border-gray-200 dark:border-gray-800 flex flex-col">
+      <div className="w-56 border-r border-gray-200 dark:border-gray-800 flex flex-col">
         {/* Header */}
-        <div className="px-4 py-4 border-b border-gray-200 dark:border-gray-800">
-          <div className="flex items-center justify-between mb-3">
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Reports</h1>
+        <div className="px-3 py-2.5 border-b border-gray-200 dark:border-gray-800">
+          <div className="flex items-center justify-between mb-2.5">
+            <h1 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Reports</h1>
             <button
               onClick={handleExportPDF}
-              className="p-2 rounded-lg text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
+              className="p-1 rounded text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
             >
-              <HugeiconsIcon icon={FileIcon} size={16} />
+              <HugeiconsIcon icon={FileIcon} size={14} />
             </button>
           </div>
 
           {/* Date Range Selector */}
-          <div className="space-y-2 mb-4">
-            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Date Range</label>
+          <div className="mb-3">
+            <label className="block text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Date Range</label>
             <select
               value={dateRange}
               onChange={(e) => handleDateRangeChange(e.target.value as DateRange)}
-              className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="w-full px-2 py-1.5 text-xs border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary-500"
             >
               <option value="7days">Last 7 Days</option>
               <option value="30days">Last 30 Days</option>
@@ -190,32 +194,32 @@ const Reports: React.FC = () => {
 
           {/* Custom Date Inputs */}
           {dateRange === 'custom' && (
-            <div className="space-y-2 mb-4">
+            <div className="space-y-2 mb-3">
               <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">Start Date</label>
+                <label className="block text-[10px] font-medium text-gray-500 dark:text-gray-400 mb-1">Start Date</label>
                 <input
                   type="date"
                   value={startDate}
                   onChange={(e) => setStartDate(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-2 py-1.5 text-xs border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1">End Date</label>
+                <label className="block text-[10px] font-medium text-gray-500 dark:text-gray-400 mb-1">End Date</label>
                 <input
                   type="date"
                   value={endDate}
                   onChange={(e) => setEndDate(e.target.value)}
-                  className="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  className="w-full px-2 py-1.5 text-xs border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary-500"
                 />
               </div>
             </div>
           )}
 
           {/* Report Type Selector */}
-          <div className="space-y-2">
-            <label className="block text-xs font-medium text-gray-600 dark:text-gray-400">Report Type</label>
-            <div className="space-y-1">
+          <div>
+            <label className="block text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Report Type</label>
+            <div className="space-y-0.5">
               {[
                 { id: 'overview', label: 'Overview', icon: Home01Icon },
                 { id: 'fleet', label: 'Fleet Overview', icon: Car01Icon },
@@ -228,12 +232,12 @@ const Reports: React.FC = () => {
                 <button
                   key={report.id}
                   onClick={() => setReportType(report.id as ReportType)}
-                  className={`w-full flex items-center gap-3 px-3 py-2 text-sm rounded-lg transition-colors ${reportType === report.id
+                  className={`w-full flex items-center gap-2 px-2 py-1.5 text-xs rounded transition-colors ${reportType === report.id
                     ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium'
                     : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
                     }`}
                 >
-                  <HugeiconsIcon icon={report.icon} size={16} />
+                  <HugeiconsIcon icon={report.icon} size={14} />
                   {report.label}
                 </button>
               ))}
@@ -242,33 +246,33 @@ const Reports: React.FC = () => {
         </div>
 
         {/* Quick Actions */}
-        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800">
-          <h3 className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-3 uppercase tracking-wide">Export Options</h3>
-          <div className="space-y-2">
+        <div className="px-3 py-2.5 border-b border-gray-200 dark:border-gray-800">
+          <h3 className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1.5">Export Options</h3>
+          <div className="space-y-0.5">
             <button
               onClick={handleExportPDF}
-              className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded transition-colors"
             >
-              <HugeiconsIcon icon={FileIcon} size={16} />
+              <HugeiconsIcon icon={FileIcon} size={14} />
               Export PDF
             </button>
             <button
               onClick={handleExportExcel}
-              className="w-full flex items-center gap-3 px-3 py-2 text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors"
+              className="w-full flex items-center gap-2 px-2 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded transition-colors"
             >
-              <HugeiconsIcon icon={FileIcon} size={16} />
+              <HugeiconsIcon icon={FileIcon} size={14} />
               Export Excel
             </button>
           </div>
         </div>
 
         {/* Date Range Info */}
-        <div className="px-4 py-3">
-          <h3 className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-2 uppercase tracking-wide">Current Period</h3>
-          <div className="text-sm text-gray-900 dark:text-gray-100">
+        <div className="px-3 py-2.5">
+          <h3 className="text-[10px] font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-1">Current Period</h3>
+          <div className="text-xs font-medium text-gray-900 dark:text-gray-100">
             {dayjs(startDate).format('MMM D, YYYY')} - {dayjs(endDate).format('MMM D, YYYY')}
           </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <div className="text-[10px] text-gray-500 dark:text-gray-400 mt-0.5">
             {dayjs(endDate).diff(dayjs(startDate), 'days')} days
           </div>
         </div>
@@ -277,31 +281,27 @@ const Reports: React.FC = () => {
       {/* Right Panel - Report Content */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                {reportType === 'overview' ? 'Overview Report' :
-                  reportType === 'technician' ? 'Technician Performance' :
-                    reportType === 'workorder' ? 'Work Order Analysis' :
-                      reportType === 'asset' ? 'Asset Reports' :
-                        reportType === 'fleet' ? 'Fleet Overview' :
-                          reportType === 'financial' ? 'Financial Summary' : 'Inventory Reports'}
-              </h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                {reportType === 'overview' ? 'Comprehensive insights and performance metrics' :
-                  reportType === 'technician' ? 'Individual technician performance analysis' :
-                    reportType === 'workorder' ? 'Work order trends and patterns' :
-                      reportType === 'asset' ? 'Asset maintenance and service history' :
-                        reportType === 'fleet' ? 'Fleet status, health, and availability metrics' :
-                          reportType === 'financial' ? 'Revenue and cost analysis' : 'Inventory valuation, movement, and analytics'}
-              </p>
-            </div>
-          </div>
+        <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-800">
+          <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+            {reportType === 'overview' ? 'Overview Report' :
+              reportType === 'technician' ? 'Technician Performance' :
+                reportType === 'workorder' ? 'Work Order Analysis' :
+                  reportType === 'asset' ? 'Asset Reports' :
+                    reportType === 'fleet' ? 'Fleet Overview' :
+                      reportType === 'financial' ? 'Financial Summary' : 'Inventory Reports'}
+          </h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            {reportType === 'overview' ? 'Comprehensive insights and performance metrics' :
+              reportType === 'technician' ? 'Individual technician performance analysis' :
+                reportType === 'workorder' ? 'Work order trends and patterns' :
+                  reportType === 'asset' ? 'Asset maintenance and service history' :
+                    reportType === 'fleet' ? 'Fleet status, health, and availability metrics' :
+                      reportType === 'financial' ? 'Revenue and cost analysis' : 'Inventory valuation, movement, and analytics'}
+          </p>
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div className="flex-1 overflow-y-auto p-4">
           {reportType === 'overview' && (
             <OverviewReport
               workOrders={workOrders || []}
@@ -361,21 +361,26 @@ const CHART_COLORS = {
   gradients: professionalColors.chart.gradients,
 
   // Semantic colors for specific use cases
-  steelBlue: professionalColors.steelBlue[500],
+  steelBlue: professionalColors.steelBlue[600],
   safetyOrange: professionalColors.safetyOrange[500],
   industrialGreen: professionalColors.industrialGreen[500],
   maintenanceYellow: professionalColors.maintenanceYellow[500],
-  warningRed: professionalColors.warningRed[500],
+  warningRed: professionalColors.warningRed[600],
   machineryGray: professionalColors.machineryGray[500],
 
-  // Status colors
+  // Status colors - matching workOrderStatusColors from professional-colors.ts
   pending: professionalColors.maintenanceYellow[500],
-  inProgress: professionalColors.steelBlue[500],
+  in_progress: professionalColors.safetyOrange[500],
+  inProgress: professionalColors.safetyOrange[500],
   completed: professionalColors.industrialGreen[500],
-  onHold: professionalColors.safetyOrange[500],
+  on_hold: professionalColors.maintenanceYellow[500],
+  onHold: professionalColors.maintenanceYellow[500],
+  open: professionalColors.steelBlue[600],
+  ready: professionalColors.machineryGray[500],
 
-  // Priority colors
+  // Priority colors - matching priorityColors from professional-colors.ts
   urgent: professionalColors.warningRed[600],
+  critical: professionalColors.warningRed[600],
   high: professionalColors.safetyOrange[600],
   medium: professionalColors.maintenanceYellow[600],
   low: professionalColors.machineryGray[500],
@@ -458,70 +463,70 @@ const OverviewReport: React.FC<{
   }, [workOrders]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Key Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Work Orders</span>
-            <div className="p-2 bg-primary-50 dark:bg-primary-900/30 rounded-lg">
-              <HugeiconsIcon icon={ClipboardIcon} size={20} className="text-primary-600 dark:text-primary-400" />
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Total Work Orders</span>
+            <div className="p-1 bg-primary-50 dark:bg-primary-900/30 rounded">
+              <HugeiconsIcon icon={ClipboardIcon} size={14} className="text-primary-600 dark:text-primary-400" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <div className="text-xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</div>
+          <div className="text-[10px] text-gray-400 dark:text-gray-500">
             {dayjs(startDate).format('MMM D')} - {dayjs(endDate).format('MMM D, YYYY')}
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Completion Rate</span>
-            <div className="p-2 bg-green-50 dark:bg-green-900/30 rounded-lg">
-              <HugeiconsIcon icon={CheckmarkCircle01Icon} size={20} className="text-green-600 dark:text-green-400" />
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Completion Rate</span>
+            <div className="p-1 bg-green-50 dark:bg-green-900/30 rounded">
+              <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} className="text-green-600 dark:text-green-400" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.completionRate}%</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <div className="text-xl font-bold text-gray-900 dark:text-gray-100">{stats.completionRate}%</div>
+          <div className="text-[10px] text-gray-400 dark:text-gray-500">
             {stats.completed} of {stats.total} completed
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Revenue</span>
-            <div className="p-2 bg-green-50 dark:bg-green-900/30 rounded-lg">
-              <HugeiconsIcon icon={CoinsDollarIcon} size={20} className="text-green-600 dark:text-green-400" />
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Total Revenue</span>
+            <div className="p-1 bg-green-50 dark:bg-green-900/30 rounded">
+              <HugeiconsIcon icon={CoinsDollarIcon} size={14} className="text-green-600 dark:text-green-400" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+          <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
             UGX {(stats.totalCost / 1000000).toFixed(1)}M
           </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <div className="text-[10px] text-gray-400 dark:text-gray-500">
             Avg: UGX {(stats.avgCost / 1000).toFixed(0)}K
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Active Technicians</span>
-            <div className="p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
-              <HugeiconsIcon icon={Wrench01Icon} size={20} className="text-purple-600 dark:text-purple-400" />
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Active Technicians</span>
+            <div className="p-1 bg-purple-50 dark:bg-purple-900/30 rounded">
+              <HugeiconsIcon icon={Wrench01Icon} size={14} className="text-purple-600 dark:text-purple-400" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.activeTechnicians}</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          <div className="text-xl font-bold text-gray-900 dark:text-gray-100">{stats.activeTechnicians}</div>
+          <div className="text-[10px] text-gray-400 dark:text-gray-500">
             Managing {stats.totalVehicles} vehicles
           </div>
         </div>
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Status Distribution Pie Chart */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-            <HugeiconsIcon icon={Chart01Icon} size={20} className="text-primary-600 dark:text-primary-400" />
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+          <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-1.5">
+            <HugeiconsIcon icon={Chart01Icon} size={14} className="text-primary-600 dark:text-primary-400" />
             Status Distribution
           </h3>
           {statusChartData.some(item => item.value > 0) ? (
@@ -538,24 +543,27 @@ const OverviewReport: React.FC<{
                   valueFormatter: (value) => `${value.value}`,
                 },
               ]}
-              height={350}
+              height={220}
               slotProps={{
                 legend: {
                   direction: 'row',
                   position: { vertical: 'bottom', horizontal: 'middle' },
                   padding: 0,
+                  itemMarkWidth: 8,
+                  itemMarkHeight: 8,
+                  labelStyle: { fontSize: 10 },
                 },
               }}
             />
           ) : (
-            <div className="h-[350px] flex items-center justify-center text-gray-400">No data available</div>
+            <div className="h-[220px] flex items-center justify-center text-xs text-gray-400">No data available</div>
           )}
         </div>
 
         {/* Priority Distribution Pie Chart */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-            <HugeiconsIcon icon={ChartHistogramIcon} size={20} className="text-primary-600 dark:text-primary-400" />
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+          <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-1.5">
+            <HugeiconsIcon icon={ChartHistogramIcon} size={14} className="text-primary-600 dark:text-primary-400" />
             Priority Distribution
           </h3>
           {priorityChartData.length > 0 ? (
@@ -571,25 +579,28 @@ const OverviewReport: React.FC<{
                   highlightScope: { faded: 'global', highlighted: 'item' },
                 },
               ]}
-              height={350}
+              height={220}
               slotProps={{
                 legend: {
                   direction: 'row',
                   position: { vertical: 'bottom', horizontal: 'middle' },
                   padding: 0,
+                  itemMarkWidth: 8,
+                  itemMarkHeight: 8,
+                  labelStyle: { fontSize: 10 },
                 },
               }}
             />
           ) : (
-            <div className="h-[350px] flex items-center justify-center text-gray-400">No data available</div>
+            <div className="h-[220px] flex items-center justify-center text-xs text-gray-400">No data available</div>
           )}
         </div>
       </div>
 
       {/* Timeline Chart */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-          <HugeiconsIcon icon={ChartLineData01Icon} size={20} className="text-primary-600 dark:text-primary-400" />
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+        <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-1.5">
+          <HugeiconsIcon icon={ChartLineData01Icon} size={14} className="text-primary-600 dark:text-primary-400" />
           Work Orders Timeline
         </h3>
         {timelineData.length > 0 ? (
@@ -616,17 +627,20 @@ const OverviewReport: React.FC<{
                 showMark: false,
               },
             ]}
-            height={350}
+            height={220}
             slotProps={{
               legend: {
                 direction: 'row',
                 position: { vertical: 'bottom', horizontal: 'middle' },
                 padding: 0,
+                itemMarkWidth: 8,
+                itemMarkHeight: 8,
+                labelStyle: { fontSize: 10 },
               },
             }}
           />
         ) : (
-          <div className="h-[350px] flex items-center justify-center text-gray-400">No data available</div>
+          <div className="h-[220px] flex items-center justify-center text-xs text-gray-400">No data available</div>
         )}
       </div>
     </div>
@@ -669,11 +683,11 @@ const TechnicianPerformanceReport: React.FC<{
   }, [technicianStats]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Performance Comparison Chart */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6 mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-          <HugeiconsIcon icon={ChartHistogramIcon} size={20} className="text-primary-600 dark:text-primary-400" />
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+        <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-1.5">
+          <HugeiconsIcon icon={ChartHistogramIcon} size={14} className="text-primary-600 dark:text-primary-400" />
           Technician Performance Comparison
         </h3>
         {technicianChartData.length > 0 ? (
@@ -698,22 +712,25 @@ const TechnicianPerformanceReport: React.FC<{
                 stack: 'total',
               },
             ]}
-            height={400}
+            height={220}
             slotProps={{
               legend: {
                 direction: 'row',
                 position: { vertical: 'bottom', horizontal: 'middle' },
                 padding: 0,
+                itemMarkWidth: 8,
+                itemMarkHeight: 8,
+                labelStyle: { fontSize: 10 },
               },
             }}
           />
         ) : (
-          <div className="h-[400px] flex items-center justify-center text-gray-400">No data available</div>
+          <div className="h-[220px] flex items-center justify-center text-xs text-gray-400">No data available</div>
         )}
       </div>
 
       {/* Technician Performance Table */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -791,11 +808,13 @@ const WorkOrderAnalysisReport: React.FC<{
       const serviceType = wo.service_type || 'Unknown';
       byServiceType[serviceType] = (byServiceType[serviceType] || 0) + 1;
 
-      // Status
-      byStatus[wo.status] = (byStatus[wo.status] || 0) + 1;
+      // Status - normalize to lowercase with underscores
+      const normalizedStatus = wo.status?.toLowerCase().replace(/\s+/g, '_') || 'unknown';
+      byStatus[normalizedStatus] = (byStatus[normalizedStatus] || 0) + 1;
 
-      // Priority
-      byPriority[wo.priority] = (byPriority[wo.priority] || 0) + 1;
+      // Priority - normalize to lowercase
+      const normalizedPriority = wo.priority?.toLowerCase() || 'low';
+      byPriority[normalizedPriority] = (byPriority[normalizedPriority] || 0) + 1;
     });
 
     return { byServiceType, byStatus, byPriority };
@@ -815,25 +834,32 @@ const WorkOrderAnalysisReport: React.FC<{
   const statusChartData = useMemo(() => {
     const statusColors: Record<string, string> = {
       pending: CHART_COLORS.pending,
-      in_progress: CHART_COLORS.inProgress,
+      in_progress: CHART_COLORS.in_progress,
       completed: CHART_COLORS.completed,
-      on_hold: CHART_COLORS.onHold,
-      cancelled: CHART_COLORS.machineryGray,
+      on_hold: CHART_COLORS.on_hold,
+      cancelled: CHART_COLORS.warningRed,
+      open: CHART_COLORS.open,
+      ready: CHART_COLORS.ready,
     };
 
     return Object.entries(analysis.byStatus)
       .sort(([, a], [, b]) => b - a)
-      .map(([status, count]) => ({
-        name: status.replace('_', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
-        value: count,
-        color: statusColors[status] || CHART_COLORS.machineryGray,
-      }));
+      .map(([status, count]) => {
+        const statusLower = status.toLowerCase().replace(/\s+/g, '_');
+        const displayName = status.replace('_', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        return {
+          name: displayName,
+          value: count,
+          color: statusColors[statusLower] || CHART_COLORS.machineryGray,
+        };
+      });
   }, [analysis.byStatus]);
 
   // Priority chart data with proper colors
   const priorityChartData = useMemo(() => {
     const priorityColors: Record<string, string> = {
       urgent: CHART_COLORS.urgent,
+      critical: CHART_COLORS.critical,
       high: CHART_COLORS.high,
       medium: CHART_COLORS.medium,
       low: CHART_COLORS.low,
@@ -843,9 +869,9 @@ const WorkOrderAnalysisReport: React.FC<{
       .sort(([, a], [, b]) => b - a)
       .map(([priority, count]) => {
         const priorityLower = priority.toLowerCase();
-        const priorityKey = priority.charAt(0).toUpperCase() + priority.slice(1);
+        const displayName = priority.charAt(0).toUpperCase() + priority.slice(1);
         return {
-          name: priorityKey,
+          name: displayName,
           value: count,
           color: priorityColors[priorityLower] || CHART_COLORS.machineryGray,
         };
@@ -853,11 +879,11 @@ const WorkOrderAnalysisReport: React.FC<{
   }, [analysis.byPriority]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Service Type Bar Chart */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <HugeiconsIcon icon={ChartHistogramIcon} size={20} className="text-primary-600" />
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+        <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-1.5">
+          <HugeiconsIcon icon={ChartHistogramIcon} size={14} className="text-primary-600 dark:text-primary-400" />
           Work Orders by Service Type
         </h3>
         {serviceTypeChartData.length > 0 ? (
@@ -875,19 +901,29 @@ const WorkOrderAnalysisReport: React.FC<{
               },
             ]}
             layout="horizontal"
-            height={400}
+            height={220}
+            slotProps={{
+              legend: {
+                direction: 'row',
+                position: { vertical: 'bottom', horizontal: 'middle' },
+                padding: 0,
+                itemMarkWidth: 8,
+                itemMarkHeight: 8,
+                labelStyle: { fontSize: 10 },
+              },
+            }}
           />
         ) : (
-          <div className="h-[400px] flex items-center justify-center text-gray-400">No data available</div>
+          <div className="h-[220px] flex items-center justify-center text-xs text-gray-400">No data available</div>
         )}
       </div>
 
       {/* Status and Priority Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Status Distribution */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <HugeiconsIcon icon={Chart01Icon} size={20} className="text-primary-600" />
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+          <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-1.5">
+            <HugeiconsIcon icon={Chart01Icon} size={14} className="text-primary-600 dark:text-primary-400" />
             By Status
           </h3>
           {statusChartData.length > 0 ? (
@@ -903,24 +939,27 @@ const WorkOrderAnalysisReport: React.FC<{
                   highlightScope: { faded: 'global', highlighted: 'item' },
                 },
               ]}
-              height={350}
+              height={220}
               slotProps={{
                 legend: {
                   direction: 'row',
                   position: { vertical: 'bottom', horizontal: 'middle' },
                   padding: 0,
+                  itemMarkWidth: 8,
+                  itemMarkHeight: 8,
+                  labelStyle: { fontSize: 10 },
                 },
               }}
             />
           ) : (
-            <div className="h-[350px] flex items-center justify-center text-gray-400">No data available</div>
+            <div className="h-[220px] flex items-center justify-center text-xs text-gray-400">No data available</div>
           )}
         </div>
 
         {/* Priority Distribution */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <HugeiconsIcon icon={FlagIcon} size={20} className="text-primary-600" />
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+          <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-1.5">
+            <HugeiconsIcon icon={FlagIcon} size={14} className="text-primary-600 dark:text-primary-400" />
             By Priority
           </h3>
           {priorityChartData.length > 0 ? (
@@ -936,17 +975,20 @@ const WorkOrderAnalysisReport: React.FC<{
                   highlightScope: { faded: 'global', highlighted: 'item' },
                 },
               ]}
-              height={350}
+              height={220}
               slotProps={{
                 legend: {
                   direction: 'row',
                   position: { vertical: 'bottom', horizontal: 'middle' },
                   padding: 0,
+                  itemMarkWidth: 8,
+                  itemMarkHeight: 8,
+                  labelStyle: { fontSize: 10 },
                 },
               }}
             />
           ) : (
-            <div className="h-[350px] flex items-center justify-center text-gray-400">No data available</div>
+            <div className="h-[220px] flex items-center justify-center text-xs text-gray-400">No data available</div>
           )}
         </div>
       </div>
@@ -982,11 +1024,11 @@ const AssetReport: React.FC<{
   }, [vehicleStats]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Top Vehicles Chart */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <HugeiconsIcon icon={ChartHistogramIcon} size={20} className="text-primary-600" />
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+        <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-1.5">
+          <HugeiconsIcon icon={ChartHistogramIcon} size={14} className="text-primary-600 dark:text-primary-400" />
           Top 10 Vehicles by Service Frequency
         </h3>
         {top10VehiclesChartData.length > 0 ? (
@@ -1005,18 +1047,28 @@ const AssetReport: React.FC<{
               },
             ]}
             layout="horizontal"
-            height={450}
+            height={250}
+            slotProps={{
+              legend: {
+                direction: 'row',
+                position: { vertical: 'bottom', horizontal: 'middle' },
+                padding: 0,
+                itemMarkWidth: 8,
+                itemMarkHeight: 8,
+                labelStyle: { fontSize: 10 },
+              },
+            }}
           />
         ) : (
-          <div className="h-[450px] flex items-center justify-center text-gray-400">No data available</div>
+          <div className="h-[250px] flex items-center justify-center text-xs text-gray-400">No data available</div>
         )}
       </div>
 
       {/* Detailed Table */}
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-        <div className="px-4 py-2 bg-gray-50 border-b border-gray-200">
-          <h3 className="text-xs font-semibold text-gray-700 uppercase tracking-wide flex items-center gap-2">
-            <HugeiconsIcon icon={TableIcon} size={16} className="text-primary-600" />
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md overflow-hidden">
+        <div className="px-3 py-1.5 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-[10px] font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide flex items-center gap-1.5">
+            <HugeiconsIcon icon={TableIcon} size={12} className="text-primary-600 dark:text-primary-400" />
             All Vehicles Service History
           </h3>
         </div>
@@ -1066,7 +1118,7 @@ const AssetReport: React.FC<{
           </table>
         </div>
         {vehicleStats.length > 20 && (
-          <div className="px-4 py-2 bg-gray-50 border-t border-gray-200 text-center text-xs text-gray-500">
+          <div className="px-3 py-1.5 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 text-center text-[10px] text-gray-500 dark:text-gray-400">
             Showing top 20 of {vehicleStats.length} vehicles
           </div>
         )}
@@ -1115,52 +1167,52 @@ const FinancialReport: React.FC<{
   ], [financialStats]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Revenue Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-600">Total Revenue</span>
-            <div className="p-2 bg-gray-50 rounded-lg">
-              <HugeiconsIcon icon={CoinsDollarIcon} size={20} className="text-gray-600" />
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Total Revenue</span>
+            <div className="p-1 bg-gray-50 dark:bg-gray-800 rounded">
+              <HugeiconsIcon icon={CoinsDollarIcon} size={14} className="text-gray-600 dark:text-gray-400" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900">
+          <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
             UGX {(financialStats.totalRevenue / 1000000).toFixed(1)}M
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-600">Completed Revenue</span>
-            <div className="p-2 bg-green-50 rounded-lg">
-              <HugeiconsIcon icon={CheckmarkCircle01Icon} size={20} className="text-green-600" />
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Completed Revenue</span>
+            <div className="p-1 bg-green-50 dark:bg-green-900/30 rounded">
+              <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} className="text-green-600 dark:text-green-400" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-green-600">
+          <div className="text-xl font-bold text-green-600 dark:text-green-400">
             UGX {(financialStats.completedRevenue / 1000000).toFixed(1)}M
           </div>
         </div>
 
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-600">Pending Revenue</span>
-            <div className="p-2 bg-yellow-50 rounded-lg">
-              <HugeiconsIcon icon={Clock01Icon} size={20} className="text-yellow-600" />
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Pending Revenue</span>
+            <div className="p-1 bg-yellow-50 dark:bg-yellow-900/30 rounded">
+              <HugeiconsIcon icon={Clock01Icon} size={14} className="text-yellow-600 dark:text-yellow-400" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-yellow-600">
+          <div className="text-xl font-bold text-yellow-600 dark:text-yellow-400">
             UGX {(financialStats.pendingRevenue / 1000000).toFixed(1)}M
           </div>
         </div>
       </div>
 
       {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Revenue Breakdown Pie Chart */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <HugeiconsIcon icon={Chart01Icon} size={20} className="text-primary-600" />
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+          <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-1.5">
+            <HugeiconsIcon icon={Chart01Icon} size={14} className="text-primary-600 dark:text-primary-400" />
             Revenue by Status
           </h3>
           {revenueBreakdownData.some(item => item.value > 0) ? (
@@ -1177,24 +1229,27 @@ const FinancialReport: React.FC<{
                   valueFormatter: (value) => `UGX ${(value.value / 1000000).toFixed(2)}M`,
                 },
               ]}
-              height={350}
+              height={220}
               slotProps={{
                 legend: {
                   direction: 'row',
                   position: { vertical: 'bottom', horizontal: 'middle' },
                   padding: 0,
+                  itemMarkWidth: 8,
+                  itemMarkHeight: 8,
+                  labelStyle: { fontSize: 10 },
                 },
               }}
             />
           ) : (
-            <div className="h-[350px] flex items-center justify-center text-gray-400">No data available</div>
+            <div className="h-[220px] flex items-center justify-center text-xs text-gray-400">No data available</div>
           )}
         </div>
 
         {/* Cost Breakdown Pie Chart */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-            <HugeiconsIcon icon={Chart01Icon} size={20} className="text-primary-600" />
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+          <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-1.5">
+            <HugeiconsIcon icon={Chart01Icon} size={14} className="text-primary-600 dark:text-primary-400" />
             Cost Breakdown
           </h3>
           {costBreakdownData.some(item => item.value > 0) ? (
@@ -1211,25 +1266,28 @@ const FinancialReport: React.FC<{
                   valueFormatter: (value) => `UGX ${(value.value / 1000000).toFixed(2)}M`,
                 },
               ]}
-              height={350}
+              height={220}
               slotProps={{
                 legend: {
                   direction: 'row',
                   position: { vertical: 'bottom', horizontal: 'middle' },
                   padding: 0,
+                  itemMarkWidth: 8,
+                  itemMarkHeight: 8,
+                  labelStyle: { fontSize: 10 },
                 },
               }}
             />
           ) : (
-            <div className="h-[350px] flex items-center justify-center text-gray-400">No data available</div>
+            <div className="h-[220px] flex items-center justify-center text-xs text-gray-400">No data available</div>
           )}
         </div>
       </div>
 
       {/* Detailed Breakdown */}
-      <div className="bg-white border border-gray-200 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-          <HugeiconsIcon icon={ReceiptDollarIcon} size={20} className="text-primary-600" />
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+        <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-1.5">
+          <HugeiconsIcon icon={ReceiptDollarIcon} size={14} className="text-primary-600 dark:text-primary-400" />
           Detailed Cost Analysis
         </h3>
         {financialStats.totalRevenue > 0 ? (
@@ -1251,45 +1309,48 @@ const FinancialReport: React.FC<{
                 color: CHART_COLORS.steelBlue,
               },
             ]}
-            height={300}
+            height={180}
             slotProps={{
               legend: {
                 direction: 'row',
                 position: { vertical: 'bottom', horizontal: 'middle' },
                 padding: 0,
+                itemMarkWidth: 8,
+                itemMarkHeight: 8,
+                labelStyle: { fontSize: 10 },
               },
             }}
           />
         ) : (
-          <div className="h-[300px] flex items-center justify-center text-gray-400">No data available</div>
+          <div className="h-[180px] flex items-center justify-center text-xs text-gray-400">No data available</div>
         )}
         
-        <div className="mt-6 pt-4 border-t border-gray-200">
-          <div className="grid grid-cols-3 gap-4">
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-xs text-gray-600 mb-1">Labor Costs</p>
-              <p className="text-lg font-bold text-gray-900">
+        <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+          <div className="grid grid-cols-3 gap-3">
+            <div className="text-center p-2 bg-gray-50 dark:bg-gray-800 rounded">
+              <p className="text-[10px] text-gray-600 dark:text-gray-400 mb-0.5">Labor Costs</p>
+              <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
                 UGX {(financialStats.totalLabor / 1000000).toFixed(2)}M
               </p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-[10px] text-gray-500 dark:text-gray-400">
                 {((financialStats.totalLabor / financialStats.totalRevenue) * 100).toFixed(1)}%
               </p>
             </div>
-            <div className="text-center p-4 bg-gray-50 rounded-lg">
-              <p className="text-xs text-gray-600 mb-1">Parts Costs</p>
-              <p className="text-lg font-bold text-gray-900">
+            <div className="text-center p-2 bg-gray-50 dark:bg-gray-800 rounded">
+              <p className="text-[10px] text-gray-600 dark:text-gray-400 mb-0.5">Parts Costs</p>
+              <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
                 UGX {(financialStats.totalParts / 1000000).toFixed(2)}M
               </p>
-              <p className="text-xs text-gray-500 mt-1">
+              <p className="text-[10px] text-gray-500 dark:text-gray-400">
                 {((financialStats.totalParts / financialStats.totalRevenue) * 100).toFixed(1)}%
               </p>
             </div>
-            <div className="text-center p-4 bg-primary-50 rounded-lg">
-              <p className="text-xs text-gray-600 mb-1">Avg Order Value</p>
-              <p className="text-lg font-bold text-primary-700">
+            <div className="text-center p-2 bg-primary-50 dark:bg-primary-900/30 rounded">
+              <p className="text-[10px] text-gray-600 dark:text-gray-400 mb-0.5">Avg Order Value</p>
+              <p className="text-sm font-bold text-primary-700 dark:text-primary-400">
                 UGX {(financialStats.avgOrderValue / 1000).toFixed(0)}K
               </p>
-              <p className="text-xs text-gray-500 mt-1">Per work order</p>
+              <p className="text-[10px] text-gray-500 dark:text-gray-400">Per work order</p>
             </div>
           </div>
         </div>
@@ -1342,63 +1403,63 @@ const FleetOverviewReport: React.FC<{
   }, [stats]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Metrics Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {/* Total Fleet */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Total Fleet Size</span>
-            <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-              <HugeiconsIcon icon={TruckIcon} size={20} className="text-blue-600 dark:text-blue-400" />
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Total Fleet Size</span>
+            <div className="p-1 bg-blue-50 dark:bg-blue-900/30 rounded">
+              <HugeiconsIcon icon={TruckIcon} size={14} className="text-blue-600 dark:text-blue-400" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</div>
+          <div className="text-xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</div>
         </div>
 
         {/* Availability Rate */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Availability Rate</span>
-            <div className="p-2 bg-green-50 dark:bg-green-900/30 rounded-lg">
-              <HugeiconsIcon icon={Activity01Icon} size={20} className="text-green-600 dark:text-green-400" />
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Availability Rate</span>
+            <div className="p-1 bg-green-50 dark:bg-green-900/30 rounded">
+              <HugeiconsIcon icon={Activity01Icon} size={14} className="text-green-600 dark:text-green-400" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.availabilityRate}%</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{stats.active} vehicles available</div>
+          <div className="text-xl font-bold text-gray-900 dark:text-gray-100">{stats.availabilityRate}%</div>
+          <div className="text-[10px] text-gray-400 dark:text-gray-500">{stats.active} vehicles available</div>
         </div>
 
         {/* In Maintenance */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">In Maintenance</span>
-            <div className="p-2 bg-yellow-50 dark:bg-yellow-900/30 rounded-lg">
-              <HugeiconsIcon icon={Wrench01Icon} size={20} className="text-yellow-600 dark:text-yellow-400" />
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">In Maintenance</span>
+            <div className="p-1 bg-yellow-50 dark:bg-yellow-900/30 rounded">
+              <HugeiconsIcon icon={Wrench01Icon} size={14} className="text-yellow-600 dark:text-yellow-400" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.maintenance}</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1"> Currently being serviced</div>
+          <div className="text-xl font-bold text-gray-900 dark:text-gray-100">{stats.maintenance}</div>
+          <div className="text-[10px] text-gray-400 dark:text-gray-500">Currently being serviced</div>
         </div>
 
         {/* Average Age */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">Average Age</span>
-            <div className="p-2 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <HugeiconsIcon icon={CalendarCheckIn01Icon} size={20} className="text-gray-600 dark:text-gray-400" />
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Average Age</span>
+            <div className="p-1 bg-gray-50 dark:bg-gray-800 rounded">
+              <HugeiconsIcon icon={CalendarCheckIn01Icon} size={14} className="text-gray-600 dark:text-gray-400" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 dark:text-gray-100">{stats.avgAge}</div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Years</div>
+          <div className="text-xl font-bold text-gray-900 dark:text-gray-100">{stats.avgAge}</div>
+          <div className="text-[10px] text-gray-400 dark:text-gray-500">Years</div>
         </div>
       </div>
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
         {/* Status Distribution */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-            <HugeiconsIcon icon={Chart01Icon} size={20} className="text-primary-600 dark:text-primary-400" />
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+          <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2 flex items-center gap-1.5">
+            <HugeiconsIcon icon={Chart01Icon} size={14} className="text-primary-600 dark:text-primary-400" />
             Fleet Status Distribution
           </h3>
           {statusData.some(item => item.value > 0) ? (
@@ -1414,17 +1475,20 @@ const FleetOverviewReport: React.FC<{
                   highlightScope: { faded: 'global', highlighted: 'item' },
                 },
               ]}
-              height={300}
+              height={220}
               slotProps={{
                 legend: {
                   direction: 'row',
                   position: { vertical: 'bottom', horizontal: 'middle' },
                   padding: 0,
+                  itemMarkWidth: 8,
+                  itemMarkHeight: 8,
+                  labelStyle: { fontSize: 10 },
                 },
               }}
             />
           ) : (
-            <div className="h-[300px] flex items-center justify-center text-gray-400">No data available</div>
+            <div className="h-[220px] flex items-center justify-center text-xs text-gray-400">No data available</div>
           )}
         </div>
       </div>

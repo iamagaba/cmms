@@ -19,6 +19,8 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { useSession } from "@/context/SessionContext";
 import { useRealtimeData } from "@/context/RealtimeDataContext";
 import { showSuccess, showError } from "@/utils/toast";
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 // Components
 import AppBreadcrumb from "@/components/Breadcrumbs";
@@ -43,6 +45,8 @@ dayjs.extend(isBetween);
 // ============================================
 
 const ImprovedDashboard = () => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();

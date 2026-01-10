@@ -14,65 +14,68 @@ export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
     className?: string;
 }
 
+// Industrial sizing - more compact with uppercase
 const sizeMap = {
-    xs: 'px-1.5 py-0.5 text-xs',
-    sm: 'px-2 py-0.5 text-xs',
-    md: 'px-2.5 py-0.5 text-sm',
-    lg: 'px-3 py-1 text-sm',
-    xl: 'px-4 py-1 text-base',
+    xs: 'px-1.5 py-0.5 text-[9px]',
+    sm: 'px-2 py-0.5 text-[10px]',
+    md: 'px-2.5 py-0.5 text-[11px]',
+    lg: 'px-3 py-1 text-xs',
+    xl: 'px-4 py-1 text-sm',
 };
 
+// Industrial radius - sharper corners
 const radiusMap = {
-    xs: 'rounded-sm',
-    sm: 'rounded',
-    md: 'rounded-md',
-    lg: 'rounded-lg',
-    xl: 'rounded-xl',
+    xs: 'rounded-none',
+    sm: 'rounded-sm',
+    md: 'rounded',
+    lg: 'rounded',
+    xl: 'rounded-md',
     full: 'rounded-full',
 };
 
+// Industrial color variants - with borders for definition
 const variantMap = {
     filled: {
-        primary: 'bg-primary-500 text-white',
-        gray: 'bg-gray-500 text-white',
-        red: 'bg-red-500 text-white',
-        green: 'bg-green-500 text-white',
-        blue: 'bg-blue-500 text-white',
-        yellow: 'bg-yellow-500 text-white',
-        orange: 'bg-orange-500 text-white',
+        primary: 'bg-purple-600 text-white border border-purple-700',
+        gray: 'bg-slate-500 text-white border border-slate-600',
+        red: 'bg-red-600 text-white border border-red-700',
+        green: 'bg-green-600 text-white border border-green-700',
+        blue: 'bg-blue-600 text-white border border-blue-700',
+        yellow: 'bg-amber-500 text-white border border-amber-600',
+        orange: 'bg-orange-500 text-white border border-orange-600',
     },
     light: {
-        primary: 'bg-primary-100 text-primary-700',
-        gray: 'bg-gray-100 text-gray-700',
-        red: 'bg-red-100 text-red-700',
-        green: 'bg-green-100 text-green-700',
-        blue: 'bg-blue-100 text-blue-700',
-        yellow: 'bg-yellow-100 text-yellow-700',
-        orange: 'bg-orange-100 text-orange-700',
+        primary: 'bg-purple-50 text-purple-700 border border-purple-300',
+        gray: 'bg-slate-50 text-slate-700 border border-slate-300',
+        red: 'bg-red-50 text-red-700 border border-red-300',
+        green: 'bg-green-50 text-green-700 border border-green-300',
+        blue: 'bg-blue-50 text-blue-700 border border-blue-300',
+        yellow: 'bg-amber-50 text-amber-700 border border-amber-300',
+        orange: 'bg-orange-50 text-orange-700 border border-orange-300',
     },
     outline: {
-        primary: 'border border-primary-500 text-primary-500',
-        gray: 'border border-gray-500 text-gray-500',
-        red: 'border border-red-500 text-red-500',
-        green: 'border border-green-500 text-green-500',
-        blue: 'border border-blue-500 text-blue-500',
-        yellow: 'border border-yellow-500 text-yellow-500',
-        orange: 'border border-orange-500 text-orange-500',
+        primary: 'border-2 border-purple-500 text-purple-600 bg-transparent',
+        gray: 'border-2 border-slate-400 text-slate-600 bg-transparent',
+        red: 'border-2 border-red-500 text-red-600 bg-transparent',
+        green: 'border-2 border-green-500 text-green-600 bg-transparent',
+        blue: 'border-2 border-blue-500 text-blue-600 bg-transparent',
+        yellow: 'border-2 border-amber-500 text-amber-600 bg-transparent',
+        orange: 'border-2 border-orange-500 text-orange-600 bg-transparent',
     },
     dot: {
-        primary: 'bg-primary-100 text-primary-700',
-        gray: 'bg-gray-100 text-gray-700',
-        red: 'bg-red-100 text-red-700',
-        green: 'bg-green-100 text-green-700',
-        blue: 'bg-blue-100 text-blue-700',
-        yellow: 'bg-yellow-100 text-yellow-700',
-        orange: 'bg-orange-100 text-orange-700',
+        primary: 'bg-purple-50 text-purple-700 border border-purple-200',
+        gray: 'bg-slate-50 text-slate-700 border border-slate-200',
+        red: 'bg-red-50 text-red-700 border border-red-200',
+        green: 'bg-green-50 text-green-700 border border-green-200',
+        blue: 'bg-blue-50 text-blue-700 border border-blue-200',
+        yellow: 'bg-amber-50 text-amber-700 border border-amber-200',
+        orange: 'bg-orange-50 text-orange-700 border border-orange-200',
     },
 };
 
 /**
- * Badge component - small label for status or category
- * Replaces Mantine Badge
+ * Badge component - Industrial style small label for status or category
+ * Features: uppercase text, sharper corners, defined borders
  */
 export function Badge({
     variant = 'light',
@@ -86,7 +89,7 @@ export function Badge({
     return (
         <span
             className={cn(
-                'inline-flex items-center font-medium',
+                'inline-flex items-center font-bold uppercase tracking-wide',
                 sizeMap[size],
                 radiusMap[radius],
                 variantMap[variant][color],

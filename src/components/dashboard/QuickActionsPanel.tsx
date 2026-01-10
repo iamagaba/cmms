@@ -18,6 +18,8 @@ import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import ProfessionalCard from '@/components/ui/ProfessionalCard';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 // ============================================
 // INTERFACES
@@ -136,6 +138,8 @@ const QuickActionsPanel: React.FC<QuickActionsPanelProps> = ({
   className,
   actions 
 }) => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const defaultActions = useDefaultActions();
   const quickActions = actions || defaultActions;
 

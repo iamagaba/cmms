@@ -51,40 +51,40 @@ export const WorkOrderRelatedHistoryCard: React.FC<WorkOrderRelatedHistoryCardPr
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+    <div className="bg-white border border-gray-200 rounded overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <HugeiconsIcon icon={Clock02Icon} size={16} className="text-gray-500" />
-          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wide">History</h3>
+      <div className="px-3 py-2 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <HugeiconsIcon icon={Clock02Icon} size={14} className="text-gray-500" />
+          <h3 className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">History</h3>
           {vehicleHistory && vehicleHistory.length > 0 && (
-            <span className="bg-gray-200 text-gray-600 text-[10px] px-1.5 py-0.5 rounded-full font-medium">
+            <span className="bg-gray-200 text-gray-600 text-[10px] px-1 py-0.5 rounded-full font-medium">
               {vehicleHistory.length}
             </span>
           )}
         </div>
         {vehicle && (
-          <span className="text-xs text-gray-500 font-medium">{vehicle.license_plate}</span>
+          <span className="text-[10px] text-gray-500 font-medium">{vehicle.license_plate}</span>
         )}
       </div>
 
       {/* Content */}
       {isLoading ? (
-        <div className="p-4 space-y-2">
+        <div className="p-3 space-y-1.5">
           {[1, 2, 3].map(i => (
-            <div key={i} className="h-10 bg-gray-100 rounded animate-pulse" />
+            <div key={i} className="h-8 bg-gray-100 rounded animate-pulse" />
           ))}
         </div>
       ) : vehicleHistory && vehicleHistory.length > 0 ? (
         <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead className="text-xs text-gray-500 uppercase bg-gray-50/50 border-b border-gray-200">
+          <table className="w-full text-xs text-left">
+            <thead className="text-[10px] text-gray-500 uppercase bg-gray-50/50 border-b border-gray-200">
               <tr>
-                <th className="px-4 py-2.5 font-medium">Work Order</th>
-                <th className="px-4 py-2.5 font-medium">Summary</th>
-                <th className="px-4 py-2.5 font-medium">Status</th>
-                <th className="px-4 py-2.5 font-medium text-right">Created</th>
-                <th className="px-4 py-2.5 font-medium text-right">Priority</th>
+                <th className="px-3 py-1.5 font-medium">Work Order</th>
+                <th className="px-3 py-1.5 font-medium">Summary</th>
+                <th className="px-3 py-1.5 font-medium">Status</th>
+                <th className="px-3 py-1.5 font-medium text-right">Created</th>
+                <th className="px-3 py-1.5 font-medium text-right">Priority</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -98,24 +98,24 @@ export const WorkOrderRelatedHistoryCard: React.FC<WorkOrderRelatedHistoryCardPr
                     onClick={() => onViewWorkOrder?.(wo.id)}
                     className="hover:bg-primary-50/30 transition-colors cursor-pointer group"
                   >
-                    <td className="px-4 py-2.5 font-medium text-gray-900 whitespace-nowrap">
+                    <td className="px-3 py-1.5 font-medium text-gray-900 whitespace-nowrap">
                       {wo.workOrderNumber || `WO-${wo.id.substring(0, 6).toUpperCase()}`}
                     </td>
-                    <td className="px-4 py-2.5 text-gray-600 max-w-[180px] truncate">
+                    <td className="px-3 py-1.5 text-gray-600 max-w-[160px] truncate">
                       {description || 'General Service'}
                     </td>
-                    <td className="px-4 py-2.5">
-                      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-xs font-medium border ${statusConfig.bg} ${statusConfig.text} border-current/20`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot}`} />
+                    <td className="px-3 py-1.5">
+                      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border ${statusConfig.bg} ${statusConfig.text} border-current/20`}>
+                        <span className={`w-1 h-1 rounded-full ${statusConfig.dot}`} />
                         {wo.status}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5 text-right text-gray-500 whitespace-nowrap">
+                    <td className="px-3 py-1.5 text-right text-gray-500 whitespace-nowrap">
                       {wo.created_at ? dayjs(wo.created_at).fromNow() : 'Unknown'}
                     </td>
-                    <td className="px-4 py-2.5 text-right">
+                    <td className="px-3 py-1.5 text-right">
                       {wo.priority && (
-                        <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium border ${wo.priority === 'Critical' ? 'bg-red-50 text-red-700 border-red-200' :
+                        <span className={`inline-block px-1 py-0.5 rounded text-[10px] font-medium border ${wo.priority === 'Critical' ? 'bg-red-50 text-red-700 border-red-200' :
                             wo.priority === 'High' ? 'bg-orange-50 text-orange-700 border-orange-200' :
                               wo.priority === 'Medium' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
                                 'bg-gray-50 text-gray-600 border-gray-200'
@@ -131,12 +131,12 @@ export const WorkOrderRelatedHistoryCard: React.FC<WorkOrderRelatedHistoryCardPr
           </table>
         </div>
       ) : (
-        <div className="text-center py-8">
-          <div className="mx-auto w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center mb-2">
-            <HugeiconsIcon icon={Clock01Icon} size={20} className="text-gray-400" />
+        <div className="text-center py-6">
+          <div className="mx-auto w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mb-1.5">
+            <HugeiconsIcon icon={Clock01Icon} size={16} className="text-gray-400" />
           </div>
-          <p className="text-sm font-medium text-gray-900 mb-0.5">No previous work orders</p>
-          <p className="text-xs text-gray-500">This vehicle has no service history</p>
+          <p className="text-xs font-medium text-gray-900 mb-0.5">No previous work orders</p>
+          <p className="text-[10px] text-gray-500">This vehicle has no service history</p>
         </div>
       )}
     </div>

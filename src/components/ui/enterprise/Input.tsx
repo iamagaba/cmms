@@ -36,8 +36,10 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
         <input
           ref={ref}
           className={cn(
-            // Base styles - Enterprise standard
-            'h-9 w-full rounded-md border border-gray-200 bg-white text-sm shadow-sm transition-colors',
+            // Base styles - Enterprise standard with density support
+            'w-full rounded-md border border-gray-200 bg-white text-sm shadow-sm transition-colors',
+            // Height - density-aware using CSS variable
+            '[height:var(--density-input-height)]',
             // Padding - adjust for icons
             leftIcon ? 'pl-8 pr-3' : rightIcon ? 'pl-3 pr-8' : 'px-3',
             'py-1.5',

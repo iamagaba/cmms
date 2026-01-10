@@ -46,13 +46,13 @@ export const DiagnosticStep: React.FC<DiagnosticStepProps> = ({
         <Card p="lg" shadow="sm">
           <Stack gap="md">
             {/* Diagnostic Summary */}
-            <div className="flex items-start gap-3">
-              <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <HugeiconsIcon icon={CheckmarkCircle01Icon} className="text-green-600" size={20} />
+            <div className="flex items-start gap-2">
+              <div className="w-7 h-7 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
+                <HugeiconsIcon icon={CheckmarkCircle01Icon} className="text-green-600" size={14} />
               </div>
               <div className="flex-1">
-                <h4 className="font-semibold text-gray-900 mb-1">Diagnostic Complete</h4>
-                <p className="text-sm text-gray-600">
+                <h4 className="font-semibold text-xs text-gray-900 mb-0.5">Diagnostic Complete</h4>
+                <p className="text-[10px] text-gray-600">
                   Category: <span className="font-medium">{data.diagnosticSession.finalCategory}</span>
                   {data.diagnosticSession.finalSubcategory && (
                     <> • Subcategory: <span className="font-medium">{data.diagnosticSession.finalSubcategory}</span></>
@@ -63,22 +63,22 @@ export const DiagnosticStep: React.FC<DiagnosticStepProps> = ({
 
             {/* Solution Status */}
             {data.diagnosticSession.solutionFound && (
-              <div className={`p-3 rounded-lg ${data.diagnosticSession.solutionSuccessful
+              <div className={`p-2 rounded-lg ${data.diagnosticSession.solutionSuccessful
                 ? 'bg-green-50 border border-green-200'
                 : 'bg-yellow-50 border border-yellow-200'
                 }`}>
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-1.5 mb-0.5">
                   <HugeiconsIcon
                     icon={data.diagnosticSession.solutionSuccessful ? CheckmarkCircle01Icon : AlertCircleIcon}
                     className={data.diagnosticSession.solutionSuccessful ? 'text-green-600' : 'text-yellow-600'}
-                    size={16}
+                    size={12}
                   />
-                  <span className={`text-sm font-medium ${data.diagnosticSession.solutionSuccessful ? 'text-green-900' : 'text-yellow-900'
+                  <span className={`text-xs font-medium ${data.diagnosticSession.solutionSuccessful ? 'text-green-900' : 'text-yellow-900'
                     }`}>
                     Solution {data.diagnosticSession.solutionSuccessful ? 'Successful' : 'Attempted'}
                   </span>
                 </div>
-                <p className={`text-xs ${data.diagnosticSession.solutionSuccessful ? 'text-green-700' : 'text-yellow-700'
+                <p className={`text-[10px] ${data.diagnosticSession.solutionSuccessful ? 'text-green-700' : 'text-yellow-700'
                   }`}>
                   {data.diagnosticSession.solutionText}
                 </p>
@@ -87,9 +87,9 @@ export const DiagnosticStep: React.FC<DiagnosticStepProps> = ({
 
             {/* Issue Summary */}
             <div>
-              <h5 className="text-sm font-medium text-gray-700 mb-2">Issue Description:</h5>
-              <div className="bg-gray-50 rounded-lg p-3">
-                <ul className="text-sm text-gray-700 space-y-1 list-disc list-inside">
+              <h5 className="text-xs font-medium text-gray-700 mb-1">Issue Description:</h5>
+              <div className="bg-gray-50 rounded-lg p-2">
+                <ul className="text-[10px] text-gray-700 space-y-0.5 list-disc list-inside">
                   {data.diagnosticSession.summary.split('\n').filter(line => line.trim()).map((line, idx) => (
                     <li key={idx} className="leading-relaxed">{line.trim()}</li>
                   ))}
@@ -100,9 +100,9 @@ export const DiagnosticStep: React.FC<DiagnosticStepProps> = ({
             {/* Edit Button */}
             <Button
               variant="outline"
-              size="sm"
+              size="xs"
               onClick={handleEditDiagnostic}
-              leftSection={<HugeiconsIcon icon={PencilEdit02Icon} size={16} />}
+              leftSection={<HugeiconsIcon icon={PencilEdit02Icon} size={12} />}
             >
               Edit Diagnostic
             </Button>
@@ -110,9 +110,9 @@ export const DiagnosticStep: React.FC<DiagnosticStepProps> = ({
         </Card>
       ) : (
         <Card p="lg" className="text-center">
-          <HugeiconsIcon icon={NoteIcon} className="text-gray-400 mx-auto mb-3" size={48} />
-          <p className="text-gray-600 mb-4">No diagnostic completed yet</p>
-          <Button onClick={() => setShowDiagnostic(true)}>
+          <HugeiconsIcon icon={NoteIcon} className="text-gray-400 mx-auto mb-2" size={32} />
+          <p className="text-xs text-gray-600 mb-2">No diagnostic completed yet</p>
+          <Button onClick={() => setShowDiagnostic(true)} size="xs">
             Start Diagnostic
           </Button>
         </Card>

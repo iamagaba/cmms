@@ -138,6 +138,8 @@ const DEFAULT_LAYOUTS = {
 };
 
 export default function TVDashboard() {
+    const spacing = useDensitySpacing();
+    const { isCompact } = useDensity();
     const { session } = useSession();
     const [lastUpdated, setLastUpdated] = useState(new Date());
     const [viewMode, setViewMode] = useState<'view' | 'edit'>('view');

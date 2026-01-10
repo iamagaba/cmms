@@ -43,6 +43,7 @@ import { WorkOrderDetailsDrawer } from "@/components/WorkOrderDetailsDrawer";
 import { CreateWorkOrderForm } from "@/components/work-orders/CreateWorkOrderForm";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
 import { useDensity } from "@/context/DensityContext";
+import { useDensitySpacing } from "@/hooks/useDensitySpacing";
 
 // Utility functions
 import ErrorBoundary from "@/components/ErrorBoundary";
@@ -59,6 +60,8 @@ import { useNotifications } from '@/hooks/useNotifications';
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { WorkOrder } from "@/types/supabase";
 import { WorkOrdersMap } from "@/components/maps/WorkOrdersMap";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 
 // Fix import if file exists, otherwise comment out or remove if verified unused
 // import WorkOrderProgressTimeline from "@/components/WorkOrderProgressTimeline";
@@ -87,12 +90,13 @@ const WorkOrdersPage = () => {
   // Component state
   const [view, setView] = useState<WorkOrderView>('table');
   const isMobile = useMediaQuery('(max-width: 768px)');
+  const { isCompact } = useDensity();
+  const spacing = useDensitySpacing();
 
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
   const [editingWorkOrder, setEditingWorkOrder] = useState<WorkOrder | null>(null);
   const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const { isCompact } = useDensity();
 
   // Delete Dialog State
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -183,6 +187,19 @@ const WorkOrdersPage = () => {
     error,
     refetch
   } = useWorkOrderData();
+
+  // Fetch active emergency bike assignments
+  const { data: emergencyBikeAssignments } = useQuery({
+    queryKey: ['emergency_bike_assignments'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('emergency_bike_assignments')
+        .select('*')
+        .is('returned_at', null);
+      if (error) throw error;
+      return data;
+    },
+  });
 
   const { showSuccess, showInfo, showError } = useNotifications();
 
@@ -519,92 +536,86 @@ const WorkOrdersPage = () => {
   return (
     <ErrorBoundary>
       <div className="w-full h-[calc(100vh-2rem)] flex flex-col bg-white dark:bg-gray-950 overflow-hidden">
-        <Stack gap="md" className="flex-1 flex flex-col overflow-hidden">
-          <div className="flex-none px-6 pt-6 pb-2">
-            <div className="flex items-center justify-between mb-4">
-              <Title order={1} className="text-xl font-bold font-brand text-gray-900 dark:text-gray-100">
+        <Stack gap="sm" className="flex-1 flex flex-col overflow-hidden">
+          <div className="flex-none px-4 pt-3 pb-2">
+            <div className="flex items-center justify-between mb-2">
+              <h1 className="text-sm font-bold font-brand text-gray-900 dark:text-gray-100">
                 Work Orders
-              </Title>
+              </h1>
               <div className="flex items-center gap-2">
-                <Button
-                  variant="subtle"
-                  size="sm"
+                <button
                   onClick={handleExport}
                   disabled={processedWorkOrders.length === 0}
-                  className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                  className="p-1.5 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors disabled:opacity-50"
                 >
-                  <HugeiconsIcon icon={Download01Icon} size={18} />
-                </Button>
-                <div className="flex items-center gap-1 p-1 bg-gray-100 rounded-lg">
+                  <HugeiconsIcon icon={Download01Icon} size={14} />
+                </button>
+                <div className="flex items-center gap-0.5 p-0.5 bg-gray-100 dark:bg-gray-800 rounded">
                   <button
                     onClick={() => setView('table')}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all ${view === 'table'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-900'
+                    className={`flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded transition-all ${view === 'table'
+                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
                       }`}
                   >
-                    <HugeiconsIcon icon={ListViewIcon} size={14} />
+                    <HugeiconsIcon icon={ListViewIcon} size={12} />
                     Table
                   </button>
                   <button
                     onClick={() => setView('map')}
-                    className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium transition-all ${view === 'map'
-                      ? 'bg-white text-gray-900 shadow-sm'
-                      : 'text-gray-500 hover:text-gray-900'
+                    className={`flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded transition-all ${view === 'map'
+                      ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm'
+                      : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100'
                       }`}
                   >
-                    <HugeiconsIcon icon={Location01Icon} size={14} />
+                    <HugeiconsIcon icon={Location01Icon} size={12} />
                     Map
                   </button>
                 </div>
                 <button
                   onClick={onCreateNew}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors ml-2"
+                  className="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 rounded transition-colors"
                 >
-                  <HugeiconsIcon icon={Add01Icon} size={16} />
+                  <HugeiconsIcon icon={Add01Icon} size={12} />
                   <span>{isMobile ? 'New' : 'New Work Order'}</span>
                 </button>
               </div>
             </div>
 
             {/* Command Bar */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <div className="relative flex-1">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <HugeiconsIcon icon={Search01Icon} size={16} className="text-gray-400 dark:text-gray-500" />
+                <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                  <HugeiconsIcon icon={Search01Icon} size={14} className="text-gray-400 dark:text-gray-500" />
                 </div>
                 <input
                   type="text"
                   placeholder="Search..."
-                  className="w-full pl-9 pr-4 py-2 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg text-sm font-ui focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
+                  className="w-full pl-8 pr-3 py-1.5 text-xs bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-transparent transition-all"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
                 {searchQuery && (
                   <button
                     onClick={() => setSearchQuery('')}
-                    className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600"
+                    className="absolute inset-y-0 right-0 pr-2.5 flex items-center text-gray-400 hover:text-gray-600"
                   >
-                    <HugeiconsIcon icon={Cancel01Icon} size={14} />
+                    <HugeiconsIcon icon={Cancel01Icon} size={12} />
                   </button>
                 )}
               </div>
-              <Button
-                variant={filtersOpened ? 'light' : 'subtle'}
-                size="sm"
+              <button
                 onClick={toggleFilters}
-                className={`border ${filtersOpened ? 'border-primary-200 bg-primary-50 text-primary-700' : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                className={`inline-flex items-center gap-1 px-2 py-1.5 text-[10px] font-medium rounded transition-colors border ${filtersOpened ? 'border-primary-200 dark:border-primary-800 bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'}`}
               >
-                <Group gap="xs">
-                  <HugeiconsIcon icon={FilterIcon} size={16} />
-                  <span>Filters</span>
-                  {hasActiveFilters && (
-                    <span className="inline-flex items-center justify-center min-w-[16px] h-4 px-1 rounded-full bg-primary-600 dark:bg-primary-500 text-white text-[10px] font-semibold">
-                      {[searchQuery, statusFilter.length > 0, priorityFilter.length > 0, technicianFilter.length > 0, locationFilter.length > 0].filter(Boolean).length}
-                    </span>
-                  )}
-                </Group>
-              </Button>
+                <HugeiconsIcon icon={FilterIcon} size={12} />
+                <span>Filters</span>
+                {hasActiveFilters && (
+                  <span className="inline-flex items-center justify-center min-w-[14px] h-3.5 px-1 rounded-full bg-primary-600 dark:bg-primary-500 text-white text-[9px] font-semibold">
+                    {[searchQuery, statusFilter.length > 0, priorityFilter.length > 0, technicianFilter.length > 0, locationFilter.length > 0].filter(Boolean).length}
+                  </span>
+                )}
+              </button>
             </div>
           </div>
 
@@ -612,53 +623,53 @@ const WorkOrdersPage = () => {
 
           {/* Active Filters Display - "Ribbon" Style */}
           {hasActiveFilters && !filtersOpened && (
-            <div className="flex flex-wrap items-center gap-2 px-6 pb-2">
+            <div className="flex flex-wrap items-center gap-1.5 px-4 pb-2">
               {statusFilter.map(status => (
-                <span key={status} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-md text-xs font-medium border border-purple-200 dark:border-purple-800">
+                <span key={status} className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded text-[10px] font-medium border border-purple-200 dark:border-purple-800">
                   {status}
                   <button onClick={() => setStatusFilter(statusFilter.filter(s => s !== status))} className="hover:text-purple-900 dark:hover:text-purple-100 flex items-center justify-center">
-                    <HugeiconsIcon icon={Cancel01Icon} size={14} />
+                    <HugeiconsIcon icon={Cancel01Icon} size={10} />
                   </button>
                 </span>
               ))}
               {priorityFilter.map(priority => (
-                <span key={priority} className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-md text-xs font-medium border border-purple-200 dark:border-purple-800">
+                <span key={priority} className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded text-[10px] font-medium border border-purple-200 dark:border-purple-800">
                   {priority}
                   <button onClick={() => setPriorityFilter(priorityFilter.filter(p => p !== priority))} className="hover:text-purple-900 dark:hover:text-purple-100 flex items-center justify-center">
-                    <HugeiconsIcon icon={Cancel01Icon} size={14} />
+                    <HugeiconsIcon icon={Cancel01Icon} size={10} />
                   </button>
                 </span>
               ))}
               {technicianFilter.length > 0 && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-md text-xs font-medium border border-purple-200 dark:border-purple-800">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded text-[10px] font-medium border border-purple-200 dark:border-purple-800">
                   {technicianFilter.length} technician{technicianFilter.length > 1 ? 's' : ''}
                   <button onClick={() => setTechnicianFilter([])} className="hover:text-purple-900 dark:hover:text-purple-100 flex items-center justify-center">
-                    <HugeiconsIcon icon={Cancel01Icon} size={14} />
+                    <HugeiconsIcon icon={Cancel01Icon} size={10} />
                   </button>
                 </span>
               )}
               {locationFilter.length > 0 && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded-md text-xs font-medium border border-purple-200 dark:border-purple-800">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 rounded text-[10px] font-medium border border-purple-200 dark:border-purple-800">
                   {locationFilter.length} location{locationFilter.length > 1 ? 's' : ''}
                   <button onClick={() => setLocationFilter([])} className="hover:text-purple-900 dark:hover:text-purple-100 flex items-center justify-center">
-                    <HugeiconsIcon icon={Cancel01Icon} size={14} />
+                    <HugeiconsIcon icon={Cancel01Icon} size={10} />
                   </button>
                 </span>
               )}
               {searchQuery && (
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-md text-xs font-medium border border-gray-200 dark:border-gray-700">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded text-[10px] font-medium border border-gray-200 dark:border-gray-700">
                   Search: {searchQuery}
                   <button onClick={() => setSearchQuery('')} className="hover:text-gray-900 dark:hover:text-gray-100 flex items-center justify-center">
-                    <HugeiconsIcon icon={Cancel01Icon} size={14} />
+                    <HugeiconsIcon icon={Cancel01Icon} size={10} />
                   </button>
                 </span>
               )}
               {(statusFilter.length > 0 || priorityFilter.length > 0 || technicianFilter.length > 0 || locationFilter.length > 0 || searchQuery) && (
                 <button
                   onClick={clearAllFilters}
-                  className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline ml-2"
+                  className="text-[10px] text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline ml-1"
                 >
-                  Clear all filters
+                  Clear all
                 </button>
               )}
             </div>
@@ -666,34 +677,36 @@ const WorkOrdersPage = () => {
 
           {/* Search and Filters Panel - Only visible when Filters button is clicked */}
           {filtersOpened && (
-            <Paper p="md" withBorder className="rounded-lg bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-800">
-              <Stack gap="md">
+            <div className="mx-4 p-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md">
+              <div className="space-y-3">
                 {/* Filter Dropdowns */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Status</label>
+                    <label className="block text-[10px] font-medium text-gray-600 dark:text-gray-400 mb-0.5">Status</label>
                     <MultiSelect
                       placeholder="All statuses"
                       data={statusOptions}
                       value={statusFilter}
                       onChange={setStatusFilter}
                       clearable
-                      className="[&_input]:rounded-lg"
+                      size="xs"
+                      className="[&_input]:rounded [&_input]:text-xs"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Priority</label>
+                    <label className="block text-[10px] font-medium text-gray-600 dark:text-gray-400 mb-0.5">Priority</label>
                     <MultiSelect
                       placeholder="All priorities"
                       data={priorityOptions}
                       value={priorityFilter}
                       onChange={setPriorityFilter}
                       clearable
-                      className="[&_input]:rounded-lg"
+                      size="xs"
+                      className="[&_input]:rounded [&_input]:text-xs"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Technician</label>
+                    <label className="block text-[10px] font-medium text-gray-600 dark:text-gray-400 mb-0.5">Technician</label>
                     <MultiSelect
                       placeholder="All technicians"
                       data={technicianOptions}
@@ -701,11 +714,12 @@ const WorkOrdersPage = () => {
                       onChange={setTechnicianFilter}
                       clearable
                       searchable
-                      className="[&_input]:rounded-lg"
+                      size="xs"
+                      className="[&_input]:rounded [&_input]:text-xs"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-gray-600 mb-1.5">Location</label>
+                    <label className="block text-[10px] font-medium text-gray-600 dark:text-gray-400 mb-0.5">Location</label>
                     <MultiSelect
                       placeholder="All locations"
                       data={locationOptions}
@@ -713,60 +727,57 @@ const WorkOrdersPage = () => {
                       onChange={setLocationFilter}
                       clearable
                       searchable
-                      className="[&_input]:rounded-lg"
+                      size="xs"
+                      className="[&_input]:rounded [&_input]:text-xs"
                     />
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
-                  <Text size="sm" c="dimmed">
-                    Showing <span className="font-semibold text-gray-700">{processedWorkOrders.length}</span> of {allWorkOrders?.length || 0} work orders
-                  </Text>
+                <div className="flex items-center justify-between pt-2 border-t border-gray-100 dark:border-gray-800">
+                  <span className="text-[10px] text-gray-500 dark:text-gray-400">
+                    Showing <span className="font-semibold text-gray-700 dark:text-gray-300">{processedWorkOrders.length}</span> of {allWorkOrders?.length || 0} work orders
+                  </span>
                   {hasActiveFilters && (
-                    <Button
-                      variant="subtle"
-                      size="xs"
+                    <button
                       onClick={clearAllFilters}
-                      className="text-gray-500 hover:text-gray-700"
+                      className="inline-flex items-center gap-1 text-[10px] text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
                     >
-                      <Group gap="xs">
-                        <HugeiconsIcon icon={FilterRemoveIcon} size={14} />
-                        <span>Reset filters</span>
-                      </Group>
-                    </Button>
+                      <HugeiconsIcon icon={FilterRemoveIcon} size={12} />
+                      <span>Reset filters</span>
+                    </button>
                   )}
                 </div>
-              </Stack>
-            </Paper>
+              </div>
+            </div>
           )}
 
           {/* Bulk Actions Bar */}
           {selectedRecords.length > 0 && (
-            <div className="bg-primary-50 border border-primary-200 rounded-lg p-3 animate-in slide-in-from-top-2 duration-200">
-              <div className="flex items-center justify-between flex-wrap gap-3">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-lg bg-primary-100 flex items-center justify-center">
-                    <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="text-primary-600" />
+            <div className="mx-4 bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-md p-2 animate-in slide-in-from-top-2 duration-200">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 rounded bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
+                    <HugeiconsIcon icon={CheckmarkCircle01Icon} size={12} className="text-primary-600 dark:text-primary-400" />
                   </div>
-                  <span className="text-sm font-medium text-primary-900">
+                  <span className="text-xs font-medium text-primary-900 dark:text-primary-100">
                     {selectedRecords.length} work order{selectedRecords.length !== 1 ? 's' : ''} selected
                   </span>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <Menu>
                     <Menu.Target>
-                      <button className="flex items-center gap-2 px-3 py-1.5 bg-white border border-primary-200 rounded-lg text-sm font-medium text-primary-700 hover:bg-primary-50 transition-colors">
-                        <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} />
+                      <button className="flex items-center gap-1.5 px-2 py-1 bg-white dark:bg-gray-800 border border-primary-200 dark:border-primary-700 rounded text-[10px] font-medium text-primary-700 dark:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-colors">
+                        <HugeiconsIcon icon={CheckmarkCircle01Icon} size={12} />
                         Status
-                        <HugeiconsIcon icon={ArrowDown01Icon} size={12} />
+                        <HugeiconsIcon icon={ArrowDown01Icon} size={10} />
                       </button>
                     </Menu.Target>
                     <Menu.Dropdown>
                       {statusOptions.map(option => (
                         <Menu.Item
                           key={option.value}
-                          leftSection={<HugeiconsIcon icon={STATUS_CONFIG[option.value as keyof typeof STATUS_CONFIG]?.icon} size={14} />}
+                          leftSection={<HugeiconsIcon icon={STATUS_CONFIG[option.value as keyof typeof STATUS_CONFIG]?.icon} size={12} />}
                           onClick={() => handleBulkStatusUpdate(option.value)}
                         >
                           {option.label}
@@ -777,10 +788,10 @@ const WorkOrdersPage = () => {
 
                   <Menu>
                     <Menu.Target>
-                      <button className="flex items-center gap-2 px-3 py-1.5 bg-white border border-primary-200 rounded-lg text-sm font-medium text-primary-700 hover:bg-primary-50 transition-colors">
-                        <HugeiconsIcon icon={UserAdd01Icon} size={16} />
+                      <button className="flex items-center gap-1.5 px-2 py-1 bg-white dark:bg-gray-800 border border-primary-200 dark:border-primary-700 rounded text-[10px] font-medium text-primary-700 dark:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/30 transition-colors">
+                        <HugeiconsIcon icon={UserAdd01Icon} size={12} />
                         Assign
-                        <HugeiconsIcon icon={ArrowDown01Icon} size={12} />
+                        <HugeiconsIcon icon={ArrowDown01Icon} size={10} />
                       </button>
                     </Menu.Target>
                     <Menu.Dropdown>
@@ -788,7 +799,7 @@ const WorkOrdersPage = () => {
                         <Menu.Item
                           key={tech.id}
                           leftSection={
-                            <div className="w-5 h-5 rounded-lg bg-gray-200 flex items-center justify-center text-[10px] font-bold text-gray-600">
+                            <div className="w-4 h-4 rounded bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-[8px] font-bold text-gray-600 dark:text-gray-400">
                               {tech.name.charAt(0)}
                             </div>
                           }
@@ -802,17 +813,17 @@ const WorkOrdersPage = () => {
 
                   <button
                     onClick={handleBulkDeleteClick}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-white border border-red-200 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                    className="flex items-center gap-1.5 px-2 py-1 bg-white dark:bg-gray-800 border border-red-200 dark:border-red-800 rounded text-[10px] font-medium text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
                   >
-                    <HugeiconsIcon icon={Delete01Icon} size={16} />
+                    <HugeiconsIcon icon={Delete01Icon} size={12} />
                     Delete
                   </button>
 
                   <button
                     onClick={() => setSelectedRecords([])}
-                    className="p-1.5 text-primary-400 hover:text-primary-600 hover:bg-primary-100 rounded-lg transition-colors"
+                    className="p-1 text-primary-400 dark:text-primary-500 hover:text-primary-600 dark:hover:text-primary-300 hover:bg-primary-100 dark:hover:bg-primary-900/30 rounded transition-colors"
                   >
-                    <HugeiconsIcon icon={Cancel01Icon} size={16} />
+                    <HugeiconsIcon icon={Cancel01Icon} size={12} />
                   </button>
                 </div>
               </div>
@@ -825,14 +836,14 @@ const WorkOrdersPage = () => {
 
 
               {view === 'table' && (
-                <div className="relative">
+                <div className="relative px-4">
                   <button
                     onClick={() => setColumnMenuOpened(!columnMenuOpened)}
-                    className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+                    className="flex items-center gap-1.5 px-2 py-1 text-[10px] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors"
                   >
-                    <HugeiconsIcon icon={LayoutTwoColumnIcon} size={16} />
+                    <HugeiconsIcon icon={LayoutTwoColumnIcon} size={12} />
                     <span>Columns</span>
-                    <HugeiconsIcon icon={columnMenuOpened ? ArrowUp01Icon : ArrowDown01Icon} size={12} />
+                    <HugeiconsIcon icon={columnMenuOpened ? ArrowUp01Icon : ArrowDown01Icon} size={10} />
                   </button>
 
                   {columnMenuOpened && (
@@ -844,16 +855,16 @@ const WorkOrdersPage = () => {
                       />
 
                       {/* Dropdown Menu */}
-                      <div className="absolute right-0 top-full mt-1 z-20 w-56 bg-white border border-gray-200 rounded-lg shadow-lg overflow-hidden">
+                      <div className="absolute right-4 top-full mt-1 z-20 w-48 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md shadow-lg overflow-hidden">
                         {/* Header */}
-                        <div className="px-3 py-2 bg-gray-50 border-b border-gray-200">
-                          <p className="text-xs font-medium text-gray-700">
+                        <div className="px-2.5 py-1.5 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+                          <p className="text-[10px] font-medium text-gray-700 dark:text-gray-300">
                             Show columns ({visibleColumns.length}/{MAX_VISIBLE_COLUMNS})
                           </p>
                         </div>
 
                         {/* Column List - Only show optional columns */}
-                        <div className="max-h-64 overflow-y-auto py-1">
+                        <div className="max-h-56 overflow-y-auto py-0.5">
                           {OPTIONAL_COLUMNS.map(col => {
                             const isChecked = visibleColumns.includes(col.value);
                             const isDisabled = !isChecked && visibleColumns.length >= MAX_VISIBLE_COLUMNS;
@@ -863,23 +874,23 @@ const WorkOrdersPage = () => {
                                 key={col.value}
                                 onClick={() => !isDisabled && toggleColumn(col.value)}
                                 disabled={isDisabled}
-                                className={`w-full flex items-center gap-3 px-3 py-2 text-left text-sm transition-colors ${isDisabled
+                                className={`w-full flex items-center gap-2 px-2.5 py-1.5 text-left text-[10px] transition-colors ${isDisabled
                                   ? 'cursor-not-allowed opacity-50'
-                                  : 'hover:bg-gray-50 cursor-pointer'
+                                  : 'hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer'
                                   }`}
                               >
                                 {/* Custom Checkbox */}
-                                <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 ${isChecked
+                                <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0 ${isChecked
                                   ? 'bg-primary-600 border-primary-600'
-                                  : 'border-gray-300 bg-white'
+                                  : 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900'
                                   }`}>
                                   {isChecked && (
-                                    <HugeiconsIcon icon={Tick01Icon} size={12} className="text-white" />
+                                    <HugeiconsIcon icon={Tick01Icon} size={10} className="text-white" />
                                   )}
                                 </div>
 
                                 {/* Label */}
-                                <span className={isChecked ? 'text-gray-900 font-medium' : 'text-gray-600'}>
+                                <span className={isChecked ? 'text-gray-900 dark:text-gray-100 font-medium' : 'text-gray-600 dark:text-gray-400'}>
                                   {col.label}
                                 </span>
                               </button>
@@ -888,10 +899,10 @@ const WorkOrdersPage = () => {
                         </div>
 
                         {/* Footer */}
-                        <div className="px-3 py-2 bg-gray-50 border-t border-gray-200">
+                        <div className="px-2.5 py-1.5 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
                           <button
                             onClick={resetColumnsToDefault}
-                            className="text-xs text-primary-600 hover:text-primary-700 font-medium"
+                            className="text-[10px] text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium"
                           >
                             Reset to defaults
                           </button>
@@ -920,6 +931,7 @@ const WorkOrdersPage = () => {
                     onViewDetails={handleViewDetails}
                     loading={isLoading}
                     visibleColumns={visibleColumns}
+                    emergencyBikeAssignments={emergencyBikeAssignments}
                   />
                 )}
                 {view === 'map' && (
@@ -956,6 +968,7 @@ const WorkOrdersPage = () => {
               isDrawerOpenRef.current = false;
             }}
             workOrderId={drawerWorkOrderId}
+            onWorkOrderChange={(id) => setDrawerWorkOrderId(id)}
           />
 
           {/* Create Work Order Form Modal */}

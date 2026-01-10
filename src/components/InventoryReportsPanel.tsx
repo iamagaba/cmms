@@ -19,8 +19,10 @@ import {
   useCostAnalysis,
   useInventoryTurnover,
 } from '@/hooks/useInventoryReports';
-import { ITEM_CATEGORY_LABELS } from '@/types/supabase';
+import { ITEM_CATEGORY_LABELS } from '@/utils/inventory-categorization-helpers';
 import dayjs from 'dayjs';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 interface InventoryReportsPanelProps {
   isOpen: boolean;
@@ -41,6 +43,8 @@ export const InventoryReportsPanel: React.FC<InventoryReportsPanelProps> = ({
   isOpen,
   onClose,
 }) => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const [activeReport, setActiveReport] = useState<ReportType>('valuation');
 
   if (!isOpen) return null;

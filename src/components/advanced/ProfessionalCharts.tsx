@@ -16,6 +16,8 @@ import {
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import ProfessionalCard from '@/components/ui/ProfessionalCard';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 // ============================================
 // TYPE DEFINITIONS
@@ -186,11 +188,13 @@ const KPIChart: React.FC<KPIChartProps> = ({
   sparklineData,
   className,
 }) => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const progressPercentage = target ? Math.min((value / target) * 100, 100) : 0;
   const isOverTarget = target && value > target;
 
   return (
-    <ProfessionalCard className={cn('p-6', className)}>
+    <ProfessionalCard className={cn(spacing.card, className)}>
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           {icon && (
@@ -298,11 +302,13 @@ const SimpleBarChart: React.FC<BarChartProps> = ({
   height = 300,
   className,
 }) => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const maxValue = Math.max(...data.map(d => d.value));
   const chartColors = data.map((_, index) => colors[index % colors.length]);
 
   return (
-    <ProfessionalCard className={cn('p-6', className)}>
+    <ProfessionalCard className={cn(spacing.card, className)}>
       {/* Header */}
       {(title || description) && (
         <div className="mb-6">
@@ -416,6 +422,8 @@ const SimplePieChart: React.FC<PieChartProps> = ({
   innerRadius = 0,
   className,
 }) => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const total = data.reduce((sum, item) => sum + item.value, 0);
   const radius = 80;
   const centerX = 100;
@@ -461,10 +469,10 @@ const SimplePieChart: React.FC<PieChartProps> = ({
   });
 
   return (
-    <ProfessionalCard className={cn('p-6', className)}>
+    <ProfessionalCard className={cn(spacing.card, className)}>
       {/* Header */}
       {(title || description) && (
-        <div className="mb-6">
+        <div className={spacing.mb}>
           {title && (
             <h3 className="text-lg font-semibold text-machinery-900 mb-1">
               {title}

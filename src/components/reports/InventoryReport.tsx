@@ -33,7 +33,7 @@ import {
   useCostAnalysis,
   useInventoryTurnover,
 } from '@/hooks/useInventoryReports';
-import { ITEM_CATEGORY_LABELS } from '@/types/supabase';
+import { ITEM_CATEGORY_LABELS } from '@/utils/inventory-categorization-helpers';
 import dayjs from 'dayjs';
 
 type InventoryReportType = 'valuation' | 'movement' | 'slow-moving' | 'trends' | 'cost-analysis';
@@ -53,20 +53,20 @@ const InventoryReport: React.FC = () => {
   const [activeReport, setActiveReport] = useState<InventoryReportType>('valuation');
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Report Tabs */}
       <div className="flex border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
         {INVENTORY_REPORT_TABS.map(tab => (
           <button
             key={tab.id}
             onClick={() => setActiveReport(tab.id as InventoryReportType)}
-            className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium whitespace-nowrap transition-colors ${
               activeReport === tab.id
                 ? 'text-primary-600 dark:text-primary-400 border-b-2 border-primary-600 dark:border-primary-400'
                 : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
             }`}
           >
-            <HugeiconsIcon icon={tab.icon} size={16} />
+            <HugeiconsIcon icon={tab.icon} size={14} />
             {tab.label}
           </button>
         ))}
@@ -93,9 +93,9 @@ const ValuationReport: React.FC = () => {
   if (!data) return <EmptyState message="No valuation data available" />;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Summary Cards */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-3">
         <StatCard
           label="Total Items"
           value={data.totalItems.toLocaleString()}
@@ -122,11 +122,11 @@ const ValuationReport: React.FC = () => {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-3">
         {/* Value by Category */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
-          <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Value by Category</h3>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md overflow-hidden">
+          <div className="px-3 py-1.5 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-[10px] font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Value by Category</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -157,9 +157,9 @@ const ValuationReport: React.FC = () => {
         </div>
 
         {/* Value by Warehouse */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
-          <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Value by Warehouse</h3>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md overflow-hidden">
+          <div className="px-3 py-1.5 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <h3 className="text-[10px] font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Value by Warehouse</h3>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -189,9 +189,9 @@ const ValuationReport: React.FC = () => {
       </div>
 
       {/* Top Value Items */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
-        <div className="px-4 py-2 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Top 10 Highest Value Items</h3>
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md overflow-hidden">
+        <div className="px-3 py-1.5 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+          <h3 className="text-[10px] font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Top 10 Highest Value Items</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -263,14 +263,14 @@ const StockMovementReport: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Date Range Selector */}
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Stock Movement History</h3>
+        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Stock Movement History</h3>
         <select
           value={dateRange}
           onChange={(e) => setDateRange(e.target.value as any)}
-          className="px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm"
+          className="px-2 py-1.5 border border-gray-200 dark:border-gray-700 rounded-md bg-white dark:bg-gray-800 text-xs"
         >
           <option value="7d">Last 7 days</option>
           <option value="30d">Last 30 days</option>
@@ -280,7 +280,7 @@ const StockMovementReport: React.FC = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-3">
         <StatCard
           label="Total In"
           value={`+${data.totalIn.toLocaleString()}`}
@@ -308,16 +308,16 @@ const StockMovementReport: React.FC = () => {
       </div>
 
       {/* Movement by Reason */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Movement by Reason</h3>
-        <div className="grid grid-cols-3 gap-4">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+        <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-3">Movement by Reason</h3>
+        <div className="grid grid-cols-3 gap-3">
           {Object.entries(data.byReason).map(([reason, stats]) => (
-            <div key={reason} className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
-              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">{REASON_LABELS[reason] || reason}</p>
-              <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
-                {stats.count} <span className="text-sm font-normal text-gray-500">transactions</span>
+            <div key={reason} className="p-2 bg-gray-50 dark:bg-gray-800 rounded">
+              <p className="text-xs font-medium text-gray-900 dark:text-gray-100 mb-0.5">{REASON_LABELS[reason] || reason}</p>
+              <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                {stats.count} <span className="text-[10px] font-normal text-gray-500">transactions</span>
               </p>
-              <p className={`text-sm ${stats.quantity >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+              <p className={`text-xs ${stats.quantity >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
                 {stats.quantity >= 0 ? '+' : ''}{stats.quantity} units
               </p>
             </div>
@@ -326,9 +326,9 @@ const StockMovementReport: React.FC = () => {
       </div>
 
       {/* Recent Movements Table */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Recent Movements</h3>
-        <div className="overflow-x-auto max-h-80">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+        <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2">Recent Movements</h3>
+        <div className="overflow-x-auto max-h-64">
           <table className="w-full text-sm">
             <thead className="sticky top-0 bg-white dark:bg-gray-900">
               <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
@@ -390,9 +390,9 @@ const SlowMovingReport: React.FC = () => {
   const deadStockValue = (deadStock || []).reduce((sum, i) => sum + i.total_value, 0);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Summary Cards */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-3">
         <StatCard
           label="Slow-Moving Items"
           value={(slowMoving?.length || 0).toString()}
@@ -420,14 +420,14 @@ const SlowMovingReport: React.FC = () => {
       </div>
 
       {/* Threshold Selector */}
-      <div className="flex items-center gap-4">
-        <span className="text-sm text-gray-500">Show items with no movement for:</span>
-        <div className="flex gap-2">
+      <div className="flex items-center gap-3">
+        <span className="text-xs text-gray-500">Show items with no movement for:</span>
+        <div className="flex gap-1.5">
           {[90, 180, 365].map(days => (
             <button
               key={days}
               onClick={() => setThreshold(days as any)}
-              className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
+              className={`px-2 py-1 text-xs rounded transition-colors ${
                 threshold === days
                   ? 'bg-primary-600 text-white'
                   : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'
@@ -440,14 +440,14 @@ const SlowMovingReport: React.FC = () => {
       </div>
 
       {/* Slow-Moving Items Table */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+        <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-2">
           Slow-Moving Stock ({threshold}+ days without movement)
         </h3>
         {!slowMoving?.length ? (
           <EmptyState message="No slow-moving items found" />
         ) : (
-          <div className="overflow-x-auto max-h-64">
+          <div className="overflow-x-auto max-h-56">
             <table className="w-full text-sm">
               <thead className="sticky top-0 bg-white dark:bg-gray-900">
                 <tr className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
@@ -508,16 +508,15 @@ const UsageTrendsReport: React.FC = () => {
   const maxUsage = Math.max(...data.trends.map(t => t.totalUsed), 1);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Period Selector */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Usage Trends & Forecasting</h3>
-        <div className="flex gap-2">
+      <div className="flex items-center justify-end">
+        <div className="flex gap-1.5">
           {(['daily', 'weekly', 'monthly'] as const).map(period => (
             <button
               key={period}
               onClick={() => setPeriodType(period)}
-              className={`px-3 py-1.5 text-sm rounded-lg capitalize transition-colors ${
+              className={`px-2 py-1 text-xs rounded capitalize transition-colors ${
                 periodType === period
                   ? 'bg-primary-600 text-white'
                   : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'
@@ -530,7 +529,7 @@ const UsageTrendsReport: React.FC = () => {
       </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-3">
         <StatCard
           label="Avg Monthly Usage"
           value={Math.round(data.averageMonthlyUsage).toLocaleString()}
@@ -558,11 +557,11 @@ const UsageTrendsReport: React.FC = () => {
       </div>
 
       {/* Trend Chart (Simple Bar Chart) */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+        <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-3">
           Usage Over Time
         </h3>
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           {data.trends.map(trend => (
             <div key={trend.period} className="flex items-center gap-3">
               <span className="w-20 text-xs text-gray-500 flex-shrink-0">
@@ -628,9 +627,9 @@ const CostAnalysisReport: React.FC = () => {
   const maxCategoryValue = Math.max(...data.byCategory.map(c => c.totalValue), 1);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {/* Summary Cards */}
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-4 gap-3">
         <StatCard
           label="Total Inventory Value"
           value={formatCurrency(data.totalInventoryValue)}
@@ -657,33 +656,33 @@ const CostAnalysisReport: React.FC = () => {
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-3">
         {/* Cost by Category */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Cost by Category</h3>
-          <div className="space-y-4">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+          <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-3">Cost by Category</h3>
+          <div className="space-y-3">
             {data.byCategory.map(cat => (
               <div key={cat.category}>
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-medium text-gray-900 dark:text-gray-100">
                     {ITEM_CATEGORY_LABELS[cat.category as keyof typeof ITEM_CATEGORY_LABELS] || cat.category}
                   </span>
-                  <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  <span className="text-xs font-semibold text-gray-900 dark:text-gray-100">
                     {formatCurrency(cat.totalValue)}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                <div className="flex items-center gap-1.5">
+                  <div className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div
                       className="h-full bg-primary-500"
                       style={{ width: `${(cat.totalValue / maxCategoryValue) * 100}%` }}
                     />
                   </div>
-                  <span className="text-xs text-gray-500 w-12 text-right">
+                  <span className="text-[10px] text-gray-500 w-10 text-right">
                     {cat.percentageOfTotal.toFixed(1)}%
                   </span>
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-[10px] text-gray-500 mt-0.5">
                   {cat.itemCount} items • Avg: {formatCurrency(cat.averageUnitCost)}/unit
                 </p>
               </div>
@@ -692,27 +691,27 @@ const CostAnalysisReport: React.FC = () => {
         </div>
 
         {/* Cost by Supplier */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Cost by Supplier</h3>
-          <div className="space-y-3 max-h-80 overflow-auto">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+          <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-3">Cost by Supplier</h3>
+          <div className="space-y-2 max-h-64 overflow-auto">
             {data.bySupplier.map((supplier, idx) => (
-              <div key={supplier.supplier_id || idx} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-                <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                    <HugeiconsIcon icon={Building04Icon} size={16} className="text-blue-600 dark:text-blue-400" />
+              <div key={supplier.supplier_id || idx} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded">
+                <div className="flex items-center gap-2">
+                  <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900/30 rounded flex items-center justify-center">
+                    <HugeiconsIcon icon={Building04Icon} size={12} className="text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <p className="text-xs font-medium text-gray-900 dark:text-gray-100">
                       {supplier.supplier_name}
                     </p>
-                    <p className="text-xs text-gray-500">{supplier.itemCount} items</p>
+                    <p className="text-[10px] text-gray-500">{supplier.itemCount} items</p>
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  <p className="text-xs font-semibold text-gray-900 dark:text-gray-100">
                     {formatCurrency(supplier.totalValue)}
                   </p>
-                  <p className="text-xs text-gray-500">{supplier.percentageOfTotal.toFixed(1)}%</p>
+                  <p className="text-[10px] text-gray-500">{supplier.percentageOfTotal.toFixed(1)}%</p>
                 </div>
               </div>
             ))}
@@ -740,14 +739,14 @@ const StatCard: React.FC<{
   };
 
   return (
-    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-      <div className="flex items-center justify-between mb-2">
-        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">{label}</span>
-        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${colorClasses[color]}`}>
-          <HugeiconsIcon icon={icon} size={16} />
+    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{label}</span>
+        <div className={`w-6 h-6 rounded flex items-center justify-center ${colorClasses[color]}`}>
+          <HugeiconsIcon icon={icon} size={12} />
         </div>
       </div>
-      <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</div>
+      <div className="text-lg font-bold text-gray-900 dark:text-gray-100">{value}</div>
     </div>
   );
 };

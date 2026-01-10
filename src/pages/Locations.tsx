@@ -25,6 +25,8 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(relativeTime);
 mapboxgl.accessToken = import.meta.env.VITE_APP_MAPBOX_API_KEY || '';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 type ViewMode = 'list' | 'map';
 
@@ -45,6 +47,8 @@ const LocationsPage: React.FC = () => {
   const map = useRef<mapboxgl.Map | null>(null);
   const detailMap = useRef<mapboxgl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
 
   // Fetch locations
   const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({

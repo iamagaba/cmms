@@ -173,14 +173,14 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
       render: (value: string, record: WorkOrder) => (
         <div className="flex items-center gap-3">
           {/* Enhancement #5: Icon integration with visual balance */}
-          <div className="w-8 h-8 rounded-lg bg-steel-100 flex items-center justify-center flex-shrink-0">
-            <HugeiconsIcon icon={ClipboardIcon} size={16} className="text-steel-600" />
+          <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center flex-shrink-0">
+            <HugeiconsIcon icon={ClipboardIcon} size={16} className="text-slate-600" />
           </div>
-          <div className="font-mono">
-            <div className="font-semibold text-steel-700">
+          <div>
+            <div className="font-industrial-id text-sm text-slate-800">
               {value || `WO-${record.id.slice(-6).toUpperCase()}`}
             </div>
-            <div className="text-xs text-machinery-500">
+            <div className="text-[10px] text-slate-400 font-industrial-data">
               ID: {record.id.slice(-8)}
             </div>
           </div>
@@ -286,7 +286,7 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
       render: (value: string, record: WorkOrder) => {
         if (!value) {
           return (
-            <span className="text-machinery-400 italic text-sm">
+            <span className="text-slate-400 italic text-sm">
               No asset assigned
             </span>
           );
@@ -297,18 +297,18 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
         
         return (
           <div className="flex items-center gap-2">
-            <HugeiconsIcon icon={Car01Icon} size={16} className="text-machinery-500" />
+            <HugeiconsIcon icon={Car01Icon} size={16} className="text-slate-500" />
             <div>
-              <div className="text-sm font-medium text-machinery-700">
+              <div className="text-sm font-semibold text-slate-700">
                 {vehicle?.make} {vehicle?.model}
               </div>
               {vehicle?.licensePlate && (
-                <div className="text-xs text-machinery-500 font-mono">
+                <div className="font-industrial-id text-xs text-purple-700">
                   {vehicle.licensePlate}
                 </div>
               )}
               {customer && (
-                <div className="text-xs text-steel-600">
+                <div className="text-xs text-slate-500">
                   {customer.name}
                 </div>
               )}

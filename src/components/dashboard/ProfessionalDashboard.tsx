@@ -47,6 +47,10 @@ import QuickActionsPanel from './QuickActionsPanel';
 import ActivityFeed from './ActivityFeed';
 import AssetStatusOverview from './AssetStatusOverview';
 
+// Density hooks
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
+
 
 
 // ============================================
@@ -111,6 +115,9 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
 // ============================================
 
 const QuickActionsPanel: React.FC = () => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
+  
   const quickActions = [
     {
       id: 'new-work-order',
@@ -143,9 +150,9 @@ const QuickActionsPanel: React.FC = () => {
   ];
 
   return (
-    <ProfessionalCard className="p-6">
-      <h3 className="text-lg font-semibold text-machinery-900 mb-4">Quick Actions</h3>
-      <div className="grid grid-cols-2 gap-3">
+    <ProfessionalCard className={spacing.card}>
+      <h3 className={`${spacing.text.heading} font-semibold text-machinery-900 ${spacing.mb}`}>Quick Actions</h3>
+      <div className={`grid grid-cols-2 ${spacing.gap}`}>
         {quickActions.map((action) => (
           <motion.button
             key={action.id}
@@ -153,12 +160,13 @@ const QuickActionsPanel: React.FC = () => {
             whileTap={{ scale: 0.98 }}
             onClick={action.onClick}
             className={cn(
-              'p-4 rounded-lg text-white text-left transition-colors',
+              spacing.card,
+              'rounded-lg text-white text-left transition-colors',
               action.color
             )}
           >
-            <HugeiconsIcon icon={action.icon} size={24} className="mb-2" />
-            <div className="text-sm font-medium">{action.label}</div>
+            <HugeiconsIcon icon={action.icon} size={spacing.icon.lg} className={spacing.mb} />
+            <div className={`${spacing.text.body} font-medium`}>{action.label}</div>
           </motion.button>
         ))}
       </div>
@@ -171,6 +179,9 @@ const QuickActionsPanel: React.FC = () => {
 // ============================================
 
 const ActivityFeed: React.FC = () => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
+  
   const activities = [
     {
       id: 1,
@@ -202,24 +213,24 @@ const ActivityFeed: React.FC = () => {
   ];
 
   return (
-    <ProfessionalCard className="p-6">
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-machinery-900">Recent Activity</h3>
+    <ProfessionalCard className={spacing.card}>
+      <div className={`flex items-center justify-between ${spacing.mb}`}>
+        <h3 className={`${spacing.text.heading} font-semibold text-machinery-900`}>Recent Activity</h3>
         <ProfessionalButton variant="ghost" size="sm">
           View All
         </ProfessionalButton>
       </div>
       
-      <div className="space-y-4">
+      <div className={spacing.section}>
         {activities.map((activity) => (
-          <div key={activity.id} className="flex items-start gap-3">
-            <div className={cn('p-1.5 rounded-full bg-machinery-100', activity.color)}>
-              <HugeiconsIcon icon={activity.icon} size={16} />
+          <div key={activity.id} className={`flex items-start ${spacing.gap}`}>
+            <div className={cn(`${isCompact ? 'p-1' : 'p-1.5'} rounded-full bg-machinery-100`, activity.color)}>
+              <HugeiconsIcon icon={activity.icon} size={spacing.icon.sm} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-machinery-900">{activity.title}</p>
-              <p className="text-xs text-machinery-600 mt-1">{activity.description}</p>
-              <p className="text-xs text-machinery-500 mt-1">{activity.timestamp}</p>
+              <p className={`${spacing.text.body} font-medium text-machinery-900`}>{activity.title}</p>
+              <p className={`${spacing.text.caption} text-machinery-600 mt-1`}>{activity.description}</p>
+              <p className={`${spacing.text.caption} text-machinery-500 mt-1`}>{activity.timestamp}</p>
             </div>
           </div>
         ))}
@@ -238,6 +249,8 @@ interface ProfessionalDashboardProps {
 
 const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className }) => {
   const [timeRange, setTimeRange] = useState<'today' | 'week' | 'month'>('today');
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   
   // Mock data - replace with real data
   const kpiData = {
@@ -370,12 +383,12 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
               }}
             >
               <ProfessionalCard>
-                <div className="p-6">
+                <div className={spacing.card}>
                   {/* Work orders table would go here */}
                   <div className="text-center py-12 text-machinery-500">
                     <HugeiconsIcon icon={TableIcon} size={48} className="mx-auto mb-4 opacity-50" />
-                    <p className="text-lg font-medium mb-2">Work Orders Table</p>
-                    <p className="text-sm">Integration with existing UrgentWorkOrdersTable component</p>
+                    <p className={`${spacing.text.heading} font-medium mb-2`}>Work Orders Table</p>
+                    <p className={spacing.text.body}>Integration with existing UrgentWorkOrdersTable component</p>
                   </div>
                 </div>
               </ProfessionalCard>
@@ -402,16 +415,16 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
             />
             
             {/* Upcoming Maintenance */}
-            <ProfessionalCard className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-machinery-900">
+            <ProfessionalCard className={spacing.card}>
+              <div className={`flex items-center justify-between ${spacing.mb}`}>
+                <h3 className={`${spacing.text.heading} font-semibold text-machinery-900`}>
                   Upcoming Maintenance
                 </h3>
                 <ProfessionalButton variant="ghost" size="sm">
                   View Schedule
                 </ProfessionalButton>
               </div>
-              <div className="space-y-3">
+              <div className={spacing.section}>
                 {[
                   { asset: 'Pump A-101', date: 'Tomorrow', type: 'Preventive', priority: 'high' },
                   { asset: 'Motor B-202', date: 'Dec 20', type: 'Inspection', priority: 'medium' },
@@ -422,9 +435,9 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, delay: index * 0.1 }}
-                    className="flex items-center justify-between p-3 bg-machinery-50 rounded-lg hover:bg-machinery-100 transition-colors cursor-pointer group"
+                    className={`flex items-center justify-between ${spacing.card} bg-machinery-50 rounded-lg hover:bg-machinery-100 transition-colors cursor-pointer group`}
                   >
-                    <div className="flex items-center gap-3">
+                    <div className={`flex items-center ${spacing.gap}`}>
                       <div className={cn(
                         'w-2 h-2 rounded-full',
                         item.priority === 'high' && 'bg-warning-500',
@@ -432,15 +445,15 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
                         item.priority === 'low' && 'bg-industrial-500'
                       )} />
                       <div>
-                        <div className="font-medium text-machinery-900">{item.asset}</div>
-                        <div className="text-sm text-machinery-600">{item.type}</div>
+                        <div className={`${spacing.text.body} font-medium text-machinery-900`}>{item.asset}</div>
+                        <div className={`${spacing.text.caption} text-machinery-600`}>{item.type}</div>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="text-sm font-medium text-steel-600">{item.date}</div>
+                    <div className={`flex items-center ${spacing.gap}`}>
+                      <div className={`${spacing.text.body} font-medium text-steel-600`}>{item.date}</div>
                       <HugeiconsIcon 
                         icon={ArrowRight01Icon} 
-                        size={16}
+                        size={spacing.icon.sm}
                         className="text-machinery-400 opacity-0 group-hover:opacity-100 transition-opacity" 
                       />
                     </div>

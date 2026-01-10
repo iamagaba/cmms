@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { Stack, Grid, Button, Tabs, Alert, Skeleton, Box } from '@/components/tailwind-components';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
@@ -35,7 +35,7 @@ import { showSuccess, showError } from "@/utils/toast";
 import { camelToSnakeCase, snakeToCamelCase } from "@/utils/data-helpers";
 import { OnHoldReasonDialog } from "@/components/OnHoldReasonDialog";
 import dayjs from 'dayjs';
-import { useSearchParams } from "react-router-dom";
+
 import WorkOrderStepper from "@/components/WorkOrderStepper/WorkOrderStepper";
 import { useSession } from "@/context/SessionContext";
 import { useRealtimeData } from "../context/RealtimeDataContext";
@@ -48,6 +48,8 @@ import { WorkOrderDetailsInfoCard } from "@/components/work-order-details/WorkOr
 import { WorkOrderActivityLogCard } from "@/components/work-order-details/WorkOrderActivityLogCard.tsx";
 import { WorkOrderLocationMapCard } from "@/components/work-order-details/WorkOrderLocationMapCard.tsx";
 import { WorkOrderOverviewCards } from "@/components/work-order-details/WorkOrderOverviewCards";
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 import { WorkOrderNotesCard } from "@/components/work-order-details/WorkOrderNotesCard.tsx";
 import { WorkOrderRelatedHistoryCard } from "@/components/work-order-details/WorkOrderRelatedHistoryCard.tsx";
@@ -111,8 +113,11 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
   const { id: paramId } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const routerLocation = useLocation();
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
 
   // State for dialogs and UI
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
@@ -125,8 +130,12 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
   const [pendingUpdates, setPendingUpdates] = useState<Partial<WorkOrder> | null>(null);
   const [showInteractiveMap, setShowInteractiveMap] = useState(false);
   const [activeTabKey, setActiveTabKey] = useState('details');
+
+  // Initial data from navigation state if available (for smooth transition from drawer)
+  const initialWorkOrder = routerLocation.state?.initialWorkOrder as Partial<WorkOrder> | undefined;
+
   // Optimistic local overlay for immediate UI feedback while waiting for realtime
-  const [optimisticWorkOrder, setOptimisticWorkOrder] = useState<Partial<WorkOrder> | null>(null);
+  const [optimisticWorkOrder, setOptimisticWorkOrder] = useState<Partial<WorkOrder> | null>(initialWorkOrder || null);
 
   const { session } = useSession();
   const { realtimeWorkOrders, realtimeTechnicians } = useRealtimeData();
@@ -582,9 +591,6 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
     if (workOrder.id) {
       finalUpdates.id = workOrder.id;
     }
-    console.log('📤 Calling mutation with finalUpdates:', finalUpdates);
-    console.log('📤 finalUpdates contains: id=%s, status=%s, assignedTechnicianId=%s',
-      finalUpdates.id, finalUpdates.status, finalUpdates.assignedTechnicianId);
     // Pass camelCase to mutation; it handles snake_case conversion internally
     workOrderMutation.mutate(finalUpdates);
   };
@@ -645,7 +651,7 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
     setIsIssueConfirmationDialogOpen(false);
   };
 
-  const handleSaveMaintenanceCompletion = (faultCode: string, maintenanceNotes: string | null) => {
+  const handleSaveMaintenanceCompletion = ({ faultCode, maintenanceNotes }: { faultCode: string; maintenanceNotes: string | null }) => {
     if (!workOrder) return;
     // If there's an active emergency bike assignment for this work order, mark it returned first
     (async () => {
@@ -674,7 +680,17 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
       } catch (e) {
         console.warn('Error handling emergency bike return on completion:', e);
       } finally {
-        const updates: Partial<WorkOrder> = { status: 'Completed', faultCode: faultCode, maintenanceNotes: maintenanceNotes, completedAt: new Date().toISOString() };
+        // Create updates object with explicit properties to ensure they survive any transformation
+        const updates: Partial<WorkOrder> = {
+          status: 'Completed',
+          faultCode: faultCode,
+          maintenanceNotes: maintenanceNotes,
+          completedAt: new Date().toISOString(),
+          // Redundant snake_case to be absolutely sure
+          fault_code: faultCode,
+          maintenance_notes: maintenanceNotes,
+          completed_at: new Date().toISOString()
+        } as any;
         handleUpdateWorkOrder(updates);
         setIsMaintenanceCompletionDrawerOpen(false);
       }
@@ -757,25 +773,25 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
       const hours = Math.floor(elapsedSec / 3600);
       const minutes = Math.floor((elapsedSec % 3600) / 60);
       return (
-        <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-orange-50 border-y border-orange-200">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <HugeiconsIcon icon={Clock01Icon} size={20} className="text-orange-600 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-orange-900">
+        <div className="flex items-center justify-between gap-2 px-3 py-1.5 bg-orange-50 border-y border-orange-200">
+          <div className="flex items-center gap-2">
+            <HugeiconsIcon icon={Clock01Icon} size={16} className="text-orange-600 flex-shrink-0" />
+            <div>
+              <p className="text-xs font-medium text-orange-900">
                 Repair in progress for {hours}h {minutes}m
               </p>
-              <p className="text-xs text-orange-700 mt-0.5">
+              <p className="text-[10px] text-orange-700">
                 Customer is eligible for an emergency bike
               </p>
             </div>
+            <button
+              onClick={() => setIsAssignEmergencyOpen(true)}
+              className="flex-shrink-0 inline-flex items-center gap-1 px-2 py-1 text-[10px] font-medium text-white bg-orange-600 hover:bg-orange-700 rounded transition-colors ml-2"
+            >
+              <HugeiconsIcon icon={Motorbike01Icon} size={12} className="text-white" />
+              Assign Bike
+            </button>
           </div>
-          <button
-            onClick={() => setIsAssignEmergencyOpen(true)}
-            className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-orange-600 hover:bg-orange-700 rounded transition-colors"
-          >
-            <HugeiconsIcon icon={Motorbike01Icon} size={16} className="text-white" />
-            Assign Bike
-          </button>
         </div>
       );
     }
@@ -783,21 +799,21 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
       const assignedAt = activeEmergencyAssignment?.assigned_at ? new Date(activeEmergencyAssignment.assigned_at).toLocaleString() : 'N/A';
       const bikeLabel = assignedEmergencyBike ? `${assignedEmergencyBike.license_plate} • ${assignedEmergencyBike.make} ${assignedEmergencyBike.model}` : 'Emergency Bike';
       return (
-        <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-blue-50 border-y border-blue-200">
-          <div className="flex items-center gap-3 flex-1 min-w-0">
-            <HugeiconsIcon icon={Motorbike01Icon} size={20} className="text-blue-600 flex-shrink-0" />
+        <div className="flex items-center justify-between gap-2 px-3 py-1.5 bg-blue-50 border-y border-blue-200">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <HugeiconsIcon icon={Motorbike01Icon} size={16} className="text-blue-600 flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-blue-900">
+              <p className="text-xs font-medium text-blue-900">
                 Emergency bike assigned
               </p>
-              <p className="text-xs text-blue-700 mt-0.5">
+              <p className="text-[10px] text-blue-700">
                 {bikeLabel} • Assigned {new Date(activeEmergencyAssignment?.assigned_at || '').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
               </p>
             </div>
           </div>
           <div className="flex-shrink-0">
-            <span className="inline-flex items-center gap-1 px-2 py-1 text-xs font-medium text-blue-700 bg-blue-100 rounded">
-              <HugeiconsIcon icon={Tick01Icon} size={16} className="text-blue-700" />
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium text-blue-700 bg-blue-100 rounded">
+              <HugeiconsIcon icon={Tick01Icon} size={12} className="text-blue-700" />
               Active
             </span>
           </div>
@@ -844,114 +860,86 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
           {/* Main Content */}
           <div className="flex-1 overflow-y-auto">
             <div className="w-full">
-              {/* Info Strip - Above Stepper */}
-              <div className="bg-white border-b border-gray-200 px-6 py-3">
-                <div className="flex items-center gap-4 text-sm">
-                  {/* License Plate */}
-                  <div className="flex items-center gap-2">
-                    <HugeiconsIcon icon={NoteIcon} size={16} className="text-purple-600" />
-                    <span className="font-semibold text-purple-900">
-                      {vehicle?.license_plate || vehicle?.licensePlate || 'N/A'}
-                    </span>
+              {/* Info Strip - Above Stepper - Industrial Style */}
+              <div className="industrial-info-strip">
+                <div className="flex items-stretch w-full">
+                  {/* LICENSE PLATE - Primary identifier with accent */}
+                  <div className="flex-1 min-w-0 px-4 py-2.5 border-l-[3px] border-purple-600 bg-white hover:bg-slate-50/50 transition-colors">
+                    <div className="industrial-info-label">Plate</div>
+                    <div className="font-industrial-id text-sm text-purple-700">
+                      {vehicle?.license_plate || vehicle?.licensePlate || '—'}
+                    </div>
                   </div>
 
-                  <div className="h-4 w-px bg-gray-300" />
-
-                  {/* Customer */}
-                  <div className="flex items-center gap-2">
-                    <HugeiconsIcon icon={UserIcon} size={16} className="text-gray-400" />
-                    <span className="text-gray-900 font-medium">
-                      {customer?.name || workOrder.customerName || 'N/A'}
-                    </span>
+                  {/* MODEL */}
+                  <div className="flex-1 min-w-0 px-4 py-2.5 border-r border-slate-200 hover:bg-slate-50/50 transition-colors">
+                    <div className="industrial-info-label">Model</div>
+                    <div className="text-sm font-semibold text-slate-700">
+                      {vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || '—' : '—'}
+                    </div>
                   </div>
 
-                  <div className="h-4 w-px bg-gray-300" />
-
-                  {/* Vehicle Model */}
-                  <div className="flex items-center gap-2">
-                    <HugeiconsIcon icon={Motorbike01Icon} size={16} className="text-gray-400" />
-                    <span className="text-gray-700">
-                      {vehicle ? `${vehicle.make} ${vehicle.model}` : 'N/A'}
-                    </span>
+                  {/* AGE */}
+                  <div className="flex-1 min-w-0 px-4 py-2.5 border-r border-slate-200 hover:bg-slate-50/50 transition-colors">
+                    <div className="industrial-info-label">Age</div>
+                    <div className="font-industrial-data text-sm text-slate-700">
+                      {vehicle?.year ? (() => {
+                        const purchaseDate = dayjs(`${vehicle.year}-01-01`);
+                        const today = dayjs();
+                        const years = today.diff(purchaseDate, 'year');
+                        const months = today.diff(purchaseDate, 'month') % 12;
+                        const days = today.diff(purchaseDate, 'day');
+                        if (years >= 1) return `${years} yr${years > 1 ? 's' : ''}`;
+                        else if (months >= 1) return `${months} mo`;
+                        else return `${days} d`;
+                      })() : '—'}
+                    </div>
                   </div>
 
-                  <div className="h-4 w-px bg-gray-300" />
-
-                  {/* Asset Age */}
-                  {vehicle?.year && (
-                    <>
-                      <div className="flex items-center gap-2">
-                        <HugeiconsIcon icon={Calendar01Icon} size={16} className="text-gray-400" />
-                        <span className="text-gray-700">
-                          {(() => {
-                            const purchaseDate = dayjs(`${vehicle.year}-01-01`);
-                            const today = dayjs();
-                            const years = today.diff(purchaseDate, 'year');
-                            const months = today.diff(purchaseDate, 'month') % 12;
-                            const days = today.diff(purchaseDate, 'day');
-                            if (years >= 1) return `${years} yr${years > 1 ? 's' : ''}`;
-                            else if (months >= 1) return `${months} mo`;
-                            else return `${days} d`;
-                          })()}
-                        </span>
-                      </div>
-                      <div className="h-4 w-px bg-gray-300" />
-                    </>
-                  )}
-
-                  {/* Warranty Status */}
-                  <div className="flex items-center gap-2">
-                    <HugeiconsIcon icon={LockIcon} size={16} className={(() => {
-                      if (!vehicle?.warranty_end_date) return 'text-gray-400';
-                      const warrantyEnd = dayjs(vehicle.warranty_end_date);
-                      const today = dayjs();
-                      if (warrantyEnd.isBefore(today)) return 'text-red-600';
-                      const daysRemaining = warrantyEnd.diff(today, 'day');
-                      if (daysRemaining <= 30) return 'text-amber-600';
-                      return 'text-emerald-600';
-                    })()} />
-                    <span className={`text-xs font-medium px-2 py-1 rounded border ${(() => {
-                      if (!vehicle?.warranty_end_date) return 'bg-gray-50 text-gray-600 border-gray-200';
-                      const warrantyEnd = dayjs(vehicle.warranty_end_date);
-                      const today = dayjs();
-                      if (warrantyEnd.isBefore(today)) return 'bg-red-50 text-red-700 border-red-200';
-                      const daysRemaining = warrantyEnd.diff(today, 'day');
-                      if (daysRemaining <= 30) return 'bg-amber-50 text-amber-700 border-amber-200';
-                      return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-                    })()}`}>
+                  {/* WARRANTY */}
+                  <div className="flex-1 min-w-0 px-4 py-2.5 border-r border-slate-200 hover:bg-slate-50/50 transition-colors">
+                    <div className="industrial-info-label">Warranty</div>
+                    <div className="font-industrial-data text-sm text-slate-700">
                       {(() => {
-                        if (!vehicle?.warranty_end_date) return 'No warranty';
+                        if (!vehicle?.warranty_end_date) return '—';
                         const warrantyEnd = dayjs(vehicle.warranty_end_date);
                         const today = dayjs();
-                        if (warrantyEnd.isBefore(today)) return 'Expired';
+                        if (warrantyEnd.isBefore(today)) return <span className="text-red-600 font-semibold">Expired</span>;
                         const daysRemaining = warrantyEnd.diff(today, 'day');
-                        if (daysRemaining <= 30) return `${daysRemaining}d left`;
+                        if (daysRemaining <= 30) return <span className="text-amber-600 font-semibold">{daysRemaining}d left</span>;
                         const monthsRemaining = warrantyEnd.diff(today, 'month');
                         return `${monthsRemaining}mo left`;
                       })()}
-                    </span>
+                    </div>
                   </div>
 
-                  {/* Double divider for section break */}
-                  <div className="h-4 w-px bg-gray-400" />
-                  <div className="h-4 w-px bg-gray-400 -ml-3" />
-
-                  {/* Location */}
-                  <div className="flex items-center gap-2">
-                    <HugeiconsIcon icon={Location01Icon} size={16} className="text-gray-400" />
-                    <span className="text-gray-700">
-                      {location?.name || workOrder.serviceCenter || 'N/A'}
-                    </span>
+                  {/* MILEAGE */}
+                  <div className="flex-1 min-w-0 px-4 py-2.5 border-r border-slate-200 hover:bg-slate-50/50 transition-colors">
+                    <div className="industrial-info-label">Mileage</div>
+                    <div className="font-industrial-data text-sm text-slate-700">
+                      {vehicle?.mileage ? `${vehicle.mileage.toLocaleString()} km` : '—'}
+                    </div>
                   </div>
 
-                  <div className="h-4 w-px bg-gray-300" />
+                  {/* Divider - Industrial style */}
+                  <div className="flex items-center justify-center px-1">
+                    <div className="industrial-divider h-8" style={{ width: '2px', background: 'linear-gradient(to bottom, transparent, #cbd5e1, transparent)' }} />
+                  </div>
 
-                  {/* Assigned Technician */}
-                  <div className="flex items-center gap-2">
-                    <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className={technician ? 'text-emerald-600' : 'text-amber-600'} />
-                    <span className={`font-medium ${technician ? 'text-emerald-700' : 'text-amber-700'}`}>
-                      {technician?.name || 'Unassigned'}
-                    </span>
+                  {/* CUSTOMER - emphasized */}
+                  <div className="flex-[1.5] min-w-0 px-4 py-2.5 bg-white border-r border-slate-200 hover:bg-slate-50/50 transition-colors">
+                    <div className="industrial-info-label">Customer</div>
+                    <div className="text-sm font-bold text-slate-900 truncate">
+                      {customer?.name || workOrder.customerName || '—'}
+                    </div>
+                  </div>
+
+                  {/* PHONE */}
+                  <div className="flex-1 min-w-0 px-4 py-2.5 bg-white hover:bg-slate-50/50 transition-colors">
+                    <div className="industrial-info-label">Phone</div>
+                    <div className="font-industrial-data text-sm text-slate-700">
+                      {customer?.phone || workOrder.customerPhone || '—'}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -960,6 +948,9 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
                 workOrder={workOrder}
                 profileMap={profileMap}
                 onConfirmationClick={() => setIsConfirmationCallDialogOpen(true)}
+                onCompletionClick={() => setIsMaintenanceCompletionDrawerOpen(true)}
+                onReadyClick={() => setIsAssignModalOpen(true)}
+                onInProgressClick={() => setIsMaintenanceCompletionDrawerOpen(true)}
               />
               <div>
                 {/* Emergency Bike Banner */}
@@ -969,29 +960,27 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
                 <div className="bg-white">
                   <Tabs value={activeTabKey} onValueChange={setActiveTabKey}>
                     <Tabs.List className="border-b border-gray-200 px-3">
-                      <Tabs.Tab value="details" leftSection={<HugeiconsIcon icon={InformationCircleIcon} size={14} />}>
-                        <span className="text-xs">Details</span>
+                      <Tabs.Tab value="details" leftSection={<HugeiconsIcon icon={InformationCircleIcon} size={12} />}>
+                        <span className="text-[11px]">Details</span>
                       </Tabs.Tab>
-                      <Tabs.Tab value="notes" leftSection={<HugeiconsIcon icon={MessageIcon} size={14} />}>
-                        <span className="text-xs">Notes</span>
+                      <Tabs.Tab value="notes" leftSection={<HugeiconsIcon icon={MessageIcon} size={12} />}>
+                        <span className="text-[11px]">Notes</span>
                       </Tabs.Tab>
-                      <Tabs.Tab value="history" leftSection={<HugeiconsIcon icon={TimelineIcon} size={14} />}>
-                        <span className="text-xs">History</span>
+
+                      <Tabs.Tab value="parts" leftSection={<HugeiconsIcon icon={PackageIcon} size={12} />}>
+                        <span className="text-[11px]">Parts</span>
                       </Tabs.Tab>
-                      <Tabs.Tab value="parts" leftSection={<HugeiconsIcon icon={PackageIcon} size={14} />}>
-                        <span className="text-xs">Parts</span>
+                      <Tabs.Tab value="location" leftSection={<HugeiconsIcon icon={MapsIcon} size={12} />}>
+                        <span className="text-[11px]">Location</span>
                       </Tabs.Tab>
-                      <Tabs.Tab value="location" leftSection={<HugeiconsIcon icon={MapsIcon} size={14} />}>
-                        <span className="text-xs">Location</span>
-                      </Tabs.Tab>
-                      <Tabs.Tab value="timeline" leftSection={<HugeiconsIcon icon={Clock01Icon} size={14} />}>
-                        <span className="text-xs">Timeline</span>
+                      <Tabs.Tab value="timeline" leftSection={<HugeiconsIcon icon={Clock01Icon} size={12} />}>
+                        <span className="text-[11px]">Timeline</span>
                       </Tabs.Tab>
                     </Tabs.List>
 
-                    <div className="p-3">
+                    <div className="p-2">
                       <Tabs.Panel value="details">
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                           <WorkOrderDetailsInfoCard
                             workOrder={workOrder}
                             customer={customer || null}
@@ -1002,13 +991,11 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
                             serviceCategories={serviceCategories || []}
                             handleUpdateWorkOrder={handleUpdateWorkOrder}
                           />
-                          {workOrder.appointmentDate && (
-                            <WorkOrderAppointmentCard
-                              workOrder={workOrder}
-                              technician={technician || null}
-                              location={location || null}
-                            />
-                          )}
+                          <WorkOrderRelatedHistoryCard
+                            workOrder={workOrder}
+                            vehicle={vehicle || null}
+                            onViewWorkOrder={(id) => navigate(`/work-orders/${id}`)}
+                          />
                         </div>
                       </Tabs.Panel>
 
@@ -1019,13 +1006,7 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
                         />
                       </Tabs.Panel>
 
-                      <Tabs.Panel value="history">
-                        <WorkOrderRelatedHistoryCard
-                          workOrder={workOrder}
-                          vehicle={vehicle || null}
-                          onViewWorkOrder={(id) => navigate(`/work-orders/${id}`)}
-                        />
-                      </Tabs.Panel>
+
 
                       <Tabs.Panel value="parts">
                         <WorkOrderCostSummaryCard
@@ -1039,7 +1020,7 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
                       </Tabs.Panel>
 
                       <Tabs.Panel value="location">
-                        <div className="space-y-3">
+                        <div className="space-y-2">
                           <WorkOrderLocationMapCard
                             workOrder={workOrder}
                             location={location || null}
@@ -1090,6 +1071,9 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
               compact
               profileMap={profileMap}
               onConfirmationClick={() => setIsConfirmationCallDialogOpen(true)}
+              onCompletionClick={() => setIsMaintenanceCompletionDrawerOpen(true)}
+              onReadyClick={() => setIsAssignModalOpen(true)}
+              onInProgressClick={() => setIsMaintenanceCompletionDrawerOpen(true)}
             />
           </Box>
           <Box
@@ -1299,6 +1283,7 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
           usedParts={usedParts || []}
           onAddPart={handleAddPart}
           onRemovePart={handleRemovePart}
+          onAddPartClick={() => setIsAddPartDialogOpen(true)}
           initialFaultCode={workOrder.faultCode}
           initialMaintenanceNotes={workOrder.maintenanceNotes}
           isSaving={workOrderMutation.isPending}
@@ -1375,7 +1360,7 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
 interface CostTrackingTabProps {
             workOrderId: string;
 }
-
+ 
           const CostTrackingTab: React.FC<CostTrackingTabProps> = ({workOrderId}) => {
   const {
               costSummary,
@@ -1390,9 +1375,9 @@ interface CostTrackingTabProps {
               addOtherCost,
               generateCostEstimate
             } = useCostTracking(workOrderId);
-
+ 
             const [activeSubTab, setActiveSubTab] = useState('summary');
-
+ 
             const subTabItems = [
             {
               key: 'summary',
@@ -1470,7 +1455,7 @@ interface CostTrackingTabProps {
             )
     }
             ];
-
+ 
             return (
             <div style={{ width: '100%' }}>
               <Tabs

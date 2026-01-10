@@ -27,6 +27,8 @@ import { showSuccess, showError } from '@/utils/toast';
 import AppBreadcrumb from '@/components/Breadcrumbs';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 dayjs.extend(relativeTime);
 
@@ -35,6 +37,8 @@ const AssetDetails = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
 
 
   // Fetch vehicle details
@@ -74,7 +78,7 @@ const AssetDetails = () => {
 
   if (isLoading) {
     return (
-      <div className="w-full px-6 py-6">
+      <div className={`w-full ${spacing.card}`}>
         <Stack gap="lg">
           <Skeleton height={40} width={200} />
           <Skeleton height={300} />
@@ -86,11 +90,11 @@ const AssetDetails = () => {
 
   if (!vehicle) {
     return (
-      <div className="w-full px-6 py-6">
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-8 text-center">
-          <HugeiconsIcon icon={Alert01Icon} className="mx-auto text-gray-400 dark:text-gray-500 mb-4" size={64} />
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Asset Not Found</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">The asset you're looking for doesn't exist.</p>
+      <div className={`w-full ${spacing.card}`}>
+        <div className={`bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg ${spacing.card} text-center`}>
+          <HugeiconsIcon icon={Alert01Icon} className={`mx-auto text-gray-400 dark:text-gray-500 ${spacing.mb}`} size={spacing.icon.xl} />
+          <h3 className={`${spacing.text.heading} font-semibold text-gray-900 dark:text-gray-100 mb-2`}>Asset Not Found</h3>
+          <p className={`${spacing.text.body} text-gray-600 dark:text-gray-400 ${spacing.mb}`}>The asset you're looking for doesn't exist.</p>
           <Button onClick={() => navigate('/assets')}>Back to Assets</Button>
         </div>
       </div>
@@ -138,15 +142,15 @@ const AssetDetails = () => {
           { label: vehicle.license_plate || 'Asset Details', path: `/assets/${id}`, isClickable: false }
         ]}
       />
-      <div className="w-full px-6 pt-2 pb-6">
+      <div className={`w-full ${spacing.cardX} pt-2 pb-6`}>
         <Stack gap="md">
 
           {/* Vehicle Header Card with Owner & Specifications */}
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
+          <div className={`bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg ${spacing.card}`}>
             {/* Vehicle Title Section */}
-            <div className="flex items-start gap-4 pb-3 border-b border-gray-200 dark:border-gray-700">
-              <div className="w-14 h-14 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
-                <HugeiconsIcon icon={Motorbike01Icon} className="w-7 h-7 text-primary-600 dark:text-primary-400" />
+            <div className={`flex items-start ${spacing.gap} pb-3 border-b border-gray-200 dark:border-gray-700`}>
+              <div className={`${isCompact ? 'w-12 h-12' : 'w-14 h-14'} rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0`}>
+                <HugeiconsIcon icon={Motorbike01Icon} size={spacing.icon.lg} className="text-primary-600 dark:text-primary-400" />
               </div>
               <div className="flex-1 min-w-0">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{vehicle.license_plate}</h1>
@@ -172,7 +176,7 @@ const AssetDetails = () => {
             </div>
 
             {/* Owner Information & Vehicle Specifications - Side by Side */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 pt-4">
+            <div className={`grid grid-cols-1 lg:grid-cols-2 ${spacing.gap} pt-4`}>
               {/* Owner Information */}
               <div>
                 <div className="flex items-center justify-between mb-3">
@@ -217,6 +221,12 @@ const AssetDetails = () => {
                   Vehicle Specifications
                 </h3>
                 <div className="grid grid-cols-2 gap-2">
+                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Ownership Type</div>
+                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                      {vehicle.is_company_asset ? 'Company Asset' : 'Individual Asset'}
+                    </div>
+                  </div>
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
                     <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">License Plate</div>
                     <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{vehicle.license_plate}</div>
@@ -265,9 +275,9 @@ const AssetDetails = () => {
           </div>
 
           {/* Quick Stats Row */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className={`grid grid-cols-2 lg:grid-cols-4 ${spacing.gap}`}>
             <div
-              className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 hover:border-gray-300 dark:hover:border-gray-700 transition-colors cursor-pointer"
+              className={`bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg ${spacing.card} hover:border-gray-300 dark:hover:border-gray-700 transition-colors cursor-pointer`}
               onClick={() => navigate(`/work-orders?vehicle=${id}`)}
             >
               <div className="flex items-center justify-between">

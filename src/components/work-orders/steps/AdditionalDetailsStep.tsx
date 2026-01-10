@@ -89,37 +89,37 @@ export const AdditionalDetailsStep: React.FC<AdditionalDetailsStepProps> = ({
     <Stack gap="sm">
       {/* Priority Selection */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-xs font-medium text-gray-700 mb-1">
           Priority <span className="text-red-500">*</span>
         </label>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {priorities.map((priority) => (
             <button
               key={priority.value}
               onClick={() => onChange({ priority: priority.value })}
-              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+              className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium transition-all ${
                 data.priority === priority.value
                   ? `${priority.color} ring-2 ring-offset-1 ring-current`
                   : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
               }`}
             >
-              <HugeiconsIcon icon={priority.icon} size={16} />
+              <HugeiconsIcon icon={priority.icon} size={12} />
               {priority.label}
             </button>
           ))}
         </div>
-        {errors.priority && <p className="text-sm text-red-600 mt-1">{errors.priority}</p>}
+        {errors.priority && <p className="text-[10px] text-red-600 mt-0.5">{errors.priority}</p>}
       </div>
 
       {/* Service Location */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-xs font-medium text-gray-700 mb-1">
           Service Location <span className="text-red-500">*</span>
         </label>
         <select
           value={data.serviceLocationId}
           onChange={(e) => onChange({ serviceLocationId: e.target.value })}
-          className={`w-full h-9 px-3 py-1.5 text-sm border rounded-md shadow-sm transition-colors focus:outline-none focus:ring-1 focus:ring-purple-600 focus:border-purple-600 ${errors.serviceLocationId ? 'border-red-500' : 'border-gray-200'
+          className={`w-full h-7 px-2 py-1 text-xs border rounded-md shadow-sm transition-colors focus:outline-none focus:ring-1 focus:ring-purple-600 focus:border-purple-600 ${errors.serviceLocationId ? 'border-red-500' : 'border-gray-200'
             }`}
         >
           <option value="">Select service center...</option>
@@ -129,36 +129,36 @@ export const AdditionalDetailsStep: React.FC<AdditionalDetailsStepProps> = ({
             </option>
           ))}
         </select>
-        {errors.serviceLocationId && <p className="text-sm text-red-600 mt-1">{errors.serviceLocationId}</p>}
+        {errors.serviceLocationId && <p className="text-[10px] text-red-600 mt-0.5">{errors.serviceLocationId}</p>}
       </div>
 
       {/* Scheduled Date (Optional) */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-xs font-medium text-gray-700 mb-1">
           Scheduled Date (Optional)
         </label>
         <input
           type="datetime-local"
           value={data.scheduledDate}
           onChange={(e) => onChange({ scheduledDate: e.target.value })}
-          className="w-full h-9 px-3 py-1.5 text-sm border border-gray-200 rounded-md shadow-sm transition-colors focus:outline-none focus:ring-1 focus:ring-purple-600 focus:border-purple-600"
+          className="w-full h-7 px-2 py-1 text-xs border border-gray-200 rounded-md shadow-sm transition-colors focus:outline-none focus:ring-1 focus:ring-purple-600 focus:border-purple-600"
         />
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-[10px] text-gray-500 mt-0.5">
           Leave empty for immediate service
         </p>
       </div>
 
       {/* Customer Notes */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+        <label className="block text-xs font-medium text-gray-700 mb-1">
           Additional Notes (Optional)
         </label>
         <textarea
           value={data.customerNotes}
           onChange={(e) => onChange({ customerNotes: e.target.value })}
           placeholder="Any additional information from the customer..."
-          rows={4}
-          className="w-full px-3 py-2 text-sm border border-gray-200 rounded-md shadow-sm transition-colors focus:outline-none focus:ring-1 focus:ring-purple-600 focus:border-purple-600 resize-none"
+          rows={3}
+          className="w-full px-2 py-1.5 text-xs border border-gray-200 rounded-md shadow-sm transition-colors focus:outline-none focus:ring-1 focus:ring-purple-600 focus:border-purple-600 resize-none"
         />
       </div>
     </Stack>

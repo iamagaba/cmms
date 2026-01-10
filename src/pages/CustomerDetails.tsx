@@ -26,10 +26,14 @@ import { Customer, Vehicle, WorkOrder } from '@/types/supabase';
 import { snakeToCamelCase } from '@/utils/data-helpers';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 dayjs.extend(relativeTime);
 
 const CustomerDetails = () => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -121,35 +125,35 @@ const CustomerDetails = () => {
   };
 
   return (
-    <div className="w-full px-6 pt-2 pb-6">
+    <div className={`w-full ${spacing.page}`}>
       <Stack gap="md">
         {/* Breadcrumb Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="flex items-center gap-2">
+          <div className={`flex items-center ${spacing.gap}`}>
             <button
               onClick={() => navigate('/customers')}
-              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 flex items-center gap-1 transition-colors"
+              className={`${spacing.text.body} text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 flex items-center gap-1 transition-colors`}
             >
-              <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="rotate-180" />
+              <HugeiconsIcon icon={ArrowRight01Icon} size={spacing.icon.sm} className="rotate-180" />
               Customers
             </button>
             <HugeiconsIcon icon={ArrowRight01Icon} size={14} className="text-gray-400 dark:text-gray-500" />
-            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{customer.name}</span>
+            <span className={`${spacing.text.body} font-medium text-gray-900 dark:text-gray-100`}>{customer.name}</span>
           </div>
-          <div className="flex items-center gap-2">
+          <div className={`flex items-center ${spacing.gap}`}>
             <button
               onClick={() => navigate(`/work-orders?customer=${id}`)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+              className={`inline-flex items-center gap-1.5 ${spacing.button} font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 ${spacing.roundedLg} transition-colors`}
             >
-              <HugeiconsIcon icon={ClipboardIcon} size={16} />
+              <HugeiconsIcon icon={ClipboardIcon} size={spacing.icon.sm} />
               <span className="hidden sm:inline">View Work Orders</span>
               <span className="sm:hidden">Work Orders</span>
             </button>
             <button
               onClick={() => navigate(`/customers`)}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
+              className={`inline-flex items-center gap-1.5 ${spacing.button} font-medium text-white bg-primary-600 hover:bg-primary-700 ${spacing.roundedLg} transition-colors`}
             >
-              <HugeiconsIcon icon={PencilEdit02Icon} size={16} />
+              <HugeiconsIcon icon={PencilEdit02Icon} size={spacing.icon.sm} />
               <span className="hidden sm:inline">Edit Customer</span>
               <span className="sm:hidden">Edit</span>
             </button>
@@ -157,22 +161,22 @@ const CustomerDetails = () => {
         </div>
 
         {/* Customer Header Card */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-          <div className="flex items-start gap-4">
-            <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0 text-primary-700 dark:text-primary-400 font-semibold text-2xl">
+        <div className={`bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 ${spacing.roundedLg} ${spacing.card}`}>
+          <div className={`flex items-start ${spacing.gap}`}>
+            <div className={`${isCompact ? 'w-12 h-12' : 'w-16 h-16'} rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0 text-primary-700 dark:text-primary-400 font-semibold ${isCompact ? 'text-xl' : 'text-2xl'}`}>
               {customer.name ? customer.name.charAt(0).toUpperCase() : 'C'}
             </div>
             <div className="flex-1 min-w-0">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{customer.name}</h1>
+              <h1 className={`${isCompact ? 'text-xl' : 'text-2xl'} font-bold text-gray-900 dark:text-gray-100`}>{customer.name}</h1>
               {customer.company && (
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{customer.company}</p>
+                <p className={`${spacing.text.body} text-gray-600 dark:text-gray-400 mt-1`}>{customer.company}</p>
               )}
-              <div className="flex items-center gap-2 mt-2 flex-wrap">
-                <span className={`px-2.5 py-1 rounded text-xs font-medium ${customerTypeColors[customer.customerType || 'individual']}`}>
+              <div className={`flex items-center ${spacing.gap} mt-2 flex-wrap`}>
+                <span className={`px-2.5 py-1 ${spacing.rounded} ${spacing.text.caption} font-medium ${customerTypeColors[customer.customerType || 'individual']}`}>
                   {customer.customerType || 'Individual'}
                 </span>
                 {customer.email && (
-                  <span className="px-2.5 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
+                  <span className={`px-2.5 py-1 ${spacing.rounded} ${spacing.text.caption} font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300`}>
                     <HugeiconsIcon icon={Mail01Icon} size={12} className="inline mr-1" />
                     Verified
                   </span>

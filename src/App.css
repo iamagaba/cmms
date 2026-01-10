@@ -166,9 +166,43 @@ html.dark * {
 
 @layer components {
 
+  /* ============================================ */
+  /* DENSITY-AWARE UTILITY CLASSES               */
+  /* ============================================ */
+
+  /* Density-aware card padding */
+  .card-density-padding {
+    padding: var(--density-card-padding);
+  }
+
+  /* Density-aware gap */
+  .gap-density {
+    gap: var(--density-gap);
+  }
+
+  /* Density-aware spacing */
+  .space-y-density > * + * {
+    margin-top: var(--density-spacing-unit);
+  }
+
+  /* Density-aware row height for tables */
+  .row-density-height {
+    height: var(--density-row-height);
+  }
+
+  /* ============================================ */
+  /* EXISTING UTILITY CLASSES                    */
+  /* ============================================ */
+
   /* List Row - Standard row style for master lists */
   .list-row {
-    @apply flex cursor-pointer flex-col border-b border-gray-100 px-4 py-3 hover:bg-gray-50 transition-colors;
+    @apply flex cursor-pointer flex-col border-b border-gray-100 px-4 transition-colors;
+    padding-top: var(--density-spacing-unit);
+    padding-bottom: var(--density-spacing-unit);
+  }
+
+  .list-row:hover {
+    @apply bg-gray-50;
   }
 
   /* List Row Active - Active/selected state for list items */
@@ -183,22 +217,28 @@ html.dark * {
 
   /* Info Bar - Horizontal information strip (like WorkOrderOverviewCards) */
   .info-bar {
-    @apply bg-white border-y border-gray-200 px-4 py-2.5 flex items-center gap-5 text-xs;
+    @apply bg-white border-y border-gray-200 px-4 flex items-center gap-5 text-xs;
+    padding-top: calc(var(--density-spacing-unit) * 0.625);
+    padding-bottom: calc(var(--density-spacing-unit) * 0.625);
   }
 
   /* Info Bar Item - Individual item in info bar */
   .info-bar-item {
-    @apply flex items-center gap-1.5;
+    @apply flex items-center;
+    gap: calc(var(--density-spacing-unit) * 0.375);
   }
 
   /* Info Bar Divider - Vertical separator in info bar */
   .info-bar-divider {
-    @apply w-px h-4 bg-gray-200;
+    @apply w-px bg-gray-200;
+    height: calc(var(--density-spacing-unit) * 1);
   }
 
   /* Section Header - Header for content sections */
   .section-header {
-    @apply px-3 py-2 border-b border-gray-200 flex items-center gap-2;
+    @apply border-b border-gray-200 flex items-center;
+    padding: var(--density-spacing-unit);
+    gap: calc(var(--density-spacing-unit) * 0.5);
   }
 
   /* Section Header Title - Title text in section header */
@@ -213,27 +253,33 @@ html.dark * {
 
   /* Search Icon - Icon positioning for search inputs */
   .search-icon {
-    @apply absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none;
+    @apply absolute inset-y-0 left-0 flex items-center pointer-events-none;
+    padding-left: calc(var(--density-spacing-unit) * 0.625);
   }
 
   /* Status Dot - Small colored dot for status indicators */
   .status-dot {
-    @apply h-2 w-2 rounded-full flex-shrink-0;
+    @apply rounded-full flex-shrink-0;
+    height: calc(var(--density-spacing-unit) * 0.5);
+    width: calc(var(--density-spacing-unit) * 0.5);
   }
 
   /* Card Grid - Responsive grid for cards */
   .card-grid {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4;
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3;
+    gap: var(--density-gap);
   }
 
   /* Form Grid - Two-column form layout */
   .form-grid {
-    @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+    @apply grid grid-cols-1 md:grid-cols-2;
+    gap: var(--density-gap);
   }
 
   /* Stat Card - Dashboard statistic card */
   .stat-card {
-    @apply bg-white border border-gray-200 rounded-lg p-4 hover:border-gray-300 transition-colors;
+    @apply bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-colors;
+    padding: var(--density-card-padding);
   }
 
   /* Empty State - Centered empty state message */

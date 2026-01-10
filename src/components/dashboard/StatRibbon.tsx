@@ -3,6 +3,8 @@ import React from "react";
 import { HugeiconsIcon, IconSvgElement } from '@hugeicons/react';
 import { ArrowRight01Icon } from '@hugeicons/core-free-icons';
 import { cn } from '@/lib/utils';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 interface StatRibbonProps {
     stats: Array<{
@@ -16,6 +18,8 @@ interface StatRibbonProps {
 }
 
 export const StatRibbon: React.FC<StatRibbonProps> = ({ stats }) => {
+    const spacing = useDensitySpacing();
+    const { isCompact } = useDensity();
     const getIconColorClass = (color: string) => {
         switch (color) {
             case 'primary': return 'text-blue-600';
@@ -33,20 +37,20 @@ export const StatRibbon: React.FC<StatRibbonProps> = ({ stats }) => {
                     <div
                         key={index}
                         className={cn(
-                            'px-6 py-4 hover:bg-gray-50 transition-colors',
+                            `${spacing.card} hover:bg-gray-50 transition-colors`,
                             stat.onClick && 'cursor-pointer'
                         )}
                         onClick={stat.onClick}
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex-1">
-                                <div className="flex items-center gap-2 mb-1">
+                                <div className={`flex items-center ${spacing.gap} mb-1`}>
                                     <HugeiconsIcon
                                         icon={stat.icon}
-                                        size={16}
+                                        size={spacing.icon.sm}
                                         className={cn(getIconColorClass(stat.color))}
                                     />
-                                    <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">
+                                    <p className={`${spacing.text.caption} font-medium text-gray-500 uppercase tracking-wide`}>
                                         {stat.title}
                                     </p>
                                 </div>
@@ -54,7 +58,7 @@ export const StatRibbon: React.FC<StatRibbonProps> = ({ stats }) => {
                                     {typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}
                                 </p>
                                 {stat.subtitle && (
-                                    <p className="text-xs text-gray-500 mt-1">{stat.subtitle}</p>
+                                    <p className={`${spacing.text.caption} text-gray-500 mt-1`}>{stat.subtitle}</p>
                                 )}
                             </div>
                             {stat.onClick && (

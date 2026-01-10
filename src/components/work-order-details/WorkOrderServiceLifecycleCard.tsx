@@ -13,6 +13,8 @@ import { WorkOrder, Vehicle, EmergencyBikeAssignment } from '@/types/supabase';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import duration from 'dayjs/plugin/duration';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 dayjs.extend(relativeTime);
 dayjs.extend(duration);
@@ -42,6 +44,8 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
   emergencyBike,
   emergencyAssignment,
 }) => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const currentStatus = workOrder.status || 'Open';
   const currentIndex = STATUS_ORDER.indexOf(currentStatus);
   const isOnHold = currentStatus === 'On Hold';

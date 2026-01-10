@@ -1,9 +1,7 @@
 import { 
   InventoryItem, 
   ItemCategory, 
-  UnitOfMeasure,
-  ITEM_CATEGORY_LABELS,
-  UNIT_OF_MEASURE_LABELS 
+  UnitOfMeasure
 } from '@/types/supabase';
 import { IconSvgElement } from '@hugeicons/react';
 import {
@@ -19,6 +17,35 @@ import {
   TireIcon,
   MoreHorizontalIcon
 } from '@hugeicons/core-free-icons';
+
+// Define unit of measure labels
+export const UNIT_OF_MEASURE_LABELS: Record<string, string> = {
+  each: 'Each',
+  pair: 'Pair',
+  box: 'Box',
+  case: 'Case',
+  pack: 'Pack',
+  roll: 'Roll',
+  gallon: 'Gallon',
+  liter: 'Liter',
+  pound: 'Pound',
+  kilogram: 'Kilogram'
+};
+
+// Define item category labels
+export const ITEM_CATEGORY_LABELS: Record<string, string> = {
+  electrical: 'Electrical',
+  mechanical: 'Mechanical',
+  consumables: 'Consumables',
+  fluids: 'Fluids',
+  safety: 'Safety',
+  tools: 'Tools',
+  fasteners: 'Fasteners',
+  filters: 'Filters',
+  battery: 'Battery',
+  tires: 'Tires',
+  other: 'Other'
+};
 
 /**
  * Format storage location for display
@@ -86,7 +113,7 @@ export function getCategoryBadgeColor(category: ItemCategory): string {
     tools: 'bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800',
     fasteners: 'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700',
     filters: 'bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800',
-    batteries: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800',
+    battery: 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800',
     tires: 'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700',
     other: 'bg-gray-50 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700',
   };
@@ -106,7 +133,7 @@ export function getCategoryIcon(category: ItemCategory): IconSvgElement {
     tools: Wrench01Icon,
     fasteners: NutIcon,
     filters: FilterIcon,
-    batteries: BatteryFullIcon,
+    battery: BatteryFullIcon,
     tires: TireIcon,
     other: MoreHorizontalIcon,
   };
@@ -197,7 +224,7 @@ export const ALL_CATEGORIES: ItemCategory[] = [
   'tools',
   'fasteners',
   'filters',
-  'batteries',
+  'battery',
   'tires',
   'other',
 ];

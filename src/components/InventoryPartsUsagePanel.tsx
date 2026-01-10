@@ -12,6 +12,8 @@ import {
 import { usePartsForInventoryItem, useReservationsForInventoryItem } from '@/hooks/useWorkOrderParts';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 dayjs.extend(relativeTime);
 
@@ -24,6 +26,8 @@ export const InventoryPartsUsagePanel: React.FC<InventoryPartsUsagePanelProps> =
   inventoryItemId,
   maxHeight = '400px',
 }) => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const { data: usedParts, isLoading: isLoadingParts } = usePartsForInventoryItem(inventoryItemId);
   const { data: reservations, isLoading: isLoadingReservations } = useReservationsForInventoryItem(inventoryItemId);
 

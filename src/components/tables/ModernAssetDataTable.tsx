@@ -24,6 +24,7 @@ import {
     ArrowRight01Icon
 } from '@hugeicons/core-free-icons';
 import { useDensity } from '@/context/DensityContext';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
 
 // Define the shape of our data (EnhancedAsset effectively)
 export interface AssetTableItem extends Vehicle {
@@ -58,6 +59,7 @@ export const ModernAssetDataTable = ({
     const [sorting, setSorting] = useState<SortingState>([]);
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
     const { isCompact } = useDensity();
+    const spacing = useDensitySpacing();
 
     // Close menu when clicking outside
     useEffect(() => {
@@ -75,12 +77,12 @@ export const ModernAssetDataTable = ({
             header: 'Asset',
             cell: info => (
                 <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 rounded bg-primary-50 text-primary-600 flex items-center justify-center border border-primary-100">
-                        <HugeiconsIcon icon={Motorbike01Icon} size={14} />
+                    <div className={`${isCompact ? 'w-6 h-6' : 'w-7 h-7'} rounded bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100`}>
+                        <HugeiconsIcon icon={Motorbike01Icon} size={spacing.icon.xs} />
                     </div>
                     <div>
-                        <div className="text-xs font-semibold text-gray-900">{info.getValue()}</div>
-                        <div className="text-[10px] text-gray-500">{info.row.original.make} {info.row.original.model}</div>
+                        <div className="font-industrial-id text-sm text-purple-700">{info.getValue()}</div>
+                        <div className={`${spacing.text.caption} text-slate-500`}>{info.row.original.make} {info.row.original.model}</div>
                     </div>
                 </div>
             ),
@@ -92,8 +94,8 @@ export const ModernAssetDataTable = ({
                 const name = customer ? `${customer.first_name || ''} ${customer.last_name || ''}`.trim() : '-';
                 return (
                     <div className="flex flex-col">
-                        <span className="text-xs font-medium text-gray-900">{name}</span>
-                        <span className="text-[10px] text-gray-500">Owner</span>
+                        <span className={`${spacing.text.body} font-medium text-gray-900`}>{name}</span>
+                        <span className={`${spacing.text.caption} text-gray-500`}>Owner</span>
                     </div>
                 );
             }
@@ -102,8 +104,8 @@ export const ModernAssetDataTable = ({
             header: 'Location',
             cell: info => (
                 <div className="flex items-center gap-1.5 text-gray-700">
-                    <HugeiconsIcon icon={Location01Icon} size={14} className="text-gray-400" />
-                    <span className="text-xs font-medium">{info.getValue()?.name || 'Unassigned'}</span>
+                    <HugeiconsIcon icon={Location01Icon} size={spacing.icon.xs} className="text-gray-400" />
+                    <span className={`${spacing.text.body} font-medium`}>{info.getValue()?.name || 'Unassigned'}</span>
                 </div>
             )
         }),
@@ -112,12 +114,12 @@ export const ModernAssetDataTable = ({
             cell: info => {
                 const status = info.getValue() as string;
                 const statusColors: Record<string, string> = {
-                    'Normal': 'bg-green-100 text-green-800 border-green-200',
-                    'In Repair': 'bg-amber-100 text-amber-800 border-amber-200',
-                    'Decommissioned': 'bg-red-100 text-red-800 border-red-200',
+                    'Normal': 'bg-green-50 text-green-700 border-green-300',
+                    'In Repair': 'bg-amber-50 text-amber-700 border-amber-300',
+                    'Decommissioned': 'bg-red-50 text-red-700 border-red-300',
                 };
                 return (
-                    <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-medium border ${statusColors[status] || 'bg-gray-100 text-gray-700 border-gray-200'}`}>
+                    <span className={`inline-flex px-2 py-0.5 rounded-sm text-[10px] font-bold uppercase tracking-wide border ${statusColors[status] || 'bg-slate-100 text-slate-600 border-slate-300'}`}>
                         {status || 'Normal'}
                     </span>
                 );
@@ -127,7 +129,7 @@ export const ModernAssetDataTable = ({
             header: 'Asset Age',
             cell: info => {
                 const createdAt = info.getValue();
-                if (!createdAt) return <span className="text-xs text-gray-500">-</span>;
+                if (!createdAt) return <span className={`${spacing.text.body} text-slate-400`}>-</span>;
 
                 const now = new Date();
                 const created = new Date(createdAt);
@@ -136,19 +138,19 @@ export const ModernAssetDataTable = ({
 
                 let ageText = '';
                 if (diffDays < 30) {
-                    ageText = `${diffDays} days`;
+                    ageText = `${diffDays}d`;
                 } else if (diffDays < 365) {
                     const months = Math.floor(diffDays / 30);
-                    ageText = `${months} month${months > 1 ? 's' : ''}`;
+                    ageText = `${months}mo`;
                 } else {
                     const years = Math.floor(diffDays / 365);
-                    ageText = `${years} year${years > 1 ? 's' : ''}`;
+                    ageText = `${years}yr`;
                 }
 
                 return (
                     <div className="flex items-center gap-1.5">
-                        <HugeiconsIcon icon={Calendar01Icon} size={14} className="text-gray-400" />
-                        <span className="text-xs text-gray-700">{ageText}</span>
+                        <HugeiconsIcon icon={Calendar01Icon} size={spacing.icon.xs} className="text-slate-400" />
+                        <span className="font-industrial-data text-xs text-slate-700">{ageText}</span>
                     </div>
                 );
             },
@@ -274,7 +276,7 @@ export const ModernAssetDataTable = ({
                         {table.getHeaderGroups().map(headerGroup => (
                             <tr key={headerGroup.id} className="border-b border-gray-200 bg-gray-50">
                                 {headerGroup.headers.map(header => (
-                                    <th key={header.id} className="px-3 py-1.5 text-left text-[10px] font-semibold text-gray-600 uppercase tracking-wider">
+                                    <th key={header.id} className={`${spacing.rowPadding} text-left ${spacing.text.label} text-gray-600`}>
                                         {header.isPlaceholder
                                             ? null
                                             : flexRender(
@@ -294,7 +296,7 @@ export const ModernAssetDataTable = ({
                                 onClick={() => onViewDetails(row.original.id)}
                             >
                                 {row.getVisibleCells().map(cell => (
-                                    <td key={cell.id} className="px-3 py-2">
+                                    <td key={cell.id} className={spacing.rowPadding}>
                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                     </td>
                                 ))}
@@ -305,24 +307,24 @@ export const ModernAssetDataTable = ({
             </div>
 
             {/* Pagination Controls - Compact */}
-            <div className="px-3 py-2 border-t border-gray-200 bg-gray-50 flex items-center justify-between">
-                <div className="text-xs text-gray-600">
+            <div className={`${spacing.rowPadding} border-t border-gray-200 bg-gray-50 flex items-center justify-between`}>
+                <div className={`${spacing.text.body} text-gray-600`}>
                     Showing <span className="font-semibold text-gray-900">{table.getRowModel().rows.length}</span> of <span className="font-semibold text-gray-900">{assets.length}</span> assets
                 </div>
-                <div className="flex gap-1">
+                <div className={`flex ${spacing.gap}`}>
                     <button
                         onClick={() => table.previousPage()}
                         disabled={!table.getCanPreviousPage()}
-                        className="px-2 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className={`${isCompact ? 'px-2 py-1' : 'px-2.5 py-1.5'} ${spacing.text.body} font-medium text-gray-700 bg-white border border-gray-300 ${spacing.rounded} hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
                     >
-                        <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
+                        <HugeiconsIcon icon={ArrowLeft01Icon} size={spacing.icon.xs} />
                     </button>
                     <button
                         onClick={() => table.nextPage()}
                         disabled={!table.getCanNextPage()}
-                        className="px-2 py-1 text-xs font-medium text-gray-700 bg-white border border-gray-300 rounded hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                        className={`${isCompact ? 'px-2 py-1' : 'px-2.5 py-1.5'} ${spacing.text.body} font-medium text-gray-700 bg-white border border-gray-300 ${spacing.rounded} hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
                     >
-                        <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
+                        <HugeiconsIcon icon={ArrowRight01Icon} size={spacing.icon.xs} />
                     </button>
                 </div>
             </div>

@@ -5,6 +5,8 @@ import { WorkOrder, Technician, Vehicle } from '@/types/supabase';
 import { formatDistanceToNow, isPast, isValid } from 'date-fns';
 import React from 'react';
 import { AssetCustodyBadge } from '@/components/AssetCustodyBadge';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 interface UrgentWorkOrdersTableProps {
   workOrders: WorkOrder[];
@@ -15,6 +17,8 @@ interface UrgentWorkOrdersTableProps {
 }
 
 const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrders, technicians, vehicles, onViewDetails, loading = false }) => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const now = new Date();
   const twentyFourHoursFromNow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
   const safeWorkOrders = Array.isArray(workOrders) ? workOrders : [];
@@ -47,7 +51,7 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
     if (!licensePlate && (record as any).vehicleModel) licensePlate = (record as any).vehicleModel as any;
     if (!licensePlate && record.vehicleId) licensePlate = record.vehicleId;
 
-    return licensePlate ? <span className="text-xs font-semibold">{licensePlate}</span> : <span className="text-xs text-gray-400">N/A</span>;
+    return licensePlate ? <span className={`${spacing.text.caption} font-semibold`}>{licensePlate}</span> : <span className={`${spacing.text.caption} text-gray-400`}>N/A</span>;
   };
 
   const renderTechnician = (techId: string) => {
@@ -61,10 +65,10 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
             <HugeiconsIcon icon={UserIcon} size={12} />
           )}
         </div>
-        <span className="text-xs truncate max-w-[100px]">{tech.name}</span>
+        <span className={`${spacing.text.caption} truncate max-w-[100px]`}>{tech.name}</span>
       </div>
     ) : (
-      <span className="text-xs text-gray-400">Unassigned</span>
+      <span className={`${spacing.text.caption} text-gray-400`}>Unassigned</span>
     );
   };
 
@@ -73,7 +77,7 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
       <HugeiconsIcon icon={Location01Icon} className="w-3 h-3 text-gray-500" size={12} />
       <span className="text-xs truncate max-w-[150px]" title={address}>{address}</span>
     </div>
-  ) : <span className="text-xs text-gray-400">N/A</span>;
+  ) : <span className={`${spacing.text.caption} text-gray-400`}>N/A</span>;
 
   const renderDueStatus = (slaDue: string) => {
     const dueDate = new Date(slaDue);
@@ -95,13 +99,13 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
 
   return (
     <div className="bg-white border border-slate-100 shadow-sm h-full flex flex-col rounded-xl overflow-hidden">
-      <div className="p-4 border-b border-slate-50 flex items-center gap-3">
+      <div className={`${spacing.card} border-b border-slate-50 flex items-center ${spacing.gap}`}>
         <div className="w-6 h-6 rounded-full flex items-center justify-center bg-rose-50 text-rose-500">
-          <HugeiconsIcon icon={AlertCircleIcon} className="w-4 h-4" size={16} />
+          <HugeiconsIcon icon={AlertCircleIcon} className="w-4 h-4" size={spacing.icon.sm} />
         </div>
         <div>
-          <span className="text-sm font-bold text-slate-800 block">Urgent Work Orders</span>
-          <span className="text-[10px] text-slate-500">
+          <span className={`${spacing.text.body} font-bold text-slate-800 block`}>Urgent Work Orders</span>
+          <span className={`${spacing.text.caption} text-slate-500`}>
             Due &lt; 24h
           </span>
         </div>
@@ -133,13 +137,13 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-50">
-                  <th className="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">License Plate</th>
-                  <th className="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Custody</th>
-                  <th className="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Service</th>
-                  <th className="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Technician</th>
-                  <th className="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Location</th>
-                  <th className="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Status</th>
-                  <th className="px-4 py-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">Due</th>
+                  <th className={`${spacing.rowPadding} ${spacing.text.caption} font-bold text-slate-500 uppercase tracking-wider`}>License Plate</th>
+                  <th className={`${spacing.rowPadding} ${spacing.text.caption} font-bold text-slate-500 uppercase tracking-wider`}>Custody</th>
+                  <th className={`${spacing.rowPadding} ${spacing.text.caption} font-bold text-slate-500 uppercase tracking-wider`}>Service</th>
+                  <th className={`${spacing.rowPadding} ${spacing.text.caption} font-bold text-slate-500 uppercase tracking-wider`}>Technician</th>
+                  <th className={`${spacing.rowPadding} ${spacing.text.caption} font-bold text-slate-500 uppercase tracking-wider`}>Location</th>
+                  <th className={`${spacing.rowPadding} ${spacing.text.caption} font-bold text-slate-500 uppercase tracking-wider`}>Status</th>
+                  <th className={`${spacing.rowPadding} ${spacing.text.caption} font-bold text-slate-500 uppercase tracking-wider`}>Due</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-50">
@@ -159,15 +163,15 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
                     focus:outline-none focus:bg-primary-50/50
                   `}
                   >
-                    <td className="px-4 py-2 border-r border-transparent">{renderLicensePlate(record)}</td>
-                    <td className="px-4 py-2 border-r border-transparent">
+                    <td className={`${spacing.rowPadding} border-r border-transparent`}>{renderLicensePlate(record)}</td>
+                    <td className={`${spacing.rowPadding} border-r border-transparent`}>
                       <AssetCustodyBadge vehicle={record.vehicleId ? vehicleMap.get(record.vehicleId) : null} size="sm" />
                     </td>
-                    <td className="px-4 py-2 border-r border-transparent"><span className="text-xs font-medium text-slate-700">{record.service}</span></td>
-                    <td className="px-4 py-2 border-r border-transparent">{renderTechnician(record.assignedTechnicianId || '')}</td>
-                    <td className="px-4 py-2 border-r border-transparent">{renderAddress(record.customerAddress || '')}</td>
-                    <td className="px-4 py-2 border-r border-transparent">{renderDueStatus(record.slaDue as string)}</td>
-                    <td className="px-4 py-2">{renderDueIn(record.slaDue as string)}</td>
+                    <td className={`${spacing.rowPadding} border-r border-transparent`}><span className={`${spacing.text.caption} font-medium text-slate-700`}>{record.service}</span></td>
+                    <td className={`${spacing.rowPadding} border-r border-transparent`}>{renderTechnician(record.assignedTechnicianId || '')}</td>
+                    <td className={`${spacing.rowPadding} border-r border-transparent`}>{renderAddress(record.customerAddress || '')}</td>
+                    <td className={`${spacing.rowPadding} border-r border-transparent`}>{renderDueStatus(record.slaDue as string)}</td>
+                    <td className={spacing.rowPadding}>{renderDueIn(record.slaDue as string)}</td>
                   </tr>
                 ))}
               </tbody>

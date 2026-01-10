@@ -10,6 +10,8 @@ import {
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 dayjs.extend(relativeTime);
 
@@ -33,6 +35,8 @@ export const WorkOrderNotesCard: React.FC<WorkOrderNotesCardProps> = ({
   onAddNote,
   profileMap = new Map(),
 }) => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const [newNote, setNewNote] = useState('');
   const [noteType, setNoteType] = useState<'note' | 'diagnosis' | 'resolution'>('note');
   const [isExpanded, setIsExpanded] = useState(false);

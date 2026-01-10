@@ -46,27 +46,27 @@ export const DetailsSummary: React.FC<DetailsSummaryProps> = ({ data }) => {
     const currentConfig = priorityConfig[data.priority];
 
     return (
-        <div className="mt-2 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2">
+        <div className="mt-1 grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1">
             {/* Priority & Location */}
-            <div className="space-y-2">
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded text-xs font-medium border ${currentConfig.color}`}>
-                    <HugeiconsIcon icon={currentConfig.icon} size={12} />
+            <div className="space-y-1">
+                <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border ${currentConfig.color}`}>
+                    <HugeiconsIcon icon={currentConfig.icon} size={10} />
                     {priorityLabels[data.priority]}
                 </span>
 
                 {location && (
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                        <HugeiconsIcon icon={Store01Icon} size={16} className="text-gray-400" />
+                    <div className="flex items-center gap-1.5 text-xs text-gray-700">
+                        <HugeiconsIcon icon={Store01Icon} size={12} className="text-gray-400" />
                         <span className="font-medium">{location.name}</span>
                     </div>
                 )}
             </div>
 
             {/* Schedule & Notes */}
-            <div className="space-y-1">
+            <div className="space-y-0.5">
                 {data.scheduledDate ? (
-                    <div className="flex items-center gap-2 text-sm text-gray-700">
-                        <HugeiconsIcon icon={Calendar01Icon} size={16} className="text-gray-400" />
+                    <div className="flex items-center gap-1.5 text-xs text-gray-700">
+                        <HugeiconsIcon icon={Calendar01Icon} size={12} className="text-gray-400" />
                         <span>
                             {new Date(data.scheduledDate).toLocaleString('en-US', {
                                 weekday: 'short',
@@ -78,16 +78,16 @@ export const DetailsSummary: React.FC<DetailsSummaryProps> = ({ data }) => {
                         </span>
                     </div>
                 ) : (
-                    <div className="flex items-center gap-2 text-sm text-gray-500 italic">
-                        <HugeiconsIcon icon={Calendar01Icon} size={16} className="text-gray-300" />
+                    <div className="flex items-center gap-1.5 text-xs text-gray-500 italic">
+                        <HugeiconsIcon icon={Calendar01Icon} size={12} className="text-gray-300" />
                         Immediate / No schedule
                     </div>
                 )}
 
                 {data.customerNotes && (
-                    <div className="flex items-start gap-2 mt-1">
-                        <HugeiconsIcon icon={NoteIcon} size={16} className="text-gray-400 mt-0.5" />
-                        <p className="text-xs text-gray-600 line-clamp-1 italic">
+                    <div className="flex items-start gap-1.5 mt-0.5">
+                        <HugeiconsIcon icon={NoteIcon} size={12} className="text-gray-400 mt-0.5" />
+                        <p className="text-[10px] text-gray-600 line-clamp-1 italic">
                             "{data.customerNotes}"
                         </p>
                     </div>

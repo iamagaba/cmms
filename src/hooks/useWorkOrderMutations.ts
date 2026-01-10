@@ -13,11 +13,11 @@ interface UseWorkOrderMutationsProps {
   locations: Location[];
 }
 
-export const useWorkOrderMutations = ({ 
-  serviceCategories, 
-  slaPolicies, 
-  technicians: _technicians, 
-  locations: _locations 
+export const useWorkOrderMutations = ({
+  serviceCategories,
+  slaPolicies,
+  technicians: _technicians,
+  locations: _locations
 }: UseWorkOrderMutationsProps) => {
   const queryClient = useQueryClient();
   const { session } = useSession();
@@ -27,8 +27,12 @@ export const useWorkOrderMutations = ({
       const { error } = await supabase.from('work_orders').upsert([workOrderData]);
       if (error) throw new Error(error.message);
     },
-    onSuccess: () => {
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['work_orders'] });
+      if (variables.id) {
+        queryClient.invalidateQueries({ queryKey: ['work_order', variables.id] });
+        queryClient.invalidateQueries({ queryKey: ['work_order_drawer', variables.id] });
+      }
       showSuccess('Work order has been saved.');
     },
     onError: (error) => showError(error.message),
@@ -64,32 +68,33 @@ export const useWorkOrderMutations = ({
   });
 
   const validateStatusTransition = (oldStatus: WorkOrder['status'], newStatus: WorkOrder['status'], isServiceCenter: boolean): boolean => {
-    if (oldStatus === 'Completed') {
-      showError('Cannot change status of a completed work order.');
-      return false;
-    }
+    if (!oldStatus || !newStatus) return false;
+    if (oldStatus === newStatus) return true;
+
+    // Normalize for comparison
+    const normalizedOld = (oldStatus as string).toLowerCase();
 
     let isValidTransition = false;
 
-    if (oldStatus === 'Open') {
+    if (normalizedOld === 'open') {
       if (newStatus === 'Confirmation') {
         isValidTransition = true;
       } else if (newStatus === 'In Progress' && isServiceCenter) {
         isValidTransition = true;
       }
-    } else if (oldStatus === 'Confirmation') {
+    } else if (normalizedOld === 'confirmation') {
       if (newStatus === 'Ready') {
         isValidTransition = true;
       }
-    } else if (oldStatus === 'Ready') {
+    } else if (normalizedOld === 'ready') {
       if (newStatus === 'In Progress') {
         isValidTransition = true;
       }
-    } else if (oldStatus === 'In Progress') {
+    } else if (normalizedOld === 'in progress') {
       if (newStatus === 'On Hold' || newStatus === 'Completed') {
         isValidTransition = true;
       }
-    } else if (oldStatus === 'On Hold') {
+    } else if (normalizedOld === 'on hold') {
       if (newStatus === 'In Progress') {
         isValidTransition = true;
       }
@@ -104,7 +109,7 @@ export const useWorkOrderMutations = ({
   };
 
   const updateWorkOrder = (
-    workOrder: WorkOrder, 
+    workOrder: WorkOrder,
     updates: Partial<WorkOrder>,
     onHoldCallback?: (workOrder: WorkOrder) => void
   ) => {
@@ -116,7 +121,7 @@ export const useWorkOrderMutations = ({
       'assignedTechnicianId' in updates &&
       updates.assignedTechnicianId !== workOrder.assignedTechnicianId
     ) {
-      const isReadyToInProgress = oldStatus === 'Ready' && newStatus === 'In Progress';
+      const isReadyToInProgress = oldStatus?.toLowerCase() === 'ready' && newStatus === 'In Progress';
       if (!isReadyToInProgress) {
         showError('Technician can only be assigned when moving from Ready to In Progress.');
         return;
@@ -137,7 +142,7 @@ export const useWorkOrderMutations = ({
     // Timestamp & SLA Automation
     if (newStatus && newStatus !== oldStatus) {
       activityMessage = `Status changed from '${oldStatus || 'N/A'}' to '${newStatus}'.`;
-      
+
       if (newStatus === 'Confirmation' && !workOrder.confirmed_at) {
         updates.confirmed_at = new Date().toISOString();
       }
@@ -161,7 +166,7 @@ export const useWorkOrderMutations = ({
     if (updates.service_category_id && updates.service_category_id !== workOrder.service_category_id) {
       const policy = slaPolicies?.find(p => p.service_category_id === updates.service_category_id);
       const category = serviceCategories?.find(c => c.id === updates.service_category_id);
-      
+
       if (policy && policy.resolution_hours) {
         const createdAt = dayjs((workOrder as any).createdAt ?? workOrder.created_at);
         const totalPausedSeconds = updates.total_paused_duration_seconds || workOrder.total_paused_duration_seconds || 0;
@@ -172,10 +177,10 @@ export const useWorkOrderMutations = ({
     }
 
     if (activityMessage) {
-      newActivityLog.push({ 
-        timestamp: new Date().toISOString(), 
-        activity: activityMessage, 
-        userId: session?.user.id ?? null 
+      newActivityLog.push({
+        timestamp: new Date().toISOString(),
+        activity: activityMessage,
+        userId: session?.user.id ?? null
       });
       updates.activityLog = newActivityLog;
     }
@@ -201,19 +206,19 @@ export const useWorkOrderMutations = ({
   return {
     updateWorkOrder,
     saveWorkOrder: (workOrderData: WorkOrder) => {
-      const newActivityLog = workOrderData.activityLog || [{ 
-        timestamp: new Date().toISOString(), 
-        activity: 'Work order created.', 
-        userId: session?.user.id ?? null 
+      const newActivityLog = workOrderData.activityLog || [{
+        timestamp: new Date().toISOString(),
+        activity: 'Work order created.',
+        userId: session?.user.id ?? null
       }];
       const dataToMutate: Partial<WorkOrder> = { ...workOrderData, activityLog: newActivityLog };
-      if (dataToMutate.id === undefined) { 
-        delete dataToMutate.id; 
+      if (dataToMutate.id === undefined) {
+        delete dataToMutate.id;
       }
       workOrderMutation.mutate(camelToSnakeCase(dataToMutate));
     },
     deleteWorkOrder: (workOrder: WorkOrder) => deleteMutation.mutate(workOrder.id),
-    bulkAssign: (workOrderIds: React.Key[], technicianId: string) => 
+    bulkAssign: (workOrderIds: React.Key[], technicianId: string) =>
       bulkAssignMutation.mutate({ workOrderIds, technicianId }),
     isLoading: workOrderMutation.isPending || deleteMutation.isPending || bulkAssignMutation.isPending
   };

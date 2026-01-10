@@ -8,6 +8,8 @@ import {
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 dayjs.extend(duration);
 
@@ -16,6 +18,8 @@ interface WorkOrderSLATimerCardProps {
 }
 
 export const WorkOrderSLATimerCard: React.FC<WorkOrderSLATimerCardProps> = ({ workOrder }) => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const [now, setNow] = useState(dayjs());
 
   // Update every minute

@@ -14,6 +14,8 @@ import { InventoryItem } from '@/types/supabase';
 import { useCreateStockTransfer } from '@/hooks/useInventoryTransactions';
 import { getUniqueWarehouses } from '@/utils/inventory-categorization-helpers';
 import { snakeToCamelCase } from '@/utils/data-helpers';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 interface StockTransferDialogProps {
   isOpen: boolean;
@@ -41,6 +43,8 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
   const [selectedItemId, setSelectedItemId] = useState<string>('');
 
   const createTransfer = useCreateStockTransfer();
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
 
   // Fetch inventory items
   const { data: inventoryItems } = useQuery<InventoryItem[]>({
@@ -134,34 +138,34 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-3xl max-h-[90vh] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-              <HugeiconsIcon icon={ArrowDataTransferHorizontalIcon} size={20} className="text-blue-600 dark:text-blue-400" />
+        <div className={`flex items-center justify-between ${spacing.card} border-b border-gray-200 dark:border-gray-700`}>
+          <div className={`flex items-center ${spacing.gap}`}>
+            <div className={`${isCompact ? 'w-8 h-8' : 'w-10 h-10'} rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center`}>
+              <HugeiconsIcon icon={ArrowDataTransferHorizontalIcon} size={spacing.icon.lg} className="text-blue-600 dark:text-blue-400" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Transfer Stock</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Move inventory between locations</p>
+              <h2 className={`${spacing.text.heading} font-semibold text-gray-900 dark:text-gray-100`}>Transfer Stock</h2>
+              <p className={`${spacing.text.body} text-gray-500 dark:text-gray-400`}>Move inventory between locations</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-            <HugeiconsIcon icon={Cancel01Icon} size={20} className="text-gray-500" />
+          <button onClick={onClose} className={`${isCompact ? 'p-1.5' : 'p-2'} hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg`}>
+            <HugeiconsIcon icon={Cancel01Icon} size={spacing.icon.lg} className="text-gray-500" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="p-6 space-y-6 max-h-[calc(90vh-180px)] overflow-y-auto">
+          <div className={`${spacing.card} ${spacing.section} max-h-[calc(90vh-180px)] overflow-y-auto`}>
             {/* Transfer Details */}
-            <div className="grid grid-cols-3 gap-4">
+            <div className={`grid grid-cols-3 ${spacing.gap}`}>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">From Warehouse *</label>
+                <label className={`block ${spacing.text.body} font-medium text-gray-700 dark:text-gray-300 mb-1`}>From Warehouse *</label>
                 <select
                   value={fromWarehouse}
                   onChange={(e) => {
                     setFromWarehouse(e.target.value);
                     setLineItems([]); // Clear items when source changes
                   }}
-                  className="w-full h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+                  className={`w-full ${spacing.inputHeight} px-3 ${spacing.rounded} border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 ${spacing.text.body}`}
                   required
                 >
                   <option value="">Select source...</option>
@@ -171,11 +175,11 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">To Warehouse *</label>
+                <label className={`block ${spacing.text.body} font-medium text-gray-700 dark:text-gray-300 mb-1`}>To Warehouse *</label>
                 <select
                   value={toWarehouse}
                   onChange={(e) => setToWarehouse(e.target.value)}
-                  className="w-full h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+                  className={`w-full ${spacing.inputHeight} px-3 ${spacing.rounded} border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 ${spacing.text.body}`}
                   required
                 >
                   <option value="">Select destination...</option>
@@ -185,12 +189,12 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Transfer Date</label>
+                <label className={`block ${spacing.text.body} font-medium text-gray-700 dark:text-gray-300 mb-1`}>Transfer Date</label>
                 <input
                   type="date"
                   value={transferDate}
                   onChange={(e) => setTransferDate(e.target.value)}
-                  className="w-full h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+                  className={`w-full ${spacing.inputHeight} px-3 ${spacing.rounded} border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 ${spacing.text.body}`}
                   required
                 />
               </div>
@@ -198,15 +202,15 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
 
             {/* Visual Transfer Indicator */}
             {fromWarehouse && toWarehouse && (
-              <div className="flex items-center justify-center gap-4 py-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+              <div className={`flex items-center justify-center ${spacing.gap} ${spacing.card} bg-gray-50 dark:bg-gray-800 ${spacing.roundedLg}`}>
                 <div className="text-center">
-                  <HugeiconsIcon icon={Building02Icon} size={32} className="text-gray-400 mx-auto mb-1" />
-                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{fromWarehouse}</div>
+                  <HugeiconsIcon icon={Building02Icon} size={spacing.icon.xl} className="text-gray-400 mx-auto mb-1" />
+                  <div className={`${spacing.text.body} font-medium text-gray-900 dark:text-gray-100`}>{fromWarehouse}</div>
                 </div>
-                <HugeiconsIcon icon={ArrowRight01Icon} size={24} className="text-blue-500" />
+                <HugeiconsIcon icon={ArrowRight01Icon} size={spacing.icon.lg} className="text-blue-500" />
                 <div className="text-center">
-                  <HugeiconsIcon icon={Building02Icon} size={32} className="text-blue-500 mx-auto mb-1" />
-                  <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{toWarehouse}</div>
+                  <HugeiconsIcon icon={Building02Icon} size={spacing.icon.xl} className="text-blue-500 mx-auto mb-1" />
+                  <div className={`${spacing.text.body} font-medium text-gray-900 dark:text-gray-100`}>{toWarehouse}</div>
                 </div>
               </div>
             )}
@@ -214,12 +218,12 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
             {/* Add Items */}
             {fromWarehouse && (
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Add Items from {fromWarehouse}</label>
-                <div className="flex gap-2">
+                <label className={`block ${spacing.text.body} font-medium text-gray-700 dark:text-gray-300 ${spacing.mb}`}>Add Items from {fromWarehouse}</label>
+                <div className={`flex ${spacing.gap}`}>
                   <select
                     value={selectedItemId}
                     onChange={(e) => setSelectedItemId(e.target.value)}
-                    className="flex-1 h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+                    className={`flex-1 ${spacing.inputHeight} px-3 ${spacing.rounded} border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 ${spacing.text.body}`}
                   >
                     <option value="">Select item to transfer...</option>
                     {availableItems.map(item => (
@@ -232,7 +236,7 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
                     type="button"
                     onClick={handleAddItem}
                     disabled={!selectedItemId}
-                    className="px-4 h-10 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                    className={`${spacing.button} bg-purple-600 text-white ${spacing.rounded} hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium`}
                   >
                     Add
                   </button>
@@ -242,43 +246,43 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
 
             {/* Line Items Table */}
             {lineItems.length > 0 && (
-              <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                <table className="w-full text-sm">
+              <div className={`border border-gray-200 dark:border-gray-700 ${spacing.roundedLg} overflow-hidden`}>
+                <table className={`w-full ${spacing.text.body}`}>
                   <thead className="bg-gray-50 dark:bg-gray-800">
                     <tr>
-                      <th className="px-4 py-2 text-left font-medium text-gray-700 dark:text-gray-300">Item</th>
-                      <th className="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-300 w-24">Available</th>
-                      <th className="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-300 w-28">Transfer Qty</th>
-                      <th className="px-4 py-2 w-12"></th>
+                      <th className={`${spacing.rowPadding} text-left font-medium text-gray-700 dark:text-gray-300`}>Item</th>
+                      <th className={`${spacing.rowPadding} text-center font-medium text-gray-700 dark:text-gray-300 w-24`}>Available</th>
+                      <th className={`${spacing.rowPadding} text-center font-medium text-gray-700 dark:text-gray-300 w-28`}>Transfer Qty</th>
+                      <th className={`${spacing.rowPadding} w-12`}></th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
                     {lineItems.map(li => (
                       <tr key={li.inventory_item_id}>
-                        <td className="px-4 py-2">
+                        <td className={spacing.rowPadding}>
                           <div className="font-medium text-gray-900 dark:text-gray-100">{li.item?.name}</div>
-                          <div className="text-xs text-gray-500">{li.item?.sku}</div>
+                          <div className={`${spacing.text.caption} text-gray-500`}>{li.item?.sku}</div>
                         </td>
-                        <td className="px-4 py-2 text-center text-gray-600 dark:text-gray-400">
+                        <td className={`${spacing.rowPadding} text-center text-gray-600 dark:text-gray-400`}>
                           {li.maxQuantity}
                         </td>
-                        <td className="px-4 py-2">
+                        <td className={spacing.rowPadding}>
                           <input
                             type="number"
                             min="1"
                             max={li.maxQuantity}
                             value={li.quantity}
                             onChange={(e) => handleUpdateQuantity(li.inventory_item_id, parseInt(e.target.value) || 1)}
-                            className="w-full h-8 px-2 text-center rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                            className={`w-full ${spacing.inputHeight} px-2 text-center rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800`}
                           />
                         </td>
-                        <td className="px-4 py-2">
+                        <td className={spacing.rowPadding}>
                           <button
                             type="button"
                             onClick={() => handleRemoveItem(li.inventory_item_id)}
-                            className="p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
+                            className={`${isCompact ? 'p-1' : 'p-1.5'} text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded`}
                           >
-                            <HugeiconsIcon icon={Delete01Icon} size={16} />
+                            <HugeiconsIcon icon={Delete01Icon} size={spacing.icon.sm} />
                           </button>
                         </td>
                       </tr>
@@ -290,20 +294,20 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
 
             {/* Notes */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+              <label className={`block ${spacing.text.body} font-medium text-gray-700 dark:text-gray-300 mb-1`}>Notes</label>
               <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                rows={2}
+                rows={isCompact ? 2 : 3}
                 placeholder="Optional notes..."
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
+                className={`w-full px-3 py-2 ${spacing.roundedLg} border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 ${spacing.text.body}`}
               />
             </div>
 
             {/* Summary */}
             {lineItems.length > 0 && (
-              <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-                <div className="text-sm text-blue-700 dark:text-blue-300">
+              <div className={`bg-blue-50 dark:bg-blue-900/20 ${spacing.roundedLg} ${spacing.card}`}>
+                <div className={`${spacing.text.body} text-blue-700 dark:text-blue-300`}>
                   Transferring <span className="font-semibold">{lineItems.length}</span> items ({totalItems} units) from {fromWarehouse} to {toWarehouse}
                 </div>
               </div>
@@ -311,20 +315,20 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+          <div className={`flex items-center justify-end ${spacing.gap} ${spacing.card} border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800`}>
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
+              className={`${spacing.button} font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 ${spacing.rounded}`}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={lineItems.length === 0 || !fromWarehouse || !toWarehouse || createTransfer.isPending}
-              className="px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              className={`${spacing.button} font-medium text-white bg-blue-600 hover:bg-blue-700 ${spacing.rounded} disabled:opacity-50 disabled:cursor-not-allowed flex items-center ${spacing.gap}`}
             >
-              {createTransfer.isPending && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin" />}
+              {createTransfer.isPending && <HugeiconsIcon icon={Loading03Icon} size={spacing.icon.sm} className="animate-spin" />}
               Complete Transfer
             </button>
           </div>

@@ -81,45 +81,46 @@ export interface AssetStatusBadgeProps extends Omit<ProfessionalBadgeProps, 'var
 }
 
 // ============================================
-// STYLE VARIANTS
+// STYLE VARIANTS - Industrial Design
 // ============================================
 
 const badgeVariants = {
   default: {
-    filled: 'bg-machinery-100 text-machinery-700 border-machinery-200',
-    outline: 'bg-transparent text-machinery-600 border-machinery-300',
+    filled: 'bg-slate-100 text-slate-700 border-slate-300',
+    outline: 'bg-transparent text-slate-600 border-slate-400',
   },
   primary: {
-    filled: 'bg-steel-100 text-steel-800 border-steel-200',
-    outline: 'bg-transparent text-steel-600 border-steel-400',
+    filled: 'bg-purple-50 text-purple-700 border-purple-300',
+    outline: 'bg-transparent text-purple-600 border-purple-400',
   },
   secondary: {
-    filled: 'bg-machinery-100 text-machinery-700 border-machinery-200',
-    outline: 'bg-transparent text-machinery-600 border-machinery-300',
+    filled: 'bg-slate-100 text-slate-700 border-slate-300',
+    outline: 'bg-transparent text-slate-600 border-slate-400',
   },
   success: {
-    filled: 'bg-industrial-100 text-industrial-800 border-industrial-200',
-    outline: 'bg-transparent text-industrial-600 border-industrial-400',
+    filled: 'bg-green-50 text-green-700 border-green-300',
+    outline: 'bg-transparent text-green-600 border-green-400',
   },
   warning: {
-    filled: 'bg-maintenance-100 text-maintenance-800 border-maintenance-200',
-    outline: 'bg-transparent text-maintenance-600 border-maintenance-400',
+    filled: 'bg-amber-50 text-amber-700 border-amber-300',
+    outline: 'bg-transparent text-amber-600 border-amber-400',
   },
   error: {
-    filled: 'bg-warning-100 text-warning-800 border-warning-200',
-    outline: 'bg-transparent text-warning-600 border-warning-400',
+    filled: 'bg-red-50 text-red-700 border-red-300',
+    outline: 'bg-transparent text-red-600 border-red-400',
   },
   info: {
-    filled: 'bg-steel-100 text-steel-800 border-steel-200',
-    outline: 'bg-transparent text-steel-600 border-steel-400',
+    filled: 'bg-blue-50 text-blue-700 border-blue-300',
+    outline: 'bg-transparent text-blue-600 border-blue-400',
   },
 };
 
+// Industrial sizing - compact with uppercase
 const badgeSizes = {
-  xs: 'px-1.5 py-0.5 text-xs',
-  sm: 'px-2 py-0.5 text-xs',
-  base: 'px-2.5 py-1 text-sm',
-  lg: 'px-3 py-1.5 text-sm',
+  xs: 'px-1.5 py-0.5 text-[9px]',
+  sm: 'px-2 py-0.5 text-[10px]',
+  base: 'px-2.5 py-0.5 text-[11px]',
+  lg: 'px-3 py-1 text-xs',
 };
 
 // ============================================
@@ -263,8 +264,8 @@ const ProfessionalBadge = forwardRef<HTMLSpanElement, ProfessionalBadgeProps>(
         animate={pulse ? { scale: [1, 1.05, 1] } : undefined}
         transition={pulse ? { duration: 2, repeat: Infinity } : undefined}
         className={cn(
-          // Base styles
-          'inline-flex items-center gap-1.5 font-medium border',
+          // Base styles - Industrial: uppercase, bold, tracking
+          'inline-flex items-center gap-1.5 font-bold uppercase tracking-wide border',
           'transition-all duration-200',
           
           // Size styles
@@ -273,8 +274,8 @@ const ProfessionalBadge = forwardRef<HTMLSpanElement, ProfessionalBadgeProps>(
           // Variant styles
           variantStyles[styleType],
           
-          // Shape styles
-          rounded ? 'rounded' : 'rounded-md',
+          // Shape styles - Industrial: sharper corners
+          rounded ? 'rounded-sm' : 'rounded',
           
           // Pulse animation
           pulse && 'animate-pulse',

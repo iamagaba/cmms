@@ -1,8 +1,14 @@
 import React from 'react';
-export const ModernPageHeader = ({ title, subtitle, breadcrumbs, actions }: any) => (
-    <div className="mb-4">
-        <h1 className="text-2xl font-bold">{title}</h1>
-        <p>{subtitle}</p>
-        {actions}
-    </div>
-);
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+
+export const ModernPageHeader = ({ title, subtitle, breadcrumbs, actions }: any) => {
+    const spacing = useDensitySpacing();
+
+    return (
+        <div className={spacing.mb}>
+            <h1 className={spacing.text.heading}>{title}</h1>
+            <p className={spacing.text.body}>{subtitle}</p>
+            {actions}
+        </div>
+    );
+};

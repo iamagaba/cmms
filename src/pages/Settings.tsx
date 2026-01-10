@@ -6,6 +6,7 @@ import { showSuccess, showError } from '@/utils/toast';
 import { useSession } from '@/context/SessionContext';
 import { useSystemSettings } from '@/context/SystemSettingsContext';
 import { useDensity } from '@/context/DensityContext';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
 import { useNotifications } from '@/context/NotificationsContext';
 import { formatDistanceToNow } from 'date-fns';
 import { HugeiconsIcon } from '@hugeicons/react';
@@ -57,6 +58,8 @@ const Toggle: React.FC<{
 
 // Profile Tab Component
 const ProfileTab = () => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const { session } = useSession();
   const user = session?.user;
   const queryClient = useQueryClient();
@@ -116,21 +119,21 @@ const ProfileTab = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className={spacing.section}>
       {/* Profile Header Card */}
-      <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-        <div className="flex items-start gap-4">
+      <div className={`bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 ${spacing.roundedLg} ${spacing.card}`}>
+        <div className={`flex items-start ${spacing.gap}`}>
           {/* Avatar */}
           <div className="flex-shrink-0">
             {displayAvatar ? (
               <img
                 src={displayAvatar}
                 alt="Profile"
-                className="w-20 h-20 rounded-full border-2 border-gray-200 dark:border-gray-700 object-cover"
+                className={`${isCompact ? 'w-16 h-16' : 'w-20 h-20'} rounded-full border-2 border-gray-200 dark:border-gray-700 object-cover`}
               />
             ) : (
-              <div className="w-20 h-20 rounded-full border-2 border-gray-200 dark:border-gray-700 bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center">
-                <HugeiconsIcon icon={UserIcon} size={40} className="text-primary-600 dark:text-primary-400" />
+              <div className={`${isCompact ? 'w-16 h-16' : 'w-20 h-20'} rounded-full border-2 border-gray-200 dark:border-gray-700 bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center`}>
+                <HugeiconsIcon icon={UserIcon} size={isCompact ? 32 : 40} className="text-primary-600 dark:text-primary-400" />
               </div>
             )}
           </div>

@@ -12,6 +12,8 @@ import {
 } from '@/hooks/useStockAdjustments';
 import { AdjustmentReason, ADJUSTMENT_REASON_LABELS, StockAdjustment } from '@/types/supabase';
 import { AdjustmentReasonBadge } from './AdjustmentReasonBadge';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 interface AdjustmentHistoryPanelProps {
   inventoryItemId?: string;
@@ -30,6 +32,8 @@ export const AdjustmentHistoryPanel: React.FC<AdjustmentHistoryPanelProps> = ({
   isGlobal = false,
   maxHeight = '400px',
 }) => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const [filters, setFilters] = useState<AdjustmentHistoryFilters>({});
   const [showFilters, setShowFilters] = useState(false);
 

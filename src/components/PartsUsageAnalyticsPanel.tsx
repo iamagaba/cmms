@@ -14,6 +14,8 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTopUsedParts, usePartsUsageAnalytics } from '@/hooks/useWorkOrderParts';
 import dayjs from 'dayjs';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import { useDensity } from '@/context/DensityContext';
 
 interface PartsUsageAnalyticsPanelProps {
   isOpen: boolean;
@@ -27,6 +29,8 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
   isOpen,
   onClose,
 }) => {
+  const spacing = useDensitySpacing();
+  const { isCompact } = useDensity();
   const [activeView, setActiveView] = useState<ViewType>('overview');
   const [timeRange, setTimeRange] = useState<TimeRange>('30d');
 

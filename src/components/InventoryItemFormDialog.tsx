@@ -150,39 +150,39 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50">
+          <div className={`flex items-center justify-between border-b border-gray-200 bg-gray-50 ${spacing.card}`}>
             <div>
               <div className="flex items-center gap-2">
-                <HugeiconsIcon icon={PackageIcon} size={24} className="text-purple-600" />
-                <h2 className="text-xl font-semibold text-gray-900">
+                <HugeiconsIcon icon={PackageIcon} size={spacing.icon.lg} className="text-purple-600" />
+                <h2 className={`${spacing.text.heading} font-semibold text-gray-900`}>
                   {item ? 'Edit Inventory Item' : 'Add New Inventory Item'}
                 </h2>
               </div>
-              <p className="text-sm text-gray-500 mt-0.5">
+              <p className={`${spacing.text.caption} text-gray-500 mt-0.5`}>
                 {item ? 'Update item details' : 'Add a new item to inventory'}
               </p>
             </div>
             <button
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+              className={`${isCompact ? 'p-1.5' : 'p-2'} text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors`}
             >
-              <HugeiconsIcon icon={Cancel01Icon} size={20} />
+              <HugeiconsIcon icon={Cancel01Icon} size={spacing.icon.md} />
             </button>
           </div>
 
           {/* Form - Scrollable */}
           <form id="inventory-item-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
-            <div className="p-6 space-y-6">
+            <div className={`${spacing.card} ${spacing.section}`}>
               
               {/* Basic Information */}
               <div>
-                <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <HugeiconsIcon icon={InformationCircleIcon} size={20} className="text-purple-600" />
+                <h3 className={`${spacing.text.subheading} font-semibold text-gray-900 ${spacing.mb} flex items-center gap-2`}>
+                  <HugeiconsIcon icon={InformationCircleIcon} size={spacing.icon.md} className="text-purple-600" />
                   Basic Information
                 </h3>
-                <div className="space-y-4">
+                <div className={spacing.section}>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className={`block ${spacing.text.body} font-medium text-gray-700 mb-1`}>
                       Item Name <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -190,13 +190,13 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
                       required
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      className={`w-full ${spacing.input} border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500`}
                       placeholder="Enter item name"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className={`block ${spacing.text.body} font-medium text-gray-700 mb-1`}>
                       SKU <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -204,20 +204,20 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
                       required
                       value={formData.sku}
                       onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      className={`w-full ${spacing.input} border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500`}
                       placeholder="Enter SKU"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className={`block ${spacing.text.body} font-medium text-gray-700 mb-1`}>
                       Description
                     </label>
                     <textarea
                       value={formData.description || ''}
                       onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      rows={3}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                      rows={isCompact ? 2 : 3}
+                      className={`w-full ${spacing.input} border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500`}
                       placeholder="Enter item description (optional)"
                     />
                   </div>
@@ -226,13 +226,13 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
 
               {/* Categorization */}
               <div>
-                <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <HugeiconsIcon icon={Tag01Icon} size={20} className="text-purple-600" />
+                <h3 className={`${spacing.text.subheading} font-semibold text-gray-900 ${spacing.mb} flex items-center gap-2`}>
+                  <HugeiconsIcon icon={Tag01Icon} size={spacing.icon.md} className="text-purple-600" />
                   Categorization
                 </h3>
-                <div className="space-y-4">
+                <div className={spacing.section}>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className={`block ${spacing.text.body} font-medium text-gray-700 mb-1`}>
                       Categories
                     </label>
                     <CategoryMultiSelect
@@ -242,7 +242,7 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className={`block ${spacing.text.body} font-medium text-gray-700 mb-1`}>
                       Supplier
                     </label>
                     <SupplierSelect
@@ -255,8 +255,8 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
 
               {/* Unit of Measure */}
               <div>
-                <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <HugeiconsIcon icon={RulerIcon} size={20} className="text-purple-600" />
+                <h3 className={`${spacing.text.subheading} font-semibold text-gray-900 ${spacing.mb} flex items-center gap-2`}>
+                  <HugeiconsIcon icon={RulerIcon} size={spacing.icon.md} className="text-purple-600" />
                   Unit of Measure
                 </h3>
                 <UnitOfMeasureSelect
@@ -269,8 +269,8 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
 
               {/* Storage Location */}
               <div>
-                <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <HugeiconsIcon icon={Location01Icon} size={20} className="text-purple-600" />
+                <h3 className={`${spacing.text.subheading} font-semibold text-gray-900 ${spacing.mb} flex items-center gap-2`}>
+                  <HugeiconsIcon icon={Location01Icon} size={spacing.icon.md} className="text-purple-600" />
                   Storage Location
                 </h3>
                 <StorageLocationFields
@@ -285,14 +285,14 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
 
               {/* Stock Information */}
               <div>
-                <h3 className="text-base font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <HugeiconsIcon icon={PackageIcon} size={20} className="text-purple-600" />
+                <h3 className={`${spacing.text.subheading} font-semibold text-gray-900 ${spacing.mb} flex items-center gap-2`}>
+                  <HugeiconsIcon icon={PackageIcon} size={spacing.icon.md} className="text-purple-600" />
                   Stock Information
                 </h3>
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <div className={spacing.section}>
+                  <div className={`grid grid-cols-2 ${spacing.gap}`}>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className={`block ${spacing.text.body} font-medium text-gray-700 mb-1`}>
                         Quantity on Hand <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -301,13 +301,13 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
                         min="0"
                         value={formData.quantity_on_hand || ''}
                         onChange={(e) => setFormData({ ...formData, quantity_on_hand: parseInt(e.target.value) || 0 })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        className={`w-full ${spacing.input} border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500`}
                         placeholder="0"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className={`block ${spacing.text.body} font-medium text-gray-700 mb-1`}>
                         Reorder Level <span className="text-red-500">*</span>
                       </label>
                       <input
@@ -316,19 +316,19 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
                         min="0"
                         value={formData.reorder_level || ''}
                         onChange={(e) => setFormData({ ...formData, reorder_level: parseInt(e.target.value) || 0 })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        className={`w-full ${spacing.input} border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500`}
                         placeholder="0"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                    <label className={`block ${spacing.text.body} font-medium text-gray-700 mb-1`}>
                       Unit Price <span className="text-red-500">*</span>
                     </label>
                     <div className="relative">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className="text-gray-500 sm:text-sm">$</span>
+                        <span className={`text-gray-500 ${spacing.text.body}`}>$</span>
                       </div>
                       <input
                         type="number"
@@ -337,7 +337,7 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
                         step="0.01"
                         value={formData.unit_price || ''}
                         onChange={(e) => setFormData({ ...formData, unit_price: parseFloat(e.target.value) || 0 })}
-                        className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
+                        className={`w-full pl-7 ${spacing.input} border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500`}
                         placeholder="0.00"
                       />
                     </div>
@@ -395,12 +395,12 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
           </form>
 
           {/* Footer Actions - Sticky */}
-          <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-gray-50">
+          <div className={`flex items-center justify-between border-t border-gray-200 bg-gray-50 ${spacing.card}`}>
             <button
               type="button"
               onClick={onClose}
               disabled={isSaving}
-              className="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className={`${spacing.button} font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
             >
               Cancel
             </button>
@@ -409,9 +409,9 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
               type="submit"
               form="inventory-item-form"
               disabled={isSaving}
-              className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              className={`${spacing.button} font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2`}
             >
-              {isSaving && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin" />}
+              {isSaving && <HugeiconsIcon icon={Loading03Icon} size={spacing.icon.sm} className="animate-spin" />}
               {item ? 'Update Item' : 'Create Item'}
             </button>
           </div>

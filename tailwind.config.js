@@ -7,18 +7,45 @@ export default {
     ],
     theme: {
         extend: {
-            // Subframe GOGO Maintenance Hub typography
+            // GOGO Maintenance Hub typography: Geist (UI) + Bricolage Grotesque (Display)
             fontFamily: {
                 sans: ['var(--font-family-ui)', 'system-ui', 'sans-serif'],
                 display: ['var(--font-family-brand)', 'system-ui', 'sans-serif'],
                 mono: ['var(--font-family-data)', 'Consolas', 'monospace'],
                 brand: ['var(--font-family-brand)', 'sans-serif'],
                 ui: ['var(--font-family-ui)', 'sans-serif'],
-                utility: ['var(--font-family-utility)', 'sans-serif'],
+                utility: ['var(--font-family-ui)', 'sans-serif'],
                 data: ['var(--font-family-data)', 'monospace'],
             },
             // Subframe theme colors, mapped onto existing semantic names
             colors: {
+                // Industrial Slate - cooler, metallic grays for industrial feel
+                slate: {
+                    50: "#f8fafc",
+                    100: "#f1f5f9",
+                    200: "#e2e8f0",
+                    300: "#cbd5e1",
+                    400: "#94a3b8",
+                    500: "#64748b",
+                    600: "#475569",
+                    700: "#334155",
+                    800: "#1e293b",
+                    900: "#0f172a",
+                    950: "#020617",
+                },
+                // Safety Amber - for warnings and attention
+                amber: {
+                    50: "#fffbeb",
+                    100: "#fef3c7",
+                    200: "#fde68a",
+                    300: "#fcd34d",
+                    400: "#fbbf24",
+                    500: "#f59e0b",
+                    600: "#d97706",
+                    700: "#b45309",
+                    800: "#92400e",
+                    900: "#78350f",
+                },
                 // Primary / brand palette (was steel/indigo)
                 primary: {
                     DEFAULT: "rgb(147, 51, 234)", // brand-primary

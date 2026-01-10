@@ -156,10 +156,10 @@ export const MapboxLocationPicker: React.FC<MapboxLocationPickerProps> = ({
   };
 
   return (
-    <Stack gap="sm">
+    <Stack gap="xs">
       {/* Label */}
       {label && (
-        <label className="block text-sm font-medium text-gray-700">
+        <label className="block text-xs font-medium text-gray-700">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
@@ -173,49 +173,49 @@ export const MapboxLocationPicker: React.FC<MapboxLocationPickerProps> = ({
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="Search for address or location..."
-            className={`w-full h-9 pl-10 pr-20 py-1.5 text-sm border rounded-md shadow-sm transition-colors focus:outline-none focus:ring-1 focus:ring-purple-600 focus:border-purple-600 ${error ? 'border-red-500' : 'border-gray-200'
+            className={`w-full h-7 pl-8 pr-16 py-1 text-xs border rounded-md shadow-sm transition-colors focus:outline-none focus:ring-1 focus:ring-purple-600 focus:border-purple-600 ${error ? 'border-red-500' : 'border-gray-200'
               }`}
           />
           <HugeiconsIcon
             icon={Location01Icon}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-            size={18}
+            className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400"
+            size={14}
           />
           {/* Map Toggle Icon */}
           <button
             type="button"
             onClick={toggleMap}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-primary-600 transition-colors rounded"
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-0.5 text-gray-400 hover:text-primary-600 transition-colors rounded"
             title={showMap ? 'Hide map' : 'Show map picker'}
           >
             <HugeiconsIcon
               icon={MapsIcon}
-              size={18}
+              size={14}
             />
           </button>
           {isSearching && (
-            <div className="absolute right-10 top-1/2 -translate-y-1/2">
-              <div className="w-4 h-4 border-2 border-gray-300 border-t-primary-600 rounded-full animate-spin" />
+            <div className="absolute right-8 top-1/2 -translate-y-1/2">
+              <div className="w-3 h-3 border-2 border-gray-300 border-t-primary-600 rounded-full animate-spin" />
             </div>
           )}
         </div>
 
         {/* Suggestions Dropdown */}
         {suggestions.length > 0 && (
-          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-auto">
+          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-48 overflow-auto">
             {suggestions.map((feature) => (
               <button
                 key={feature.id}
                 onClick={() => handleSelectSuggestion(feature)}
-                className="w-full text-left px-4 py-3 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                className="w-full text-left px-2.5 py-2 hover:bg-gray-50 border-b border-gray-100 last:border-b-0"
               >
-                <div className="flex items-start gap-2">
-                  <HugeiconsIcon icon={Location01Icon} className="text-primary-600 flex-shrink-0 mt-0.5" size={16} />
+                <div className="flex items-start gap-1.5">
+                  <HugeiconsIcon icon={Location01Icon} className="text-primary-600 flex-shrink-0 mt-0.5" size={12} />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium text-gray-900 truncate">
+                    <div className="text-xs font-medium text-gray-900 truncate">
                       {feature.text}
                     </div>
-                    <div className="text-xs text-gray-500 truncate">
+                    <div className="text-[10px] text-gray-500 truncate">
                       {feature.place_name}
                     </div>
                   </div>
@@ -228,18 +228,18 @@ export const MapboxLocationPicker: React.FC<MapboxLocationPickerProps> = ({
 
       {/* Error Message */}
       {error && (
-        <p className="text-sm text-red-600">{error}</p>
+        <p className="text-[10px] text-red-600">{error}</p>
       )}
 
       {/* Selected Location Info */}
       {value && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-          <div className="flex items-start gap-2">
-            <HugeiconsIcon icon={CheckmarkCircle01Icon} className="text-blue-600 flex-shrink-0 mt-0.5" size={16} />
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-2">
+          <div className="flex items-start gap-1.5">
+            <HugeiconsIcon icon={CheckmarkCircle01Icon} className="text-blue-600 flex-shrink-0 mt-0.5" size={12} />
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-blue-900">Location Selected</p>
-              <p className="text-xs text-blue-700 mt-1">{value.address}</p>
-              <p className="text-xs text-blue-600 mt-1">
+              <p className="text-xs font-medium text-blue-900">Location Selected</p>
+              <p className="text-[10px] text-blue-700 mt-0.5">{value.address}</p>
+              <p className="text-[10px] text-blue-600 mt-0.5">
                 Coordinates: {value.lat.toFixed(6)}, {value.lng.toFixed(6)}
               </p>
             </div>
@@ -252,9 +252,9 @@ export const MapboxLocationPicker: React.FC<MapboxLocationPickerProps> = ({
       {/* Map Container */}
       {showMap && (
         <div className="border border-gray-300 rounded-lg overflow-hidden">
-          <div ref={mapContainer} className="w-full h-64" />
-          <div className="bg-gray-50 px-3 py-2 text-xs text-gray-600">
-            <HugeiconsIcon icon={InformationCircleIcon} className="inline mr-1" size={14} />
+          <div ref={mapContainer} className="w-full h-48" />
+          <div className="bg-gray-50 px-2 py-1.5 text-[10px] text-gray-600">
+            <HugeiconsIcon icon={InformationCircleIcon} className="inline mr-0.5" size={12} />
             Drag the marker to adjust the location
           </div>
         </div>

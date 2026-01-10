@@ -3,12 +3,15 @@
  * 
  * A comprehensive button component that implements the professional design system
  * with industrial-inspired styling, multiple variants, and accessibility features.
+ * 
+ * Now with density mode support for compact/cozy layouts.
  */
 
 import React, { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Icon } from '@/components/icons/Icon';
+import { useDensity } from '@/context/DensityContext';
 
 // ============================================
 // COMPONENT INTERFACES
@@ -53,82 +56,83 @@ export interface ProfessionalButtonProps
 }
 
 // ============================================
-// STYLE VARIANTS
+// STYLE VARIANTS - Industrial Design
 // ============================================
 
 const buttonVariants = {
-  // Primary - Steel blue for main actions
+  // Primary - Purple brand for main actions
   primary: [
-    'bg-steel-600 text-white border-steel-600',
-    'hover:bg-steel-700 hover:border-steel-700',
-    'active:bg-steel-800 active:border-steel-800',
-    'focus:ring-steel-500 focus:ring-offset-2',
-    'disabled:bg-machinery-300 disabled:border-machinery-300 disabled:text-machinery-500',
+    'bg-purple-600 text-white border-purple-700',
+    'hover:bg-purple-700 hover:border-purple-800',
+    'active:bg-purple-800 active:border-purple-900',
+    'focus:ring-purple-500 focus:ring-offset-2',
+    'disabled:bg-slate-300 disabled:border-slate-300 disabled:text-slate-500',
     'shadow-sm hover:shadow-md',
   ],
   
-  // Secondary - Neutral for secondary actions
+  // Secondary - Industrial slate for secondary actions
   secondary: [
-    'bg-white text-machinery-700 border-machinery-300',
-    'hover:bg-machinery-50 hover:border-machinery-400',
-    'active:bg-machinery-100 active:border-machinery-500',
-    'focus:ring-machinery-500 focus:ring-offset-2',
-    'disabled:bg-machinery-100 disabled:border-machinery-200 disabled:text-machinery-400',
+    'bg-white text-slate-700 border-slate-300',
+    'hover:bg-slate-50 hover:border-slate-400',
+    'active:bg-slate-100 active:border-slate-500',
+    'focus:ring-slate-500 focus:ring-offset-2',
+    'disabled:bg-slate-100 disabled:border-slate-200 disabled:text-slate-400',
     'shadow-sm hover:shadow-md',
   ],
   
   // Outline - Transparent with border
   outline: [
-    'bg-transparent text-steel-600 border-steel-600',
-    'hover:bg-steel-50 hover:text-steel-700',
-    'active:bg-steel-100 active:text-steel-800',
-    'focus:ring-steel-500 focus:ring-offset-2',
-    'disabled:bg-transparent disabled:border-machinery-300 disabled:text-machinery-400',
+    'bg-transparent text-purple-600 border-purple-500',
+    'hover:bg-purple-50 hover:text-purple-700',
+    'active:bg-purple-100 active:text-purple-800',
+    'focus:ring-purple-500 focus:ring-offset-2',
+    'disabled:bg-transparent disabled:border-slate-300 disabled:text-slate-400',
   ],
   
   // Ghost - Minimal styling
   ghost: [
-    'bg-transparent text-machinery-600 border-transparent',
-    'hover:bg-machinery-100 hover:text-machinery-700',
-    'active:bg-machinery-200 active:text-machinery-800',
-    'focus:ring-machinery-500 focus:ring-offset-2',
-    'disabled:bg-transparent disabled:text-machinery-400',
+    'bg-transparent text-slate-600 border-transparent',
+    'hover:bg-slate-100 hover:text-slate-700',
+    'active:bg-slate-200 active:text-slate-800',
+    'focus:ring-slate-500 focus:ring-offset-2',
+    'disabled:bg-transparent disabled:text-slate-400',
   ],
   
-  // Danger - Warning red for destructive actions
+  // Danger - Alert red for destructive actions
   danger: [
-    'bg-warning-600 text-white border-warning-600',
-    'hover:bg-warning-700 hover:border-warning-700',
-    'active:bg-warning-800 active:border-warning-800',
-    'focus:ring-warning-500 focus:ring-offset-2',
-    'disabled:bg-machinery-300 disabled:border-machinery-300 disabled:text-machinery-500',
+    'bg-red-600 text-white border-red-700',
+    'hover:bg-red-700 hover:border-red-800',
+    'active:bg-red-800 active:border-red-900',
+    'focus:ring-red-500 focus:ring-offset-2',
+    'disabled:bg-slate-300 disabled:border-slate-300 disabled:text-slate-500',
     'shadow-sm hover:shadow-md',
   ],
   
-  // Success - Industrial green for positive actions
+  // Success - Operational green for positive actions
   success: [
-    'bg-industrial-600 text-white border-industrial-600',
-    'hover:bg-industrial-700 hover:border-industrial-700',
-    'active:bg-industrial-800 active:border-industrial-800',
-    'focus:ring-industrial-500 focus:ring-offset-2',
-    'disabled:bg-machinery-300 disabled:border-machinery-300 disabled:text-machinery-500',
+    'bg-green-600 text-white border-green-700',
+    'hover:bg-green-700 hover:border-green-800',
+    'active:bg-green-800 active:border-green-900',
+    'focus:ring-green-500 focus:ring-offset-2',
+    'disabled:bg-slate-300 disabled:border-slate-300 disabled:text-slate-500',
     'shadow-sm hover:shadow-md',
   ],
 };
 
+// Industrial sizing - slightly more compact
 const buttonSizes = {
-  sm: [
-    'h-8 px-3 text-sm',
-    'gap-1.5',
-  ],
-  base: [
-    'h-10 px-4 text-sm',
-    'gap-2',
-  ],
-  lg: [
-    'h-12 px-6 text-base',
-    'gap-2.5',
-  ],
+  sm: {
+    compact: 'h-7 px-2.5 text-[11px] gap-1',
+    cozy: 'h-8 px-3 text-xs gap-1.5',
+  },
+  base: {
+    compact: 'h-8 px-3 text-[11px] gap-1.5',
+    cozy: 'h-9 px-4 text-xs gap-2',
+  },
+  lg: {
+    compact: 'h-9 px-4 text-xs gap-2',
+    cozy: 'h-10 px-5 text-sm gap-2',
+  },
 };
 
 // ============================================
@@ -176,6 +180,8 @@ const ProfessionalButton = forwardRef<HTMLButtonElement, ProfessionalButtonProps
     ref
   ) => {
     const isDisabled = disabled || loading;
+    const { isCompact } = useDensity();
+    const densityMode = isCompact ? 'compact' : 'cozy';
 
     return (
       <motion.button
@@ -183,17 +189,18 @@ const ProfessionalButton = forwardRef<HTMLButtonElement, ProfessionalButtonProps
         whileTap={!isDisabled ? { scale: 0.98 } : undefined}
         transition={{ duration: 0.1 }}
         className={cn(
-          // Base styles
-          'inline-flex items-center justify-center font-medium rounded-lg border',
+          // Base styles - Industrial: sharper corners, uppercase for small buttons
+          'inline-flex items-center justify-center font-semibold rounded border',
           'transition-all duration-200 ease-out',
           'focus:outline-none focus:ring-2 focus:ring-offset-2',
           'disabled:cursor-not-allowed disabled:opacity-60',
+          'uppercase tracking-wide',
           
           // Variant styles
           buttonVariants[variant],
           
-          // Size styles
-          buttonSizes[size],
+          // Size styles with density support
+          buttonSizes[size][densityMode],
           
           // Full width
           fullWidth && 'w-full',
@@ -208,7 +215,7 @@ const ProfessionalButton = forwardRef<HTMLButtonElement, ProfessionalButtonProps
         {loading ? (
           <LoadingSpinner size={size} />
         ) : icon ? (
-          <Icon icon={icon} size={16} className="flex-shrink-0" />
+          <Icon icon={icon} size={isCompact ? 14 : 16} className="flex-shrink-0" />
         ) : null}
 
         {/* Button text */}
@@ -223,7 +230,7 @@ const ProfessionalButton = forwardRef<HTMLButtonElement, ProfessionalButtonProps
 
         {/* Right icon */}
         {!loading && iconRight && (
-          <Icon icon={iconRight} size={16} className="flex-shrink-0" />
+          <Icon icon={iconRight} size={isCompact ? 14 : 16} className="flex-shrink-0" />
         )}
       </motion.button>
     );
@@ -281,11 +288,15 @@ interface ProfessionalIconButtonProps
 
 const ProfessionalIconButton = forwardRef<HTMLButtonElement, ProfessionalIconButtonProps>(
   ({ icon, size = 'base', className, ...props }, ref) => {
+    const { isCompact } = useDensity();
+    
     const sizeClasses = {
-      sm: 'w-8 h-8',
-      base: 'w-10 h-10',
-      lg: 'w-12 h-12',
+      sm: isCompact ? 'w-7 h-7' : 'w-8 h-8',
+      base: isCompact ? 'w-8 h-8' : 'w-10 h-10',
+      lg: isCompact ? 'w-9 h-9' : 'w-12 h-12',
     };
+    
+    const iconSize = isCompact ? 16 : 20;
 
     return (
       <ProfessionalButton
@@ -298,7 +309,7 @@ const ProfessionalIconButton = forwardRef<HTMLButtonElement, ProfessionalIconBut
         )}
         {...props}
       >
-        <Icon icon={icon} size={20} />
+        <Icon icon={icon} size={iconSize} />
       </ProfessionalButton>
     );
   }

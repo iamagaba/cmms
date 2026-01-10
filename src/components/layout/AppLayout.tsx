@@ -1,6 +1,7 @@
 import React, { ReactNode, useState } from 'react';
 import ProfessionalSidebar from './ProfessionalSidebar';
 import { useDensity } from '@/context/DensityContext';
+import { useDensitySpacing } from '@/hooks/useDensitySpacing';
 import { MobileBottomNav, NavigationItem } from '../navigation/ResponsiveNavigation';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -13,6 +14,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     const [sidebarExpanded, setSidebarExpanded] = useState(false); // Track hover state
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const { isCompact } = useDensity();
+    const spacing = useDensitySpacing();
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -92,7 +94,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 )}
 
                 {/* Mobile Sidebar */}
-                <div className={`fixed inset-y-0 left-0 z-[70] w-[280px] bg-white transform transition-transform duration-300 ease-in-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+                <div className={`fixed inset-y-0 left-0 z-[70] w-[200px] bg-white transform transition-transform duration-300 ease-in-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}>
                     <ProfessionalSidebar
                         collapsed={false}
@@ -116,11 +118,11 @@ export function AppLayout({ children }: AppLayoutProps) {
             <main
                 className="min-h-screen theme-transition transition-all duration-[400ms] ease-[cubic-bezier(0.25,0.1,0.25,1)] pb-[80px] lg:pb-0"
                 style={{
-                    paddingLeft: sidebarExpanded ? '280px' : '80px',
+                    paddingLeft: sidebarExpanded ? '200px' : '56px',
                 }}
             >
                 <div className="lg:hidden pt-16" /> {/* Mobile header spacing */}
-                <div className={isCompact ? 'p-2 lg:p-3' : 'p-3 lg:p-4'}>
+                <div className={spacing.page}>
                     <div className="max-w-[2400px] mx-auto w-full">
                         {children}
                     </div>

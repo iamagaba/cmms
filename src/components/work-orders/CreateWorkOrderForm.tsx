@@ -21,6 +21,7 @@ import { showSuccess, showError } from '@/utils/toast';
 import { useQueryClient, useQuery } from '@tanstack/react-query';
 import { useRealtimeData } from '@/context/RealtimeDataContext';
 
+
 interface WorkOrderFormData {
   // Step 1
   customerId: string;
@@ -240,36 +241,36 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
   return (
     <>
       <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-40" onClick={onClose} />
-      <div className="fixed inset-y-0 right-0 w-full max-w-3xl bg-white shadow-2xl z-50 flex flex-col">
+      <div className="fixed inset-y-0 right-0 w-full max-w-xl bg-white shadow-2xl z-50 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gray-50 flex-shrink-0">
+        <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 bg-gray-50 flex-shrink-0">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900">Create Work Order</h2>
-            <p className="text-sm text-gray-500 mt-0.5">Fill in the details below</p>
+            <h2 className="text-sm font-semibold text-gray-900">Create Work Order</h2>
+            <p className="text-[10px] text-gray-500 mt-0.5">Fill in the details below</p>
           </div>
-          <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg">
-            <HugeiconsIcon icon={Cancel01Icon} size={24} />
+          <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg">
+            <HugeiconsIcon icon={Cancel01Icon} size={16} />
           </button>
         </div>
 
         {/* Clickable Stepper */}
-        <div className="px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0">
+        <div className="px-3 py-2 border-b border-gray-200 bg-white flex-shrink-0">
           <div className="flex items-center gap-2">
             {sections.map((step, idx) => (
               <React.Fragment key={idx}>
                 <div
                   onClick={() => handleStepperClick(idx)}
-                  className="flex items-center gap-2 cursor-pointer group"
+                  className="flex items-center gap-1.5 cursor-pointer group"
                 >
-                  <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium transition-all ${idx === activeSection
-                    ? 'bg-brand-600 text-white ring-4 ring-brand-100'
+                  <div className={`flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-medium transition-all ${idx === activeSection
+                    ? 'bg-brand-600 text-white ring-2 ring-brand-100'
                     : completedSections.includes(idx)
                       ? 'bg-success-600 text-white'
                       : 'bg-gray-100 text-gray-500 group-hover:bg-purple-100 group-hover:text-purple-600'
                     }`}>
-                    {completedSections.includes(idx) && idx !== activeSection ? <HugeiconsIcon icon={Tick01Icon} size={16} /> : idx + 1}
+                    {completedSections.includes(idx) && idx !== activeSection ? <HugeiconsIcon icon={Tick01Icon} size={12} /> : idx + 1}
                   </div>
-                  <span className={`text-sm font-medium whitespace-nowrap hidden sm:block ${idx === activeSection
+                  <span className={`text-xs font-medium whitespace-nowrap hidden sm:block ${idx === activeSection
                     ? 'text-brand-600'
                     : completedSections.includes(idx)
                       ? 'text-success-600'
@@ -288,7 +289,7 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto px-6 py-6 pb-20">
+        <div className="flex-1 overflow-y-auto px-3 py-2 pb-20">
           <SectionCard
             index={0}
             title="Vehicle & Customer Information"
@@ -303,8 +304,8 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
             hasErrors={sectionErrors[0]}
           >
             <CustomerVehicleStep data={formData} onChange={updateFormData} initialLicensePlate={initialData?.licensePlate} />
-            <div className="flex justify-end pt-4 border-t border-gray-100 mt-4">
-              <Button onClick={() => handleToggleSection(1)} size="sm">
+            <div className="flex justify-end pt-2 border-t border-gray-100 mt-2">
+              <Button onClick={() => handleToggleSection(1)} size="xs">
                 Next: Diagnostic
                 <motion.div
                   animate={{ x: [0, 4, 0] }}
@@ -314,7 +315,7 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
                     ease: "easeInOut"
                   }}
                 >
-                  <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="ml-2" />
+                  <HugeiconsIcon icon={ArrowRight01Icon} size={12} className="ml-1" />
                 </motion.div>
               </Button>
             </div>
@@ -331,9 +332,9 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
             hasErrors={sectionErrors[1]}
           >
             <DiagnosticStep data={formData} onChange={updateFormData} />
-            <div className="flex justify-end pt-4 border-t border-gray-100 mt-4">
-              <Button onClick={() => handleToggleSection(2)} size="sm">
-                Next: details
+            <div className="flex justify-end pt-2 border-t border-gray-100 mt-2">
+              <Button onClick={() => handleToggleSection(2)} size="xs">
+                Next: Details
                 <motion.div
                   animate={{ x: [0, 4, 0] }}
                   transition={{
@@ -342,7 +343,7 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
                     ease: "easeInOut"
                   }}
                 >
-                  <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="ml-2" />
+                  <HugeiconsIcon icon={ArrowRight01Icon} size={12} className="ml-1" />
                 </motion.div>
               </Button>
             </div>
@@ -359,8 +360,8 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
             hasErrors={sectionErrors[2]}
           >
             <AdditionalDetailsStep data={formData} onChange={updateFormData} />
-            <div className="flex justify-end pt-4 border-t border-gray-100 mt-4">
-              <Button onClick={() => handleToggleSection(3)} size="sm">
+            <div className="flex justify-end pt-2 border-t border-gray-100 mt-2">
+              <Button onClick={() => handleToggleSection(3)} size="xs">
                 Next: Review & Submit
                 <motion.div
                   animate={{ x: [0, 4, 0] }}
@@ -370,7 +371,7 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
                     ease: "easeInOut"
                   }}
                 >
-                  <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="ml-2" />
+                  <HugeiconsIcon icon={ArrowRight01Icon} size={12} className="ml-1" />
                 </motion.div>
               </Button>
             </div>

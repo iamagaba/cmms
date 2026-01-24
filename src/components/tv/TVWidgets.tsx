@@ -1,17 +1,27 @@
 
 import React from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-  AnalyticsUpIcon,
-  AnalyticsDownIcon,
-  AlertCircleIcon,
-  CheckmarkCircle01Icon,
-  ClipboardIcon,
-  UserIcon,
-  Calendar01Icon
+import {
+    AnalyticsUpIcon,
+    AnalyticsDownIcon,
+    AlertCircleIcon,
+    CheckmarkCircle01Icon,
+    ClipboardIcon,
+    UserIcon,
+    Calendar01Icon
 } from '@hugeicons/core-free-icons';
-import { BarChart } from '@mui/x-charts/BarChart';
-import { PieChart } from '@mui/x-charts/PieChart';
+import {
+    BarChart,
+    Bar,
+    XAxis,
+    YAxis,
+    CartesianGrid,
+    Tooltip,
+    ResponsiveContainer,
+    PieChart,
+    Pie,
+    Cell
+} from 'recharts';
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -166,28 +176,30 @@ export const WeeklyTrendChart = ({ data }: { data: any[] }) => {
 
     return (
         <div className="h-full w-full min-h-[12rem]">
-            <BarChart
-                xAxis={[
-                    {
-                        scaleType: 'band',
-                        data: data.map(d => d.date),
-                    },
-                ]}
-                series={[
-                    {
-                        data: data.map(d => d.count),
-                        color: '#9333ea',
-                    },
-                ]}
-                height={200}
-            />
+            <ResponsiveContainer width="100%" height={200}>
+                <BarChart data={data}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
+                    <XAxis
+                        dataKey="date"
+                        axisLine={false}
+                        tickLine={false}
+                        tick={{ fontSize: 10, fill: '#6b7280' }}
+                        dy={10}
+                    />
+                    <Tooltip
+                        cursor={{ fill: '#f3f4f6' }}
+                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                    />
+                    <Bar dataKey="count" fill="#9333ea" radius={[4, 4, 0, 0]} />
+                </BarChart>
+            </ResponsiveContainer>
         </div>
     );
 };
 
 export const TeamStatusChart = ({ data }: { data: { status: string, count: number }[] }) => {
     const colors = ['#10b981', '#f59e0b', '#ef4444', '#64748b']; // Emerald, Amber, Red, Slate
-    
+
     // Handle empty data
     if (!data || data.length === 0) {
         return (
@@ -199,25 +211,25 @@ export const TeamStatusChart = ({ data }: { data: { status: string, count: numbe
 
     return (
         <div className="h-full w-full min-h-[12rem]">
-            <PieChart
-                series={[
-                    {
-                        data: data.map((d, index) => ({
-                            id: index,
-                            value: d.count,
-                            label: d.status,
-                            color: colors[index % colors.length],
-                        })),
-                        innerRadius: '50%',
-                        outerRadius: '70%',
-                        highlightScope: { faded: 'global', highlighted: 'item' },
-                    },
-                ]}
-                height={200}
-                slotProps={{
-                    legend: { hidden: true },
-                }}
-            />
+            <ResponsiveContainer width="100%" height={200}>
+                <PieChart>
+                    <Pie
+                        data={data}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={80}
+                        paddingAngle={5}
+                        dataKey="count"
+                        nameKey="status"
+                    >
+                        {data.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+                        ))}
+                    </Pie>
+                    <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                </PieChart>
+            </ResponsiveContainer>
         </div>
     );
 }

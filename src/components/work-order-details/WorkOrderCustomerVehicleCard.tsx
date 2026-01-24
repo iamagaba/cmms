@@ -12,8 +12,6 @@ import {
 
 } from '@hugeicons/core-free-icons';
 import { WorkOrder, Customer, Vehicle } from '@/types/supabase';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
 
 interface WorkOrderCustomerVehicleCardProps {
   workOrder: WorkOrder;
@@ -26,9 +24,6 @@ export const WorkOrderCustomerVehicleCard: React.FC<WorkOrderCustomerVehicleCard
   customer,
   vehicle,
 }) => {
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
-  
   // Use customer data from props or fallback to work order fields
   const customerName = customer?.name || workOrder.customerName || null;
   const customerPhone = customer?.phone || workOrder.customerPhone || null;

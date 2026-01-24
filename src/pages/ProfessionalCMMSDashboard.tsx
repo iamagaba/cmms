@@ -4,12 +4,9 @@
  * A sophisticated, data-driven dashboard designed specifically for maintenance
  * management operations. Features real-time metrics, actionable insights,
  * and contextual information for maintenance teams.
- * 
- * MIGRATED TO ENTERPRISE DESIGN SYSTEM ✅
  */
 
-import { useState, useMemo } from "react";
-import { Title } from '@/components/tailwind-components';
+import React, { useState, useMemo } from "react";
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   RefreshIcon,
@@ -26,11 +23,9 @@ import dayjs from "dayjs";
 import isBetween from 'dayjs/plugin/isBetween';
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useRealtimeData } from "@/context/RealtimeDataContext";
-import { useDensitySpacing } from "@/hooks/useDensitySpacing";
-import { useDensity } from "@/context/DensityContext";
+import { Button } from "@/components/ui/button";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
-// Enterprise Design System Components
-// (Panel components removed - using direct divs with enterprise styling)
 import { StatRibbon } from "@/components/dashboard/StatRibbon";
 import { WorkOrderTrendsChart } from "@/components/dashboard/WorkOrderTrendsChart";
 import { PriorityWorkOrders } from "@/components/dashboard/PriorityWorkOrders";
@@ -46,13 +41,46 @@ dayjs.extend(isBetween);
 // MAIN DASHBOARD COMPONENT
 // ============================================
 
+
+// Internal Error Boundary for debugging
+class DashboardErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: any }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true, error };
+  }
+  componentDidCatch(error: any, errorInfo: any) {
+    console.error("Dashboard Error Boundary caught error:", error, errorInfo);
+  }
+  render() {
+    if (this.state.hasError) {
+      return (
+        <Alert variant="destructive" className="m-4">
+          <AlertCircleIcon className="h-4 w-4" />
+          <AlertDescription>
+            <h2 className="text-lg font-bold mb-2">Something went wrong in the Dashboard</h2>
+            <pre className="bg-destructive/10 p-3 rounded border overflow-auto text-xs whitespace-pre-wrap mt-2">
+              {this.state.error?.toString()}
+            </pre>
+            <Button onClick={() => window.location.reload()} variant="destructive" className="mt-4">
+              Reload Page
+            </Button>
+          </AlertDescription>
+        </Alert>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 const ProfessionalCMMSDashboard = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedLocation] = useState<string>('all');
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
+
 
   // Data queries
   const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({
@@ -158,119 +186,124 @@ const ProfessionalCMMSDashboard = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-muted/30 flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-sm text-muted-foreground">Loading dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full">
-      <div className={spacing.section}>
-        {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between" style={spacing.gapInline}>
-          <div>
-            <Title order={1} className="font-brand font-bold text-machinery-900 tracking-tight">
-              Operations Dashboard
-            </Title>
-            <p className={`text-sm text-gray-600 ${isCompact ? 'mt-0.5' : 'mt-1'}`}>
-              {dayjs().format('dddd, MMMM D, YYYY')} • {locations?.length || 0} locations active
-            </p>
+    <DashboardErrorBoundary>
+      <div className="w-full">
+        <div className="space-y-6">
+          {/* Header */}
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground tracking-tight">
+                Operations Dashboard
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1">
+                {dayjs().format('dddd, MMMM D, YYYY')} • {locations?.length || 0} locations active
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.reload()}
+                className="gap-1.5 h-8 text-xs"
+              >
+                <HugeiconsIcon icon={RefreshIcon} size={14} />
+                Refresh
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => navigate('/work-orders')}
+                className="gap-1.5 h-8 text-xs"
+              >
+                <HugeiconsIcon icon={Add01Icon} size={14} />
+                New Work Order
+              </Button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => window.location.reload()}
-              className={`inline-flex items-center gap-1.5 px-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-50 rounded-md transition-colors ${spacing.button}`}
-            >
-              <HugeiconsIcon icon={RefreshIcon} size={16} />
-              Refresh
-            </button>
-            <button
-              onClick={() => navigate('/work-orders')}
-              className={`inline-flex items-center gap-1.5 px-3 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-md transition-colors ${spacing.button}`}
-            >
-              <HugeiconsIcon icon={Add01Icon} size={16} />
-              New Work Order
-            </button>
+
+          {/* Stat Ribbon */}
+          <StatRibbon
+            stats={[
+              {
+                title: "Total Work Orders",
+                value: metrics.totalOrders,
+                subtitle: `${metrics.weeklyTrend >= 0 ? '+' : ''}${typeof metrics.weeklyTrend === 'number' ? metrics.weeklyTrend.toFixed(1) : '0'}% vs last week`,
+                icon: Task01Icon,
+                color: "primary",
+                onClick: () => navigate('/work-orders')
+              },
+              {
+                title: "Open Orders",
+                value: metrics.openOrders,
+                icon: Folder01Icon,
+                color: "amber",
+                onClick: () => navigate('/work-orders?status=open')
+              },
+              {
+                title: "Completed Today",
+                value: metrics.completedToday,
+                icon: CheckmarkCircle01Icon,
+                color: "emerald"
+              },
+              {
+                title: "Overdue Orders",
+                value: metrics.overdueOrders,
+                icon: AlertCircleIcon,
+                color: "red",
+                onClick: () => navigate('/work-orders?status=overdue')
+              }
+            ]}
+          />
+
+          {/* Main Content Grid */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Left Column */}
+            <div className="lg:col-span-2 space-y-6">
+              {/* Trends Chart */}
+              <WorkOrderTrendsChart data={[]} />
+
+              <PriorityWorkOrders
+                workOrders={filteredWorkOrders}
+                vehicles={vehicles || []}
+                onViewDetails={handleViewDetails}
+              />
+            </div>
+
+            {/* Right Column */}
+            <div className="space-y-6">
+              <TechniciansList
+                technicians={realtimeTechnicians}
+                workOrders={filteredWorkOrders}
+              />
+            </div>
           </div>
         </div>
 
-        {/* Stat Ribbon - Enterprise Design */}
-        <StatRibbon
-          stats={[
-            {
-              title: "Total Work Orders",
-              value: metrics.totalOrders,
-              subtitle: `${metrics.weeklyTrend >= 0 ? '+' : ''}${typeof metrics.weeklyTrend === 'number' ? metrics.weeklyTrend.toFixed(1) : '0'}% vs last week`,
-              icon: Task01Icon,
-              color: "primary",
-              onClick: () => navigate('/work-orders')
-            },
-            {
-              title: "Open Orders",
-              value: metrics.openOrders,
-              icon: Folder01Icon,
-              color: "amber",
-              onClick: () => navigate('/work-orders?status=open')
-            },
-            {
-              title: "Completed Today",
-              value: metrics.completedToday,
-              icon: CheckmarkCircle01Icon,
-              color: "emerald"
-            },
-            {
-              title: "Overdue Orders",
-              value: metrics.overdueOrders,
-              icon: AlertCircleIcon,
-              color: "red",
-              onClick: () => navigate('/work-orders?status=overdue')
-            }
-          ]}
+        {onHoldWorkOrder && (
+          <OnHoldReasonDialog
+            isOpen={!!onHoldWorkOrder}
+            onClose={() => setOnHoldWorkOrder(null)}
+            onSave={() => setOnHoldWorkOrder(null)}
+          />
+        )}
+
+        <WorkOrderDetailsDrawer
+          onClose={handleCloseDrawer}
+          workOrderId={searchParams.get('view') || undefined}
+          open={!!searchParams.get('view')}
+          onWorkOrderChange={handleViewDetails}
         />
-
-        {/* Main Content Grid - Enterprise Layout */}
-        <div className={`grid grid-cols-1 lg:grid-cols-3 ${spacing.gap}`}>
-          {/* Left Column */}
-          <div className={`lg:col-span-2 ${spacing.section}`}>
-            {/* Trends Chart */}
-            <WorkOrderTrendsChart data={[]} />
-
-            <PriorityWorkOrders
-              workOrders={filteredWorkOrders}
-              vehicles={vehicles || []}
-              onViewDetails={handleViewDetails}
-            />
-          </div>
-
-          {/* Right Column */}
-          <div className={spacing.section}>
-            <TechniciansList
-              technicians={realtimeTechnicians}
-              workOrders={filteredWorkOrders}
-            />
-          </div>
-        </div>
       </div>
-
-      {onHoldWorkOrder && (
-        <OnHoldReasonDialog
-          isOpen={!!onHoldWorkOrder}
-          onClose={() => setOnHoldWorkOrder(null)}
-          onSave={() => setOnHoldWorkOrder(null)}
-        />
-      )}
-
-      <WorkOrderDetailsDrawer
-        onClose={handleCloseDrawer}
-        workOrderId={searchParams.get('view') || undefined}
-        open={!!searchParams.get('view')}
-        onWorkOrderChange={handleViewDetails}
-      />
-    </div>
+    </DashboardErrorBoundary>
   );
 };
 

@@ -1,7 +1,6 @@
 import React, { ReactNode, useState } from 'react';
 import ProfessionalSidebar from './ProfessionalSidebar';
-import { useDensity } from '@/context/DensityContext';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+
 import { MobileBottomNav, NavigationItem } from '../navigation/ResponsiveNavigation';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -13,8 +12,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // Default to collapsed for auto-expand
     const [sidebarExpanded, setSidebarExpanded] = useState(false); // Track hover state
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    const { isCompact } = useDensity();
-    const spacing = useDensitySpacing();
+
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -122,11 +120,21 @@ export function AppLayout({ children }: AppLayoutProps) {
                 }}
             >
                 <div className="lg:hidden pt-16" /> {/* Mobile header spacing */}
-                <div className={spacing.page}>
-                    <div className="max-w-[2400px] mx-auto w-full">
+                <div className="lg:hidden pt-16" /> {/* Mobile header spacing */}
+                {location.pathname === '/chat' || /^\/work-orders\/[^/]+$/.test(location.pathname) ? (
+                    // Chat and Details pages need full width/height without standard page padding
+
+                    <div className="w-full h-full">
                         {children}
                     </div>
-                </div>
+                ) : (
+                    // Standard pages get density-aware padding and max-width container
+                    <div className="p-6 md:p-8">
+                        <div className="max-w-[2400px] mx-auto w-full">
+                            {children}
+                        </div>
+                    </div>
+                )}
             </main>
         </div>
     );

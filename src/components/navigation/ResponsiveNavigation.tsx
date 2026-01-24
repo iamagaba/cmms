@@ -19,7 +19,7 @@ import { Icon } from '@/components/icons/Icon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useResponsive } from '@/utils/responsive';
-import { ResponsiveProfessionalButton, ResponsiveIconButton } from '@/components/ui/ResponsiveProfessionalButton';
+import { Button } from '@/components/ui/button';
 
 // ============================================
 // NAVIGATION INTERFACES
@@ -514,12 +514,14 @@ const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({
       {/* Mobile Header with Toggle */}
       {showMobileToggle && mobileVariant === 'drawer' && (
         <header className="bg-white border-b border-machinery-200 px-4 py-3 flex items-center justify-between">
-          <ResponsiveIconButton
-            icon="tabler:menu-2"
-            label="Open navigation"
+          <Button
             variant="ghost"
+            size="icon"
             onClick={() => setIsMobileMenuOpen(true)}
-          />
+            aria-label="Open navigation"
+          >
+            <HugeiconsIcon icon={Menu01Icon} size={24} />
+          </Button>
           {logo && <div className="flex-1 flex justify-center">{logo}</div>}
           <div className="w-10" /> {/* Spacer for centering */}
         </header>

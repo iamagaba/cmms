@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/tailwind-components';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { showSuccess, showError } from '@/utils/toast';
@@ -70,7 +74,7 @@ export const ShiftEditorDialog: React.FC<ShiftEditorDialogProps> = ({
 
     setSaving(true);
     setError('');
-    
+
     try {
       const startDatetime = dayjs(date).hour(parseInt(startTime.split(':')[0])).minute(parseInt(startTime.split(':')[1])).toISOString();
       const endDatetime = dayjs(date).hour(parseInt(endTime.split(':')[0])).minute(parseInt(endTime.split(':')[1])).toISOString();
@@ -113,7 +117,7 @@ export const ShiftEditorDialog: React.FC<ShiftEditorDialogProps> = ({
 
       // Invalidate queries to refetch data
       await queryClient.invalidateQueries({ queryKey: ['shifts'] });
-      
+
       onSave();
       onClose();
     } catch (error: any) {
@@ -128,83 +132,85 @@ export const ShiftEditorDialog: React.FC<ShiftEditorDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent onClose={onClose}>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>{shift ? 'Edit Shift' : 'Create Shift'}</DialogTitle>
+          <DialogDescription>
+            {shift ? 'Update shift details and publish when ready.' : 'Schedule a new shift for this technician.'}
+          </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-3 px-4 py-3">
+        <div className="grid gap-4 py-4">
           {error && (
-            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded p-2 text-xs text-red-800 dark:text-red-200">
+            <div className="bg-destructive/10 border border-destructive/20 rounded p-2 text-xs text-destructive">
               {error}
             </div>
           )}
-          
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Start Time
-              </label>
-              <input
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="start-time">Start Time</Label>
+              <Input
+                id="start-time"
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="w-full px-2 py-1.5 text-xs border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                className="h-9"
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                End Time
-              </label>
-              <input
+            <div className="grid gap-2">
+              <Label htmlFor="end-time">End Time</Label>
+              <Input
+                id="end-time"
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className="w-full px-2 py-1.5 text-xs border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary-500"
+                className="h-9"
               />
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Location
-            </label>
-            <select
-              value={locationId}
-              onChange={(e) => setLocationId(e.target.value)}
-              className="w-full px-2 py-1.5 text-xs border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary-500"
-            >
-              {locations.map((loc) => (
-                <option key={loc.id} value={loc.id}>
-                  {loc.name}
-                </option>
-              ))}
-            </select>
+          <div className="grid gap-2">
+            <Label htmlFor="location">Location</Label>
+            <Select value={locationId} onValueChange={setLocationId}>
+              <SelectTrigger id="location" className="h-9">
+                <SelectValue placeholder="Select a location" />
+              </SelectTrigger>
+              <SelectContent>
+                {locations.map((loc) => (
+                  <SelectItem key={loc.id} value={loc.id}>
+                    {loc.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          <div>
-            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-              Notes (Optional)
-            </label>
-            <textarea
+          <div className="grid gap-2">
+            <Label htmlFor="notes">Notes (Optional)</Label>
+            <Textarea
+              id="notes"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              rows={2}
-              className="w-full px-2 py-1.5 text-xs border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary-500"
-              placeholder="Add any notes about this shift..."
+              placeholder="Add notes about this shift..."
+              className="resize-none"
+              rows={3}
             />
           </div>
-
-          <div className="flex justify-end gap-2 pt-2 border-t border-gray-200 dark:border-gray-700">
-            <Button variant="outline" size="xs" onClick={onClose} disabled={saving}>
-              Cancel
-            </Button>
-            <Button size="xs" onClick={handleSave} disabled={saving || !locationId}>
-              {saving ? 'Saving...' : shift ? 'Update Shift' : 'Create Shift'}
-            </Button>
-          </div>
         </div>
+
+        <DialogFooter className="gap-2">
+          <Button variant="ghost" size="sm" onClick={onClose} disabled={saving}>
+            Cancel
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => handleSave(false)} disabled={saving || !locationId}>
+            {saving ? 'Saving...' : 'Save Draft'}
+          </Button>
+          <Button size="sm" onClick={() => handleSave(true)} disabled={saving || !locationId}>
+            {saving ? 'Publishing...' : shift ? 'Publish' : 'Create Shift'}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -303,7 +303,7 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
   return (
     <>
       <style>{rippleStyles}</style>
-      <div className="bg-white border-b border-gray-200 px-3 py-3">
+      <div className="bg-white border border-gray-200 shadow-md px-3 py-3">
         {/* Horizontal Stepper - Compact */}
         <div className="flex items-start justify-between gap-1">
           {STEPS.map((step, index) => {

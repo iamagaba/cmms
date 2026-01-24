@@ -7,25 +7,26 @@
 
 import React, { useMemo } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-  UserIcon, 
-  Car01Icon, 
-  Alert01Icon, 
+import {
+  UserIcon,
+  Car01Icon,
+  Alert01Icon,
   ClipboardIcon,
   Calendar01Icon,
   Clock01Icon
 } from '@hugeicons/core-free-icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import EnhancedDataTable, { 
-  EnhancedTableProps, 
-  ColumnFilter, 
-  BulkAction, 
-  ExportOption 
+import EnhancedDataTable, {
+  EnhancedTableProps,
+  ColumnFilter,
+  BulkAction,
+  ExportOption,
+  TableColumn
 } from '../ui/EnhancedDataTable';
-import { TableColumn } from '../ui/ProfessionalDataTable';
-import { WorkOrderStatusBadge, PriorityBadge } from '../ui/ProfessionalBadge';
-import ProfessionalButton from '../ui/ProfessionalButton';
+import { StatusBadge, PriorityBadge, WorkOrderStatusBadge } from '../ui/badge';
+import { Button } from '../ui/button';
+import Icon from '../icons/Icon';
 import { WorkOrder, Technician, Vehicle, Customer, Location, Profile } from '@/types/supabase';
 
 dayjs.extend(relativeTime);
@@ -41,7 +42,7 @@ interface ModernWorkOrderDataTableProps extends Omit<EnhancedTableProps<WorkOrde
   customers?: Customer[];
   locations?: Location[];
   profiles?: Profile[];
-  
+
   // Work order specific actions
   onEdit?: (workOrder: WorkOrder) => void;
   onDelete?: (workOrder: WorkOrder) => void;
@@ -49,13 +50,13 @@ interface ModernWorkOrderDataTableProps extends Omit<EnhancedTableProps<WorkOrde
   onViewDetails?: (workOrderId: string) => void;
   onAssignTechnician?: (workOrderId: string, technicianId: string) => void;
   onUpdateStatus?: (workOrderId: string, status: string) => void;
-  
+
   // Display options
   enableBulkActions?: boolean;
   enableAdvancedFilters?: boolean;
   enableExport?: boolean;
   compactMode?: boolean;
-  
+
   // Error handling
   error?: string;
 }
@@ -177,10 +178,10 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
             <HugeiconsIcon icon={ClipboardIcon} size={16} className="text-slate-600" />
           </div>
           <div>
-            <div className="font-industrial-id text-sm text-slate-800">
+            <div className="font-mono font-medium tracking-tight text-sm text-slate-800">
               {value || `WO-${record.id.slice(-6).toUpperCase()}`}
             </div>
-            <div className="text-[10px] text-slate-400 font-industrial-data">
+            <div className="text-[10px] text-slate-400 font-mono">
               ID: {record.id.slice(-8)}
             </div>
           </div>
@@ -219,7 +220,7 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
       render: (value: string, record: WorkOrder) => (
         // Enhancement #5: Icon with status badge
         <div className="flex items-center gap-2">
-          <WorkOrderStatusBadge 
+          <WorkOrderStatusBadge
             status={getStatusFromWorkOrder(record)}
             size="sm"
           />
@@ -235,7 +236,7 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
       render: (value: string, record: WorkOrder) => (
         // Enhancement #5: Icon with priority badge
         <div className="flex items-center gap-2">
-          <PriorityBadge 
+          <PriorityBadge
             priority={getPriorityFromWorkOrder(record)}
             size="sm"
           />
@@ -256,7 +257,7 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
             </span>
           );
         }
-        
+
         const technician = technicianMap[value];
         return (
           <div className="flex items-center gap-2">
@@ -291,10 +292,10 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
             </span>
           );
         }
-        
+
         const vehicle = vehicleMap[value];
         const customer = vehicle?.customerId ? customerMap[vehicle.customerId] : null;
-        
+
         return (
           <div className="flex items-center gap-2">
             <HugeiconsIcon icon={Car01Icon} size={16} className="text-slate-500" />
@@ -303,7 +304,7 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
                 {vehicle?.make} {vehicle?.model}
               </div>
               {vehicle?.licensePlate && (
-                <div className="font-industrial-id text-xs text-purple-700">
+                <div className="font-mono font-medium tracking-tight text-xs text-purple-700">
                   {vehicle.licensePlate}
                 </div>
               )}
@@ -359,40 +360,39 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
             </div>
           );
         }
-        
+
         const dueDate = dayjs(value);
         const now = dayjs();
         const isOverdue = dueDate.isBefore(now);
         const isToday = dueDate.isSame(now, 'day');
         const isTomorrow = dueDate.isSame(now.add(1, 'day'), 'day');
-        
+
         // Enhancement #5: Icon with contextual color
-        const iconBgColor = isOverdue ? 'bg-warning-100' : 
-                           isToday ? 'bg-maintenance-100' : 
-                           'bg-machinery-100';
-        const iconColor = isOverdue ? 'text-warning-600' : 
-                         isToday ? 'text-maintenance-600' : 
-                         'text-machinery-600';
-        
+        const iconBgColor = isOverdue ? 'bg-warning-100' :
+          isToday ? 'bg-maintenance-100' :
+            'bg-machinery-100';
+        const iconColor = isOverdue ? 'text-warning-600' :
+          isToday ? 'text-maintenance-600' :
+            'text-machinery-600';
+
         return (
           <div className="flex items-center gap-2">
             <div className={`w-8 h-8 rounded-lg ${iconBgColor} flex items-center justify-center flex-shrink-0`}>
               <HugeiconsIcon icon={Clock01Icon} size={16} className={iconColor} />
             </div>
-            <div className={`text-sm ${
-              isOverdue ? 'text-warning-600' : 
-              isToday ? 'text-maintenance-600' : 
-              isTomorrow ? 'text-steel-600' :
-              'text-machinery-700'
-            }`}>
+            <div className={`text-sm ${isOverdue ? 'text-warning-600' :
+              isToday ? 'text-maintenance-600' :
+                isTomorrow ? 'text-steel-600' :
+                  'text-machinery-700'
+              }`}>
               <div className="font-medium">
                 {dueDate.format('MMM DD, YYYY')}
               </div>
               <div className="text-xs">
-                {isOverdue ? `Overdue by ${now.diff(dueDate, 'day')} days` : 
-                 isToday ? 'Due today' : 
-                 isTomorrow ? 'Due tomorrow' :
-                 dueDate.fromNow()}
+                {isOverdue ? `Overdue by ${now.diff(dueDate, 'day')} days` :
+                  isToday ? 'Due today' :
+                    isTomorrow ? 'Due tomorrow' :
+                      dueDate.fromNow()}
               </div>
             </div>
           </div>
@@ -409,39 +409,42 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
         // Enhancement #5: Action buttons with hover reveal
         <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
           {onViewDetails && (
-            <ProfessionalButton
+            <Button
               variant="ghost"
               size="sm"
-              icon="tabler:eye"
               onClick={(e) => {
                 e.stopPropagation();
                 onViewDetails(record.id);
               }}
               aria-label="View work order details"
-            />
+            >
+              <Icon icon="tabler:eye" className="w-4 h-4" />
+            </Button>
           )}
           {onEdit && (
-            <ProfessionalButton
+            <Button
               variant="ghost"
               size="sm"
-              icon="tabler:edit"
               onClick={(e) => {
                 e.stopPropagation();
                 onEdit(record);
               }}
               aria-label="Edit work order"
-            />
+            >
+              <Icon icon="tabler:edit" className="w-4 h-4" />
+            </Button>
           )}
-          <ProfessionalButton
+          <Button
             variant="ghost"
             size="sm"
-            icon="tabler:dots-vertical"
             onClick={(e) => {
               e.stopPropagation();
               // Handle dropdown menu for more actions
             }}
             aria-label="More actions"
-          />
+          >
+            <Icon icon="tabler:dots-vertical" className="w-4 h-4" />
+          </Button>
         </div>
       ),
     },

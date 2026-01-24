@@ -1,9 +1,8 @@
 /**
- * Professional Design System Theme Styles
+ * Theme Styles
  * 
- * CSS custom properties and theme-specific styles for the GOGO CMMS
- * professional design system. This file provides the foundation for
- * dynamic theming and ensures consistent styling across all components.
+ * Essential color variables and theme-specific styles for GOGO CMMS.
+ * Keeping only what's necessary for the application.
  */
 
 /* ============================================ */
@@ -11,12 +10,6 @@
 /* ============================================ */
 
 :root {
-  /* Theme Mode */
-  --theme-mode: 'light';
-  --theme-density: 'comfortable';
-  --theme-primary-color: 'steelBlue';
-  --theme-border-radius: 'rounded';
-  
   /* Color System - Light Mode (Default) */
   --color-background: #ffffff;
   --color-surface: #f8fafc;
@@ -77,95 +70,8 @@
 }
 
 /* ============================================ */
-/* DENSITY VARIATIONS */
-/* ============================================ */
-
-.density-compact {
-  --density-multiplier: 0.75;
-  --spacing-component-xs: 0.375rem;
-  --spacing-component-sm: 0.75rem;
-  --spacing-component-base: 1.125rem;
-  --spacing-component-lg: 1.5rem;
-  --spacing-component-xl: 2.25rem;
-}
-
-.density-comfortable {
-  --density-multiplier: 1;
-  --spacing-component-xs: 0.5rem;
-  --spacing-component-sm: 1rem;
-  --spacing-component-base: 1.5rem;
-  --spacing-component-lg: 2rem;
-  --spacing-component-xl: 3rem;
-}
-
-.density-spacious {
-  --density-multiplier: 1.25;
-  --spacing-component-xs: 0.625rem;
-  --spacing-component-sm: 1.25rem;
-  --spacing-component-base: 1.875rem;
-  --spacing-component-lg: 2.5rem;
-  --spacing-component-xl: 3.75rem;
-}
-
-/* ============================================ */
-/* BORDER RADIUS VARIATIONS */
-/* ============================================ */
-
-.radius-sharp {
-  --radius-xs: 0rem;
-  --radius-sm: 0.125rem;
-  --radius-base: 0.25rem;
-  --radius-md: 0.375rem;
-  --radius-lg: 0.5rem;
-  --radius-xl: 0.75rem;
-  --radius-2xl: 1rem;
-  --radius-full: 9999px;
-}
-
-.radius-rounded {
-  --radius-xs: 0.125rem;
-  --radius-sm: 0.25rem;
-  --radius-base: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.5rem;
-  --radius-full: 9999px;
-}
-
-.radius-soft {
-  --radius-xs: 0.25rem;
-  --radius-sm: 0.5rem;
-  --radius-base: 0.75rem;
-  --radius-md: 1rem;
-  --radius-lg: 1.25rem;
-  --radius-xl: 1.5rem;
-  --radius-2xl: 2rem;
-  --radius-full: 9999px;
-}
-
-/* ============================================ */
 /* THEME UTILITIES */
 /* ============================================ */
-
-/* Smooth theme transitions */
-* {
-  transition-property: background-color, border-color, color, fill, stroke, box-shadow;
-  transition-duration: var(--transition-base);
-  transition-timing-function: ease-in-out;
-}
-
-/* Disable transitions during theme switching to prevent flashing */
-.theme-switching * {
-  transition: none !important;
-}
-
-/* Focus ring utility */
-.focus-ring {
-  outline: 2px solid transparent;
-  outline-offset: 2px;
-  box-shadow: 0 0 0 2px var(--color-focus-ring);
-}
 
 /* Theme-aware scrollbars */
 .theme-scrollbar {
@@ -184,80 +90,13 @@
 
 .theme-scrollbar::-webkit-scrollbar-thumb {
   background-color: var(--color-border);
-  border-radius: var(--radius-full);
+  border-radius: 9999px;
   border: 2px solid transparent;
   background-clip: content-box;
 }
 
 .theme-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: var(--color-text-muted);
-}
-
-/* ============================================ */
-/* COMPONENT THEME OVERRIDES */
-/* ============================================ */
-
-/* Button theme integration */
-.btn-theme-primary {
-  background-color: var(--color-steel-600);
-  border-color: var(--color-steel-600);
-  color: white;
-}
-
-.btn-theme-primary:hover {
-  background-color: var(--color-steel-700);
-  border-color: var(--color-steel-700);
-}
-
-.btn-theme-primary:focus {
-  box-shadow: 0 0 0 2px var(--color-focus-ring);
-}
-
-/* Card theme integration */
-.card-theme {
-  background-color: var(--color-background);
-  border-color: var(--color-border);
-  box-shadow: var(--shadow-sm);
-}
-
-.card-theme:hover {
-  box-shadow: var(--shadow-md);
-}
-
-/* Input theme integration */
-.input-theme {
-  background-color: var(--color-background);
-  border-color: var(--color-border);
-  color: var(--color-text-primary);
-}
-
-.input-theme:focus {
-  border-color: var(--color-focus);
-  box-shadow: 0 0 0 1px var(--color-focus);
-}
-
-.input-theme::placeholder {
-  color: var(--color-text-muted);
-}
-
-/* Table theme integration */
-.table-theme {
-  background-color: var(--color-background);
-}
-
-.table-theme th {
-  background-color: var(--color-surface);
-  border-color: var(--color-border);
-  color: var(--color-text-primary);
-}
-
-.table-theme td {
-  border-color: var(--color-border);
-  color: var(--color-text-primary);
-}
-
-.table-theme tr:hover {
-  background-color: var(--color-hover);
 }
 
 /* ============================================ */

@@ -1,607 +1,161 @@
-/* Professional CMMS Design System */
-/* All imports must come first */
-@import './theme/professional-css-variables.css';
-@import './theme/layout-utilities.css';
-@import './theme/design-system.css';
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Global defaults for enterprise design */
 @layer base {
   :root {
-    font-family: var(--font-family-ui);
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+    /* Zinc base colors (warm neutral grays) */
+    --background: 0 0% 100%;
+    --foreground: 240 10% 3.9%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 240 10% 3.9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 240 10% 3.9%;
+
+    /* Purple primary color (Nova-inspired) */
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 210 20% 98%;
+
+    --secondary: 240 4.8% 95.9%;
+    --secondary-foreground: 240 5.9% 10%;
+
+    --muted: 240 4.8% 95.9%;
+    --muted-foreground: 240 3.8% 46.1%;
+
+    --accent: 240 4.8% 95.9%;
+    --accent-foreground: 240 5.9% 10%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 5.9% 90%;
+    --input: 240 5.9% 90%;
+    --ring: 262.1 83.3% 57.8%;
+
+    /* Medium border radius (reduced from large) */
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 263.4 70% 50.4%;
+    --primary-foreground: 210 20% 98%;
+
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 263.4 70% 50.4%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
   }
 
   body {
-    @apply text-sm text-gray-900 bg-white;
-    font-family: var(--font-family-ui);
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: var(--font-family-brand);
-  }
-
-  input,
-  button,
-  select,
-  textarea {
-    font-family: var(--font-family-ui);
-  }
-
-  code,
-  pre,
-  .font-mono,
-  .font-data {
-    font-family: var(--font-family-data) !important;
-  }
-
-  /* Icon stroke-width control via CSS variable */
-  svg path,
-  svg line,
-  svg polyline,
-  svg polygon,
-  svg circle {
-    stroke-width: var(--icon-stroke-width, 2);
+    @apply bg-background text-foreground;
+    font-family: 'Inter', system-ui, sans-serif;
   }
 }
 
-/* Material Icons */
-.material-symbols-outlined {
-  font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-}
-
-/* Sidebar Styles */
-#desktop-sidebar {
-  transition: width 0.3s ease;
-}
-
-#desktop-sidebar .sidebar-text {
-  opacity: 0;
-  white-space: nowrap;
-  transition: opacity 0.3s ease;
-}
-
-#desktop-sidebar:hover .sidebar-text {
-  opacity: 1;
-}
-
-#desktop-sidebar .sidebar-link {
-  color: #6b7280;
-}
-
-#desktop-sidebar .sidebar-link:hover {
-  background-color: #f3f4f6;
-}
-
-#desktop-sidebar .sidebar-link.active {
-  background-color: rgba(111, 66, 193, 0.1);
-  color: #6f42c1;
-}
-
-/* === MODERN SCROLLBAR STYLES === */
-
-/* WebKit Browsers (Chrome, Safari, Edge) - Global Scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
-  /* Width of vertical scrollbar */
-  height: 8px;
-  /* Height of horizontal scrollbar */
-}
-
-::-webkit-scrollbar-track {
-  background: transparent;
-  /* Invisible track */
-}
-
-::-webkit-scrollbar-thumb {
-  background-color: #d1d5db;
-  /* gray-300 */
-  border-radius: 4px;
-  border: 2px solid transparent;
-  background-clip: content-box;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background-color: #9ca3af;
-  /* gray-400 */
-}
-
-/* Firefox - Global Scrollbar */
+/* Thin scrollbar styling */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #d1d5db transparent;
-  /* thumb color, track color */
+  scrollbar-color: hsl(var(--border)) transparent;
 }
 
-/* === DARK MODE SCROLLBAR OVERRIDES === */
-html.dark ::-webkit-scrollbar-thumb {
-  background-color: #4b5563;
-  /* gray-600 */
-}
-
-html.dark ::-webkit-scrollbar-thumb:hover {
-  background-color: #6b7280;
-  /* gray-500 */
-}
-
-html.dark * {
-  scrollbar-color: #4b5563 transparent;
-}
-
-/* Custom Scrollbar Utility Class (for specific elements) */
-.custom-scrollbar::-webkit-scrollbar {
-  height: 6px;
+*::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
-.custom-scrollbar::-webkit-scrollbar-track {
+*::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #e5e7eb;
-  border-radius: 20px;
+*::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--border));
+  border-radius: 3px;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: #d1d5db;
+*::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--muted-foreground) / 0.3);
 }
 
-/* Hide Scrollbar Utility Class */
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+/* For dark mode */
+.dark *::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--border));
 }
 
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
+.dark *::-webkit-scrollbar-thumb:hover {
+  background-color: hsl(var(--muted-foreground) / 0.5);
 }
 
-/**
- * Enterprise Design System - Utility Classes
- * 
- * Custom utility classes that enforce the enterprise design standards.
- * These provide shortcuts for common patterns without needing full components.
- */
+/* Nova-inspired compact spacing utilities */
+@layer utilities {
 
-@layer components {
-
-  /* ============================================ */
-  /* DENSITY-AWARE UTILITY CLASSES               */
-  /* ============================================ */
-
-  /* Density-aware card padding */
-  .card-density-padding {
-    padding: var(--density-card-padding);
+  /* Compact spacing for containers */
+  .space-y-compact>*+* {
+    margin-top: 0.75rem;
+    /* 12px instead of 16px */
   }
 
-  /* Density-aware gap */
-  .gap-density {
-    gap: var(--density-gap);
+  .space-x-compact>*+* {
+    margin-left: 0.75rem;
   }
 
-  /* Density-aware spacing */
-  .space-y-density > * + * {
-    margin-top: var(--density-spacing-unit);
+  .gap-compact {
+    gap: 0.75rem;
   }
 
-  /* Density-aware row height for tables */
-  .row-density-height {
-    height: var(--density-row-height);
+  /* Compact padding utilities */
+  .p-compact {
+    padding: 1rem;
+    /* 16px instead of 24px */
   }
 
-  /* ============================================ */
-  /* EXISTING UTILITY CLASSES                    */
-  /* ============================================ */
-
-  /* List Row - Standard row style for master lists */
-  .list-row {
-    @apply flex cursor-pointer flex-col border-b border-gray-100 px-4 transition-colors;
-    padding-top: var(--density-spacing-unit);
-    padding-bottom: var(--density-spacing-unit);
+  .px-compact {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
   }
 
-  .list-row:hover {
-    @apply bg-gray-50;
+  .py-compact {
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
   }
 
-  /* List Row Active - Active/selected state for list items */
-  .list-row-active {
-    @apply bg-purple-50 text-purple-900;
+  /* Hide scrollbar for Chrome, Safari and Opera */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
   }
 
-  /* Ribbon Header - Standard header bar for detail pages */
-  .ribbon-header {
-    @apply flex items-center gap-4 border-b border-gray-200 bg-white px-4 py-2.5 text-sm;
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    /* IE and Edge */
+    scrollbar-width: none;
+    /* Firefox */
   }
-
-  /* Info Bar - Horizontal information strip (like WorkOrderOverviewCards) */
-  .info-bar {
-    @apply bg-white border-y border-gray-200 px-4 flex items-center gap-5 text-xs;
-    padding-top: calc(var(--density-spacing-unit) * 0.625);
-    padding-bottom: calc(var(--density-spacing-unit) * 0.625);
-  }
-
-  /* Info Bar Item - Individual item in info bar */
-  .info-bar-item {
-    @apply flex items-center;
-    gap: calc(var(--density-spacing-unit) * 0.375);
-  }
-
-  /* Info Bar Divider - Vertical separator in info bar */
-  .info-bar-divider {
-    @apply w-px bg-gray-200;
-    height: calc(var(--density-spacing-unit) * 1);
-  }
-
-  /* Section Header - Header for content sections */
-  .section-header {
-    @apply border-b border-gray-200 flex items-center;
-    padding: var(--density-spacing-unit);
-    gap: calc(var(--density-spacing-unit) * 0.5);
-  }
-
-  /* Section Header Title - Title text in section header */
-  .section-header-title {
-    @apply text-xs font-semibold text-gray-900 uppercase tracking-wide;
-  }
-
-  /* Search Container - Standardized search input wrapper */
-  .search-container {
-    @apply relative w-full;
-  }
-
-  /* Search Icon - Icon positioning for search inputs */
-  .search-icon {
-    @apply absolute inset-y-0 left-0 flex items-center pointer-events-none;
-    padding-left: calc(var(--density-spacing-unit) * 0.625);
-  }
-
-  /* Status Dot - Small colored dot for status indicators */
-  .status-dot {
-    @apply rounded-full flex-shrink-0;
-    height: calc(var(--density-spacing-unit) * 0.5);
-    width: calc(var(--density-spacing-unit) * 0.5);
-  }
-
-  /* Card Grid - Responsive grid for cards */
-  .card-grid {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3;
-    gap: var(--density-gap);
-  }
-
-  /* Form Grid - Two-column form layout */
-  .form-grid {
-    @apply grid grid-cols-1 md:grid-cols-2;
-    gap: var(--density-gap);
-  }
-
-  /* Stat Card - Dashboard statistic card */
-  .stat-card {
-    @apply bg-white border border-gray-200 rounded-lg hover:border-gray-300 transition-colors;
-    padding: var(--density-card-padding);
-  }
-
-  /* Empty State - Centered empty state message */
-  .empty-state {
-    @apply flex flex-col items-center justify-center py-12 text-center;
-  }
-
-  /* Empty State Icon - Icon for empty states */
-  .empty-state-icon {
-    @apply w-12 h-12 text-gray-300 mb-3;
-  }
-
-  /* Empty State Text - Text for empty states */
-  .empty-state-text {
-    @apply text-sm text-gray-500;
-  }
-}
-
-
-
-/* Loading State */
-.loading {
-  position: relative;
-  pointer-events: none;
-  min-height: 100px;
-}
-
-.loading::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(1px);
-  z-index: 40;
-  border-radius: inherit;
-}
-
-.loading::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 32px;
-  height: 32px;
-  margin-top: -16px;
-  margin-left: -16px;
-  border: 3px solid #e0cff7;
-  border-top-color: #6f42c1;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-  z-index: 50;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Skeleton Animation */
-.skeleton {
-  background-color: #e5e7eb;
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-@keyframes pulse {
-
-  0%,
-  100% {
-    opacity: 1;
-  }
-
-  50% {
-    opacity: 0.5;
-  }
-}
-
-/* Table Styles */
-.table-row-hover:hover {
-  background-color: #eff6ff !important;
-}
-
-/* Status Badge Styles */
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 0.25rem 0.75rem;
-  border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 500;
-}
-
-.status-new {
-  background-color: #dbeafe;
-  color: #1e40af;
-}
-
-.status-contacted {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-.status-appointment {
-  background-color: #d1fae5;
-  color: #065f46;
-}
-
-.status-nurturing {
-  background-color: #e0e7ff;
-  color: #3730a3;
-}
-
-.status-purchased {
-  background-color: #d1fae5;
-  color: #065f46;
-}
-
-.status-not-interested {
-  background-color: #fee2e2;
-  color: #991b1b;
-}
-
-/* Interest Level Badges */
-.interest-high {
-  background-color: #d1fae5;
-  color: #065f46;
-}
-
-.interest-medium {
-  background-color: #fef3c7;
-  color: #92400e;
-}
-
-.interest-low {
-  background-color: #fee2e2;
-  color: #991b1b;
-}
-
-/* Responsive Table */
-@media (max-width: 1023px) {
-  .desktop-only {
-    display: none !important;
-  }
-}
-
-@media (min-width: 1024px) {
-  .mobile-only {
-    display: none !important;
-  }
-}
-
-/* Smooth transitions */
-* {
-  transition-property: background-color, border-color, color, fill, stroke;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
-}
-
-button,
-a,
-input,
-select {
-  transition-property: all;
-}
-
-/* Compact UI Overrides */
-.page-content {
-  padding: 0.75rem !important;
-}
-
-@media (min-width: 1024px) {
-  .page-content {
-    padding: 1.25rem !important;
-  }
-}
-
-.stat-card {
-  padding: 0.75rem !important;
-}
-
-.stat-card p {
-  margin-top: 0.25rem !important;
-}
-
-/* Leaderboard Table Styles */
-.leaderboard-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.leaderboard-table th {
-  background-color: #f9fafb;
-  padding: 0.75rem 1rem;
-  text-align: left;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: #6b7280;
-  border-bottom: 1px solid #e5e7eb;
-}
-
-.leaderboard-table td {
-  padding: 0.75rem 1rem;
-  font-size: 0.875rem;
-  border-bottom: 1px solid #f3f4f6;
-}
-
-.leaderboard-table tr:hover {
-  background-color: #f9fafb;
-}
-
-.rank-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  font-weight: 700;
-  font-size: 0.875rem;
-}
-
-.rank-1 {
-  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
-  color: #92400e;
-}
-
-.rank-2 {
-  background: linear-gradient(135deg, #c0c0c0 0%, #e8e8e8 100%);
-  color: #374151;
-}
-
-.rank-3 {
-  background: linear-gradient(135deg, #cd7f32 0%, #e8a87c 100%);
-  color: #78350f;
-}
-
-/* Filter Dropdown - Highlight Selected Option */
-input[type="radio"]:checked+span {
-  font-weight: 600;
-  color: #6f42c1;
-}
-
-input[type="radio"]:checked {
-  accent-color: #6f42c1;
-}
-
-label:has(input[type="radio"]:checked) {
-  background-color: #f2ebfb !important;
-}
-
-/* Animations for UI Micro-interactions migrated from animations.css */
-
-/* Fade-in animation for newly added items in a list or table */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.fade-in {
-  animation: fadeIn 0.3s ease-out forwards;
-}
-
-/* Slide-in from right animation for drawers/panels */
-@keyframes slideInRight {
-  from {
-    transform: translateX(100%);
-  }
-
-  to {
-    transform: translateX(0);
-  }
-}
-
-.slide-in-right {
-  animation: slideInRight 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
-}
-
-/* Pulse animation for highlighting an element (renamed to avoid conflict) */
-@keyframes pulse-shadow {
-  0% {
-    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0.4);
-  }
-
-  70% {
-    box-shadow: 0 0 0 10px rgba(24, 144, 255, 0);
-  }
-
-  100% {
-    box-shadow: 0 0 0 0 rgba(24, 144, 255, 0);
-  }
-}
-
-.pulse-shadow {
-  animation: pulse-shadow 2s infinite;
-}
-
-/* Prevent body scroll when modal/drawer is open */
-body:has(.mantine-Modal-root),
-body:has(.mantine-Drawer-root) {
-  overflow: hidden !important;
-}
-
-/* Ensure modals and drawers are scrollable */
-.mantine-Modal-body,
-.mantine-Drawer-body {
-  overflow-y: auto !important;
-  max-height: calc(100vh - 120px);
 }

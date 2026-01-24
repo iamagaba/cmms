@@ -1,20 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import {
-  PackageIcon,
-  Cancel01Icon,
-  InformationCircleIcon,
-  Tag01Icon,
-  RulerIcon,
-  Location01Icon,
-  Loading03Icon
-} from '@hugeicons/core-free-icons';
-import { Icon } from '@/components/icons/Icon';
-import { InventoryItem, ItemCategory, UnitOfMeasure } from '@/types/supabase';
-import { CategoryMultiSelect } from './CategoryMultiSelect';
-import { SupplierSelect } from './SupplierSelect';
-import { StorageLocationFields } from './StorageLocationFields';
-import { UnitOfMeasureSelect } from './UnitOfMeasureSelect';
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Button } from '@/components/ui/button';
+import { useToast } from '@/hooks/use-toast';
+
 
 interface InventoryItemFormDialogProps {
   isOpen: boolean;
@@ -23,46 +22,101 @@ interface InventoryItemFormDialogProps {
   item?: InventoryItem | null;
 }
 
+const formSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  model: z.string().optional(),
+  sku: z.string().min(1, 'SKU is required'),
+  description: z.string().optional(),
+  quantity_on_hand: z.coerce.number().min(0, 'Quantity must be 0 or greater'),
+  reorder_level: z.coerce.number().min(0, 'Reorder level must be 0 or greater'),
+  unit_price: z.coerce.number().min(0, 'Price must be 0 or greater'),
+  categories: z.array(z.string()).default([]),
+  supplier_id: z.string().nullable().optional(),
+  unit_of_measure: z.string().default('each'),
+  units_per_package: z.coerce.number().min(1).default(1),
+  warehouse: z.string().nullable().optional(),
+  zone: z.string().nullable().optional(),
+  aisle: z.string().nullable().optional(),
+  bin: z.string().nullable().optional(),
+  shelf: z.string().nullable().optional(),
+});
+
+type FormValues = z.infer<typeof formSchema>;
+
 export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = ({
   isOpen,
   onClose,
   onSave,
   item
 }) => {
-  const [formData, setFormData] = useState<Partial<InventoryItem>>({
-    name: '',
-    sku: '',
-    description: '',
-    quantity_on_hand: 0,
-    reorder_level: 0,
-    unit_price: 0,
-    categories: [],
-    supplier_id: null,
-    unit_of_measure: 'each',
-    units_per_package: 1,
-    warehouse: null,
-    zone: null,
-    aisle: null,
-    bin: null,
-    shelf: null,
+  const [showModelDropdown, setShowModelDropdown] = React.useState(false);
+  const { toast } = useToast();
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: '',
+      model: '',
+      sku: '',
+      description: '',
+      quantity_on_hand: 0,
+      reorder_level: 0,
+      unit_price: 0,
+      categories: [],
+      supplier_id: null,
+      unit_of_measure: 'each',
+      units_per_package: 1,
+      warehouse: null,
+      zone: null,
+      aisle: null,
+      bin: null,
+      shelf: null,
+    },
   });
-  const [isSaving, setIsSaving] = useState(false);
+
+  // Fetch unique models from vehicles and inventory items
+  const { data: existingModels } = useQuery({
+    queryKey: ['distinct_models'],
+    queryFn: async () => {
+      const { data: vehicles } = await supabase
+        .from('vehicles')
+        .select('model')
+        .not('model', 'is', null);
+
+      const { data: items } = await supabase
+        .from('inventory_items')
+        .select('model')
+        .not('model', 'is', null);
+
+      const vehicleModels = vehicles?.map(v => v.model) || [];
+      const itemModels = items?.map(i => i.model) || [];
+
+      const allModels = [...vehicleModels, ...itemModels].filter((m): m is string => !!m);
+
+      return Array.from(new Set(allModels)).sort();
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
+
+  const filteredModels = existingModels?.filter(model =>
+    model.toLowerCase().includes((form.watch('model') || '').toLowerCase())
+  ) || [];
 
   // Initialize form with item data when editing
-  useEffect(() => {
+  React.useEffect(() => {
     if (item) {
-      setFormData({
-        id: item.id,
+      form.reset({
         name: item.name || '',
+        model: item.model || '',
         sku: item.sku || '',
         description: item.description || '',
-        quantity_on_hand: item.quantity_on_hand || 0,
-        reorder_level: item.reorder_level || 0,
-        unit_price: item.unit_price || 0,
+        quantity_on_hand: (item as any).quantity_on_hand ?? (item as any).quantityOnHand ?? 0,
+        reorder_level: (item as any).reorder_level ?? (item as any).reorderLevel ?? 0,
+        unit_price: (item as any).unit_price ?? (item as any).unitPrice ?? 0,
         categories: item.categories || [],
-        supplier_id: item.supplier_id || null,
-        unit_of_measure: item.unit_of_measure || 'each',
-        units_per_package: item.units_per_package || 1,
+        supplier_id: (item as any).supplier_id ?? (item as any).supplierId ?? null,
+        unit_of_measure: (item as any).unit_of_measure ?? (item as any).unitOfMeasure ?? 'each',
+        units_per_package: (item as any).units_per_package ?? (item as any).unitsPerPackage ?? 1,
         warehouse: item.warehouse || null,
         zone: item.zone || null,
         aisle: item.aisle || null,
@@ -70,8 +124,9 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
         shelf: item.shelf || null,
       });
     } else {
-      setFormData({
+      form.reset({
         name: '',
+        model: '',
         sku: '',
         description: '',
         quantity_on_hand: 0,
@@ -88,335 +143,314 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
         shelf: null,
       });
     }
-  }, [item, isOpen]);
+  }, [item, isOpen, form]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    // Validate required fields
-    if (!formData.name || !formData.sku) {
-      alert('Please provide item name and SKU');
-      return;
-    }
-    
-    if (formData.unit_price === undefined || formData.unit_price < 0) {
-      alert('Please provide a valid unit price');
-      return;
-    }
-    
-    if (formData.quantity_on_hand === undefined || formData.quantity_on_hand < 0) {
-      alert('Please provide a valid quantity on hand');
-      return;
-    }
-    
-    if (formData.reorder_level === undefined || formData.reorder_level < 0) {
-      alert('Please provide a valid reorder level');
-      return;
-    }
-    
-    setIsSaving(true);
+  const onSubmit = async (values: FormValues) => {
     try {
-      await onSave(formData);
-      
-      // Reset form and close dialog
-      setFormData({
-        name: '',
-        sku: '',
-        description: '',
-        quantity_on_hand: 0,
-        reorder_level: 0,
-        unit_price: 0,
-      });
+      // Pass the ID if we are editing
+      const itemData = item ? { ...values, id: item.id } : values;
+      await onSave(itemData);
       onClose();
     } catch (error) {
       console.error('Error saving inventory item:', error);
-      alert('Failed to save inventory item. Please try again.');
-    } finally {
-      setIsSaving(false);
+      toast({
+        title: "Error",
+        description: "Failed to save inventory item. Please try again.",
+        variant: "destructive"
+      });
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
-      {/* Backdrop */}
-      <div className="absolute inset-0 bg-black/50 transition-opacity" onClick={onClose} />
-      
-      {/* Dialog */}
-      <div className="absolute inset-y-0 right-0 flex max-w-full">
-        <div 
-          className="w-screen max-w-lg bg-white shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out translate-x-0"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div className={`flex items-center justify-between border-b border-gray-200 bg-gray-50 ${spacing.card}`}>
+    <Sheet open={isOpen} onOpenChange={onClose}>
+      <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+        <SheetHeader className="border-b border-gray-200 bg-gray-50 -mx-6 -mt-6 px-6 py-4 mb-6">
+          <div className="flex items-center gap-2">
+            <HugeiconsIcon icon={PackageIcon} size={24} className="text-purple-600" />
             <div>
-              <div className="flex items-center gap-2">
-                <HugeiconsIcon icon={PackageIcon} size={spacing.icon.lg} className="text-purple-600" />
-                <h2 className={`${spacing.text.heading} font-semibold text-gray-900`}>
-                  {item ? 'Edit Inventory Item' : 'Add New Inventory Item'}
-                </h2>
-              </div>
-              <p className={`${spacing.text.caption} text-gray-500 mt-0.5`}>
-                {item ? 'Update item details' : 'Add a new item to inventory'}
-              </p>
+              <SheetTitle className="text-lg font-semibold text-gray-900">
+                {item ? 'Edit Item' : 'Add Item'}
+              </SheetTitle>
+              <SheetDescription className="text-xs text-gray-500 mt-0.5">
+                {item ? 'Update item details' : 'Add item to inventory'}
+              </SheetDescription>
             </div>
-            <button
-              onClick={onClose}
-              className={`${isCompact ? 'p-1.5' : 'p-2'} text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors`}
-            >
-              <HugeiconsIcon icon={Cancel01Icon} size={spacing.icon.md} />
-            </button>
           </div>
+        </SheetHeader>
 
-          {/* Form - Scrollable */}
-          <form id="inventory-item-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
-            <div className={`${spacing.card} ${spacing.section}`}>
-              
+        <Form {...form}>
+          <form id="inventory-item-form" onSubmit={form.handleSubmit(onSubmit)} className="flex-1 overflow-y-auto">
+            <div className="p-4 space-y-6">
+
               {/* Basic Information */}
               <div>
-                <h3 className={`${spacing.text.subheading} font-semibold text-gray-900 ${spacing.mb} flex items-center gap-2`}>
-                  <HugeiconsIcon icon={InformationCircleIcon} size={spacing.icon.md} className="text-purple-600" />
+                <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <HugeiconsIcon icon={InformationCircleIcon} size={20} className="text-purple-600" />
                   Basic Information
                 </h3>
-                <div className={spacing.section}>
-                  <div>
-                    <label className={`block ${spacing.text.body} font-medium text-gray-700 mb-1`}>
-                      Item Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      className={`w-full ${spacing.input} border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500`}
-                      placeholder="Enter item name"
-                    />
-                  </div>
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Item Name <span className="text-red-500">*</span></FormLabel>
+                        <FormControl>
+                          <Input placeholder="Item name" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                  <div>
-                    <label className={`block ${spacing.text.body} font-medium text-gray-700 mb-1`}>
-                      SKU <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={formData.sku}
-                      onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
-                      className={`w-full ${spacing.input} border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500`}
-                      placeholder="Enter SKU"
-                    />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="model"
+                    render={({ field }) => (
+                      <FormItem className="relative">
+                        <FormLabel>Model</FormLabel>
+                        <div className="relative">
+                          <FormControl>
+                            <Input
+                              placeholder="Model"
+                              {...field}
+                              onFocus={() => setShowModelDropdown(true)}
+                              onBlur={() => setTimeout(() => setShowModelDropdown(false), 200)}
+                            />
+                          </FormControl>
+                          <button
+                            type="button"
+                            onClick={() => setShowModelDropdown(!showModelDropdown)}
+                            className="absolute right-0 top-0 h-full px-3 flex items-center justify-center text-gray-500 hover:text-gray-700"
+                            tabIndex={-1}
+                          >
+                            <HugeiconsIcon icon={ArrowDown01Icon} size={16} />
+                          </button>
+                        </div>
+                        {showModelDropdown && filteredModels.length > 0 && (
+                          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                            {filteredModels.map((model) => (
+                              <button
+                                key={model}
+                                type="button"
+                                onClick={() => {
+                                  form.setValue('model', model);
+                                  setShowModelDropdown(false);
+                                }}
+                                className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center justify-between group"
+                              >
+                                <span className="text-sm text-gray-700">{model}</span>
+                                {field.value === model && (
+                                  <HugeiconsIcon icon={Tick01Icon} size={16} className="text-purple-600" />
+                                )}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                  <div>
-                    <label className={`block ${spacing.text.body} font-medium text-gray-700 mb-1`}>
-                      Description
-                    </label>
-                    <textarea
-                      value={formData.description || ''}
-                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                      rows={isCompact ? 2 : 3}
-                      className={`w-full ${spacing.input} border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500`}
-                      placeholder="Enter item description (optional)"
-                    />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="sku"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>SKU <span className="text-red-500">*</span></FormLabel>
+                        <FormControl>
+                          <Input placeholder="SKU" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description</FormLabel>
+                        <FormControl>
+                          <Textarea placeholder="Description (optional)" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </div>
 
               {/* Categorization */}
               <div>
-                <h3 className={`${spacing.text.subheading} font-semibold text-gray-900 ${spacing.mb} flex items-center gap-2`}>
-                  <HugeiconsIcon icon={Tag01Icon} size={spacing.icon.md} className="text-purple-600" />
+                <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <HugeiconsIcon icon={Tag01Icon} size={20} className="text-purple-600" />
                   Categorization
                 </h3>
-                <div className={spacing.section}>
-                  <div>
-                    <label className={`block ${spacing.text.body} font-medium text-gray-700 mb-1`}>
-                      Categories
-                    </label>
-                    <CategoryMultiSelect
-                      value={formData.categories || []}
-                      onChange={(categories) => setFormData({ ...formData, categories })}
-                    />
-                  </div>
+                <div className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="categories"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Categories</FormLabel>
+                        <FormControl>
+                          <CategoryMultiSelect
+                            value={field.value || []}
+                            onChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                  <div>
-                    <label className={`block ${spacing.text.body} font-medium text-gray-700 mb-1`}>
-                      Supplier
-                    </label>
-                    <SupplierSelect
-                      value={formData.supplier_id || null}
-                      onChange={(supplier_id) => setFormData({ ...formData, supplier_id })}
-                    />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="supplier_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Supplier</FormLabel>
+                        <FormControl>
+                          <SupplierSelect
+                            value={field.value || null}
+                            onChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
               </div>
 
               {/* Unit of Measure */}
               <div>
-                <h3 className={`${spacing.text.subheading} font-semibold text-gray-900 ${spacing.mb} flex items-center gap-2`}>
-                  <HugeiconsIcon icon={RulerIcon} size={spacing.icon.md} className="text-purple-600" />
+                <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <HugeiconsIcon icon={RulerIcon} size={20} className="text-purple-600" />
                   Unit of Measure
                 </h3>
-                <UnitOfMeasureSelect
-                  unit={formData.unit_of_measure || 'each'}
-                  unitsPerPackage={formData.units_per_package || 1}
-                  onUnitChange={(unit_of_measure) => setFormData({ ...formData, unit_of_measure })}
-                  onUnitsPerPackageChange={(units_per_package) => setFormData({ ...formData, units_per_package })}
-                />
+                <div className="space-y-4">
+                  <UnitOfMeasureSelect
+                    unit={form.watch('unit_of_measure') || 'each'}
+                    unitsPerPackage={form.watch('units_per_package') || 1}
+                    onUnitChange={(val) => form.setValue('unit_of_measure', val)}
+                    onUnitsPerPackageChange={(val) => form.setValue('units_per_package', val)}
+                  />
+                </div>
               </div>
 
               {/* Storage Location */}
               <div>
-                <h3 className={`${spacing.text.subheading} font-semibold text-gray-900 ${spacing.mb} flex items-center gap-2`}>
-                  <HugeiconsIcon icon={Location01Icon} size={spacing.icon.md} className="text-purple-600" />
+                <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <HugeiconsIcon icon={Location01Icon} size={20} className="text-purple-600" />
                   Storage Location
                 </h3>
-                <StorageLocationFields
-                  warehouse={formData.warehouse || null}
-                  zone={formData.zone || null}
-                  aisle={formData.aisle || null}
-                  bin={formData.bin || null}
-                  shelf={formData.shelf || null}
-                  onChange={(field, value) => setFormData({ ...formData, [field]: value })}
-                />
+                <div className="space-y-4">
+                  <StorageLocationFields
+                    warehouse={form.watch('warehouse') || null}
+                    zone={form.watch('zone') || null}
+                    aisle={form.watch('aisle') || null}
+                    bin={form.watch('bin') || null}
+                    shelf={form.watch('shelf') || null}
+                    onChange={(field, value) => form.setValue(field as any, value)}
+                  />
+                </div>
               </div>
 
               {/* Stock Information */}
               <div>
-                <h3 className={`${spacing.text.subheading} font-semibold text-gray-900 ${spacing.mb} flex items-center gap-2`}>
-                  <HugeiconsIcon icon={PackageIcon} size={spacing.icon.md} className="text-purple-600" />
+                <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                  <HugeiconsIcon icon={PackageIcon} size={20} className="text-purple-600" />
                   Stock Information
                 </h3>
-                <div className={spacing.section}>
-                  <div className={`grid grid-cols-2 ${spacing.gap}`}>
-                    <div>
-                      <label className={`block ${spacing.text.body} font-medium text-gray-700 mb-1`}>
-                        Quantity on Hand <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        required
-                        min="0"
-                        value={formData.quantity_on_hand || ''}
-                        onChange={(e) => setFormData({ ...formData, quantity_on_hand: parseInt(e.target.value) || 0 })}
-                        className={`w-full ${spacing.input} border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500`}
-                        placeholder="0"
-                      />
-                    </div>
-
-                    <div>
-                      <label className={`block ${spacing.text.body} font-medium text-gray-700 mb-1`}>
-                        Reorder Level <span className="text-red-500">*</span>
-                      </label>
-                      <input
-                        type="number"
-                        required
-                        min="0"
-                        value={formData.reorder_level || ''}
-                        onChange={(e) => setFormData({ ...formData, reorder_level: parseInt(e.target.value) || 0 })}
-                        className={`w-full ${spacing.input} border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500`}
-                        placeholder="0"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className={`block ${spacing.text.body} font-medium text-gray-700 mb-1`}>
-                      Unit Price <span className="text-red-500">*</span>
-                    </label>
-                    <div className="relative">
-                      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <span className={`text-gray-500 ${spacing.text.body}`}>$</span>
-                      </div>
-                      <input
-                        type="number"
-                        required
-                        min="0"
-                        step="0.01"
-                        value={formData.unit_price || ''}
-                        onChange={(e) => setFormData({ ...formData, unit_price: parseFloat(e.target.value) || 0 })}
-                        className={`w-full pl-7 ${spacing.input} border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500`}
-                        placeholder="0.00"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Stock Status Indicator */}
-                  {formData.quantity_on_hand !== undefined && formData.reorder_level !== undefined && (
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                      <div className="flex items-center gap-2">
-                        <Icon 
-                          icon={
-                            formData.quantity_on_hand === 0 ? "tabler:alert-triangle" :
-                            formData.quantity_on_hand <= formData.reorder_level ? "tabler:alert-circle" :
-                            "tabler:check-circle"
-                          } 
-                          className={`w-4 h-4 ${
-                            formData.quantity_on_hand === 0 ? "text-red-600" :
-                            formData.quantity_on_hand <= formData.reorder_level ? "text-orange-600" :
-                            "text-emerald-600"
-                          }`} 
-                        />
-                        <span className={`text-sm font-medium ${
-                          formData.quantity_on_hand === 0 ? "text-red-900" :
-                          formData.quantity_on_hand <= formData.reorder_level ? "text-orange-900" :
-                          "text-emerald-900"
-                        }`}>
-                          {formData.quantity_on_hand === 0 ? "Out of Stock" :
-                           formData.quantity_on_hand <= formData.reorder_level ? "Low Stock" :
-                           "In Stock"}
-                        </span>
-                      </div>
-                      {formData.quantity_on_hand > 0 && formData.quantity_on_hand <= formData.reorder_level && (
-                        <p className="text-xs text-orange-700 mt-1">
-                          Stock level is at or below reorder point. Consider restocking.
-                        </p>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <FormField
+                      control={form.control}
+                      name="quantity_on_hand"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Quantity on Hand <span className="text-red-500">*</span></FormLabel>
+                          <FormControl>
+                            <Input type="number" min="0" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
                       )}
-                    </div>
-                  )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="reorder_level"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Reorder Level <span className="text-red-500">*</span></FormLabel>
+                          <FormControl>
+                            <Input type="number" min="0" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+
+                  <FormField
+                    control={form.control}
+                    name="unit_price"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Unit Price <span className="text-red-500">*</span></FormLabel>
+                        <div className="relative">
+                          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <span className="text-sm text-gray-500">UGX</span>
+                          </div>
+                          <FormControl>
+                            <Input type="number" min="0" className="pl-12" {...field} />
+                          </FormControl>
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   {/* Total Value */}
-                  {formData.quantity_on_hand !== undefined && formData.unit_price !== undefined && (
-                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium text-blue-900">Total Inventory Value</span>
-                        <span className="text-lg font-bold text-blue-900">
-                          ${((formData.quantity_on_hand || 0) * (formData.unit_price || 0)).toFixed(2)}
-                        </span>
-                      </div>
-                    </div>
-                  )}
+                  <div className="mt-4 flex items-center justify-between px-1">
+                    <span className="text-sm font-medium text-gray-500">Total Inventory Value</span>
+                    <span className="text-lg font-bold text-gray-900">
+                      UGX {((form.watch('quantity_on_hand') || 0) * (form.watch('unit_price') || 0)).toLocaleString()}
+                    </span>
+                  </div>
                 </div>
               </div>
 
             </div>
           </form>
+        </Form>
 
-          {/* Footer Actions - Sticky */}
-          <div className={`flex items-center justify-between border-t border-gray-200 bg-gray-50 ${spacing.card}`}>
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={isSaving}
-              className={`${spacing.button} font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
-            >
-              Cancel
-            </button>
-            
-            <button
-              type="submit"
-              form="inventory-item-form"
-              disabled={isSaving}
-              className={`${spacing.button} font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2`}
-            >
-              {isSaving && <HugeiconsIcon icon={Loading03Icon} size={spacing.icon.sm} className="animate-spin" />}
-              {item ? 'Update Item' : 'Create Item'}
-            </button>
-          </div>
+        {/* Footer Actions - Sticky */}
+        <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 p-4">
+          <Button
+            variant="outline"
+            type="button"
+            onClick={onClose}
+            disabled={form.formState.isSubmitting}
+          >
+            Cancel
+          </Button>
+
+          <Button
+            type="submit"
+            form="inventory-item-form"
+            disabled={form.formState.isSubmitting}
+            className="bg-purple-600 hover:bg-purple-700"
+          >
+            {form.formState.isSubmitting && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin mr-2" />}
+            {item ? 'Update Item' : 'Create Item'}
+          </Button>
         </div>
-      </div>
-    </div>
+      </SheetContent>
+    </Sheet >
   );
 };

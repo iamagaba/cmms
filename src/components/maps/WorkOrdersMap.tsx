@@ -8,7 +8,8 @@ import {
   Clock01Icon,
   Cancel01Icon
 } from '@hugeicons/core-free-icons';
-import { WorkOrder, Location } from '@/types/supabase';
+import { WorkOrder, Location, Vehicle } from '@/types/supabase';
+import { DiagnosticCategoryRow } from '@/types/diagnostic';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -20,6 +21,8 @@ mapboxgl.accessToken = import.meta.env.VITE_APP_MAPBOX_API_KEY || '';
 interface WorkOrdersMapProps {
   workOrders: WorkOrder[];
   locations?: Location[];
+  vehicles?: Vehicle[];
+  serviceCategories?: DiagnosticCategoryRow[];
   onWorkOrderClick?: (workOrder: WorkOrder) => void;
   className?: string;
 }
@@ -44,6 +47,8 @@ const PRIORITY_COLORS: Record<string, string> = {
 export const WorkOrdersMap: React.FC<WorkOrdersMapProps> = ({
   workOrders,
   locations = [],
+  vehicles = [],
+  serviceCategories = [],
   onWorkOrderClick,
   className = '',
 }) => {
@@ -69,7 +74,7 @@ export const WorkOrdersMap: React.FC<WorkOrdersMapProps> = ({
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v11',
-      center: [36.8219, -1.2921], // Default to Nairobi
+      center: [32.5825, 0.3476], // Default to Kampala, Uganda
       zoom: 11,
     });
 
@@ -111,59 +116,158 @@ export const WorkOrdersMap: React.FC<WorkOrdersMapProps> = ({
 
     if (workOrdersWithLocation.length === 0) return;
 
-    // Add markers for each work order
+    // Group work orders by coordinates to handle overlaps
+    const locationsMap: Record<string, WorkOrder[]> = {};
+
     workOrdersWithLocation.forEach(wo => {
+      // Create a key based on coordinates (truncated to reasonable precision to catch very close points)
+      const key = `${wo.customerLat?.toFixed(6)},${wo.customerLng?.toFixed(6)}`;
+      if (!locationsMap[key]) {
+        locationsMap[key] = [];
+      }
+      locationsMap[key].push(wo);
+    });
+
+    // Helper for compact time formatting
+    const formatTime = (dateStr: string) => {
+      if (!dateStr) return '';
+      const d = dayjs(dateStr);
+      const now = dayjs();
+      const diffMins = now.diff(d, 'minute');
+
+      if (diffMins < 60) return `${diffMins}m`;
+      const diffHours = now.diff(d, 'hour');
+      if (diffHours < 24) return `${diffHours}h`;
+      const diffDays = now.diff(d, 'day');
+      if (diffDays < 7) return `${diffDays}d`;
+      return `${Math.floor(diffDays / 7)}w`;
+    };
+
+    // Helper to create a marker
+    const createMarker = (wo: WorkOrder, lngLat: [number, number]) => {
       const statusColor = STATUS_COLORS[wo.status || 'Open'] || '#6b7280';
       const priorityColor = PRIORITY_COLORS[wo.priority || 'Medium'] || '#f59e0b';
 
-      // Create custom marker element
+      // Get data for tooltip
+      const vehicle = vehicles.find(v => v.id === wo.vehicleId);
+      const licensePlate = vehicle?.license_plate || 'Unknown';
+      // Use make + model for full description (e.g. "EV 125")
+      const bikeModel = vehicle ? `${vehicle.make} ${vehicle.model}` : '';
+
+      const serviceCenterName = wo.locationId ? locationMap.get(wo.locationId)?.name : 'N/A';
+      const address = wo.customerAddress || 'No address';
+
+      // Match logic from EnhancedWorkOrderDataTable for consistency
+      const issue = wo.description || serviceCategories?.find(cat => cat.id === wo.service)?.label || wo.service || 'General Service';
+
+      const timeDisplay = formatTime(wo.created_at);
+
+      // Create custom marker element with wrench icon (maintenance)
       const el = document.createElement('div');
-      el.className = 'work-order-marker';
+      el.className = 'work-order-marker group'; // added group class for hover
       el.innerHTML = `
         <div style="
-          width: 32px;
-          height: 32px;
+          width: 28px;
+          height: 28px;
           background: ${statusColor};
-          border: 3px solid white;
+          border: 2px solid white;
           border-radius: 50%;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          box-shadow: 0 2px 6px rgba(0,0,0,0.25);
           cursor: pointer;
           display: flex;
           align-items: center;
           justify-content: center;
           transition: transform 0.2s;
         ">
-          <div style="
-            width: 8px;
-            height: 8px;
-            background: white;
-            border-radius: 50%;
-          "></div>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+          </svg>
         </div>
         ${wo.priority === 'Critical' || wo.priority === 'High' ? `
           <div style="
             position: absolute;
-            top: -4px;
-            right: -4px;
-            width: 12px;
-            height: 12px;
+            top: -1px;
+            right: -1px;
+            width: 10px;
+            height: 10px;
             background: ${priorityColor};
             border: 2px solid white;
             border-radius: 50%;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
           "></div>
         ` : ''}
-      `;
-      el.style.position = 'relative';
 
-      // Add hover effect
+        <!-- Hover Tooltip -->
+        <div class="marker-tooltip" style="
+          position: absolute;
+          bottom: 100%;
+          left: 50%;
+          transform: translateX(-50%) translateY(-8px);
+          background: white;
+          padding: 8px 12px;
+          border-radius: 6px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          width: max-content;
+          max-width: 240px;
+          font-size: 11px;
+          line-height: 1.4;
+          z-index: 100;
+          display: none;
+          pointer-events: none;
+          border: 1px solid #e5e7eb;
+        ">
+           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+             <div>
+               <div style="font-weight: 700; color: #111827;">${licensePlate}</div>
+               <div style="font-weight: 500; color: #6b7280; font-size: 10px;">${bikeModel}</div>
+             </div>
+             <div style="font-weight: 600; color: #4b5563; font-size: 10px; background: #f3f4f6; padding: 1px 4px; rounded: 3px; margin-left: 8px;">${timeDisplay}</div>
+           </div>
+           
+           <div style="color: #4b5563; margin-bottom: 2px; font-weight: 500;">${issue}</div>
+           
+           <div style="color: #6b7280; font-size: 10px; margin-top: 4px; border-top: 1px solid #f3f4f6; padding-top: 4px;">
+             ${address}<br/>
+             <span style="color: ${statusColor}; font-weight: 500;">${serviceCenterName}</span>
+           </div>
+           
+           <!-- Arrow -->
+           <div style="
+             position: absolute;
+             bottom: -4px;
+             left: 50%;
+             transform: translateX(-50%) rotate(45deg);
+             width: 8px;
+             height: 8px;
+             background: white;
+             border-right: 1px solid #e5e7eb;
+             border-bottom: 1px solid #e5e7eb;
+           "></div>
+        </div>
+      `;
+
+      // Add hover effect logic manually since we are using inline HTML string
       el.addEventListener('mouseenter', () => {
+        el.style.zIndex = '50';
+        const tooltip = el.querySelector('.marker-tooltip') as HTMLElement;
+        if (tooltip) tooltip.style.display = 'block';
+
         el.querySelector('div')?.setAttribute('style',
-          el.querySelector('div')?.getAttribute('style')?.replace('transform: scale(1)', 'transform: scale(1.2)') || ''
+          el.querySelector('div')?.getAttribute('style')?.replace('transform: scale(1)', 'transform: scale(1.1)') || ''
+        );
+      });
+      el.addEventListener('mouseleave', () => {
+        el.style.zIndex = 'auto';
+        const tooltip = el.querySelector('.marker-tooltip') as HTMLElement;
+        if (tooltip) tooltip.style.display = 'none';
+
+        el.querySelector('div')?.setAttribute('style',
+          el.querySelector('div')?.getAttribute('style')?.replace('transform: scale(1.1)', 'transform: scale(1)') || ''
         );
       });
 
-      const marker = new mapboxgl.Marker({ element: el })
-        .setLngLat([wo.customerLng!, wo.customerLat!])
+      const marker = new mapboxgl.Marker({ element: el, anchor: 'center' })
+        .setLngLat(lngLat)
         .addTo(map.current!);
 
       // Get location/service center name
@@ -282,13 +386,39 @@ export const WorkOrdersMap: React.FC<WorkOrdersMapProps> = ({
       });
 
       markersRef.current.push(marker);
+    };
+
+    // Iterate through groups and create markers
+    Object.values(locationsMap).forEach(group => {
+      if (group.length === 1) {
+        // Single item at this location, just place it
+        createMarker(group[0], [group[0].customerLng!, group[0].customerLat!]);
+      } else {
+        // Multiple items, spiral them out
+        // Use a small radius for spiral (e.g. 0.0002 degrees ~ 20 meters)
+        const radiusStep = 0.0002;
+
+        group.forEach((wo, index) => {
+          // Calculate angle: evenly distributed circle
+          const angle = (index / group.length) * 2 * Math.PI;
+
+          // Optional: for very large groups, could use increasing radius (spiral)
+          // const r = radiusStep * (1 + Math.floor(index / 8)); 
+          const r = radiusStep;
+
+          const offsetLng = wo.customerLng! + (Math.cos(angle) * r);
+          const offsetLat = wo.customerLat! + (Math.sin(angle) * r);
+
+          createMarker(wo, [offsetLng, offsetLat]);
+        });
+      }
     });
 
     // Fit bounds to show all markers
     if (workOrdersWithLocation.length > 0) {
       const bounds = new mapboxgl.LngLatBounds();
-      workOrdersWithLocation.forEach(wo => {
-        bounds.extend([wo.customerLng!, wo.customerLat!]);
+      markersRef.current.forEach(marker => {
+        bounds.extend(marker.getLngLat());
       });
       map.current.fitBounds(bounds, { padding: 50, maxZoom: 14 });
     }

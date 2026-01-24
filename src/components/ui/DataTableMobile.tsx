@@ -10,7 +10,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowDown01Icon, Search01Icon, Tick01Icon, Cancel01Icon } from '@hugeicons/core-free-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { TableColumn } from './EnhancedProfessionalDataTable';
+import { TableColumn } from './EnhancedDataTable';
 
 // ============================================
 // INTERFACES

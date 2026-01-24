@@ -5,8 +5,14 @@ import { WorkOrder, Technician, Vehicle } from '@/types/supabase';
 import { formatDistanceToNow, isPast, isValid } from 'date-fns';
 import React from 'react';
 import { AssetCustodyBadge } from '@/components/AssetCustodyBadge';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface UrgentWorkOrdersTableProps {
   workOrders: WorkOrder[];
@@ -17,8 +23,6 @@ interface UrgentWorkOrdersTableProps {
 }
 
 const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrders, technicians, vehicles, onViewDetails, loading = false }) => {
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
   const now = new Date();
   const twentyFourHoursFromNow = new Date(now.getTime() + 24 * 60 * 60 * 1000);
   const safeWorkOrders = Array.isArray(workOrders) ? workOrders : [];
@@ -51,7 +55,7 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
     if (!licensePlate && (record as any).vehicleModel) licensePlate = (record as any).vehicleModel as any;
     if (!licensePlate && record.vehicleId) licensePlate = record.vehicleId;
 
-    return licensePlate ? <span className={`${spacing.text.caption} font-semibold`}>{licensePlate}</span> : <span className={`${spacing.text.caption} text-gray-400`}>N/A</span>;
+    return licensePlate ? <span className="text-xs font-semibold">{licensePlate}</span> : <span className="text-xs text-gray-400">N/A</span>;
   };
 
   const renderTechnician = (techId: string) => {
@@ -65,10 +69,10 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
             <HugeiconsIcon icon={UserIcon} size={12} />
           )}
         </div>
-        <span className={`${spacing.text.caption} truncate max-w-[100px]`}>{tech.name}</span>
+        <span className="text-xs truncate max-w-[100px]">{tech.name}</span>
       </div>
     ) : (
-      <span className={`${spacing.text.caption} text-gray-400`}>Unassigned</span>
+      <span className="text-xs text-gray-400">Unassigned</span>
     );
   };
 
@@ -77,7 +81,7 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
       <HugeiconsIcon icon={Location01Icon} className="w-3 h-3 text-gray-500" size={12} />
       <span className="text-xs truncate max-w-[150px]" title={address}>{address}</span>
     </div>
-  ) : <span className={`${spacing.text.caption} text-gray-400`}>N/A</span>;
+  ) : <span className="text-xs text-gray-400">N/A</span>;
 
   const renderDueStatus = (slaDue: string) => {
     const dueDate = new Date(slaDue);
@@ -99,13 +103,13 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
 
   return (
     <div className="bg-white border border-slate-100 shadow-sm h-full flex flex-col rounded-xl overflow-hidden">
-      <div className={`${spacing.card} border-b border-slate-50 flex items-center ${spacing.gap}`}>
+      <div className="p-4 border-b border-slate-50 flex items-center gap-3">
         <div className="w-6 h-6 rounded-full flex items-center justify-center bg-rose-50 text-rose-500">
-          <HugeiconsIcon icon={AlertCircleIcon} className="w-4 h-4" size={spacing.icon.sm} />
+          <HugeiconsIcon icon={AlertCircleIcon} className="w-4 h-4" size={16} />
         </div>
         <div>
-          <span className={`${spacing.text.body} font-bold text-slate-800 block`}>Urgent Work Orders</span>
-          <span className={`${spacing.text.caption} text-slate-500`}>
+          <span className="text-sm font-bold text-slate-800 block">Urgent Work Orders</span>
+          <span className="text-xs text-slate-500">
             Due &lt; 24h
           </span>
         </div>
@@ -134,48 +138,47 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
           )
         ) : (
           <div className="min-w-[600px]">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-slate-50">
-                  <th className={`${spacing.rowPadding} ${spacing.text.caption} font-bold text-slate-500 uppercase tracking-wider`}>License Plate</th>
-                  <th className={`${spacing.rowPadding} ${spacing.text.caption} font-bold text-slate-500 uppercase tracking-wider`}>Custody</th>
-                  <th className={`${spacing.rowPadding} ${spacing.text.caption} font-bold text-slate-500 uppercase tracking-wider`}>Service</th>
-                  <th className={`${spacing.rowPadding} ${spacing.text.caption} font-bold text-slate-500 uppercase tracking-wider`}>Technician</th>
-                  <th className={`${spacing.rowPadding} ${spacing.text.caption} font-bold text-slate-500 uppercase tracking-wider`}>Location</th>
-                  <th className={`${spacing.rowPadding} ${spacing.text.caption} font-bold text-slate-500 uppercase tracking-wider`}>Status</th>
-                  <th className={`${spacing.rowPadding} ${spacing.text.caption} font-bold text-slate-500 uppercase tracking-wider`}>Due</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-50">
-                {urgentOrders.map((record) => (
-                  <tr
-                    key={record.id}
-                    onClick={() => onViewDetails && onViewDetails(record.id)}
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if ((e.key === 'Enter' || e.key === ' ') && onViewDetails) {
-                        e.preventDefault();
-                        onViewDetails(record.id);
-                      }
-                    }}
-                    className={`
-                    group transition-colors duration-150 cursor-pointer hover:bg-slate-50/50
-                    focus:outline-none focus:bg-primary-50/50
-                  `}
-                  >
-                    <td className={`${spacing.rowPadding} border-r border-transparent`}>{renderLicensePlate(record)}</td>
-                    <td className={`${spacing.rowPadding} border-r border-transparent`}>
-                      <AssetCustodyBadge vehicle={record.vehicleId ? vehicleMap.get(record.vehicleId) : null} size="sm" />
-                    </td>
-                    <td className={`${spacing.rowPadding} border-r border-transparent`}><span className={`${spacing.text.caption} font-medium text-slate-700`}>{record.service}</span></td>
-                    <td className={`${spacing.rowPadding} border-r border-transparent`}>{renderTechnician(record.assignedTechnicianId || '')}</td>
-                    <td className={`${spacing.rowPadding} border-r border-transparent`}>{renderAddress(record.customerAddress || '')}</td>
-                    <td className={`${spacing.rowPadding} border-r border-transparent`}>{renderDueStatus(record.slaDue as string)}</td>
-                    <td className={spacing.rowPadding}>{renderDueIn(record.slaDue as string)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+            <div className="min-w-[600px] p-2">
+              <Table>
+                <TableHeader>
+                  <TableRow className="border-b border-slate-50 hover:bg-transparent">
+                    <TableHead className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">License Plate</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Custody</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Service</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Technician</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Location</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Due</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {urgentOrders.map((record) => (
+                    <TableRow
+                      key={record.id}
+                      onClick={() => onViewDetails && onViewDetails(record.id)}
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if ((e.key === 'Enter' || e.key === ' ') && onViewDetails) {
+                          e.preventDefault();
+                          onViewDetails(record.id);
+                        }
+                      }}
+                      className="group cursor-pointer hover:bg-slate-50/50 focus:outline-none focus:bg-primary-50/50"
+                    >
+                      <TableCell className="px-4 py-3 border-r border-transparent">{renderLicensePlate(record)}</TableCell>
+                      <TableCell className="px-4 py-3 border-r border-transparent">
+                        <AssetCustodyBadge vehicle={record.vehicleId ? vehicleMap.get(record.vehicleId) : null} size="sm" />
+                      </TableCell>
+                      <TableCell className="px-4 py-3 border-r border-transparent"><span className="text-xs font-medium text-slate-700">{record.service}</span></TableCell>
+                      <TableCell className="px-4 py-3 border-r border-transparent">{renderTechnician(record.assignedTechnicianId || '')}</TableCell>
+                      <TableCell className="px-4 py-3 border-r border-transparent">{renderAddress(record.customerAddress || '')}</TableCell>
+                      <TableCell className="px-4 py-3 border-r border-transparent">{renderDueStatus(record.slaDue as string)}</TableCell>
+                      <TableCell className="px-4 py-3">{renderDueIn(record.slaDue as string)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         )}
       </div>

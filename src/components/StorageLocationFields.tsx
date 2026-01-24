@@ -2,6 +2,8 @@ import React from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Location01Icon } from '@hugeicons/core-free-icons';
 
+
+
 interface StorageLocationFieldsProps {
   warehouse: string | null;
   zone: string | null;
@@ -19,14 +21,16 @@ export const StorageLocationFields: React.FC<StorageLocationFieldsProps> = ({
   shelf,
   onChange,
 }) => {
+
+
   const handleChange = (field: string, value: string) => {
     onChange(field, value.trim() || null);
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {/* Warehouse and Zone */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Warehouse
@@ -35,7 +39,7 @@ export const StorageLocationFields: React.FC<StorageLocationFieldsProps> = ({
             type="text"
             value={warehouse || ''}
             onChange={(e) => handleChange('warehouse', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            className="w-full h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             placeholder="e.g., Main"
           />
         </div>
@@ -47,14 +51,14 @@ export const StorageLocationFields: React.FC<StorageLocationFieldsProps> = ({
             type="text"
             value={zone || ''}
             onChange={(e) => handleChange('zone', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            className="w-full h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             placeholder="e.g., A"
           />
         </div>
       </div>
 
       {/* Aisle, Bin, Shelf */}
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-3 gap-4">
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
             Aisle
@@ -63,7 +67,7 @@ export const StorageLocationFields: React.FC<StorageLocationFieldsProps> = ({
             type="text"
             value={aisle || ''}
             onChange={(e) => handleChange('aisle', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            className="w-full h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             placeholder="e.g., 1"
           />
         </div>
@@ -75,7 +79,7 @@ export const StorageLocationFields: React.FC<StorageLocationFieldsProps> = ({
             type="text"
             value={bin || ''}
             onChange={(e) => handleChange('bin', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            className="w-full h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             placeholder="e.g., B2"
           />
         </div>
@@ -87,7 +91,7 @@ export const StorageLocationFields: React.FC<StorageLocationFieldsProps> = ({
             type="text"
             value={shelf || ''}
             onChange={(e) => handleChange('shelf', e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+            className="w-full h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
             placeholder="e.g., 3"
           />
         </div>

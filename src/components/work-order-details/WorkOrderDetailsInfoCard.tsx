@@ -61,7 +61,7 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
   };
 
   return (
-    <div className="bg-white border border-gray-200 rounded overflow-hidden flex flex-col h-full">
+    <div className="bg-white border border-gray-200 overflow-hidden shadow-sm flex flex-col h-full">
       {/* Header */}
       <div className="px-3 py-2 border-b border-gray-100 flex items-start justify-between bg-gray-50/50">
         <div>
@@ -72,32 +72,39 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
         </div>
 
         {/* Priority Badge */}
-        <span className={`flex-shrink-0 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-medium ${priorityConfig.bg} ${priorityConfig.color}`}>
-          <HugeiconsIcon icon={FlagIcon} size={10} />
+        <span className={`flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium ${priorityConfig.bg} ${priorityConfig.color}`}>
+          <HugeiconsIcon icon={FlagIcon} size={12} />
           {workOrder.priority ? workOrder.priority.charAt(0).toUpperCase() + workOrder.priority.slice(1).toLowerCase() : 'Medium'}
         </span>
       </div>
 
       {/* Emergency Bike Alert */}
       {hasEmergencyBike && (
-        <div className="px-3 py-1.5 bg-blue-50 border-b border-blue-200 flex items-center gap-2 text-xs">
-          <HugeiconsIcon icon={InformationCircleIcon} size={12} className="text-blue-600 flex-shrink-0" />
+        <div className="px-3 py-2 bg-blue-50 border-b border-blue-200 flex items-center gap-2 text-xs">
+          <HugeiconsIcon icon={InformationCircleIcon} size={13} className="text-blue-600 flex-shrink-0" />
           <span className="text-blue-900 font-medium">Emergency Bike:</span>
           <UgandaLicensePlate
             plateNumber={emergencyBike.license_plate || emergencyBike.licensePlate || 'N/A'}
             className="scale-[0.6] origin-left"
           />
           <span className="text-blue-800 -ml-8 tracking-tighter">• {emergencyBike.make} {emergencyBike.model}</span>
-          <span className="px-1.5 py-0.5 bg-blue-600 text-white text-[10px] font-medium rounded ml-auto">ACTIVE</span>
+          <span className="px-2 py-0.5 bg-blue-600 text-white text-xs font-medium rounded ml-auto">ACTIVE</span>
         </div>
       )}
 
       {/* 3-Column Grid for Information */}
       <div className="grid grid-cols-1 md:grid-cols-3 border-b border-gray-200 relative">
         {/* Issue Column */}
-        <div className="px-3 py-2 relative border-b md:border-b-0 md:border-r border-gray-200 group">
-          <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Issue</h3>
-          <div className="text-xs text-gray-900">
+        <div className="px-3 py-2 relative border-b md:border-b-0 md:border-r border-gray-200 group flex flex-col min-h-[80px]">
+          <div className="mb-2">
+            <h3 className="text-xs font-bold text-gray-900">Issue</h3>
+            {(workOrder.created_at || (workOrder as any).createdAt) && (
+              <div className="text-xs text-gray-400 font-medium mt-0.5">
+                {dayjs(workOrder.created_at || (workOrder as any).createdAt).format('MMM D, h:mm A')}
+              </div>
+            )}
+          </div>
+          <div className="text-xs text-gray-900 flex-1">
             {workOrder.initialDiagnosis ? (
               <ul className="list-disc pl-3 space-y-0.5">
                 {workOrder.initialDiagnosis.split(/[,;\n]+/).map((item, index) => {
@@ -118,9 +125,16 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
         </div>
 
         {/* Confirmation Column */}
-        <div className="px-3 py-2 bg-gray-50/30 relative border-b md:border-b-0 md:border-r border-gray-200">
-          <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Confirmation</h3>
-          <div className="text-xs text-gray-900 whitespace-pre-wrap">
+        <div className="px-3 py-2 bg-gray-50/30 relative border-b md:border-b-0 md:border-r border-gray-200 flex flex-col min-h-[80px]">
+          <div className="mb-2">
+            <h3 className="text-xs font-bold text-gray-900">Confirmation</h3>
+            {((workOrder as any).confirmation_call_at || (workOrder as any).confirmationCallAt) && (
+              <div className="text-xs text-gray-400 font-medium mt-0.5">
+                {dayjs((workOrder as any).confirmation_call_at || (workOrder as any).confirmationCallAt).format('MMM D, h:mm A')}
+              </div>
+            )}
+          </div>
+          <div className="text-xs text-gray-900 whitespace-pre-wrap flex-1">
             {(workOrder as any).confirmationCallNotes || workOrder.confirmation_call_notes || (
               <span className="text-gray-400 italic">No confirmation notes.</span>
             )}
@@ -133,21 +147,35 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
         </div>
 
         {/* Maintenance Decision Column */}
-        <div className="px-3 py-2">
-          <h3 className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Maintenance Decision</h3>
-          <div className="text-xs text-gray-900 whitespace-pre-wrap">
+        <div className="px-3 py-2 flex flex-col min-h-[80px]">
+          <div className="mb-2">
+            <h3 className="text-xs font-bold text-gray-900">Maintenance Decision</h3>
+            {(workOrder.completed_at || (workOrder as any).completedAt) && (
+              <div className="text-xs text-gray-400 font-medium mt-0.5">
+                {dayjs(workOrder.completed_at || (workOrder as any).completedAt).format('MMM D, h:mm A')}
+              </div>
+            )}
+          </div>
+          <div className="text-xs text-gray-900 whitespace-pre-wrap flex-1">
             {workOrder.maintenanceNotes ? (
               workOrder.maintenanceNotes
             ) : (
               <span className="text-gray-400 italic">No maintenance decision.</span>
             )}
           </div>
+          {workOrder.completed_at && (
+            <div className="mt-2 text-[10px] text-gray-400 font-medium hidden">
+              {/* Hidden as it's now in header */}
+            </div>
+          )}
         </div>
       </div>
 
+
+
       {/* Compact Metadata Footer */}
       <div className="px-3 py-2 bg-gray-50 mt-auto">
-        <div className="flex flex-wrap items-center gap-2 text-[11px] text-gray-600">
+        <div className="flex flex-wrap items-center gap-2 text-xs text-gray-600">
           {/* Created */}
           {workOrder.created_at && (
             <div className="flex items-center gap-1">
@@ -168,8 +196,8 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
 
           {/* Location Chip */}
           {location?.name && (
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-purple-50 text-purple-700 border border-purple-200">
-              <HugeiconsIcon icon={Building01Icon} size={10} />
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-purple-50 text-purple-700 border border-purple-200">
+              <HugeiconsIcon icon={Building01Icon} size={12} />
               {location.name}
             </span>
           )}
@@ -179,8 +207,8 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
             const technician = technicians?.find(t => t.id === workOrder.assignedTechnicianId);
             if (technician) {
               return (
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                  <HugeiconsIcon icon={UserIcon} size={10} />
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  <HugeiconsIcon icon={UserIcon} size={12} />
                   {technician.name}
                 </span>
               );
@@ -188,9 +216,9 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
               return (
                 <button
                   onClick={onAssignClick}
-                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200 hover:bg-blue-100 transition-colors"
                 >
-                  <HugeiconsIcon icon={UserIcon} size={10} />
+                  <HugeiconsIcon icon={UserIcon} size={12} />
                   + Assign
                 </button>
               );
@@ -218,7 +246,7 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
           </div>
         )
       }
-    </div >
+    </div>
   );
 };
 

@@ -31,7 +31,7 @@ export const AssignTechnicianModal: React.FC<AssignTechnicianModalProps> = ({
         <Dialog open={open} onClose={onClose} className="relative z-50">
             <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
             <div className="fixed inset-0 flex items-center justify-center p-4">
-                <Dialog.Panel className="w-full max-w-md rounded-xl bg-white shadow-2xl">
+                <Dialog.Panel className="w-full max-w-md rounded-lg bg-white shadow-sm">
                     <div className="flex items-center justify-between border-b border-gray-100 px-6 py-4">
                         <Dialog.Title className="text-lg font-semibold text-gray-900">
                             Assign Technician

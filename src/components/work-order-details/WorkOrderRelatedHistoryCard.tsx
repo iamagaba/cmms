@@ -7,10 +7,23 @@ import { supabase } from '@/integrations/supabase/client';
 import { snakeToCamelCase } from '@/utils/data-helpers';
 import dayjs from 'dayjs';
 
+import { DiagnosticCategoryRow } from '@/types/diagnostic';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Skeleton } from '@/components/ui/skeleton';
+
+
 interface WorkOrderRelatedHistoryCardProps {
   workOrder: WorkOrder;
   vehicle?: Vehicle | null;
   onViewWorkOrder?: (workOrderId: string) => void;
+  serviceCategories?: DiagnosticCategoryRow[];
 }
 
 const STATUS_CONFIG: Record<string, { bg: string; text: string; dot: string }> = {
@@ -27,31 +40,33 @@ export const WorkOrderRelatedHistoryCard: React.FC<WorkOrderRelatedHistoryCardPr
   workOrder,
   vehicle,
   onViewWorkOrder,
+  serviceCategories = [],
 }) => {
   // Fetch vehicle history only
   const { data: vehicleHistory, isLoading } = useQuery<WorkOrder[]>({
-    queryKey: ['vehicle_work_orders', workOrder.vehicleId],
+    queryKey: ['vehicle_work_orders', (workOrder as any).vehicleId],
     queryFn: async () => {
-      if (!workOrder.vehicleId) return [];
+      const vehicleId = (workOrder as any).vehicleId || (workOrder as any).vehicle_id;
+      if (!vehicleId) return [];
       const { data, error } = await supabase
         .from('work_orders')
         .select('*')
-        .eq('vehicle_id', workOrder.vehicleId)
+        .eq('vehicle_id', vehicleId)
         .neq('id', workOrder.id)
         .order('created_at', { ascending: false })
         .limit(10);
       if (error) return [];
       return (data || []).map(wo => snakeToCamelCase(wo) as WorkOrder);
     },
-    enabled: !!workOrder.vehicleId,
+    enabled: !!((workOrder as any).vehicleId || (workOrder as any).vehicle_id),
   });
 
-  if (!workOrder.vehicleId) {
+  if (!(workOrder as any).vehicleId && !(workOrder as any).vehicle_id) {
     return null;
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded overflow-hidden">
+    <div className="bg-white border border-gray-200 overflow-hidden shadow-sm">
       {/* Header */}
       <div className="px-3 py-2 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
@@ -72,63 +87,67 @@ export const WorkOrderRelatedHistoryCard: React.FC<WorkOrderRelatedHistoryCardPr
       {isLoading ? (
         <div className="p-3 space-y-1.5">
           {[1, 2, 3].map(i => (
-            <div key={i} className="h-8 bg-gray-100 rounded animate-pulse" />
+            <Skeleton key={i} className="h-8 w-full" />
           ))}
         </div>
       ) : vehicleHistory && vehicleHistory.length > 0 ? (
         <div className="overflow-x-auto">
-          <table className="w-full text-xs text-left">
-            <thead className="text-[10px] text-gray-500 uppercase bg-gray-50/50 border-b border-gray-200">
-              <tr>
-                <th className="px-3 py-1.5 font-medium">Work Order</th>
-                <th className="px-3 py-1.5 font-medium">Summary</th>
-                <th className="px-3 py-1.5 font-medium">Status</th>
-                <th className="px-3 py-1.5 font-medium text-right">Created</th>
-                <th className="px-3 py-1.5 font-medium text-right">Priority</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
+          <Table>
+            <TableHeader className="text-[11px] font-semibold text-gray-600 uppercase bg-gray-50 border-b border-gray-200">
+              <TableRow className="bg-gray-50 hover:bg-gray-50 border-none">
+                <TableHead className="px-3 py-2 w-[140px] h-auto font-semibold">Work Order</TableHead>
+                <TableHead className="px-3 py-2 h-auto font-semibold">Issue</TableHead>
+                <TableHead className="px-3 py-2 w-[140px] h-auto font-semibold">Status</TableHead>
+                <TableHead className="px-3 py-2 w-[100px] text-right h-auto font-semibold">Created</TableHead>
+                <TableHead className="px-3 py-2 w-[100px] text-right h-auto font-semibold">Priority</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="divide-y divide-gray-100">
               {vehicleHistory.map((wo) => {
-                const description = wo.title || wo.service || wo.initialDiagnosis || wo.description;
-                const statusConfig = STATUS_CONFIG[wo.status || 'Open'] || STATUS_CONFIG['Open'];
+                const rWo = wo as any;
+                const categoryLabel = serviceCategories?.find(cat => cat.id === rWo.service)?.label;
+                const description = categoryLabel || rWo.title || rWo.service || rWo.initialDiagnosis || rWo.description;
+                const statusConfig = STATUS_CONFIG[rWo.status || 'Open'] || STATUS_CONFIG['Open'];
 
                 return (
-                  <tr
-                    key={wo.id}
-                    onClick={() => onViewWorkOrder?.(wo.id)}
-                    className="hover:bg-primary-50/30 transition-colors cursor-pointer group"
+                  <TableRow
+                    key={rWo.id}
+                    onClick={() => onViewWorkOrder?.(rWo.id)}
+                    className="hover:bg-primary-50/30 hover:shadow-sm transition-all cursor-pointer group border-b border-gray-100 last:border-0"
                   >
-                    <td className="px-3 py-1.5 font-medium text-gray-900 whitespace-nowrap">
-                      {wo.workOrderNumber || `WO-${wo.id.substring(0, 6).toUpperCase()}`}
-                    </td>
-                    <td className="px-3 py-1.5 text-gray-600 max-w-[160px] truncate">
-                      {description || 'General Service'}
-                    </td>
-                    <td className="px-3 py-1.5">
-                      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border ${statusConfig.bg} ${statusConfig.text} border-current/20`}>
-                        <span className={`w-1 h-1 rounded-full ${statusConfig.dot}`} />
-                        {wo.status}
+                    <TableCell className="px-3 py-2 font-medium text-gray-900 whitespace-nowrap text-sm">
+                      {rWo.workOrderNumber || `WO-${rWo.id.substring(0, 6).toUpperCase()}`}
+                    </TableCell>
+                    <TableCell className="px-3 py-2 text-gray-600 text-sm">
+                      <div className="truncate max-w-[300px]">
+                        {description || 'General Service'}
+                      </div>
+                    </TableCell>
+                    <TableCell className="px-3 py-2">
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border ${statusConfig.bg} ${statusConfig.text} border-current/20`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot}`} />
+                        {rWo.status}
                       </span>
-                    </td>
-                    <td className="px-3 py-1.5 text-right text-gray-500 whitespace-nowrap">
-                      {wo.created_at ? dayjs(wo.created_at).fromNow() : 'Unknown'}
-                    </td>
-                    <td className="px-3 py-1.5 text-right">
-                      {wo.priority && (
-                        <span className={`inline-block px-1 py-0.5 rounded text-[10px] font-medium border ${wo.priority === 'Critical' ? 'bg-red-50 text-red-700 border-red-200' :
-                            wo.priority === 'High' ? 'bg-orange-50 text-orange-700 border-orange-200' :
-                              wo.priority === 'Medium' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
-                                'bg-gray-50 text-gray-600 border-gray-200'
+                    </TableCell>
+                    <TableCell className="px-3 py-2 text-right text-gray-500 whitespace-nowrap text-xs">
+                      {rWo.created_at ? dayjs(rWo.created_at).fromNow() : 'Unknown'}
+                    </TableCell>
+                    <TableCell className="px-3 py-2 text-right">
+                      {rWo.priority && (
+                        <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium border ${rWo.priority === 'Critical' ? 'bg-red-50 text-red-700 border-red-200' :
+                          rWo.priority === 'High' ? 'bg-orange-50 text-orange-700 border-orange-200' :
+                            rWo.priority === 'Medium' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
+                              'bg-gray-50 text-gray-600 border-gray-200'
                           }`}>
-                          {wo.priority}
+                          {rWo.priority.charAt(0).toUpperCase() + rWo.priority.slice(1).toLowerCase()}
                         </span>
                       )}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 );
               })}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       ) : (
         <div className="text-center py-6">

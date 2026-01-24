@@ -23,22 +23,22 @@ Component-specific values that reference semantic tokens.
 
 ### Primary Colors
 
-#### Steel Blue
-Industrial-inspired primary color representing strength and reliability.
+#### Brand Purple (Nova)
+Modern, high-contrast primary color representing the Nova design language.
 
 ```typescript
-export const steelBlue = {
-  50: '#f0f9ff',   // Lightest tint
-  100: '#e0f2fe',
-  200: '#bae6fd',
-  300: '#7dd3fc',
-  400: '#38bdf8',
-  500: '#0ea5e9',  // Base color
-  600: '#0284c7',  // Primary brand color
-  700: '#0369a1',
-  800: '#075985',
-  900: '#0c4a6e',  // Darkest shade
-  950: '#082f49',  // Ultra dark
+export const brandPurple = {
+  50: '#faf5ff',   // Lightest tint
+  100: '#f3e8ff',
+  200: '#e9d5ff',
+  300: '#d8b4fe',
+  400: '#c084fc',
+  500: '#a855f7',  // Base color
+  600: '#9333ea',  // Primary brand color
+  700: '#7e22ce',
+  800: '#6b21a8',
+  900: '#581c87',  // Darkest shade
+  950: '#3b0764',  // Ultra dark
 };
 ```
 
@@ -75,11 +75,11 @@ export const safetyOrange = {
 
 ### Neutral Colors
 
-#### Machinery Gray
+#### Industrial Slate
 Professional grays inspired by industrial machinery and equipment.
 
 ```typescript
-export const machineryGray = {
+export const industrialSlate = {
   50: '#f8fafc',   // Lightest backgrounds
   100: '#f1f5f9',  // Light backgrounds
   200: '#e2e8f0',  // Borders, dividers
@@ -166,23 +166,20 @@ export const maintenanceYellow = {
 ```typescript
 export const fontFamilies = {
   primary: [
-    'Inter',
+    'Geist',
+    'system-ui',
     '-apple-system',
     'BlinkMacSystemFont',
-    'Segoe UI',
-    'Roboto',
-    'Oxygen',
-    'Ubuntu',
-    'Cantarell',
+    'sans-serif'
+  ],
+  display: [
+    'Bricolage Grotesque',
+    'Geist',
+    'system-ui',
     'sans-serif'
   ],
   mono: [
-    'JetBrains Mono',
-    'Fira Code',
-    'Monaco',
-    'Consolas',
-    'Liberation Mono',
-    'Courier New',
+    'Geist Mono',
     'monospace'
   ],
 };
@@ -436,7 +433,7 @@ export const semanticShadows = {
   modal: shadows.xl,
   dropdown: shadows.lg,
   tooltip: shadows.base,
-  focus: '0 0 0 3px rgb(59 130 246 / 0.5)', // Steel blue focus ring
+  focus: '0 0 0 1px rgb(168 85 247 / 0.3)', // Subtle purple focus ring (1px, 30% opacity)
 };
 ```
 
@@ -449,7 +446,7 @@ export const borderRadius = {
   base: '0.25rem',  // 4px
   md: '0.375rem',   // 6px
   lg: '0.5rem',     // 8px
-  xl: '0.75rem',    // 12px
+  xl: '0.75rem',    // 12px (Nova Standard) --radius
   '2xl': '1rem',    // 16px
   '3xl': '1.5rem',  // 24px
   full: '9999px',   // Fully rounded
@@ -494,11 +491,11 @@ import {
 
 // Use in components
 const buttonStyles = {
-  backgroundColor: professionalColors.steelBlue[600],
+  backgroundColor: professionalColors.brandPurple[600],
   color: professionalColors.white,
   padding: professionalSpacing.semantic.buttonPadding.md,
   fontSize: professionalTypography.fontSizes.sm.fontSize,
-  borderRadius: borderRadius.md,
+  borderRadius: borderRadius.xl,
 };
 ```
 
@@ -507,9 +504,9 @@ const buttonStyles = {
 ```css
 :root {
   /* Colors */
-  --color-primary-50: #f0f9ff;
-  --color-primary-600: #0284c7;
-  --color-primary-900: #0c4a6e;
+  --color-primary-50: #faf5ff;
+  --color-primary-600: #9333ea;
+  --color-primary-900: #581c87;
   
   /* Spacing */
   --spacing-1: 4px;
@@ -537,10 +534,10 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        steel: {
-          50: '#f0f9ff',
-          600: '#0284c7',
-          900: '#0c4a6e',
+        nova: {
+          50: '#faf5ff',
+          600: '#9333ea',
+          900: '#581c87',
         },
       },
       spacing: {
@@ -631,7 +628,7 @@ const oldStyles = {
 
 // After
 const newStyles = {
-  color: professionalColors.steelBlue[600],
+  color: professionalColors.brandPurple[600],
   padding: professionalSpacing.semantic.buttonPadding.md,
   fontSize: professionalTypography.fontSizes.sm.fontSize,
 };
@@ -648,7 +645,7 @@ const muiButton = {
 
 // To Professional CMMS
 const cmmsButton = {
-  color: professionalColors.steelBlue[600],
+  color: professionalColors.brandPurple[600],
   padding: professionalSpacing.semantic.buttonPadding.md,
 };
 ```

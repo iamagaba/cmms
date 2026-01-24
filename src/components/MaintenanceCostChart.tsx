@@ -2,16 +2,14 @@ import React from 'react';
 import { ModernLineChart, formatCurrency, formatDate } from '@/components/charts';
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
+
 
 interface MaintenanceCostChartProps {
   workOrders: WorkOrder[];
 }
 
 export const MaintenanceCostChart: React.FC<MaintenanceCostChartProps> = ({ workOrders }) => {
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
+
 
   // Process data for the chart
   const chartData = workOrders.map(wo => ({
@@ -30,7 +28,7 @@ export const MaintenanceCostChart: React.FC<MaintenanceCostChartProps> = ({ work
         strokeWidth: 3,
         dot: true
       }]}
-      height={isCompact ? 250 : 300}
+      height={300}
       formatValue={(value) => `UGX ${Number(value).toLocaleString()}`}
       formatLabel={formatDate}
       accessibilityLabel="Line chart showing maintenance costs over time"

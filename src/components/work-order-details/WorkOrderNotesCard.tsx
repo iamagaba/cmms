@@ -10,8 +10,6 @@ import {
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
 
 dayjs.extend(relativeTime);
 
@@ -35,8 +33,6 @@ export const WorkOrderNotesCard: React.FC<WorkOrderNotesCardProps> = ({
   onAddNote,
   profileMap = new Map(),
 }) => {
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
   const [newNote, setNewNote] = useState('');
   const [noteType, setNoteType] = useState<'note' | 'diagnosis' | 'resolution'>('note');
   const [isExpanded, setIsExpanded] = useState(false);
@@ -92,17 +88,9 @@ export const WorkOrderNotesCard: React.FC<WorkOrderNotesCardProps> = ({
   };
 
   return (
-    <div className="bg-white">
-      <div className="px-3 py-2 border-b border-gray-200 flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wide">Notes</h3>
-          {existingNotes.length > 0 && (
-            <span className="bg-gray-200 text-gray-700 text-[10px] font-medium px-1.5 py-0.5 rounded-full">
-              {existingNotes.length}
-            </span>
-          )}
-        </div>
-        {onAddNote && (
+    <div className="bg-white border border-gray-200 overflow-hidden shadow-sm">
+      {onAddNote && (
+        <div className="px-3 py-2 border-b border-gray-200 flex items-center justify-end">
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
@@ -110,8 +98,8 @@ export const WorkOrderNotesCard: React.FC<WorkOrderNotesCardProps> = ({
             <HugeiconsIcon icon={Add01Icon} size={12} />
             Add
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className="px-3 py-2 space-y-2">
         {/* Add Note Form */}
@@ -123,8 +111,8 @@ export const WorkOrderNotesCard: React.FC<WorkOrderNotesCardProps> = ({
                   key={type}
                   onClick={() => setNoteType(type)}
                   className={`px-2 py-1 rounded text-xs font-medium transition-colors ${noteType === type
-                      ? `${typeConfig[type].bg} ${typeConfig[type].color}`
-                      : 'bg-white text-gray-500 hover:bg-gray-100'
+                    ? `${typeConfig[type].bg} ${typeConfig[type].color}`
+                    : 'bg-white text-gray-500 hover:bg-gray-100'
                     }`}
                 >
                   {typeConfig[type].label}

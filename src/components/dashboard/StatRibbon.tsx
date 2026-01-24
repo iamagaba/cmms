@@ -3,8 +3,6 @@ import React from "react";
 import { HugeiconsIcon, IconSvgElement } from '@hugeicons/react';
 import { ArrowRight01Icon } from '@hugeicons/core-free-icons';
 import { cn } from '@/lib/utils';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
 
 interface StatRibbonProps {
     stats: Array<{
@@ -18,54 +16,52 @@ interface StatRibbonProps {
 }
 
 export const StatRibbon: React.FC<StatRibbonProps> = ({ stats }) => {
-    const spacing = useDensitySpacing();
-    const { isCompact } = useDensity();
     const getIconColorClass = (color: string) => {
         switch (color) {
-            case 'primary': return 'text-blue-600';
+            case 'primary': return 'text-primary';
             case 'emerald': return 'text-emerald-600';
             case 'amber': return 'text-amber-600';
             case 'red': return 'text-red-600';
-            default: return 'text-gray-600';
+            default: return 'text-muted-foreground';
         }
     };
 
     return (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-            <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-200">
+        <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
+            <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-border">
                 {stats.map((stat, index) => (
                     <div
                         key={index}
                         className={cn(
-                            `${spacing.card} hover:bg-gray-50 transition-colors`,
+                            'p-4 hover:bg-accent transition-colors',
                             stat.onClick && 'cursor-pointer'
                         )}
                         onClick={stat.onClick}
                     >
                         <div className="flex items-center justify-between">
                             <div className="flex-1">
-                                <div className={`flex items-center ${spacing.gap} mb-1`}>
+                                <div className="flex items-center gap-2 mb-1">
                                     <HugeiconsIcon
                                         icon={stat.icon}
-                                        size={spacing.icon.sm}
+                                        size={14}
                                         className={cn(getIconColorClass(stat.color))}
                                     />
-                                    <p className={`${spacing.text.caption} font-medium text-gray-500 uppercase tracking-wide`}>
+                                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
                                         {stat.title}
                                     </p>
                                 </div>
-                                <p className="text-2xl font-bold font-data text-gray-900 dark:text-gray-100">
+                                <p className="text-2xl font-bold text-foreground">
                                     {typeof stat.value === 'number' ? stat.value.toLocaleString() : stat.value}
                                 </p>
                                 {stat.subtitle && (
-                                    <p className={`${spacing.text.caption} text-gray-500 mt-1`}>{stat.subtitle}</p>
+                                    <p className="text-xs text-muted-foreground mt-1">{stat.subtitle}</p>
                                 )}
                             </div>
                             {stat.onClick && (
                                 <HugeiconsIcon
                                     icon={ArrowRight01Icon}
-                                    size={16}
-                                    className="text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    size={14}
+                                    className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
                                 />
                             )}
                         </div>

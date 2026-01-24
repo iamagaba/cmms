@@ -11,7 +11,7 @@ import { FilterIcon, Cancel01Icon } from '@hugeicons/core-free-icons';
 import { Icon } from '@/components/icons/Icon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { ColumnFilter, FilterOption } from './EnhancedProfessionalDataTable';
+import { ColumnFilter, FilterOption } from './EnhancedDataTable';
 
 // ============================================
 // INTERFACES

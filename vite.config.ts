@@ -18,6 +18,21 @@ export default defineConfig(({ mode }) => ({
       brotliSize: true,
     }),
   ].filter(Boolean),
+  optimizeDeps: {
+    include: [
+      'react', 
+      'react-dom',
+      '@radix-ui/react-dropdown-menu',
+      '@radix-ui/react-select',
+      '@radix-ui/react-dialog',
+      '@radix-ui/react-checkbox',
+      '@radix-ui/react-label',
+      '@radix-ui/react-slot',
+      '@radix-ui/react-separator',
+      '@radix-ui/react-tabs',
+      '@radix-ui/react-toast',
+    ],
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
@@ -31,6 +46,7 @@ export default defineConfig(({ mode }) => ({
       "@mantine/spotlight": path.resolve(__dirname, "./src/mocks/mantine-spotlight.tsx"),
       "mantine-datatable": path.resolve(__dirname, "./src/mocks/mantine-datatable.tsx"),
     },
+    dedupe: ['react', 'react-dom', 'react/jsx-runtime'],
   },
   build: {
     // Optimize chunk size

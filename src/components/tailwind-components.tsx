@@ -144,11 +144,11 @@ interface ButtonProps {
   loading?: boolean;
 }
 
-// Density-aware size map - uses CSS variables
+// Size map using shadcn/ui defaults
 const sizeMap = {
   xs: 'h-7 px-2 py-1 text-xs',
   sm: 'h-8 px-3 py-1.5 text-sm',
-  md: 'px-4 py-2 text-sm [height:var(--density-button-height)]',
+  md: 'h-9 px-4 py-2 text-sm',
   lg: 'h-11 px-5 py-2.5 text-base',
 };
 
@@ -232,7 +232,7 @@ const TabsTab: React.FC<{ value: string; children: React.ReactNode; leftSection?
   return (
     <button
       onClick={() => setActiveTab(value)}
-      className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${isActive ? 'border-primary-600 text-primary-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+      className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-all ${isActive ? 'border-primary-600 text-primary-700 font-semibold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
         }`}
     >
       {leftSection}

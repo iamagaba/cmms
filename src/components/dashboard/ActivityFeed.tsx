@@ -22,8 +22,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { cn } from '@/lib/utils';
-import ProfessionalCard from '@/components/ui/ProfessionalCard';
-import ProfessionalButton from '@/components/ui/ProfessionalButton';
 
 dayjs.extend(relativeTime);
 

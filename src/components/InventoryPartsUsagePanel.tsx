@@ -12,8 +12,6 @@ import {
 import { usePartsForInventoryItem, useReservationsForInventoryItem } from '@/hooks/useWorkOrderParts';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
 
 dayjs.extend(relativeTime);
 
@@ -26,8 +24,6 @@ export const InventoryPartsUsagePanel: React.FC<InventoryPartsUsagePanelProps> =
   inventoryItemId,
   maxHeight = '400px',
 }) => {
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
   const { data: usedParts, isLoading: isLoadingParts } = usePartsForInventoryItem(inventoryItemId);
   const { data: reservations, isLoading: isLoadingReservations } = useReservationsForInventoryItem(inventoryItemId);
 
@@ -73,7 +69,7 @@ export const InventoryPartsUsagePanel: React.FC<InventoryPartsUsagePanelProps> =
             <p className="text-xs text-gray-500">Reserved</p>
           </div>
           <div>
-            <p className="text-lg font-semibold text-emerald-600">${totalCost.toFixed(2)}</p>
+            <p className="text-lg font-semibold text-emerald-600">UGX {Math.round(totalCost).toLocaleString()}</p>
             <p className="text-xs text-gray-500">Total Value</p>
           </div>
         </div>

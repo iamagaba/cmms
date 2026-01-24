@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
+import {
   AnalyticsUpIcon,
   AnalyticsDownIcon,
   PackageIcon,
@@ -14,8 +14,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTopUsedParts, usePartsUsageAnalytics } from '@/hooks/useWorkOrderParts';
 import dayjs from 'dayjs';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
+
 
 interface PartsUsageAnalyticsPanelProps {
   isOpen: boolean;
@@ -29,8 +28,8 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
   isOpen,
   onClose,
 }) => {
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
+  onClose,
+}) => {
   const [activeView, setActiveView] = useState<ViewType>('overview');
   const [timeRange, setTimeRange] = useState<TimeRange>('30d');
 
@@ -45,11 +44,11 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
     queryKey: ['parts_usage_summary', timeRange],
     queryFn: async () => {
       const startDate = getStartDate(timeRange);
-      
+
       let query = supabase
         .from('work_order_parts')
         .select('quantity_used, total_cost, created_at');
-      
+
       if (startDate) {
         query = query.gte('created_at', startDate);
       }
@@ -87,11 +86,11 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
       if (error) throw new Error(error.message);
 
       // Aggregate by vehicle
-      const byVehicle: Record<string, { 
-        vehicle_id: string; 
-        vehicle_name: string; 
+      const byVehicle: Record<string, {
+        vehicle_id: string;
+        vehicle_name: string;
         license_plate: string;
-        total_parts: number; 
+        total_parts: number;
         total_cost: number;
         usage_count: number;
       }> = {};
@@ -99,7 +98,7 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
       (data || []).forEach((item: any) => {
         const vehicle = item.work_orders?.vehicles;
         if (!vehicle) return;
-        
+
         const key = vehicle.id;
         if (!byVehicle[key]) {
           byVehicle[key] = {
@@ -139,10 +138,10 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
       if (error) throw new Error(error.message);
 
       // Aggregate by category
-      const byCategory: Record<string, { 
-        category_id: string; 
-        category_name: string; 
-        total_parts: number; 
+      const byCategory: Record<string, {
+        category_id: string;
+        category_name: string;
+        total_parts: number;
         total_cost: number;
         usage_count: number;
       }> = {};
@@ -150,7 +149,7 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
       (data || []).forEach((item: any) => {
         const category = item.work_orders?.service_categories;
         const key = category?.id || 'uncategorized';
-        
+
         if (!byCategory[key]) {
           byCategory[key] = {
             category_id: key,
@@ -219,11 +218,10 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
             <button
               key={tab.id}
               onClick={() => setActiveView(tab.id as ViewType)}
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
-                activeView === tab.id
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${activeView === tab.id
                   ? 'text-purple-600 dark:text-purple-400 border-b-2 border-purple-600 dark:border-purple-400'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-              }`}
+                }`}
             >
               {/* TODO: Convert tab.icon prop to use HugeiconsIcon component */}
               {tab.label}

@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
+import {
   AlertCircleIcon,
   FilterIcon,
-  Clock01Icon
+  Clock01Icon,
+  ArrowRight01Icon
 } from '@hugeicons/core-free-icons';
-import { 
-  useItemAdjustmentHistory, 
+import {
+  useItemAdjustmentHistory,
   useAdjustmentHistory,
-  AdjustmentHistoryFilters 
+  AdjustmentHistoryFilters
 } from '@/hooks/useStockAdjustments';
 import { AdjustmentReason, ADJUSTMENT_REASON_LABELS, StockAdjustment } from '@/types/supabase';
 import { AdjustmentReasonBadge } from './AdjustmentReasonBadge';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
 
 interface AdjustmentHistoryPanelProps {
   inventoryItemId?: string;
@@ -22,8 +21,8 @@ interface AdjustmentHistoryPanelProps {
 }
 
 const ADJUSTMENT_REASONS: AdjustmentReason[] = [
-  'received', 'damaged', 'returned', 'cycle_count', 
-  'theft', 'expired', 'transfer_out', 'transfer_in', 
+  'received', 'damaged', 'returned', 'cycle_count',
+  'theft', 'expired', 'transfer_out', 'transfer_in',
   'initial_stock', 'other',
 ];
 
@@ -32,8 +31,6 @@ export const AdjustmentHistoryPanel: React.FC<AdjustmentHistoryPanelProps> = ({
   isGlobal = false,
   maxHeight = '400px',
 }) => {
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
   const [filters, setFilters] = useState<AdjustmentHistoryFilters>({});
   const [showFilters, setShowFilters] = useState(false);
 
@@ -66,7 +63,7 @@ export const AdjustmentHistoryPanel: React.FC<AdjustmentHistoryPanelProps> = ({
   };
 
   const getUserName = (adjustment: StockAdjustment) => {
-    if (adjustment.profiles?.first_name || adjustment.profiles?.last_name) {
+    if (adjustment.profiles && (adjustment.profiles.first_name || adjustment.profiles.last_name)) {
       return `${adjustment.profiles.first_name || ''} ${adjustment.profiles.last_name || ''}`.trim();
     }
     return 'System';
@@ -83,10 +80,14 @@ export const AdjustmentHistoryPanel: React.FC<AdjustmentHistoryPanelProps> = ({
   }
 
   if (error) {
+    console.error('Adjustment history error:', error, 'Item ID:', inventoryItemId);
     return (
       <div className="p-4 text-center">
         <HugeiconsIcon icon={AlertCircleIcon} size={32} className="text-red-500 mx-auto mb-2" />
         <p className="text-sm text-red-600 dark:text-red-400">Failed to load history</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+          {error instanceof Error ? error.message : 'Unknown error'}
+        </p>
       </div>
     );
   }
@@ -102,11 +103,10 @@ export const AdjustmentHistoryPanel: React.FC<AdjustmentHistoryPanelProps> = ({
             </h3>
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded transition-colors ${
-                showFilters || Object.keys(filters).length > 0
-                  ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
-                  : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
-              }`}
+              className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded transition-colors ${showFilters || Object.keys(filters).length > 0
+                ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
+                }`}
             >
               <HugeiconsIcon icon={FilterIcon} size={14} />
               Filters
@@ -160,51 +160,99 @@ export const AdjustmentHistoryPanel: React.FC<AdjustmentHistoryPanelProps> = ({
       )}
 
       {/* History List */}
-      <div className="overflow-auto" style={{ maxHeight }}>
+      <div className="overflow-auto pl-2 pr-4 py-2" style={{ maxHeight }}>
         {!adjustments || adjustments.length === 0 ? (
           <div className="p-8 text-center">
             <HugeiconsIcon icon={Clock01Icon} size={32} className="text-gray-300 dark:text-gray-600 mx-auto mb-2" />
             <p className="text-sm text-gray-500 dark:text-gray-400">No adjustment history</p>
           </div>
         ) : (
-          <div className="divide-y divide-gray-100 dark:divide-gray-800">
-            {adjustments.map((adjustment) => (
-              <div key={adjustment.id} className="p-3 hover:bg-gray-50 dark:hover:bg-gray-800/50">
-                <div className="flex items-start justify-between mb-1">
-                  <div className="flex items-center gap-2">
-                    <span className={`text-sm font-bold ${getDeltaColor(adjustment.quantity_delta)}`}>
-                      {formatDelta(adjustment.quantity_delta)}
-                    </span>
-                    <AdjustmentReasonBadge reason={adjustment.reason} size="sm" />
+          <div className="relative space-y-0">
+            {/* Vertical Timeline Track */}
+            <div className="absolute left-[135px] top-2 bottom-2 w-px bg-gray-200 dark:bg-gray-800" />
+
+            {adjustments.map((adjustment) => {
+              const isPositive = adjustment.quantity_delta > 0;
+              const isNegative = adjustment.quantity_delta < 0;
+
+              const deltaColorClass = isPositive
+                ? 'text-emerald-600 dark:text-emerald-400'
+                : isNegative
+                  ? 'text-red-600 dark:text-red-400'
+                  : 'text-gray-600 dark:text-gray-400';
+
+              const dotColorClass = isPositive
+                ? 'bg-emerald-500 ring-4 ring-white dark:ring-gray-900'
+                : isNegative
+                  ? 'bg-red-500 ring-4 ring-white dark:ring-gray-900'
+                  : 'bg-gray-400 ring-4 ring-white dark:ring-gray-900';
+
+              return (
+                <div key={adjustment.id} className="relative flex group py-3 first:pt-0 last:pb-0">
+
+                  {/* Left: Date & Time */}
+                  <div className="w-[120px] pt-1 text-right flex-none pr-4">
+                    <div className="text-xs font-medium text-gray-900 dark:text-gray-100">
+                      {new Date(adjustment.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                    </div>
+                    <div className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">
+                      {new Date(adjustment.created_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                    </div>
                   </div>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">
-                    {formatDate(adjustment.created_at)}
-                  </span>
+
+                  {/* Middle: Timeline Dot */}
+                  <div className="absolute left-[131px] top-[14px] z-10 flex-none">
+                    <div className={`h-2.5 w-2.5 rounded-full ${dotColorClass}`} />
+                  </div>
+
+                  {/* Right: Content */}
+                  <div className="flex-1 pl-6 pt-0.5">
+                    <div className="flex items-start justify-between">
+                      <div className="flex flex-col gap-1">
+
+                        {/* Reason Badge & User */}
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <AdjustmentReasonBadge reason={adjustment.reason} size="sm" showIcon={false} />
+                          <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1">
+                            by {getUserName(adjustment)}
+                          </span>
+                        </div>
+
+                        {/* Delta & Context */}
+                        <div className="flex items-baseline gap-2">
+                          <span className={`text-sm font-bold tabular-nums ${deltaColorClass}`}>
+                            {formatDelta(adjustment.quantity_delta)}
+                          </span>
+                          <span className="text-xs text-gray-400 dark:text-gray-500">
+                            {adjustment.quantity_before} <span className="mx-0.5">→</span> {adjustment.quantity_after}
+                          </span>
+                        </div>
+
+                        {/* Notes */}
+                        {adjustment.notes && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400 italic mt-0.5">
+                            {adjustment.notes}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Item Name (Global View) - Optional Right Side Info */}
+                      {isGlobal && adjustment.inventory_items && (
+                        <div className="text-right pl-4">
+                          <div className="text-xs font-medium text-gray-900 dark:text-gray-100">
+                            {adjustment.inventory_items.name}
+                          </div>
+                          <div className="text-[10px] text-gray-400">
+                            {adjustment.inventory_items.sku}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                 </div>
-
-                {/* Show item name in global view */}
-                {isGlobal && adjustment.inventory_items && (
-                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">
-                    {adjustment.inventory_items.name}
-                    <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
-                      ({adjustment.inventory_items.sku})
-                    </span>
-                  </p>
-                )}
-
-                <div className="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-                  <span>{adjustment.quantity_before} → {adjustment.quantity_after}</span>
-                  <span>•</span>
-                  <span>by {getUserName(adjustment)}</span>
-                </div>
-
-                {adjustment.notes && (
-                  <p className="mt-1 text-xs text-gray-600 dark:text-gray-400 italic">
-                    "{adjustment.notes}"
-                  </p>
-                )}
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  WorkOrderPart, 
-  PartReservation, 
+import {
+  WorkOrderPart,
+  PartReservation,
   PartsUsageAnalytics,
-  ReservationStatus 
+  ReservationStatus
 } from '@/types/supabase';
 import { showSuccess, showError } from '@/utils/toast';
 
@@ -160,16 +160,30 @@ export function useRemovePartFromWorkOrder() {
 
       return { workOrderId };
     },
-    onSuccess: (result) => {
-      queryClient.invalidateQueries({ queryKey: workOrderPartsKeys.parts(result.workOrderId) });
+    onMutate: async ({ partId, workOrderId }) => {
+      await queryClient.cancelQueries({ queryKey: workOrderPartsKeys.parts(workOrderId) });
+      const previousParts = queryClient.getQueryData(workOrderPartsKeys.parts(workOrderId));
+      queryClient.setQueryData(workOrderPartsKeys.parts(workOrderId), (old: any[]) => {
+        return (old || []).filter((part: any) => part.id !== partId);
+      });
+      return { previousParts };
+    },
+    onError: (err, newTodo, context) => {
+      queryClient.setQueryData(
+        workOrderPartsKeys.parts(newTodo.workOrderId),
+        context?.previousParts
+      );
+      console.error('Remove part error:', err);
+    },
+    onSettled: (data, error, variables) => {
+      queryClient.invalidateQueries({ queryKey: workOrderPartsKeys.parts(variables.workOrderId) });
       queryClient.invalidateQueries({ queryKey: ['inventory_items'] });
       queryClient.invalidateQueries({ queryKey: ['stock_adjustments'] });
-      showSuccess('Part removed and inventory restored');
+      if (!error) {
+        showSuccess('Part removed and inventory restored');
+      }
     },
-    onError: (error) => {
-      console.error('Remove part error:', error);
-      showError(error.message || 'Failed to remove part');
-    },
+
   });
 }
 

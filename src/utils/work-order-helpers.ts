@@ -165,33 +165,33 @@ export const generateUpdateActivityMessage = (
 
   if (updates.status && updates.status !== oldWorkOrder.status) {
     activityMessage = `Status changed from '${oldWorkOrder.status || 'N/A'}' to '${updates.status}'.`;
-  } else if (updates.assignedTechnicianId && updates.assignedTechnicianId !== oldWorkOrder.assignedTechnicianId) {
-    const oldTech = allTechnicians?.find(t => t.id === oldWorkOrder.assignedTechnicianId)?.name || 'Unassigned';
-    const newTech = allTechnicians?.find(t => t.id === updates.assignedTechnicianId)?.name || 'Unassigned';
+  } else if (updates.assigned_technician_id && updates.assigned_technician_id !== oldWorkOrder.assigned_technician_id) {
+    const oldTech = allTechnicians?.find(t => t.id === oldWorkOrder.assigned_technician_id)?.name || 'Unassigned';
+    const newTech = allTechnicians?.find(t => t.id === updates.assigned_technician_id)?.name || 'Unassigned';
     activityMessage = `Assigned technician changed from '${oldTech}' to '${newTech}'.`;
-  } else if (updates.slaDue && updates.slaDue !== oldWorkOrder.slaDue) {
-    activityMessage = `SLA due date updated to '${dayjs(updates.slaDue).format('MMM D, YYYY h:mm A')}'.`;
-  } else if (updates.appointmentDate && updates.appointmentDate !== oldWorkOrder.appointmentDate) {
-    activityMessage = `Appointment date updated to '${dayjs(updates.appointmentDate).format('MMM D, YYYY h:mm A')}'.`;
-  } else if (updates.initialDiagnosis && updates.initialDiagnosis !== oldWorkOrder.initialDiagnosis) {
+  } else if (updates.sla_due && updates.sla_due !== oldWorkOrder.sla_due) {
+    activityMessage = `SLA due date updated to '${dayjs(updates.sla_due).format('MMM D, YYYY h:mm A')}'.`;
+  } else if (updates.appointment_date && updates.appointment_date !== oldWorkOrder.appointment_date) {
+    activityMessage = `Appointment date updated to '${dayjs(updates.appointment_date).format('MMM D, YYYY h:mm A')}'.`;
+  } else if ((updates as any).initialDiagnosis && (updates as any).initialDiagnosis !== (oldWorkOrder as any).initialDiagnosis) {
     activityMessage = `Initial diagnosis updated.`;
-  } else if (updates.issueType && updates.issueType !== oldWorkOrder.issueType) {
-    activityMessage = `Confirmed issue type updated to '${updates.issueType}'.`;
-  } else if (updates.faultCode && updates.faultCode !== oldWorkOrder.faultCode) {
-    activityMessage = `Fault code updated to '${updates.faultCode}'.`;
-  } else if (updates.maintenanceNotes && updates.maintenanceNotes !== oldWorkOrder.maintenanceNotes) {
+  } else if ((updates as any).issueType && (updates as any).issueType !== (oldWorkOrder as any).issueType) {
+    activityMessage = `Confirmed issue type updated to '${(updates as any).issueType}'.`;
+  } else if ((updates as any).faultCode && (updates as any).faultCode !== (oldWorkOrder as any).faultCode) {
+    activityMessage = `Fault code updated to '${(updates as any).faultCode}'.`;
+  } else if ((updates as any).maintenanceNotes && (updates as any).maintenanceNotes !== (oldWorkOrder as any).maintenanceNotes) {
     activityMessage = `Maintenance notes updated.`;
   } else if (updates.priority && updates.priority !== oldWorkOrder.priority) {
     activityMessage = `Priority changed from '${oldWorkOrder.priority || 'N/A'}' to '${updates.priority}'.`;
   } else if (updates.channel && updates.channel !== oldWorkOrder.channel) {
     activityMessage = `Channel changed from '${oldWorkOrder.channel || 'N/A'}' to '${updates.channel}'.`;
-  } else if (updates.locationId && updates.locationId !== oldWorkOrder.locationId) {
-    const oldLoc = allLocations?.find(l => l.id === oldWorkOrder.locationId)?.name || 'N/A';
-    const newLoc = allLocations?.find(l => l.id === updates.locationId)?.name || 'N/A';
+  } else if (updates.location_id && updates.location_id !== oldWorkOrder.location_id) {
+    const oldLoc = allLocations?.find(l => l.id === oldWorkOrder.location_id)?.name || 'N/A';
+    const newLoc = allLocations?.find(l => l.id === updates.location_id)?.name || 'N/A';
     activityMessage = `Service location changed from '${oldLoc}' to '${newLoc}'.`;
-  } else if (updates.customerAddress && updates.customerAddress !== oldWorkOrder.customerAddress) {
-    activityMessage = `Client address updated to '${updates.customerAddress}'.`;
-  } else if (updates.customerLat !== oldWorkOrder.customerLat || updates.customerLng !== oldWorkOrder.customerLng) {
+  } else if (updates.customer_address && updates.customer_address !== oldWorkOrder.customer_address) {
+    activityMessage = `Client address updated to '${updates.customer_address}'.`;
+  } else if (updates.customer_lat !== oldWorkOrder.customer_lat || updates.customer_lng !== oldWorkOrder.customer_lng) {
     activityMessage = `Client coordinates updated.`;
   } else if (updates.service_category_id && updates.service_category_id !== oldWorkOrder.service_category_id) {
     const category = (oldWorkOrder as any).service_categories?.name || 'N/A'; // Access from joined data if available

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
+import {
   Cancel01Icon,
   Call02Icon,
   UserIcon,
@@ -9,7 +9,19 @@ import {
   AlertCircleIcon,
   Alert01Icon
 } from '@hugeicons/core-free-icons';
-import { Button, Stack } from '@/components/tailwind-components';
+import { Button } from '@/components/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { cn } from '@/lib/utils';
 
 interface ConfirmationCallDialogProps {
   isOpen: boolean;
@@ -35,7 +47,6 @@ export const ConfirmationCallDialog: React.FC<ConfirmationCallDialogProps> = ({
   const [appointmentDate, setAppointmentDate] = useState('');
   const [validationError, setValidationError] = useState('');
   const notesRef = useRef<HTMLTextAreaElement>(null);
-  const firstOutcomeButtonRef = useRef<HTMLButtonElement>(null);
 
   // Focus management and keyboard shortcuts
   useEffect(() => {
@@ -68,7 +79,7 @@ export const ConfirmationCallDialog: React.FC<ConfirmationCallDialogProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Validation
     if (!notes.trim()) {
       setValidationError('Please add notes about the call');
@@ -98,247 +109,192 @@ export const ConfirmationCallDialog: React.FC<ConfirmationCallDialogProps> = ({
     setValidationError('');
   };
 
-  if (!isOpen) return null;
-
   return (
-    <>
-      {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/40 backdrop-blur-sm transition-opacity duration-200"
-        style={{ zIndex: 1040 }}
-        onClick={handleClose}
-        aria-hidden="true"
-      />
-
-      {/* Dialog */}
-      <div 
-        className="fixed inset-0 flex items-center justify-center p-4"
-        style={{ zIndex: 1050 }}
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="confirmation-call-title"
-      >
-        <div
-          className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
-          onClick={(e) => e.stopPropagation()}
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-primary-50 to-white">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center shadow-sm">
-                <HugeiconsIcon icon={Call02Icon} size={16} className="text-white" />
-              </div>
-              <div>
-                <h2 id="confirmation-call-title" className="text-base font-semibold text-gray-900">Confirmation Call</h2>
-                <p className="text-xs text-gray-600">Work Order: {workOrderNumber}</p>
-              </div>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleClose()}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+              <HugeiconsIcon icon={Call02Icon} size={20} className="text-primary-600" />
             </div>
-            <button
-              onClick={handleClose}
-              disabled={isSubmitting}
-              className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-white/80 rounded-lg transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-primary-500"
-              aria-label="Close dialog"
-            >
-              <HugeiconsIcon icon={Cancel01Icon} size={16} />
-            </button>
+            <div>
+              <DialogTitle>Confirmation Call</DialogTitle>
+              <DialogDescription className="mt-1">
+                Work Order: <span className="font-mono text-xs">{workOrderNumber}</span>
+              </DialogDescription>
+            </div>
           </div>
+        </DialogHeader>
 
-          {/* Content */}
-          <form onSubmit={handleSubmit} className="p-4">
-            <Stack gap="sm">
-              {/* Customer Info */}
-              {customerName && (
-                <div className="bg-blue-50 rounded-lg p-3 shadow-sm">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-start gap-2 flex-1">
-                      <HugeiconsIcon icon={UserIcon} size={16} className="text-blue-600 flex-shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-semibold text-blue-900">{customerName}</p>
-                        {customerPhone && (
-                          <p className="text-xs text-blue-800 mt-0.5 font-medium">{customerPhone}</p>
-                        )}
-                      </div>
-                    </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Customer Info */}
+          {customerName && (
+            <div className="bg-muted/40 rounded-lg p-3 border border-border/50">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0 text-blue-600">
+                    <HugeiconsIcon icon={UserIcon} size={16} />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{customerName}</p>
                     {customerPhone && (
-                      <a
-                        href={`tel:${customerPhone}`}
-                        className="inline-flex items-center gap-1 px-2 py-1 bg-blue-600 text-white text-xs font-medium rounded hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 whitespace-nowrap"
-                        aria-label={`Call ${customerName}`}
-                      >
-                        <HugeiconsIcon icon={Call02Icon} size={12} />
-                        Call
-                      </a>
+                      <p className="text-xs text-muted-foreground font-mono">{customerPhone}</p>
                     )}
                   </div>
                 </div>
-              )}
-
-              {/* Call Outcome */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                  Call Outcome <span className="text-red-600 font-bold">*</span>
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  <button
+                {customerPhone && (
+                  <Button
                     type="button"
-                    onClick={() => handleOutcomeChange('confirmed')}
-                    className={`px-3 py-2 rounded-lg text-xs font-medium transition-all outline-none ${
-                      outcome === 'confirmed'
-                        ? 'border-2 border-green-600 bg-green-50 text-green-800 shadow-sm'
-                        : 'border-2 border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50'
-                    }`}
-                    aria-label="Mark as confirmed (Alt+C)"
-                    title="Alt+C"
+                    variant="outline"
+                    size="sm"
+                    className="h-8 gap-1.5 shrink-0"
+                    asChild
                   >
-                    <HugeiconsIcon icon={Tick01Icon} size={16} className="mx-auto mb-0.5" />
-                    Confirmed
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleOutcomeChange('unreachable')}
-                    className={`px-3 py-2 rounded-lg text-xs font-medium transition-all outline-none ${
-                      outcome === 'unreachable'
-                        ? 'border-2 border-orange-600 bg-orange-50 text-orange-800 shadow-sm'
-                        : 'border-2 border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50'
-                    }`}
-                    aria-label="Mark as unreachable (Alt+U)"
-                    title="Alt+U"
-                  >
-                    <HugeiconsIcon icon={Call02Icon} size={16} className="mx-auto mb-0.5" />
-                    Unreachable
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleOutcomeChange('cancelled')}
-                    className={`px-3 py-2 rounded-lg text-xs font-medium transition-all outline-none ${
-                      outcome === 'cancelled'
-                        ? 'border-2 border-red-600 bg-red-50 text-red-800 shadow-sm'
-                        : 'border-2 border-gray-300 bg-white text-gray-700 hover:border-gray-400 hover:bg-gray-50'
-                    }`}
-                    aria-label="Mark as cancelled (Alt+X)"
-                    title="Alt+X"
-                  >
-                    <HugeiconsIcon icon={Cancel01Icon} size={16} className="mx-auto mb-0.5" />
-                    Cancelled
-                  </button>
-                </div>
-              </div>
-
-              {/* Call Notes */}
-              <div>
-                <label htmlFor="call-notes" className="block text-sm font-medium text-gray-700 mb-1">
-                  Call Notes <span className="text-red-600 font-bold">*</span>
-                </label>
-                <textarea
-                  id="call-notes"
-                  ref={notesRef}
-                  required
-                  value={notes}
-                  onChange={(e) => {
-                    setNotes(e.target.value);
-                    if (validationError) setValidationError('');
-                  }}
-                  rows={3}
-                  className={`w-full px-3 py-2 rounded-lg outline-none resize-none transition-colors text-sm ${
-                    validationError ? 'border-2 border-red-300 bg-red-50' : 'border-2 border-gray-300'
-                  }`}
-                  placeholder="Document call details and customer response..."
-                  aria-describedby="call-notes-help"
-                  aria-invalid={!!validationError}
-                />
-                {validationError && (
-                  <p className="text-xs text-red-600 mt-1 flex items-center gap-1" role="alert">
-                    <HugeiconsIcon icon={Alert01Icon} size={12} />
-                    {validationError}
-                  </p>
+                    <a href={`tel:${customerPhone}`}>
+                      <HugeiconsIcon icon={Call02Icon} size={14} />
+                      Call
+                    </a>
+                  </Button>
                 )}
               </div>
+            </div>
+          )}
 
-              {/* Outcome-specific guidance */}
-              {outcome === 'confirmed' && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-2.5">
-                  <p className="text-sm text-green-800 mb-1.5 font-medium">
-                    <HugeiconsIcon icon={Calendar01Icon} size={16} className="inline mr-1" />
-                    Schedule Service Appointment
-                  </p>
-                  <label htmlFor="appointment-date" className="block text-xs font-medium text-green-900 mb-1">
-                    Appointment Date & Time <span className="text-red-600">*</span>
-                  </label>
-                  <input
-                    id="appointment-date"
-                    type="datetime-local"
-                    value={appointmentDate}
-                    onChange={(e) => {
-                      setAppointmentDate(e.target.value);
-                      if (validationError) setValidationError('');
-                    }}
-                    min={new Date().toISOString().slice(0, 16)}
-                    className={`w-full px-2 py-1.5 text-sm rounded bg-white outline-none ${
-                      validationError && !appointmentDate ? 'border-2 border-red-300' : 'border-2 border-green-300'
-                    }`}
-                    required
-                  />
-                </div>
-              )}
-              {outcome === 'unreachable' && (
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-2.5">
-                  <p className="text-sm text-orange-800 font-medium">
-                    <HugeiconsIcon icon={Call02Icon} size={16} className="inline mr-1" />
-                    Customer Unreachable
-                  </p>
-                  <p className="text-xs text-orange-700 mt-1">
-                    Work order remains open. Retry call later.
-                  </p>
-                </div>
-              )}
-              {outcome === 'cancelled' && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-2.5">
-                  <p className="text-sm text-red-800 font-medium">
-                    <HugeiconsIcon icon={AlertCircleIcon} size={16} className="inline mr-1" />
-                    Cancel Work Order
-                  </p>
-                  <p className="text-xs text-red-700 mt-1">
-                    This action can be reversed if needed.
-                  </p>
-                </div>
-              )}
-            </Stack>
-
-            {/* Footer Actions */}
-            <div className="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-gray-200">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleClose}
-                disabled={isSubmitting}
-                className="text-sm px-3 py-1.5"
-              >
-                Cancel
-              </Button>
+          {/* Call Outcome */}
+          <div className="space-y-2">
+            <Label>Call Outcome <span className="text-red-500">*</span></Label>
+            <div className="grid grid-cols-3 gap-2">
               <button
-                type="submit"
-                disabled={isSubmitting || !notes.trim()}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-primary-600 text-white font-medium text-sm rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                {isSubmitting ? (
-                  <>
-                    <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                    </svg>
-                    <span>Saving...</span>
-                  </>
-                ) : (
-                  <>
-                    <HugeiconsIcon icon={Tick01Icon} size={12} />
-                    <span>Complete Call</span>
-                  </>
+                type="button"
+                onClick={() => handleOutcomeChange('confirmed')}
+                className={cn(
+                  "flex flex-col items-center justify-center gap-1.5 p-2 rounded-lg border-2 text-xs font-medium transition-all hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+                  outcome === 'confirmed'
+                    ? "border-green-500 bg-green-50 text-green-700 hover:bg-green-50"
+                    : "border-transparent bg-muted/30 hover:border-border text-muted-foreground"
                 )}
+              >
+                <HugeiconsIcon icon={Tick01Icon} size={18} />
+                Confirmed
+              </button>
+              <button
+                type="button"
+                onClick={() => handleOutcomeChange('unreachable')}
+                className={cn(
+                  "flex flex-col items-center justify-center gap-1.5 p-2 rounded-lg border-2 text-xs font-medium transition-all hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+                  outcome === 'unreachable'
+                    ? "border-orange-500 bg-orange-50 text-orange-700 hover:bg-orange-50"
+                    : "border-transparent bg-muted/30 hover:border-border text-muted-foreground"
+                )}
+              >
+                <HugeiconsIcon icon={Call02Icon} size={18} />
+                Unreachable
+              </button>
+              <button
+                type="button"
+                onClick={() => handleOutcomeChange('cancelled')}
+                className={cn(
+                  "flex flex-col items-center justify-center gap-1.5 p-2 rounded-lg border-2 text-xs font-medium transition-all hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+                  outcome === 'cancelled'
+                    ? "border-destructive/50 bg-destructive/10 text-destructive hover:bg-destructive/15"
+                    : "border-transparent bg-muted/30 hover:border-border text-muted-foreground"
+                )}
+              >
+                <HugeiconsIcon icon={Cancel01Icon} size={18} />
+                Cancelled
               </button>
             </div>
-          </form>
-        </div>
-      </div>
-    </>
+          </div>
+
+          {/* Outcome Info Sections */}
+          {outcome === 'confirmed' && (
+            <div className="bg-green-50/50 border border-green-100 rounded-lg p-3 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="space-y-1.5">
+                <Label htmlFor="appointment-date" className="text-green-900 text-xs">
+                  Appointment Date & Time <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  id="appointment-date"
+                  type="datetime-local"
+                  value={appointmentDate}
+                  onChange={(e) => {
+                    setAppointmentDate(e.target.value);
+                    if (validationError) setValidationError('');
+                  }}
+                  min={new Date().toISOString().slice(0, 16)}
+                  className="bg-white border-green-200 text-green-900 focus-visible:ring-green-500/30 h-9"
+                  required
+                />
+              </div>
+            </div>
+          )}
+
+          {outcome === 'unreachable' && (
+            <div className="bg-orange-50/50 border border-orange-100 rounded-lg p-3 text-xs text-orange-800 animate-in fade-in slide-in-from-top-2 duration-200 flex items-start gap-2">
+              <HugeiconsIcon icon={Alert01Icon} size={16} className="shrink-0 mt-0.5" />
+              <p>Work order will remain open. Please try calling the customer again later.</p>
+            </div>
+          )}
+
+          {outcome === 'cancelled' && (
+            <div className="bg-red-50/50 border border-red-100 rounded-lg p-3 text-xs text-red-800 animate-in fade-in slide-in-from-top-2 duration-200 flex items-start gap-2">
+              <HugeiconsIcon icon={AlertCircleIcon} size={16} className="shrink-0 mt-0.5" />
+              <p>This will cancel the work order. This action can be reversed if needed by reopening the ticket.</p>
+            </div>
+          )}
+
+          {/* Call Notes */}
+          <div className="space-y-2">
+            <Label htmlFor="call-notes">Call Notes <span className="text-red-500">*</span></Label>
+            <Textarea
+              id="call-notes"
+              ref={notesRef}
+              required
+              value={notes}
+              onChange={(e) => {
+                setNotes(e.target.value);
+                if (validationError) setValidationError('');
+              }}
+              className={cn(
+                "min-h-[100px] resize-none",
+                validationError && "border-destructive focus-visible:ring-destructive"
+              )}
+              placeholder="Document call details and customer response..."
+            />
+            {validationError && (
+              <p className="text-xs text-destructive flex items-center gap-1 font-medium">
+                <HugeiconsIcon icon={AlertCircleIcon} size={12} />
+                {validationError}
+              </p>
+            )}
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleClose}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={isSubmitting || !notes.trim()}
+              className="gap-1.5"
+            >
+              {isSubmitting ? (
+                <>Saving...</>
+              ) : (
+                <>
+                  <HugeiconsIcon icon={Tick01Icon} size={16} />
+                  Complete Call
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };

@@ -16,15 +16,22 @@ import {
     Location01Icon,
     Calendar01Icon,
     ClipboardIcon,
-    View01Icon,
+    ViewIcon,
     MoreVerticalIcon,
     PencilEdit02Icon,
     Delete01Icon,
     ArrowLeft01Icon,
     ArrowRight01Icon
 } from '@hugeicons/core-free-icons';
-import { useDensity } from '@/context/DensityContext';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from '@/components/ui/table';
+import { Button } from '@/components/ui/button';
 
 // Define the shape of our data (EnhancedAsset effectively)
 export interface AssetTableItem extends Vehicle {
@@ -58,8 +65,6 @@ export const ModernAssetDataTable = ({
 }: ModernAssetDataTableProps) => {
     const [sorting, setSorting] = useState<SortingState>([]);
     const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-    const { isCompact } = useDensity();
-    const spacing = useDensitySpacing();
 
     // Close menu when clicking outside
     useEffect(() => {
@@ -77,12 +82,12 @@ export const ModernAssetDataTable = ({
             header: 'Asset',
             cell: info => (
                 <div className="flex items-center gap-2">
-                    <div className={`${isCompact ? 'w-6 h-6' : 'w-7 h-7'} rounded bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100`}>
-                        <HugeiconsIcon icon={Motorbike01Icon} size={spacing.icon.xs} />
+                    <div className="w-7 h-7 rounded bg-purple-50 text-purple-600 flex items-center justify-center border border-purple-100">
+                        <HugeiconsIcon icon={Motorbike01Icon} size={16} />
                     </div>
                     <div>
-                        <div className="font-industrial-id text-sm text-purple-700">{info.getValue()}</div>
-                        <div className={`${spacing.text.caption} text-slate-500`}>{info.row.original.make} {info.row.original.model}</div>
+                        <div className="font-mono font-medium tracking-tight text-sm text-purple-700">{info.getValue()}</div>
+                        <div className="text-xs text-slate-500">{info.row.original.make} {info.row.original.model}</div>
                     </div>
                 </div>
             ),
@@ -94,8 +99,8 @@ export const ModernAssetDataTable = ({
                 const name = customer ? `${customer.first_name || ''} ${customer.last_name || ''}`.trim() : '-';
                 return (
                     <div className="flex flex-col">
-                        <span className={`${spacing.text.body} font-medium text-gray-900`}>{name}</span>
-                        <span className={`${spacing.text.caption} text-gray-500`}>Owner</span>
+                        <span className="text-sm font-medium text-gray-900">{name}</span>
+                        <span className="text-xs text-gray-500">Owner</span>
                     </div>
                 );
             }
@@ -104,8 +109,8 @@ export const ModernAssetDataTable = ({
             header: 'Location',
             cell: info => (
                 <div className="flex items-center gap-1.5 text-gray-700">
-                    <HugeiconsIcon icon={Location01Icon} size={spacing.icon.xs} className="text-gray-400" />
-                    <span className={`${spacing.text.body} font-medium`}>{info.getValue()?.name || 'Unassigned'}</span>
+                    <HugeiconsIcon icon={Location01Icon} size={14} className="text-gray-400" />
+                    <span className="text-sm font-medium">{info.getValue()?.name || 'Unassigned'}</span>
                 </div>
             )
         }),
@@ -129,7 +134,7 @@ export const ModernAssetDataTable = ({
             header: 'Asset Age',
             cell: info => {
                 const createdAt = info.getValue();
-                if (!createdAt) return <span className={`${spacing.text.body} text-slate-400`}>-</span>;
+                if (!createdAt) return <span className="text-sm text-slate-400">-</span>;
 
                 const now = new Date();
                 const created = new Date(createdAt);
@@ -149,8 +154,8 @@ export const ModernAssetDataTable = ({
 
                 return (
                     <div className="flex items-center gap-1.5">
-                        <HugeiconsIcon icon={Calendar01Icon} size={spacing.icon.xs} className="text-slate-400" />
-                        <span className="font-industrial-data text-xs text-slate-700">{ageText}</span>
+                        <HugeiconsIcon icon={Calendar01Icon} size={14} className="text-slate-400" />
+                        <span className="font-mono text-xs text-slate-700">{ageText}</span>
                     </div>
                 );
             },
@@ -181,7 +186,7 @@ export const ModernAssetDataTable = ({
                             className="p-2 text-slate-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-all"
                             title="View Details"
                         >
-                            <HugeiconsIcon icon={View01Icon} size={16} />
+                            <HugeiconsIcon icon={ViewIcon} size={16} />
                         </button>
                         <div className="relative">
                             <button
@@ -215,7 +220,7 @@ export const ModernAssetDataTable = ({
                                         }}
                                         className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
                                     >
-                                        <HugeiconsIcon icon={View01Icon} size={16} />
+                                        <HugeiconsIcon icon={ViewIcon} size={16} />
                                         View Details
                                     </button>
                                     <div className="border-t border-gray-200 my-1" />
@@ -237,7 +242,7 @@ export const ModernAssetDataTable = ({
                 );
             },
         }),
-    ], [onEdit, onDelete, onViewDetails, openMenuId, workOrders, isCompact]);
+    ], [onEdit, onDelete, onViewDetails, openMenuId, workOrders]);
 
     const table = useReactTable({
         data: assets,
@@ -271,61 +276,63 @@ export const ModernAssetDataTable = ({
     return (
         <div className="w-full overflow-hidden">
             <div className="overflow-x-auto">
-                <table className="w-full text-left border-collapse">
-                    <thead>
+                <Table>
+                    <TableHeader>
                         {table.getHeaderGroups().map(headerGroup => (
-                            <tr key={headerGroup.id} className="border-b border-gray-200 bg-gray-50">
+                            <TableRow key={headerGroup.id}>
                                 {headerGroup.headers.map(header => (
-                                    <th key={header.id} className={`${spacing.rowPadding} text-left ${spacing.text.label} text-gray-600`}>
+                                    <TableHead key={header.id}>
                                         {header.isPlaceholder
                                             ? null
                                             : flexRender(
                                                 header.column.columnDef.header,
                                                 header.getContext()
                                             )}
-                                    </th>
+                                    </TableHead>
                                 ))}
-                            </tr>
+                            </TableRow>
                         ))}
-                    </thead>
-                    <tbody className="divide-y divide-gray-100 bg-white">
+                    </TableHeader>
+                    <TableBody>
                         {table.getRowModel().rows.map(row => (
-                            <tr
+                            <TableRow
                                 key={row.id}
-                                className="hover:bg-gray-50 transition-colors cursor-pointer group"
+                                className="cursor-pointer"
                                 onClick={() => onViewDetails(row.original.id)}
                             >
                                 {row.getVisibleCells().map(cell => (
-                                    <td key={cell.id} className={spacing.rowPadding}>
+                                    <TableCell key={cell.id}>
                                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                                    </td>
+                                    </TableCell>
                                 ))}
-                            </tr>
+                            </TableRow>
                         ))}
-                    </tbody>
-                </table>
+                    </TableBody>
+                </Table>
             </div>
 
-            {/* Pagination Controls - Compact */}
-            <div className={`${spacing.rowPadding} border-t border-gray-200 bg-gray-50 flex items-center justify-between`}>
-                <div className={`${spacing.text.body} text-gray-600`}>
-                    Showing <span className="font-semibold text-gray-900">{table.getRowModel().rows.length}</span> of <span className="font-semibold text-gray-900">{assets.length}</span> assets
+            {/* Pagination Controls */}
+            <div className="px-3 py-2 border-t flex items-center justify-between">
+                <div className="text-sm text-muted-foreground">
+                    Showing <span className="font-semibold text-foreground">{table.getRowModel().rows.length}</span> of <span className="font-semibold text-foreground">{assets.length}</span> assets
                 </div>
-                <div className={`flex ${spacing.gap}`}>
-                    <button
+                <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => table.previousPage()}
                         disabled={!table.getCanPreviousPage()}
-                        className={`${isCompact ? 'px-2 py-1' : 'px-2.5 py-1.5'} ${spacing.text.body} font-medium text-gray-700 bg-white border border-gray-300 ${spacing.rounded} hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
                     >
-                        <HugeiconsIcon icon={ArrowLeft01Icon} size={spacing.icon.xs} />
-                    </button>
-                    <button
+                        <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
+                    </Button>
+                    <Button
+                        variant="outline"
+                        size="sm"
                         onClick={() => table.nextPage()}
                         disabled={!table.getCanNextPage()}
-                        className={`${isCompact ? 'px-2 py-1' : 'px-2.5 py-1.5'} ${spacing.text.body} font-medium text-gray-700 bg-white border border-gray-300 ${spacing.rounded} hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors`}
                     >
-                        <HugeiconsIcon icon={ArrowRight01Icon} size={spacing.icon.xs} />
-                    </button>
+                        <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
+                    </Button>
                 </div>
             </div>
         </div>

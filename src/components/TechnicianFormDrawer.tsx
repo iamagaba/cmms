@@ -1,23 +1,61 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-  UserIcon, 
-  Call02Icon, 
-  Mail01Icon, 
-  Location01Icon,
-  Cancel01Icon,
-  Tick01Icon,
-  RecordIcon,
-  ClipboardIcon,
-  Wrench01Icon,
-  Add01Icon,
-  ToolsIcon,
-  FloppyDiskIcon
+import {
+    UserIcon,
+    Call02Icon,
+    Mail01Icon,
+    Location01Icon,
+    RecordIcon,
+    ClipboardIcon,
+    Wrench01Icon,
+    Add01Icon,
+    FloppyDiskIcon,
+    Tick01Icon,
+    Cancel01Icon
 } from '@hugeicons/core-free-icons';
 import { Technician, Location } from '@/types/supabase';
-import { Input } from '@/components/ui/enterprise';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import {
+    Sheet,
+    SheetContent,
+    SheetHeader,
+    SheetTitle,
+    SheetDescription,
+    SheetFooter,
+} from "@/components/ui/sheet";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormLabel,
+    FormMessage,
+    FormDescription,
+} from '@/components/ui/form';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
+import { Badge } from '@/components/ui/badge';
+
+const technicianSchema = z.object({
+    name: z.string().min(2, 'Name must be at least 2 characters'),
+    email: z.string().email('Invalid email address').optional().or(z.literal('')),
+    phone: z.string().optional().or(z.literal('')),
+    status: z.enum(['available', 'busy', 'offline']),
+    location_id: z.string().optional(),
+    max_concurrent_orders: z.coerce.number().min(1, 'Must be at least 1').max(20, 'Max 20 concurrent orders'),
+    specializations: z.array(z.string()).default([]),
+});
+
+type TechnicianFormValues = z.infer<typeof technicianSchema>;
 
 interface TechnicianFormDrawerProps {
     isOpen: boolean;
@@ -34,301 +72,280 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
     technician,
     locations
 }) => {
-    const [formData, setFormData] = useState<Partial<Technician>>({
-        name: '',
-        email: '',
-        phone: '',
-        status: 'available',
-        specializations: [],
-        location_id: '',
-        max_concurrent_orders: 5,
+    const form = useForm<TechnicianFormValues>({
+        resolver: zodResolver(technicianSchema),
+        defaultValues: {
+            name: '',
+            email: '',
+            phone: '',
+            status: 'available',
+            location_id: '',
+            max_concurrent_orders: 5,
+            specializations: [],
+        },
     });
 
-    const [newSkill, setNewSkill] = useState('');
-    const spacing = useDensitySpacing();
-    const { isCompact } = useDensity();
+    const { reset, setValue, watch } = form;
+    const specializations = watch('specializations');
+    const [newSkill, setNewSkill] = React.useState('');
 
     useEffect(() => {
-        if (technician) {
-            setFormData({
-                id: technician.id,
-                name: technician.name || '',
-                email: technician.email || '',
-                phone: technician.phone || '',
-                status: technician.status || 'available',
-                specializations: technician.specializations || [],
-                location_id: technician.location_id || '',
-                max_concurrent_orders: technician.max_concurrent_orders || 5,
-            });
-        } else {
-            setFormData({
-                name: '',
-                email: '',
-                phone: '',
-                status: 'available',
-                specializations: [],
-                location_id: '',
-                max_concurrent_orders: 5,
-            });
+        if (isOpen) {
+            if (technician) {
+                reset({
+                    name: technician.name || '',
+                    email: technician.email || '',
+                    phone: technician.phone || '',
+                    status: (technician.status as 'available' | 'busy' | 'offline') || 'available',
+                    location_id: technician.location_id || '',
+                    max_concurrent_orders: technician.max_concurrent_orders || 5,
+                    specializations: technician.specializations || [],
+                });
+            } else {
+                reset({
+                    name: '',
+                    email: '',
+                    phone: '',
+                    status: 'available',
+                    location_id: '',
+                    max_concurrent_orders: 5,
+                    specializations: [],
+                });
+            }
         }
-    }, [technician, isOpen]);
+    }, [technician, isOpen, reset]);
 
-    // Close on escape key
-    useEffect(() => {
-        const handleEscape = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') onClose();
+    const handleFormSubmit = (data: TechnicianFormValues) => {
+        const submissionData: Partial<Technician> = {
+            ...data,
+            id: technician?.id, // Preserve ID for updates
         };
-        if (isOpen) window.addEventListener('keydown', handleEscape);
-        return () => window.removeEventListener('keydown', handleEscape);
-    }, [isOpen, onClose]);
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        onSubmit(formData);
+        onSubmit(submissionData);
+        // Do not close here, let parent handle it or keep it open for errors? 
+        // Parent usually closes on success.
     };
 
-    const handleAddSkill = () => {
-        if (newSkill.trim() && !formData.specializations?.includes(newSkill.trim())) {
-            setFormData(prev => ({
-                ...prev,
-                specializations: [...(prev.specializations || []), newSkill.trim()]
-            }));
+    const addSkill = () => {
+        if (newSkill.trim() && !specializations.includes(newSkill.trim())) {
+            setValue('specializations', [...specializations, newSkill.trim()]);
             setNewSkill('');
         }
     };
 
-    const handleRemoveSkill = (skillToRemove: string) => {
-        setFormData(prev => ({
-            ...prev,
-            specializations: prev.specializations?.filter(skill => skill !== skillToRemove) || []
-        }));
+    const removeSkill = (skillToRemove: string) => {
+        setValue(
+            'specializations',
+            specializations.filter((skill) => skill !== skillToRemove)
+        );
     };
 
-    if (!isOpen) return null;
-
     return (
-        <div className="fixed inset-0 z-50 flex justify-end" onClick={onClose}>
-            {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
+        <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <SheetContent className="sm:max-w-xl w-full overflow-y-auto">
+                <SheetHeader>
+                    <SheetTitle>{technician ? 'Edit Technician' : 'Add New Technician'}</SheetTitle>
+                    <SheetDescription>
+                        {technician
+                            ? 'Update technician information and assignments.'
+                            : 'Create a new technician profile to assign work orders.'}
+                    </SheetDescription>
+                </SheetHeader>
 
-            {/* Drawer */}
-            <div
-                className="relative w-full max-w-lg bg-white dark:bg-gray-950 shadow-2xl h-full flex flex-col animate-in slide-in-from-right duration-300"
-                onClick={e => e.stopPropagation()}
-            >
-                {/* Header */}
-                <div className={`flex items-center justify-between ${spacing.card} border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 flex-shrink-0`}>
-                    <div>
-                        <h2 className={`${spacing.text.heading} font-semibold text-gray-900 dark:text-gray-100`}>
-                            {technician ? 'Edit Technician' : 'Add New Technician'}
-                        </h2>
-                        <p className={`${spacing.text.caption} text-gray-500 dark:text-gray-400 mt-0.5`}>
-                            {technician ? 'Update technician information and assignments' : 'Create a new technician profile'}
-                        </p>
-                    </div>
-                    <button
-                        onClick={onClose}
-                        className={`${isCompact ? 'p-1.5' : 'p-2'} text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors`}
-                    >
-                        <HugeiconsIcon icon={Cancel01Icon} size={spacing.icon.lg} />
-                    </button>
-                </div>
+                <Form {...form}>
+                    <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6 mt-6">
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Basic Information</h3>
 
-                {/* Form Content - Scrollable */}
-                <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent">
-                    <div className={`${spacing.card} ${spacing.section}`}>
-                        {/* Basic Information Section */}
-                        <div>
-                            <h3 className={`${spacing.text.label} text-gray-500 dark:text-gray-400 ${spacing.mb}`}>Basic Information</h3>
-                            <div className={spacing.section}>
-                                {/* Name */}
-                                <div>
-                                    <label className={`block ${spacing.text.body} font-medium text-gray-700 dark:text-gray-300 mb-1.5`}>
-                                        Full Name <span className="text-error-600">*</span>
-                                    </label>
-                                    <Input
-                                        type="text"
-                                        required
-                                        value={formData.name || ''}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                                        placeholder="Enter technician name"
-                                        leftIcon={<HugeiconsIcon icon={UserIcon} size={spacing.icon.sm} className="text-gray-400" />}
-                                    />
-                                </div>
+                            <FormField
+                                control={form.control}
+                                name="name"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Full Name <span className="text-destructive">*</span></FormLabel>
+                                        <FormControl>
+                                            <div className="relative">
+                                                <HugeiconsIcon icon={UserIcon} size={16} className="absolute left-3 top-2.5 text-muted-foreground" />
+                                                <Input {...field} className="pl-9" placeholder="Enter technician name" />
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                                {/* Email */}
-                                <div>
-                                    <label className={`block ${spacing.text.body} font-medium text-gray-700 dark:text-gray-300 mb-1.5`}>
-                                        Email Address
-                                    </label>
-                                    <Input
-                                        type="email"
-                                        value={formData.email || ''}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                                        placeholder="technician@example.com"
-                                        leftIcon={<HugeiconsIcon icon={Mail01Icon} size={spacing.icon.sm} className="text-gray-400" />}
-                                    />
-                                </div>
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Email Address</FormLabel>
+                                        <FormControl>
+                                            <div className="relative">
+                                                <HugeiconsIcon icon={Mail01Icon} size={16} className="absolute left-3 top-2.5 text-muted-foreground" />
+                                                <Input {...field} className="pl-9" placeholder="technician@example.com" type="email" />
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                                {/* Phone */}
-                                <div>
-                                    <label className={`block ${spacing.text.body} font-medium text-gray-700 dark:text-gray-300 mb-1.5`}>
-                                        Phone Number
-                                    </label>
-                                    <Input
-                                        type="tel"
-                                        value={formData.phone || ''}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-                                        placeholder="+256 XXX XXX XXX"
-                                        leftIcon={<HugeiconsIcon icon={Call02Icon} size={spacing.icon.sm} className="text-gray-400" />}
-                                    />
-                                </div>
-                            </div>
+                            <FormField
+                                control={form.control}
+                                name="phone"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Phone Number</FormLabel>
+                                        <FormControl>
+                                            <div className="relative">
+                                                <HugeiconsIcon icon={Call02Icon} size={16} className="absolute left-3 top-2.5 text-muted-foreground" />
+                                                <Input {...field} className="pl-9" placeholder="+256 XXX XXX XXX" type="tel" />
+                                            </div>
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </div>
 
-                        {/* Assignment Section */}
-                        <div className={`pt-4 border-t border-gray-200 dark:border-gray-800`}>
-                            <h3 className={`${spacing.text.label} text-gray-500 dark:text-gray-400 ${spacing.mb}`}>Assignment Details</h3>
-                            <div className={spacing.section}>
-                                {/* Status */}
-                                <div>
-                                    <label className={`block ${spacing.text.body} font-medium text-gray-700 dark:text-gray-300 mb-1.5`}>
-                                        Status
-                                    </label>
-                                    <div className="relative">
-                                        <HugeiconsIcon icon={RecordIcon} size={spacing.icon.sm} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                                        <select
-                                            value={formData.status || 'available'}
-                                            onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'available' | 'busy' | 'offline' }))}
-                                            className={`w-full pl-10 pr-4 ${spacing.input} bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 ${spacing.rounded} text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500`}
-                                        >
-                                            <option value="available">Available</option>
-                                            <option value="busy">Busy</option>
-                                            <option value="offline">Offline</option>
-                                        </select>
-                                    </div>
-                                </div>
+                        <div className="space-y-4 pt-4 border-t">
+                            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Assignment Details</h3>
 
-                                {/* Location */}
-                                <div>
-                                    <label className={`block ${spacing.text.body} font-medium text-gray-700 dark:text-gray-300 mb-1.5`}>
-                                        Location
-                                    </label>
-                                    <div className="relative">
-                                        <HugeiconsIcon icon={Location01Icon} size={spacing.icon.sm} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
-                                        <select
-                                            value={formData.location_id || ''}
-                                            onChange={(e) => setFormData(prev => ({ ...prev, location_id: e.target.value }))}
-                                            className={`w-full pl-10 pr-4 ${spacing.input} bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 ${spacing.rounded} text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500`}
-                                        >
-                                            <option value="">Select a location</option>
-                                            {locations.map(location => (
-                                                <option key={location.id} value={location.id}>
-                                                    {location.name}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
-                                </div>
+                            <FormField
+                                control={form.control}
+                                name="status"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Status</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <div className="flex items-center gap-2">
+                                                        <HugeiconsIcon icon={RecordIcon} size={16} className="text-muted-foreground" />
+                                                        <SelectValue placeholder="Select status" />
+                                                    </div>
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                <SelectItem value="available">Available</SelectItem>
+                                                <SelectItem value="busy">Busy</SelectItem>
+                                                <SelectItem value="offline">Offline</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
 
-                                {/* Max Concurrent Orders */}
-                                <div>
-                                    <label className={`block ${spacing.text.body} font-medium text-gray-700 dark:text-gray-300 mb-1.5`}>
-                                        Max Concurrent Work Orders
-                                    </label>
-                                    <Input
-                                        type="number"
-                                        min="1"
-                                        max="20"
-                                        value={formData.max_concurrent_orders || 5}
-                                        onChange={(e) => setFormData(prev => ({ ...prev, max_concurrent_orders: parseInt(e.target.value) }))}
-                                        leftIcon={<HugeiconsIcon icon={ClipboardIcon} size={spacing.icon.sm} className="text-gray-400" />}
-                                    />
-                                    <p className={`mt-1.5 ${spacing.text.caption} text-gray-500 dark:text-gray-400`}>
-                                        Maximum number of work orders this technician can handle simultaneously
-                                    </p>
-                                </div>
-                            </div>
+                            <FormField
+                                control={form.control}
+                                name="location_id"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Location</FormLabel>
+                                        <Select onValueChange={field.onChange} defaultValue={field.value} value={field.value || undefined}>
+                                            <FormControl>
+                                                <SelectTrigger>
+                                                    <div className="flex items-center gap-2">
+                                                        <HugeiconsIcon icon={Location01Icon} size={16} className="text-muted-foreground" />
+                                                        <SelectValue placeholder="Select a location" />
+                                                    </div>
+                                                </SelectTrigger>
+                                            </FormControl>
+                                            <SelectContent>
+                                                {locations.map((loc) => (
+                                                    <SelectItem key={loc.id} value={loc.id}>
+                                                        {loc.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+
+                            <FormField
+                                control={form.control}
+                                name="max_concurrent_orders"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Max Concurrent Work Orders</FormLabel>
+                                        <FormControl>
+                                            <div className="relative">
+                                                <HugeiconsIcon icon={ClipboardIcon} size={16} className="absolute left-3 top-2.5 text-muted-foreground" />
+                                                <Input {...field} className="pl-9" type="number" min={1} max={20} />
+                                            </div>
+                                        </FormControl>
+                                        <FormDescription>
+                                            Maximum number of work orders this technician can handle simultaneously.
+                                        </FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </div>
 
-                        {/* Specializations Section */}
-                        <div className="pt-4 border-t border-gray-200 dark:border-gray-800">
-                            <h3 className={`${spacing.text.label} text-gray-500 dark:text-gray-400 ${spacing.mb}`}>Specializations & Skills</h3>
-                            <div className={spacing.section}>
-                                <div className={`flex ${spacing.gap}`}>
+                        <div className="space-y-4 pt-4 border-t">
+                            <h3 className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Specializations & Skills</h3>
+
+                            <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                    <HugeiconsIcon icon={Wrench01Icon} size={16} className="absolute left-3 top-2.5 text-muted-foreground" />
                                     <Input
-                                        type="text"
                                         value={newSkill}
                                         onChange={(e) => setNewSkill(e.target.value)}
-                                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
-                                        placeholder="Add a specialization (e.g., Electrical, Engine)"
-                                        leftIcon={<HugeiconsIcon icon={Wrench01Icon} size={spacing.icon.sm} className="text-gray-400" />}
-                                        className="flex-1"
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter') {
+                                                e.preventDefault();
+                                                addSkill();
+                                            }
+                                        }}
+                                        className="pl-9"
+                                        placeholder="Add a specialization (e.g., Electrical)"
                                     />
-                                    <button
-                                        type="button"
-                                        onClick={handleAddSkill}
-                                        className={`${spacing.button} bg-primary-600 hover:bg-primary-700 text-white ${spacing.rounded} transition-colors flex items-center ${spacing.gap} font-medium`}
-                                    >
-                                        <HugeiconsIcon icon={Add01Icon} size={spacing.icon.sm} />
-                                        Add
-                                    </button>
                                 </div>
-                                {formData.specializations && formData.specializations.length > 0 && (
-                                    <div className={`bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 ${spacing.roundedLg} ${spacing.card}`}>
-                                        <div className={`flex flex-wrap ${spacing.gap}`}>
-                                            {formData.specializations.map((skill, index) => (
-                                                <span
-                                                    key={index}
-                                                    className={`inline-flex items-center ${spacing.gap} px-3 py-1.5 ${spacing.rounded} ${spacing.text.body} font-medium bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800`}
-                                                >
-                                                    <HugeiconsIcon icon={Tick01Icon} size={spacing.icon.xs} />
-                                                    {skill}
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => handleRemoveSkill(skill)}
-                                                        className="ml-1 text-primary-600 dark:text-primary-400 hover:text-primary-800 dark:hover:text-primary-200"
-                                                    >
-                                                        <HugeiconsIcon icon={Cancel01Icon} size={spacing.icon.xs} />
-                                                    </button>
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                                {(!formData.specializations || formData.specializations.length === 0) && (
-                                    <div className={`text-center ${spacing.card} bg-gray-50 dark:bg-gray-900 border border-dashed border-gray-300 dark:border-gray-700 ${spacing.roundedLg}`}>
-                                        <HugeiconsIcon icon={ToolsIcon} size={spacing.icon.xl} className="text-gray-400 mx-auto mb-2" />
-                                        <p className={`${spacing.text.body} text-gray-500 dark:text-gray-400`}>No specializations added yet</p>
-                                        <p className={`${spacing.text.caption} text-gray-400 dark:text-gray-500 mt-1`}>Add skills to help with work order assignment</p>
+                                <Button type="button" size="sm" onClick={addSkill} className="shrink-0">
+                                    <HugeiconsIcon icon={Add01Icon} size={16} className="mr-1" />
+                                    Add
+                                </Button>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2 min-h-[40px] p-4 bg-muted/30 rounded-lg border border-dashed">
+                                {specializations.length > 0 ? (
+                                    specializations.map((skill, index) => (
+                                        <Badge key={index} variant="secondary" className="pl-2 pr-1 py-1 gap-1">
+                                            <HugeiconsIcon icon={Tick01Icon} size={12} className="text-primary" />
+                                            {skill}
+                                            <button
+                                                type="button"
+                                                onClick={() => removeSkill(skill)}
+                                                className="ml-1 hover:text-destructive transition-colors"
+                                            >
+                                                <HugeiconsIcon icon={Cancel01Icon} size={14} />
+                                            </button>
+                                        </Badge>
+                                    ))
+                                ) : (
+                                    <div className="w-full text-center text-muted-foreground text-sm flex flex-col items-center justify-center py-2">
+                                        <p>No specializations added yet</p>
                                     </div>
                                 )}
                             </div>
                         </div>
-                    </div>
-                </form>
 
-                {/* Footer - Fixed at bottom */}
-                <div className={`${spacing.card} border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900 flex-shrink-0`}>
-                    <div className={`flex items-center justify-between ${spacing.gap}`}>
-                        <button
-                            type="button"
-                            onClick={onClose}
-                            className={`${spacing.button} border border-gray-300 dark:border-gray-700 ${spacing.rounded} font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors`}
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            onClick={handleSubmit}
-                            className={`${spacing.button} bg-primary-600 hover:bg-primary-700 text-white font-medium ${spacing.rounded} transition-colors flex items-center ${spacing.gap}`}
-                        >
-                            <HugeiconsIcon icon={technician ? FloppyDiskIcon : Add01Icon} size={spacing.icon.sm} />
-                            {technician ? 'Update Technician' : 'Create Technician'}
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+                        <SheetFooter className="pt-4 border-t">
+                            <Button type="button" variant="outline" onClick={onClose}>
+                                Cancel
+                            </Button>
+                            <Button type="submit">
+                                <HugeiconsIcon icon={FloppyDiskIcon} size={16} className="mr-2" />
+                                {technician ? 'Update Technician' : 'Create Technician'}
+                            </Button>
+                        </SheetFooter>
+                    </form>
+                </Form>
+            </SheetContent>
+        </Sheet>
     );
 };

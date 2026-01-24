@@ -69,51 +69,51 @@ export const TechniciansList: React.FC<TechniciansListProps> = ({ technicians, w
     };
 
     return (
-        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
+        <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
             {/* Header */}
-            <div className="px-6 py-4 border-b border-gray-200">
+            <div className="px-4 py-3 border-b border-border">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <HugeiconsIcon icon={UserGroupIcon} size={16} className="text-gray-500" />
+                        <HugeiconsIcon icon={UserGroupIcon} size={14} className="text-muted-foreground" />
                         <div>
-                            <h3 className="text-sm font-semibold text-gray-900">Technicians</h3>
-                            <p className="text-xs text-gray-500 mt-0.5">{technicianStats.filter(t => t.isSignedIn).length} online</p>
+                            <h3 className="text-sm font-semibold text-foreground">Technicians</h3>
+                            <p className="text-xs text-muted-foreground mt-0.5">{technicianStats.filter(t => t.isSignedIn).length} online</p>
                         </div>
                     </div>
                     <button
                         onClick={() => navigate('/technicians')}
-                        className="text-xs text-purple-600 hover:text-purple-700 font-medium transition-colors"
+                        className="text-xs text-primary hover:text-primary/80 font-medium transition-colors"
                     >
                         View All →
                     </button>
                 </div>
             </div>
             {/* Content */}
-            <div className="divide-y divide-gray-100">
+            <div className="divide-y divide-border">
                 {technicianStats.length > 0 ? (
                     <>
                         {technicianStats.map((tech) => (
                             <div
                                 key={tech.id}
-                                className="p-4 hover:bg-gray-50 transition-colors cursor-pointer"
+                                className="p-3 hover:bg-accent transition-colors cursor-pointer"
                                 onClick={() => navigate('/technicians')}
                             >
                                 <div className="flex items-center gap-3">
                                     <div className="relative flex-shrink-0">
-                                        <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-700 font-semibold text-sm">
+                                        <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-semibold text-sm">
                                             {tech.fullName ? tech.fullName.charAt(0).toUpperCase() : 'T'}
                                         </div>
                                         {/* Status indicator dot */}
                                         <div className={cn(
-                                            'absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-white',
+                                            'absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-card',
                                             tech.status === 'active' ? 'bg-emerald-500' :
-                                                tech.status === 'busy' ? 'bg-amber-500' : 'bg-gray-400'
+                                                tech.status === 'busy' ? 'bg-amber-500' : 'bg-muted-foreground'
                                         )} />
                                     </div>
 
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-center justify-between mb-1">
-                                            <p className="text-sm font-semibold text-gray-900 truncate">
+                                            <p className="text-sm font-semibold text-foreground truncate">
                                                 {tech.fullName || tech.name || 'Technician'}
                                             </p>
                                             <span className={cn(
@@ -121,25 +121,25 @@ export const TechniciansList: React.FC<TechniciansListProps> = ({ technicians, w
                                                 tech.statusBg,
                                                 tech.statusColor,
                                                 tech.status === 'active' ? 'border-emerald-200' :
-                                                    tech.status === 'busy' ? 'border-amber-200' : 'border-gray-200'
+                                                    tech.status === 'busy' ? 'border-amber-200' : 'border-border'
                                             )}>
                                                 {getStatusLabel(tech.status)}
                                             </span>
                                         </div>
 
-                                        <div className="flex items-center gap-3 text-xs text-gray-600">
+                                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
                                             {tech.openOrdersCount > 0 ? (
                                                 <>
                                                     <span className="font-medium">{tech.openOrdersCount} open {tech.openOrdersCount === 1 ? 'order' : 'orders'}</span>
                                                     {tech.inProgressCount > 0 && (
                                                         <>
-                                                            <span className="text-gray-400">•</span>
+                                                            <span className="text-muted-foreground/50">•</span>
                                                             <span>{tech.inProgressCount} in progress</span>
                                                         </>
                                                     )}
                                                 </>
                                             ) : (
-                                                <span className="text-gray-500">No assigned work orders</span>
+                                                <span className="text-muted-foreground">No assigned work orders</span>
                                             )}
                                         </div>
                                     </div>
@@ -149,9 +149,9 @@ export const TechniciansList: React.FC<TechniciansListProps> = ({ technicians, w
                     </>
                 ) : (
                     <div className="p-6 text-center py-8">
-                        <HugeiconsIcon icon={UserGroupIcon} size={48} className="text-gray-400 mx-auto mb-3" />
-                        <p className="text-sm font-medium text-gray-900 mb-1">No Technicians</p>
-                        <p className="text-xs text-gray-500">Add technicians to get started</p>
+                        <HugeiconsIcon icon={UserGroupIcon} size={48} className="text-muted-foreground/30 mx-auto mb-3" />
+                        <p className="text-sm font-medium text-foreground mb-1">No Technicians</p>
+                        <p className="text-xs text-muted-foreground">Add technicians to get started</p>
                     </div>
                 )}
             </div>

@@ -48,17 +48,8 @@ export const WorkOrderActivityLogCard: React.FC<WorkOrderActivityLogCardProps> =
   );
 
   return (
-    <div className="bg-white">
-      <div className="px-3 py-2 border-b border-gray-200 flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wide">Activity</h3>
-          {activityLog.length > 0 && (
-            <span className="bg-gray-200 text-gray-700 text-[10px] font-medium px-1.5 py-0.5 rounded-full">
-              {activityLog.length}
-            </span>
-          )}
-        </div>
-      </div>
+    <div className="bg-white border border-gray-200 overflow-hidden shadow-sm">
+
       <div className="px-3 py-2">
         {sortedLog.length === 0 ? (
           <div className="text-center py-4">

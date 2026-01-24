@@ -1,6 +1,6 @@
 import React from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
+import {
   Add01Icon,
   CheckmarkCircle01Icon,
   Loading01Icon,
@@ -13,8 +13,6 @@ import { WorkOrder, Vehicle, EmergencyBikeAssignment } from '@/types/supabase';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import duration from 'dayjs/plugin/duration';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
 
 dayjs.extend(relativeTime);
 dayjs.extend(duration);
@@ -44,8 +42,6 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
   emergencyBike,
   emergencyAssignment,
 }) => {
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
   const currentStatus = workOrder.status || 'Open';
   const currentIndex = STATUS_ORDER.indexOf(currentStatus);
   const isOnHold = currentStatus === 'On Hold';
@@ -67,7 +63,7 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
   const totalTime = formatDuration(createdAt, completedAt || dayjs());
 
   return (
-    <div className="bg-white">
+    <div className="bg-white border border-gray-200 overflow-hidden shadow-sm">
       <div className="px-3 py-2 border-b border-gray-200 flex items-center justify-between">
         <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wide">Service Lifecycle</h3>
         {usedPartsCount > 0 && (

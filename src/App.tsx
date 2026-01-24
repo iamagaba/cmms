@@ -1,7 +1,6 @@
 import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
-import { ThemeProvider as MuiThemeProvider, createTheme } from '@mui/material/styles';
 import AppLayout from "./components/layout/AppLayout";
 import { ErrorProvider } from "./providers/ErrorProvider";
 import { ComprehensiveErrorProvider } from "./components/error/ComprehensiveErrorProvider";
@@ -9,20 +8,8 @@ import { ComprehensiveErrorProvider } from "./components/error/ComprehensiveErro
 import { NotificationsProvider } from "./context/NotificationsContext";
 import { SessionProvider, useSession } from "./context/SessionContext";
 import { SystemSettingsProvider } from "./context/SystemSettingsContext";
-import { RealtimeDataProvider } from "@/context/RealtimeDataContext";
-import { DensityProvider } from "@/context/DensityContext";
 import './App.css';
-import './styles/industrial-theme.css';
-
-// Create a minimal MUI theme for MUI X Charts
-const muiTheme = createTheme({
-  palette: {
-    mode: 'light',
-  },
-});
-
-
-// Mobile components removed - they should only be used in mobile-web/ directory
+import { RealtimeDataProvider } from "./context/RealtimeDataContext";
 
 // Lazy-loaded page components
 const Dashboard = lazy(() => import("./pages/ProfessionalCMMSDashboard"));
@@ -40,7 +27,8 @@ const InventoryPage = lazy(() => import("./pages/Inventory"));
 const LocationsPage = lazy(() => import("./pages/Locations"));
 const SchedulingPage = lazy(() => import("./pages/Scheduling"));
 const ReportsPage = lazy(() => import("./pages/Reports"));
-const DesignSystemDemo = lazy(() => import("./components/demo/DesignSystemDemo"));
+const ShadcnDesignSystem = lazy(() => import("./components/demo/ShadcnDesignSystem"));
+
 const ChatPage = lazy(() => import("./pages/Chat"));
 const TVDashboard = lazy(() => import("./pages/TVDashboard"));
 const WhatsAppTest = lazy(() => import("./pages/WhatsAppTest"));
@@ -107,7 +95,8 @@ const AppContent = () => {
         <Route path="reports" element={<Suspense fallback={suspenseFallback}><ProtectedRoute><ReportsPage /></ProtectedRoute></Suspense>} />
         <Route path="chat" element={<Suspense fallback={suspenseFallback}><ProtectedRoute><ChatPage /></ProtectedRoute></Suspense>} />
         <Route path="settings" element={<Suspense fallback={suspenseFallback}><ProtectedRoute><SettingsPage /></ProtectedRoute></Suspense>} />
-        <Route path="design-system" element={<Suspense fallback={suspenseFallback}><ProtectedRoute><DesignSystemDemo /></ProtectedRoute></Suspense>} />
+        <Route path="design-system-v2" element={<Suspense fallback={suspenseFallback}><ProtectedRoute><ShadcnDesignSystem /></ProtectedRoute></Suspense>} />
+
         <Route path="whatsapp-test" element={<Suspense fallback={suspenseFallback}><ProtectedRoute><WhatsAppTest /></ProtectedRoute></Suspense>} />
         <Route path="icon-test" element={<Suspense fallback={suspenseFallback}><ProtectedRoute><IconTestPage /></ProtectedRoute></Suspense>} />
         <Route path="*" element={<NotFound />} />
@@ -117,38 +106,34 @@ const AppContent = () => {
 };
 
 const App = () => (
-  <MuiThemeProvider theme={muiTheme}>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <ComprehensiveErrorProvider
-          enableGlobalErrorHandling={true}
+  <QueryClientProvider client={queryClient}>
+    <BrowserRouter>
+      <ComprehensiveErrorProvider
+        enableGlobalErrorHandling={true}
+        enablePerformanceMonitoring={false}
+        enableErrorReporting={true}
+        enableErrorDashboard={true}
+        maxRetries={3}
+        feature="app"
+      >
+        <ErrorProvider
+          enableGlobalErrorHandling={false}
           enablePerformanceMonitoring={false}
-          enableErrorReporting={true}
-          enableErrorDashboard={true}
           maxRetries={3}
-          feature="app"
         >
-          <ErrorProvider
-            enableGlobalErrorHandling={false}
-            enablePerformanceMonitoring={false}
-            maxRetries={3}
-          >
-            <SessionProvider>
-              <SystemSettingsProvider>
-                <NotificationsProvider>
-                  <RealtimeDataProvider>
-                    <DensityProvider>
-                      <AppContent />
-                    </DensityProvider>
-                  </RealtimeDataProvider>
-                </NotificationsProvider>
-              </SystemSettingsProvider>
-            </SessionProvider>
-          </ErrorProvider>
-        </ComprehensiveErrorProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
-  </MuiThemeProvider>
+          <SessionProvider>
+            <SystemSettingsProvider>
+              <NotificationsProvider>
+                <RealtimeDataProvider>
+                  <AppContent />
+                </RealtimeDataProvider>
+              </NotificationsProvider>
+            </SystemSettingsProvider>
+          </SessionProvider>
+        </ErrorProvider>
+      </ComprehensiveErrorProvider>
+    </BrowserRouter>
+  </QueryClientProvider>
 );
 
 export default App;

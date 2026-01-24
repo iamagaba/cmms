@@ -1,96 +1,235 @@
-# Assets Page UI Improvements - Complete ✅
+# Assets Page Layout and Border Radius Fixes
 
-## Summary
+## Issues Resolved
 
-Improved the Assets page table UI to be consistent with the rest of the application's design system and added the bike status column.
+### Issue 1: Empty Space on Right Side ✅
+**Problem:** Content not filling width properly on large screens, leaving awkward empty space
 
-## Changes Made
+**Root Cause:** Max-width was too large (7xl = 1280px), causing content to stretch excessively
 
-### 1. Added Status Column ✅
-- **New column**: Shows vehicle status (Normal, In Repair, Available, Decommissioned)
-- **Color-coded badges**:
-  - 🟢 **Normal/Available** - Green background (bg-green-100)
-  - 🟡 **In Repair** - Amber background (bg-amber-100)
-  - 🔴 **Decommissioned** - Red background (bg-red-100)
-- **Auto-syncs** with work order status via database trigger
+**Solution:** Reduced max-width from `max-w-7xl` to `max-w-6xl` (1152px)
 
-### 2. Improved Table Design ✅
+### Issue 2: Mixed Border Radius ✅
+**Problem:** Some cards appeared rounded, others appeared square/broken
 
-**Header Styling:**
-- Changed from `bg-slate-50/50` to `bg-gray-50` for consistency
-- Updated text from `text-[10px]` to `text-xs` for better readability
-- Changed from `text-slate-500` to `text-gray-600` for consistency
-- Added `font-semibold` for better hierarchy
+**Root Cause:** Cards with `p-0` CardContent had inner content touching edges, breaking the rounded corner appearance
 
-**Row Styling:**
-- Changed hover from `hover:bg-slate-50/50` to `hover:bg-gray-50`
-- Updated cell padding from `py-2.5` to `py-3.5` for better spacing
-- Changed dividers from `divide-slate-50` to `divide-gray-100`
+**Solution:** Added `overflow-hidden` to all Card components to ensure border-radius is properly clipped
 
-**Asset Cell:**
-- Increased icon container from `w-8 h-8` to `w-10 h-10`
-- Changed from `bg-indigo-50` to `bg-primary-50` for brand consistency
-- Updated text from `text-xs` to `text-sm` for better readability
-- Added make and model display: `{make} {model}`
+---
 
-**Customer Cell:**
-- Combined first and last name properly
-- Updated text sizes for better hierarchy
-- Changed colors to gray scale for consistency
+## Changes Implemented
 
-**Location Cell:**
-- Increased icon size from `w-3 h-3` to `w-4 h-4`
-- Updated text from `text-xs` to `text-sm`
-- Changed colors to match design system
+### 1. Max-Width Adjustment
 
-**Health Score Cell:**
-- Increased progress bar height from `h-1` to `h-2`
-- Added color-coded text labels
-- Improved spacing and alignment
+**File:** `src/pages/Assets.tsx` (Line ~482)
 
-**Actions Cell:**
-- Added hover states with background colors
-- Improved button styling with rounded corners
-- Added "View Details" quick action button
-- Enhanced menu with better organization
+```tsx
+// Before
+<div className="max-w-7xl mx-auto">
 
-### 3. Pagination Improvements ✅
-- Changed background from `border-slate-100` to `border-gray-200 bg-gray-50`
-- Improved button styling with proper borders and hover states
-- Added chevron icons for better UX
-- Better disabled state styling
+// After  
+<div className="max-w-6xl mx-auto">
+```
 
-### 4. Asset Details Page ✅
-- **Fixed status display**: Now shows green background for "Normal" status
-- **Removed unnecessary components**: Removed AssetCustodyBadge (was overcomplicating)
-- **Simplified approach**: Just use existing status field with proper colors
+**Impact:**
+- Content width reduced from 1280px to 1152px
+- Better proportions on large screens
+- Less empty space on the right
+- More balanced layout
 
-## Color Consistency
+### 2. Border Radius Fixes
 
-All colors now follow the app's design system:
+**File:** `src/pages/Assets.tsx`
 
-| Status | Background | Text | Border |
-|--------|-----------|------|--------|
-| Normal | `bg-green-100` | `text-green-800` | `border-green-200` |
-| Available | `bg-green-100` | `text-green-800` | `border-green-200` |
-| In Repair | `bg-amber-100` | `text-amber-800` | `border-amber-200` |
-| Decommissioned | `bg-red-100` | `text-red-800` | `border-red-200` |
+Added `overflow-hidden` to all Card components:
+
+```tsx
+// Vehicle Information Card (Line ~588)
+<Card className="overflow-hidden">
+
+// Operational Details Card (Line ~616)
+<Card className="overflow-hidden">
+
+// Customer Information Card (Line ~644)
+<Card className="overflow-hidden">
+
+// Work Orders Table Card (Line ~721)
+<Card className="overflow-hidden">
+```
+
+**Why This Works:**
+- `overflow-hidden` clips content to the card's border-radius
+- Prevents inner content from breaking rounded corners
+- Ensures consistent rounded appearance across all cards
+- Works with `p-0` CardContent pattern
+
+### 3. Responsive Grid Enhancement
+
+**File:** `src/pages/Assets.tsx` (Line ~583)
+
+```tsx
+// Before
+<div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+// After
+<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+```
+
+**Impact:**
+- Better responsive behavior on medium screens
+- 2-column layout on tablets (768px - 1024px)
+- 3-column layout on large screens (1024px+)
+- Smoother transition between breakpoints
+
+---
+
+## Technical Details
+
+### Border Radius System
+
+**CSS Variable:** `--radius: 0.5rem` (8px)
+
+**Tailwind Class:** `rounded-lg` (applies `border-radius: var(--radius)`)
+
+**Card Component:**
+```tsx
+<div className="rounded-lg border bg-card text-card-foreground shadow-sm">
+```
+
+### Why `overflow-hidden` is Necessary
+
+When CardContent has `p-0`:
+```tsx
+<Card>
+  <CardContent className="p-0 divide-y divide-border">
+    <div className="p-2.5">Content</div> {/* Touches card edges */}
+  </CardContent>
+</Card>
+```
+
+Without `overflow-hidden`:
+- Inner divs can extend beyond the card's rounded corners
+- Dividers (`divide-y`) can break the rounded appearance
+- First/last child backgrounds can show square corners
+
+With `overflow-hidden`:
+- All content is clipped to the card's border-radius
+- Rounded corners are preserved
+- Consistent appearance across all cards
+
+---
+
+## Visual Comparison
+
+### Before
+```
+┌─────────────────────────────────────────────────────────────────┐
+│ [Content stretched to 1280px]              [Empty Space]        │
+│ ┌──────────┐ ┌──────────┐ ┌──────────┐                         │
+│ │ Card     │ │ Card     │ │ Card     │    (mixed radius)       │
+│ │ (square?)│ │ (rounded)│ │ (square?)│                         │
+│ └──────────┘ └──────────┘ └──────────┘                         │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### After
+```
+┌─────────────────────────────────────────────────────────────────┐
+│              [Content centered at 1152px max]                    │
+│              ┌──────────┐ ┌──────────┐ ┌──────────┐            │
+│              │ Card     │ │ Card     │ │ Card     │            │
+│              │ (rounded)│ │ (rounded)│ │ (rounded)│            │
+│              └──────────┘ └──────────┘ └──────────┘            │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Responsive Behavior
+
+### Small Screens (< 768px)
+- Single column layout
+- Full width cards
+- Max-width has no effect
+
+### Medium Screens (768px - 1024px)
+- 2-column grid for detail cards
+- 2-column grid for stats
+- Better use of tablet space
+
+### Large Screens (1024px - 1152px)
+- 3-column grid for detail cards
+- 4-column grid for stats
+- Content fills available space
+
+### Extra Large Screens (> 1152px)
+- Content capped at 1152px
+- Centered with equal margins
+- No empty space on right
+- Professional, balanced appearance
+
+---
+
+## Design System Compliance
+
+### Nova-Style Spacing ✅
+- Maintains compact `p-4` padding
+- Preserves `gap-3` and `gap-4` spacing
+- No changes to component density
+
+### Semantic Tokens ✅
+- Uses `border-border` for dividers
+- Uses `bg-card` for backgrounds
+- Follows design system standards
+
+### shadcn/ui Components ✅
+- Card component structure unchanged
+- Border-radius properly applied
+- Maintains accessibility
+
+### Border Radius Consistency ✅
+- All cards use `rounded-lg` (8px)
+- `overflow-hidden` ensures proper clipping
+- Consistent appearance across all cards
+
+---
 
 ## Files Modified
 
-### Desktop App (src/)
-- `src/components/tables/ModernAssetDataTable.tsx` - Improved table UI and added status column
-- `src/pages/AssetDetails.tsx` - Fixed status color display
-- `src/pages/Assets.tsx` - No changes needed (already well-designed)
+1. **src/pages/Assets.tsx**
+   - Line ~482: Changed `max-w-7xl` to `max-w-6xl`
+   - Line ~583: Added `md:grid-cols-2` breakpoint
+   - Line ~588: Added `overflow-hidden` to Vehicle Information card
+   - Line ~616: Added `overflow-hidden` to Operational Details card
+   - Line ~644: Added `overflow-hidden` to Customer Information card
+   - Line ~721: Moved `overflow-hidden` from CardContent to Card
 
-## Result
+---
 
-The Assets page now has:
-- ✅ Consistent design with the rest of the app
-- ✅ Clear status column showing bike status
-- ✅ Better readability and spacing
-- ✅ Improved hover states and interactions
-- ✅ Color-coded status badges
-- ✅ Professional, modern appearance
+## Testing Checklist
 
-The table is now visually consistent with other tables in the application (Work Orders, Customers, etc.) and provides clear visibility of asset status at a glance.
+- [x] File compiles without errors
+- [x] No TypeScript diagnostics
+- [x] Border-radius applied consistently
+- [x] Layout structure preserved
+- [x] Responsive behavior maintained
+- [ ] Visual verification on large screen (user to confirm)
+- [ ] Visual verification on medium screen
+- [ ] Visual verification on mobile
+
+---
+
+## Related Documentation
+
+- `src/docs/design-system/README.md` - Design system standards
+- `NOVA_STYLE_COMPLIANCE_AUDIT.md` - Nova specifications
+- `MIGRATION_PROGRESS.md` - Overall progress tracking
+- `ASSETS_MODULE_MIGRATION_COMPLETE.md` - Previous migration work
+
+---
+
+**Status:** ✅ **IMPLEMENTED**  
+**Date:** January 20, 2026  
+**Impact:** Layout improvement, consistent border-radius, better UX  
+**Breaking Changes:** None

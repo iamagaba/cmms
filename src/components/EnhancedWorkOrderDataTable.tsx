@@ -1,53 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  SortingState,
+  useReactTable,
+} from '@tanstack/react-table';
 import { WorkOrder, Technician, Location, Customer, Vehicle, Profile } from '@/types/supabase';
 import { DiagnosticCategoryRow } from '@/types/diagnostic';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
-  CircleIcon,
-  Loading03Icon,
-  CheckmarkCircle01Icon,
-  PauseIcon,
-  CancelCircleIcon,
-  ArrowUp01Icon,
-  MinusSignIcon,
-  ArrowDown01Icon,
   ClipboardIcon,
   MoreVerticalIcon,
   ViewIcon,
   PencilEdit02Icon,
   Delete01Icon,
-  ArrowLeft02Icon,
-  ArrowRight02Icon,
-  ArrowLeft01Icon,
-  ArrowRight01Icon,
-  Car01Icon,
-  UserIcon,
-  Motorbike01Icon
+  ArrowUp01Icon,
+  ArrowDown01Icon,
 } from '@hugeicons/core-free-icons';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { useDensity } from '@/context/DensityContext';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
+
+// shadcn UI components
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 dayjs.extend(relativeTime);
-
-// Format relative time in compact format (1m ago, 2h ago, 3d ago, etc.)
-const formatRelativeTime = (date: string | Date) => {
-  const now = dayjs();
-  const then = dayjs(date);
-  const diffMinutes = now.diff(then, 'minute');
-  const diffHours = now.diff(then, 'hour');
-  const diffDays = now.diff(then, 'day');
-  const diffMonths = now.diff(then, 'month');
-  const diffYears = now.diff(then, 'year');
-
-  if (diffMinutes < 1) return 'Just now';
-  if (diffMinutes < 60) return `${diffMinutes}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 30) return `${diffDays}d ago`;
-  if (diffMonths < 12) return `${diffMonths}mo ago`;
-  return `${diffYears}y ago`;
-};
 
 interface EnhancedWorkOrderDataTableProps {
   workOrders: WorkOrder[];
@@ -69,44 +52,42 @@ interface EnhancedWorkOrderDataTableProps {
   enableExport?: boolean;
   compactMode?: boolean;
   visibleColumns?: string[];
-  emergencyBikeAssignments?: any[]; // Array of active emergency bike assignments
+  emergencyBikeAssignments?: any[];
+  mobileBreakpoint?: number;
 }
 
-// Status configuration with colors and icons
-const STATUS_CONFIG: Record<string, { bg: string; text: string; border: string; icon: any; dot: string }> = {
-  'Open': { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', icon: CircleIcon, dot: 'bg-blue-500' },
-  'In Progress': { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', icon: Loading03Icon, dot: 'bg-amber-500' },
-  'Completed': { bg: 'bg-emerald-50', text: 'text-emerald-700', border: 'border-emerald-200', icon: CheckmarkCircle01Icon, dot: 'bg-emerald-500' },
-  'On Hold': { bg: 'bg-slate-50', text: 'text-slate-600', border: 'border-slate-200', icon: PauseIcon, dot: 'bg-slate-400' },
-  'Cancelled': { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', icon: CancelCircleIcon, dot: 'bg-red-500' },
+// Status colors for badges
+const STATUS_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
+  'Open': { bg: 'bg-blue-50 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-300', dot: 'bg-blue-500' },
+  'Confirmation': { bg: 'bg-purple-50 dark:bg-purple-900/30', text: 'text-purple-700 dark:text-purple-300', dot: 'bg-purple-500' },
+  'On Hold': { bg: 'bg-amber-50 dark:bg-amber-900/30', text: 'text-amber-700 dark:text-amber-300', dot: 'bg-amber-500' },
+  'Ready': { bg: 'bg-cyan-50 dark:bg-cyan-900/30', text: 'text-cyan-700 dark:text-cyan-300', dot: 'bg-cyan-500' },
+  'In Progress': { bg: 'bg-orange-50 dark:bg-orange-900/30', text: 'text-orange-700 dark:text-orange-300', dot: 'bg-orange-500' },
+  'Completed': { bg: 'bg-emerald-50 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300', dot: 'bg-emerald-500' },
+  'Cancelled': { bg: 'bg-red-50 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-300', dot: 'bg-red-500' },
 };
 
 // Priority configuration
-const PRIORITY_CONFIG: Record<string, { color: string; icon: any; label: string }> = {
-  'High': { color: 'text-red-600', icon: ArrowUp01Icon, label: 'High' },
-  'Medium': { color: 'text-amber-600', icon: MinusSignIcon, label: 'Medium' },
-  'Low': { color: 'text-emerald-600', icon: ArrowDown01Icon, label: 'Low' },
+const getPriorityConfig = (priority?: string) => {
+  const p = (priority || '').toLowerCase();
+  if (p === 'critical' || p === 'urgent') {
+    return { label: 'Critical', variant: 'destructive' as const };
+  }
+  if (p === 'high') {
+    return { label: 'High', variant: 'secondary' as const };
+  }
+  if (p === 'medium' || p === 'normal') {
+    return { label: 'Medium', variant: 'outline' as const };
+  }
+  return { label: 'Low', variant: 'outline' as const };
 };
 
-// Loading skeleton row
-const SkeletonRow = () => (
-  <tr className="animate-pulse">
-    <td className="px-4 py-3"><div className="h-4 bg-gray-200 rounded w-24" /></td>
-    <td className="px-4 py-3"><div className="h-4 bg-gray-200 rounded w-48" /></td>
-    <td className="px-4 py-3"><div className="h-4 bg-gray-200 rounded w-32" /></td>
-    <td className="px-4 py-3"><div className="h-4 bg-gray-200 rounded w-20" /></td>
-    <td className="px-4 py-3"><div className="h-4 bg-gray-200 rounded w-16" /></td>
-    <td className="px-4 py-3"><div className="h-4 bg-gray-200 rounded w-24" /></td>
-    <td className="px-4 py-3"><div className="h-4 bg-gray-200 rounded w-8" /></td>
-  </tr>
-);
-
-// Default columns if none specified (removed 'actions')
 const DEFAULT_COLUMNS = ['workOrderNumber', 'service', 'vehicleCustomer', 'status', 'priority', 'technician'];
 
 export function EnhancedWorkOrderDataTable({
   workOrders,
   technicians,
+  locations,
   vehicles,
   customers,
   serviceCategories,
@@ -115,524 +96,344 @@ export function EnhancedWorkOrderDataTable({
   onViewDetails,
   loading = false,
   visibleColumns = DEFAULT_COLUMNS,
-  emergencyBikeAssignments = [],
 }: EnhancedWorkOrderDataTableProps) {
+  const [sorting, setSorting] = useState<SortingState>([]);
 
-  // Density hooks
-  const { isCompact } = useDensity();
-  const spacing = useDensitySpacing();
-
-  // State for the 3-dot menu
-  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(10);
-
-  // Pagination calculations
-  const totalPages = Math.ceil(workOrders.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedWorkOrders = workOrders.slice(startIndex, endIndex);
-
-  // Reset to page 1 when workOrders change (e.g., filters applied)
-  React.useEffect(() => {
-    setCurrentPage(1);
-  }, [workOrders.length]);
-
-  // Handle page change
-  const handlePageChange = (page: number) => {
-    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
-  };
-
-  // Handle items per page change
-  const handleItemsPerPageChange = (newItemsPerPage: number) => {
-    setItemsPerPage(newItemsPerPage);
-    setCurrentPage(1); // Reset to first page when changing items per page
-  };
-
-  // Generate page numbers to display
-  const getPageNumbers = () => {
-    const pages: (number | string)[] = [];
-    const maxPagesToShow = 5;
-
-    if (totalPages <= maxPagesToShow) {
-      // Show all pages if total is small
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      // Show first page
-      pages.push(1);
-
-      // Calculate range around current page
-      let startPage = Math.max(2, currentPage - 1);
-      let endPage = Math.min(totalPages - 1, currentPage + 1);
-
-      // Add ellipsis if needed
-      if (startPage > 2) {
-        pages.push('...');
-      }
-
-      // Add pages around current
-      for (let i = startPage; i <= endPage; i++) {
-        pages.push(i);
-      }
-
-      // Add ellipsis if needed
-      if (endPage < totalPages - 1) {
-        pages.push('...');
-      }
-
-      // Show last page
-      if (totalPages > 1) {
-        pages.push(totalPages);
-      }
-    }
-
-    return pages;
-  };
-
-  // Helper to check if column is visible
+  // Helper functions
+  const getVehicleInfo = (vehicleId?: string | null) => vehicleId ? vehicles?.find(v => v.id === vehicleId) : null;
+  const getTechnicianInfo = (techId?: string | null) => techId ? technicians?.find(t => t.id === techId) : null;
   const isColumnVisible = (columnKey: string) => visibleColumns.includes(columnKey);
 
-  // Helper to get vehicle info
-  const getVehicleInfo = (vehicleId?: string | null) => {
-    if (!vehicleId) return null;
-    return vehicles?.find(v => v.id === vehicleId);
-  };
+  // Define columns
+  const columns: ColumnDef<WorkOrder>[] = useMemo(() => {
+    const cols: ColumnDef<WorkOrder>[] = [];
 
-  // Helper to get customer info
-  const getCustomerInfo = (customerId?: string | null) => {
-    if (!customerId) return null;
-    return customers?.find(c => c.id === customerId);
-  };
+    if (isColumnVisible('workOrderNumber')) {
+      cols.push({
+        accessorKey: 'workOrderNumber',
+        header: 'Work Order',
+        cell: ({ row }) => {
+          const wo = row.original;
+          const w = wo as any;
+          const vehicleId = w.vehicle_id || w.vehicleId;
+          const vehicle = getVehicleInfo(vehicleId);
+          const workOrderNum = w.workOrderNumber || w.work_order_number || `WO-${wo.id.substring(0, 8).toUpperCase()}`;
 
-  // Helper to get technician info
-  const getTechnicianInfo = (techId?: string | null) => {
-    if (!techId) return null;
-    return technicians?.find(t => t.id === techId);
-  };
+          return (
+            <div className="space-y-0.5">
+              {vehicle && (
+                <div className="font-semibold text-sm text-gray-900 dark:text-gray-100">
+                  {vehicle.license_plate}
+                </div>
+              )}
+              <div className="text-xs text-gray-600 dark:text-gray-400">
+                {workOrderNum}
+                {vehicle && <span className="text-gray-500 dark:text-gray-500"> • {vehicle.make} {vehicle.model}</span>}
+              </div>
+            </div>
+          );
+        },
+      });
+    }
 
-  // Helper to get service category info
-  const getServiceCategoryInfo = (serviceId?: string | null) => {
-    if (!serviceId) return null;
-    return serviceCategories?.find(c => c.id === serviceId);
-  };
+    if (isColumnVisible('service')) {
+      cols.push({
+        accessorKey: 'service',
+        header: 'Summary',
+        cell: ({ row }) => {
+          const wo = row.original;
+          return (
+            <div className="max-w-[200px] truncate text-sm">
+              {wo.description || serviceCategories?.find(cat => cat.id === wo.service)?.label || wo.service || 'General Service'}
+            </div>
+          );
+        },
+      });
+    }
 
-  // Close menu when clicking outside
-  const closeMenu = () => setOpenMenuId(null);
+    if (isColumnVisible('status')) {
+      cols.push({
+        accessorKey: 'status',
+        header: 'Status',
+        cell: ({ row }) => {
+          const status = row.original.status || 'Open';
+          const statusConfig = STATUS_COLORS[status] || STATUS_COLORS['Open'];
+          return (
+            <Badge variant="outline" className={`${statusConfig.bg} ${statusConfig.text} border-current/20`}>
+              <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot} mr-1.5`} />
+              {status}
+            </Badge>
+          );
+        },
+      });
+    }
 
+    if (isColumnVisible('technician')) {
+      cols.push({
+        accessorKey: 'assignedTechnicianId',
+        header: 'Technician',
+        cell: ({ row }) => {
+          const wo = row.original;
+          const w = wo as any;
+          const technicianId = w.assigned_technician_id || w.assignedTechnicianId;
+          const technician = getTechnicianInfo(technicianId);
+
+          return technician ? (
+            <div className="flex items-center gap-2">
+              <div className="h-6 w-6 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center text-primary-700 dark:text-primary-300 text-xs font-semibold">
+                {technician.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
+              </div>
+              <span className="text-sm">{technician.name}</span>
+            </div>
+          ) : (
+            <span className="text-sm italic text-muted-foreground">Unassigned</span>
+          );
+        },
+      });
+    }
+
+    if (isColumnVisible('createdAt')) {
+      cols.push({
+        accessorKey: 'created_at',
+        header: () => <div className="text-right">Created</div>,
+        cell: ({ row }) => (
+          <div className="text-right text-sm text-muted-foreground whitespace-nowrap">
+            {dayjs(row.original.created_at).fromNow()}
+          </div>
+        ),
+      });
+    }
+
+    if (isColumnVisible('priority')) {
+      cols.push({
+        accessorKey: 'priority',
+        header: () => <div className="text-right">Priority</div>,
+        cell: ({ row }) => {
+          const priorityConfig = getPriorityConfig(row.original.priority);
+          return (
+            <div className="text-right">
+              <Badge variant={priorityConfig.variant} className="text-xs">
+                {priorityConfig.label}
+              </Badge>
+            </div>
+          );
+        },
+      });
+    }
+
+    // Actions column
+    cols.push({
+      id: 'actions',
+      header: () => <div className="text-right">Actions</div>,
+      cell: ({ row }) => {
+        const wo = row.original;
+        return (
+          <div className="text-right">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-36">
+                <DropdownMenuItem
+                  onClick={(e) => { e.stopPropagation(); onViewDetails(wo.id); }}
+                  className="text-sm"
+                >
+                  <HugeiconsIcon icon={ViewIcon} size={14} className="mr-2" />
+                  View
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={(e) => { e.stopPropagation(); onEdit(wo); }}
+                  className="text-sm"
+                >
+                  <HugeiconsIcon icon={PencilEdit02Icon} size={14} className="mr-2" />
+                  Edit
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={(e) => { e.stopPropagation(); onDelete(wo); }}
+                  className="text-sm text-destructive focus:text-destructive"
+                >
+                  <HugeiconsIcon icon={Delete01Icon} size={14} className="mr-2" />
+                  Delete
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        );
+      },
+    });
+
+    return cols;
+  }, [visibleColumns, vehicles, technicians, serviceCategories, onEdit, onDelete, onViewDetails]);
+
+  // Initialize table
+  const table = useReactTable({
+    data: workOrders,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    onSortingChange: setSorting,
+    state: {
+      sorting,
+    },
+    initialState: {
+      pagination: {
+        pageSize: 10,
+      },
+    },
+  });
+
+  // Loading state
   if (loading) {
     return (
-      <div className="bg-white border border-slate-200 rounded overflow-hidden">
-        <table className="min-w-full">
-          <thead>
-            <tr className="bg-slate-50 border-b border-slate-200">
-              <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 uppercase tracking-wide">Work Order</th>
-              <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 uppercase tracking-wide">Issue</th>
-              <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 uppercase tracking-wide">Vehicle</th>
-              <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 uppercase tracking-wide">Status</th>
-              <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 uppercase tracking-wide">Priority</th>
-              <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 uppercase tracking-wide">Assigned</th>
-              <th className="w-10"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {[...Array(5)].map((_, i) => <SkeletonRow key={i} />)}
-          </tbody>
-        </table>
+      <div className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden bg-card">
+        <Table>
+          <TableHeader className="bg-gray-50 dark:bg-gray-900">
+            <TableRow>
+              <TableHead>Work Order</TableHead>
+              <TableHead>Summary</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Technician</TableHead>
+              <TableHead className="text-right">Created</TableHead>
+              <TableHead className="text-right">Priority</TableHead>
+              <TableHead className="text-right">Actions</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {[...Array(5)].map((_, i) => (
+              <TableRow key={i}>
+                <TableCell><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse" /></TableCell>
+                <TableCell><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-40 animate-pulse" /></TableCell>
+                <TableCell><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse" /></TableCell>
+                <TableCell><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-28 animate-pulse" /></TableCell>
+                <TableCell><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse" /></TableCell>
+                <TableCell><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse" /></TableCell>
+                <TableCell><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-8 animate-pulse" /></TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
     );
   }
 
+  // Empty state
   if (workOrders.length === 0) {
     return (
-      <div className="bg-white border border-slate-200 rounded p-12 text-center">
-        <div className="mx-auto w-16 h-16 bg-slate-100 rounded flex items-center justify-center mb-4">
-          <HugeiconsIcon icon={ClipboardIcon} size={32} className="text-slate-400" />
+      <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-12 bg-card text-center">
+        <div className="mx-auto w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center mb-3">
+          <HugeiconsIcon icon={ClipboardIcon} size={20} className="text-gray-400 dark:text-gray-500" />
         </div>
-        <h3 className="text-lg font-semibold text-slate-900 mb-1">No work orders found</h3>
-        <p className="text-sm text-slate-500 max-w-sm mx-auto">
-          There are no work orders matching your criteria. Try adjusting your filters or create a new work order.
-        </p>
+        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No work orders</p>
+        <p className="text-xs text-gray-500 dark:text-gray-400">No work orders match your current filters</p>
       </div>
     );
   }
 
+  // Main table
   return (
-    <div className="bg-white dark:bg-gray-900 h-full flex flex-col overflow-hidden rounded">
-      {/* Click outside to close menu */}
-      {openMenuId && (
-        <div className="fixed inset-0 z-10" onClick={closeMenu} />
-      )}
-
-      <div className="flex-1 overflow-auto border border-slate-200 dark:border-gray-800 rounded">
-        <table className="min-w-full table-fixed">
-          <thead className="sticky top-0 z-[5]">
-            <tr className="bg-slate-50 dark:bg-gray-800 border-b border-slate-200 dark:border-gray-700 h-9">
-              {isColumnVisible('workOrderNumber') && (
-                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-36">Work Order</th>
-              )}
-              {isColumnVisible('service') && (
-                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-40">Issue</th>
-              )}
-              {isColumnVisible('vehicleCustomer') && (
-                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-40">Vehicle / Customer</th>
-              )}
-              {isColumnVisible('status') && (
-                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-24">Status</th>
-              )}
-              {isColumnVisible('priority') && (
-                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-20">Priority</th>
-              )}
-              {isColumnVisible('technician') && (
-                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-32">Technician</th>
-              )}
-              {isColumnVisible('createdAt') && (
-                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-24">Created</th>
-              )}
-              {isColumnVisible('scheduledDate') && (
-                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-24">Scheduled</th>
-              )}
-              {isColumnVisible('dueDate') && (
-                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-24">Due Date</th>
-              )}
-              {isColumnVisible('channel') && (
-                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-20">Channel</th>
-              )}
-              {isColumnVisible('customerName') && (
-                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-32">Customer</th>
-              )}
-              {isColumnVisible('location') && (
-                <th className="px-3 py-2 text-left text-[11px] font-bold text-slate-600 dark:text-gray-400 uppercase tracking-wide w-36">Location</th>
-              )}
-              {/* 3-dot menu column - always visible, minimal width */}
-              <th className="w-8 px-1"></th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-gray-800">
-            {paginatedWorkOrders.map((wo) => {
-              const statusConfig = STATUS_CONFIG[wo.status || 'Open'] || STATUS_CONFIG['Open'];
-              const priorityConfig = PRIORITY_CONFIG[wo.priority || 'Medium'] || PRIORITY_CONFIG['Medium'];
-              const vehicle = getVehicleInfo(wo.vehicleId);
-              const customer = getCustomerInfo(wo.customerId);
-              const technician = getTechnicianInfo(wo.assignedTechnicianId);
-              const isMenuOpen = openMenuId === wo.id;
-
-              return (
-                <tr
-                  key={wo.id}
-                  onClick={() => onViewDetails(wo.id)}
-                  className="group hover:bg-slate-50 dark:hover:bg-primary-900/10 cursor-pointer transition-colors duration-150"
-                >
-                  {/* Work Order Number - Shows license plate as main identifier */}
-                  {/* Work Order / Vehicle - Combined Column */}
-                  {isColumnVisible('workOrderNumber') && (
-                    <td className="px-3 py-2">
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5 mb-0.5">
-                          {vehicle ? (
-                            <p className="text-xs font-industrial-id text-purple-700 dark:text-gray-100 group-hover:text-purple-800 dark:group-hover:text-primary-400 truncate">
-                              {vehicle.license_plate}
-                              <span className="ml-1.5 font-normal text-slate-500 dark:text-gray-400 font-sans text-[10px]">
-                                {`${vehicle.make || ''} ${vehicle.model || ''}`.trim()}
-                              </span>
-                            </p>
-                          ) : (
-                            <div className="flex items-center gap-1 text-slate-400 dark:text-gray-500">
-                              <HugeiconsIcon icon={Car01Icon} size={12} />
-                              <span className="text-xs font-medium text-slate-500 dark:text-gray-400">Unassigned</span>
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <p className="text-[10px] text-slate-500 dark:text-primary-400 font-industrial-data truncate">
-                            {wo.workOrderNumber || `WO-${wo.id.substring(0, 6).toUpperCase()}`}
-                          </p>
-                          {emergencyBikeAssignments?.some(assignment => assignment.work_order_id === wo.id && !assignment.returned_at) && (
-                            <span className="inline-flex items-center px-1 py-0.5 rounded-sm text-[9px] font-bold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-300 dark:border-blue-800" title="Emergency bike assigned">
-                              <HugeiconsIcon icon={Motorbike01Icon} size={9} />
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-                  )}
-
-                  {/* Issue Description - 2 line clamp */}
-                  {isColumnVisible('service') && (
-                    <td className="px-3 py-1.5">
-                      <p className="text-xs font-medium text-gray-900 dark:text-gray-100 capitalize line-clamp-2" title={getServiceCategoryInfo(wo.service)?.label || getServiceCategoryInfo(wo.service)?.name || wo.service || wo.initialDiagnosis || 'General Service'}>
-                        {getServiceCategoryInfo(wo.service)?.label || getServiceCategoryInfo(wo.service)?.name || wo.service || wo.initialDiagnosis || 'General Service'}
-                      </p>
-                    </td>
-                  )}
-
-                  {/* Vehicle / Customer - Shows vehicle make/model and customer name */}
-                  {/* Customer - Dedicated Column */}
-                  {isColumnVisible('vehicleCustomer') && (
-                    <td className="px-3 py-1.5">
-                      <div className="min-w-0">
-                        <p className="text-xs font-medium text-gray-900 dark:text-gray-100 truncate">
-                          {customer?.name || wo.customerName || '—'}
-                        </p>
-                        {customer?.phone && (
-                          <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">
-                            {customer.phone}
-                          </p>
+    <div className="flex flex-col h-full max-h-full border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden bg-white dark:bg-gray-950 shadow-sm">
+      {/* Table Container with Flex */}
+      <div className="flex-1 overflow-auto min-h-0">
+        <Table>
+          <TableHeader className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder ? null : (
+                      <div
+                        className={header.column.getCanSort() ? 'flex items-center gap-2 cursor-pointer select-none hover:text-gray-900 dark:hover:text-gray-100' : ''}
+                        onClick={header.column.getToggleSortingHandler()}
+                      >
+                        {flexRender(header.column.columnDef.header, header.getContext())}
+                        {header.column.getCanSort() && (
+                          <span className="text-muted-foreground">
+                            {{
+                              asc: <HugeiconsIcon icon={ArrowUp01Icon} size={14} />,
+                              desc: <HugeiconsIcon icon={ArrowDown01Icon} size={14} />,
+                            }[header.column.getIsSorted() as string] ?? null}
+                          </span>
                         )}
                       </div>
-                    </td>
-                  )}
-
-                  {/* Status - Shows full status text with colored badge */}
-                  {isColumnVisible('status') && (
-                    <td className="px-3 py-1.5">
-                      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border ${statusConfig.bg} ${statusConfig.text} ${statusConfig.border} dark:bg-opacity-30`}>
-                        <span className={`w-1 h-1 rounded-full ${statusConfig.dot}`} />
-                        <span>{wo.status || 'Open'}</span>
-                      </span>
-                    </td>
-                  )}
-
-                  {/* Priority */}
-                  {isColumnVisible('priority') && (
-                    <td className="px-3 py-1.5">
-                      <div className={`inline-flex items-center gap-0.5 ${priorityConfig.color}`}>
-                        <HugeiconsIcon icon={priorityConfig.icon} size={12} />
-                        <span className="text-[10px] font-medium">{wo.priority || 'Medium'}</span>
-                      </div>
-                    </td>
-                  )}
-
-                  {/* Technician */}
-                  {isColumnVisible('technician') && (
-                    <td className="px-3 py-1.5">
-                      {technician ? (
-                        <div className="flex items-center gap-1.5 min-w-0">
-                          <div className="relative">
-                            <div className="w-5 h-5 rounded bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0 border border-primary-200 dark:border-primary-800">
-                              <span className="text-[9px] font-bold text-primary-700 dark:text-primary-300">
-                                {technician.name.charAt(0).toUpperCase()}
-                              </span>
-                            </div>
-                            <div className="absolute -bottom-0.5 -right-0.5 w-2 h-2 bg-green-500 border border-white dark:border-gray-900 rounded-full"></div>
-                          </div>
-                          <span className="text-xs text-gray-700 dark:text-gray-300 truncate font-medium">{technician.name}</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1.5 text-gray-400 dark:text-gray-500 opacity-60">
-                          <div className="w-5 h-5 rounded border border-dashed border-gray-300 dark:border-gray-600 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
-                            <HugeiconsIcon icon={UserIcon} size={10} className="text-gray-400 dark:text-gray-500" />
-                          </div>
-                        </div>
-                      )}
-                    </td>
-                  )}
-
-                  {/* Created Date - Relative time format */}
-                  {isColumnVisible('createdAt') && (
-                    <td className="px-3 py-1.5">
-                      <span className="text-xs text-gray-700 dark:text-gray-300 font-data" title={dayjs(wo.created_at).format('MMM D, YYYY h:mm A')}>
-                        {formatRelativeTime(wo.created_at || new Date())}
-                      </span>
-                    </td>
-                  )}
-
-                  {/* Scheduled Date */}
-                  {isColumnVisible('scheduledDate') && (
-                    <td className="px-3 py-1.5">
-                      <span className="text-xs text-gray-700 dark:text-gray-300 font-data">
-                        {wo.scheduledDate ? dayjs(wo.scheduledDate).format('MMM D, YYYY') : '—'}
-                      </span>
-                    </td>
-                  )}
-
-                  {/* Due Date */}
-                  {isColumnVisible('dueDate') && (
-                    <td className="px-3 py-1.5">
-                      <span className="text-xs text-gray-700 dark:text-gray-300 font-data">
-                        {wo.dueDate ? dayjs(wo.dueDate).format('MMM D, YYYY') : '—'}
-                      </span>
-                    </td>
-                  )}
-
-                  {/* Channel */}
-                  {isColumnVisible('channel') && (
-                    <td className="px-3 py-1.5">
-                      <span className="text-xs text-gray-700 dark:text-gray-300 truncate block">{wo.channel || '—'}</span>
-                    </td>
-                  )}
-
-                  {/* Customer Name */}
-                  {isColumnVisible('customerName') && (
-                    <td className="px-3 py-1.5">
-                      <span className="text-xs text-gray-700 dark:text-gray-300 truncate block">{wo.customerName || customer?.name || '—'}</span>
-                    </td>
-                  )}
-
-                  {/* Location */}
-                  {isColumnVisible('location') && (
-                    <td className="px-3 py-1.5">
-                      <span className="text-xs text-gray-700 dark:text-gray-300 truncate block" title={wo.customerAddress || ''}>
-                        {wo.customerAddress || '—'}
-                      </span>
-                    </td>
-                  )}
-
-                  {/* 3-dot Actions Menu */}
-                  <td className="px-1 py-1.5 relative">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setOpenMenuId(isMenuOpen ? null : wo.id);
-                      }}
-                      className="p-1 rounded text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
-                    >
-                      <HugeiconsIcon icon={MoreVerticalIcon} size={14} />
-                    </button>
-
-                    {/* Dropdown Menu */}
-                    {isMenuOpen && (
-                      <div className="absolute right-0 top-full mt-1 z-20 w-36 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-md shadow-lg py-0.5 overflow-hidden">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onViewDetails(wo.id);
-                            closeMenu();
-                          }}
-                          className="w-full flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                        >
-                          <HugeiconsIcon icon={ViewIcon} size={12} className="text-gray-500 dark:text-gray-400" />
-                          View Details
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onEdit(wo);
-                            closeMenu();
-                          }}
-                          className="w-full flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
-                        >
-                          <HugeiconsIcon icon={PencilEdit02Icon} size={12} className="text-gray-500 dark:text-gray-400" />
-                          Edit
-                        </button>
-                        <div className="border-t border-gray-100 dark:border-gray-700 my-0.5" />
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onDelete(wo);
-                            closeMenu();
-                          }}
-                          className="w-full flex items-center gap-1.5 px-2.5 py-1.5 text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                        >
-                          <HugeiconsIcon icon={Delete01Icon} size={12} />
-                          Delete
-                        </button>
-                      </div>
                     )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                onClick={() => onViewDetails(row.original.id)}
+                className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900/50"
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
 
-      {/* Pagination Footer */}
-      <div className="flex-none px-3 py-2 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700">
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
-          {/* Left: Showing X-Y of Z */}
-          <div className="flex items-center gap-3">
-            <p className="text-[10px] text-gray-600 dark:text-gray-400">
-              Showing <span className="font-medium">{startIndex + 1}</span> to <span className="font-medium">{Math.min(endIndex, workOrders.length)}</span> of <span className="font-medium">{workOrders.length}</span> work orders
-            </p>
-          </div>
+      {/* Pagination - Fixed at bottom */}
+      <div className="flex-shrink-0 px-4 py-3 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-sm text-muted-foreground whitespace-nowrap">
+            Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}-
+            {Math.min((table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize, workOrders.length)} of {workOrders.length}
+          </p>
 
-          {/* Center: Page Navigation */}
-          {totalPages > 1 && (
-            <div className="flex items-center gap-0.5">
-              {/* First Page */}
-              <button
-                onClick={() => handlePageChange(1)}
-                disabled={currentPage === 1}
-                className="px-1.5 py-1 text-[10px] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                title="First page"
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground whitespace-nowrap">Rows per page:</span>
+              <Select
+                value={table.getState().pagination.pageSize.toString()}
+                onValueChange={(value) => table.setPageSize(Number(value))}
               >
-                <HugeiconsIcon icon={ArrowLeft02Icon} size={12} />
-              </button>
-
-              {/* Previous Page */}
-              <button
-                onClick={() => handlePageChange(currentPage - 1)}
-                disabled={currentPage === 1}
-                className="px-1.5 py-1 text-[10px] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                title="Previous page"
-              >
-                <HugeiconsIcon icon={ArrowLeft01Icon} size={12} />
-              </button>
-
-              {/* Page Numbers */}
-              <div className="flex items-center gap-0.5">
-                {getPageNumbers().map((page, index) => (
-                  typeof page === 'number' ? (
-                    <button
-                      key={index}
-                      onClick={() => handlePageChange(page)}
-                      className={`min-w-[24px] px-1.5 py-1 text-[10px] rounded transition-colors ${currentPage === page
-                        ? 'bg-primary-600 text-white font-medium'
-                        : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700'
-                        }`}
-                    >
-                      {page}
-                    </button>
-                  ) : (
-                    <span key={index} className="px-1 py-1 text-[10px] text-gray-400 dark:text-gray-500">
-                      {page}
-                    </span>
-                  )
-                ))}
-              </div>
-
-              {/* Next Page */}
-              <button
-                onClick={() => handlePageChange(currentPage + 1)}
-                disabled={currentPage === totalPages}
-                className="px-1.5 py-1 text-[10px] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                title="Next page"
-              >
-                <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
-              </button>
-
-              {/* Last Page */}
-              <button
-                onClick={() => handlePageChange(totalPages)}
-                disabled={currentPage === totalPages}
-                className="px-1.5 py-1 text-[10px] text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                title="Last page"
-              >
-                <HugeiconsIcon icon={ArrowRight02Icon} size={12} />
-              </button>
+                <SelectTrigger className="w-20 h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="10">10</SelectItem>
+                  <SelectItem value="25">25</SelectItem>
+                  <SelectItem value="50">50</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          )}
 
-          {/* Right: Items per page selector */}
-          <div className="flex items-center gap-1.5">
-            <label htmlFor="items-per-page" className="text-[10px] text-gray-600 dark:text-gray-400 whitespace-nowrap">
-              Per page:
-            </label>
-            <select
-              id="items-per-page"
-              value={itemsPerPage}
-              onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
-              className="px-1.5 py-1 text-[10px] border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-900 text-gray-700 dark:text-gray-300 hover:border-gray-400 dark:hover:border-gray-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-transparent transition-colors"
-            >
-              <option value={10}>10</option>
-              <option value={25}>25</option>
-              <option value={50}>50</option>
-              <option value={100}>100</option>
-            </select>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.previousPage()}
+                disabled={!table.getCanPreviousPage()}
+                className="h-8 px-3"
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => table.nextPage()}
+                disabled={!table.getCanNextPage()}
+                className="h-8 px-3"
+              >
+                Next
+              </Button>
+            </div>
           </div>
         </div>
       </div>

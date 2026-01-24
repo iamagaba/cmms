@@ -1,16 +1,18 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  X, 
-  Navigation, 
-  Clock, 
-  MapPin, 
+import {
+  X,
+  Navigation,
+  Clock,
+  MapPin,
   ExternalLink,
   Route,
   Smartphone
 } from 'lucide-react';
 import { RouteOptimizationResult, RouteStats } from '../utils/routePlanning';
 import { Coordinates, formatDistance } from '../utils/distance';
+import { useToast } from '@/hooks/use-toast';
+
 
 export interface RouteOptimizationPanelProps {
   optimizationResult: RouteOptimizationResult;
@@ -29,10 +31,15 @@ export function RouteOptimizationPanel({
   onClose,
   onOpenInMaps
 }: RouteOptimizationPanelProps) {
+  const { toast } = useToast();
   const handleOpenInMaps = (provider?: 'google' | 'apple') => {
     const success = onOpenInMaps(provider);
     if (!success) {
-      alert('Failed to open map application. Please ensure you have a maps app installed.');
+      toast({
+        title: "Error",
+        description: "Failed to open map application. Please ensure you have a maps app installed.",
+        variant: "destructive"
+      });
     }
   };
 
@@ -131,7 +138,7 @@ export function RouteOptimizationPanel({
                     <div className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-medium">
                       {index + 1}
                     </div>
-                    
+
                     {/* Work Order Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1">
@@ -140,21 +147,20 @@ export function RouteOptimizationPanel({
                         </p>
                         <div className="flex items-center space-x-2 text-xs text-gray-500">
                           {workOrder.priority && (
-                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                              workOrder.priority === 'High' ? 'bg-red-100 text-red-700' :
+                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${workOrder.priority === 'High' ? 'bg-red-100 text-red-700' :
                               workOrder.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
-                              'bg-gray-100 text-gray-700'
-                            }`}>
+                                'bg-gray-100 text-gray-700'
+                              }`}>
                               {workOrder.priority}
                             </span>
                           )}
                         </div>
                       </div>
-                      
+
                       <p className="text-xs text-gray-600 mb-1">
                         {workOrder.workOrderNumber}
                       </p>
-                      
+
                       {workOrder.customerAddress && (
                         <div className="flex items-start space-x-1">
                           <MapPin className="w-3 h-3 text-gray-400 mt-0.5 flex-shrink-0" />
@@ -163,7 +169,7 @@ export function RouteOptimizationPanel({
                           </p>
                         </div>
                       )}
-                      
+
                       {/* Distance from previous stop */}
                       {index > 0 && optimizationResult.distances && (
                         <div className="flex items-center space-x-1 mt-1">
@@ -191,7 +197,7 @@ export function RouteOptimizationPanel({
                 <ExternalLink className="w-4 h-4" />
                 <span className="font-medium">Google Maps</span>
               </button>
-              
+
               <button
                 onClick={() => handleOpenInMaps('apple')}
                 className="flex items-center justify-center space-x-2 p-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors"
@@ -208,9 +214,16 @@ export function RouteOptimizationPanel({
                   // Copy route summary to clipboard
                   if (navigator.clipboard && routeSummary) {
                     navigator.clipboard.writeText(routeSummary).then(() => {
-                      alert('Route summary copied to clipboard');
+                      toast({
+                        title: "Success",
+                        description: "Route summary copied to clipboard"
+                      });
                     }).catch(() => {
-                      alert('Failed to copy route summary');
+                      toast({
+                        title: "Error",
+                        description: "Failed to copy route summary",
+                        variant: "destructive"
+                      });
                     });
                   }
                 }}
@@ -218,7 +231,7 @@ export function RouteOptimizationPanel({
               >
                 Copy Summary
               </button>
-              
+
               <button
                 onClick={() => {
                   // Share route (if Web Share API is available)
@@ -230,12 +243,18 @@ export function RouteOptimizationPanel({
                       // Fallback to clipboard
                       if (navigator.clipboard) {
                         navigator.clipboard.writeText(routeSummary);
-                        alert('Route summary copied to clipboard');
+                        toast({
+                          title: "Success",
+                          description: "Route summary copied to clipboard"
+                        });
                       }
                     });
                   } else if (navigator.clipboard && routeSummary) {
                     navigator.clipboard.writeText(routeSummary);
-                    alert('Route summary copied to clipboard');
+                    toast({
+                      title: "Success",
+                      description: "Route summary copied to clipboard"
+                    });
                   }
                 }}
                 className="flex-1 p-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"

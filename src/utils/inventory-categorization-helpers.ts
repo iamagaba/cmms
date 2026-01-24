@@ -1,6 +1,6 @@
-import { 
-  InventoryItem, 
-  ItemCategory, 
+import {
+  InventoryItem,
+  ItemCategory,
   UnitOfMeasure
 } from '@/types/supabase';
 import { IconSvgElement } from '@hugeicons/react';
@@ -20,7 +20,7 @@ import {
 
 // Define unit of measure labels
 export const UNIT_OF_MEASURE_LABELS: Record<string, string> = {
-  each: 'Each',
+  each: 'Unit',
   pair: 'Pair',
   box: 'Box',
   case: 'Case',
@@ -53,25 +53,25 @@ export const ITEM_CATEGORY_LABELS: Record<string, string> = {
  */
 export function formatStorageLocation(item: InventoryItem): string {
   const parts: string[] = [];
-  
+
   if (item.warehouse) {
     parts.push(item.warehouse);
   }
-  
+
   if (item.zone) {
     parts.push(item.zone);
   }
-  
+
   // Combine aisle, bin, shelf with dashes
   const locationParts: string[] = [];
   if (item.aisle) locationParts.push(item.aisle);
   if (item.bin) locationParts.push(item.bin);
   if (item.shelf) locationParts.push(item.shelf);
-  
+
   if (locationParts.length > 0) {
     parts.push(locationParts.join('-'));
   }
-  
+
   return parts.join(' > ') || 'Not specified';
 }
 
@@ -86,18 +86,18 @@ export function calculateBaseUnits(quantity: number, unitsPerPackage: number): n
  * Format quantity with unit and base unit conversion
  */
 export function formatQuantityWithUnit(
-  quantity: number, 
-  unit: UnitOfMeasure = 'each', 
+  quantity: number,
+  unit: UnitOfMeasure = 'each',
   unitsPerPackage: number = 1
 ): string {
   const unitLabel = UNIT_OF_MEASURE_LABELS[unit] || unit;
-  
+
   if (unit === 'each' || unitsPerPackage === 1) {
     return `${quantity} ${unitLabel}${quantity !== 1 ? 's' : ''}`;
   }
-  
+
   const baseUnits = calculateBaseUnits(quantity, unitsPerPackage);
-  return `${quantity} ${unitLabel}${quantity !== 1 ? 'es' : ''} (${baseUnits} each)`;
+  return `${quantity} ${unitLabel}${quantity !== 1 ? 'es' : ''} (${baseUnits} units)`;
 }
 
 /**
@@ -160,41 +160,41 @@ export function filterInventoryItems(
     if (filters.stockStatus && filters.stockStatus !== 'all') {
       const qty = item.quantity_on_hand ?? 0;
       const reorderLvl = item.reorder_level ?? 0;
-      
+
       if (filters.stockStatus === 'in-stock' && qty <= reorderLvl) return false;
       if (filters.stockStatus === 'low-stock' && (qty === 0 || qty > reorderLvl)) return false;
       if (filters.stockStatus === 'out-of-stock' && qty !== 0) return false;
     }
-    
+
     // Category filter (item must have at least one matching category)
     if (filters.categories && filters.categories.length > 0) {
       const itemCategories = item.categories || [];
-      const hasMatchingCategory = filters.categories.some(cat => 
+      const hasMatchingCategory = filters.categories.some(cat =>
         itemCategories.includes(cat)
       );
       if (!hasMatchingCategory) return false;
     }
-    
+
     // Supplier filter
     if (filters.supplierId && item.supplier_id !== filters.supplierId) {
       return false;
     }
-    
+
     // Warehouse filter
     if (filters.warehouse && item.warehouse !== filters.warehouse) {
       return false;
     }
-    
+
     // Search term filter
     if (filters.searchTerm) {
       const query = filters.searchTerm.toLowerCase();
-      const matchesSearch = 
+      const matchesSearch =
         item.name?.toLowerCase().includes(query) ||
         item.sku?.toLowerCase().includes(query) ||
         item.description?.toLowerCase().includes(query);
       if (!matchesSearch) return false;
     }
-    
+
     return true;
   });
 }

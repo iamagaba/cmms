@@ -11,8 +11,6 @@ import {
 } from '@hugeicons/core-free-icons';
 import { WorkOrder, Customer, Vehicle, Technician, Location } from '@/types/supabase';
 import dayjs from 'dayjs';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
 
 interface WorkOrderOverviewCardsProps {
   workOrder: WorkOrder;
@@ -29,9 +27,6 @@ export const WorkOrderOverviewCards: React.FC<WorkOrderOverviewCardsProps> = ({
   technician,
   location
 }) => {
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
-
   // Calculate asset age from year with better formatting
   const getAssetAge = () => {
     if (!vehicle?.year) return null;
@@ -54,11 +49,23 @@ export const WorkOrderOverviewCards: React.FC<WorkOrderOverviewCardsProps> = ({
 
   const assetAge = getAssetAge();
 
-  // Calculate warranty status
+  // Calculate warranty status (production date + 1 year)
   const getWarrantyStatus = () => {
-    if (!vehicle?.warranty_end_date) return null;
+    // First check if there's an explicit warranty_end_date
+    const endDate = vehicle?.warranty_end_date || (vehicle as any)?.warrantyEndDate;
 
-    const warrantyEnd = dayjs(vehicle.warranty_end_date);
+    // If no explicit end date, calculate from production date + 1 year
+    const productionDate = vehicle?.date_of_manufacture || (vehicle as any)?.dateOfManufacture;
+
+    let warrantyEnd: dayjs.Dayjs;
+
+    if (endDate) {
+      warrantyEnd = dayjs(endDate);
+    } else if (productionDate) {
+      warrantyEnd = dayjs(productionDate).add(1, 'year');
+    } else {
+      return null;
+    }
     const today = dayjs();
 
     if (warrantyEnd.isBefore(today)) {
@@ -77,66 +84,73 @@ export const WorkOrderOverviewCards: React.FC<WorkOrderOverviewCardsProps> = ({
   const warrantyInfo = getWarrantyStatus();
 
   return (
-    <div className="bg-gray-50 border-b border-gray-200 px-4 py-3">
-      <div className="flex items-start gap-6 w-full">
-        {/* LICENSE PLATE */}
-        <div className="flex-1 min-w-0">
-          <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1">License Plate</div>
-          <div className="text-sm font-semibold text-gray-900">
-            {vehicle?.license_plate || vehicle?.licensePlate || '—'}
+    <div className="px-4 py-3.5 border-b border-border">
+      <div className="flex items-center w-full">
+        {/* Vehicle Info Group */}
+        <div className="flex items-center gap-4 pr-6 border-r border-border">
+          {/* LICENSE PLATE */}
+          <div>
+            <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-0.5">Plate</div>
+            <div className="text-xs font-medium text-foreground">
+              {vehicle?.license_plate || vehicle?.licensePlate || '—'}
+            </div>
+          </div>
+
+          {/* MODEL */}
+          <div>
+            <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-0.5">Model</div>
+            <div className="text-xs font-medium text-foreground">
+              {vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || '—' : '—'}
+            </div>
+          </div>
+
+          {/* AGE */}
+          <div>
+            <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-0.5">Age</div>
+            <div className="text-xs font-medium text-foreground">
+              {assetAge || '—'}
+            </div>
           </div>
         </div>
 
-        {/* MODEL */}
-        <div className="flex-1 min-w-0">
-          <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1">Model</div>
-          <div className="text-sm font-medium text-gray-900">
-            {vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || '—' : '—'}
+        {/* Status Group */}
+        <div className="flex items-center gap-4 pl-2 pr-6 border-r border-border">
+          {/* WARRANTY */}
+          <div>
+            <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-0.5">Warranty</div>
+            <div className={`text-xs font-medium ${warrantyInfo ? warrantyInfo.color : 'text-foreground'}`}>
+              {warrantyInfo ? warrantyInfo.label : '—'}
+            </div>
+          </div>
+
+          {/* MILEAGE */}
+          <div>
+            <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-0.5">Mileage</div>
+            <div className="text-xs font-medium text-foreground">
+              {(() => {
+                const mileage = vehicle?.mileage ?? (workOrder as any)?.mileage ?? (workOrder as any)?.odometer ?? (workOrder as any)?.odometer_reading;
+                return mileage != null ? `${Number(mileage).toLocaleString()} km` : '—';
+              })()}
+            </div>
           </div>
         </div>
 
-        {/* AGE */}
-        <div className="flex-1 min-w-0">
-          <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1">Age</div>
-          <div className="text-sm font-medium text-gray-900">
-            {assetAge || '—'}
+        {/* Customer Group - Compact */}
+        <div className="flex items-center gap-4 pl-2">
+          {/* CUSTOMER */}
+          <div>
+            <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-0.5">Customer</div>
+            <div className="text-xs font-medium text-foreground truncate max-w-[200px]">
+              {customer?.name || workOrder.customerName || '—'}
+            </div>
           </div>
-        </div>
 
-        {/* WARRANTY */}
-        <div className="flex-1 min-w-0">
-          <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1">Warranty</div>
-          <div className="text-sm font-medium text-gray-900">
-            {warrantyInfo ? warrantyInfo.label : '—'}
-          </div>
-        </div>
-
-        {/* MILEAGE */}
-        <div className="flex-1 min-w-0">
-          <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1">Mileage</div>
-          <div className="text-sm font-medium text-gray-900">
-            {vehicle?.mileage ? `${vehicle.mileage.toLocaleString()} km` : '—'}
-          </div>
-        </div>
-
-        {/* Divider */}
-        <div className="flex items-center justify-center px-4">
-          <div className="h-10 w-px bg-gray-300" />
-        </div>
-
-        {/* CUSTOMER */}
-        <div className="flex-[1.5] min-w-0">
-          <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1">Customer</div>
-          <div className="text-sm font-semibold text-gray-900 truncate">
-            {customer?.name || workOrder.customerName || '—'}
-          </div>
-        </div>
-
-        {/* PHONE */}
-        <div className="flex-1 min-w-0">
-          <div className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide mb-1">Phone</div>
-          <div className="text-sm font-medium text-gray-900">
-            {customer?.phone || workOrder.customerPhone || '—'}
+          {/* PHONE */}
+          <div>
+            <div className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider mb-0.5">Phone</div>
+            <div className="text-xs font-medium text-foreground">
+              {customer?.phone || workOrder.customerPhone || '—'}
+            </div>
           </div>
         </div>
       </div>

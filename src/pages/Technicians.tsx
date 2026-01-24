@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+﻿import React, { useState, useMemo } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import {
   Search01Icon,
@@ -21,13 +21,16 @@ import { TechnicianFormDrawer } from '@/components/TechnicianFormDrawer';
 import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { Tabs, Badge } from '@/components/tailwind-components';
-import { Input } from '@/components/ui/enterprise';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 dayjs.extend(relativeTime);
 import { cn } from '@/lib/utils';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
+
 
 // Enhanced Technician type with calculated fields
 type EnhancedTechnician = Technician & {
@@ -51,8 +54,7 @@ interface TechnicianFilters {
 
 const TechniciansPage: React.FC = () => {
   const queryClient = useQueryClient();
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
+
 
   // State management
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -78,7 +80,7 @@ const TechniciansPage: React.FC = () => {
     queryFn: async () => {
       const { data, error } = await supabase.from('technicians').select('*').order('name');
       if (error) throw new Error(error.message);
-      return (data || []).map(technician => snakeToCamelCase(technician) as Technician);
+      return (data || []) as Technician[];
     }
   });
 
@@ -87,7 +89,7 @@ const TechniciansPage: React.FC = () => {
     queryFn: async () => {
       const { data, error } = await supabase.from('work_orders').select('*');
       if (error) throw new Error(error.message);
-      return (data || []).map(workOrder => snakeToCamelCase(workOrder) as WorkOrder);
+      return (data || []) as WorkOrder[];
     }
   });
 
@@ -96,7 +98,7 @@ const TechniciansPage: React.FC = () => {
     queryFn: async () => {
       const { data, error } = await supabase.from('locations').select('*');
       if (error) throw new Error(error.message);
-      return (data || []).map(location => snakeToCamelCase(location) as Location);
+      return (data || []) as Location[];
     }
   });
 
@@ -118,7 +120,7 @@ const TechniciansPage: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['technicians'] });
-      showSuccess(editingTechnician ? 'Technician updated successfully' : 'Technician created successfully');
+      showSuccess(editingTechnician ? 'Technician updated.' : 'Technician created.');
       setIsDialogOpen(false);
       setEditingTechnician(null);
     },
@@ -134,7 +136,7 @@ const TechniciansPage: React.FC = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['technicians'] });
-      showSuccess('Technician deleted successfully');
+      showSuccess('Technician deleted.');
       setDeleteDialogOpen(false);
       setTechnicianToDelete(null);
     },
@@ -148,7 +150,7 @@ const TechniciansPage: React.FC = () => {
     if (!technicians || !workOrders) return [];
 
     return technicians.map(tech => {
-      const techWorkOrders = workOrders.filter(wo => wo.assignedTechnicianId === tech.id);
+      const techWorkOrders = workOrders.filter(wo => wo.assigned_technician_id === tech.id);
       const openTasks = techWorkOrders.filter(wo => wo.status === 'Open' || wo.status === 'In Progress').length;
       const completedTasks = techWorkOrders.filter(wo => wo.status === 'Completed').length;
 
@@ -251,22 +253,22 @@ const TechniciansPage: React.FC = () => {
   // Loading state
   if (isLoadingTechnicians) {
     return (
-      <div className="flex h-screen w-full bg-white dark:bg-gray-950 overflow-hidden">
-        <div className="w-80 flex-none border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex flex-col">
-          <div className="p-4 border-b border-gray-200 dark:border-gray-800">
-            <div className="h-6 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-2"></div>
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-3/4"></div>
+      <div className="flex h-screen w-full bg-background overflow-hidden">
+        <div className="w-80 flex-none border-r border-border bg-card/50 flex flex-col">
+          <div className="p-4 border-b border-border">
+            <div className="h-6 bg-muted rounded animate-pulse mb-2"></div>
+            <div className="h-4 bg-muted rounded animate-pulse w-3/4"></div>
           </div>
           <div className="flex-1 p-4 space-y-3">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="h-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+              <div key={i} className="h-16 bg-muted rounded animate-pulse"></div>
             ))}
           </div>
         </div>
-        <div className="flex-1 overflow-auto bg-white dark:bg-gray-950">
+        <div className="flex-1 overflow-auto bg-background">
           <div className="p-6 space-y-4">
-            <div className="h-8 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-1/3"></div>
-            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded animate-pulse w-1/2"></div>
+            <div className="h-8 bg-muted rounded animate-pulse w-1/3"></div>
+            <div className="h-4 bg-muted rounded animate-pulse w-1/2"></div>
           </div>
         </div>
       </div>
@@ -275,68 +277,63 @@ const TechniciansPage: React.FC = () => {
 
 
   return (
-    <div className="flex h-[calc(100vh-2rem)] w-full bg-white dark:bg-gray-950 overflow-hidden">
+    <div className="flex h-screen w-full overflow-hidden">
       {/* Left Column - Technician List */}
-      <div className="w-56 flex-none border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex flex-col">
-        {/* Header with Stat Ribbon */}
-        <div className="border-b border-gray-200 dark:border-gray-800">
-          {/* Page Title */}
-          <div className="px-3 py-2">
-            <h1 className="text-sm font-bold font-brand text-gray-900 dark:text-gray-100">Technicians</h1>
-          </div>
-
-          {/* Search */}
-          <div className="px-3 pb-2">
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-                <HugeiconsIcon icon={Search01Icon} size={14} className="text-gray-400 dark:text-gray-500" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search technicians..."
-                className="w-full pl-8 pr-3 py-1.5 text-xs border border-gray-300 dark:border-gray-700 rounded bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-transparent"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
+      <div className="w-full sm:w-80 flex-none flex flex-col bg-card">
+        {/* Header */}
+        {/* Header */}
+        <div className="p-3 border-b">
+          <div className="flex items-center justify-between mb-3">
+            <h1 className="text-lg font-semibold">Technicians</h1>
+            <div className="flex items-center gap-1">
+              <Button
+                variant={filtersOpen || hasActiveFilters ? "secondary" : "ghost"}
+                size="sm"
+                onClick={() => setFiltersOpen(!filtersOpen)}
+                className="h-7 w-7 p-0"
+                title="Filters"
+              >
+                <HugeiconsIcon icon={Settings02Icon} className="w-3.5 h-3.5" />
+                {hasActiveFilters && (
+                  <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary ring-2 ring-background" />
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleAddTechnician}
+                className="h-7 w-7 p-0"
+                title="Add Technician"
+              >
+                <HugeiconsIcon icon={Add01Icon} className="w-3.5 h-3.5" />
+              </Button>
             </div>
           </div>
 
-          {/* Filters Toggle */}
-          <div className="px-3 pb-2 flex items-center justify-between">
-            <button
-              onClick={() => setFiltersOpen(!filtersOpen)}
-              className={`inline-flex items-center gap-1 px-2 py-1 text-[10px] font-medium rounded transition-colors ${filtersOpen || hasActiveFilters
-                ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700'
-                }`}
-            >
-              <HugeiconsIcon icon={Settings02Icon} size={12} />
-              Filters
-              {hasActiveFilters && (
-                <span className="inline-flex items-center justify-center min-w-[14px] h-3.5 px-1 rounded-full bg-primary-600 dark:bg-primary-500 text-white text-[9px] font-semibold">
-                  {[searchQuery, filters.status.length > 0, filters.specialization.length > 0, filters.location.length > 0].filter(Boolean).length}
-                </span>
-              )}
-            </button>
-            <button
-              onClick={handleAddTechnician}
-              className="inline-flex items-center gap-1 px-2 py-1 text-[10px] font-medium text-white bg-primary-600 hover:bg-primary-700 rounded transition-colors"
-            >
-              <HugeiconsIcon icon={Add01Icon} size={12} />
-              Add
-            </button>
+          {/* Search */}
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+              <HugeiconsIcon icon={Search01Icon} size={14} className="text-muted-foreground" />
+            </div>
+            <Input
+              type="text"
+              placeholder="Search technicians..."
+              className="w-full pl-8 h-8 text-sm"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
           </div>
 
           {/* Advanced Filters */}
           {filtersOpen && (
-            <div className="px-3 pb-2 border-t border-gray-100 dark:border-gray-800 pt-2">
+            <div className="mt-3 pt-2 border-t">
               <div className="grid grid-cols-2 gap-2">
                 <div>
-                  <label className="block text-[10px] font-medium text-gray-700 dark:text-gray-300 mb-0.5">Status</label>
+                  <Label className="block text-xs font-medium text-muted-foreground mb-0.5">Status</Label>
                   <select
                     value={filters.status[0] || 'all'}
                     onChange={(e) => setFilters({ ...filters, status: e.target.value === 'all' ? [] : [e.target.value] })}
-                    className="h-7 w-full rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 px-2 text-[10px]"
+                    className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-xs ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <option value="all">All</option>
                     <option value="available">Available</option>
@@ -345,11 +342,11 @@ const TechniciansPage: React.FC = () => {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-medium text-gray-700 dark:text-gray-300 mb-0.5">Location</label>
+                  <Label className="block text-xs font-medium text-muted-foreground mb-0.5">Location</Label>
                   <select
                     value={filters.location[0] || 'all'}
                     onChange={(e) => setFilters({ ...filters, location: e.target.value === 'all' ? [] : [e.target.value] })}
-                    className="h-7 w-full rounded border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 px-2 text-[10px]"
+                    className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-xs ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     <option value="all">All</option>
                     {locations?.map(loc => (
@@ -359,57 +356,62 @@ const TechniciansPage: React.FC = () => {
                 </div>
               </div>
               {hasActiveFilters && (
-                <button
+                <Button
+                  variant="ghost"
+                  size="sm"
                   onClick={() => {
                     setSearchQuery('');
                     setFilters({ status: [], specialization: [], location: [], workloadRange: [0, 10] });
                   }}
-                  className="text-[10px] text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline mt-1"
+                  className="text-xs text-muted-foreground underline mt-1 h-8"
                 >
                   Clear all filters
-                </button>
+                </Button>
               )}
             </div>
           )}
         </div>
 
         {/* Technician List */}
-        <div className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent overscroll-y-contain">
+        <div className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent overscroll-y-contain">
           {filteredTechnicians.length === 0 ? (
             <div className="empty-state p-4">
-              <HugeiconsIcon icon={UserIcon} size={32} className="empty-state-icon text-gray-300 mx-auto mb-2" />
-              <p className="text-xs font-medium text-gray-900 dark:text-gray-100 mb-0.5 text-center">No technicians found</p>
-              <p className="text-[10px] text-gray-500 text-center">
+              <HugeiconsIcon icon={UserIcon} size={32} className="empty-state-icon text-muted-foreground mx-auto mb-2" />
+              <p className="text-xs font-medium text-foreground mb-0.5 text-center">No technicians found</p>
+              <p className="text-xs text-muted-foreground text-center">
                 {hasActiveFilters ? "Try adjusting your filters" : "Add your first technician to get started"}
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100 dark:divide-gray-800">
+            <div className="divide-y divide-border">
               {filteredTechnicians.map((tech) => {
                 const isSelected = selectedTechnician?.id === tech.id;
                 return (
                   <div
                     key={tech.id}
-                    className={`px-3 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 ${isSelected ? 'bg-primary-50 dark:bg-primary-900/20' : ''}`}
+                    className={`p-3 cursor-pointer border-l-2 transition-all hover:bg-muted/50 ${isSelected
+                      ? 'bg-muted border-l-primary'
+                      : 'border-l-transparent'
+                      }`}
                     onClick={() => setSelectedTechnician(tech)}
                   >
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-1.5">
-                        <div className="w-6 h-6 rounded bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center">
+                    <div className="flex justify-between items-start mb-1">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded bg-muted flex items-center justify-center">
                           {tech.avatar ? (
                             <img src={tech.avatar} alt="" className="w-full h-full rounded object-cover" />
                           ) : (
-                            <span className="text-[10px] font-bold text-primary-600 dark:text-primary-400">
+                            <span className="text-xs font-bold text-primary">
                               {tech.name.substring(0, 2).toUpperCase()}
                             </span>
                           )}
                         </div>
                         <div>
-                          <p className="text-xs font-bold text-gray-900 dark:text-gray-100">
+                          <p className="text-xs font-bold text-foreground">
                             {tech.name}
                           </p>
                           {tech.specializations && tech.specializations.length > 0 && (
-                            <p className="text-[10px] text-gray-500 dark:text-gray-400">
+                            <p className="text-xs text-muted-foreground">
                               {tech.specializations.slice(0, 2).join(', ')}
                               {tech.specializations.length > 2 && ` +${tech.specializations.length - 2}`}
                             </p>
@@ -417,19 +419,19 @@ const TechniciansPage: React.FC = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
-                        <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium border ${tech.status === 'available' ? 'bg-industrial-50 dark:bg-industrial-900/30 text-industrial-700 dark:text-industrial-300 border-industrial-200 dark:border-industrial-800' :
-                          tech.status === 'busy' ? 'bg-maintenance-50 dark:bg-maintenance-900/30 text-maintenance-700 dark:text-maintenance-300 border-maintenance-200 dark:border-maintenance-800' :
-                            'bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-700'
+                        <span className={`px-1.5 py-0.5 rounded text-xs font-medium border ${tech.status === 'available' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                          tech.status === 'busy' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                            'bg-muted text-muted-foreground border-border'
                           }`}>
                           {tech.status || 'Offline'}
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
                       <span>{tech.email}</span>
                       {tech.openTasks > 0 && (
                         <span className="flex items-center gap-0.5">
-                          <HugeiconsIcon icon={NoteIcon} size={10} />
+                          <HugeiconsIcon icon={NoteIcon} size={12} />
                           {tech.openTasks} WO{tech.openTasks !== 1 ? 's' : ''}
                         </span>
                       )}
@@ -443,260 +445,273 @@ const TechniciansPage: React.FC = () => {
       </div>
 
       {/* Right Column - Detail View */}
-      <div className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-gray-950">
+      <div className="flex-1 flex flex-col overflow-hidden bg-background">
         {selectedTechnician ? (
           <div className="flex flex-col h-full">
-            <div className="flex-none px-4 py-2.5 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-950 z-10">
+            <div className="flex-none px-4 py-2.5 bg-background z-10">
               {/* Header: Title, Status, Actions */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-lg bg-primary-50 dark:bg-primary-900/20 flex items-center justify-center flex-shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
                     {selectedTechnician.avatar ? (
                       <img src={selectedTechnician.avatar} alt="" className="w-full h-full rounded-lg object-cover" />
                     ) : (
-                      <span className="text-xs font-bold text-primary-600 dark:text-primary-400">
+                      <span className="text-xs font-bold text-primary">
                         {selectedTechnician.name.substring(0, 2).toUpperCase()}
                       </span>
                     )}
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h2 className="text-sm font-bold text-gray-900 dark:text-gray-100">
+                      <h2 className="text-sm font-bold font-mono text-foreground">
                         {selectedTechnician.name}
                       </h2>
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border ${selectedTechnician.status === 'available' ? 'bg-industrial-50 text-industrial-700 border-industrial-200 dark:bg-industrial-900/20 dark:text-industrial-400 dark:border-industrial-800' :
-                        selectedTechnician.status === 'busy' ? 'bg-maintenance-50 text-maintenance-700 border-maintenance-200 dark:bg-maintenance-900/20 dark:text-maintenance-400 dark:border-maintenance-800' :
-                          'bg-gray-50 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${selectedTechnician.status === 'available' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                        selectedTechnician.status === 'busy' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                          'bg-muted text-muted-foreground border-border'
                         }`}>
-                        <span className={`w-1 h-1 rounded-full ${selectedTechnician.status === 'available' ? 'bg-industrial-500' :
-                          selectedTechnician.status === 'busy' ? 'bg-maintenance-500' :
-                            'bg-gray-500'
+                        <span className={`w-1 h-1 rounded-full ${selectedTechnician.status === 'available' ? 'bg-emerald-500' :
+                          selectedTechnician.status === 'busy' ? 'bg-amber-500' :
+                            'bg-muted-foreground'
                           }`} />
                         {selectedTechnician.status || 'Offline'}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                    <p className="text-xs text-muted-foreground">
                       {selectedTechnician.location?.name || 'Unassigned'}
                       {selectedTechnician.specializations && selectedTechnician.specializations.length > 0 && (
-                        <> • {selectedTechnician.specializations.slice(0, 2).join(', ')}</>
+                        <> &bull; {selectedTechnician.specializations.slice(0, 2).join(', ')}</>
                       )}
                     </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <button
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => handleEditTechnician(selectedTechnician)}
-                    className="px-2.5 py-1 text-xs font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded shadow-sm transition-colors flex items-center gap-1.5"
+                    className="px-2.5 py-1 text-xs font-medium flex items-center gap-1.5 h-8"
                   >
-                    <HugeiconsIcon icon={Edit01Icon} size={12} />
+                    <HugeiconsIcon icon={Edit01Icon} size={14} />
                     Edit
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => handleDeleteClick(selectedTechnician)}
-                    className="px-2.5 py-1 text-xs font-medium text-error-600 dark:text-error-400 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 hover:bg-error-50 dark:hover:bg-error-900/20 rounded shadow-sm transition-colors flex items-center gap-1.5"
+                    className="px-2.5 py-1 text-xs font-medium text-destructive hover:bg-destructive/10 flex items-center gap-1.5 h-8"
                   >
-                    <HugeiconsIcon icon={Delete01Icon} size={12} />
+                    <HugeiconsIcon icon={Delete01Icon} size={14} />
                     Delete
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>
 
-            <div className="flex-1 overflow-auto p-4 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent overscroll-y-contain">
+            <div className="flex-1 overflow-auto p-4 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent overscroll-y-contain">
+
+              {/* Stats Grid */}
 
               {/* Stats Grid */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
-                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
-                  <div className="flex items-center justify-between">
+                <Card>
+                  <CardContent className="p-3 flex items-center justify-between">
                     <div>
-                      <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Active WOs</p>
-                      <p className="text-lg font-bold font-data text-gray-900 dark:text-gray-100 mt-0.5">{selectedTechnician.openTasks}</p>
+                      <p className="text-xs font-medium text-muted-foreground">Active WOs</p>
+                      <p className="text-lg font-bold font-mono text-foreground mt-0.5">{selectedTechnician.openTasks}</p>
                     </div>
-                    <div className="w-6 h-6 rounded bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center">
-                      <HugeiconsIcon icon={NoteIcon} size={12} className="text-primary-600 dark:text-primary-400" />
+                    <div className="w-6 h-6 rounded bg-muted flex items-center justify-center">
+                      <HugeiconsIcon icon={NoteIcon} size={12} className="text-primary" />
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
 
-                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
-                  <div className="flex items-center justify-between">
+                <Card>
+                  <CardContent className="p-3 flex items-center justify-between">
                     <div>
-                      <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Completed</p>
-                      <p className="text-lg font-bold font-data text-gray-900 dark:text-gray-100 mt-0.5">{selectedTechnician.completedTasks}</p>
+                      <p className="text-xs font-medium text-muted-foreground">Completed</p>
+                      <p className="text-lg font-bold font-mono text-foreground mt-0.5">{selectedTechnician.completedTasks}</p>
                     </div>
-                    <div className="w-6 h-6 rounded bg-industrial-50 dark:bg-industrial-900/30 flex items-center justify-center">
-                      <HugeiconsIcon icon={Tick01Icon} size={12} className="text-industrial-600 dark:text-industrial-400" />
+                    <div className="w-6 h-6 rounded bg-emerald-50 flex items-center justify-center">
+                      <HugeiconsIcon icon={Tick01Icon} size={12} className="text-emerald-600" />
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
 
-                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
-                  <div className="flex items-center justify-between">
+                <Card>
+                  <CardContent className="p-3 flex items-center justify-between">
                     <div>
-                      <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Efficiency</p>
-                      <p className="text-lg font-bold font-data text-gray-900 dark:text-gray-100 mt-0.5">{Math.round(selectedTechnician.efficiency)}%</p>
+                      <p className="text-xs font-medium text-muted-foreground">Efficiency</p>
+                      <p className="text-lg font-bold font-mono text-foreground mt-0.5">{Math.round(selectedTechnician.efficiency)}%</p>
                     </div>
-                    <div className="w-6 h-6 rounded bg-maintenance-50 dark:bg-maintenance-900/30 flex items-center justify-center">
-                      <HugeiconsIcon icon={TimelineIcon} size={12} className="text-maintenance-600 dark:text-maintenance-400" />
+                    <div className="w-6 h-6 rounded bg-amber-50 flex items-center justify-center">
+                      <HugeiconsIcon icon={TimelineIcon} size={12} className="text-amber-600" />
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
 
-                <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-3">
-                  <div className="flex items-center justify-between">
+                <Card>
+                  <CardContent className="p-3 flex items-center justify-between">
                     <div>
-                      <p className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Location</p>
-                      <p className="text-xs font-bold text-gray-900 dark:text-gray-100 mt-0.5 truncate">
+                      <p className="text-xs font-medium text-muted-foreground">Location</p>
+                      <p className="text-xs font-bold text-foreground mt-0.5 truncate">
                         {selectedTechnician.location?.name || 'Unassigned'}
                       </p>
                     </div>
-                    <div className="w-6 h-6 rounded bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center">
-                      <HugeiconsIcon icon={Location01Icon} size={12} className="text-primary-600 dark:text-primary-400" />
+                    <div className="w-6 h-6 rounded bg-muted flex items-center justify-center">
+                      <HugeiconsIcon icon={Location01Icon} size={12} className="text-primary" />
                     </div>
-                  </div>
-                </div>
+                  </CardContent>
+                </Card>
               </div>
 
               {/* Details Grid */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-4">
                 {/* Contact Information */}
                 <div>
-                  <h3 className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Contact Information</h3>
-                  <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md divide-y divide-gray-100 dark:divide-gray-800">
-                    <div className="p-2.5">
-                      <label className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Email</label>
-                      <p className="text-xs text-gray-900 dark:text-gray-100 mt-0.5 font-medium">{selectedTechnician.email}</p>
-                    </div>
-                    <div className="p-2.5">
-                      <label className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Phone</label>
-                      <p className="text-xs text-gray-900 dark:text-gray-100 mt-0.5">{selectedTechnician.phone || 'Not provided'}</p>
-                    </div>
-                    <div className="p-2.5">
-                      <label className="text-[10px] font-medium text-gray-500 dark:text-gray-400">Employee ID</label>
-                      <p className="text-xs text-gray-900 dark:text-gray-100 mt-0.5 font-mono">#{selectedTechnician.id.substring(0, 8)}</p>
-                    </div>
-                  </div>
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">Contact Information</h3>
+                  <Card className="overflow-hidden rounded-md">
+                    <CardContent className="p-4 grid grid-cols-1 gap-4">
+                      <div>
+                        <Label className="text-xs font-medium text-muted-foreground">Email</Label>
+                        <p className="text-xs mt-0.5 font-medium text-foreground">{selectedTechnician.email}</p>
+                      </div>
+                      <div>
+                        <Label className="text-xs font-medium text-muted-foreground">Phone</Label>
+                        <p className="text-xs mt-0.5 text-foreground">{selectedTechnician.phone || 'Not provided'}</p>
+                      </div>
+                      <div>
+                        <Label className="text-xs font-medium text-muted-foreground">Employee ID</Label>
+                        <p className="text-xs mt-0.5 font-mono text-foreground">#{selectedTechnician.id.substring(0, 8)}</p>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
 
                 {/* Specializations */}
                 <div>
-                  <h3 className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide mb-2">Expertise & Skills</h3>
-                  <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-2.5">
-                    {selectedTechnician.specializations && selectedTechnician.specializations.length > 0 ? (
-                      <div className="flex flex-wrap gap-1.5">
-                        {selectedTechnician.specializations.map((skill, i) => (
-                          <span key={i} className="px-2 py-0.5 rounded text-[10px] font-medium bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border border-primary-200 dark:border-primary-800">
-                            {skill}
-                          </span>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-xs text-gray-500 dark:text-gray-400 italic">No specializations listed</p>
-                    )}
-                  </div>
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-2">Expertise & Skills</h3>
+                  <Card className="overflow-hidden rounded-md h-full">
+                    <CardContent className="p-4">
+                      {selectedTechnician.specializations && selectedTechnician.specializations.length > 0 ? (
+                        <div className="flex flex-wrap gap-1.5">
+                          {selectedTechnician.specializations.map((skill, i) => (
+                            <Badge key={i} variant="secondary" className="text-xs px-2 py-0.5 font-medium border-primary/20 bg-primary/10 text-primary hover:bg-primary/20">
+                              {skill}
+                            </Badge>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-muted-foreground italic">No specializations listed</p>
+                      )}
+                    </CardContent>
+                  </Card>
                 </div>
               </div>
 
               {/* Work Orders */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Work Orders</h3>
-                  <span className="text-[10px] text-gray-500 dark:text-gray-400">
-                    {workOrders?.filter(wo => wo.assignedTechnicianId === selectedTechnician.id).length || 0} total
+                  <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Work Orders</h3>
+                  <span className="text-xs text-muted-foreground">
+                    {workOrders?.filter(wo => wo.assigned_technician_id === selectedTechnician.id).length || 0} total
                   </span>
                 </div>
 
                 {(() => {
-                  const techWorkOrders = workOrders?.filter(wo => wo.assignedTechnicianId === selectedTechnician.id) || [];
+                  const techWorkOrders = workOrders?.filter(wo => wo.assigned_technician_id === selectedTechnician.id) || [];
 
                   return techWorkOrders.length > 0 ? (
-                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md overflow-hidden">
-                      <div className="overflow-x-auto">
-                        <table className="w-full text-xs text-left">
-                          <thead className="text-[10px] text-gray-500 dark:text-gray-400 uppercase bg-gray-50 dark:bg-gray-800/50 border-b border-gray-200 dark:border-gray-800">
-                            <tr>
-                              <th className="px-3 py-2 font-medium">Work Order</th>
-                              <th className="px-3 py-2 font-medium">Description</th>
-                              <th className="px-3 py-2 font-medium">Status</th>
-                              <th className="px-3 py-2 font-medium">Priority</th>
-                              <th className="px-3 py-2 font-medium text-right">Created</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
-                            {techWorkOrders.slice(0, 10).map((wo) => (
-                              <tr key={wo.id} className="hover:bg-primary-50/30 dark:hover:bg-primary-900/10 transition-colors">
-                                <td className="px-3 py-1.5 font-bold font-data text-gray-900 dark:text-gray-100">
-                                  {wo.workOrderNumber || `WO-${wo.id.substring(0, 6).toUpperCase()}`}
-                                </td>
-                                <td className="px-3 py-1.5 text-gray-600 dark:text-gray-400 max-w-[150px] truncate">
-                                  {wo.description || wo.service || 'General Service'}
-                                </td>
-                                <td className="px-3 py-1.5">
-                                  <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border ${wo.status === 'Completed' ? 'bg-industrial-50 dark:bg-industrial-900/30 text-industrial-700 dark:text-industrial-300 border-industrial-200 dark:border-industrial-800' :
-                                    wo.status === 'In Progress' ? 'bg-maintenance-50 dark:bg-maintenance-900/30 text-maintenance-700 dark:text-maintenance-300 border-maintenance-200 dark:border-maintenance-800' :
-                                      'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border-primary-200 dark:border-primary-800'
-                                    }`}>
-                                    <span className={`w-1 h-1 rounded-full ${wo.status === 'Completed' ? 'bg-industrial-500' :
-                                      wo.status === 'In Progress' ? 'bg-maintenance-500' :
-                                        'bg-primary-500'
-                                      }`} />
-                                    {wo.status}
-                                  </span>
-                                </td>
-                                <td className="px-3 py-1.5">
-                                  {wo.priority && (
-                                    <span className={`inline-block px-1 py-0.5 rounded text-[9px] font-medium border ${wo.priority === 'High' ? 'bg-error-50 text-error-700 border-error-100 dark:bg-error-900/20 dark:text-error-400 dark:border-error-900/30' :
-                                      wo.priority === 'Medium' ? 'bg-maintenance-50 text-maintenance-700 border-maintenance-100 dark:bg-maintenance-900/20 dark:text-maintenance-400 dark:border-maintenance-900/30' :
-                                        'bg-gray-50 text-gray-600 border-gray-100 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
+                    <Card className="overflow-hidden rounded-md">
+                      <CardContent className="p-4">
+                        <div className="overflow-x-auto" style={{ border: 'none', boxShadow: 'none', background: 'transparent' }}>
+                          <Table>
+                            <TableHeader className="bg-transparent border-none">
+                              <TableRow className="border-none hover:bg-transparent">
+                                <TableHead className="px-3 py-2 font-medium h-auto text-xs">Work Order</TableHead>
+                                <TableHead className="px-3 py-2 font-medium h-auto text-xs">Description</TableHead>
+                                <TableHead className="px-3 py-2 font-medium h-auto text-xs">Status</TableHead>
+                                <TableHead className="px-3 py-2 font-medium h-auto text-xs">Priority</TableHead>
+                                <TableHead className="px-3 py-2 font-medium h-auto text-xs text-right">Created</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {techWorkOrders.slice(0, 10).map((wo) => (
+                                <tr key={wo.id} className="hover:bg-muted/50 transition-colors">
+                                  <td className="px-3 py-1.5 font-bold font-mono text-foreground text-xs">
+                                    {wo.work_order_number || `WO-${wo.id.substring(0, 6).toUpperCase()}`}
+                                  </td>
+                                  <td className="px-3 py-1.5 text-muted-foreground max-w-[150px] truncate text-xs">
+                                    {wo.service || wo.service_notes || 'General Service'}
+                                  </td>
+                                  <td className="px-3 py-1.5">
+                                    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium border ${wo.status === 'Completed' ? 'bg-industrial-50 dark:bg-industrial-900/30 text-industrial-700 dark:text-industrial-300 border-industrial-200 dark:border-industrial-800' :
+                                      wo.status === 'In Progress' ? 'bg-maintenance-50 dark:bg-maintenance-900/30 text-maintenance-700 dark:text-maintenance-300 border-maintenance-200 dark:border-maintenance-800' :
+                                        'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border-primary-200 dark:border-primary-800'
                                       }`}>
-                                      {wo.priority}
+                                      <span className={`w-1 h-1 rounded-full ${wo.status === 'Completed' ? 'bg-industrial-500' :
+                                        wo.status === 'In Progress' ? 'bg-maintenance-500' :
+                                          'bg-primary-500'
+                                        }`} />
+                                      {wo.status}
                                     </span>
-                                  )}
-                                </td>
-                                <td className="px-3 py-1.5 text-right text-gray-500 dark:text-gray-400 whitespace-nowrap">
-                                  {dayjs(wo.created_at).fromNow()}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                      {techWorkOrders.length > 10 && (
-                        <div className="p-2 bg-gray-50 dark:bg-gray-800 text-center border-t border-gray-200 dark:border-gray-800">
-                          <p className="text-[10px] text-gray-500 dark:text-gray-400">
-                            View {techWorkOrders.length - 10} more work orders
-                          </p>
+                                  </td>
+                                  <td className="px-3 py-1.5">
+                                    {wo.priority && (
+                                      <span className={`inline-block px-1 py-0.5 rounded text-xs font-medium border ${wo.priority === 'High' ? 'bg-error-50 text-error-700 border-error-100 dark:bg-error-900/20 dark:text-error-400 dark:border-error-900/30' :
+                                        wo.priority === 'Medium' ? 'bg-maintenance-50 text-maintenance-700 border-maintenance-100 dark:bg-maintenance-900/20 dark:text-maintenance-400 dark:border-maintenance-900/30' :
+                                          'bg-muted text-muted-foreground border-border'
+                                        }`}>
+                                        {wo.priority}
+                                      </span>
+                                    )}
+                                  </td>
+                                  <td className="px-3 py-1.5 text-right text-muted-foreground whitespace-nowrap text-xs">
+                                    {dayjs(wo.created_at).fromNow()}
+                                  </td>
+                                </tr>
+                              ))}
+                            </TableBody>
+                          </Table>
                         </div>
-                      )}
-                    </div>
+                        {techWorkOrders.length > 10 && (
+                          <div className="p-2 bg-muted/30 text-center border-t border-border">
+                            <p className="text-xs text-muted-foreground">
+                              View {techWorkOrders.length - 10} more work orders
+                            </p>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
                   ) : (
-                    <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md p-6">
+                    <div className="bg-card border border-border rounded-md p-6">
                       <div className="text-center">
-                        <div className="mx-auto w-10 h-10 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center mb-2">
-                          <HugeiconsIcon icon={NoteIcon} size={18} className="text-gray-400 dark:text-gray-500" />
+                        <div className="mx-auto w-10 h-10 bg-muted rounded-lg flex items-center justify-center mb-2">
+                          <HugeiconsIcon icon={NoteIcon} size={18} className="text-muted-foreground" />
                         </div>
-                        <p className="text-xs font-medium text-gray-900 dark:text-gray-100 mb-0.5">No work orders</p>
-                        <p className="text-[10px] text-gray-500 dark:text-gray-400">This technician has no assigned work orders</p>
+                        <p className="text-xs font-medium text-foreground mb-0.5">No work orders</p>
+                        <p className="text-xs text-muted-foreground">This technician has no assigned work orders</p>
                       </div>
                     </div>
                   );
-                })()}
+                })()
+                }
               </div>
             </div>
-          </div>
+          </div >
         ) : (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <HugeiconsIcon icon={UserIcon} size={36} className="text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-0.5">Select a Technician</h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Choose a technician from the list to view details</p>
+              <HugeiconsIcon icon={UserIcon} size={36} className="text-muted/50 mx-auto mb-3" />
+              <h3 className="text-sm font-medium text-foreground mb-0.5">Select a Technician</h3>
+              <p className="text-xs text-muted-foreground">Choose a technician from the list to view details</p>
             </div>
           </div>
         )}
-      </div>
+      </div >
 
       {/* Dialogs */}
-      <TechnicianFormDrawer
+      < TechnicianFormDrawer
         isOpen={isDialogOpen}
         onClose={() => {
           setIsDialogOpen(false);
@@ -707,7 +722,7 @@ const TechniciansPage: React.FC = () => {
         locations={locations || []}
       />
 
-      <DeleteConfirmationDialog
+      < DeleteConfirmationDialog
         isOpen={deleteDialogOpen}
         onClose={() => setDeleteDialogOpen(false)}
         onConfirm={handleConfirmDelete}
@@ -715,7 +730,7 @@ const TechniciansPage: React.FC = () => {
         message={`Are you sure you want to delete ${technicianToDelete?.name}? This action cannot be undone.`}
         isDeleting={isDeleting}
       />
-    </div>
+    </div >
   );
 };
 

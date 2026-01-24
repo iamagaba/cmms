@@ -19,11 +19,12 @@ export type InventoryItem = {
   aisle?: string | null;
   bin?: string | null;
   shelf?: string | null;
+  model?: string | null;
   created_at: string;
   updated_at: string;
 };
 
-export type ItemCategory = 
+export type ItemCategory =
   | 'electrical'
   | 'mechanical'
   | 'consumables'
@@ -36,7 +37,7 @@ export type ItemCategory =
   | 'tires'
   | 'other';
 
-export type UnitOfMeasure = 
+export type UnitOfMeasure =
   | 'each'
   | 'pair'
   | 'box'
@@ -56,6 +57,16 @@ export type Supplier = {
   email?: string | null;
   address?: string | null;
   notes?: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Customer = {
+  id: string;
+  name: string;
+  phone?: string | null;
+  customer_type?: string | null;
+  customerType?: string | null; // Alias for camelCase access after snakeToCamelCase conversion
   created_at: string;
   updated_at: string;
 };
@@ -97,7 +108,9 @@ export type WorkOrder = {
   sla_due?: string | null;
   completed_at?: string | null;
   customer_lat?: number | null;
+  customerLat?: number | null; // Alias for camelCase
   customer_lng?: number | null;
+  customerLng?: number | null; // Alias for camelCase
   customer_address?: string | null;
   on_hold_reason?: string | null;
   appointment_date?: string | null;
@@ -110,6 +123,11 @@ export type WorkOrder = {
   updated_at: string;
   technician?: Technician;
   customer?: any;
+  confirmation_call_completed?: boolean | null;
+  confirmation_call_notes?: string | null;
+  confirmation_call_by?: string | null;
+  confirmation_call_at?: string | null;
+  confirmation_status_entered_at?: string | null;
   vehicle?: any;
 };
 
@@ -191,7 +209,7 @@ export type Vehicle = {
 };
 
 
-export type AdjustmentReason = 
+export type AdjustmentReason =
   | 'received'
   | 'damaged'
   | 'returned'
@@ -200,7 +218,7 @@ export type AdjustmentReason =
   | 'expired'
   | 'transfer_out'
   | 'transfer_in'
-  | 'correction'
+  | 'initial_stock'
   | 'other';
 
 export const ADJUSTMENT_REASON_LABELS: Record<AdjustmentReason, string> = {
@@ -212,7 +230,7 @@ export const ADJUSTMENT_REASON_LABELS: Record<AdjustmentReason, string> = {
   expired: 'Expired',
   transfer_out: 'Transfer Out',
   transfer_in: 'Transfer In',
-  correction: 'Correction',
+  initial_stock: 'Initial Stock',
   other: 'Other'
 };
 
@@ -227,10 +245,21 @@ export type StockAdjustment = {
   created_by?: string | null;
   created_at: string;
   inventory_item?: InventoryItem;
+  inventory_items?: { id: string; name: string; sku: string };
+  profiles?: { first_name?: string | null; last_name?: string | null };
+};
+
+export type BatchAdjustmentInput = {
+  items: Array<{
+    inventory_item_id: string;
+    quantity_delta: number;
+  }>;
+  reason: AdjustmentReason;
+  notes?: string;
 };
 
 
-export type LossType = 
+export type LossType =
   | 'theft'
   | 'damage'
   | 'expiration'

@@ -19,7 +19,7 @@
   --industrial-slate-700: #334155;
   --industrial-slate-800: #1e293b;
   --industrial-slate-900: #0f172a;
-  
+
   /* Safety Amber - for warnings and attention */
   --safety-amber-50: #fffbeb;
   --safety-amber-100: #fef3c7;
@@ -29,21 +29,63 @@
   --safety-amber-500: #f59e0b;
   --safety-amber-600: #d97706;
   --safety-amber-700: #b45309;
-  
+
   /* Operational Green - for success/active states */
   --operational-green-500: #22c55e;
   --operational-green-600: #16a34a;
   --operational-green-700: #15803d;
-  
+
   /* Alert Red - for critical/stopped states */
   --alert-red-500: #ef4444;
   --alert-red-600: #dc2626;
   --alert-red-700: #b91c1c;
-  
+
   /* Brand Purple - preserved */
   --brand-purple-500: #a855f7;
   --brand-purple-600: #9333ea;
   --brand-purple-700: #7e22ce;
+
+  /* -----------------------------------------------------------------------------
+     SHADCN TOKENS - Mapped to Industrial Palette
+     ----------------------------------------------------------------------------- */
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  /* Slate-900 */
+
+  --card: 0 0% 100%;
+  --card-foreground: 222.2 84% 4.9%;
+
+  --popover: 0 0% 100%;
+  --popover-foreground: 222.2 84% 4.9%;
+
+  --primary: 262.1 83.3% 57.8%;
+  /* Brand Purple */
+  --primary-foreground: 210 40% 98%;
+
+  --secondary: 210 40% 96.1%;
+  /* Slate-100 */
+  --secondary-foreground: 222.2 47.4% 11.2%;
+
+  --muted: 210 40% 96.1%;
+  /* Slate-100 */
+  --muted-foreground: 215.4 16.3% 46.9%;
+  /* Slate-500 */
+
+  --accent: 210 40% 96.1%;
+  /* Slate-100 */
+  --accent-foreground: 222.2 47.4% 11.2%;
+
+  --destructive: 0 84.2% 60.2%;
+  /* Red-500 */
+  --destructive-foreground: 210 40% 98%;
+
+  --border: 214.3 31.8% 91.4%;
+  /* Slate-200 */
+  --input: 214.3 31.8% 91.4%;
+  --ring: 262.1 83.3% 57.8%;
+  /* Brand Purple */
+
+  --radius: 0.5rem;
 }
 
 /* -----------------------------------------------------------------------------
@@ -53,7 +95,7 @@
 
 /* Monospace styling for identifiers (license plates, work order IDs, codes) */
 .font-industrial-id {
-  font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Consolas', ui-monospace, monospace !important;
+  font-family: var(--font-family-data) !important;
   font-weight: 600;
   letter-spacing: 0.025em;
   font-feature-settings: 'tnum' 1, 'ss01' 1;
@@ -61,7 +103,7 @@
 
 /* Condensed industrial labels */
 .font-industrial-label {
-  font-family: system-ui, -apple-system, sans-serif;
+  font-family: var(--font-family-ui);
   font-weight: 600;
   font-size: 10px;
   letter-spacing: 0.1em;
@@ -71,7 +113,7 @@
 
 /* Data display - tabular numbers */
 .font-industrial-data {
-  font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+  font-family: var(--font-family-data);
   font-feature-settings: 'tnum' 1;
   font-weight: 500;
 }
@@ -88,7 +130,12 @@
    Reduced border radius, stronger borders, defined edges
    ----------------------------------------------------------------------------- */
 
-/* Sharp corners - industrial equipment has defined edges */
+/* -----------------------------------------------------------------------------
+   3. VISUAL ELEMENTS - Sharper, More Utilitarian
+   [DISABLED] Global overrides commented out to align with shadcn/ui defaults 
+   ----------------------------------------------------------------------------- */
+
+/* 
 .industrial-sharp {
   border-radius: 2px !important;
 }
@@ -97,7 +144,6 @@
   border-radius: 4px !important;
 }
 
-/* Stronger borders */
 .industrial-border {
   border-width: 1.5px !important;
   border-color: var(--industrial-slate-300) !important;
@@ -107,18 +153,17 @@
   border-width: 2px !important;
   border-color: var(--industrial-slate-400) !important;
 }
+*/
 
 /* Control panel style dividers */
 .industrial-divider {
   height: 100%;
   width: 2px;
-  background: linear-gradient(
-    to bottom,
-    transparent 0%,
-    var(--industrial-slate-300) 20%,
-    var(--industrial-slate-300) 80%,
-    transparent 100%
-  );
+  background: linear-gradient(to bottom,
+      transparent 0%,
+      var(--industrial-slate-300) 20%,
+      var(--industrial-slate-300) 80%,
+      transparent 100%);
 }
 
 /* Inset/recessed effect - like control panel displays */
@@ -167,8 +212,15 @@
 }
 
 @keyframes pulse-critical {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.6;
+  }
 }
 
 /* Status badges - industrial style */
@@ -215,22 +267,38 @@
    ----------------------------------------------------------------------------- */
 
 .industrial-info-strip {
-  background: var(--industrial-slate-50);
-  border-bottom: 2px solid var(--industrial-slate-200);
+  background: hsl(var(--muted) / 0.3);
+  border-bottom: 1px solid hsl(var(--border));
+  box-shadow: inset 0 -1px 0 hsl(var(--border) / 0.5);
+  padding: 12px 16px;
 }
 
 .industrial-info-item {
-  padding: 10px 16px;
-  border-right: 1px solid var(--industrial-slate-200);
+  position: relative;
+  padding: 12px 16px;
   transition: background-color 0.15s ease;
 }
 
+.industrial-info-item::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: 25%;
+  height: 50%;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, hsl(var(--border)), transparent);
+}
+
 .industrial-info-item:hover {
-  background: rgba(255, 255, 255, 0.7);
+  background: hsl(var(--accent) / 0.5);
 }
 
 .industrial-info-item:last-child {
   border-right: none;
+}
+
+.industrial-info-item:last-child::after {
+  display: none;
 }
 
 .industrial-info-label {
@@ -238,20 +306,20 @@
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--industrial-slate-500);
-  margin-bottom: 2px;
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 4px;
 }
 
 .industrial-info-value {
   font-size: 14px;
   font-weight: 600;
-  color: var(--industrial-slate-800);
+  color: hsl(var(--foreground));
 }
 
 .industrial-info-value-primary {
-  font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+  font-family: var(--font-family-data);
   font-weight: 700;
-  color: var(--brand-purple-600);
+  color: hsl(var(--primary));
   letter-spacing: 0.025em;
 }
 
@@ -309,20 +377,19 @@
    ----------------------------------------------------------------------------- */
 
 .table-industrial {
-  border: 1.5px solid var(--industrial-slate-200);
+  border: 1px solid var(--industrial-slate-200);
   border-radius: 4px;
   overflow: hidden;
 }
 
 .table-industrial thead {
   background: var(--industrial-slate-100);
-  border-bottom: 2px solid var(--industrial-slate-300);
+  border-bottom: 1px solid var(--industrial-slate-300);
 }
 
 .table-industrial th {
   font-size: 11px;
   font-weight: 700;
-  text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--industrial-slate-600);
   padding: 10px 12px;
@@ -388,21 +455,21 @@
 
 /* Input with monospace (for codes, IDs) */
 .input-industrial-mono {
-  font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+  font-family: var(--font-family-data);
   letter-spacing: 0.05em;
 }
 
 /* -----------------------------------------------------------------------------
    10. GLOBAL OVERRIDES - Apply Industrial Feel App-Wide
+   [DISABLED] Global overrides commented out to align with shadcn/ui defaults
    ----------------------------------------------------------------------------- */
 
-/* Stronger focus rings */
+/* 
 *:focus-visible {
   outline: 2px solid var(--brand-purple-500);
   outline-offset: 2px;
 }
 
-/* Industrial scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
@@ -421,43 +488,41 @@
 ::-webkit-scrollbar-thumb:hover {
   background: var(--industrial-slate-400);
 }
+*/
 
 /* -----------------------------------------------------------------------------
    11. AUTO-APPLY INDUSTRIAL TYPOGRAPHY TO COMMON PATTERNS
-   These selectors automatically style identifiers across the app
+   [DISABLED] Auto-application commented out to prevent side-effects
    ----------------------------------------------------------------------------- */
 
-/* License plates - auto-detect common patterns */
+/* 
 [data-license-plate],
 [data-plate],
 .license-plate,
 .plate-number {
-  font-family: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Consolas', ui-monospace, monospace !important;
+  font-family: var(--font-family-data) !important;
   font-weight: 600;
   letter-spacing: 0.05em;
 }
 
-/* Work Order IDs */
 [data-work-order-id],
 [data-wo-id],
 .work-order-id,
 .wo-id {
-  font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace !important;
+  font-family: var(--font-family-data) !important;
   font-weight: 600;
   letter-spacing: 0.02em;
 }
 
-/* Asset IDs and VINs */
 [data-asset-id],
 [data-vin],
 .asset-id,
 .vin-number {
-  font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace !important;
+  font-family: var(--font-family-data) !important;
   font-weight: 500;
   letter-spacing: 0.02em;
 }
 
-/* Numeric/data values in tables */
 td[data-type="number"],
 td[data-type="currency"],
 td[data-type="date"],
@@ -465,23 +530,20 @@ td[data-type="mileage"],
 .data-numeric,
 .data-currency,
 .data-mileage {
-  font-family: 'JetBrains Mono', 'SF Mono', ui-monospace, monospace;
+  font-family: var(--font-family-data);
   font-feature-settings: 'tnum' 1;
   font-weight: 500;
 }
 
-/* Table headers - industrial style */
 table thead th,
 .table-header,
 [role="columnheader"] {
   font-size: 11px !important;
   font-weight: 700 !important;
-  text-transform: uppercase !important;
   letter-spacing: 0.05em !important;
   color: var(--industrial-slate-600) !important;
 }
 
-/* Data table specific overrides */
 .MuiDataGrid-columnHeaderTitle,
 [class*="columnHeader"] {
   font-size: 11px !important;
@@ -489,17 +551,19 @@ table thead th,
   text-transform: uppercase !important;
   letter-spacing: 0.04em !important;
 }
+*/
 
 /* -----------------------------------------------------------------------------
    12. GLOBAL CARD & PANEL STYLING
-   Note: Light touch - don't override component library styles
    ----------------------------------------------------------------------------- */
 
 /* Only apply to elements explicitly using card classes */
+/*
 .card-industrial {
   border-radius: 4px;
   border: 1.5px solid var(--industrial-slate-200);
 }
+*/
 
 /* Panel headers */
 .card-header-industrial,
@@ -516,6 +580,7 @@ table thead th,
    13. FORM INPUTS - Industrial Style (opt-in)
    ----------------------------------------------------------------------------- */
 
+/* Duplicated above, keeping for safety but reducing global impact */
 .input-industrial {
   border: 1.5px solid var(--industrial-slate-300);
   border-radius: 3px;
@@ -533,12 +598,10 @@ table thead th,
 
 /* -----------------------------------------------------------------------------
    14. BUTTONS - Industrial Style (handled by component)
-   Button styling is handled by ProfessionalButton component
    ----------------------------------------------------------------------------- */
 
 /* -----------------------------------------------------------------------------
    15. STATUS BADGES - Industrial Style (opt-in classes)
-   Use these classes explicitly, don't override all badges globally
    ----------------------------------------------------------------------------- */
 
 .badge-industrial,
@@ -578,58 +641,77 @@ table thead th,
 
 /* -----------------------------------------------------------------------------
    16. PAGE HEADERS - Industrial Style
+   [DISABLED] Global headers commented out
    ----------------------------------------------------------------------------- */
 
-h1, .page-title, [class*="PageTitle"], [class*="pageTitle"] {
+/*
+h1,
+.page-title,
+[class*="PageTitle"],
+[class*="pageTitle"] {
   font-weight: 700 !important;
   letter-spacing: -0.01em !important;
   color: var(--industrial-slate-900) !important;
 }
 
-h2, h3, .section-title {
+h2,
+h3,
+.section-title {
   font-weight: 600 !important;
   letter-spacing: -0.005em !important;
   color: var(--industrial-slate-800) !important;
 }
 
-/* Subheadings / descriptions */
-.subtitle, .description, [class*="subtitle"], [class*="description"] {
+.subtitle,
+.description,
+[class*="subtitle"],
+[class*="description"] {
   color: var(--industrial-slate-500) !important;
 }
+*/
 
 /* -----------------------------------------------------------------------------
    17. SIDEBAR & NAVIGATION - Industrial Style
+   [DISABLED] Global sidebar overrides commented out (ProfessionalSidebar handles its own styling)
    ----------------------------------------------------------------------------- */
 
-nav, [class*="Sidebar"], [class*="sidebar"], [class*="Navigation"] {
+/*
+nav,
+[class*="Sidebar"],
+[class*="sidebar"],
+[class*="Navigation"] {
   border-right-color: var(--industrial-slate-200) !important;
 }
 
-/* Nav items */
-nav a, [class*="NavItem"], [class*="navItem"], [class*="MenuItem"] {
+nav a,
+[class*="NavItem"],
+[class*="navItem"],
+[class*="MenuItem"] {
   border-radius: 3px !important;
   font-weight: 500 !important;
 }
 
-/* Active nav item */
-nav a.active, [class*="active"], [aria-current="page"] {
+nav a.active,
+[class*="active"],
+[aria-current="page"] {
   font-weight: 600 !important;
 }
+*/
 
 /* -----------------------------------------------------------------------------
    18. TABLES - Industrial Data Grid Style
-   Note: Only apply to tables that don't have their own styling
+   [DISABLED] Global table overrides commented out
    ----------------------------------------------------------------------------- */
 
-/* Only target basic HTML tables, not component libraries */
+/*
 table:not([class*="MuiTable"]):not([class*="DataGrid"]) {
-  border: 1.5px solid var(--industrial-slate-200);
+  border: 1px solid var(--industrial-slate-200);
   border-radius: 4px;
 }
 
 table:not([class*="MuiTable"]):not([class*="DataGrid"]) thead {
   background: var(--industrial-slate-50);
-  border-bottom: 2px solid var(--industrial-slate-300);
+  border-bottom: 1px solid var(--industrial-slate-200);
 }
 
 table:not([class*="MuiTable"]):not([class*="DataGrid"]) tbody tr:hover {
@@ -640,11 +722,14 @@ table:not([class*="MuiTable"]):not([class*="DataGrid"]) td {
   border-bottom-color: var(--industrial-slate-100);
   font-size: 13px;
 }
+*/
 
 /* -----------------------------------------------------------------------------
    19. DIALOGS & MODALS - Industrial Style (opt-in)
+   [DISABLED] Global dialog overrides commented out
    ----------------------------------------------------------------------------- */
 
+/*
 .dialog-industrial,
 .modal-industrial {
   border-radius: 4px;
@@ -658,3 +743,4 @@ table:not([class*="MuiTable"]):not([class*="DataGrid"]) td {
   font-size: 14px;
   letter-spacing: 0.01em;
 }
+*/

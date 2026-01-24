@@ -22,7 +22,12 @@ import {
   BarChartIcon as Chart01Icon,
   UserMultiple02Icon as UserMultipleIcon,
   Home01Icon,
-  ClipboardIcon
+  ClipboardIcon,
+  Car01Icon,
+  Wrench01Icon,
+  SecurityCheckIcon,
+  DashboardSpeed01Icon,
+  Call02Icon
 } from '@hugeicons/core-free-icons';
 import NotFound from "./NotFound";
 import './WorkOrderDetailsEnhanced.css';
@@ -48,8 +53,7 @@ import { WorkOrderDetailsInfoCard } from "@/components/work-order-details/WorkOr
 import { WorkOrderActivityLogCard } from "@/components/work-order-details/WorkOrderActivityLogCard.tsx";
 import { WorkOrderLocationMapCard } from "@/components/work-order-details/WorkOrderLocationMapCard.tsx";
 import { WorkOrderOverviewCards } from "@/components/work-order-details/WorkOrderOverviewCards";
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
+
 
 import { WorkOrderNotesCard } from "@/components/work-order-details/WorkOrderNotesCard.tsx";
 import { WorkOrderRelatedHistoryCard } from "@/components/work-order-details/WorkOrderRelatedHistoryCard.tsx";
@@ -82,10 +86,10 @@ class DebugErrorBoundary extends Component<{ children: ReactNode }, { hasError: 
   render() {
     if (this.state.hasError) {
       return (
-        <div className="p-8 bg-red-50 border border-red-200 rounded-lg m-4">
-          <h2 className="text-xl font-bold text-red-800 mb-2">Something went wrong</h2>
-          <p className="text-red-700 mb-4">{this.state.error?.message}</p>
-          <pre className="text-xs bg-red-100 p-4 rounded overflow-auto max-h-64">
+        <div className="p-6 bg-destructive/10 border border-destructive/20 rounded-lg m-4">
+          <h2 className="text-lg font-bold text-destructive mb-2">Something went wrong</h2>
+          <p className="text-sm text-destructive/90 mb-3">{this.state.error?.message}</p>
+          <pre className="text-xs bg-destructive/5 p-3 rounded overflow-auto max-h-60 text-destructive/80">
             {this.state.error?.stack}
           </pre>
         </div>
@@ -116,8 +120,7 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
   const routerLocation = useLocation();
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
+
 
   // State for dialogs and UI
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
@@ -311,10 +314,10 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
 
   // If there is an active assignment, fetch the assigned bike details for display
   const { data: assignedEmergencyBike } = useQuery<Vehicle | null>({
-    queryKey: ['vehicle', activeEmergencyAssignment?.emergency_bike_id],
-    enabled: !!activeEmergencyAssignment?.emergency_bike_id,
+    queryKey: ['vehicle', activeEmergencyAssignment?.emergency_bike_asset_id],
+    enabled: !!activeEmergencyAssignment?.emergency_bike_asset_id,
     queryFn: async () => {
-      const id = activeEmergencyAssignment?.emergency_bike_id;
+      const id = activeEmergencyAssignment?.emergency_bike_asset_id;
       if (!id) return null;
       const { data, error } = await supabase.from('vehicles').select('*').eq('id', id).single();
       if (error) throw new Error(error.message);
@@ -609,7 +612,7 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
       const now = new Date().toISOString();
       const updates: Partial<WorkOrder> = {
         confirmation_call_completed: outcome === 'confirmed' || outcome === 'cancelled',
-        confirmation_call_notes: notes,
+        confirmation_call_notes: `${outcome.charAt(0).toUpperCase() + outcome.slice(1)}: ${notes}`,
         confirmation_call_by: session?.user.id || null,
         confirmation_call_at: now
       };
@@ -626,7 +629,7 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
       } else if (outcome === 'unreachable') {
         // Keep status as 'Open' and mark for retry
         updates.confirmation_call_completed = false;
-        updates.last_call_attempt_at = now;
+        // updates.last_call_attempt_at = now; // Column does not exist
       }
 
       handleUpdateWorkOrder(updates);
@@ -702,11 +705,17 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
   };
 
   const handleAddPart = (itemId: string, quantity: number) => {
-    addPartMutation.mutate({ itemId, quantity });
+    if (!workOrder?.id) return;
+    addPartMutation.mutate({
+      work_order_id: workOrder.id,
+      inventory_item_id: itemId,
+      quantity
+    });
   };
 
   const handleRemovePart = (partId: string) => {
-    removePartMutation.mutate(partId);
+    if (!workOrder?.id) return;
+    removePartMutation.mutate({ partId, workOrderId: workOrder.id });
   };
 
   // Helper functions
@@ -731,19 +740,19 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
 
   if (isLoading) {
     return (
-      <div style={{ padding: '24px' }}>
-        <Skeleton height={8} radius="xl" />
-        <Skeleton height={8} mt={6} radius="xl" />
-        <Skeleton height={8} mt={6} width="70%" radius="xl" />
-        <Skeleton height={8} mt={6} radius="xl" />
-        <Skeleton height={8} mt={6} radius="xl" />
+      <div className="p-4 space-y-3">
+        <Skeleton height={6} radius="md" />
+        <Skeleton height={6} radius="md" />
+        <Skeleton height={6} width="70%" radius="md" />
+        <Skeleton height={6} radius="md" />
+        <Skeleton height={6} radius="md" />
       </div>
     );
   }
 
   if (!workOrder) {
     return isDrawerMode ? (
-      <div style={{ padding: 24 }}>
+      <div className="p-4">
         <NotFound />
       </div>
     ) : (
@@ -773,22 +782,22 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
       const hours = Math.floor(elapsedSec / 3600);
       const minutes = Math.floor((elapsedSec % 3600) / 60);
       return (
-        <div className="flex items-center justify-between gap-2 px-3 py-1.5 bg-orange-50 border-y border-orange-200">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-3 px-4 py-3 bg-orange-50 border-y border-orange-200">
+          <div className="flex items-center gap-2.5">
             <HugeiconsIcon icon={Clock01Icon} size={16} className="text-orange-600 flex-shrink-0" />
             <div>
-              <p className="text-xs font-medium text-orange-900">
+              <p className="text-xs font-semibold text-orange-900">
                 Repair in progress for {hours}h {minutes}m
               </p>
-              <p className="text-[10px] text-orange-700">
+              <p className="text-xs text-orange-700">
                 Customer is eligible for an emergency bike
               </p>
             </div>
             <button
               onClick={() => setIsAssignEmergencyOpen(true)}
-              className="flex-shrink-0 inline-flex items-center gap-1 px-2 py-1 text-[10px] font-medium text-white bg-orange-600 hover:bg-orange-700 rounded transition-colors ml-2"
+              className="flex-shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-orange-600 hover:bg-orange-700 rounded transition-colors ml-auto shadow-sm"
             >
-              <HugeiconsIcon icon={Motorbike01Icon} size={12} className="text-white" />
+              <HugeiconsIcon icon={Motorbike01Icon} size={14} className="text-white" />
               Assign Bike
             </button>
           </div>
@@ -796,24 +805,33 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
       );
     }
     if (hasActiveEmergencyAssignment) {
-      const assignedAt = activeEmergencyAssignment?.assigned_at ? new Date(activeEmergencyAssignment.assigned_at).toLocaleString() : 'N/A';
-      const bikeLabel = assignedEmergencyBike ? `${assignedEmergencyBike.license_plate} • ${assignedEmergencyBike.make} ${assignedEmergencyBike.model}` : 'Emergency Bike';
+      const assignedAt = activeEmergencyAssignment?.assigned_at
+        ? new Date(activeEmergencyAssignment.assigned_at).toLocaleString([], {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+        : 'N/A';
+      const licensePlate = assignedEmergencyBike?.licensePlate || assignedEmergencyBike?.license_plate || 'N/A';
+      const bikeDetails = assignedEmergencyBike ? `${assignedEmergencyBike.make} ${assignedEmergencyBike.model}` : 'Emergency Bike';
       return (
-        <div className="flex items-center justify-between gap-2 px-3 py-1.5 bg-blue-50 border-y border-blue-200">
-          <div className="flex items-center gap-2 flex-1 min-w-0">
+        <div className="flex items-center justify-between gap-3 px-4 py-3 bg-blue-50 border-y border-blue-200">
+          <div className="flex items-center gap-2.5 flex-1 min-w-0">
             <HugeiconsIcon icon={Motorbike01Icon} size={16} className="text-blue-600 flex-shrink-0" />
             <div className="flex-1 min-w-0">
-              <p className="text-xs font-medium text-blue-900">
-                Emergency bike assigned
+              <p className="text-xs font-semibold text-blue-900">
+                Emergency bike assigned: {licensePlate}
               </p>
-              <p className="text-[10px] text-blue-700">
-                {bikeLabel} • Assigned {new Date(activeEmergencyAssignment?.assigned_at || '').toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              <p className="text-xs text-blue-700">
+                {bikeDetails} • Assigned {assignedAt}
               </p>
             </div>
           </div>
           <div className="flex-shrink-0">
-            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-medium text-blue-700 bg-blue-100 rounded">
-              <HugeiconsIcon icon={Tick01Icon} size={12} className="text-blue-700" />
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded">
+              <HugeiconsIcon icon={Tick01Icon} size={14} className="text-blue-700" />
               Active
             </span>
           </div>
@@ -826,530 +844,461 @@ const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrd
   const backButton = (
     <button
       onClick={() => !isDrawerMode && navigate('/work-orders')}
-      className="p-1.5 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-50 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-200"
+      className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
       aria-label="Go back to Work Orders"
     >
-      <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
+      <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
     </button>
   );
 
   // Main Render
   return (
     <DebugErrorBoundary>
-      {!isDrawerMode && (
-        <AppBreadcrumb
-          backButton={backButton}
-          customBreadcrumbs={[
-            { label: 'Home', path: '/', icon: Home01Icon },
-            { label: 'Work Orders', path: '/work-orders', icon: ClipboardIcon },
-            { label: workOrder?.workOrderNumber || workOrder?.id || 'Loading...', path: `/work-orders/${id}`, isClickable: false }
-          ]}
-        />
-      )}
+      <div className="flex flex-col h-[calc(100vh-1rem)] lg:h-screen bg-background">
+        {!isDrawerMode && (
+          <div className="w-full px-4 pt-2 flex-none">
+            <AppBreadcrumb
+              backButton={backButton}
+              customBreadcrumbs={[
+                { label: 'Home', path: '/', icon: Home01Icon },
+                { label: 'Work Orders', path: '/work-orders', icon: ClipboardIcon },
+                { label: workOrder?.workOrderNumber || workOrder?.id || 'Loading...', path: `/work-orders/${id}`, isClickable: false }
+              ]}
+            />
+          </div>
+        )}
 
-      {/* Layout with Sidebar for Desktop */}
-      {!isDrawerMode ? (
-        <div className="flex h-[calc(100vh-120px)]">
-          {/* Sidebar */}
-          <WorkOrderSidebar
-            currentWorkOrderId={id || ''}
-            onSelectWorkOrder={(workOrderId) => navigate(`/work-orders/${workOrderId}`)}
-            className="w-80 flex-shrink-0"
-          />
+        {/* Layout with Sidebar for Desktop */}
+        {!isDrawerMode ? (
+          <div className="flex flex-1 w-full bg-white overflow-hidden min-h-0">
+            {/* Sidebar */}
+            <WorkOrderSidebar
+              currentWorkOrderId={id || ''}
+              onSelectWorkOrder={(workOrderId) => navigate(`/work-orders/${workOrderId}`)}
+              className="w-80 flex-shrink-0 border-r border-border"
+            />
 
-          {/* Main Content */}
-          <div className="flex-1 overflow-y-auto">
-            <div className="w-full">
-              {/* Info Strip - Above Stepper - Industrial Style */}
-              <div className="industrial-info-strip">
-                <div className="flex items-stretch w-full">
-                  {/* LICENSE PLATE - Primary identifier with accent */}
-                  <div className="flex-1 min-w-0 px-4 py-2.5 border-l-[3px] border-purple-600 bg-white hover:bg-slate-50/50 transition-colors">
-                    <div className="industrial-info-label">Plate</div>
-                    <div className="font-industrial-id text-sm text-purple-700">
-                      {vehicle?.license_plate || vehicle?.licensePlate || '—'}
-                    </div>
-                  </div>
+            {/* Main Content */}
+            <div className="flex-1 overflow-y-auto bg-gray-50 no-scrollbar">
+              <div className="w-full h-full px-6 pt-6">
+                {/* Info Strip - Using shared component */}
+                <WorkOrderOverviewCards
+                  workOrder={workOrder}
+                  customer={customer}
+                  vehicle={vehicle}
+                  technician={technician}
+                  location={location}
+                />
 
-                  {/* MODEL */}
-                  <div className="flex-1 min-w-0 px-4 py-2.5 border-r border-slate-200 hover:bg-slate-50/50 transition-colors">
-                    <div className="industrial-info-label">Model</div>
-                    <div className="text-sm font-semibold text-slate-700">
-                      {vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || '—' : '—'}
-                    </div>
-                  </div>
+                <WorkOrderStepper
+                  workOrder={workOrder}
+                  profileMap={profileMap}
+                  onConfirmationClick={() => setIsConfirmationCallDialogOpen(true)}
+                  onCompletionClick={() => setIsMaintenanceCompletionDrawerOpen(true)}
+                  onReadyClick={() => setIsAssignModalOpen(true)}
+                  onInProgressClick={() => setIsMaintenanceCompletionDrawerOpen(true)}
+                />
+                <div>
+                  {/* Emergency Bike Banner */}
+                  {renderEmergencyBanner()}
 
-                  {/* AGE */}
-                  <div className="flex-1 min-w-0 px-4 py-2.5 border-r border-slate-200 hover:bg-slate-50/50 transition-colors">
-                    <div className="industrial-info-label">Age</div>
-                    <div className="font-industrial-data text-sm text-slate-700">
-                      {vehicle?.year ? (() => {
-                        const purchaseDate = dayjs(`${vehicle.year}-01-01`);
-                        const today = dayjs();
-                        const years = today.diff(purchaseDate, 'year');
-                        const months = today.diff(purchaseDate, 'month') % 12;
-                        const days = today.diff(purchaseDate, 'day');
-                        if (years >= 1) return `${years} yr${years > 1 ? 's' : ''}`;
-                        else if (months >= 1) return `${months} mo`;
-                        else return `${days} d`;
-                      })() : '—'}
-                    </div>
-                  </div>
+                  {/* Tabs - No card wrapper */}
+                  <div className="bg-card">
+                    <Tabs value={activeTabKey} onValueChange={setActiveTabKey}>
+                      <Tabs.List className="border-b border-border px-3">
+                        <Tabs.Tab value="details" leftSection={<HugeiconsIcon icon={InformationCircleIcon} size={13} />}>
+                          <span className="text-xs">Details</span>
+                        </Tabs.Tab>
+                        <Tabs.Tab value="notes" leftSection={<HugeiconsIcon icon={MessageIcon} size={13} />}>
+                          <span className="text-xs">Notes</span>
+                        </Tabs.Tab>
 
-                  {/* WARRANTY */}
-                  <div className="flex-1 min-w-0 px-4 py-2.5 border-r border-slate-200 hover:bg-slate-50/50 transition-colors">
-                    <div className="industrial-info-label">Warranty</div>
-                    <div className="font-industrial-data text-sm text-slate-700">
-                      {(() => {
-                        if (!vehicle?.warranty_end_date) return '—';
-                        const warrantyEnd = dayjs(vehicle.warranty_end_date);
-                        const today = dayjs();
-                        if (warrantyEnd.isBefore(today)) return <span className="text-red-600 font-semibold">Expired</span>;
-                        const daysRemaining = warrantyEnd.diff(today, 'day');
-                        if (daysRemaining <= 30) return <span className="text-amber-600 font-semibold">{daysRemaining}d left</span>;
-                        const monthsRemaining = warrantyEnd.diff(today, 'month');
-                        return `${monthsRemaining}mo left`;
-                      })()}
-                    </div>
-                  </div>
+                        <Tabs.Tab value="parts" leftSection={<HugeiconsIcon icon={PackageIcon} size={13} />}>
+                          <span className="text-xs">Parts</span>
+                        </Tabs.Tab>
+                        <Tabs.Tab value="location" leftSection={<HugeiconsIcon icon={MapsIcon} size={13} />}>
+                          <span className="text-xs">Location</span>
+                        </Tabs.Tab>
+                        <Tabs.Tab value="timeline" leftSection={<HugeiconsIcon icon={Clock01Icon} size={13} />}>
+                          <span className="text-xs">Timeline</span>
+                        </Tabs.Tab>
+                      </Tabs.List>
 
-                  {/* MILEAGE */}
-                  <div className="flex-1 min-w-0 px-4 py-2.5 border-r border-slate-200 hover:bg-slate-50/50 transition-colors">
-                    <div className="industrial-info-label">Mileage</div>
-                    <div className="font-industrial-data text-sm text-slate-700">
-                      {vehicle?.mileage ? `${vehicle.mileage.toLocaleString()} km` : '—'}
-                    </div>
-                  </div>
+                      <div className="p-2">
+                        <Tabs.Panel value="details">
+                          <div className="space-y-2">
+                            <WorkOrderDetailsInfoCard
+                              workOrder={workOrder}
+                              customer={customer || null}
+                              vehicle={vehicle || null}
+                              technician={technician || null}
+                              allTechnicians={allTechnicians || []}
+                              allLocations={allLocations || []}
+                              serviceCategories={serviceCategories || []}
+                              handleUpdateWorkOrder={handleUpdateWorkOrder}
+                            />
+                            <WorkOrderRelatedHistoryCard
+                              workOrder={workOrder}
+                              vehicle={vehicle || null}
+                              onViewWorkOrder={(id) => navigate(`/work-orders/${id}`)}
+                            />
+                          </div>
+                        </Tabs.Panel>
 
-                  {/* Divider - Industrial style */}
-                  <div className="flex items-center justify-center px-1">
-                    <div className="industrial-divider h-8" style={{ width: '2px', background: 'linear-gradient(to bottom, transparent, #cbd5e1, transparent)' }} />
-                  </div>
+                        <Tabs.Panel value="notes">
+                          <WorkOrderNotesCard
+                            workOrder={workOrder}
+                            profileMap={profileMap}
+                          />
+                        </Tabs.Panel>
 
-                  {/* CUSTOMER - emphasized */}
-                  <div className="flex-[1.5] min-w-0 px-4 py-2.5 bg-white border-r border-slate-200 hover:bg-slate-50/50 transition-colors">
-                    <div className="industrial-info-label">Customer</div>
-                    <div className="text-sm font-bold text-slate-900 truncate">
-                      {customer?.name || workOrder.customerName || '—'}
-                    </div>
-                  </div>
 
-                  {/* PHONE */}
-                  <div className="flex-1 min-w-0 px-4 py-2.5 bg-white hover:bg-slate-50/50 transition-colors">
-                    <div className="industrial-info-label">Phone</div>
-                    <div className="font-industrial-data text-sm text-slate-700">
-                      {customer?.phone || workOrder.customerPhone || '—'}
-                    </div>
+
+                        <Tabs.Panel value="parts">
+                          <WorkOrderCostSummaryCard
+                            workOrder={workOrder}
+                            usedParts={usedParts || []}
+                            isAddPartDialogOpen={isAddPartDialogOpen}
+                            setIsAddPartDialogOpen={setIsAddPartDialogOpen}
+                            handleAddPart={handleAddPart}
+                            handleRemovePart={handleRemovePart}
+                          />
+                        </Tabs.Panel>
+
+                        <Tabs.Panel value="location">
+                          <div className="space-y-2">
+                            <WorkOrderLocationMapCard
+                              workOrder={workOrder}
+                              location={location || null}
+                              allLocations={allLocations || []}
+                              handleUpdateWorkOrder={handleUpdateWorkOrder}
+                              handleLocationSelect={handleLocationSelect}
+                              showInteractiveMap={showInteractiveMap}
+                              setShowInteractiveMap={setShowInteractiveMap}
+                            />
+
+                          </div>
+                        </Tabs.Panel>
+
+                        <Tabs.Panel value="timeline">
+                          <WorkOrderActivityLogCard
+                            workOrder={workOrder}
+                            profileMap={profileMap}
+                          />
+                        </Tabs.Panel>
+                      </div>
+                    </Tabs>
                   </div>
                 </div>
               </div>
-
+            </div>
+          </div>
+        ) : (
+          // Drawer Mode (unchanged)
+          <Stack gap="sm">
+            <Box
+              className="progress-tracker-sticky"
+              style={(theme) => ({
+                backgroundColor: 'rgba(248, 250, 252, 0.85)',
+                backdropFilter: 'blur(12px) saturate(180%)',
+                borderBottom: `1px solid ${theme.colors.gray[2]}`,
+                padding: theme.spacing.xs,
+                position: 'sticky',
+                top: 0,
+                zIndex: 100,
+              })}
+            >
               <WorkOrderStepper
                 workOrder={workOrder}
+                compact
                 profileMap={profileMap}
                 onConfirmationClick={() => setIsConfirmationCallDialogOpen(true)}
                 onCompletionClick={() => setIsMaintenanceCompletionDrawerOpen(true)}
                 onReadyClick={() => setIsAssignModalOpen(true)}
                 onInProgressClick={() => setIsMaintenanceCompletionDrawerOpen(true)}
               />
-              <div>
-                {/* Emergency Bike Banner */}
-                {renderEmergencyBanner()}
-
-                {/* Tabs - No card wrapper */}
-                <div className="bg-white">
-                  <Tabs value={activeTabKey} onValueChange={setActiveTabKey}>
-                    <Tabs.List className="border-b border-gray-200 px-3">
-                      <Tabs.Tab value="details" leftSection={<HugeiconsIcon icon={InformationCircleIcon} size={12} />}>
-                        <span className="text-[11px]">Details</span>
-                      </Tabs.Tab>
-                      <Tabs.Tab value="notes" leftSection={<HugeiconsIcon icon={MessageIcon} size={12} />}>
-                        <span className="text-[11px]">Notes</span>
-                      </Tabs.Tab>
-
-                      <Tabs.Tab value="parts" leftSection={<HugeiconsIcon icon={PackageIcon} size={12} />}>
-                        <span className="text-[11px]">Parts</span>
-                      </Tabs.Tab>
-                      <Tabs.Tab value="location" leftSection={<HugeiconsIcon icon={MapsIcon} size={12} />}>
-                        <span className="text-[11px]">Location</span>
-                      </Tabs.Tab>
-                      <Tabs.Tab value="timeline" leftSection={<HugeiconsIcon icon={Clock01Icon} size={12} />}>
-                        <span className="text-[11px]">Timeline</span>
-                      </Tabs.Tab>
-                    </Tabs.List>
-
-                    <div className="p-2">
-                      <Tabs.Panel value="details">
-                        <div className="space-y-2">
-                          <WorkOrderDetailsInfoCard
-                            workOrder={workOrder}
-                            customer={customer || null}
-                            vehicle={vehicle || null}
-                            technician={technician || null}
-                            allTechnicians={allTechnicians || []}
-                            allLocations={allLocations || []}
-                            serviceCategories={serviceCategories || []}
-                            handleUpdateWorkOrder={handleUpdateWorkOrder}
-                          />
-                          <WorkOrderRelatedHistoryCard
-                            workOrder={workOrder}
-                            vehicle={vehicle || null}
-                            onViewWorkOrder={(id) => navigate(`/work-orders/${id}`)}
-                          />
-                        </div>
-                      </Tabs.Panel>
-
-                      <Tabs.Panel value="notes">
-                        <WorkOrderNotesCard
-                          workOrder={workOrder}
-                          profileMap={profileMap}
-                        />
-                      </Tabs.Panel>
-
-
-
-                      <Tabs.Panel value="parts">
-                        <WorkOrderCostSummaryCard
-                          workOrder={workOrder}
-                          usedParts={usedParts || []}
-                          isAddPartDialogOpen={isAddPartDialogOpen}
-                          setIsAddPartDialogOpen={setIsAddPartDialogOpen}
-                          handleAddPart={handleAddPart}
-                          handleRemovePart={handleRemovePart}
-                        />
-                      </Tabs.Panel>
-
-                      <Tabs.Panel value="location">
-                        <div className="space-y-2">
-                          <WorkOrderLocationMapCard
-                            workOrder={workOrder}
-                            location={location || null}
-                            allLocations={allLocations || []}
-                            handleUpdateWorkOrder={handleUpdateWorkOrder}
-                            handleLocationSelect={handleLocationSelect}
-                            showInteractiveMap={showInteractiveMap}
-                            setShowInteractiveMap={setShowInteractiveMap}
-                          />
-                          <WorkOrderCustomerVehicleCard
-                            workOrder={workOrder}
-                            customer={customer || null}
-                            vehicle={vehicle || null}
-                          />
-                        </div>
-                      </Tabs.Panel>
-
-                      <Tabs.Panel value="timeline">
-                        <WorkOrderActivityLogCard
-                          workOrder={workOrder}
-                          profileMap={profileMap}
-                        />
-                      </Tabs.Panel>
-                    </div>
-                  </Tabs>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        // Drawer Mode (unchanged)
-        <Stack gap="sm">
-          <Box
-            className="progress-tracker-sticky"
-            style={(theme) => ({
-              backgroundColor: 'rgba(248, 250, 252, 0.85)',
-              backdropFilter: 'blur(12px) saturate(180%)',
-              borderBottom: `1px solid ${theme.colors.gray[2]}`,
-              padding: theme.spacing.xs,
-              position: 'sticky',
-              top: 0,
-              zIndex: 100,
-            })}
-          >
-            <WorkOrderStepper
-              workOrder={workOrder}
-              compact
-              profileMap={profileMap}
-              onConfirmationClick={() => setIsConfirmationCallDialogOpen(true)}
-              onCompletionClick={() => setIsMaintenanceCompletionDrawerOpen(true)}
-              onReadyClick={() => setIsAssignModalOpen(true)}
-              onInProgressClick={() => setIsMaintenanceCompletionDrawerOpen(true)}
-            />
-          </Box>
-          <Box
-            className="sticky-header-secondary"
-            style={(theme) => ({
-              backgroundColor: 'rgba(255, 255, 255, 0.85)',
-              backdropFilter: 'blur(12px) saturate(180%)',
-              borderBottom: `1px solid ${theme.colors.gray[2]}`,
-              position: 'sticky',
-              top: 'var(--progress-tracker-height, 80px)',
-              zIndex: 99,
-            })}
-          >
-            <Tabs
-              defaultValue="1"
-              keepMounted={false}
-              onChange={setActiveTabKey}
-              variant="default"
-              styles={(theme) => ({
-                root: {
-                  padding: `0 ${theme.spacing.xs}`,
-                },
-                list: {
-                  backgroundColor: 'transparent',
-                  borderBottom: `1px solid ${theme.colors.gray[3]}`,
-                  padding: 0,
-                  flexWrap: 'wrap',
-                },
-                tab: {
-                  borderRadius: 0,
-                  fontWeight: 500,
-                  fontSize: '12px',
-                  padding: `8px 12px`,
-                  transition: 'all 0.2s ease',
-                  minHeight: '36px',
-                  color: theme.colors.gray[6],
-                  backgroundColor: 'transparent',
-                  border: 'none',
-                  borderBottom: '2px solid transparent',
-                  marginBottom: '-1px',
-
-                  '&:hover': {
-                    backgroundColor: theme.colors.gray[0],
-                    color: theme.colors.gray[8],
-                  },
-
-                  '&[data-active]': {
-                    backgroundColor: 'transparent',
-                    color: theme.colors.blue[6],
-                    borderBottom: `2px solid ${theme.colors.blue[6]}`,
-
-                    '&:hover': {
-                      backgroundColor: theme.colors.blue[0],
-                      color: theme.colors.blue[7],
-                    },
-
-                    '& .mantine-Tabs-tabIcon': {
-                      color: theme.colors.blue[6],
-                    },
-
-                    '& .mantine-Tabs-tabLabel': {
-                      color: theme.colors.blue[6],
-                    },
-                  },
-                },
+            </Box>
+            <Box
+              className="sticky-header-secondary"
+              style={(theme) => ({
+                backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                backdropFilter: 'blur(12px) saturate(180%)',
+                borderBottom: `1px solid ${theme.colors.gray[2]}`,
+                position: 'sticky',
+                top: 'var(--progress-tracker-height, 80px)',
+                zIndex: 99,
               })}
             >
-              <Tabs.List>
-                <Tabs.Tab value="1" leftSection={<HugeiconsIcon icon={InformationCircleIcon} size={14} />}>
-                  Overview
-                </Tabs.Tab>
-                <Tabs.Tab value="2" leftSection={<HugeiconsIcon icon={PackageIcon} size={14} />}>
-                  Parts & Activity
-                </Tabs.Tab>
-                <Tabs.Tab value="3" leftSection={<HugeiconsIcon icon={MapsIcon} size={14} />}>
-                  Location
-                </Tabs.Tab>
-                <Tabs.Tab value="4" leftSection={<HugeiconsIcon icon={Clock01Icon} size={14} />}>
-                  Time Tracking
-                </Tabs.Tab>
-                <Tabs.Tab value="5" leftSection={<HugeiconsIcon icon={ArrowLeft01Icon} size={14} />}>
-                  Workflow
-                </Tabs.Tab>
-                <Tabs.Tab value="6" leftSection={<HugeiconsIcon icon={TagIcon} size={14} />}>
-                  Cost Management
-                </Tabs.Tab>
-              </Tabs.List>
-              <Tabs.Panel value="1" pt="xs">
-                <Box px="xs" pb="xs">
-                  <Stack gap="xs">
-                    <WorkOrderServiceLifecycleCard
-                      workOrder={workOrder}
-                      handleUpdateWorkOrder={handleUpdateWorkOrder}
-                      usedPartsCount={usedPartsCount}
-                      emergencyBike={assignedEmergencyBike || null}
-                      emergencyAssignment={activeEmergencyAssignment || null}
-                    />
-                    <WorkflowStatus workOrderId={workOrder.id} compact />
-                    <WorkOrderDetailsInfoCard
-                      workOrder={workOrder}
-                      customer={customer || null}
-                      vehicle={vehicle || null}
-                      technician={technician || null}
-                      allTechnicians={allTechnicians || []}
-                      allLocations={allLocations || []}
-                      serviceCategories={serviceCategories || []}
-                      handleUpdateWorkOrder={handleUpdateWorkOrder}
-                    />
-                    {workOrder.appointmentDate && (
-                      <WorkOrderAppointmentCard
+              <Tabs
+                defaultValue="1"
+                keepMounted={false}
+                onChange={setActiveTabKey}
+                variant="default"
+                styles={(theme) => ({
+                  root: {
+                    padding: `0 ${theme.spacing.xs}`,
+                  },
+                  list: {
+                    backgroundColor: 'transparent',
+                    borderBottom: `1px solid ${theme.colors.gray[3]}`,
+                    padding: 0,
+                    flexWrap: 'wrap',
+                  },
+                  tab: {
+                    borderRadius: 0,
+                    fontWeight: 500,
+                    fontSize: '12px',
+                    padding: `8px 12px`,
+                    transition: 'all 0.2s ease',
+                    minHeight: '36px',
+                    color: theme.colors.gray[6],
+                    backgroundColor: 'transparent',
+                    border: 'none',
+                    borderBottom: '2px solid transparent',
+                    marginBottom: '-1px',
+
+                    '&:hover': {
+                      backgroundColor: theme.colors.gray[0],
+                      color: theme.colors.gray[8],
+                    },
+
+                    '&[data-active]': {
+                      backgroundColor: 'transparent',
+                      color: theme.colors.blue[6],
+                      borderBottom: `2px solid ${theme.colors.blue[6]}`,
+
+                      '&:hover': {
+                        backgroundColor: theme.colors.blue[0],
+                        color: theme.colors.blue[7],
+                      },
+
+                      '& .mantine-Tabs-tabIcon': {
+                        color: theme.colors.blue[6],
+                      },
+
+                      '& .mantine-Tabs-tabLabel': {
+                        color: theme.colors.blue[6],
+                      },
+                    },
+                  },
+                })}
+              >
+                <Tabs.List>
+                  <Tabs.Tab value="1" leftSection={<HugeiconsIcon icon={InformationCircleIcon} size={14} />}>
+                    Overview
+                  </Tabs.Tab>
+                  <Tabs.Tab value="2" leftSection={<HugeiconsIcon icon={PackageIcon} size={14} />}>
+                    Parts & Activity
+                  </Tabs.Tab>
+                  <Tabs.Tab value="3" leftSection={<HugeiconsIcon icon={MapsIcon} size={14} />}>
+                    Location
+                  </Tabs.Tab>
+                  <Tabs.Tab value="4" leftSection={<HugeiconsIcon icon={Clock01Icon} size={14} />}>
+                    Time Tracking
+                  </Tabs.Tab>
+                  <Tabs.Tab value="5" leftSection={<HugeiconsIcon icon={ArrowLeft01Icon} size={14} />}>
+                    Workflow
+                  </Tabs.Tab>
+                  <Tabs.Tab value="6" leftSection={<HugeiconsIcon icon={TagIcon} size={14} />}>
+                    Cost Management
+                  </Tabs.Tab>
+                </Tabs.List>
+                <Tabs.Panel value="1" pt="xs">
+                  <Box px="xs" pb="xs">
+                    <Stack gap="xs">
+                      <WorkOrderServiceLifecycleCard
                         workOrder={workOrder}
-                        technician={technician || null}
-                        location={location || null}
+                        handleUpdateWorkOrder={handleUpdateWorkOrder}
+                        usedPartsCount={usedPartsCount}
+                        emergencyBike={assignedEmergencyBike || null}
+                        emergencyAssignment={activeEmergencyAssignment || null}
                       />
-                    )}
-                    <WorkOrderCustomerVehicleCard workOrder={workOrder} customer={customer || null} vehicle={vehicle || null} />
-                  </Stack>
-                </Box>
-              </Tabs.Panel>
-              <Tabs.Panel value="2" pt="xs">
-                <Box px="xs" pb="xs">
-                  <Stack gap="xs">
-                    <WorkOrderPartsUsedCard
-                      usedParts={usedParts || []}
-                      isAddPartDialogOpen={isAddPartDialogOpen}
-                      setIsAddPartDialogOpen={setIsAddPartDialogOpen}
-                      handleAddPart={handleAddPart}
-                      handleRemovePart={handleRemovePart}
-                    />
-                    <WorkOrderActivityLogCard workOrder={workOrder} profileMap={profileMap} />
-                  </Stack>
-                </Box>
-              </Tabs.Panel>
-              <Tabs.Panel value="3" pt="xs">
-                <Box px="xs" pb="xs">
-                  <Stack gap="xs">
-                    <WorkOrderLocationMapCard
-                      workOrder={workOrder}
-                      location={location || null}
-                      allLocations={allLocations || []}
-                      handleUpdateWorkOrder={handleUpdateWorkOrder}
-                      handleLocationSelect={handleLocationSelect}
-                      showInteractiveMap={showInteractiveMap}
-                      setShowInteractiveMap={setShowInteractiveMap}
-                    />
-                  </Stack>
-                </Box>
-              </Tabs.Panel>
-              <Tabs.Panel value="4" pt="xs">
-                <Box px="xs" pb="xs">
-                  <Stack gap="xs">
-                    <TimeTracker workOrderId={workOrder.id} />
-                  </Stack>
-                </Box>
-              </Tabs.Panel>
-              <Tabs.Panel value="5" pt="xs">
-                <Box px="xs" pb="xs">
-                  <Stack gap="xs">
-                    <WorkflowStatus workOrderId={workOrder.id} />
-                  </Stack>
-                </Box>
-              </Tabs.Panel>
-              <Tabs.Panel value="6" pt="xs">
-                <Box px="xs" pb="xs">
-                  <Stack gap="xs">
-                    <CostTracker workOrderId={workOrder.id} />
-                  </Stack>
-                </Box>
-              </Tabs.Panel>
-            </Tabs>
-          </Box>
-        </Stack>
-      )}
+                      <WorkflowStatus workOrderId={workOrder.id} compact />
+                      <WorkOrderDetailsInfoCard
+                        workOrder={workOrder}
+                        customer={customer || null}
+                        vehicle={vehicle || null}
+                        technician={technician || null}
+                        allTechnicians={allTechnicians || []}
+                        allLocations={allLocations || []}
+                        serviceCategories={serviceCategories || []}
+                        handleUpdateWorkOrder={handleUpdateWorkOrder}
+                      />
+                      {workOrder.appointmentDate && (
+                        <WorkOrderAppointmentCard
+                          workOrder={workOrder}
+                          technician={technician || null}
+                          location={location || null}
+                        />
+                      )}
+                      <WorkOrderCustomerVehicleCard workOrder={workOrder} customer={customer || null} vehicle={vehicle || null} />
+                    </Stack>
+                  </Box>
+                </Tabs.Panel>
+                <Tabs.Panel value="2" pt="xs">
+                  <Box px="xs" pb="xs">
+                    <Stack gap="xs">
+                      <WorkOrderPartsUsedCard
+                        usedParts={usedParts || []}
+                        isAddPartDialogOpen={isAddPartDialogOpen}
+                        setIsAddPartDialogOpen={setIsAddPartDialogOpen}
+                        handleAddPart={handleAddPart}
+                        handleRemovePart={handleRemovePart}
+                      />
+                      <WorkOrderActivityLogCard workOrder={workOrder} profileMap={profileMap} />
+                    </Stack>
+                  </Box>
+                </Tabs.Panel>
+                <Tabs.Panel value="3" pt="xs">
+                  <Box px="xs" pb="xs">
+                    <Stack gap="xs">
+                      <WorkOrderLocationMapCard
+                        workOrder={workOrder}
+                        location={location || null}
+                        allLocations={allLocations || []}
+                        handleUpdateWorkOrder={handleUpdateWorkOrder}
+                        handleLocationSelect={handleLocationSelect}
+                        showInteractiveMap={showInteractiveMap}
+                        setShowInteractiveMap={setShowInteractiveMap}
+                      />
+                    </Stack>
+                  </Box>
+                </Tabs.Panel>
+                <Tabs.Panel value="4" pt="xs">
+                  <Box px="xs" pb="xs">
+                    <Stack gap="xs">
+                      <TimeTracker workOrderId={workOrder.id} />
+                    </Stack>
+                  </Box>
+                </Tabs.Panel>
+                <Tabs.Panel value="5" pt="xs">
+                  <Box px="xs" pb="xs">
+                    <Stack gap="xs">
+                      <WorkflowStatus workOrderId={workOrder.id} />
+                    </Stack>
+                  </Box>
+                </Tabs.Panel>
+                <Tabs.Panel value="6" pt="xs">
+                  <Box px="xs" pb="xs">
+                    <Stack gap="xs">
+                      <CostTracker workOrderId={workOrder.id} />
+                    </Stack>
+                  </Box>
+                </Tabs.Panel>
+              </Tabs>
+            </Box>
+          </Stack>
+        )}
 
-      {/* Dialogs and Drawers */}
-      {onHoldWorkOrder && (
-        <OnHoldReasonDialog
-          isOpen={!!onHoldWorkOrder}
-          onClose={() => { setOnHoldWorkOrder(null); setOptimisticWorkOrder(null); }}
-          onSave={handleSaveOnHoldReason}
-          isSaving={workOrderMutation.isPending}
+        {/* Dialogs and Drawers */}
+        {onHoldWorkOrder && (
+          <OnHoldReasonDialog
+            isOpen={!!onHoldWorkOrder}
+            onClose={() => { setOnHoldWorkOrder(null); setOptimisticWorkOrder(null); }}
+            onSave={handleSaveOnHoldReason}
+            isSaving={workOrderMutation.isPending}
+          />
+        )}
+        <ConfirmationCallDialog
+          isOpen={isConfirmationCallDialogOpen}
+          onClose={() => setIsConfirmationCallDialogOpen(false)}
+          onConfirm={handleConfirmationCall}
+          workOrderNumber={workOrder?.workOrderNumber || workOrder?.id || ''}
+          customerName={customer?.name || workOrder?.customerName}
+          isSubmitting={workOrderMutation.isPending}
         />
-      )}
-      <ConfirmationCallDialog
-        isOpen={isConfirmationCallDialogOpen}
-        onClose={() => setIsConfirmationCallDialogOpen(false)}
-        onConfirm={handleConfirmationCall}
-        workOrderNumber={workOrder?.workOrderNumber || workOrder?.id || ''}
-        customerName={customer?.name || workOrder?.customerName}
-        isSubmitting={workOrderMutation.isPending}
-      />
-      {isIssueConfirmationDialogOpen && (
-        <IssueConfirmationDialog
-          isOpen={isIssueConfirmationDialogOpen}
-          onClose={() => { setIsIssueConfirmationDialogOpen(false); setOptimisticWorkOrder(null); }}
-          onSave={handleSaveIssueConfirmation}
-          initialIssueType={workOrder.issueType}
-          initialNotes={workOrder.serviceNotes}
-          isSaving={workOrderMutation.isPending}
-        />
-      )}
-      {isMaintenanceCompletionDrawerOpen && (
-        <MaintenanceCompletionDrawer
-          isOpen={isMaintenanceCompletionDrawerOpen}
-          onClose={() => { setIsMaintenanceCompletionDrawerOpen(false); setOptimisticWorkOrder(null); }}
-          onSave={handleSaveMaintenanceCompletion}
-          usedParts={usedParts || []}
-          onAddPart={handleAddPart}
-          onRemovePart={handleRemovePart}
-          onAddPartClick={() => setIsAddPartDialogOpen(true)}
-          initialFaultCode={workOrder.faultCode}
-          initialMaintenanceNotes={workOrder.maintenanceNotes}
-          isSaving={workOrderMutation.isPending}
-        />
-      )}
+        {isIssueConfirmationDialogOpen && (
+          <IssueConfirmationDialog
+            isOpen={isIssueConfirmationDialogOpen}
+            onClose={() => { setIsIssueConfirmationDialogOpen(false); setOptimisticWorkOrder(null); }}
+            onSave={handleSaveIssueConfirmation}
+            initialIssueType={workOrder.issueType}
+            initialNotes={workOrder.serviceNotes}
+            isSaving={workOrderMutation.isPending}
+          />
+        )}
+        {isMaintenanceCompletionDrawerOpen && (
+          <MaintenanceCompletionDrawer
+            isOpen={isMaintenanceCompletionDrawerOpen && !isAddPartDialogOpen}
+            onClose={() => {
+              // Don't close if parts dialog is open
+              if (!isAddPartDialogOpen) {
+                setIsMaintenanceCompletionDrawerOpen(false);
+                setOptimisticWorkOrder(null);
+              }
+            }}
+            onSave={handleSaveMaintenanceCompletion}
+            usedParts={usedParts || []}
+            onAddPart={handleAddPart}
+            onRemovePart={handleRemovePart}
+            onAddPartClick={() => setIsAddPartDialogOpen(true)}
+            initialFaultCode={workOrder.faultCode}
+            initialMaintenanceNotes={workOrder.maintenanceNotes}
+            isSaving={workOrderMutation.isPending}
+          />
+        )}
 
-      {/* Enforced assignment modal for Ready -> In Progress */}
-      <AssignTechnicianModal
-        open={isAssignModalOpen}
-        technicians={allTechnicians || []}
-        onClose={() => { setIsAssignModalOpen(false); setPendingUpdates(null); setOptimisticWorkOrder(null); }}
-        onAssign={(technicianId) => {
-          const merged: Partial<WorkOrder> = { ...(pendingUpdates || {}), status: 'In Progress', assignedTechnicianId: technicianId };
-          console.log('🔧 AssignTechnicianModal onAssign - pendingUpdates:', pendingUpdates);
-          console.log('🔧 AssignTechnicianModal onAssign - merged updates:', merged);
-          console.log('🔧 AssignTechnicianModal onAssign - current workOrder status:', workOrder?.status);
-          setIsAssignModalOpen(false);
-          setPendingUpdates(null);
-          // Set optimistic state to ensure UI reflects the change immediately
-          setOptimisticWorkOrder(merged);
-          handleUpdateWorkOrder(merged);
-        }}
-        isAssigning={workOrderMutation.isPending}
-      />
-
-      {/* Emergency bike assignment modal */}
-      <AssignEmergencyBikeModal
-        open={isAssignEmergencyOpen}
-        onClose={() => setIsAssignEmergencyOpen(false)}
-        onAssign={async (bikeId, notes) => {
-          if (!workOrder?.id) return;
-          try {
-            const payload = camelToSnakeCase({
-              work_order_id: workOrder.id,
-              emergency_bike_id: bikeId,
-              customer_asset_id: workOrder.vehicleId || null,
-              assigned_at: new Date().toISOString(),
-              notes: notes || null
-            });
-            const { error } = await supabase.from('emergency_bike_assignments').insert([payload]);
-            if (error) throw new Error(error.message);
-            // Append to activity log with notes
-            const activityMessage = `Emergency bike assigned (asset ${bikeId})${notes ? ` — Notes: ${notes}` : ''}`;
-            const newLog = [...(workOrder.activityLog || []), generateActivityLogEntry(activityMessage, session?.user.id ?? null)];
-            await supabase.from('work_orders').update({ activity_log: camelToSnakeCase(newLog) }).eq('id', workOrder.id);
-            setIsAssignEmergencyOpen(false);
-            showSuccess('Emergency bike assigned.');
-            queryClient.invalidateQueries({ queryKey: ['active_emergency_assignment', workOrder.id] });
-            queryClient.invalidateQueries({ queryKey: ['active_emergency_bike_assignments'] });
-            queryClient.invalidateQueries({ queryKey: ['company_emergency_bikes'] });
-            queryClient.invalidateQueries({ queryKey: ['work_order', workOrder.id] });
-          } catch (e: any) {
-            showError(e.message || 'Failed to assign emergency bike');
-          }
-        }}
-      />
-
-      {/* Work Order Parts Dialog */}
-      {workOrder?.id && (
-        <WorkOrderPartsDialog
-          isOpen={isAddPartDialogOpen}
-          onClose={() => setIsAddPartDialogOpen(false)}
-          workOrderId={workOrder.id}
-          workOrderNumber={workOrder.workOrderNumber}
+        {/* Enforced assignment modal for Ready -> In Progress */}
+        <AssignTechnicianModal
+          open={isAssignModalOpen}
+          technicians={allTechnicians || []}
+          onClose={() => { setIsAssignModalOpen(false); setPendingUpdates(null); setOptimisticWorkOrder(null); }}
+          onAssign={(technicianId) => {
+            const merged: Partial<WorkOrder> = { ...(pendingUpdates || {}), status: 'In Progress', assignedTechnicianId: technicianId };
+            console.log('🔧 AssignTechnicianModal onAssign - pendingUpdates:', pendingUpdates);
+            console.log('🔧 AssignTechnicianModal onAssign - merged updates:', merged);
+            console.log('🔧 AssignTechnicianModal onAssign - current workOrder status:', workOrder?.status);
+            setIsAssignModalOpen(false);
+            setPendingUpdates(null);
+            // Set optimistic state to ensure UI reflects the change immediately
+            setOptimisticWorkOrder(merged);
+            handleUpdateWorkOrder(merged);
+          }}
+          isAssigning={workOrderMutation.isPending}
         />
-      )}
+
+        {/* Emergency bike assignment modal */}
+        <AssignEmergencyBikeModal
+          open={isAssignEmergencyOpen}
+          onClose={() => setIsAssignEmergencyOpen(false)}
+          onAssign={async (bikeId, notes) => {
+            if (!workOrder?.id) return;
+            try {
+              const payload = camelToSnakeCase({
+                work_order_id: workOrder.id,
+                emergency_bike_asset_id: bikeId,
+                customer_asset_id: workOrder.vehicleId || null,
+                assigned_at: new Date().toISOString(),
+                notes: notes || null
+              });
+              const { error } = await supabase.from('emergency_bike_assignments').insert([payload]);
+              if (error) throw new Error(error.message);
+              // Append to activity log with notes
+              const activityMessage = `Emergency bike assigned (asset ${bikeId})${notes ? ` — Notes: ${notes}` : ''}`;
+              const newLog = [...(workOrder.activityLog || []), generateActivityLogEntry(activityMessage, session?.user.id ?? null)];
+              await supabase.from('work_orders').update({ activity_log: camelToSnakeCase(newLog) }).eq('id', workOrder.id);
+              setIsAssignEmergencyOpen(false);
+              showSuccess('Emergency bike assigned.');
+              queryClient.invalidateQueries({ queryKey: ['active_emergency_assignment', workOrder.id] });
+              queryClient.invalidateQueries({ queryKey: ['vehicle', bikeId] });
+              queryClient.invalidateQueries({ queryKey: ['active_emergency_bike_assignments'] });
+              queryClient.invalidateQueries({ queryKey: ['company_emergency_bikes'] });
+              queryClient.invalidateQueries({ queryKey: ['work_order', workOrder.id] });
+            } catch (e: any) {
+              showError(e.message || 'Failed to assign emergency bike');
+            }
+          }}
+        />
+
+        {/* Work Order Parts Dialog */}
+        {workOrder?.id && (
+          <WorkOrderPartsDialog
+            isOpen={isAddPartDialogOpen}
+            onClose={() => setIsAddPartDialogOpen(false)}
+            workOrderId={workOrder.id}
+            workOrderNumber={workOrder.workOrderNumber}
+          />
+        )}
     </DebugErrorBoundary>
   );
 };

@@ -20,7 +20,7 @@ import {
 } from '@hugeicons/core-free-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import ProfessionalButton from '@/components/ui/ProfessionalButton';
+import { Button } from '@/components/ui/button';
 
 // ============================================
 // TYPE DEFINITIONS
@@ -513,28 +513,30 @@ const ProfessionalPagination = forwardRef<HTMLDivElement, ProfessionalPagination
         <div className="flex items-center gap-1">
           {/* First page */}
           {showFirstLast && (
-            <ProfessionalButton
+            <Button
               variant="ghost"
-              size={size}
-              icon={DoubleArrowLeft01Icon}
+              size={size === 'sm' ? 'sm' : 'default'}
               disabled={currentPage === 1}
               onClick={() => onPageChange(1)}
               className={sizeClasses[size]}
               aria-label="Go to first page"
-            />
+            >
+              <HugeiconsIcon icon={DoubleArrowLeft01Icon} size={16} />
+            </Button>
           )}
 
           {/* Previous page */}
           {showPrevNext && (
-            <ProfessionalButton
+            <Button
               variant="ghost"
-              size={size}
-              icon={ArrowLeft01Icon}
+              size={size === 'sm' ? 'sm' : 'default'}
               disabled={currentPage === 1}
               onClick={() => onPageChange(currentPage - 1)}
               className={sizeClasses[size]}
               aria-label="Go to previous page"
-            />
+            >
+              <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
+            </Button>
           )}
 
           {/* Page numbers */}
@@ -543,44 +545,46 @@ const ProfessionalPagination = forwardRef<HTMLDivElement, ProfessionalPagination
               {page === 'ellipsis' ? (
                 <span className="px-2 text-machinery-400">…</span>
               ) : (
-                <ProfessionalButton
-                  variant={page === currentPage ? 'primary' : 'ghost'}
-                  size={size}
+                <Button
+                  variant={page === currentPage ? 'default' : 'ghost'}
+                  size={size === 'sm' ? 'sm' : 'default'}
                   onClick={() => onPageChange(page)}
                   className={sizeClasses[size]}
                   aria-label={`Go to page ${page}`}
                   aria-current={page === currentPage ? 'page' : undefined}
                 >
                   {page}
-                </ProfessionalButton>
+                </Button>
               )}
             </React.Fragment>
           ))}
 
           {/* Next page */}
           {showPrevNext && (
-            <ProfessionalButton
+            <Button
               variant="ghost"
-              size={size}
-              icon={ArrowRight02Icon}
+              size={size === 'sm' ? 'sm' : 'default'}
               disabled={currentPage === totalPages}
               onClick={() => onPageChange(currentPage + 1)}
               className={sizeClasses[size]}
               aria-label="Go to next page"
-            />
+            >
+              <HugeiconsIcon icon={ArrowRight02Icon} size={16} />
+            </Button>
           )}
 
           {/* Last page */}
           {showFirstLast && (
-            <ProfessionalButton
+            <Button
               variant="ghost"
-              size={size}
-              icon={DoubleArrowRight01Icon}
+              size={size === 'sm' ? 'sm' : 'default'}
               disabled={currentPage === totalPages}
               onClick={() => onPageChange(totalPages)}
               className={sizeClasses[size]}
               aria-label="Go to last page"
-            />
+            >
+              <HugeiconsIcon icon={DoubleArrowRight01Icon} size={16} />
+            </Button>
           )}
         </div>
       </div>

@@ -6,7 +6,7 @@ import dayjs from 'dayjs';
 // Query keys
 export const inventoryReportKeys = {
   valuation: ['inventory_valuation'] as const,
-  stockMovement: (itemId?: string, startDate?: string, endDate?: string) => 
+  stockMovement: (itemId?: string, startDate?: string, endDate?: string) =>
     ['stock_movement', itemId, startDate, endDate] as const,
   slowMoving: (days: number) => ['slow_moving_stock', days] as const,
   deadStock: (days: number) => ['dead_stock', days] as const,
@@ -106,6 +106,7 @@ export function useInventoryValuation() {
         topValueItems,
       };
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 
@@ -184,7 +185,7 @@ export function useStockMovementHistory(
       const totalIn = records
         .filter(r => r.quantity_delta > 0)
         .reduce((sum, r) => sum + r.quantity_delta, 0);
-      
+
       const totalOut = records
         .filter(r => r.quantity_delta < 0)
         .reduce((sum, r) => sum + Math.abs(r.quantity_delta), 0);
@@ -203,6 +204,7 @@ export function useStockMovementHistory(
 
       return { records, totalIn, totalOut, netChange, byReason };
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 
@@ -257,7 +259,7 @@ export function useSlowMovingStock(daysThreshold: number = 90) {
         .map(item => {
           const lastMovement = lastMovementMap[item.id];
           const lastMovementDate = lastMovement ? dayjs(lastMovement) : null;
-          const daysSinceMovement = lastMovementDate 
+          const daysSinceMovement = lastMovementDate
             ? now.diff(lastMovementDate, 'day')
             : 999; // No movement ever
 
@@ -279,6 +281,7 @@ export function useSlowMovingStock(daysThreshold: number = 90) {
 
       return slowMovingItems;
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 
@@ -316,7 +319,7 @@ export function useDeadStock(daysThreshold: number = 180) {
         .map(item => {
           const lastMovement = lastMovementMap[item.id];
           const lastMovementDate = lastMovement ? dayjs(lastMovement) : null;
-          const daysSinceMovement = lastMovementDate 
+          const daysSinceMovement = lastMovementDate
             ? now.diff(lastMovementDate, 'day')
             : 999;
 
@@ -338,6 +341,7 @@ export function useDeadStock(daysThreshold: number = 180) {
 
       return deadStockItems;
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 
@@ -365,7 +369,7 @@ export function useUsageTrends(periodType: 'daily' | 'weekly' | 'monthly' = 'mon
     queryFn: async (): Promise<UsageTrendSummary> => {
       const now = dayjs();
       let startDate: string;
-      
+
       switch (periodType) {
         case 'daily':
           startDate = now.subtract(periods, 'day').toISOString();
@@ -389,11 +393,11 @@ export function useUsageTrends(periodType: 'daily' | 'weekly' | 'monthly' = 'mon
 
       // Group by period
       const periodMap: Record<string, UsageTrendData> = {};
-      
+
       (data || []).forEach(adj => {
         let periodKey: string;
         const date = dayjs(adj.created_at);
-        
+
         switch (periodType) {
           case 'daily':
             periodKey = date.format('YYYY-MM-DD');
@@ -418,13 +422,13 @@ export function useUsageTrends(periodType: 'daily' | 'weekly' | 'monthly' = 'mon
         }
 
         periodMap[periodKey].transactionCount++;
-        
+
         if (adj.quantity_delta < 0) {
           periodMap[periodKey].totalUsed += Math.abs(adj.quantity_delta);
         } else {
           periodMap[periodKey].totalReceived += adj.quantity_delta;
         }
-        
+
         periodMap[periodKey].netChange += adj.quantity_delta;
       });
 
@@ -433,25 +437,25 @@ export function useUsageTrends(periodType: 'daily' | 'weekly' | 'monthly' = 'mon
       // Calculate averages and projections
       const usageValues = trends.map(t => t.totalUsed);
       const receivedValues = trends.map(t => t.totalReceived);
-      
-      const averageMonthlyUsage = usageValues.length > 0 
-        ? usageValues.reduce((a, b) => a + b, 0) / usageValues.length 
+
+      const averageMonthlyUsage = usageValues.length > 0
+        ? usageValues.reduce((a, b) => a + b, 0) / usageValues.length
         : 0;
-      
-      const averageMonthlyReceived = receivedValues.length > 0 
-        ? receivedValues.reduce((a, b) => a + b, 0) / receivedValues.length 
+
+      const averageMonthlyReceived = receivedValues.length > 0
+        ? receivedValues.reduce((a, b) => a + b, 0) / receivedValues.length
         : 0;
 
       // Simple linear projection based on recent trend
       let projectedNextMonth = averageMonthlyUsage;
       let growthRate = 0;
-      
+
       if (trends.length >= 2) {
         const recentTrends = trends.slice(-3);
         const recentAvg = recentTrends.reduce((sum, t) => sum + t.totalUsed, 0) / recentTrends.length;
         const olderTrends = trends.slice(0, Math.max(1, trends.length - 3));
         const olderAvg = olderTrends.reduce((sum, t) => sum + t.totalUsed, 0) / olderTrends.length;
-        
+
         if (olderAvg > 0) {
           growthRate = ((recentAvg - olderAvg) / olderAvg) * 100;
           projectedNextMonth = recentAvg * (1 + growthRate / 100);
@@ -466,6 +470,7 @@ export function useUsageTrends(periodType: 'daily' | 'weekly' | 'monthly' = 'mon
         growthRate,
       };
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 
@@ -507,17 +512,17 @@ export function useCostAnalysis() {
 
       const items = data || [];
       const totalInventoryValue = items.reduce(
-        (sum, i) => sum + ((i.quantity_on_hand ?? 0) * (i.unit_price ?? 0)), 
+        (sum, i) => sum + ((i.quantity_on_hand ?? 0) * (i.unit_price ?? 0)),
         0
       );
 
       // Group by category
       const categoryMap: Record<string, CategoryCostData> = {};
-      
+
       items.forEach(item => {
         const cats = (item.categories || []).length > 0 ? item.categories : ['uncategorized'];
         const itemValue = (item.quantity_on_hand ?? 0) * (item.unit_price ?? 0);
-        
+
         cats.forEach((cat: string) => {
           if (!categoryMap[cat]) {
             categoryMap[cat] = {
@@ -537,11 +542,11 @@ export function useCostAnalysis() {
 
       // Calculate percentages and averages
       Object.values(categoryMap).forEach(cat => {
-        cat.percentageOfTotal = totalInventoryValue > 0 
-          ? (cat.totalValue / totalInventoryValue) * 100 
+        cat.percentageOfTotal = totalInventoryValue > 0
+          ? (cat.totalValue / totalInventoryValue) * 100
           : 0;
-        cat.averageUnitCost = cat.totalQuantity > 0 
-          ? cat.totalValue / cat.totalQuantity 
+        cat.averageUnitCost = cat.totalQuantity > 0
+          ? cat.totalValue / cat.totalQuantity
           : 0;
       });
 
@@ -576,8 +581,8 @@ export function useCostAnalysis() {
       const bySupplier = Object.values(supplierMap)
         .map(s => ({
           ...s,
-          percentageOfTotal: totalInventoryValue > 0 
-            ? (s.totalValue / totalInventoryValue) * 100 
+          percentageOfTotal: totalInventoryValue > 0
+            ? (s.totalValue / totalInventoryValue) * 100
             : 0,
         }))
         .sort((a, b) => b.totalValue - a.totalValue);
@@ -595,6 +600,7 @@ export function useCostAnalysis() {
         lowestValueCategory,
       };
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }
 
@@ -662,5 +668,6 @@ export function useInventoryTurnover(months: number = 12) {
 
       return turnoverData;
     },
+    staleTime: 1000 * 60 * 5, // 5 minutes
   });
 }

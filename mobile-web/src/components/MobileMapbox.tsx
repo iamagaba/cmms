@@ -126,36 +126,46 @@ export const MobileMapbox = ({
 
     // Add new markers
     markers.forEach(markerData => {
-      // Create custom marker element for better mobile experience
+      // Create custom marker element with motorbike icon for mobile
       const el = document.createElement('div')
       el.className = 'mobile-map-marker'
-      el.style.width = '24px'
-      el.style.height = '24px'
+      el.style.width = '26px'
+      el.style.height = '26px'
       el.style.borderRadius = '50%'
       el.style.backgroundColor = markerData.color || '#2563eb'
-      el.style.border = '3px solid white'
-      el.style.boxShadow = '0 2px 8px rgba(0,0,0,0.3)'
+      el.style.border = '2px solid white'
+      el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.25)'
       el.style.cursor = 'pointer'
       el.style.display = 'flex'
       el.style.alignItems = 'center'
       el.style.justifyContent = 'center'
-      el.style.fontSize = '10px'
-      el.style.fontWeight = 'bold'
-      el.style.color = 'white'
+      el.style.position = 'relative'
+
+      // Add wrench icon (maintenance)
+      el.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </svg>
+      `
 
       // Add priority indicator
-      if (markerData.priority === 'High') {
-        el.style.border = '3px solid #ef4444'
-        el.style.animation = 'pulse 2s infinite'
+      if (markerData.priority === 'High' || markerData.priority === 'Critical') {
+        const priorityDot = document.createElement('div')
+        priorityDot.style.position = 'absolute'
+        priorityDot.style.top = '-1px'
+        priorityDot.style.right = '-1px'
+        priorityDot.style.width = '9px'
+        priorityDot.style.height = '9px'
+        priorityDot.style.borderRadius = '50%'
+        priorityDot.style.backgroundColor = markerData.priority === 'Critical' ? '#dc2626' : '#f59e0b'
+        priorityDot.style.border = '2px solid white'
+        priorityDot.style.boxShadow = '0 1px 2px rgba(0,0,0,0.2)'
+        el.appendChild(priorityDot)
+        
+        if (markerData.priority === 'Critical') {
+          el.style.animation = 'pulse 2s infinite'
+        }
       }
-
-      // Add status indicator
-      const statusDot = document.createElement('div')
-      statusDot.style.width = '8px'
-      statusDot.style.height = '8px'
-      statusDot.style.borderRadius = '50%'
-      statusDot.style.backgroundColor = 'white'
-      el.appendChild(statusDot)
 
       if (!mapboxRef.current) return
 

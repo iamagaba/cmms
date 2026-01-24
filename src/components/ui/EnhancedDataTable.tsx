@@ -1,9 +1,9 @@
 /**
- * Enhanced Professional Data Table Component
+ * Enhanced Data Table Component
  * 
- * An advanced data table component that extends ProfessionalDataTable with
- * maintenance workflow features, advanced filtering, bulk operations,
- * and responsive design patterns optimized for CMMS applications.
+ * An advanced data table component with maintenance workflow features,
+ * advanced filtering, bulk operations, and responsive design patterns
+ * optimized for CMMS applications.
  * 
  * Features:
  * - Advanced filtering with multiple filter types
@@ -18,14 +18,39 @@
 
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { ArrowDown01Icon, Cancel01Icon, Download01Icon, Database01Icon, ArrowRight01Icon, Search01Icon } from '@hugeicons/core-free-icons';
+import { ArrowDown01Icon, Cancel01Icon, Download01Icon, Database01Icon, ArrowRight01Icon, Search01Icon, ArrowUp01Icon } from '@hugeicons/core-free-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import ProfessionalDataTable, { TableColumn, TableProps } from './ProfessionalDataTable';
-import ProfessionalButton from './ProfessionalButton';
-import ProfessionalInput from './ProfessionalInput';
-import { WorkOrderStatusBadge, PriorityBadge } from './ProfessionalBadge';
+import { Button } from './button';
+import { Input } from './input';
+import { StatusBadge, PriorityBadge } from './badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './table';
+import { Skeleton } from './skeleton';
 import Icon from '../icons/Icon';
+
+// ============================================
+// BASE TABLE INTERFACES
+// ============================================
+
+export interface TableColumn<T = any> {
+  key: string;
+  label: string;
+  sortable?: boolean;
+  width?: string | number;
+  align?: 'left' | 'center' | 'right';
+  render?: (value: any, record: T, index: number) => React.ReactNode;
+  className?: string;
+}
+
+export interface TableProps<T = any> {
+  columns: TableColumn<T>[];
+  data: T[];
+  loading?: boolean;
+  emptyMessage?: string;
+  onRowClick?: (record: T, index: number) => void;
+  rowKey?: string | ((record: T) => string | number);
+  className?: string;
+}
 
 // ============================================
 // ENHANCED INTERFACES
@@ -67,42 +92,42 @@ export interface EnhancedTableProps<T = any> extends Omit<TableProps<T>, 'search
   filters?: ColumnFilter[];
   activeFilters?: Record<string, any>;
   onFiltersChange?: (filters: Record<string, any>) => void;
-  
+
   // Search enhancements
   searchable?: boolean;
   globalSearch?: boolean;
   searchColumns?: string[];
   searchPlaceholder?: string;
-  
+
   // Bulk operations
   bulkActions?: BulkAction[];
   onBulkAction?: (action: string, selectedRows: T[]) => void;
-  
+
   // Export functionality
   exportOptions?: ExportOption[];
   onExport?: (format: string, data: T[]) => void;
-  
+
   // Layout options
   compactMode?: boolean;
   stickyHeader?: boolean;
   virtualScrolling?: boolean;
-  
+
   // Enhancement #10: Density options
   density?: 'compact' | 'comfortable' | 'spacious';
-  
+
   // Mobile responsiveness
   mobileBreakpoint?: number;
   mobileColumns?: string[];
-  
+
   // Advanced features
   groupBy?: string;
   expandableRows?: boolean;
   renderExpandedRow?: (record: T) => React.ReactNode;
-  
+
   // Performance
   enableVirtualization?: boolean;
   rowHeight?: number;
-  
+
   // Accessibility
   ariaLabel?: string;
   ariaDescription?: string;
@@ -126,8 +151,8 @@ const FilterBar: React.FC<FilterBarProps> = ({
   onClearFilters,
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const activeFilterCount = Object.keys(activeFilters).filter(key => 
-    activeFilters[key] !== undefined && activeFilters[key] !== '' && 
+  const activeFilterCount = Object.keys(activeFilters).filter(key =>
+    activeFilters[key] !== undefined && activeFilters[key] !== '' &&
     (Array.isArray(activeFilters[key]) ? activeFilters[key].length > 0 : true)
   ).length;
 
@@ -139,42 +164,42 @@ const FilterBar: React.FC<FilterBarProps> = ({
   };
 
   return (
-    <div className="border-b border-machinery-200 bg-machinery-25">
+    <div className="border-b border-gray-100 bg-white">
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center gap-3">
-          <ProfessionalButton
+          <Button
             variant="ghost"
             size="sm"
-            icon={isExpanded ? "tabler:chevron-up" : "tabler:chevron-down"}
             onClick={() => setIsExpanded(!isExpanded)}
           >
+            <Icon icon={isExpanded ? "tabler:chevron-up" : "tabler:chevron-down"} className="w-4 h-4" />
             Filters
             {activeFilterCount > 0 && (
               <span className="ml-2 px-2 py-0.5 text-xs bg-steel-600 text-white rounded-full">
                 {activeFilterCount}
               </span>
             )}
-          </ProfessionalButton>
-          
+          </Button>
+
           {activeFilterCount > 0 && (
-            <ProfessionalButton
+            <Button
               variant="ghost"
               size="sm"
-              icon="tabler:x"
               onClick={onClearFilters}
             >
+              <Icon icon="tabler:x" className="w-4 h-4" />
               Clear all
-            </ProfessionalButton>
+            </Button>
           )}
         </div>
-        
+
         <div className="flex items-center gap-2">
           <span className="text-sm text-machinery-600">
             {activeFilterCount} filter{activeFilterCount !== 1 ? 's' : ''} applied
           </span>
         </div>
       </div>
-      
+
       <AnimatePresence>
         {isExpanded && (
           <motion.div
@@ -190,7 +215,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                   <label className="text-sm font-medium text-machinery-700">
                     {filter.label}
                   </label>
-                  
+
                   {filter.type === 'select' && (
                     <select
                       value={activeFilters[filter.key] || ''}
@@ -206,16 +231,16 @@ const FilterBar: React.FC<FilterBarProps> = ({
                       ))}
                     </select>
                   )}
-                  
+
                   {filter.type === 'text' && (
-                    <ProfessionalInput
+                    <Input
                       placeholder={filter.placeholder}
                       value={activeFilters[filter.key] || ''}
                       onChange={(e) => handleFilterChange(filter.key, e.target.value)}
-                      size="sm"
+                      className="h-9"
                     />
                   )}
-                  
+
                   {filter.type === 'date' && (
                     <input
                       type="date"
@@ -262,21 +287,20 @@ const BulkActionsBar = <T,>({
       initial={{ height: 0, opacity: 0 }}
       animate={{ height: 'auto', opacity: 1 }}
       exit={{ height: 0, opacity: 0 }}
-      className="bg-steel-50 border-b border-steel-200 px-4 py-3"
+      className="bg-steel-50 border-b border-gray-100 px-4 py-3"
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <span className="text-sm font-medium text-steel-700">
             {selectedCount} of {totalCount} selected
           </span>
-          
+
           <div className="flex items-center gap-2">
             {bulkActions.map((action) => (
-              <ProfessionalButton
+              <Button
                 key={action.key}
-                variant={action.variant || 'outline'}
+                variant={action.variant === 'danger' ? 'destructive' : action.variant === 'primary' ? 'default' : action.variant as any}
                 size="sm"
-                icon={action.icon}
                 disabled={action.disabled?.(selectedRows)}
                 onClick={() => {
                   if (action.requiresConfirmation) {
@@ -288,20 +312,21 @@ const BulkActionsBar = <T,>({
                   }
                 }}
               >
+                <Icon icon={action.icon} className="w-4 h-4" />
                 {action.label}
-              </ProfessionalButton>
+              </Button>
             ))}
           </div>
         </div>
-        
-        <ProfessionalButton
+
+        <Button
           variant="ghost"
           size="sm"
-          icon="tabler:x"
           onClick={onClearSelection}
         >
+          <Icon icon="tabler:x" className="w-4 h-4" />
           Clear selection
-        </ProfessionalButton>
+        </Button>
       </div>
     </motion.div>
   );
@@ -327,16 +352,16 @@ const DensityControl: React.FC<DensityControlProps> = ({ density, onDensityChang
 
   return (
     <div className="relative">
-      <ProfessionalButton
+      <Button
         variant="outline"
         size="sm"
-        icon="tabler:layout-grid"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Change table density"
       >
+        <Icon icon="tabler:layout-grid" className="w-4 h-4" />
         Density
-      </ProfessionalButton>
-      
+      </Button>
+
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -368,7 +393,7 @@ const DensityControl: React.FC<DensityControlProps> = ({ density, onDensityChang
           </motion.div>
         )}
       </AnimatePresence>
-      
+
       {isOpen && (
         <div
           className="fixed inset-0 z-40"
@@ -394,15 +419,15 @@ const ExportMenu = <T,>({ exportOptions, data, onExport }: ExportMenuProps<T>) =
 
   return (
     <div className="relative">
-      <ProfessionalButton
+      <Button
         variant="outline"
         size="sm"
-        icon="tabler:download"
         onClick={() => setIsOpen(!isOpen)}
       >
+        <Icon icon="tabler:download" className="w-4 h-4" />
         Export
-      </ProfessionalButton>
-      
+      </Button>
+
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -427,7 +452,7 @@ const ExportMenu = <T,>({ exportOptions, data, onExport }: ExportMenuProps<T>) =
           </motion.div>
         )}
       </AnimatePresence>
-      
+
       {isOpen && (
         <div
           className="fixed inset-0 z-40"
@@ -444,17 +469,17 @@ const ExportMenu = <T,>({ exportOptions, data, onExport }: ExportMenuProps<T>) =
 
 const useResponsiveTable = (mobileBreakpoint: number) => {
   const [isMobile, setIsMobile] = useState(false);
-  
+
   useEffect(() => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < mobileBreakpoint);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
   }, [mobileBreakpoint]);
-  
+
   return isMobile;
 };
 
@@ -462,35 +487,35 @@ const useResponsiveTable = (mobileBreakpoint: number) => {
 // LOADING SKELETON COMPONENT
 // ============================================
 
-const TableSkeleton: React.FC<{ columns: number; rows?: number }> = ({ 
-  columns, 
-  rows = 5 
+const TableSkeleton: React.FC<{ columns: number; rows?: number }> = ({
+  columns,
+  rows = 5
 }) => (
   <div>
     {/* Header skeleton */}
-    <div className="bg-machinery-50 border-b border-machinery-200 p-4">
+    <div className="bg-white border-b border-gray-100 p-4">
       <div className="flex gap-4">
         {Array.from({ length: columns }).map((_, i) => (
           <div key={i} className="h-4 bg-machinery-200 rounded flex-1 animate-pulse" />
         ))}
       </div>
     </div>
-    
+
     {/* Enhancement #9: Rows skeleton with shimmer */}
     {Array.from({ length: rows }).map((_, rowIndex) => (
       <div key={rowIndex} className="border-b border-machinery-100 p-4">
         <div className="flex gap-4">
           {Array.from({ length: columns }).map((_, colIndex) => (
-            <div 
-              key={colIndex} 
+            <div
+              key={colIndex}
               className={cn(
                 'h-4 rounded flex-1',
                 'bg-gradient-to-r from-machinery-200 via-machinery-100 to-machinery-200',
                 'bg-[length:1000px_100%]',
                 'animate-shimmer'
               )}
-              style={{ 
-                animationDelay: `${(rowIndex * columns + colIndex) * 50}ms` 
+              style={{
+                animationDelay: `${(rowIndex * columns + colIndex) * 50}ms`
               }}
             />
           ))}
@@ -551,21 +576,21 @@ const MobileTable = <T extends Record<string, any>>({
   emptyText = "No data available",
 }: MobileTableProps<T>) => {
   const getRowKey = (record: T): string => String(record.id || record.key);
-  
+
   if (loading) {
     return <TableSkeleton columns={2} rows={3} />;
   }
-  
+
   if (data.length === 0) {
     return <EmptyState title={emptyText} />;
   }
-  
+
   return (
     <div className="space-y-3 p-4">
       {data.map((record, index) => {
         const key = getRowKey(record);
         const isSelected = selectedRows.includes(key);
-        
+
         return (
           <motion.div
             key={key}
@@ -574,7 +599,7 @@ const MobileTable = <T extends Record<string, any>>({
             transition={{ delay: index * 0.05 }}
             className={cn(
               // Enhancement #1: Visual depth for mobile cards
-              'bg-white border border-machinery-200 rounded-lg p-4',
+              'bg-white border border-gray-200 rounded-lg p-4',
               'shadow-md ring-1 ring-black/5',
               'transition-all duration-200 ease-out',
               // Enhancement #2: Smooth hover for mobile
@@ -608,15 +633,15 @@ const MobileTable = <T extends Record<string, any>>({
                 />
               </div>
             )}
-            
+
             {/* Mobile card content */}
             <div className="space-y-2">
               {columns.slice(0, 4).map((column) => {
                 if (column.key === '__expand__') return null;
-                
+
                 const value = column.dataIndex ? record[column.dataIndex] : undefined;
                 const content = column.render ? column.render(value, record, index) : value;
-                
+
                 return (
                   <div key={column.key} className="flex justify-between items-start">
                     <span className="text-sm font-medium text-machinery-600 min-w-0 flex-shrink-0 mr-3">
@@ -662,7 +687,7 @@ const EnhancedDataTable = <T extends Record<string, any>>({
   density = 'comfortable', // Enhancement #10: Default density
   ariaLabel = "Data table",
   ariaDescription = "A table displaying data with filtering, sorting, and selection capabilities",
-  
+
   // Base props
   columns,
   data,
@@ -702,8 +727,8 @@ const EnhancedDataTable = <T extends Record<string, any>>({
 
     // Apply filters
     Object.entries(localFilters).forEach(([key, value]) => {
-      if (value !== undefined && value !== '' && 
-          (Array.isArray(value) ? value.length > 0 : true)) {
+      if (value !== undefined && value !== '' &&
+        (Array.isArray(value) ? value.length > 0 : true)) {
         result = result.filter(item => {
           const itemValue = item[key];
           if (Array.isArray(value)) {
@@ -719,7 +744,7 @@ const EnhancedDataTable = <T extends Record<string, any>>({
       const searchLower = searchValue.toLowerCase();
       result = result.filter(item => {
         const searchFields = searchColumns.length > 0 ? searchColumns : Object.keys(item);
-        return searchFields.some(field => 
+        return searchFields.some(field =>
           String(item[field]).toLowerCase().includes(searchLower)
         );
       });
@@ -730,7 +755,7 @@ const EnhancedDataTable = <T extends Record<string, any>>({
 
   // Handle bulk actions
   const handleBulkAction = useCallback((action: string) => {
-    const selectedData = processedData.filter(item => 
+    const selectedData = processedData.filter(item =>
       selectedRows.includes(String(item.id || item.key))
     );
     onBulkAction?.(action, selectedData);
@@ -755,7 +780,7 @@ const EnhancedDataTable = <T extends Record<string, any>>({
   // Enhanced columns with expand functionality
   const enhancedColumns = useMemo(() => {
     const cols = [...columns];
-    
+
     if (expandableRows && !isMobile) {
       cols.unshift({
         key: '__expand__',
@@ -764,7 +789,7 @@ const EnhancedDataTable = <T extends Record<string, any>>({
         render: (_, record) => {
           const key = String(record.id || record.key);
           const isExpanded = expandedRows.has(key);
-          
+
           return (
             <button
               onClick={(e) => {
@@ -790,7 +815,7 @@ const EnhancedDataTable = <T extends Record<string, any>>({
         },
       });
     }
-    
+
     return cols;
   }, [columns, expandableRows, expandedRows, isMobile]);
 
@@ -798,7 +823,7 @@ const EnhancedDataTable = <T extends Record<string, any>>({
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!tableRef.current?.contains(document.activeElement)) return;
-      
+
       // Handle arrow key navigation, Enter for selection, etc.
       switch (event.key) {
         case 'Escape':
@@ -821,7 +846,7 @@ const EnhancedDataTable = <T extends Record<string, any>>({
   }, [selectedRows, processedData, handleClearSelection, onSelectionChange]);
 
   return (
-    <div 
+    <div
       ref={tableRef}
       className={cn(
         // Enhancement #1: Visual hierarchy with depth
@@ -851,7 +876,7 @@ const EnhancedDataTable = <T extends Record<string, any>>({
             selectedCount={selectedRows.length}
             totalCount={processedData.length}
             bulkActions={bulkActions}
-            selectedRows={processedData.filter(item => 
+            selectedRows={processedData.filter(item =>
               selectedRows.includes(String(item.id || item.key))
             )}
             onBulkAction={handleBulkAction}
@@ -864,23 +889,24 @@ const EnhancedDataTable = <T extends Record<string, any>>({
       {(searchable || exportOptions.length > 0) && (
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 border-b border-machinery-200 bg-machinery-25/50">
           {searchable && (
-            <ProfessionalInput
-              icon="tabler:search"
-              placeholder={searchPlaceholder}
-              value={searchValue}
-              onChange={(e) => handleSearch(e.target.value)}
-              className="w-full sm:max-w-md"
-              size={isMobile ? 'lg' : 'base'}
-            />
+            <div className="relative w-full sm:max-w-md">
+              <Icon icon="tabler:search" className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                placeholder={searchPlaceholder}
+                value={searchValue}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="pl-9"
+              />
+            </div>
           )}
-          
+
           <div className="flex items-center gap-2">
             {/* Enhancement #10: Density control */}
             <DensityControl
               density={localDensity}
               onDensityChange={setLocalDensity}
             />
-            
+
             {exportOptions.length > 0 && (
               <ExportMenu
                 exportOptions={exportOptions}
@@ -892,7 +918,7 @@ const EnhancedDataTable = <T extends Record<string, any>>({
         </div>
       )}
 
-      {/* Table Content - Enhancement #1: Add subtle inner shadow */}
+      {/* Table Content */}
       {isMobile ? (
         <MobileTable
           data={processedData}
@@ -908,19 +934,112 @@ const EnhancedDataTable = <T extends Record<string, any>>({
           stickyHeader && 'max-h-96 overflow-y-auto',
           'shadow-inner-sm'
         )}>
-          <ProfessionalDataTable
-            {...baseProps}
-            columns={enhancedColumns}
-            data={processedData}
-            loading={loading}
-            selectedRows={selectedRows}
-            onSelectionChange={onSelectionChange}
-            size={compactMode ? 'sm' : size}
-            searchable={false} // We handle search above
-            emptyText={emptyText}
-            striped={true} // Enhancement #6: Enable zebra striping
-            density={localDensity} // Enhancement #10: Pass density prop
-          />
+          {loading ? (
+            <TableSkeleton columns={enhancedColumns.length} rows={5} />
+          ) : processedData.length === 0 ? (
+            <EmptyState title={emptyText} />
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {onSelectionChange && (
+                    <TableHead className="w-12">
+                      <input
+                        type="checkbox"
+                        checked={selectedRows.length === processedData.length && processedData.length > 0}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            onSelectionChange(processedData.map(item => String(item.id || item.key)));
+                          } else {
+                            onSelectionChange([]);
+                          }
+                        }}
+                        className="w-4 h-4 rounded border-2 border-machinery-300 text-steel-600"
+                      />
+                    </TableHead>
+                  )}
+                  {enhancedColumns.map((column) => (
+                    <TableHead
+                      key={column.key}
+                      style={{ width: column.width }}
+                      className={cn(
+                        column.align === 'center' && 'text-center',
+                        column.align === 'right' && 'text-right',
+                        column.className
+                      )}
+                    >
+                      {column.label || column.title}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {processedData.map((record, index) => {
+                  const key = String(record.id || record.key || index);
+                  const isSelected = selectedRows.includes(key);
+                  const isExpanded = expandedRows.has(key);
+
+                  return (
+                    <React.Fragment key={key}>
+                      <TableRow
+                        className={cn(
+                          'group cursor-pointer hover:bg-muted/50',
+                          isSelected && 'bg-steel-50',
+                          localDensity === 'compact' && 'h-10',
+                          localDensity === 'comfortable' && 'h-14',
+                          localDensity === 'spacious' && 'h-16'
+                        )}
+                        onClick={() => baseProps.onRowClick?.(record, index)}
+                      >
+                        {onSelectionChange && (
+                          <TableCell>
+                            <input
+                              type="checkbox"
+                              checked={isSelected}
+                              onChange={(e) => {
+                                e.stopPropagation();
+                                if (isSelected) {
+                                  onSelectionChange(selectedRows.filter(k => k !== key));
+                                } else {
+                                  onSelectionChange([...selectedRows, key]);
+                                }
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                              className="w-4 h-4 rounded border-2 border-machinery-300 text-steel-600"
+                            />
+                          </TableCell>
+                        )}
+                        {enhancedColumns.map((column) => {
+                          const value = column.dataIndex ? record[column.dataIndex] : undefined;
+                          const content = column.render ? column.render(value, record, index) : value;
+
+                          return (
+                            <TableCell
+                              key={column.key}
+                              className={cn(
+                                column.align === 'center' && 'text-center',
+                                column.align === 'right' && 'text-right',
+                                column.className
+                              )}
+                            >
+                              {content}
+                            </TableCell>
+                          );
+                        })}
+                      </TableRow>
+                      {isExpanded && renderExpandedRow && (
+                        <TableRow>
+                          <TableCell colSpan={enhancedColumns.length + (onSelectionChange ? 1 : 0)}>
+                            {renderExpandedRow(record)}
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </React.Fragment>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          )}
         </div>
       )}
     </div>
@@ -932,10 +1051,10 @@ const EnhancedDataTable = <T extends Record<string, any>>({
 // ============================================
 
 export default EnhancedDataTable;
-export type { 
-  EnhancedTableProps, 
-  FilterOption, 
-  ColumnFilter, 
-  BulkAction, 
-  ExportOption 
+export type {
+  EnhancedTableProps,
+  FilterOption,
+  ColumnFilter,
+  BulkAction,
+  ExportOption
 };

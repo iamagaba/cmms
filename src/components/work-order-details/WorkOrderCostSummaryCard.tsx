@@ -35,8 +35,11 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
 
   // Calculate parts cost
   const partsCost = usedParts.reduce((sum, part) => {
-    const price = part.price_at_time_of_use || part.inventory_items?.unit_price || 0;
-    return sum + (price * part.quantity_used);
+    const p = part as any;
+    const item = p.inventory_items || p.inventoryItems || p.inventory_item || p.inventoryItem;
+    const price = p.price_at_time_of_use || p.priceAtTimeOfUse || item?.unit_price || item?.unitPrice || 0;
+    const qty = p.quantity_used ?? p.quantityUsed ?? 0;
+    return sum + (price * qty);
   }, 0);
 
   // Calculate labor cost
@@ -60,10 +63,9 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
   const formatHours = (hours: number) => hours < 1 ? `${Math.round(hours * 60)}m` : `${hours.toFixed(1)}h`;
 
   return (
-    <div className="bg-white">
-      <div className="px-3 py-2 border-b border-gray-200 flex items-center justify-between">
-        <h3 className="text-xs font-semibold text-gray-900 uppercase tracking-wide">Parts & Cost</h3>
-        {setIsAddPartDialogOpen && (
+    <div className="bg-white border border-gray-200 overflow-hidden shadow-sm">
+      {setIsAddPartDialogOpen && (
+        <div className="px-3 py-2 border-b border-gray-200 flex items-center justify-end">
           <button
             onClick={() => setIsAddPartDialogOpen(true)}
             className="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
@@ -71,8 +73,8 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
             <HugeiconsIcon icon={Add01Icon} size={12} />
             Add
           </button>
-        )}
-      </div>
+        </div>
+      )}
 
       <div className="px-3 py-2 space-y-2">
         {/* Parts Section - Collapsible */}
@@ -105,16 +107,21 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
                 </div>
               ) : (
                 usedParts.map((part) => {
-                  const item = part.inventory_items;
-                  const price = part.price_at_time_of_use || item?.unit_price || 0;
-                  const lineTotal = price * part.quantity_used;
+                  const p = part as any;
+                  const item = p.inventory_items || p.inventoryItems || p.inventory_item || p.inventoryItem;
+                  const price = p.price_at_time_of_use || p.priceAtTimeOfUse || item?.unit_price || item?.unitPrice || 0;
+                  const qty = p.quantity_used ?? p.quantityUsed ?? 0;
+                  const lineTotal = price * qty;
 
                   return (
                     <div key={part.id} className="flex items-center justify-between px-2 py-1.5 bg-gray-50 rounded group">
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-gray-900 truncate">{item?.name || 'Unknown'}</p>
+                        <p className="text-xs font-medium text-gray-900 truncate">
+                          {item?.name || 'Unknown'}
+                          {item?.model && <span className="font-normal text-gray-500"> ({item.model})</span>}
+                        </p>
                         <p className="text-xs text-gray-500">
-                          {part.quantity_used} × {formatCurrency(price)}
+                          {qty} × {formatCurrency(price)}
                         </p>
                       </div>
                       <div className="flex items-center gap-1.5">
@@ -169,24 +176,12 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
           )}
           <div className="flex items-center justify-between">
             <span className="text-sm font-semibold text-gray-900">
-              {workOrder.status === 'Completed' ? 'Final' : 'Current'}
+              Total
             </span>
             <span className="text-base font-bold text-gray-900">{formatCurrency(actualTotal)}</span>
           </div>
         </div>
 
-        {/* Status Badge */}
-        {workOrder.status === 'Completed' ? (
-          <div className="bg-emerald-50 border border-emerald-200 rounded px-2 py-1 flex items-center gap-1.5">
-            <HugeiconsIcon icon={CheckmarkCircle01Icon} size={12} className="text-emerald-600" />
-            <span className="text-xs text-emerald-700">Completed - Final cost</span>
-          </div>
-        ) : workOrder.status === 'In Progress' ? (
-          <div className="bg-orange-50 border border-orange-200 rounded px-2 py-1 flex items-center gap-1.5">
-            <HugeiconsIcon icon={Loading01Icon} size={12} className="text-orange-600" />
-            <span className="text-xs text-orange-700">In progress - Cost updating</span>
-          </div>
-        ) : null}
       </div>
     </div>
   );

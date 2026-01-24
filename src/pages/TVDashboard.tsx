@@ -14,11 +14,11 @@ import * as RGL from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-  RefreshIcon,
-  Add01Icon,
-  Cancel01Icon,
-  CheckmarkCircle01Icon
+import {
+    RefreshIcon,
+    Add01Icon,
+    Cancel01Icon,
+    CheckmarkCircle01Icon
 } from '@hugeicons/core-free-icons';
 
 dayjs.extend(isBetween);
@@ -138,8 +138,7 @@ const DEFAULT_LAYOUTS = {
 };
 
 export default function TVDashboard() {
-    const spacing = useDensitySpacing();
-    const { isCompact } = useDensity();
+
     const { session } = useSession();
     const [lastUpdated, setLastUpdated] = useState(new Date());
     const [viewMode, setViewMode] = useState<'view' | 'edit'>('view');
@@ -713,7 +712,7 @@ export default function TVDashboard() {
 
                 <button
                     onClick={() => setViewMode('edit')}
-                    className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary-600 hover:bg-primary-700 text-white shadow-lg shadow-primary-500/30 transition-all font-bold uppercase text-sm tracking-wide"
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg bg-primary-600 hover:bg-primary-700 text-white shadow-sm transition-all font-bold uppercase text-sm tracking-wide"
                 >
                     <Add01Icon size={20} />
                     <span className="hidden sm:inline">Add Widget</span>
@@ -723,15 +722,15 @@ export default function TVDashboard() {
             {/* Widget Picker Modal */}
             {viewMode === 'edit' && (
                 <div className="fixed inset-0 z-[70] bg-black/80 backdrop-blur-md flex items-center justify-center p-8 animate-in fade-in" onClick={() => setViewMode('view')}>
-                    <div className="bg-white dark:bg-neutral-900 w-full max-w-5xl h-[80vh] rounded-3xl overflow-hidden shadow-2xl border border-neutral-200 dark:border-neutral-800 flex flex-col" onClick={e => e.stopPropagation()}>
+                    <div className="bg-white dark:bg-neutral-900 w-full max-w-5xl h-[80vh] rounded-lg overflow-hidden shadow-sm border border-neutral-200 dark:border-neutral-800 flex flex-col" onClick={e => e.stopPropagation()}>
                         <div className="p-6 border-b border-neutral-200 dark:border-neutral-800 flex justify-between items-center">
                             <div>
-                                <h2 className="text-2xl font-bold dark:text-white">Add Widget</h2>
+                                <h2 className="text-sm font-bold dark:text-white">Add Widget</h2>
                                 <p className="text-neutral-500">Select a component to add to your dashboard</p>
                             </div>
                             <button
                                 onClick={() => setViewMode('view')}
-                                className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-full transition-colors"
+                                className="p-2 hover:bg-neutral-100 dark:hover:bg-neutral-800 rounded-md transition-colors"
                             >
                                 <Cancel01Icon size={24} className="dark:text-white" />
                             </button>
@@ -747,9 +746,9 @@ export default function TVDashboard() {
                                             setViewMode('view');
                                         }}
                                         disabled={activeWidgets.includes(id)}
-                                        className={`p-4 rounded-xl border text-left transition-all ${activeWidgets.includes(id)
+                                        className={`p-4 rounded-lg border text-left transition-all ${activeWidgets.includes(id)
                                             ? 'bg-neutral-50 dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800 opacity-50 cursor-not-allowed'
-                                            : 'bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 hover:border-primary-500 dark:hover:border-primary-500 hover:shadow-lg hover:scale-[1.02]'
+                                            : 'bg-white dark:bg-neutral-800 border-neutral-200 dark:border-neutral-700 hover:border-primary-500 dark:hover:border-primary-500 hover:shadow-sm hover:scale-[1.02]'
                                             }`}
                                     >
                                         <div className="flex items-start gap-4">

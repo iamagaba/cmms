@@ -26,14 +26,13 @@ import { Customer, Vehicle, WorkOrder } from '@/types/supabase';
 import { snakeToCamelCase } from '@/utils/data-helpers';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
+
+import { EnhancedWorkOrderDataTable } from '@/components/EnhancedWorkOrderDataTable';
+import { useWorkOrderData } from '@/hooks/useWorkOrderData';
 
 dayjs.extend(relativeTime);
 
 const CustomerDetails = () => {
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
 
@@ -125,35 +124,35 @@ const CustomerDetails = () => {
   };
 
   return (
-    <div className={`w-full ${spacing.page}`}>
+    <div className="w-full p-6">
       <Stack gap="md">
         {/* Breadcrumb Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className={`flex items-center ${spacing.gap}`}>
+          <div className="flex items-center gap-4">
             <button
               onClick={() => navigate('/customers')}
-              className={`${spacing.text.body} text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 flex items-center gap-1 transition-colors`}
+              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 flex items-center gap-1 transition-colors"
             >
-              <HugeiconsIcon icon={ArrowRight01Icon} size={spacing.icon.sm} className="rotate-180" />
+              <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="rotate-180" />
               Customers
             </button>
             <HugeiconsIcon icon={ArrowRight01Icon} size={14} className="text-gray-400 dark:text-gray-500" />
-            <span className={`${spacing.text.body} font-medium text-gray-900 dark:text-gray-100`}>{customer.name}</span>
+            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{customer.name}</span>
           </div>
-          <div className={`flex items-center ${spacing.gap}`}>
+          <div className="flex items-center gap-4">
             <button
               onClick={() => navigate(`/work-orders?customer=${id}`)}
-              className={`inline-flex items-center gap-1.5 ${spacing.button} font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 ${spacing.roundedLg} transition-colors`}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
-              <HugeiconsIcon icon={ClipboardIcon} size={spacing.icon.sm} />
+              <HugeiconsIcon icon={ClipboardIcon} size={16} />
               <span className="hidden sm:inline">View Work Orders</span>
               <span className="sm:hidden">Work Orders</span>
             </button>
             <button
               onClick={() => navigate(`/customers`)}
-              className={`inline-flex items-center gap-1.5 ${spacing.button} font-medium text-white bg-primary-600 hover:bg-primary-700 ${spacing.roundedLg} transition-colors`}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg font-medium text-white bg-primary-600 hover:bg-primary-700 transition-colors"
             >
-              <HugeiconsIcon icon={PencilEdit02Icon} size={spacing.icon.sm} />
+              <HugeiconsIcon icon={PencilEdit02Icon} size={16} />
               <span className="hidden sm:inline">Edit Customer</span>
               <span className="sm:hidden">Edit</span>
             </button>
@@ -161,22 +160,22 @@ const CustomerDetails = () => {
         </div>
 
         {/* Customer Header Card */}
-        <div className={`bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 ${spacing.roundedLg} ${spacing.card}`}>
-          <div className={`flex items-start ${spacing.gap}`}>
-            <div className={`${isCompact ? 'w-12 h-12' : 'w-16 h-16'} rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0 text-primary-700 dark:text-primary-400 font-semibold ${isCompact ? 'text-xl' : 'text-2xl'}`}>
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
+          <div className="flex items-start gap-6">
+            <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0 text-primary-700 dark:text-primary-400 font-semibold text-2xl">
               {customer.name ? customer.name.charAt(0).toUpperCase() : 'C'}
             </div>
             <div className="flex-1 min-w-0">
-              <h1 className={`${isCompact ? 'text-xl' : 'text-2xl'} font-bold text-gray-900 dark:text-gray-100`}>{customer.name}</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{customer.name}</h1>
               {customer.company && (
-                <p className={`${spacing.text.body} text-gray-600 dark:text-gray-400 mt-1`}>{customer.company}</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{customer.company}</p>
               )}
-              <div className={`flex items-center ${spacing.gap} mt-2 flex-wrap`}>
-                <span className={`px-2.5 py-1 ${spacing.rounded} ${spacing.text.caption} font-medium ${customerTypeColors[customer.customerType || 'individual']}`}>
+              <div className="flex items-center gap-2 mt-2 flex-wrap">
+                <span className={`px-2.5 py-1 rounded text-xs font-medium ${customerTypeColors[customer.customerType || 'individual']}`}>
                   {customer.customerType || 'Individual'}
                 </span>
                 {customer.email && (
-                  <span className={`px-2.5 py-1 ${spacing.rounded} ${spacing.text.caption} font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300`}>
+                  <span className="px-2.5 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
                     <HugeiconsIcon icon={Mail01Icon} size={12} className="inline mr-1" />
                     Verified
                   </span>
@@ -352,9 +351,9 @@ const CustomerDetails = () => {
             )}
           </div>
 
-          {/* Recent Work Orders */}
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
-            <div className="flex items-center justify-between mb-4">
+          {/* Service History - Using Standardized Table */}
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
+            <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-800">
               <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                 <HugeiconsIcon icon={TimelineIcon} size={18} className="text-gray-600 dark:text-gray-400" />
                 Service History
@@ -362,63 +361,33 @@ const CustomerDetails = () => {
               <button
                 onClick={() => navigate(`/work-orders?customer=${id}`)}
                 className="inline-flex items-center gap-1 text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors"
+                title="View in main table"
               >
                 View All
                 <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
               </button>
             </div>
-            {workOrders && workOrders.length > 0 ? (
-              <div className="space-y-2">
-                {workOrders.slice(0, 5).map((wo) => {
-                  const vehicle = vehicles?.find(v => v.id === wo.vehicleId);
 
-                  return (
-                    <div
-                      key={wo.id}
-                      className="group border border-gray-200 dark:border-gray-700 rounded-lg p-3 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50/30 dark:hover:bg-primary-900/20 transition-all cursor-pointer"
-                      onClick={() => navigate(`/work-orders/${wo.id}`)}
-                    >
-                      <div className="flex items-start justify-between gap-3 mb-2">
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">
-                              {wo.workOrderNumber || `WO-${wo.id.substring(0, 6).toUpperCase()}`}
-                            </span>
-                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${wo.status === 'Completed' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400' :
-                              wo.status === 'In Progress' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400' :
-                                wo.status === 'On Hold' ? 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400' :
-                                  'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
-                              }`}>
-                              {wo.status}
-                            </span>
-                          </div>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2">{wo.description || wo.service || 'General Service'}</p>
-                        </div>
-                        <HugeiconsIcon icon={ArrowRight01Icon} className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors flex-shrink-0 mt-1" />
-                      </div>
-                      <div className="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400">
-                        <span className="flex items-center gap-1">
-                          {vehicle && (
-                            <>
-                              <HugeiconsIcon icon={Car01Icon} className="w-3 h-3" />
-                              {vehicle.license_plate}
-                            </>
-                          )}
-                        </span>
-                        <span>{dayjs(wo.created_at).fromNow()}</span>
-                      </div>
-                    </div>
-                  );
-                })}
-                {workOrders.length > 5 && (
-                  <button
-                    onClick={() => navigate(`/work-orders?customer=${id}`)}
-                    className="w-full py-2 text-xs font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
-                  >
-                    View {workOrders.length - 5} more work orders
-                  </button>
-                )}
-              </div>
+            {workOrders && workOrders.length > 0 ? (
+              <EnhancedWorkOrderDataTable
+                workOrders={workOrders}
+                technicians={technicians}
+                locations={locations}
+                customers={customer ? [customer] : []}
+                vehicles={vehicles || []}
+                profiles={profiles}
+                serviceCategories={serviceCategories}
+                onEdit={(wo) => navigate(`/work-orders/${wo.id}`)}
+                onDelete={() => { }} // Read-only view mostly
+                onUpdateWorkOrder={() => { }}
+                onViewDetails={(id) => navigate(`/work-orders/${id}`)}
+                loading={loadingWorkOrders}
+                enableBulkActions={false}
+                enableAdvancedFilters={false}
+                enableExport={false}
+                compactMode={false}
+                visibleColumns={['workOrderNumber', 'status', 'priority', 'createdAt', 'service']}
+              />
             ) : (
               <div className="text-center py-12">
                 <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-3">

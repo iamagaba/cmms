@@ -11,6 +11,4 @@ export {
 } from './useOptimizedData';
 
 
-// Density-aware spacing hook
-export { useDensitySpacing } from './useDensitySpacing';
-export type { DensitySpacing } from './useDensitySpacing';
+

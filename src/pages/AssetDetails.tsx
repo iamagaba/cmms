@@ -19,6 +19,14 @@ import {
   AlertCircleIcon
 } from '@hugeicons/core-free-icons';
 import { Stack, Button, Skeleton, Tabs } from '@/components/tailwind-components';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 import { supabase } from '@/integrations/supabase/client';
 import { Vehicle, Customer, WorkOrder } from '@/types/supabase';
 import { snakeToCamelCase, camelToSnakeCase } from '@/utils/data-helpers';
@@ -27,8 +35,7 @@ import { showSuccess, showError } from '@/utils/toast';
 import AppBreadcrumb from '@/components/Breadcrumbs';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
+
 
 dayjs.extend(relativeTime);
 
@@ -37,8 +44,7 @@ const AssetDetails = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
+
 
 
   // Fetch vehicle details
@@ -78,7 +84,7 @@ const AssetDetails = () => {
 
   if (isLoading) {
     return (
-      <div className={`w-full ${spacing.card}`}>
+      <div className="w-full p-6">
         <Stack gap="lg">
           <Skeleton height={40} width={200} />
           <Skeleton height={300} />
@@ -90,11 +96,11 @@ const AssetDetails = () => {
 
   if (!vehicle) {
     return (
-      <div className={`w-full ${spacing.card}`}>
-        <div className={`bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg ${spacing.card} text-center`}>
-          <HugeiconsIcon icon={Alert01Icon} className={`mx-auto text-gray-400 dark:text-gray-500 ${spacing.mb}`} size={spacing.icon.xl} />
-          <h3 className={`${spacing.text.heading} font-semibold text-gray-900 dark:text-gray-100 mb-2`}>Asset Not Found</h3>
-          <p className={`${spacing.text.body} text-gray-600 dark:text-gray-400 ${spacing.mb}`}>The asset you're looking for doesn't exist.</p>
+      <div className="w-full p-6">
+        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6 text-center">
+          <HugeiconsIcon icon={Alert01Icon} className="mx-auto text-gray-400 dark:text-gray-500 mb-4" size={48} />
+          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Asset Not Found</h3>
+          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">The asset you're looking for doesn't exist.</p>
           <Button onClick={() => navigate('/assets')}>Back to Assets</Button>
         </div>
       </div>
@@ -142,15 +148,15 @@ const AssetDetails = () => {
           { label: vehicle.license_plate || 'Asset Details', path: `/assets/${id}`, isClickable: false }
         ]}
       />
-      <div className={`w-full ${spacing.cardX} pt-2 pb-6`}>
+      <div className="w-full px-6 pt-2 pb-6">
         <Stack gap="md">
 
           {/* Vehicle Header Card with Owner & Specifications */}
-          <div className={`bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg ${spacing.card}`}>
+          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
             {/* Vehicle Title Section */}
-            <div className={`flex items-start ${spacing.gap} pb-3 border-b border-gray-200 dark:border-gray-700`}>
-              <div className={`${isCompact ? 'w-12 h-12' : 'w-14 h-14'} rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0`}>
-                <HugeiconsIcon icon={Motorbike01Icon} size={spacing.icon.lg} className="text-primary-600 dark:text-primary-400" />
+            <div className="flex items-start gap-6 pb-3 border-b border-gray-200 dark:border-gray-700">
+              <div className="w-14 h-14 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
+                <HugeiconsIcon icon={Motorbike01Icon} size={24} className="text-primary-600 dark:text-primary-400" />
               </div>
               <div className="flex-1 min-w-0">
                 <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{vehicle.license_plate}</h1>
@@ -176,7 +182,7 @@ const AssetDetails = () => {
             </div>
 
             {/* Owner Information & Vehicle Specifications - Side by Side */}
-            <div className={`grid grid-cols-1 lg:grid-cols-2 ${spacing.gap} pt-4`}>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
               {/* Owner Information */}
               <div>
                 <div className="flex items-center justify-between mb-3">
@@ -275,9 +281,9 @@ const AssetDetails = () => {
           </div>
 
           {/* Quick Stats Row */}
-          <div className={`grid grid-cols-2 lg:grid-cols-4 ${spacing.gap}`}>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
             <div
-              className={`bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg ${spacing.card} hover:border-gray-300 dark:hover:border-gray-700 transition-colors cursor-pointer`}
+              className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6 hover:border-gray-300 dark:hover:border-gray-700 transition-colors cursor-pointer"
               onClick={() => navigate(`/work-orders?vehicle=${id}`)}
             >
               <div className="flex items-center justify-between">
@@ -381,131 +387,132 @@ const AssetDetails = () => {
               </div>
             ) : (
               <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200 dark:border-gray-700">
-                      <th className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3">Work Order #</th>
-                      <th className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3">Status</th>
-                      <th className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3">Description</th>
-                      <th className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3">Priority</th>
-                      <th className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3">Technician</th>
-                      <th className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3">Service Type</th>
-                      <th className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3">Created Date</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {recentWorkOrders.slice(0, 5).map((wo) => (
-                      <tr
-                        key={wo.id}
-                        className="group border-b border-gray-100 dark:border-gray-800 hover:bg-primary-50/30 dark:hover:bg-primary-900/20 transition-colors cursor-pointer"
-                        onClick={() => navigate(`/work-orders/${wo.id}`)}
-                      >
-                        <td className="py-3 px-3">
-                          <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">
-                            {wo.workOrderNumber || `WO-${wo.id.substring(0, 6).toUpperCase()}`}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3">
-                          <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap border ${wo.status === 'Completed' ? 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800' :
-                            wo.status === 'In Progress' ? 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800' :
-                              wo.status === 'On Hold' ? 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700' :
-                                wo.status === 'Ready' ? 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800' :
-                                  wo.status === 'Confirmation' ? 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800' :
-                                    'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
-                            }`}>
-                            {wo.status || 'Open'}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3">
-                          <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 max-w-xs">
-                            {wo.description || wo.service || 'General Service'}
-                          </p>
-                        </td>
-                        <td className="py-3 px-3">
-                          <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap border ${wo.priority === 'Critical' ? 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800' :
-                            wo.priority === 'High' ? 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800' :
-                              wo.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800' :
-                                wo.priority === 'Low' ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' :
-                                  'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
-                            }`}>
-                            {wo.priority || 'Medium'}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3">
-                          <span className="text-xs text-gray-700 dark:text-gray-300">
-                            {wo.assignedTechnicianId ? 'Assigned' : 'Unassigned'}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3">
-                          <span className="text-xs text-gray-700 dark:text-gray-300">
-                            {wo.service || '-'}
-                          </span>
-                        </td>
-                        <td className="py-3 px-3">
-                          <div className="flex flex-col gap-0.5">
-                            <span className="text-xs text-gray-700 dark:text-gray-300">{dayjs(wo.created_at).format('MMM DD, YYYY')}</span>
-                            <span className="text-xs text-gray-500 dark:text-gray-400">{dayjs(wo.created_at).fromNow()}</span>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                {workOrders && workOrders.length > 5 && (
-                  <button
-                    onClick={() => navigate(`/work-orders?vehicle=${id}`)}
-                    className="w-full py-2 text-xs font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors mt-2"
-                  >
-                    View {workOrders.length - 5} more work orders
-                  </button>
-                )}
-              </div>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="border-b border-gray-200 dark:border-gray-700">
+                        <TableHead className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3 h-auto">Work Order #</TableHead>
+                        <TableHead className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3 h-auto">Status</TableHead>
+                        <TableHead className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3 h-auto">Description</TableHead>
+                        <TableHead className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3 h-auto">Priority</TableHead>
+                        <TableHead className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3 h-auto">Technician</TableHead>
+                        <TableHead className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3 h-auto">Service Type</TableHead>
+                        <TableHead className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3 h-auto">Created Date</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {recentWorkOrders.slice(0, 5).map((wo) => (
+                        <TableRow
+                          key={wo.id}
+                          className="group border-b border-gray-100 dark:border-gray-800 hover:bg-primary-50/30 dark:hover:bg-primary-900/20 transition-colors cursor-pointer"
+                          onClick={() => navigate(`/work-orders/${wo.id}`)}
+                        >
+                          <TableCell className="py-3 px-3">
+                            <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">
+                              {wo.workOrderNumber || `WO-${wo.id.substring(0, 6).toUpperCase()}`}
+                            </span>
+                          </TableCell>
+                          <TableCell className="py-3 px-3">
+                            <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap border ${wo.status === 'Completed' ? 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800' :
+                              wo.status === 'In Progress' ? 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800' :
+                                wo.status === 'On Hold' ? 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700' :
+                                  wo.status === 'Ready' ? 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800' :
+                                    wo.status === 'Confirmation' ? 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800' :
+                                      'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
+                              }`}>
+                              {wo.status || 'Open'}
+                            </span>
+                          </TableCell>
+                          <TableCell className="py-3 px-3">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 max-w-xs">
+                              {wo.description || wo.service || 'General Service'}
+                            </p>
+                          </TableCell>
+                          <TableCell className="py-3 px-3">
+                            <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap border ${wo.priority === 'Critical' ? 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800' :
+                              wo.priority === 'High' ? 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800' :
+                                wo.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800' :
+                                  wo.priority === 'Low' ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' :
+                                    'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
+                              }`}>
+                              {wo.priority || 'Medium'}
+                            </span>
+                          </TableCell>
+                          <TableCell className="py-3 px-3">
+                            <span className="text-xs text-gray-700 dark:text-gray-300">
+                              {wo.assignedTechnicianId ? 'Assigned' : 'Unassigned'}
+                            </span>
+                          </TableCell>
+                          <TableCell className="py-3 px-3">
+                            <span className="text-xs text-gray-700 dark:text-gray-300">
+                              {wo.service || '-'}
+                            </span>
+                          </TableCell>
+                          <TableCell className="py-3 px-3">
+                            <div className="flex flex-col gap-0.5">
+                              <span className="text-xs text-gray-700 dark:text-gray-300">{dayjs(wo.created_at).format('MMM DD, YYYY')}</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">{dayjs(wo.created_at).fromNow()}</span>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                  {workOrders && workOrders.length > 5 && (
+                    <button
+                      onClick={() => navigate(`/work-orders?vehicle=${id}`)}
+                      className="w-full py-2 text-xs font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors mt-2"
+                    >
+                      View {workOrders.length - 5} more work orders
+                    </button>
+                  )}
+                </div>
             )}
-          </div>
+              </div>
 
           {/* Warranty Information */}
-          {vehicle.warranty_end_date && (
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                <HugeiconsIcon icon={LockIcon} size={18} className="text-gray-600 dark:text-gray-400" />
-                Warranty Information
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Status</div>
-                  <div className="text-sm font-semibold">
-                    {dayjs(vehicle.warranty_end_date).isAfter(dayjs()) ? (
-                      <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                        <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} />
-                        Active
-                      </span>
-                    ) : (
-                      <span className="text-red-600 dark:text-red-400 flex items-center gap-1">
-                        <HugeiconsIcon icon={AlertCircleIcon} size={16} />
-                        Expired
-                      </span>
-                    )}
-                  </div>
-                </div>
-                {vehicle.warranty_start_date && (
+            {vehicle.warranty_end_date && (
+              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
+                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
+                  <HugeiconsIcon icon={LockIcon} size={18} className="text-gray-600 dark:text-gray-400" />
+                  Warranty Information
+                </h3>
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Start Date</div>
-                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{dayjs(vehicle.warranty_start_date).format('MMM DD, YYYY')}</div>
+                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Status</div>
+                    <div className="text-sm font-semibold">
+                      {dayjs(vehicle.warranty_end_date).isAfter(dayjs()) ? (
+                        <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                          <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} />
+                          Active
+                        </span>
+                      ) : (
+                        <span className="text-red-600 dark:text-red-400 flex items-center gap-1">
+                          <HugeiconsIcon icon={AlertCircleIcon} size={16} />
+                          Expired
+                        </span>
+                      )}
+                    </div>
                   </div>
-                )}
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">End Date</div>
-                  <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{dayjs(vehicle.warranty_end_date).format('MMM DD, YYYY')}</div>
-                </div>
-                {vehicle.warranty_months && (
+                  {vehicle.warranty_start_date && (
+                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Start Date</div>
+                      <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{dayjs(vehicle.warranty_start_date).format('MMM DD, YYYY')}</div>
+                    </div>
+                  )}
                   <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Duration</div>
-                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{vehicle.warranty_months} months</div>
+                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">End Date</div>
+                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{dayjs(vehicle.warranty_end_date).format('MMM DD, YYYY')}</div>
                   </div>
-                )}
+                  {vehicle.warranty_months && (
+                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
+                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Duration</div>
+                      <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{vehicle.warranty_months} months</div>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          )}
+            )}
         </Stack>
 
         {/* Edit Asset Dialog */}

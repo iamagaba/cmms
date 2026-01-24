@@ -241,7 +241,7 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
   return (
     <>
       <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-40" onClick={onClose} />
-      <div className="fixed inset-y-0 right-0 w-full max-w-xl bg-white shadow-2xl z-50 flex flex-col">
+      <div className="fixed inset-y-0 right-0 w-full max-w-xl bg-white shadow-sm z-50 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 bg-gray-50 flex-shrink-0">
           <div>

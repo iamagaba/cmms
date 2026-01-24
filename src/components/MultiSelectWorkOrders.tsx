@@ -1,11 +1,11 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  CheckSquare, 
-  Square, 
-  X, 
-  Settings, 
-  MapPin, 
+import {
+  CheckSquare,
+  Square,
+  X,
+  Settings,
+  MapPin,
   Navigation,
   Users,
   Download
@@ -17,6 +17,8 @@ import { BatchOperationsPanel } from './BatchOperationsPanel';
 import { RouteOptimizationPanel } from './RouteOptimizationPanel';
 import { Coordinates } from '../utils/distance';
 import { workOrderHaptics } from '../utils/haptic';
+import { useToast } from '@/hooks/use-toast';
+
 
 export interface MultiSelectWorkOrdersProps {
   workOrders: WorkOrder[];
@@ -43,7 +45,7 @@ export function MultiSelectWorkOrders({
 }: MultiSelectWorkOrdersProps) {
   const [showBatchOperations, setShowBatchOperations] = useState(false);
   const [showRouteOptimization, setShowRouteOptimization] = useState(false);
-  
+
   const multiSelect = useMultiSelect<string>({
     hapticFeedback: true,
     maxSelections: 25
@@ -52,6 +54,8 @@ export function MultiSelectWorkOrders({
   const routePlanning = useRoutePlanning({
     hapticFeedback: true
   });
+  const { toast } = useToast();
+
 
   // Notify parent of selection changes
   useEffect(() => {
@@ -68,7 +72,7 @@ export function MultiSelectWorkOrders({
           multiSelect.exitMultiSelectMode();
         }
       }, 1000);
-      
+
       return () => clearTimeout(timer);
     }
   }, [multiSelect.isMultiSelectMode, multiSelect.selectionCount, multiSelect.exitMultiSelectMode]);
@@ -129,18 +133,26 @@ export function MultiSelectWorkOrders({
 
   const handlePlanRoute = () => {
     if (!userLocation) {
-      alert('Location access is required for route planning');
+      toast({
+        title: "Location Required",
+        description: "Location access is required for route planning",
+        variant: "destructive"
+      });
       return;
     }
 
-    const selectedWorkOrders = workOrders.filter(wo => 
+    const selectedWorkOrders = workOrders.filter(wo =>
       multiSelect.selectedItems.has(wo.id)
     );
 
     const validation = routePlanning.validateWorkOrders(selectedWorkOrders);
-    
+
     if (!validation.hasValidOrders) {
-      alert('Selected work orders do not have location data for route planning');
+      toast({
+        title: "Missing Location Data",
+        description: "Selected work orders do not have location data for route planning",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -155,11 +167,11 @@ export function MultiSelectWorkOrders({
     setShowRouteOptimization(true);
   };
 
-  const selectedWorkOrders = workOrders.filter(wo => 
+  const selectedWorkOrders = workOrders.filter(wo =>
     multiSelect.selectedItems.has(wo.id)
   );
 
-  const selectedWithLocation = selectedWorkOrders.filter(wo => 
+  const selectedWithLocation = selectedWorkOrders.filter(wo =>
     wo.customerLat && wo.customerLng
   );
 
@@ -192,7 +204,7 @@ export function MultiSelectWorkOrders({
                   </p>
                 </div>
               </div>
-              
+
               <div className="flex items-center space-x-2">
                 {multiSelect.selectionCount < workOrders.length && (
                   <button
@@ -202,7 +214,7 @@ export function MultiSelectWorkOrders({
                     Select All
                   </button>
                 )}
-                
+
                 {multiSelect.selectionCount > 0 && (
                   <button
                     onClick={handleClearSelection}
@@ -240,7 +252,7 @@ export function MultiSelectWorkOrders({
                 )}
               </div>
             </div>
-            
+
             <div className="grid grid-cols-2 gap-3">
               {/* Batch Operations */}
               <button
@@ -380,7 +392,7 @@ export function MultiSelectWorkOrderCard({
 
   const handleTouchStart = useCallback(() => {
     setIsPressed(true);
-    
+
     if (isMultiSelectMode) {
       workOrderHaptics.workOrderSelect();
     }
@@ -400,9 +412,8 @@ export function MultiSelectWorkOrderCard({
 
   return (
     <motion.div
-      className={`relative overflow-hidden transition-all duration-200 ${
-        isMultiSelectMode ? 'cursor-pointer' : ''
-      } ${isPressed ? 'scale-95' : ''}`}
+      className={`relative overflow-hidden transition-all duration-200 ${isMultiSelectMode ? 'cursor-pointer' : ''
+        } ${isPressed ? 'scale-95' : ''}`}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onClick={handleClick}
@@ -423,9 +434,8 @@ export function MultiSelectWorkOrderCard({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className={`absolute inset-0 border-2 rounded-xl z-10 pointer-events-none ${
-              isSelected ? 'border-blue-500 bg-blue-50 bg-opacity-20' : 'border-gray-300 border-dashed'
-            }`}
+            className={`absolute inset-0 border-2 rounded-xl z-10 pointer-events-none ${isSelected ? 'border-blue-500 bg-blue-50 bg-opacity-20' : 'border-gray-300 border-dashed'
+              }`}
           />
         )}
       </AnimatePresence>
@@ -439,9 +449,8 @@ export function MultiSelectWorkOrderCard({
             exit={{ scale: 0, opacity: 0 }}
             className="absolute top-3 right-3 z-20"
           >
-            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${
-              isSelected ? 'bg-blue-600 text-white' : 'bg-white border-2 border-gray-300'
-            }`}>
+            <div className={`w-6 h-6 rounded-full flex items-center justify-center ${isSelected ? 'bg-blue-600 text-white' : 'bg-white border-2 border-gray-300'
+              }`}>
               {isSelected ? (
                 <CheckSquare className="w-4 h-4" />
               ) : (

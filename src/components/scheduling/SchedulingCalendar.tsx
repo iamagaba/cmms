@@ -5,7 +5,7 @@ import {
     addDays,
     eachDayOfInterval,
     isSameMonth,
-    isSameDay,
+
     parseISO,
     differenceInMinutes
 } from 'date-fns';
@@ -14,14 +14,19 @@ import {
     ArrowLeft01Icon,
     ArrowRight01Icon,
     FilterHorizontalIcon,
-    Location03Icon
+    Location03Icon,
+    Add01Icon
 } from '@hugeicons/core-free-icons';
 import { cn } from '@/lib/utils';
 import ShiftCard, { ShiftCardProps } from './ShiftCard';
+import { ShiftEditorDialog } from './ShiftEditorDialog';
 import { useLocations } from '@/hooks/useLocations';
 import { useShifts } from '@/hooks/useShifts';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
 
 interface Technician {
     id: string;
@@ -42,6 +47,8 @@ const SchedulingCalendar = () => {
         status: 'all',
         technician: 'all'
     });
+    const [creatingShift, setCreatingShift] = useState<{ technicianId: string, date: Date } | null>(null);
+    const [editingShift, setEditingShift] = useState<any | null>(null);
 
     const nextPeriod = () => {
         if (viewMode === 'week') {
@@ -50,7 +57,7 @@ const SchedulingCalendar = () => {
             setCurrentDate(addDays(currentDate, 1));
         }
     };
-    
+
     const prevPeriod = () => {
         if (viewMode === 'week') {
             setCurrentDate(addDays(currentDate, -7));
@@ -58,7 +65,7 @@ const SchedulingCalendar = () => {
             setCurrentDate(addDays(currentDate, -1));
         }
     };
-    
+
     const today = () => setCurrentDate(new Date());
 
     // Generate days for the grid based on view mode
@@ -130,7 +137,7 @@ const SchedulingCalendar = () => {
 
         technicians.forEach(tech => {
             const techShifts = shifts.filter(shift => shift.technician_id === tech.id);
-            
+
             const totalMinutes = techShifts.reduce((sum, shift) => {
                 const start = parseISO(shift.start_datetime);
                 const end = parseISO(shift.end_datetime);
@@ -156,28 +163,28 @@ const SchedulingCalendar = () => {
         if (!shifts) return [];
 
         const dateStr = format(date, 'yyyy-MM-dd');
-        
+
         return shifts
             .filter(shift => {
                 const shiftDate = format(parseISO(shift.start_datetime), 'yyyy-MM-dd');
                 const matchesTechnician = shift.technician_id === technicianId;
                 const matchesDate = shiftDate === dateStr;
                 const matchesLocation = selectedLocation === 'all' || shift.location_id === selectedLocation;
-                
+
                 // Apply additional filters
                 const matchesShiftType = filters.shiftType === 'all' || shift.shift_type === filters.shiftType;
                 const matchesStatus = filters.status === 'all' || shift.status === filters.status;
-                
+
                 return matchesTechnician && matchesDate && matchesLocation && matchesShiftType && matchesStatus;
             })
             .map(shift => {
                 const startTime = format(parseISO(shift.start_datetime), 'h:mma');
                 const endTime = format(parseISO(shift.end_datetime), 'h:mma');
-                
+
                 // Determine status and color based on shift data
                 let status: ShiftCardProps['status'] = 'assigned';
                 let color = '#6b7280'; // default gray
-                
+
                 if (shift.status === 'published') {
                     status = 'assigned';
                     color = '#3b82f6'; // blue
@@ -198,6 +205,7 @@ const SchedulingCalendar = () => {
                     location: shift.location?.name,
                     notes: shift.notes,
                     color,
+                    onClick: () => setEditingShift(shift),
                 };
             });
     };
@@ -207,7 +215,7 @@ const SchedulingCalendar = () => {
         if (!shifts) return { totalHours: 0, totalEarnings: 0 };
 
         const openShifts = shifts.filter(shift => !shift.technician_id || shift.status === 'open');
-        
+
         const totalMinutes = openShifts.reduce((sum, shift) => {
             const start = parseISO(shift.start_datetime);
             const end = parseISO(shift.end_datetime);
@@ -220,6 +228,11 @@ const SchedulingCalendar = () => {
             totalEarnings: 0 // Open shifts have no earnings yet
         };
     }, [shifts]);
+
+    const handleShiftCreated = () => {
+        // Refetch shifts
+        // The query invalidation is handled in the Dialog component, but we can also trigger a refetch here if needed
+    };
 
     const isLoading = loadingShifts || loadingTechnicians || loadingLocations;
 
@@ -244,93 +257,95 @@ const SchedulingCalendar = () => {
 
     return (
         <div className="flex flex-col h-full bg-white dark:bg-gray-900 overflow-hidden">
-            {/* Header Toolbar - matching reports page density */}
-            <div className="flex items-center justify-between px-3 py-2.5 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900">
+            {/* Header Toolbar - compact matching reports density */}
+            <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-background">
                 <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-0.5 bg-gray-100 dark:bg-gray-800 rounded p-0.5">
-                        <button
+                    <div className="flex items-center gap-0.5 bg-muted rounded-md p-0.5">
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
                             onClick={prevPeriod}
-                            className="p-1 hover:bg-white dark:hover:bg-gray-700 hover:shadow-sm rounded transition-all text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
                             disabled={isLoading}
                         >
                             <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
-                        </button>
-                        <span className="px-3 text-xs font-semibold min-w-[140px] text-center text-gray-900 dark:text-gray-100">
-                            {viewMode === 'day' 
+                        </Button>
+                        <span className="px-3 text-xs font-semibold min-w-[140px] text-center text-foreground">
+                            {viewMode === 'day'
                                 ? format(currentDate, 'MMMM d, yyyy')
                                 : `${format(startOfWeek(currentDate, { weekStartsOn: 0 }), 'MMM d')} - ${format(addDays(startOfWeek(currentDate, { weekStartsOn: 0 }), 6), 'MMM d, yyyy')}`
                             }
                         </span>
-                        <button
+                        <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7"
                             onClick={nextPeriod}
-                            className="p-1 hover:bg-white dark:hover:bg-gray-700 hover:shadow-sm rounded transition-all text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
                             disabled={isLoading}
                         >
                             <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
-                        </button>
+                        </Button>
                     </div>
 
-                    <button
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 text-xs"
                         onClick={today}
-                        className="px-2.5 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200 transition-colors"
                         disabled={isLoading}
                     >
                         Today
-                    </button>
+                    </Button>
                 </div>
 
                 <div className="flex items-center gap-2">
                     {/* Location Filter */}
-                    <div className="relative">
-                        <select
+                    <div className="w-[180px]">
+                        <Select
                             value={selectedLocation}
-                            onChange={(e) => setSelectedLocation(e.target.value)}
-                            className="appearance-none pl-7 pr-8 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 border border-gray-200 dark:border-gray-700 rounded hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200 transition-colors cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary-500 bg-white dark:bg-gray-900"
+                            onValueChange={setSelectedLocation}
                             disabled={isLoading}
                         >
-                            {locations.map(loc => (
-                                <option key={loc.id} value={loc.id}>{loc.name}</option>
-                            ))}
-                        </select>
-                        <HugeiconsIcon
-                            icon={Location03Icon}
-                            size={14}
-                            className="absolute left-2 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500 pointer-events-none"
-                        />
+                            <SelectTrigger className="h-8 text-xs border-gray-200 dark:border-gray-800 bg-background shadow-sm focus:ring-1 focus:ring-primary/30 focus:ring-offset-0">
+                                <SelectValue placeholder="Select Location" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {locations.map(loc => (
+                                    <SelectItem key={loc.id} value={loc.id} className="text-xs">{loc.name}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
 
-                    <button 
+                    <Button
+                        variant={showFilters ? "secondary" : "outline"}
+                        size="sm"
+                        className="h-8 text-xs gap-1.5"
                         onClick={() => setShowFilters(!showFilters)}
-                        className={cn(
-                            "flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium border border-gray-200 dark:border-gray-700 rounded transition-colors",
-                            showFilters 
-                                ? "bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border-primary-300 dark:border-primary-700" 
-                                : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200"
-                        )}
                     >
                         <HugeiconsIcon icon={FilterHorizontalIcon} size={14} />
                         Filters
-                    </button>
+                    </Button>
 
-                    <div className="flex bg-gray-100 dark:bg-gray-800 p-0.5 rounded">
-                        <button 
+                    <div className="flex bg-muted p-0.5 rounded-md">
+                        <button
                             onClick={() => setViewMode('week')}
                             className={cn(
-                                "px-3 py-1 text-xs font-semibold rounded transition-colors",
-                                viewMode === 'week' 
-                                    ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm" 
-                                    : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                                "px-3 py-1 text-xs font-semibold rounded-sm transition-all",
+                                viewMode === 'week'
+                                    ? "bg-background text-foreground shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground"
                             )}
                         >
                             Week
                         </button>
-                        <button 
+                        <button
                             onClick={() => setViewMode('day')}
                             className={cn(
-                                "px-3 py-1 text-xs font-semibold rounded transition-colors",
-                                viewMode === 'day' 
-                                    ? "bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-sm" 
-                                    : "text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200"
+                                "px-3 py-1 text-xs font-semibold rounded-sm transition-all",
+                                viewMode === 'day'
+                                    ? "bg-background text-foreground shadow-sm"
+                                    : "text-muted-foreground hover:text-foreground"
                             )}
                         >
                             Day
@@ -341,80 +356,100 @@ const SchedulingCalendar = () => {
 
             {/* Filters Panel */}
             {showFilters && (
-                <div className="px-3 py-2.5 border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50">
+                <div className="px-3 py-2.5 border-b border-border bg-muted/30">
                     <div className="flex items-center gap-3">
-                        <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Filters:</span>
-                        
+                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Filters:</span>
+
                         {/* Shift Type Filter */}
-                        <select
-                            value={filters.shiftType}
-                            onChange={(e) => setFilters({ ...filters, shiftType: e.target.value })}
-                            className="px-2.5 py-1.5 text-xs border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                        >
-                            <option value="all">All Shift Types</option>
-                            {shiftTypes.map(type => (
-                                <option key={type} value={type}>{type}</option>
-                            ))}
-                        </select>
+                        <div className="w-[160px]">
+                            <Select
+                                value={filters.shiftType}
+                                onValueChange={(value) => setFilters({ ...filters, shiftType: value })}
+                            >
+                                <SelectTrigger className="h-8 text-xs border-gray-200 dark:border-gray-800 bg-background shadow-sm focus:ring-1 focus:ring-primary/30 focus:ring-offset-0">
+                                    <SelectValue placeholder="Shift Type" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all" className="text-xs">All Shift Types</SelectItem>
+                                    {shiftTypes.map(type => (
+                                        <SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
 
                         {/* Status Filter */}
-                        <select
-                            value={filters.status}
-                            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                            className="px-2.5 py-1.5 text-xs border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                        >
-                            <option value="all">All Statuses</option>
-                            {statuses.map(status => (
-                                <option key={status} value={status}>{status}</option>
-                            ))}
-                        </select>
+                        <div className="w-[140px]">
+                            <Select
+                                value={filters.status}
+                                onValueChange={(value) => setFilters({ ...filters, status: value })}
+                            >
+                                <SelectTrigger className="h-8 text-xs border-gray-200 dark:border-gray-800 bg-background shadow-sm focus:ring-1 focus:ring-primary/30 focus:ring-offset-0">
+                                    <SelectValue placeholder="Status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all" className="text-xs">All Statuses</SelectItem>
+                                    {statuses.map(status => (
+                                        <SelectItem key={status} value={status} className="text-xs">{status}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
 
                         {/* Technician Filter */}
-                        <select
-                            value={filters.technician}
-                            onChange={(e) => setFilters({ ...filters, technician: e.target.value })}
-                            className="px-2.5 py-1.5 text-xs border border-gray-200 dark:border-gray-700 rounded bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-primary-500"
-                        >
-                            <option value="all">All Technicians</option>
-                            {technicians.map(tech => (
-                                <option key={tech.id} value={tech.id}>{tech.name}</option>
-                            ))}
-                        </select>
+                        <div className="w-[180px]">
+                            <Select
+                                value={filters.technician}
+                                onValueChange={(value) => setFilters({ ...filters, technician: value })}
+                            >
+                                <SelectTrigger className="h-8 text-xs border-gray-200 dark:border-gray-800 bg-background shadow-sm focus:ring-1 focus:ring-primary/30 focus:ring-offset-0">
+                                    <SelectValue placeholder="Technician" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all" className="text-xs">All Technicians</SelectItem>
+                                    {technicians.map(tech => (
+                                        <SelectItem key={tech.id} value={tech.id} className="text-xs">{tech.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
 
                         {/* Clear Filters */}
                         {(filters.shiftType !== 'all' || filters.status !== 'all' || filters.technician !== 'all') && (
-                            <button
+                            <Button
+                                variant="link"
+                                size="sm"
+                                className="h-8 text-xs text-muted-foreground hover:text-foreground"
                                 onClick={() => setFilters({ shiftType: 'all', status: 'all', technician: 'all' })}
-                                className="px-2.5 py-1.5 text-xs text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 underline"
                             >
                                 Clear all
-                            </button>
+                            </Button>
                         )}
                     </div>
                 </div>
             )}
 
             {/* Calendar Grid - compact like reports page */}
-            <div className="flex-1 overflow-auto bg-gray-50 dark:bg-gray-900">
+            <div className="flex-1 overflow-auto bg-muted/10">
                 {isLoading ? (
                     <div className="flex items-center justify-center h-full">
                         <div className="text-center">
-                            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600 dark:border-primary-400"></div>
-                            <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Loading schedule...</p>
+                            <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                            <p className="mt-2 text-xs text-muted-foreground">Loading schedule...</p>
                         </div>
                     </div>
                 ) : (
                     <>
                         {/* Header Row */}
                         <div
-                            className="grid border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 sticky top-0 z-10"
+                            className="grid border-b border-border bg-background sticky top-0 z-10"
                             style={{ gridTemplateColumns: `180px repeat(${calendarDays.length}, 1fr)` }}
                         >
-                            <div className="py-2 px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide border-r border-gray-100 dark:border-gray-700">
+                            <div className="py-2 px-3 text-xs font-semibold text-muted-foreground border-r border-border/50">
                                 Technician
                             </div>
                             {calendarDays.map((day) => (
-                                <div key={day.toString()} className="py-2 text-center text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide border-r border-gray-100 dark:border-gray-700 last:border-r-0">
+                                <div key={day.toString()} className="py-2 text-center text-xs font-semibold text-muted-foreground border-r border-border/50 last:border-r-0">
                                     {viewMode === 'day' ? format(day, 'EEEE, MMM d') : format(day, 'EEE d')}
                                 </div>
                             ))}
@@ -424,51 +459,52 @@ const SchedulingCalendar = () => {
                         {filteredTechnicians.length === 0 ? (
                             <div className="flex items-center justify-center py-12">
                                 <div className="text-center">
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">No technicians found</p>
-                                    <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Add technicians to start scheduling</p>
+                                    <p className="text-sm text-muted-foreground">No technicians found</p>
+                                    <p className="text-xs text-muted-foreground/60 mt-1">Add technicians to start scheduling</p>
                                 </div>
                             </div>
                         ) : (
                             filteredTechnicians.map((technician) => {
                                 const stats = technicianStats[technician.id] || { totalHours: 0, totalEarnings: 0 };
-                                
+
                                 return (
                                     <div
                                         key={technician.id}
-                                        className="grid border-b border-gray-200 dark:border-gray-800"
+                                        className="grid border-b border-border hover:bg-muted/5 transition-colors"
                                         style={{ gridTemplateColumns: `180px repeat(${calendarDays.length}, 1fr)` }}
                                     >
-                                        <div className="p-3 border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900">
-                                            <div className="text-sm font-semibold text-gray-700 dark:text-gray-300">{technician.name}</div>
-                                            <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                        <div className="p-3 border-r border-border/50 bg-background">
+                                            <div className="text-sm font-semibold text-foreground">{technician.name}</div>
+                                            <div className="text-xs text-muted-foreground mt-0.5">
                                                 {stats.totalHours} hrs
                                             </div>
                                         </div>
                                         {calendarDays.map((day) => {
                                             const shifts = getShiftsForTechnicianAndDate(technician.id, day);
-                                            const isToday = isSameDay(day, new Date());
+
                                             const isCurrentMonth = isSameMonth(day, currentDate);
 
                                             return (
                                                 <div
                                                     key={day.toString()}
                                                     className={cn(
-                                                        "min-h-[80px] bg-white dark:bg-gray-900 p-2 border-r border-gray-200 dark:border-gray-700 last:border-r-0",
-                                                        !isCurrentMonth && "bg-gray-50/30 dark:bg-gray-800/30"
+                                                        "min-h-[60px] bg-background p-1 border-r border-border/50 last:border-r-0",
+                                                        !isCurrentMonth && "bg-muted/20"
                                                     )}
                                                 >
-                                                    <div className="flex justify-end mb-1">
-                                                        <span className={cn(
-                                                            "text-xs font-medium w-6 h-6 flex items-center justify-center rounded-full",
-                                                            isToday ? "bg-primary-600 text-white" : "text-gray-700 dark:text-gray-300"
-                                                        )}>
-                                                            {format(day, 'd')}
-                                                        </span>
-                                                    </div>
+
                                                     <div className="flex flex-col gap-1">
                                                         {shifts.map((shift) => (
                                                             <ShiftCard key={shift.id} {...shift} />
                                                         ))}
+                                                        {shifts.length === 0 && (
+                                                            <button
+                                                                onClick={() => setCreatingShift({ technicianId: technician.id, date: day })}
+                                                                className="w-full h-full min-h-[40px] flex items-center justify-center text-muted-foreground/30 hover:text-primary hover:bg-primary/5 rounded-sm transition-all opacity-0 hover:opacity-100 group-hover:opacity-100"
+                                                            >
+                                                                <HugeiconsIcon icon={Add01Icon} size={20} />
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </div>
                                             );
@@ -480,6 +516,28 @@ const SchedulingCalendar = () => {
                     </>
                 )}
             </div>
+            {/* Shift Editor Dialog */}
+            {creatingShift && (
+                <ShiftEditorDialog
+                    open={!!creatingShift}
+                    onClose={() => setCreatingShift(null)}
+                    technicianId={creatingShift.technicianId}
+                    date={format(creatingShift.date, 'yyyy-MM-dd')}
+                    locations={fetchedLocations}
+                    onSave={handleShiftCreated}
+                />
+            )}
+            {editingShift && (
+                <ShiftEditorDialog
+                    open={!!editingShift}
+                    onClose={() => setEditingShift(null)}
+                    shift={editingShift}
+                    technicianId={editingShift.technician_id}
+                    date={format(parseISO(editingShift.start_datetime), 'yyyy-MM-dd')}
+                    locations={fetchedLocations}
+                    onSave={handleShiftCreated}
+                />
+            )}
         </div>
     );
 };

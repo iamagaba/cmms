@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
+import {
   FileIcon,
   Download01Icon,
   Calendar01Icon,
@@ -21,8 +21,14 @@ import {
 } from '@/hooks/useInventoryReports';
 import { ITEM_CATEGORY_LABELS } from '@/utils/inventory-categorization-helpers';
 import dayjs from 'dayjs';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 interface InventoryReportsPanelProps {
   isOpen: boolean;
@@ -43,8 +49,6 @@ export const InventoryReportsPanel: React.FC<InventoryReportsPanelProps> = ({
   isOpen,
   onClose,
 }) => {
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
   const [activeReport, setActiveReport] = useState<ReportType>('valuation');
 
   if (!isOpen) return null;
@@ -74,11 +78,10 @@ export const InventoryReportsPanel: React.FC<InventoryReportsPanelProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveReport(tab.id as ReportType)}
-              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${
-                activeReport === tab.id
-                  ? 'text-purple-600 dark:text-purple-400 border-b-2 border-purple-600 dark:border-purple-400'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-              }`}
+              className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${activeReport === tab.id
+                ? 'text-purple-600 dark:text-purple-400 border-b-2 border-purple-600 dark:border-purple-400'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
             >
               {/* TODO: Convert tab.icon prop to use HugeiconsIcon component */}
               {tab.label}
@@ -125,13 +128,13 @@ const ValuationReport: React.FC = () => {
         />
         <StatCard
           label="Total Value"
-          value={`$${data.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+          value={`UGX ${data.totalValue.toLocaleString()}`}
           icon="tabler:currency-dollar"
           color="emerald"
         />
         <StatCard
           label="Avg Item Value"
-          value={`$${data.averageItemValue.toFixed(2)}`}
+          value={`UGX ${Math.round(data.averageItemValue).toLocaleString()}`}
           icon="tabler:chart-bar"
           color="orange"
         />
@@ -153,7 +156,7 @@ const ValuationReport: React.FC = () => {
                     <p className="text-xs text-gray-500">{stats.count} items</p>
                   </div>
                   <span className="text-sm font-semibold text-emerald-600">
-                    ${stats.value.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    UGX {stats.value.toLocaleString()}
                   </span>
                 </div>
               ))}
@@ -173,7 +176,7 @@ const ValuationReport: React.FC = () => {
                     <p className="text-xs text-gray-500">{stats.count} items</p>
                   </div>
                   <span className="text-sm font-semibold text-emerald-600">
-                    ${stats.value.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    UGX {stats.value.toLocaleString()}
                   </span>
                 </div>
               ))}
@@ -185,37 +188,37 @@ const ValuationReport: React.FC = () => {
       <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Top 10 Highest Value Items</h3>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
-                <th className="pb-2 font-medium">Item</th>
-                <th className="pb-2 font-medium">SKU</th>
-                <th className="pb-2 font-medium text-right">Qty</th>
-                <th className="pb-2 font-medium text-right">Unit Price</th>
-                <th className="pb-2 font-medium text-right">Total Value</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+          <Table>
+            <TableHeader className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
+              <TableRow>
+                <TableHead className="pb-2 font-medium">Item</TableHead>
+                <TableHead className="pb-2 font-medium">SKU</TableHead>
+                <TableHead className="pb-2 font-medium text-right">Qty</TableHead>
+                <TableHead className="pb-2 font-medium text-right">Unit Price</TableHead>
+                <TableHead className="pb-2 font-medium text-right">Total Value</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="divide-y divide-gray-100 dark:divide-gray-700">
               {data.topValueItems.map((item, idx) => (
-                <tr key={item.id}>
-                  <td className="py-2">
+                <TableRow key={item.id}>
+                  <TableCell className="py-2">
                     <div className="flex items-center gap-2">
                       <span className="w-5 h-5 flex items-center justify-center bg-purple-100 dark:bg-purple-900/30 text-purple-600 rounded text-xs font-medium">
                         {idx + 1}
                       </span>
                       <span className="font-medium text-gray-900 dark:text-gray-100">{item.name}</span>
                     </div>
-                  </td>
-                  <td className="py-2 text-gray-500">{item.sku || '-'}</td>
-                  <td className="py-2 text-right text-gray-900 dark:text-gray-100">{item.quantity_on_hand}</td>
-                  <td className="py-2 text-right text-gray-900 dark:text-gray-100">${item.unit_price.toFixed(2)}</td>
-                  <td className="py-2 text-right font-semibold text-emerald-600">
-                    ${item.total_value.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                  </td>
-                </tr>
+                  </TableCell>
+                  <TableCell className="py-2 text-gray-500">{item.sku || '-'}</TableCell>
+                  <TableCell className="py-2 text-right text-gray-900 dark:text-gray-100">{item.quantity_on_hand}</TableCell>
+                  <TableCell className="py-2 text-right text-gray-900 dark:text-gray-100">UGX {Math.round(item.unit_price).toLocaleString()}</TableCell>
+                  <TableCell className="py-2 text-right font-semibold text-emerald-600">
+                    UGX {item.total_value.toLocaleString()}
+                  </TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
     </div>
@@ -227,7 +230,7 @@ const ValuationReport: React.FC = () => {
 
 const StockMovementReport: React.FC = () => {
   const [dateRange, setDateRange] = useState<'7d' | '30d' | '90d' | 'all'>('30d');
-  
+
   const getDateRange = () => {
     const now = dayjs();
     switch (dateRange) {
@@ -323,45 +326,43 @@ const StockMovementReport: React.FC = () => {
       <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Recent Movements</h3>
         <div className="overflow-x-auto max-h-80">
-          <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-gray-50 dark:bg-gray-800">
-              <tr className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
-                <th className="pb-2 font-medium">Date</th>
-                <th className="pb-2 font-medium">Item</th>
-                <th className="pb-2 font-medium">Reason</th>
-                <th className="pb-2 font-medium text-right">Change</th>
-                <th className="pb-2 font-medium text-right">After</th>
-                <th className="pb-2 font-medium">By</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+          <Table>
+            <TableHeader className="sticky top-0 bg-gray-50 dark:bg-gray-800">
+              <TableRow className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
+                <TableHead className="pb-2 font-medium">Date</TableHead>
+                <TableHead className="pb-2 font-medium">Item</TableHead>
+                <TableHead className="pb-2 font-medium">Reason</TableHead>
+                <TableHead className="pb-2 font-medium text-right">Change</TableHead>
+                <TableHead className="pb-2 font-medium text-right">After</TableHead>
+                <TableHead className="pb-2 font-medium">By</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="divide-y divide-gray-100 dark:divide-gray-700">
               {data.records.slice(0, 50).map(record => (
-                <tr key={record.id}>
-                  <td className="py-2 text-gray-500">{dayjs(record.created_at).format('MMM D, HH:mm')}</td>
-                  <td className="py-2">
+                <TableRow key={record.id}>
+                  <TableCell className="py-2 text-gray-500">{dayjs(record.created_at).format('MMM D, HH:mm')}</TableCell>
+                  <TableCell className="py-2">
                     <p className="font-medium text-gray-900 dark:text-gray-100">{record.item_name}</p>
                     {record.item_sku && <p className="text-xs text-gray-500">{record.item_sku}</p>}
-                  </td>
-                  <td className="py-2">
-                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                      record.quantity_delta > 0 
-                        ? 'bg-emerald-100 text-emerald-700' 
-                        : 'bg-red-100 text-red-700'
-                    }`}>
+                  </TableCell>
+                  <TableCell className="py-2">
+                    <span className={`px-2 py-0.5 rounded text-xs font-medium ${record.quantity_delta > 0
+                      ? 'bg-emerald-100 text-emerald-700'
+                      : 'bg-red-100 text-red-700'
+                      }`}>
                       {REASON_LABELS[record.reason] || record.reason}
                     </span>
-                  </td>
-                  <td className={`py-2 text-right font-medium ${
-                    record.quantity_delta > 0 ? 'text-emerald-600' : 'text-red-600'
-                  }`}>
+                  </TableCell>
+                  <TableCell className={`py-2 text-right font-medium ${record.quantity_delta > 0 ? 'text-emerald-600' : 'text-red-600'
+                    }`}>
                     {record.quantity_delta > 0 ? '+' : ''}{record.quantity_delta}
-                  </td>
-                  <td className="py-2 text-right text-gray-900 dark:text-gray-100">{record.quantity_after}</td>
-                  <td className="py-2 text-gray-500">{record.created_by_name || '-'}</td>
-                </tr>
+                  </TableCell>
+                  <TableCell className="py-2 text-right text-gray-900 dark:text-gray-100">{record.quantity_after}</TableCell>
+                  <TableCell className="py-2 text-gray-500">{record.created_by_name || '-'}</TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
     </div>
@@ -395,7 +396,7 @@ const SlowMovingReport: React.FC = () => {
         />
         <StatCard
           label="Slow-Moving Value"
-          value={`$${slowMovingValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+          value={`UGX ${slowMovingValue.toLocaleString()}`}
           icon="tabler:currency-dollar"
           color="orange"
         />
@@ -407,7 +408,7 @@ const SlowMovingReport: React.FC = () => {
         />
         <StatCard
           label="Dead Stock Value"
-          value={`$${deadStockValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+          value={`UGX ${deadStockValue.toLocaleString()}`}
           icon="tabler:currency-dollar"
           color="red"
         />
@@ -421,11 +422,10 @@ const SlowMovingReport: React.FC = () => {
             <button
               key={days}
               onClick={() => setThreshold(days as any)}
-              className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${
-                threshold === days
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'
-              }`}
+              className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${threshold === days
+                ? 'bg-purple-600 text-white'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'
+                }`}
             >
               {days}+ days
             </button>
@@ -442,47 +442,46 @@ const SlowMovingReport: React.FC = () => {
           <EmptyState message="No slow-moving items found" />
         ) : (
           <div className="overflow-x-auto max-h-64">
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-gray-50 dark:bg-gray-800">
-                <tr className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
-                  <th className="pb-2 font-medium">Item</th>
-                  <th className="pb-2 font-medium">Warehouse</th>
-                  <th className="pb-2 font-medium text-right">Qty</th>
-                  <th className="pb-2 font-medium text-right">Value</th>
-                  <th className="pb-2 font-medium text-right">Days Idle</th>
-                  <th className="pb-2 font-medium">Last Movement</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+            <Table>
+              <TableHeader className="sticky top-0 bg-gray-50 dark:bg-gray-800">
+                <TableRow className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
+                  <TableHead className="pb-2 font-medium">Item</TableHead>
+                  <TableHead className="pb-2 font-medium">Warehouse</TableHead>
+                  <TableHead className="pb-2 font-medium text-right">Qty</TableHead>
+                  <TableHead className="pb-2 font-medium text-right">Value</TableHead>
+                  <TableHead className="pb-2 font-medium text-right">Days Idle</TableHead>
+                  <TableHead className="pb-2 font-medium">Last Movement</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="divide-y divide-gray-100 dark:divide-gray-700">
                 {slowMoving.slice(0, 20).map(item => (
-                  <tr key={item.id}>
-                    <td className="py-2">
+                  <TableRow key={item.id}>
+                    <TableCell className="py-2">
                       <p className="font-medium text-gray-900 dark:text-gray-100">{item.name}</p>
                       {item.sku && <p className="text-xs text-gray-500">{item.sku}</p>}
-                    </td>
-                    <td className="py-2 text-gray-500">{item.warehouse || '-'}</td>
-                    <td className="py-2 text-right text-gray-900 dark:text-gray-100">{item.quantity_on_hand}</td>
-                    <td className="py-2 text-right font-medium text-orange-600">
-                      ${item.total_value.toFixed(2)}
-                    </td>
-                    <td className="py-2 text-right">
-                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                        item.days_since_movement >= 180 
-                          ? 'bg-red-100 text-red-700' 
-                          : 'bg-orange-100 text-orange-700'
-                      }`}>
+                    </TableCell>
+                    <TableCell className="py-2 text-gray-500">{item.warehouse || '-'}</TableCell>
+                    <TableCell className="py-2 text-right text-gray-900 dark:text-gray-100">{item.quantity_on_hand}</TableCell>
+                    <TableCell className="py-2 text-right font-medium text-orange-600">
+                      UGX {Math.round(item.total_value).toLocaleString()}
+                    </TableCell>
+                    <TableCell className="py-2 text-right">
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${item.days_since_movement >= 180
+                        ? 'bg-red-100 text-red-700'
+                        : 'bg-orange-100 text-orange-700'
+                        }`}>
                         {item.days_since_movement} days
                       </span>
-                    </td>
-                    <td className="py-2 text-gray-500">
-                      {item.last_movement_date 
+                    </TableCell>
+                    <TableCell className="py-2 text-gray-500">
+                      {item.last_movement_date
                         ? dayjs(item.last_movement_date).format('MMM D, YYYY')
                         : 'Never'}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         )}
       </div>
@@ -496,45 +495,44 @@ const SlowMovingReport: React.FC = () => {
           <EmptyState message="No turnover data available" />
         ) : (
           <div className="overflow-x-auto max-h-64">
-            <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-gray-50 dark:bg-gray-800">
-                <tr className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
-                  <th className="pb-2 font-medium">Item</th>
-                  <th className="pb-2 font-medium text-right">Avg Inventory</th>
-                  <th className="pb-2 font-medium text-right">Total Sold</th>
-                  <th className="pb-2 font-medium text-right">Turnover Rate</th>
-                  <th className="pb-2 font-medium text-right">Days to Sell</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+            <Table>
+              <TableHeader className="sticky top-0 bg-gray-50 dark:bg-gray-800">
+                <TableRow className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
+                  <TableHead className="pb-2 font-medium">Item</TableHead>
+                  <TableHead className="pb-2 font-medium text-right">Avg Inventory</TableHead>
+                  <TableHead className="pb-2 font-medium text-right">Total Sold</TableHead>
+                  <TableHead className="pb-2 font-medium text-right">Turnover Rate</TableHead>
+                  <TableHead className="pb-2 font-medium text-right">Days to Sell</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="divide-y divide-gray-100 dark:divide-gray-700">
                 {turnover.slice(0, 15).map(item => (
-                  <tr key={item.inventory_item_id}>
-                    <td className="py-2">
+                  <TableRow key={item.inventory_item_id}>
+                    <TableCell className="py-2">
                       <p className="font-medium text-gray-900 dark:text-gray-100">{item.item_name}</p>
                       {item.item_sku && <p className="text-xs text-gray-500">{item.item_sku}</p>}
-                    </td>
-                    <td className="py-2 text-right text-gray-900 dark:text-gray-100">
+                    </TableCell>
+                    <TableCell className="py-2 text-right text-gray-900 dark:text-gray-100">
                       {item.average_inventory.toFixed(1)}
-                    </td>
-                    <td className="py-2 text-right text-gray-900 dark:text-gray-100">{item.total_sold}</td>
-                    <td className="py-2 text-right">
-                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                        item.turnover_rate >= 4 
-                          ? 'bg-emerald-100 text-emerald-700'
-                          : item.turnover_rate >= 1
+                    </TableCell>
+                    <TableCell className="py-2 text-right text-gray-900 dark:text-gray-100">{item.total_sold}</TableCell>
+                    <TableCell className="py-2 text-right">
+                      <span className={`px-2 py-0.5 rounded text-xs font-medium ${item.turnover_rate >= 4
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : item.turnover_rate >= 1
                           ? 'bg-blue-100 text-blue-700'
                           : 'bg-orange-100 text-orange-700'
-                      }`}>
+                        }`}>
                         {item.turnover_rate.toFixed(2)}x
                       </span>
-                    </td>
-                    <td className="py-2 text-right text-gray-500">
+                    </TableCell>
+                    <TableCell className="py-2 text-right text-gray-500">
                       {item.days_to_sell >= 999 ? '∞' : `${Math.round(item.days_to_sell)} days`}
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
           </div>
         )}
       </div>
@@ -564,11 +562,10 @@ const UsageTrendsReport: React.FC = () => {
             <button
               key={period}
               onClick={() => setPeriodType(period)}
-              className={`px-3 py-1.5 text-sm rounded-lg capitalize transition-colors ${
-                periodType === period
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'
-              }`}
+              className={`px-3 py-1.5 text-sm rounded-lg capitalize transition-colors ${periodType === period
+                ? 'bg-purple-600 text-white'
+                : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'
+                }`}
             >
               {period}
             </button>
@@ -613,11 +610,11 @@ const UsageTrendsReport: React.FC = () => {
           {data.trends.map(trend => (
             <div key={trend.period} className="flex items-center gap-3">
               <span className="w-20 text-xs text-gray-500 flex-shrink-0">
-                {periodType === 'monthly' 
+                {periodType === 'monthly'
                   ? dayjs(trend.period).format('MMM YY')
                   : periodType === 'weekly'
-                  ? `W${dayjs(trend.period).week()}`
-                  : dayjs(trend.period).format('MMM D')}
+                    ? `W${dayjs(trend.period).week()}`
+                    : dayjs(trend.period).format('MMM D')}
               </span>
               <div className="flex-1 flex items-center gap-2">
                 {/* Usage bar (red) */}
@@ -641,9 +638,8 @@ const UsageTrendsReport: React.FC = () => {
                   </span>
                 </div>
               </div>
-              <span className={`w-16 text-xs font-medium text-right ${
-                trend.netChange >= 0 ? 'text-emerald-600' : 'text-red-600'
-              }`}>
+              <span className={`w-16 text-xs font-medium text-right ${trend.netChange >= 0 ? 'text-emerald-600' : 'text-red-600'
+                }`}>
                 {trend.netChange >= 0 ? '+' : ''}{trend.netChange}
               </span>
             </div>
@@ -665,32 +661,31 @@ const UsageTrendsReport: React.FC = () => {
       <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
         <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Detailed Data</h3>
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
-                <th className="pb-2 font-medium">Period</th>
-                <th className="pb-2 font-medium text-right">Used</th>
-                <th className="pb-2 font-medium text-right">Received</th>
-                <th className="pb-2 font-medium text-right">Net Change</th>
-                <th className="pb-2 font-medium text-right">Transactions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+          <Table>
+            <TableHeader>
+              <TableRow className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
+                <TableHead className="pb-2 font-medium">Period</TableHead>
+                <TableHead className="pb-2 font-medium text-right">Used</TableHead>
+                <TableHead className="pb-2 font-medium text-right">Received</TableHead>
+                <TableHead className="pb-2 font-medium text-right">Net Change</TableHead>
+                <TableHead className="pb-2 font-medium text-right">Transactions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="divide-y divide-gray-100 dark:divide-gray-700">
               {data.trends.map(trend => (
-                <tr key={trend.period}>
-                  <td className="py-2 text-gray-900 dark:text-gray-100">{trend.period}</td>
-                  <td className="py-2 text-right text-red-600">-{trend.totalUsed}</td>
-                  <td className="py-2 text-right text-emerald-600">+{trend.totalReceived}</td>
-                  <td className={`py-2 text-right font-medium ${
-                    trend.netChange >= 0 ? 'text-emerald-600' : 'text-red-600'
-                  }`}>
+                <TableRow key={trend.period}>
+                  <TableCell className="py-2 text-gray-900 dark:text-gray-100">{trend.period}</TableCell>
+                  <TableCell className="py-2 text-right text-red-600">-{trend.totalUsed}</TableCell>
+                  <TableCell className="py-2 text-right text-emerald-600">+{trend.totalReceived}</TableCell>
+                  <TableCell className={`py-2 text-right font-medium ${trend.netChange >= 0 ? 'text-emerald-600' : 'text-red-600'
+                    }`}>
                     {trend.netChange >= 0 ? '+' : ''}{trend.netChange}
-                  </td>
-                  <td className="py-2 text-right text-gray-500">{trend.transactionCount}</td>
-                </tr>
+                  </TableCell>
+                  <TableCell className="py-2 text-right text-gray-500">{trend.transactionCount}</TableCell>
+                </TableRow>
               ))}
-            </tbody>
-          </table>
+            </TableBody>
+          </Table>
         </div>
       </div>
     </div>
@@ -713,13 +708,13 @@ const CostAnalysisReport: React.FC = () => {
       <div className="grid grid-cols-4 gap-4">
         <StatCard
           label="Total Inventory Value"
-          value={`$${data.totalInventoryValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}`}
+          value={`UGX ${data.totalInventoryValue.toLocaleString()}`}
           icon="tabler:currency-dollar"
           color="emerald"
         />
         <StatCard
           label="Average Item Cost"
-          value={`$${data.averageItemCost.toFixed(2)}`}
+          value={`UGX ${Math.round(data.averageItemCost).toLocaleString()}`}
           icon="tabler:chart-bar"
           color="blue"
         />
@@ -749,7 +744,7 @@ const CostAnalysisReport: React.FC = () => {
                     {ITEM_CATEGORY_LABELS[cat.category as keyof typeof ITEM_CATEGORY_LABELS] || cat.category}
                   </span>
                   <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                    ${cat.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    UGX {cat.totalValue.toLocaleString()}
                   </span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -764,7 +759,7 @@ const CostAnalysisReport: React.FC = () => {
                   </span>
                 </div>
                 <p className="text-xs text-gray-500 mt-0.5">
-                  {cat.itemCount} items • Avg: ${cat.averageUnitCost.toFixed(2)}/unit
+                  {cat.itemCount} items • Avg: UGX {Math.round(cat.averageUnitCost).toLocaleString()}/unit
                 </p>
               </div>
             ))}
@@ -790,7 +785,7 @@ const CostAnalysisReport: React.FC = () => {
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                    ${supplier.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    UGX {supplier.totalValue.toLocaleString()}
                   </p>
                   <p className="text-xs text-gray-500">{supplier.percentageOfTotal.toFixed(1)}%</p>
                 </div>
@@ -824,10 +819,10 @@ const CostAnalysisReport: React.FC = () => {
                   <td className="py-2 text-right text-gray-900 dark:text-gray-100">{cat.itemCount}</td>
                   <td className="py-2 text-right text-gray-900 dark:text-gray-100">{cat.totalQuantity}</td>
                   <td className="py-2 text-right font-medium text-emerald-600">
-                    ${cat.totalValue.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                    UGX {cat.totalValue.toLocaleString()}
                   </td>
                   <td className="py-2 text-right text-gray-900 dark:text-gray-100">
-                    ${cat.averageUnitCost.toFixed(2)}
+                    UGX {Math.round(cat.averageUnitCost).toLocaleString()}
                   </td>
                   <td className="py-2 text-right text-gray-500">{cat.percentageOfTotal.toFixed(1)}%</td>
                 </tr>

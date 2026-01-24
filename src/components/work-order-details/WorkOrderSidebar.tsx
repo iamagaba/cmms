@@ -24,7 +24,7 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  
+
   const {
     allWorkOrders,
     technicians,
@@ -66,19 +66,19 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
     }
 
     // Sort by created date (newest first)
-    return filtered.sort((a, b) => 
+    return filtered.sort((a, b) =>
       new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime()
     );
   }, [allWorkOrders, statusFilter, searchQuery, vehicles, customers]);
 
   const statusCounts = useMemo(() => {
-    const counts = { 
-      all: 0, 
-      open: 0, 
+    const counts = {
+      all: 0,
+      open: 0,
       confirmation: 0,
       ready: 0,
-      inProgress: 0, 
-      completed: 0, 
+      inProgress: 0,
+      completed: 0,
       onHold: 0,
       cancelled: 0
     };
@@ -130,7 +130,7 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
 
     // Format title with proper capitalization
     const formatTitle = (text: string) => {
-      return text.split(' ').map(word => 
+      return text.split(' ').map(word =>
         word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
       ).join(' ');
     };
@@ -144,7 +144,7 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
           return category.label || category.name;
         }
       }
-      
+
       // Also check if workOrder.service is a category ID
       if (workOrder.service && serviceCategories) {
         const category = serviceCategories.find(c => c.id === workOrder.service);
@@ -152,19 +152,19 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
           return category.label || category.name;
         }
       }
-      
+
       // Try title field
       if (workOrder.title && !workOrder.title.includes('-') && workOrder.title.length < 50) {
         return workOrder.title;
       }
-      
+
       // Try initialDiagnosis if it's not a placeholder
-      if (workOrder.initialDiagnosis && 
-          !workOrder.initialDiagnosis.toLowerCase().includes('what type of issue') &&
-          !workOrder.initialDiagnosis.includes('-') || workOrder.initialDiagnosis.length < 30) {
+      if (workOrder.initialDiagnosis &&
+        !workOrder.initialDiagnosis.toLowerCase().includes('what type of issue') &&
+        !workOrder.initialDiagnosis.includes('-') || workOrder.initialDiagnosis.length < 30) {
         return workOrder.initialDiagnosis;
       }
-      
+
       return 'General Service';
     };
 
@@ -178,9 +178,8 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
     return (
       <div
         onClick={() => onSelectWorkOrder(workOrder.id)}
-        className={`px-3 py-2.5 border-b border-gray-100 cursor-pointer transition-all ${
-          isSelected ? 'bg-purple-50' : 'hover:bg-gray-50'
-        }`}
+        className={`px-3 py-2.5 border-b border-gray-100 cursor-pointer transition-all ${isSelected ? 'bg-purple-50' : 'hover:bg-gray-50'
+          }`}
       >
         {/* Row 1: License Plate + Status + Time */}
         <div className="flex items-center justify-between mb-1">
@@ -188,19 +187,18 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
             <span className={`text-sm font-semibold ${isSelected ? 'text-purple-900' : 'text-gray-900'}`}>
               {licensePlate}
             </span>
-            <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
-              workOrder.status === 'Open' ? 'bg-blue-50 text-blue-700' :
+            <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${workOrder.status === 'Open' ? 'bg-blue-50 text-blue-700' :
               workOrder.status === 'Confirmation' ? 'bg-purple-50 text-purple-700' :
-              workOrder.status === 'Ready' ? 'bg-cyan-50 text-cyan-700' :
-              workOrder.status === 'In Progress' ? 'bg-orange-50 text-orange-700' :
-              workOrder.status === 'Completed' ? 'bg-emerald-50 text-emerald-700' :
-              workOrder.status === 'On Hold' ? 'bg-slate-50 text-slate-700' :
-              'bg-red-50 text-red-700'
-            }`}>
+                workOrder.status === 'Ready' ? 'bg-cyan-50 text-cyan-700' :
+                  workOrder.status === 'In Progress' ? 'bg-orange-50 text-orange-700' :
+                    workOrder.status === 'Completed' ? 'bg-emerald-50 text-emerald-700' :
+                      workOrder.status === 'On Hold' ? 'bg-slate-50 text-slate-700' :
+                        'bg-red-50 text-red-700'
+              }`}>
               {workOrder.status || 'Open'}
             </span>
           </div>
-          <span className="text-[10px] text-gray-400">
+          <span className="text-xs text-gray-400">
             {dayjs(workOrder.created_at).fromNow()}
           </span>
         </div>
@@ -219,10 +217,10 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
         {/* Row 3: WO Number + Technician + Priority */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className={`text-[10px] ${isSelected ? 'text-purple-600' : 'text-primary-500'}`}>
+            <span className={`text-xs ${isSelected ? 'text-purple-600' : 'text-primary-500'}`}>
               {woNumber}
             </span>
-            <span className={`text-[10px] ${technician ? 'text-gray-500' : 'text-amber-600 font-medium'}`}>
+            <span className={`text-xs ${technician ? 'text-gray-500' : 'text-amber-600 font-medium'}`}>
               {technician ? technician.name : 'Unassigned'}
             </span>
           </div>
@@ -238,7 +236,7 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
 
   if (isLoading) {
     return (
-      <div className={`bg-white border-r border-gray-200 ${className}`}>
+      <div className={`bg-gray-50 border-r border-gray-200 ${className}`}>
         <div className="p-4 border-b border-gray-200">
           <div className="h-4 bg-gray-200 rounded animate-pulse mb-3" />
           <div className="h-8 bg-gray-200 rounded animate-pulse" />
@@ -260,9 +258,9 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
   }
 
   return (
-    <div className={`bg-white border-r border-gray-200 flex flex-col ${className}`}>
+    <div className={`bg-gray-50 border-r border-gray-200 flex flex-col ${className}`}>
       {/* Header - Sticky */}
-      <div className="p-4 border-b border-gray-200 sticky top-0 bg-white/85 backdrop-blur-md backdrop-saturate-150 z-10">
+      <div className="p-4 border-b border-gray-200 sticky top-0 bg-gray-50/95 backdrop-blur-md backdrop-saturate-150 z-10">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-sm font-semibold text-gray-900">Work Orders</h2>
           <span className="text-xs text-gray-500">{filteredWorkOrders.length}</span>
@@ -299,11 +297,10 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
               <button
                 key={key}
                 onClick={() => setStatusFilter(key)}
-                className={`px-2 py-1 text-xs font-medium rounded transition-colors ${
-                  statusFilter === key
-                    ? 'bg-primary-100 text-primary-700'
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-                }`}
+                className={`px-2 py-1 text-xs font-medium rounded transition-colors ${statusFilter === key
+                  ? 'bg-primary-100 text-primary-700'
+                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
               >
                 {label} ({count})
               </button>

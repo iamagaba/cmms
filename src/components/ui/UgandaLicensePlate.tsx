@@ -21,16 +21,7 @@ export const UgandaLicensePlate: React.FC<UgandaLicensePlateProps> = ({
 
     return (
         <>
-            <style>
-                {`
-@font-face {
-    font-family: "FE-Clone";
-    src: url("https://fonts.cdnfonts.com/s/15247/FE-Mittelschrift.woff") format("woff");
-    font-weight: normal;
-    font-style: normal;
-}
-`}
-            </style>
+
 
 
             <div
@@ -70,7 +61,7 @@ export const UgandaLicensePlate: React.FC<UgandaLicensePlateProps> = ({
                     <span
                         className="text-black font-black leading-none whitespace-nowrap"
                         style={{
-                            fontFamily: '"FE-Clone", "Geist Mono", monospace',
+                            fontFamily: 'monospace',
                             fontSize: '16px', // Reduced font size
                             letterSpacing: '1px',
                             WebkitTextStroke: '0.2px #000'

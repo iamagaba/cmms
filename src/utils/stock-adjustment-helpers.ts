@@ -1,4 +1,16 @@
 import { InventoryItem, AdjustmentReason, BatchAdjustmentInput } from '@/types/supabase';
+import {
+  PackageIcon,
+  AlertCircleIcon,
+  RefreshIcon,
+  Settings02Icon,
+  Delete01Icon,
+  Clock01Icon,
+  ArrowRight01Icon,
+  ArrowLeft01Icon,
+  MoreHorizontalIcon,
+  Download01Icon
+} from '@hugeicons/core-free-icons';
 
 export interface AdjustmentValidationResult {
   valid: boolean;
@@ -80,6 +92,16 @@ export function validateBatchAdjustment(
 
   // Validate each item
   for (const { item, quantityDelta } of items) {
+    // Check if quantity delta is zero
+    if (quantityDelta === 0) {
+      errors.push({
+        itemId: item.id,
+        itemName: item.name,
+        error: 'Quantity change cannot be zero',
+      });
+      continue;
+    }
+
     const validation = validateAdjustment(item, quantityDelta);
     if (!validation.valid) {
       errors.push({
@@ -141,28 +163,28 @@ export function getReasonBadgeColor(reason: AdjustmentReason): string {
 /**
  * Gets the icon for an adjustment reason
  */
-export function getReasonIcon(reason: AdjustmentReason): string {
+export function getReasonIcon(reason: AdjustmentReason): any {
   switch (reason) {
     case 'received':
-      return 'tabler:package-import';
+      return Download01Icon;
     case 'damaged':
-      return 'tabler:alert-triangle';
+      return AlertCircleIcon;
     case 'returned':
-      return 'tabler:arrow-back-up';
+      return RefreshIcon;
     case 'cycle_count':
-      return 'tabler:clipboard-check';
+      return Settings02Icon;
     case 'theft':
-      return 'tabler:shield-off';
+      return Delete01Icon;
     case 'expired':
-      return 'tabler:clock-off';
+      return Clock01Icon;
     case 'transfer_out':
-      return 'tabler:arrow-right';
+      return ArrowRight01Icon;
     case 'transfer_in':
-      return 'tabler:arrow-left';
+      return ArrowLeft01Icon;
     case 'initial_stock':
-      return 'tabler:box';
+      return PackageIcon;
     case 'other':
     default:
-      return 'tabler:dots';
+      return MoreHorizontalIcon;
   }
 }

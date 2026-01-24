@@ -1,7 +1,7 @@
 /**
  * Master-Detail Layout Component
  * 
- * Standardized 3-column layout structure for the enterprise design system:
+ * Standardized 3-column layout structure:
  * - Left: Main navigation sidebar (fixed width: 280px expanded, 80px collapsed)
  * - Middle: List/Master view (fixed width: 320px)
  * - Right: Detail view (flexible, takes remaining space)

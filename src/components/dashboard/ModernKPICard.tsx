@@ -7,7 +7,7 @@
 
 import React from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
+import {
   AnalyticsUpIcon,
   AnalyticsDownIcon,
   MinusSignIcon,
@@ -16,7 +16,7 @@ import {
 import { Icon } from '@/components/icons/Icon';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import ProfessionalCard from '@/components/ui/ProfessionalCard';
+import { Card } from '@/components/ui/card';
 
 // ============================================
 // INTERFACES
@@ -97,7 +97,7 @@ const colorClasses = {
 // ============================================
 
 const KPICardSkeleton: React.FC<{ className?: string }> = ({ className }) => (
-  <ProfessionalCard className={cn('h-full animate-pulse', className)}>
+  <Card className={cn('h-full animate-pulse', className)}>
     <div className="p-6 space-y-4">
       <div className="flex justify-between items-start">
         <div className="space-y-2">
@@ -109,7 +109,7 @@ const KPICardSkeleton: React.FC<{ className?: string }> = ({ className }) => (
       <div className="h-8 w-16 bg-machinery-200 rounded" />
       <div className="h-4 w-20 bg-machinery-200 rounded" />
     </div>
-  </ProfessionalCard>
+  </Card>
 );
 
 // ============================================
@@ -163,7 +163,7 @@ const ModernKPICard: React.FC<ModernKPICardProps> = ({
       transition={{ duration: 0.15, ease: 'easeOut' }}
       className={cn('h-full', className)}
     >
-      <div 
+      <div
         className={cn(
           'h-full transition-all duration-200 rounded-lg',
           classes.bg,
@@ -208,7 +208,7 @@ const ModernKPICard: React.FC<ModernKPICardProps> = ({
                 <span className="text-gray-500">{trend.label}</span>
               </div>
             )}
-            
+
             {actionLabel && isClickable && (
               <button
                 onClick={(e) => {
@@ -218,9 +218,9 @@ const ModernKPICard: React.FC<ModernKPICardProps> = ({
                 className="text-xs font-medium text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-1 group"
               >
                 {actionLabel}
-                <Icon 
-                  icon="tabler:arrow-right" 
-                  className="w-3 h-3 transition-transform group-hover:translate-x-0.5" 
+                <Icon
+                  icon="tabler:arrow-right"
+                  className="w-3 h-3 transition-transform group-hover:translate-x-0.5"
                 />
               </button>
             )}

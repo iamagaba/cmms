@@ -1,9 +1,15 @@
-import React, { Fragment } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
+import React from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import { Alert01Icon, Loading03Icon } from '@hugeicons/core-free-icons';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+    DialogFooter,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 interface DeleteConfirmationDialogProps {
     isOpen: boolean;
@@ -24,84 +30,50 @@ export const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> =
     itemName,
     isDeleting = false,
 }) => {
-    const spacing = useDensitySpacing();
-    const { isCompact } = useDensity();
-    
     return (
-        <Transition appear show={isOpen} as={Fragment}>
-            <Dialog as="div" className="relative z-50" onClose={onClose}>
-                <Transition.Child
-                    as={Fragment}
-                    enter="ease-out duration-300"
-                    enterFrom="opacity-0"
-                    enterTo="opacity-100"
-                    leave="ease-in duration-200"
-                    leaveFrom="opacity-100"
-                    leaveTo="opacity-0"
-                >
-                    <div className="fixed inset-0 bg-black/25 backdrop-blur-sm" />
-                </Transition.Child>
+        <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+            <DialogContent className="sm:max-w-md">
+                <div className="flex items-start gap-4">
+                    <div className="flex-shrink-0 w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
+                        <HugeiconsIcon icon={Alert01Icon} size={24} className="text-destructive" />
+                    </div>
+                    <div className="flex-1 pt-1">
+                        <DialogHeader>
+                            <DialogTitle>{title}</DialogTitle>
+                            <DialogDescription className="mt-2">
+                                {message}
+                            </DialogDescription>
+                        </DialogHeader>
 
-                <div className="fixed inset-0 overflow-y-auto">
-                    <div className="flex min-h-full items-center justify-center p-4 text-center">
-                        <Transition.Child
-                            as={Fragment}
-                            enter="ease-out duration-300"
-                            enterFrom="opacity-0 scale-95"
-                            enterTo="opacity-100 scale-100"
-                            leave="ease-in duration-200"
-                            leaveFrom="opacity-100 scale-100"
-                            leaveTo="opacity-0 scale-95"
-                        >
-                            <Dialog.Panel className={`w-full max-w-md transform overflow-hidden rounded-2xl bg-white dark:bg-gray-800 ${spacing.card} text-left align-middle shadow-xl transition-all border border-gray-100 dark:border-gray-700`}>
-                                <div className={`flex items-start ${spacing.gap}`}>
-                                    <div className={`flex-shrink-0 ${isCompact ? 'w-8 h-8' : 'w-10 h-10'} rounded-full bg-error-50 dark:bg-error-900/30 flex items-center justify-center`}>
-                                        <HugeiconsIcon icon={Alert01Icon} size={spacing.icon.md} className="text-error-600 dark:text-error-400" />
-                                    </div>
-                                    <div className="flex-1">
-                                        <Dialog.Title
-                                            as="h3"
-                                            className={`${spacing.text.heading} font-medium leading-6 text-gray-900 dark:text-gray-100`}
-                                        >
-                                            {title}
-                                        </Dialog.Title>
-                                        <div className={spacing.mt}>
-                                            <p className={`${spacing.text.body} text-gray-500 dark:text-gray-400`}>
-                                                {message}
-                                            </p>
-                                            {itemName && (
-                                                <p className={`mt-2 ${spacing.text.body} font-medium text-gray-900 dark:text-gray-200 bg-gray-50 dark:bg-gray-700/50 ${spacing.card} ${spacing.roundedLg} border border-gray-100 dark:border-gray-700`}>
-                                                    {itemName}
-                                                </p>
-                                            )}
-                                        </div>
+                        {itemName && (
+                            <div className="mt-4 p-3 bg-muted rounded-md border text-sm font-medium">
+                                {itemName}
+                            </div>
+                        )}
 
-                                        <div className={`mt-6 flex items-center ${spacing.gap} justify-end`}>
-                                            <button
-                                                type="button"
-                                                className={`inline-flex justify-center ${spacing.roundedLg} border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 ${spacing.button} font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors`}
-                                                onClick={onClose}
-                                                disabled={isDeleting}
-                                            >
-                                                Cancel
-                                            </button>
-                                            <button
-                                                type="button"
-                                                className={`inline-flex justify-center ${spacing.roundedLg} border border-transparent bg-error-600 ${spacing.button} font-medium text-white hover:bg-error-700 focus:outline-none focus:ring-2 focus:ring-error-500 focus:ring-offset-2 dark:focus:ring-offset-gray-900 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center ${spacing.gap}`}
-                                                onClick={onConfirm}
-                                                disabled={isDeleting}
-                                            >
-                                                {isDeleting && <HugeiconsIcon icon={Loading03Icon} size={spacing.icon.sm} className="animate-spin" />}
-                                                {isDeleting ? 'Deleting...' : 'Delete'}
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </Dialog.Panel>
-                        </Transition.Child>
+                        <DialogFooter className="mt-6 gap-2 sm:gap-0">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={onClose}
+                                disabled={isDeleting}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="button"
+                                variant="destructive"
+                                onClick={onConfirm}
+                                disabled={isDeleting}
+                                className="gap-2"
+                            >
+                                {isDeleting && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin" />}
+                                {isDeleting ? 'Deleting...' : 'Delete'}
+                            </Button>
+                        </DialogFooter>
                     </div>
                 </div>
-            </Dialog>
-        </Transition>
+            </DialogContent>
+        </Dialog>
     );
 };

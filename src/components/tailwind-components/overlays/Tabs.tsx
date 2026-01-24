@@ -95,7 +95,7 @@ export function TabsTab({ value, children, className, disabled }: TabsTabProps) 
             onClick={() => !disabled && context.setActiveTab(value)}
             disabled={disabled}
             className={cn(
-                'px-4 py-2 text-sm font-medium transition-colors',
+                'px-4 py-2 text-xs font-medium transition-colors',
                 'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2',
                 isActive
                     ? 'border-b-2 border-primary-500 text-primary-600'

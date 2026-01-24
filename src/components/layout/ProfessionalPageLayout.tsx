@@ -11,8 +11,7 @@ import { HugeiconsIcon } from '@hugeicons/react';
 import { ArrowRight01Icon } from '@hugeicons/core-free-icons';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Container } from '@/components/ui/ProfessionalCard';
-import ProfessionalButton from '@/components/ui/ProfessionalButton';
+import { Button } from '@/components/ui/button';
 
 // ============================================
 // COMPONENT INTERFACES
@@ -248,7 +247,7 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(
           className
         )}
       >
-        <Container size="full" padding="lg">
+        <div className="container mx-auto px-6 py-4">
           <div className="space-y-4">
             {/* Breadcrumbs */}
             {breadcrumbs && breadcrumbs.length > 0 && (
@@ -281,28 +280,29 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(
                 <div className="flex flex-col sm:flex-row gap-3 lg:flex-shrink-0">
                   {/* Secondary Actions */}
                   {secondaryActions.map((action, index) => (
-                    <ProfessionalButton
+                    <Button
                       key={index}
                       variant={action.variant || 'secondary'}
-                      icon={action.icon}
                       onClick={action.onClick}
-                      size="base"
+                      size="default"
                     >
+                      {action.icon && <HugeiconsIcon icon={action.icon} size={16} className="mr-2" />}
                       {action.label}
-                    </ProfessionalButton>
+                    </Button>
                   ))}
                   
                   {/* Primary Action */}
                   {primaryAction && (
-                    <ProfessionalButton
-                      variant={primaryAction.variant || 'primary'}
-                      icon={primaryAction.icon}
+                    <Button
+                      variant={primaryAction.variant === 'primary' ? 'default' : primaryAction.variant}
                       onClick={primaryAction.onClick}
-                      loading={primaryAction.loading}
-                      size="base"
+                      disabled={primaryAction.loading}
+                      size="default"
                     >
+                      {primaryAction.loading && <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="mr-2 animate-spin" />}
+                      {primaryAction.icon && !primaryAction.loading && <HugeiconsIcon icon={primaryAction.icon} size={16} className="mr-2" />}
                       {primaryAction.label}
-                    </ProfessionalButton>
+                    </Button>
                   )}
                 </div>
               )}
@@ -315,7 +315,7 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(
               </div>
             )}
           </div>
-        </Container>
+        </div>
       </motion.div>
     );
   }
@@ -476,9 +476,9 @@ const ProfessionalPageLayout = forwardRef<HTMLDivElement, PageLayoutProps>(
         {/* Footer */}
         {footer && (
           <footer className="border-t border-machinery-200 bg-white">
-            <Container size={containerSize} padding="lg">
+            <div className="container mx-auto px-6 py-4">
               {footer}
-            </Container>
+            </div>
           </footer>
         )}
       </div>

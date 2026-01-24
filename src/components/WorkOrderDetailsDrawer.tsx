@@ -8,6 +8,13 @@ import {
   Clock01Icon,
   MapsIcon,
   Motorbike01Icon,
+  Car01Icon,
+  Wrench01Icon,
+  Calendar01Icon,
+  SecurityCheckIcon,
+  DashboardSpeed01Icon,
+  UserIcon,
+  Call02Icon
 } from '@hugeicons/core-free-icons';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -31,9 +38,11 @@ import { ConfirmationCallDialog } from './work-order-details/ConfirmationCallDia
 import { AssignTechnicianModal } from '@/components/work-order-details/AssignTechnicianModal';
 import AssignEmergencyBikeModal from '@/components/work-order-details/AssignEmergencyBikeModal';
 import { useWorkOrderMutations } from '@/hooks/useWorkOrderMutations';
+import { useAddPartToWorkOrder, useRemovePartFromWorkOrder } from '@/hooks/useWorkOrderParts';
 import { UgandaLicensePlate } from '@/components/ui/UgandaLicensePlate';
 import { MaintenanceCompletionDrawer } from '@/components/MaintenanceCompletionDrawer';
 import { WorkOrderPartsDialog } from '@/components/WorkOrderPartsDialog';
+import { WorkOrderOverviewCards } from '@/components/work-order-details/WorkOrderOverviewCards';
 
 dayjs.extend(relativeTime);
 
@@ -258,6 +267,9 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
     }
   });
 
+  const addPartMutation = useAddPartToWorkOrder();
+  const removePartMutation = useRemovePartFromWorkOrder();
+
   const handleAssignTechnician = (technicianId: string) => {
     if (!workOrder) return;
     updateWorkOrder(workOrder, {
@@ -278,7 +290,7 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
       const updates: Partial<WorkOrder> = {
         id: workOrder.id,
         confirmation_call_completed: outcome === 'confirmed' || outcome === 'cancelled',
-        confirmation_call_notes: notes,
+        confirmation_call_notes: `${outcome.charAt(0).toUpperCase() + outcome.slice(1)}: ${notes}`,
         confirmation_call_by: session?.user.id || null,
         confirmation_call_at: now
       };
@@ -302,7 +314,7 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
           updates.confirmation_status_entered_at = now;
         }
         updates.confirmation_call_completed = false;
-        updates.last_call_attempt_at = now;
+        // updates.last_call_attempt_at = now; // Column does not exist
       }
 
       workOrderMutation.mutate(updates, {
@@ -337,7 +349,12 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
 
       if (error) throw error;
 
-      await refetchEmergencyAssignment();
+      // Invalidate all related queries to refresh the UI
+      await queryClient.invalidateQueries({ queryKey: ['active_emergency_assignment', workOrder.id] });
+      await queryClient.invalidateQueries({ queryKey: ['emergency_bike', bikeId] });
+      await queryClient.invalidateQueries({ queryKey: ['company_emergency_bikes'] });
+      await queryClient.invalidateQueries({ queryKey: ['active_emergency_bike_assignments'] });
+      
       setIsAssignEmergencyOpen(false);
       showSuccess('Emergency bike assigned successfully');
     } catch (error: any) {
@@ -366,35 +383,7 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
     setIsMaintenanceCompletionDrawerOpen(false);
   };
 
-  const addPartMutation = useMutation({
-    mutationFn: async ({ itemId, quantity }: { itemId: string, quantity: number }) => {
-      const { error } = await supabase.rpc('add_part_to_work_order', {
-        p_work_order_id: workOrderId,
-        p_item_id: itemId,
-        p_quantity_used: quantity
-      });
-      if (error) throw new Error(error.message);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['work_order_parts', workOrderId] });
-      queryClient.invalidateQueries({ queryKey: ['work_order_drawer', workOrderId] });
-      setIsAddPartDialogOpen(false);
-      showSuccess('Part added to work order successfully!');
-    },
-    onError: (error) => showError(error.message)
-  });
 
-  const removePartMutation = useMutation({
-    mutationFn: async (partId: string) => {
-      const { error } = await supabase.from('work_order_parts').delete().eq('id', partId);
-      if (error) throw new Error(error.message);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['work_order_parts', workOrderId] });
-      showSuccess('Part removed from work order.');
-    },
-    onError: (error) => showError(error.message)
-  });
 
   // Close on escape key
   useEffect(() => {
@@ -422,29 +411,29 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
     <>
       <div className="fixed inset-0 z-50 flex justify-end" onClick={onClose}>
         {/* Backdrop */}
-        <div className="absolute inset-0 bg-black/20 backdrop-blur-md backdrop-saturate-150" />
+        <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
 
-        {/* Drawer - Increased width to 800px */}
+        {/* Drawer - width optimized for content density */}
         <div
-          className="relative w-full max-w-4xl bg-white shadow-2xl h-full flex flex-col animate-in slide-in-from-right duration-300"
+          className="relative bg-background shadow-lg h-full flex flex-col animate-in slide-in-from-right duration-300"
           onClick={e => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 bg-white flex-shrink-0">
+          <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-card flex-shrink-0">
             <div className="flex items-center gap-2">
               <button
                 onClick={onClose}
-                className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent rounded transition-colors"
               >
-                <HugeiconsIcon icon={Cancel01Icon} size={16} />
+                <HugeiconsIcon icon={Cancel01Icon} size={14} />
               </button>
-              <div className="h-6 w-px bg-gray-200" />
+              <div className="h-5 w-px bg-border" />
               {isLoadingWorkOrder ? (
-                <Skeleton height="20px" width="100px" radius="sm" />
+                <Skeleton height="18px" width="100px" radius="sm" />
               ) : (
                 <div className="flex items-center gap-2">
                   {/* Work Order Number + Status Chip */}
-                  <h2 className="text-sm font-bold text-gray-900 leading-none">
+                  <h2 className="text-sm font-bold leading-none">
                     {workOrder?.workOrderNumber || 'Work Order'}
                   </h2>
 
@@ -455,14 +444,14 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
                         workOrder.status === 'Ready' ? 'bg-blue-100 text-blue-700' :
                           workOrder.status === 'Confirmation' ? 'bg-purple-100 text-purple-700' :
                             workOrder.status === 'On Hold' ? 'bg-orange-100 text-orange-700' :
-                              'bg-gray-100 text-gray-700'
+                              'bg-muted text-muted-foreground'
                       }`}>
                       <span className={`w-1 h-1 rounded-full animate-pulse ${workOrder.status === 'Completed' ? 'bg-emerald-500' :
                         workOrder.status === 'In Progress' ? 'bg-amber-500' :
                           workOrder.status === 'Ready' ? 'bg-blue-500' :
                             workOrder.status === 'Confirmation' ? 'bg-purple-500' :
                               workOrder.status === 'On Hold' ? 'bg-orange-500' :
-                                'bg-gray-500'
+                                'bg-muted-foreground'
                         }`} />
                       {workOrder.status}
                     </span>
@@ -470,101 +459,28 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
                 </div>
               )}
             </div>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1">
               <button
                 onClick={handleViewFullPage}
-                className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent rounded transition-colors"
               >
-                <HugeiconsIcon icon={FullScreenIcon} size={16} />
+                <HugeiconsIcon icon={FullScreenIcon} size={14} />
               </button>
             </div>
           </div>
 
 
 
-          {/* Info Strip - Industrial Style */}
+          {/* Info Strip - Using shared component */}
           {workOrder && (
-            <div className="flex-shrink-0 industrial-info-strip">
-              <div className="flex items-stretch w-full">
-                {/* License Plate - Primary identifier with accent */}
-                <div className="flex-1 min-w-0 px-4 py-2.5 border-l-[3px] border-purple-600 bg-white hover:bg-slate-50/50 transition-colors">
-                  <span className="industrial-info-label block">Plate</span>
-                  <span className="font-industrial-id text-sm text-purple-700">
-                    {(vehicle as any)?.licensePlate || vehicle?.license_plate || '—'}
-                  </span>
-                </div>
-
-                {/* Model */}
-                <div className="flex-1 min-w-0 px-4 py-2.5 border-r border-slate-200 hover:bg-slate-50/50 transition-colors">
-                  <span className="industrial-info-label block">Model</span>
-                  <span className="text-sm font-semibold text-slate-700">
-                    {vehicle ? `${vehicle.make} ${vehicle.model}` : '—'}
-                  </span>
-                </div>
-
-                {/* Age */}
-                <div className="flex-1 min-w-0 px-4 py-2.5 border-r border-slate-200 hover:bg-slate-50/50 transition-colors">
-                  <span className="industrial-info-label block">Age</span>
-                  <span className="font-industrial-data text-sm text-slate-700">
-                    {vehicle?.year ? (() => {
-                      const purchaseDate = dayjs(`${vehicle.year}-01-01`);
-                      const today = dayjs();
-                      const years = today.diff(purchaseDate, 'year');
-                      const months = today.diff(purchaseDate, 'month') % 12;
-                      if (years >= 1) return `${years} yr${years > 1 ? 's' : ''}`;
-                      else if (months >= 1) return `${months} mo`;
-                      else return `${today.diff(purchaseDate, 'day')} d`;
-                    })() : '—'}
-                  </span>
-                </div>
-
-                {/* Warranty */}
-                <div className="flex-1 min-w-0 px-4 py-2.5 border-r border-slate-200 hover:bg-slate-50/50 transition-colors">
-                  <span className="industrial-info-label block">Warranty</span>
-                  <span className="font-industrial-data text-sm text-slate-700">
-                    {vehicle?.warranty_end_date ? (() => {
-                      const warrantyEnd = dayjs(vehicle.warranty_end_date);
-                      const today = dayjs();
-                      if (warrantyEnd.isBefore(today)) return <span className="text-red-600 font-semibold">Expired</span>;
-                      const daysRemaining = warrantyEnd.diff(today, 'day');
-                      if (daysRemaining <= 30) return <span className="text-amber-600 font-semibold">{daysRemaining}d left</span>;
-                      const monthsRemaining = warrantyEnd.diff(today, 'month');
-                      return `${monthsRemaining}mo left`;
-                    })() : '—'}
-                  </span>
-                </div>
-
-                {/* Mileage */}
-                <div className="flex-1 min-w-0 px-4 py-2.5 border-r border-slate-200 hover:bg-slate-50/50 transition-colors">
-                  <span className="industrial-info-label block">Mileage</span>
-                  <span className="font-industrial-data text-sm text-slate-700">
-                    {(vehicle?.mileage || (workOrder as any)?.mileage)
-                      ? `${(vehicle?.mileage || (workOrder as any)?.mileage).toLocaleString()} km`
-                      : '—'}
-                  </span>
-                </div>
-
-                {/* Divider - Industrial style */}
-                <div className="flex items-center justify-center px-1">
-                  <div className="industrial-divider h-8" style={{ width: '2px', background: 'linear-gradient(to bottom, transparent, #cbd5e1, transparent)' }} />
-                </div>
-
-                {/* Customer - emphasized */}
-                <div className="flex-[1.5] min-w-0 px-4 py-2.5 bg-white border-r border-slate-200 hover:bg-slate-50/50 transition-colors">
-                  <span className="industrial-info-label block">Customer</span>
-                  <span className="text-sm font-bold text-slate-900 truncate block">
-                    {customer?.name || workOrder.customerName || '—'}
-                  </span>
-                </div>
-
-                {/* Phone */}
-                <div className="flex-1 min-w-0 px-4 py-2.5 bg-white hover:bg-slate-50/50 transition-colors">
-                  <span className="industrial-info-label block">Phone</span>
-                  <span className="font-industrial-data text-sm text-slate-700">
-                    {customer?.phone || workOrder.customerPhone || '—'}
-                  </span>
-                </div>
-              </div>
+            <div className="flex-shrink-0">
+              <WorkOrderOverviewCards
+                workOrder={workOrder}
+                customer={customer}
+                vehicle={vehicle}
+                technician={technician}
+                location={location}
+              />
             </div>
           )}
 
@@ -585,12 +501,12 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
 
           {/* Emergency Bike Banner */}
           {(emergencyEligible || hasActiveEmergencyAssignment) && (
-            <div className={`px-3 py-1.5 flex items-center justify-between border-b border-blue-200 ${hasActiveEmergencyAssignment ? 'bg-blue-50' : 'bg-orange-50 border-orange-200'
+            <div className={`px-3 py-1.5 flex items-center justify-between border-b ${hasActiveEmergencyAssignment ? 'bg-blue-50 border-blue-200' : 'bg-orange-50 border-orange-200'
               }`}>
               <div className="flex items-center gap-2">
-                <div className={`w-6 h-6 rounded-full flex items-center justify-center ${hasActiveEmergencyAssignment ? 'bg-blue-100' : 'bg-orange-100'
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center ${hasActiveEmergencyAssignment ? 'bg-blue-100' : 'bg-orange-100'
                   }`}>
-                  <HugeiconsIcon icon={Motorbike01Icon} size={14} className={
+                  <HugeiconsIcon icon={Motorbike01Icon} size={13} className={
                     hasActiveEmergencyAssignment ? 'text-blue-600' : 'text-orange-600'
                   } />
                 </div>
@@ -598,7 +514,7 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
                   <p className={`text-xs font-bold ${hasActiveEmergencyAssignment ? 'text-blue-900' : 'text-orange-900'
                     }`}>
                     {hasActiveEmergencyAssignment
-                      ? 'Emergency Bike Assigned'
+                      ? `Emergency Bike: ${emergencyBike ? ((emergencyBike as any).licensePlate || emergencyBike.license_plate) : 'Loading...'}`
                       : 'Customer Eligible for Emergency Bike'
                     }
                   </p>
@@ -606,31 +522,22 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
                     <>
                       {isLoadingEmergencyBike ? (
                         <div className="mt-0.5">
-                          <Skeleton width="150px" height="12px" radius="sm" />
+                          <Skeleton width="140px" height="11px" radius="sm" />
                         </div>
                       ) : emergencyBike ? (
                         <>
                           <p className="text-[10px] text-blue-700">
-                            {(emergencyBike as any).licensePlate || emergencyBike.license_plate} • {emergencyBike.make} {emergencyBike.model}
+                            {emergencyBike.make} {emergencyBike.model}
                           </p>
                           {activeEmergencyAssignment?.assigned_at && (
                             <p className="text-[10px] text-blue-600">
-                              Assigned {(() => {
-                                const assignedDate = new Date(activeEmergencyAssignment.assigned_at);
-                                const now = new Date();
-                                const diffMs = now.getTime() - assignedDate.getTime();
-                                const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-                                const diffDays = Math.floor(diffHours / 24);
-
-                                if (diffDays > 0) {
-                                  return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
-                                } else if (diffHours > 0) {
-                                  return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
-                                } else {
-                                  const diffMins = Math.floor(diffMs / (1000 * 60));
-                                  return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`;
-                                }
-                              })()}
+                              Assigned {new Date(activeEmergencyAssignment.assigned_at).toLocaleString([], { 
+                                month: 'short', 
+                                day: 'numeric', 
+                                year: 'numeric',
+                                hour: '2-digit', 
+                                minute: '2-digit' 
+                              })}
                             </p>
                           )}
                         </>
@@ -684,8 +591,12 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
               onClose={() => setIsMaintenanceCompletionDrawerOpen(false)}
               onSave={handleCompleteWorkOrder}
               usedParts={usedParts || []}
-              onAddPart={(itemId, quantity) => addPartMutation.mutate({ itemId, quantity })}
-              onRemovePart={(partId) => removePartMutation.mutate(partId)}
+              onAddPart={(itemId, quantity) => addPartMutation.mutate({
+                work_order_id: workOrder.id,
+                inventory_item_id: itemId,
+                quantity
+              })}
+              onRemovePart={(partId) => removePartMutation.mutate({ partId, workOrderId: workOrder.id })}
               onAddPartClick={() => setIsAddPartDialogOpen(true)}
             />
           )}
@@ -699,7 +610,7 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
           )}
 
           {/* Tabs - Full width border */}
-          <div className="flex border-b border-gray-200 px-3 flex-shrink-0 bg-white">
+          <div className="flex border-b border-border px-3 flex-shrink-0 bg-card">
             {[
               { key: 'overview', label: 'Overview', icon: InformationCircleIcon },
               { key: 'location', label: 'Location', icon: MapsIcon },
@@ -709,29 +620,29 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key as any)}
-                className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium border-b-2 transition-colors ${activeTab === tab.key
-                  ? 'border-primary-600 text-primary-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                className={`flex items-center gap-1.5 px-2.5 py-2 text-xs font-medium border-b-2 transition-colors ${activeTab === tab.key
+                  ? 'border-primary text-primary'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
                   }`}
               >
-                <HugeiconsIcon icon={tab.icon} size={14} />
+                <HugeiconsIcon icon={tab.icon} size={13} />
                 {tab.label}
               </button>
             ))}
           </div>
 
           {/* Content - Scrollable with thin scrollbar */}
-          <div className="flex-1 overflow-y-auto bg-gray-50 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent">
+          <div className="flex-1 overflow-y-auto bg-muted/30">
             {isLoadingWorkOrder ? (
-              <div className="p-3 space-y-3">
-                <Skeleton height="80px" radius="md" />
-                <Skeleton height="60px" radius="md" />
-                <Skeleton height="100px" radius="md" />
+              <div className="p-3 space-y-2.5">
+                <Skeleton height="70px" radius="md" />
+                <Skeleton height="50px" radius="md" />
+                <Skeleton height="90px" radius="md" />
               </div>
             ) : workOrder ? (
               <div className="p-3">
                 {activeTab === 'overview' && (
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     {/* Work Order Details */}
                     <WorkOrderDetailsInfoCard
                       workOrder={workOrder}
@@ -749,6 +660,7 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
                           navigate(`/work-orders/${id}`);
                         }
                       }}
+                      serviceCategories={serviceCategories || []}
                     />
                   </div>
                 )}
@@ -776,15 +688,15 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
                 )}
               </div>
             ) : (
-              <div className="p-3 text-center text-gray-500 text-xs">
+              <div className="p-3 text-center text-muted-foreground text-xs">
                 Work order not found
               </div>
             )}
           </div>
 
           {/* Footer - Simplified, no duplicate button */}
-          <div className="px-3 py-2 border-t border-gray-200 bg-white flex-shrink-0">
-            <div className="text-[10px] text-gray-500">
+          <div className="px-3 py-2 border-t border-border bg-card flex-shrink-0">
+            <div className="text-[10px] text-muted-foreground">
               {workOrder?.created_at && (
                 <span>Created {dayjs(workOrder.created_at).format('MMM D, YYYY • h:mm A')}</span>
               )}

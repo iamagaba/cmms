@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
+import {
   PackageIcon,
   Add01Icon,
   MinusSignIcon,
@@ -17,26 +17,25 @@ import {
 } from '@hugeicons/core-free-icons';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  InventoryItem, 
-  AdjustmentReason, 
-  ADJUSTMENT_REASON_LABELS 
+import {
+  InventoryItem,
+  AdjustmentReason,
+  ADJUSTMENT_REASON_LABELS
 } from '@/types/supabase';
 import { snakeToCamelCase } from '@/utils/data-helpers';
-import { 
-  validateBatchAdjustment, 
+import {
+  validateBatchAdjustment,
   calculateProjectedQuantity,
-  formatBatchAdjustmentInput 
+  formatBatchAdjustmentInput
 } from '@/utils/stock-adjustment-helpers';
 import { useBatchAdjustment } from '@/hooks/useStockAdjustments';
-import { Input } from '@/components/ui/enterprise';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
+import { Input } from '@/components/ui/input';
+
 
 interface StockAdjustmentDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: () => void;
+  onSuccess?: () => void | Promise<void>;
   preselectedItem?: InventoryItem | null;
 }
 
@@ -64,8 +63,6 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
   onSuccess,
   preselectedItem,
 }) => {
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
   const [lineItems, setLineItems] = useState<AdjustmentLineItem[]>([]);
   const [reason, setReason] = useState<AdjustmentReason | ''>('');
   const [notes, setNotes] = useState('');
@@ -110,9 +107,9 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
     if (!inventoryItems || !searchTerm) return [];
     const query = searchTerm.toLowerCase();
     const addedIds = new Set(lineItems.map(li => li.item.id));
-    
+
     return inventoryItems
-      .filter(item => 
+      .filter(item =>
         !addedIds.has(item.id) && (
           item.name?.toLowerCase().includes(query) ||
           item.sku?.toLowerCase().includes(query)
@@ -131,8 +128,8 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
   };
 
   const handleQuantityChange = (itemId: string, delta: number) => {
-    setLineItems(prev => 
-      prev.map(li => 
+    setLineItems(prev =>
+      prev.map(li =>
         li.item.id === itemId ? { ...li, quantityDelta: delta } : li
       )
     );
@@ -156,10 +153,13 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
 
     // Submit
     const input = formatBatchAdjustmentInput(lineItems, reason as AdjustmentReason, notes);
-    
+
     try {
       await batchMutation.mutateAsync(input);
-      onSuccess?.();
+      // Wait for success callback to complete before closing
+      if (onSuccess) {
+        await onSuccess();
+      }
       onClose();
     } catch (error) {
       // Error handled by mutation
@@ -172,10 +172,10 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
     <div className="fixed inset-0 z-50 overflow-hidden">
       {/* Backdrop */}
       <div className="absolute inset-0 bg-black/50 transition-opacity" onClick={onClose} />
-      
+
       {/* Dialog */}
       <div className="absolute inset-y-0 right-0 flex max-w-full">
-        <div 
+        <div
           className="w-screen max-w-xl bg-white dark:bg-gray-900 shadow-2xl flex flex-col"
           onClick={(e) => e.stopPropagation()}
         >
@@ -188,22 +188,22 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
                   Stock Adjustment
                 </h2>
               </div>
-              <p className={`${spacing.text.body} text-gray-500 dark:text-gray-400 mt-0.5`}>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
                 Adjust quantities for one or more items
               </p>
             </div>
             <button
               onClick={onClose}
-              className={`${isCompact ? 'p-1.5' : 'p-2'} text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 ${spacing.roundedLg} hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors`}
+              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
             >
-              <HugeiconsIcon icon={Cancel01Icon} size={spacing.icon.md} />
+              <HugeiconsIcon icon={Cancel01Icon} size={24} />
             </button>
           </div>
 
           {/* Form */}
           <form id="stock-adjustment-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
             <div className="p-6 space-y-6">
-              
+
               {/* Validation Errors */}
               {validationErrors.length > 0 && (
                 <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-3">
@@ -227,7 +227,7 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
                   <HugeiconsIcon icon={PackageIcon} size={16} className="text-purple-600" />
                   Items to Adjust
                 </h3>
-                
+
                 <div className="relative">
                   <Input
                     placeholder="Search by name or SKU..."
@@ -235,7 +235,7 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
                     onChange={(e) => setSearchTerm(e.target.value)}
                     leftIcon={<HugeiconsIcon icon={Search01Icon} size={16} className="text-gray-400" />}
                   />
-                  
+
                   {/* Search Results Dropdown */}
                   {filteredItems.length > 0 && (
                     <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-48 overflow-auto">
@@ -266,15 +266,14 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
                   {lineItems.map(({ item, quantityDelta }) => {
                     const projected = calculateProjectedQuantity(item.quantity_on_hand ?? 0, quantityDelta);
                     const isNegative = projected < 0;
-                    
+
                     return (
-                      <div 
-                        key={item.id} 
-                        className={`border rounded-lg p-3 ${
-                          isNegative 
-                            ? 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20' 
+                      <div
+                        key={item.id}
+                        className={`border rounded-lg p-3 ${isNegative
+                            ? 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20'
                             : 'border-gray-200 dark:border-gray-700'
-                        }`}
+                          }`}
                       >
                         <div className="flex items-start justify-between mb-2">
                           <div>
@@ -289,7 +288,7 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
                             <HugeiconsIcon icon={Cancel01Icon} size={16} />
                           </button>
                         </div>
-                        
+
                         <div className="grid grid-cols-3 gap-3 items-center">
                           <div>
                             <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Current</label>
@@ -297,7 +296,7 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
                               {item.quantity_on_hand ?? 0}
                             </p>
                           </div>
-                          
+
                           <div>
                             <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Change</label>
                             <input
@@ -308,14 +307,13 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
                               placeholder="0"
                             />
                           </div>
-                          
+
                           <div>
                             <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Projected</label>
-                            <p className={`text-sm font-semibold ${
-                              isNegative 
-                                ? 'text-red-600 dark:text-red-400' 
+                            <p className={`text-sm font-semibold ${isNegative
+                                ? 'text-red-600 dark:text-red-400'
                                 : 'text-gray-900 dark:text-gray-100'
-                            }`}>
+                              }`}>
                               {projected}
                               {isNegative && (
                                 <HugeiconsIcon icon={Alert01Icon} size={12} className="inline ml-1" />
@@ -342,7 +340,7 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
                   <HugeiconsIcon icon={Tag01Icon} size={16} className="text-purple-600" />
                   Adjustment Reason
                 </h3>
-                
+
                 <select
                   value={reason}
                   onChange={(e) => setReason(e.target.value as AdjustmentReason)}
@@ -363,7 +361,7 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
                   Notes
                   {reason === 'other' && <span className="text-red-500">*</span>}
                 </h3>
-                
+
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
@@ -387,7 +385,7 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
             >
               Cancel
             </button>
-            
+
             <button
               type="submit"
               form="stock-adjustment-form"

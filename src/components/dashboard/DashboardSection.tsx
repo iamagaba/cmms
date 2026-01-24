@@ -9,9 +9,8 @@ import React from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
 import type { IconSvgElement } from '@hugeicons/react';
 import { cn } from '@/lib/utils';
-import ProfessionalButton from '@/components/ui/ProfessionalButton';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
+import { Button } from '@/components/ui/button';
+
 
 // ============================================
 // INTERFACES
@@ -47,11 +46,10 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
   headerClassName,
   contentClassName
 }) => {
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
-  
+
+
   return (
-    <section className={cn(spacing.section, className)}>
+    <section className={cn('p-6 bg-white rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm', className)}>
       {/* Section Header */}
       <div className={cn(
         'flex items-center justify-between',
@@ -59,36 +57,36 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
       )}>
         <div className="flex items-center gap-3">
           {icon && (
-            <div className={`${isCompact ? 'p-1.5' : 'p-2'} bg-steel-100 rounded-lg`}>
-              <HugeiconsIcon icon={icon} size={spacing.icon.md} />
+            <div className="p-2 bg-steel-100 rounded-lg">
+              <HugeiconsIcon icon={icon} size={20} />
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <h2 className={`${spacing.text.heading} font-semibold text-machinery-900 truncate`}>
+            <h2 className="text-lg font-semibold text-machinery-900 truncate">
               {title}
             </h2>
             {subtitle && (
-              <p className={`${spacing.text.caption} text-machinery-600 mt-1 truncate`}>
+              <p className="text-sm text-machinery-600 mt-1 truncate">
                 {subtitle}
               </p>
             )}
           </div>
         </div>
-        
+
         {action && (
           <div className="flex-shrink-0 ml-4">
-            <ProfessionalButton
+            <Button
               variant={action.variant || 'outline'}
               size="sm"
-              icon={action.icon}
               onClick={action.onClick}
             >
+              {action.icon && <HugeiconsIcon icon={action.icon} size={16} className="mr-2" />}
               {action.label}
-            </ProfessionalButton>
+            </Button>
           </div>
         )}
       </div>
-      
+
       {/* Section Content */}
       <div className={contentClassName}>
         {children}

@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
+import {
   Cancel01Icon,
   ClipboardIcon,
   Tick01Icon,
@@ -12,6 +12,21 @@ import { InventoryItem } from '@/types/supabase';
 import { useCreateCycleCount, useUpdateCycleCountItem, useCompleteCycleCount, useCycleCount } from '@/hooks/useInventoryTransactions';
 import { getUniqueWarehouses } from '@/utils/inventory-categorization-helpers';
 import { snakeToCamelCase } from '@/utils/data-helpers';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 
 interface CycleCountDialogProps {
   isOpen: boolean;
@@ -94,9 +109,9 @@ export const CycleCountDialog: React.FC<CycleCountDialogProps> = ({
   };
 
   const handleUpdateCount = (itemId: string, countedQty: number) => {
-    setLineItems(lineItems.map(li => 
-      li.inventory_item_id === itemId 
-        ? { ...li, counted_quantity: countedQty } 
+    setLineItems(lineItems.map(li =>
+      li.inventory_item_id === itemId
+        ? { ...li, counted_quantity: countedQty }
         : li
     ));
   };
@@ -143,28 +158,23 @@ export const CycleCountDialog: React.FC<CycleCountDialogProps> = ({
   const countedItems = lineItems.filter(li => li.counted_quantity !== undefined).length;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+        <DialogHeader className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 m-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
               <HugeiconsIcon icon={ClipboardIcon} size={20} className="text-purple-600 dark:text-purple-400" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {mode === 'setup' ? 'Start Cycle Count' : 'Cycle Count in Progress'}
-              </h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
+              </DialogTitle>
+              <DialogDescription className="text-sm text-gray-500 dark:text-gray-400">
                 {mode === 'setup' ? 'Select items to count' : 'Enter counted quantities'}
-              </p>
+              </DialogDescription>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-            <HugeiconsIcon icon={Cancel01Icon} size={20} className="text-gray-500" />
-          </button>
-        </div>
+        </DialogHeader>
 
         <div className="p-6 space-y-6 max-h-[calc(90vh-180px)] overflow-y-auto">
           {mode === 'setup' ? (
@@ -229,15 +239,13 @@ export const CycleCountDialog: React.FC<CycleCountDialogProps> = ({
                       <div
                         key={item.id}
                         onClick={() => handleToggleItem(item)}
-                        className={`flex items-center gap-3 px-4 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-800 last:border-0 ${
-                          isSelected ? 'bg-purple-50 dark:bg-purple-900/20' : ''
-                        }`}
+                        className={`flex items-center gap-3 px-4 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-800 last:border-0 ${isSelected ? 'bg-purple-50 dark:bg-purple-900/20' : ''
+                          }`}
                       >
-                        <div className={`w-5 h-5 rounded border flex items-center justify-center ${
-                          isSelected 
-                            ? 'bg-purple-600 border-purple-600' 
-                            : 'border-gray-300 dark:border-gray-600'
-                        }`}>
+                        <div className={`w-5 h-5 rounded border flex items-center justify-center ${isSelected
+                          ? 'bg-purple-600 border-purple-600'
+                          : 'border-gray-300 dark:border-gray-600'
+                          }`}>
                           {isSelected && <HugeiconsIcon icon={Tick01Icon} size={12} className="text-white" />}
                         </div>
                         <div className="flex-1">
@@ -278,7 +286,7 @@ export const CycleCountDialog: React.FC<CycleCountDialogProps> = ({
                   </div>
                 </div>
                 <div className="w-32 h-2 bg-purple-200 dark:bg-purple-800 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-purple-600 transition-all"
                     style={{ width: `${(countedItems / lineItems.length) * 100}%` }}
                   />
@@ -287,57 +295,56 @@ export const CycleCountDialog: React.FC<CycleCountDialogProps> = ({
 
               {/* Count Entry Table */}
               <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-50 dark:bg-gray-800">
-                    <tr>
-                      <th className="px-4 py-2 text-left font-medium text-gray-700 dark:text-gray-300">Item</th>
-                      <th className="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-300 w-24">System Qty</th>
-                      <th className="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-300 w-28">Counted Qty</th>
-                      <th className="px-4 py-2 text-center font-medium text-gray-700 dark:text-gray-300 w-24">Variance</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                <Table>
+                  <TableHeader className="bg-gray-50 dark:bg-gray-800">
+                    <TableRow>
+                      <TableHead className="text-left font-medium text-gray-700 dark:text-gray-300">Item</TableHead>
+                      <TableHead className="text-center font-medium text-gray-700 dark:text-gray-300 w-24">System Qty</TableHead>
+                      <TableHead className="text-center font-medium text-gray-700 dark:text-gray-300 w-28">Counted Qty</TableHead>
+                      <TableHead className="text-center font-medium text-gray-700 dark:text-gray-300 w-24">Variance</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody className="divide-y divide-gray-200 dark:divide-gray-700">
                     {lineItems.map(li => {
-                      const variance = li.counted_quantity !== undefined 
-                        ? li.counted_quantity - li.system_quantity 
+                      const variance = li.counted_quantity !== undefined
+                        ? li.counted_quantity - li.system_quantity
                         : null;
                       return (
-                        <tr key={li.inventory_item_id}>
-                          <td className="px-4 py-2">
+                        <TableRow key={li.inventory_item_id}>
+                          <TableCell>
                             <div className="font-medium text-gray-900 dark:text-gray-100">{li.item?.name}</div>
                             <div className="text-xs text-gray-500">{li.item?.sku}</div>
-                          </td>
-                          <td className="px-4 py-2 text-center text-gray-600 dark:text-gray-400">
+                          </TableCell>
+                          <TableCell className="text-center text-gray-600 dark:text-gray-400">
                             {li.system_quantity}
-                          </td>
-                          <td className="px-4 py-2">
+                          </TableCell>
+                          <TableCell>
                             <input
                               type="number"
                               min="0"
                               value={li.counted_quantity ?? ''}
                               onChange={(e) => handleUpdateCount(li.inventory_item_id, parseInt(e.target.value) || 0)}
-                              placeholder="Enter count"
+                              placeholder="Count"
                               className="w-full h-8 px-2 text-center rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
                             />
-                          </td>
-                          <td className="px-4 py-2 text-center">
+                          </TableCell>
+                          <TableCell className="text-center">
                             {variance !== null && (
-                              <span className={`font-medium ${
-                                variance === 0 
-                                  ? 'text-gray-500' 
-                                  : variance > 0 
-                                    ? 'text-emerald-600' 
-                                    : 'text-red-600'
-                              }`}>
+                              <span className={`font-medium ${variance === 0
+                                ? 'text-gray-500'
+                                : variance > 0
+                                  ? 'text-emerald-600'
+                                  : 'text-red-600'
+                                }`}>
                                 {variance > 0 ? '+' : ''}{variance}
                               </span>
                             )}
-                          </td>
-                        </tr>
+                          </TableCell>
+                        </TableRow>
                       );
                     })}
-                  </tbody>
-                </table>
+                  </TableBody>
+                </Table>
               </div>
             </>
           )}
@@ -368,11 +375,11 @@ export const CycleCountDialog: React.FC<CycleCountDialogProps> = ({
               className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
               {completeCycleCount.isPending && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin" />}
-              Complete & Apply Adjustments
+              Complete Count
             </button>
           )}
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };

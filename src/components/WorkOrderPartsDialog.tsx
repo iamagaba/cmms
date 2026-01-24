@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-  Cancel01Icon,
+import {
   Add01Icon,
   PackageIcon,
   Clock01Icon,
@@ -13,10 +12,17 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { InventoryItem } from '@/types/supabase';
 import { snakeToCamelCase } from '@/utils/data-helpers';
-import { 
-  useWorkOrderParts, 
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import {
+  useWorkOrderParts,
   usePartReservations,
-  useAddPartToWorkOrder, 
+  useAddPartToWorkOrder,
   useRemovePartFromWorkOrder,
   useReservePart,
   useFulfillReservation,
@@ -24,8 +30,6 @@ import {
   useAvailableQuantity
 } from '@/hooks/useWorkOrderParts';
 import { formatQuantityWithUnit } from '@/utils/inventory-categorization-helpers';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
 
 interface WorkOrderPartsDialogProps {
   isOpen: boolean;
@@ -42,8 +46,6 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
   workOrderId,
   workOrderNumber,
 }) => {
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
   const [activeTab, setActiveTab] = useState<TabType>('add');
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedItemId, setSelectedItemId] = useState<string | null>(null);
@@ -67,7 +69,7 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
 
   // Fetch parts used on this work order
   const { data: usedParts, isLoading: isLoadingParts } = useWorkOrderParts(workOrderId);
-  
+
   // Fetch reservations for this work order
   const { data: reservations, isLoading: isLoadingReservations } = usePartReservations(workOrderId);
 
@@ -85,7 +87,7 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
   const filteredItems = useMemo(() => {
     if (!inventoryItems) return [];
     if (!searchTerm) return inventoryItems;
-    
+
     const query = searchTerm.toLowerCase();
     return inventoryItems.filter(item =>
       item.name?.toLowerCase().includes(query) ||
@@ -150,28 +152,19 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
     }
   };
 
-  if (!isOpen) return null;
-
   const totalPartsCost = (usedParts || []).reduce((sum, p) => sum + (p.total_cost || 0), 0);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className={`relative bg-white dark:bg-gray-900 ${spacing.roundedLg} shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col`}>
-        {/* Header */}
-        <div className={`flex items-center justify-between ${spacing.card} border-b border-gray-200 dark:border-gray-700`}>
-          <div>
-            <h2 className={`${spacing.text.heading} font-semibold text-gray-900 dark:text-gray-100`}>
-              Parts & Materials
-            </h2>
-            <p className={`${spacing.text.body} text-gray-500 dark:text-gray-400`}>
-              {workOrderNumber ? `Work Order: ${workOrderNumber}` : 'Manage parts for this work order'}
-            </p>
-          </div>
-          <button onClick={onClose} className={`${isCompact ? 'p-1.5' : 'p-2'} hover:bg-gray-100 dark:hover:bg-gray-800 ${spacing.roundedLg}`}>
-            <HugeiconsIcon icon={Cancel01Icon} size={spacing.icon.md} className="text-gray-500" />
-          </button>
-        </div>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+        <DialogHeader>
+          <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            Parts & Materials
+          </DialogTitle>
+          <DialogDescription className="text-sm text-gray-500 dark:text-gray-400">
+            {workOrderNumber ? `Work Order: ${workOrderNumber}` : 'Manage parts for this work order'}
+          </DialogDescription>
+        </DialogHeader>
 
         {/* Tabs */}
         <div className="flex border-b border-gray-200 dark:border-gray-700">
@@ -183,11 +176,10 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id as TabType)}
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${
-                activeTab === tab.id
-                  ? 'text-purple-600 dark:text-purple-400 border-b-2 border-purple-600 dark:border-purple-400'
-                  : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-              }`}
+              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${activeTab === tab.id
+                ? 'text-purple-600 dark:text-purple-400 border-b-2 border-purple-600 dark:border-purple-400'
+                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                }`}
             >
               <HugeiconsIcon icon={tab.icon} size={16} />
               {tab.label}
@@ -212,7 +204,7 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    placeholder="Search by name or SKU..."
+                    placeholder="Search inventory..."
                     className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm"
                   />
                 </div>
@@ -233,17 +225,19 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
                         key={item.id}
                         onClick={() => setSelectedItemId(item.id)}
                         disabled={isOutOfStock}
-                        className={`w-full flex items-center justify-between p-3 text-left border-b border-gray-100 dark:border-gray-800 last:border-0 transition-colors ${
-                          isSelected
-                            ? 'bg-purple-50 dark:bg-purple-900/30'
-                            : isOutOfStock
+                        className={`w-full flex items-center justify-between p-3 text-left border-b border-gray-100 dark:border-gray-800 last:border-0 transition-colors ${isSelected
+                          ? 'bg-purple-50 dark:bg-purple-900/30'
+                          : isOutOfStock
                             ? 'bg-gray-50 dark:bg-gray-800/50 opacity-50 cursor-not-allowed'
                             : 'hover:bg-gray-50 dark:hover:bg-gray-800'
-                        }`}
+                          }`}
                       >
                         <div>
                           <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.name}</p>
-                          <p className="text-xs text-gray-500">{item.sku || 'No SKU'}</p>
+                          <p className="text-xs text-gray-500">
+                            {item.sku || 'No SKU'}
+                            {item.model && ` • ${item.model}`}
+                          </p>
                         </div>
                         <div className="text-right">
                           <p className={`text-sm font-medium ${isOutOfStock ? 'text-red-600' : 'text-gray-900 dark:text-gray-100'}`}>
@@ -262,9 +256,12 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
                 <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
                   <div className="flex items-center justify-between mb-3">
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">{selectedItem.name}</p>
+                      <p className="font-medium text-gray-900 dark:text-gray-100">
+                        {selectedItem.name}
+                        {selectedItem.model && <span className="text-gray-500 font-normal"> ({selectedItem.model})</span>}
+                      </p>
                       <p className="text-sm text-gray-500">
-                        Available: {availableQty ?? selectedItem.quantity_on_hand ?? 0} | 
+                        Available: {availableQty ?? selectedItem.quantity_on_hand ?? 0} |
                         Price: UGX {(selectedItem.unit_price ?? 0).toLocaleString()}
                       </p>
                     </div>
@@ -325,7 +322,7 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
                     className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
                   >
                     <HugeiconsIcon icon={isReserving ? Clock01Icon : Add01Icon} size={16} />
-                    {isReserving ? 'Reserve Part' : 'Add Part to Work Order'}
+                    {isReserving ? 'Reserve Part' : 'Add Part'}
                   </button>
                 </div>
               )}
@@ -353,7 +350,8 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
                           {part.inventory_items?.name || 'Unknown Item'}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {part.inventory_items?.sku || 'No SKU'} • Qty: {part.quantity_used}
+                          {part.inventory_items?.sku || 'No SKU'}
+                          {part.inventory_items?.model && ` • ${part.inventory_items.model}`} • Qty: {part.quantity_used}
                         </p>
                         {part.notes && (
                           <p className="text-xs text-gray-400 mt-1">{part.notes}</p>
@@ -374,7 +372,7 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
                       </div>
                     </div>
                   ))}
-                  
+
                   {/* Total */}
                   <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
                     <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Total Parts Cost</span>
@@ -407,7 +405,8 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
                         {res.inventory_items?.name || 'Unknown Item'}
                       </p>
                       <p className="text-xs text-gray-500">
-                        Qty: {res.quantity_reserved} • Status: {res.status}
+                        Qty: {res.quantity_reserved}
+                        {res.inventory_items?.model && ` • ${res.inventory_items.model}`} • Status: {res.status}
                       </p>
                       {res.expires_at && (
                         <p className="text-xs text-orange-600">
@@ -441,7 +440,7 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };

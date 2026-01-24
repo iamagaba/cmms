@@ -5,7 +5,7 @@ import dayjs from 'dayjs';
 export const generateInvoicePDF = async (invoice: Invoice, companyInfo?: any): Promise<void> => {
   // Create a new window for printing
   const printWindow = window.open('', '_blank');
-  
+
   if (!printWindow) {
     throw new Error('Unable to open print window. Please check your popup blocker settings.');
   }
@@ -25,6 +25,9 @@ export const generateInvoicePDF = async (invoice: Invoice, companyInfo?: any): P
     <head>
       <meta charset="UTF-8">
       <title>Invoice ${invoice.invoice_number}</title>
+      <link rel="preconnect" href="https://fonts.googleapis.com">
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
       <style>
         * {
           margin: 0;
@@ -33,7 +36,7 @@ export const generateInvoicePDF = async (invoice: Invoice, companyInfo?: any): P
         }
         
         body {
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          font-family: 'Inter', sans-serif;
           padding: 40px;
           color: #333;
           line-height: 1.6;
@@ -499,7 +502,7 @@ export const emailInvoice = (invoice: Invoice, companyInfo?: any): void => {
     name: 'EV Motorbike Repair Center',
     email: 'info@evrepair.ug'
   };
-  
+
   const subject = encodeURIComponent(`Invoice ${invoice.invoice_number} from ${company.name}`);
   const body = encodeURIComponent(
     `Dear ${invoice.customer_name},\n\n` +
@@ -511,7 +514,7 @@ export const emailInvoice = (invoice: Invoice, companyInfo?: any): void => {
     `Thank you for your business!\n\n` +
     `Best regards,\n${company.name}`
   );
-  
+
   window.location.href = `mailto:?subject=${subject}&body=${body}`;
 };
 
@@ -526,7 +529,7 @@ export const generateInvoiceHTML = (invoice: Invoice, companyInfo?: any): string
   };
 
   return `
-    <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
+    <div style="font-family: 'Inter', sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
       <h1 style="color: #1890ff;">Invoice #${invoice.invoice_number}</h1>
       <p><strong>Customer:</strong> ${invoice.customer_name}</p>
       <p><strong>Date:</strong> ${dayjs(invoice.invoice_date).format('MMM DD, YYYY')}</p>

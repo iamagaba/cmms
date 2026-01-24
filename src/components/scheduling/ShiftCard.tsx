@@ -36,32 +36,32 @@ const ShiftCard: React.FC<ShiftCardProps> = ({
         switch (status) {
             case 'open':
                 return {
-                    container: 'bg-green-50 dark:bg-green-900/30 border-l-4 border-l-green-500 hover:bg-green-100 dark:hover:bg-green-900/50',
-                    time: 'text-green-800 dark:text-green-300',
-                    text: 'text-green-700 dark:text-green-400',
+                    container: 'bg-green-50/50 dark:bg-green-900/10 border-l-4 border-l-green-500 hover:bg-green-50 dark:hover:bg-green-900/20',
+                    time: 'text-green-700 dark:text-green-400',
+                    text: 'text-green-600 dark:text-green-300',
                     iconColor: 'text-green-600 dark:text-green-400'
                 };
             case 'unavailable':
                 return {
-                    container: 'bg-red-50 dark:bg-red-900/30 border-l-4 border-l-red-200 hover:bg-red-100 dark:hover:bg-red-900/50',
-                    time: 'text-red-800 dark:text-red-300',
-                    text: 'text-red-700 dark:text-red-400',
-                    iconColor: 'text-red-400 dark:text-red-400'
+                    container: 'bg-destructive/5 dark:bg-destructive/10 border-l-4 border-l-destructive/50 hover:bg-destructive/10 dark:hover:bg-destructive/20',
+                    time: 'text-destructive',
+                    text: 'text-destructive/80',
+                    iconColor: 'text-destructive'
                 };
             case 'conflict':
                 return {
-                    container: 'bg-orange-50 dark:bg-orange-900/30 border-l-4 border-l-orange-200 hover:bg-orange-100 dark:hover:bg-orange-900/50',
-                    time: 'text-orange-800 dark:text-orange-300',
-                    text: 'text-orange-700 dark:text-orange-400',
-                    iconColor: 'text-orange-400 dark:text-orange-400'
+                    container: 'bg-orange-50/50 dark:bg-orange-900/10 border-l-4 border-l-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20',
+                    time: 'text-orange-700 dark:text-orange-400',
+                    text: 'text-orange-600 dark:text-orange-300',
+                    iconColor: 'text-orange-600 dark:text-orange-400'
                 };
             case 'assigned':
             default:
                 return {
-                    container: 'bg-white dark:bg-gray-800 border-l-4 hover:shadow-md border-gray-200 dark:border-gray-700',
-                    time: 'text-gray-900 dark:text-gray-100',
-                    text: 'text-gray-600 dark:text-gray-400',
-                    iconColor: ''
+                    container: 'bg-card hover:bg-accent/50 border-l-4 hover:shadow-sm border-border text-card-foreground',
+                    time: 'text-foreground font-medium',
+                    text: 'text-muted-foreground',
+                    iconColor: 'text-muted-foreground'
                 };
         }
     };
@@ -93,7 +93,7 @@ const ShiftCard: React.FC<ShiftCardProps> = ({
 
                 {/* Location */}
                 {location && (
-                    <div className="text-[8px] text-gray-400 dark:text-gray-500 truncate">
+                    <div className="text-[10px] text-muted-foreground truncate">
                         {location}
                     </div>
                 )}

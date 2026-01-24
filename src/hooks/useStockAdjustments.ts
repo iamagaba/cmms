@@ -1,10 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { 
-  StockAdjustment, 
-  BatchAdjustmentInput, 
+import {
+  StockAdjustment,
+  BatchAdjustmentInput,
   InventoryItem,
-  AdjustmentReason 
+  AdjustmentReason
 } from '@/types/supabase';
 import { showSuccess, showError } from '@/utils/toast';
 
@@ -30,18 +30,22 @@ export function useItemAdjustmentHistory(itemId: string | undefined) {
     queryKey: stockAdjustmentKeys.byItem(itemId || ''),
     queryFn: async () => {
       if (!itemId) return [];
-      
+
+      // Query adjustment history
+      // Note: profiles join removed due to schema constraints
       const { data, error } = await supabase
         .from('stock_adjustments')
         .select(`
           *,
-          inventory_items (id, name, sku),
-          profiles:created_by (first_name, last_name)
+          inventory_items (id, name, sku)
         `)
         .eq('inventory_item_id', itemId)
         .order('created_at', { ascending: false });
 
-      if (error) throw new Error(error.message);
+      if (error) {
+        console.error('Error fetching adjustment history:', error);
+        throw new Error(error.message);
+      }
       return (data || []) as StockAdjustment[];
     },
     enabled: !!itemId,
@@ -59,8 +63,7 @@ export function useAdjustmentHistory(filters: AdjustmentHistoryFilters = {}) {
         .from('stock_adjustments')
         .select(`
           *,
-          inventory_items (id, name, sku),
-          profiles:created_by (first_name, last_name)
+          inventory_items (id, name, sku)
         `)
         .order('created_at', { ascending: false });
 
@@ -98,15 +101,19 @@ export function useBatchAdjustment() {
     mutationFn: async (input: BatchAdjustmentInput) => {
       // Get current user
       const { data: { user } } = await supabase.auth.getUser();
-      
+
       // Fetch current quantities for all items
       const itemIds = input.items.map(i => i.inventory_item_id);
+
       const { data: currentItems, error: fetchError } = await supabase
         .from('inventory_items')
         .select('id, quantity_on_hand')
         .in('id', itemIds);
 
-      if (fetchError) throw new Error(fetchError.message);
+      if (fetchError) {
+        throw new Error(fetchError.message);
+      }
+
       if (!currentItems || currentItems.length !== itemIds.length) {
         throw new Error('Some inventory items were not found');
       }
@@ -147,7 +154,9 @@ export function useBatchAdjustment() {
         .insert(adjustmentRecords)
         .select();
 
-      if (insertError) throw new Error(insertError.message);
+      if (insertError) {
+        throw new Error(insertError.message);
+      }
 
       // Update inventory quantities
       for (const item of input.items) {
@@ -159,7 +168,9 @@ export function useBatchAdjustment() {
           .update({ quantity_on_hand: newQty })
           .eq('id', item.inventory_item_id);
 
-        if (updateError) throw new Error(updateError.message);
+        if (updateError) {
+          throw new Error(updateError.message);
+        }
       }
 
       return adjustments as StockAdjustment[];
@@ -168,12 +179,12 @@ export function useBatchAdjustment() {
       // Invalidate relevant queries
       queryClient.invalidateQueries({ queryKey: ['inventory_items'] });
       queryClient.invalidateQueries({ queryKey: stockAdjustmentKeys.all });
-      
+
       // Invalidate specific item histories
       data.forEach(adj => {
         if (adj.inventory_item_id) {
-          queryClient.invalidateQueries({ 
-            queryKey: stockAdjustmentKeys.byItem(adj.inventory_item_id) 
+          queryClient.invalidateQueries({
+            queryKey: stockAdjustmentKeys.byItem(adj.inventory_item_id)
           });
         }
       });

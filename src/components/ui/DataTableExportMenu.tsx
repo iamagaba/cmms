@@ -17,7 +17,7 @@ import {
 import { Icon } from '@/components/icons/Icon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { ExportOption } from './EnhancedProfessionalDataTable';
+import { ExportOption } from './EnhancedDataTable';
 
 // ============================================
 // INTERFACES

@@ -1,17 +1,12 @@
 import React from 'react';
 import { ModernPieChart, formatNumber } from '@/components/charts';
 import { WorkOrder } from '@/types/supabase';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
 
 interface ComponentFailureChartProps {
   workOrders: WorkOrder[];
 }
 
 export const ComponentFailureChart: React.FC<ComponentFailureChartProps> = ({ workOrders }) => {
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
-
   // Process data for the chart
   const partFailures = new Map<string, number>();
 
@@ -31,7 +26,7 @@ export const ComponentFailureChart: React.FC<ComponentFailureChartProps> = ({ wo
       title="Component Failure Frequency"
       subtitle="Most frequently replaced parts"
       data={chartData}
-      height={isCompact ? 250 : 300}
+      height={300}
       variant="pie"
       formatValue={formatNumber}
       accessibilityLabel="Pie chart showing component failure frequency"

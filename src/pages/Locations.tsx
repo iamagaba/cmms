@@ -17,7 +17,8 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { useDisclosure } from '@/hooks/tailwind';
 import { supabase } from '@/integrations/supabase/client';
-import { Location, Technician, WorkOrder } from '@/types/supabase';
+import { EnhancedWorkOrderDataTable } from '@/components/EnhancedWorkOrderDataTable';
+import { Location, Technician, WorkOrder, Vehicle, Customer, Profile } from '@/types/supabase';
 import { snakeToCamelCase } from '@/utils/data-helpers';
 import mapboxgl from 'mapbox-gl';
 import dayjs from 'dayjs';
@@ -25,8 +26,7 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 
 dayjs.extend(relativeTime);
 mapboxgl.accessToken = import.meta.env.VITE_APP_MAPBOX_API_KEY || '';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
+
 
 type ViewMode = 'list' | 'map';
 
@@ -47,8 +47,7 @@ const LocationsPage: React.FC = () => {
   const map = useRef<mapboxgl.Map | null>(null);
   const detailMap = useRef<mapboxgl.Map | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
+
 
   // Fetch locations
   const { data: locations, isLoading: isLoadingLocations } = useQuery<Location[]>({
@@ -77,6 +76,36 @@ const LocationsPage: React.FC = () => {
       const { data, error } = await supabase.from('work_orders').select('*');
       if (error) throw new Error(error.message);
       return (data || []).map(wo => snakeToCamelCase(wo) as WorkOrder);
+    }
+  });
+
+  // Fetch vehicles
+  const { data: vehicles } = useQuery<Vehicle[]>({
+    queryKey: ['vehicles'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('vehicles').select('*');
+      if (error) throw new Error(error.message);
+      return (data || []).map(v => snakeToCamelCase(v) as Vehicle);
+    }
+  });
+
+  // Fetch customers
+  const { data: customers } = useQuery<Customer[]>({
+    queryKey: ['customers'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('customers').select('*');
+      if (error) throw new Error(error.message);
+      return (data || []).map(c => snakeToCamelCase(c) as Customer);
+    }
+  });
+
+  // Fetch profiles
+  const { data: profiles } = useQuery<Profile[]>({
+    queryKey: ['profiles'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('profiles').select('*');
+      if (error) throw new Error(error.message);
+      return (data || []).map(p => snakeToCamelCase(p) as Profile);
     }
   });
 
@@ -376,36 +405,26 @@ const LocationsPage: React.FC = () => {
               </div>
 
               {/* Work Orders */}
-              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between">
+              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden flex flex-col h-[500px]">
+                <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between flex-none">
                   <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Work Orders</h3>
                   <span className="text-xs text-gray-500 dark:text-gray-400">{selectedStats?.workOrders.length || 0} total</span>
                 </div>
-                <div className="max-h-[400px] overflow-y-auto">
-                  {(selectedStats?.workOrders.length || 0) === 0 ? (
-                    <div className="text-center py-12">
-                      <HugeiconsIcon icon={NoteIcon} className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500 dark:text-gray-400">No work orders at this location</p>
-                    </div>
-                  ) : (
-                    <div className="divide-y divide-gray-100 dark:divide-gray-700">
-                      {selectedStats?.workOrders.map(wo => {
-                        const statusStyle = STATUS_COLORS[wo.status || 'Open'] || STATUS_COLORS['Open'];
-                        return (
-                          <div key={wo.id} className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-sm font-semibold text-primary-600 dark:text-primary-400">{wo.workOrderNumber || wo.id.substring(0, 8)}</span>
-                              <span className={`px-2 py-1 rounded text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>
-                                {wo.status || 'Open'}
-                              </span>
-                            </div>
-                            <p className="text-sm text-gray-700 dark:text-gray-300 mb-1">{wo.title || wo.service || '-'}</p>
-                            <span className="text-xs text-gray-500 dark:text-gray-400">{wo.created_at ? dayjs(wo.created_at).fromNow() : '-'}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
+                <div className="flex-1 overflow-hidden">
+                  <EnhancedWorkOrderDataTable
+                    workOrders={selectedStats?.workOrders || []}
+                    technicians={technicians || []}
+                    locations={locations || []}
+                    vehicles={vehicles || []}
+                    customers={customers || []}
+                    profiles={profiles || []}
+                    onEdit={(wo) => console.log('Edit WO', wo)}
+                    onDelete={(wo) => console.log('Delete WO', wo)}
+                    onViewDetails={(id) => console.log('View WO', id)}
+                    onUpdateWorkOrder={(id, updates) => console.log('Update WO', id, updates)}
+                    loading={isLoading}
+                    visibleColumns={['workOrderNumber', 'service', 'status', 'technician', 'priority']}
+                  />
                 </div>
               </div>
             </div>

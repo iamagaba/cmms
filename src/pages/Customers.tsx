@@ -21,16 +21,24 @@ import relativeTime from 'dayjs/plugin/relativeTime';
 
 import { useMediaQuery } from '@/hooks/tailwind';
 import { ArrowLeft01Icon } from '@hugeicons/core-free-icons';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
+
+import { EnhancedWorkOrderDataTable } from "@/components/EnhancedWorkOrderDataTable";
+import { useWorkOrderData } from "@/hooks/useWorkOrderData";
+
+// shadcn/ui components
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 
 dayjs.extend(relativeTime);
 
 const CustomersPage = () => {
   const navigate = useNavigate();
   const isMobile = useMediaQuery('(max-width: 768px)');
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
   const [searchTerm, setSearchTerm] = useState('');
   const [customerTypeFilter, setCustomerTypeFilter] = useState<string>('all');
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -69,6 +77,9 @@ const CustomersPage = () => {
     },
   });
 
+  // Fetch contextual data for the table
+  const { locations, profiles, technicians, serviceCategories } = useWorkOrderData();
+
   // Calculate metrics
   const metrics = useMemo(() => {
     if (!customers) return { total: 0, individual: 0, business: 0, fleet: 0 };
@@ -106,8 +117,8 @@ const CustomersPage = () => {
 
   // Get customer stats
   const getCustomerStats = (customerId: string) => {
-    const customerVehicles = vehicles?.filter(v => v.customerId === customerId) || [];
-    const customerWorkOrders = workOrders?.filter(wo => wo.customerId === customerId) || [];
+    const customerVehicles = vehicles?.filter(v => v.customer_id === customerId) || [];
+    const customerWorkOrders = workOrders?.filter(wo => wo.customer_id === customerId) || [];
     const openWorkOrders = customerWorkOrders.filter(wo => wo.status !== 'Completed' && wo.status !== 'Cancelled');
 
     return {
@@ -133,31 +144,32 @@ const CustomersPage = () => {
   const selectedCustomerStats = selectedCustomerId ? getCustomerStats(selectedCustomerId) : null;
 
   return (
-    <div className="flex h-[calc(100vh-2rem)] w-full bg-white dark:bg-gray-950 overflow-hidden">
+    <div className="flex h-[calc(100vh-2rem)] w-full overflow-hidden">
       {/* Left Panel - Customer List */}
-      <div className={`${isMobile ? (selectedCustomerId ? 'hidden' : 'w-full') : 'w-80'} border-r border-gray-200 dark:border-gray-800 flex flex-col bg-white dark:bg-gray-900`}>
+      <div className="w-full sm:w-80 border-r flex flex-col">
         {/* Header */}
-        <div className={`${spacing.card} border-b border-gray-200 dark:border-gray-800`}>
-          <div className={`flex items-center justify-between ${spacing.mb}`}>
-            <h1 className={`${spacing.text.heading} font-semibold text-gray-900 dark:text-gray-100`}>Customers</h1>
-            <button
+        <div className="p-3 border-b">
+          <div className="flex items-center justify-between mb-3">
+            <h1 className="text-lg font-semibold">Customers</h1>
+            <Button
+              variant={filtersOpen ? "secondary" : "ghost"}
+              size="sm"
               onClick={() => setFiltersOpen(!filtersOpen)}
-              className={`${isCompact ? 'p-1.5' : 'p-2'} rounded-lg transition-colors ${filtersOpen ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-                }`}
+              className="h-7 w-7 p-0"
             >
-              <HugeiconsIcon icon={FilterIcon} size={spacing.icon.sm} />
-            </button>
+              <HugeiconsIcon icon={FilterIcon} className="w-3.5 h-3.5" />
+            </Button>
           </div>
 
           {/* Search */}
           <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <HugeiconsIcon icon={Search01Icon} size={spacing.icon.sm} className="text-gray-400 dark:text-gray-500" />
+            <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+              <HugeiconsIcon icon={Search01Icon} size={14} className="text-muted-foreground" />
             </div>
-            <input
+            <Input
               type="text"
               placeholder="Search customers..."
-              className={`w-full pl-10 pr-4 ${spacing.input} border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent`}
+              className="pl-8 h-8 text-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -165,19 +177,20 @@ const CustomersPage = () => {
 
           {/* Filters */}
           {filtersOpen && (
-            <div className={`${spacing.mt} pt-3 border-t border-gray-100 dark:border-gray-800`}>
-              <div className={spacing.section}>
-                <label className={`block ${spacing.text.caption} font-medium text-gray-600 dark:text-gray-400`}>Customer Type</label>
-                <select
-                  value={customerTypeFilter}
-                  onChange={(e) => setCustomerTypeFilter(e.target.value)}
-                  className={`w-full ${spacing.input} border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500`}
-                >
-                  <option value="all">All Types</option>
-                  <option value="Cash">Cash</option>
-                  <option value="WATU">WATU</option>
-                  <option value="B2B">B2B</option>
-                </select>
+            <div className="mt-3 pt-2 border-t">
+              <div className="mb-3">
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Customer Type</label>
+                <Select value={customerTypeFilter} onValueChange={setCustomerTypeFilter}>
+                  <SelectTrigger className="h-8 text-sm">
+                    <SelectValue placeholder="All Types" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="Cash">Cash</SelectItem>
+                    <SelectItem value="WATU">WATU</SelectItem>
+                    <SelectItem value="B2B">B2B</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           )}
@@ -186,68 +199,77 @@ const CustomersPage = () => {
         {/* Customer List */}
         <div className="flex-1 overflow-y-auto overscroll-y-contain">
           {isLoading ? (
-            <div className={`${spacing.card} ${spacing.section}`}>
+            <div className="p-3 space-y-2">
               {[...Array(8)].map((_, i) => (
-                <div key={i} className={`flex items-center ${spacing.gap} ${spacing.card}`}>
-                  <div className={`${isCompact ? 'w-8 h-8' : 'w-10 h-10'} bg-gray-200 dark:bg-gray-700 rounded-full animate-pulse`} />
-                  <div className="flex-1">
-                    <div className={`h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1`} />
-                    <div className={`h-3 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse`} />
+                <div key={i} className="flex items-center gap-2.5 p-2">
+                  <div className="w-8 h-8 bg-muted rounded-full animate-pulse" />
+                  <div className="flex-1 space-y-1.5">
+                    <div className="h-3.5 w-32 bg-muted rounded animate-pulse" />
+                    <div className="h-3 w-24 bg-muted rounded animate-pulse" />
                   </div>
                 </div>
               ))}
             </div>
           ) : filteredCustomers.length === 0 ? (
-            <div className={spacing.card}>
+            <div className="p-4">
               <div className="text-center">
-                <div className={`${isCompact ? 'w-10 h-10' : 'w-12 h-12'} bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto ${spacing.mb}`}>
-                  <HugeiconsIcon icon={UserMultipleIcon} size={spacing.icon.lg} className="text-gray-400 dark:text-gray-500" />
+                <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
+                  <HugeiconsIcon icon={UserMultipleIcon} size={20} className="text-muted-foreground" />
                 </div>
-                <p className={`${spacing.text.body} font-medium text-gray-900 dark:text-gray-100 mb-1`}>No customers found</p>
-                <p className={`${spacing.text.caption} text-gray-500 dark:text-gray-400`}>
+                <p className="text-sm font-medium mb-1">No customers found</p>
+                <p className="text-xs text-muted-foreground">
                   {hasActiveFilters ? "Try adjusting your filters" : "Add your first customer"}
                 </p>
               </div>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100 dark:divide-gray-800">
+            <div className="divide-y">
               {filteredCustomers.map((customer) => {
                 const stats = getCustomerStats(customer.id);
                 const isSelected = selectedCustomerId === customer.id;
+                const customerType = customer.customerType || customer.customer_type || 'Unknown';
 
                 return (
-                  <div
+                  <button
                     key={customer.id}
-                    className={`${spacing.card} cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${isSelected ? 'bg-primary-50 dark:bg-primary-900/20 border-r-2 border-primary-500' : ''
-                      }`}
+                    className={`w-full text-left p-2.5 transition-colors hover:bg-accent ${
+                      isSelected ? 'bg-accent border-l-2 border-l-primary' : ''
+                    }`}
                     onClick={() => handleViewDetails(customer.id)}
                   >
-                    <div className={`flex items-center ${spacing.gap}`}>
-                      <div className={`${isCompact ? 'w-8 h-8' : 'w-10 h-10'} bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-primary-700 dark:text-primary-300 font-semibold ${spacing.text.body} flex-shrink-0`}>
-                        {customer.name ? customer.name.charAt(0).toUpperCase() : 'C'}
-                      </div>
+                    <div className="flex items-center gap-2">
+                      <Avatar className="w-8 h-8">
+                        <AvatarFallback className="text-xs">
+                          {customer.name ? customer.name.charAt(0).toUpperCase() : 'C'}
+                        </AvatarFallback>
+                      </Avatar>
                       <div className="flex-1 min-w-0">
-                        <div className={`flex items-center ${spacing.gap} mb-1`}>
-                          <h3 className={`${spacing.text.body} font-semibold text-gray-900 dark:text-gray-100 truncate`}>
+                        <div className="flex items-center gap-1.5 mb-0.5">
+                          <h3 className="text-sm font-medium truncate">
                             {customer.name}
                           </h3>
-                          <span className={`px-1.5 py-0.5 rounded ${spacing.text.caption} font-medium ${(customer.customerType || customer.customer_type) === 'Cash' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300' :
-                            (customer.customerType || customer.customer_type) === 'B2B' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300' :
-                              'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                            }`}>
-                            {customer.customerType || customer.customer_type || 'Unknown'}
-                          </span>
+                          <Badge variant={customerType === 'WATU' ? 'default' : 'secondary'} className="text-[9px] h-3.5 px-1">
+                            {customerType}
+                          </Badge>
                         </div>
-                        <div className={`flex items-center ${spacing.gap} ${spacing.text.caption} text-gray-600 dark:text-gray-400`}>
-                          <span>{stats.vehicleCount} vehicles</span>
-                          <span>{stats.totalWorkOrders} orders</span>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-0.5">
+                            <HugeiconsIcon icon={Car01Icon} className="w-3 h-3" />
+                            {stats.vehicleCount}
+                          </span>
+                          <span className="flex items-center gap-0.5">
+                            <HugeiconsIcon icon={ClipboardIcon} className="w-3 h-3" />
+                            {stats.totalWorkOrders}
+                          </span>
                           {stats.openWorkOrders > 0 && (
-                            <span className="text-amber-600 dark:text-amber-400">{stats.openWorkOrders} open</span>
+                            <Badge variant="outline" className="text-[9px] h-3.5 px-1">
+                              {stats.openWorkOrders}
+                            </Badge>
                           )}
                         </div>
                       </div>
                     </div>
-                  </div>
+                  </button>
                 );
               })}
             </div>
@@ -256,158 +278,157 @@ const CustomersPage = () => {
       </div>
 
       {/* Right Panel - Customer Details */}
-      <div className={`${isMobile ? (selectedCustomerId ? 'flex-1 w-full' : 'hidden') : 'flex-1'} flex flex-col bg-white dark:bg-gray-950`}>
+      <div className={`${isMobile ? (selectedCustomerId ? 'flex-1 w-full' : 'hidden') : 'flex-1'} flex flex-col`}>
         {selectedCustomer ? (
           <>
             {/* Header */}
-            <div className={`${spacing.card} border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900`}>
+            <div className="p-3 border-b">
               <div className="flex items-center justify-between">
-                <div className={`flex items-center ${spacing.gap}`}>
+                <div className="flex items-center gap-2.5">
                   {isMobile && (
-                    <button
+                    <Button
+                      variant="ghost"
+                      size="sm"
                       onClick={() => setSelectedCustomerId(null)}
-                      className={`mr-2 ${isCompact ? 'p-0.5' : 'p-1'} -ml-2 text-gray-500 hover:text-gray-900`}
+                      className="mr-1 -ml-1 h-7 w-7 p-0"
                     >
-                      <HugeiconsIcon icon={ArrowLeft01Icon} size={spacing.icon.lg} />
-                    </button>
+                      <HugeiconsIcon icon={ArrowLeft01Icon} className="w-4 h-4" />
+                    </Button>
                   )}
-                  <div className={`${isCompact ? 'w-10 h-10' : 'w-12 h-12'} bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center text-primary-700 dark:text-primary-300 font-semibold ${spacing.text.heading}`}>
-                    {selectedCustomer.name ? selectedCustomer.name.charAt(0).toUpperCase() : 'C'}
-                  </div>
+                  <Avatar className="w-9 h-9">
+                    <AvatarFallback className="text-sm">
+                      {selectedCustomer.name ? selectedCustomer.name.charAt(0).toUpperCase() : 'C'}
+                    </AvatarFallback>
+                  </Avatar>
                   <div>
-                    <h2 className={`${spacing.text.heading} font-semibold text-gray-900 dark:text-gray-100`}>{selectedCustomer.name}</h2>
-                    {/* Removed company display as it does not exist in type */}
+                    <h2 className="text-base font-semibold">{selectedCustomer.name}</h2>
                   </div>
                 </div>
-                <div className={`flex items-center ${spacing.gap}`}>
-                  <button
-                    onClick={() => navigate(`/customers/${selectedCustomer.id}`)}
-                    className={`${spacing.button} font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500 flex items-center ${spacing.gap}`}
-                  >
-                    <HugeiconsIcon icon={LinkSquare02Icon} size={spacing.icon.sm} />
-                    View Full Details
-                  </button>
-                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate(`/customers/${selectedCustomer.id}`)}
+                  className="text-xs h-7"
+                >
+                  <HugeiconsIcon icon={LinkSquare02Icon} className="w-3.5 h-3.5" />
+                  View Details
+                </Button>
               </div>
             </div>
 
             {/* Stats Ribbon */}
-            <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-              <div className="grid grid-cols-4 divide-x divide-gray-200 dark:divide-gray-800">
-                <div className={spacing.card}>
-                  <div className={`flex items-center ${spacing.gap} mb-1`}>
-                    <HugeiconsIcon icon={Car01Icon} size={spacing.icon.sm} className="text-blue-600 dark:text-blue-400" />
-                    <p className={`${spacing.text.label} text-gray-500 dark:text-gray-400`}>Vehicles</p>
-                  </div>
-                  <p className={`${spacing.text.heading} font-bold text-gray-900 dark:text-gray-100`}>{selectedCustomerStats?.vehicleCount || 0}</p>
+            <div className="grid grid-cols-4 gap-2 p-3 border-b bg-muted/30">
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <HugeiconsIcon icon={Car01Icon} className="w-3.5 h-3.5 text-muted-foreground" />
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Vehicles</p>
                 </div>
-                <div className={spacing.card}>
-                  <div className={`flex items-center ${spacing.gap} mb-1`}>
-                    <HugeiconsIcon icon={ClipboardIcon} size={spacing.icon.sm} className="text-primary-600 dark:text-primary-400" />
-                    <p className={`${spacing.text.label} text-gray-500 dark:text-gray-400`}>Total Orders</p>
-                  </div>
-                  <p className={`${spacing.text.heading} font-bold text-gray-900 dark:text-gray-100`}>{selectedCustomerStats?.totalWorkOrders || 0}</p>
+                <p className="text-xl font-bold">{selectedCustomerStats?.vehicleCount || 0}</p>
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <HugeiconsIcon icon={ClipboardIcon} className="w-3.5 h-3.5 text-muted-foreground" />
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Total</p>
                 </div>
-                <div className={spacing.card}>
-                  <div className={`flex items-center ${spacing.gap} mb-1`}>
-                    <HugeiconsIcon icon={Clock01Icon} size={spacing.icon.sm} className="text-amber-600 dark:text-amber-400" />
-                    <p className={`${spacing.text.label} text-gray-500 dark:text-gray-400`}>Open Orders</p>
-                  </div>
-                  <p className={`${spacing.text.heading} font-bold text-gray-900 dark:text-gray-100`}>{selectedCustomerStats?.openWorkOrders || 0}</p>
+                <p className="text-xl font-bold">{selectedCustomerStats?.totalWorkOrders || 0}</p>
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <HugeiconsIcon icon={Clock01Icon} className="w-3.5 h-3.5 text-muted-foreground" />
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Open</p>
                 </div>
-                <div className={spacing.card}>
-                  <div className={`flex items-center ${spacing.gap} mb-1`}>
-                    <HugeiconsIcon icon={Calendar01Icon} size={spacing.icon.sm} className="text-emerald-600 dark:text-emerald-400" />
-                    <p className={`${spacing.text.label} text-gray-500 dark:text-gray-400`}>Customer Since</p>
-                  </div>
-                  <p className={`${spacing.text.body} font-bold text-gray-900 dark:text-gray-100`}>
-                    {dayjs(selectedCustomer.created_at).format('MMM YYYY')}
-                  </p>
+                <p className="text-xl font-bold">{selectedCustomerStats?.openWorkOrders || 0}</p>
+              </div>
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5">
+                  <HugeiconsIcon icon={Calendar01Icon} className="w-3.5 h-3.5 text-muted-foreground" />
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Since</p>
                 </div>
+                <p className="text-sm font-semibold">
+                  {dayjs(selectedCustomer.created_at).format('MMM YYYY')}
+                </p>
               </div>
             </div>
 
             {/* Content */}
-            <div className={`flex-1 overflow-y-auto ${spacing.card} overscroll-y-contain`}>
-              <div className={spacing.section}>
+            <div className="flex-1 overflow-y-auto p-3 overscroll-y-contain">
+              <div className="space-y-4">
                 {/* Contact Information */}
-                <div>
-                  <h3 className={`${spacing.text.body} font-semibold text-gray-900 dark:text-gray-100 ${spacing.mb}`}>Contact Information</h3>
-                  <div className={`grid grid-cols-1 md:grid-cols-3 ${spacing.gap}`}>
-                    {selectedCustomer.phone && (
-                      <div className={`bg-gray-50 dark:bg-gray-800 rounded-lg ${spacing.card}`}>
-                        <div className={`${spacing.text.caption} font-medium text-gray-500 dark:text-gray-400 mb-1`}>Phone</div>
-                        <div className={`${spacing.text.body} font-semibold text-gray-900 dark:text-gray-100`}>{selectedCustomer.phone}</div>
-                      </div>
-                    )}
-                    {/* Removed Email and Address as they do not exist in type */}
-                  </div>
-                </div>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-medium">Contact Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                      {selectedCustomer.phone && (
+                        <div className="bg-muted rounded-md p-2.5">
+                          <div className="text-[10px] font-medium text-muted-foreground mb-0.5 uppercase tracking-wide">Phone</div>
+                          <div className="text-sm font-semibold">{selectedCustomer.phone}</div>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
 
                 {/* Recent Activity */}
-                <div>
-                  <div className={`flex items-center justify-between ${spacing.mb}`}>
-                    <h3 className={`${spacing.text.body} font-semibold text-gray-900 dark:text-gray-100`}>Recent Activity</h3>
-                    <button
-                      onClick={() => navigate(`/work-orders?customer=${selectedCustomer.id}`)}
-                      className={`${spacing.text.caption} text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium`}
-                    >
-                      View All →
-                    </button>
-                  </div>
-                  <div className={spacing.section}>
-                    {workOrders
-                      ?.filter(wo => wo.customerId === selectedCustomer.id)
-                      .slice(0, 5)
-                      .map((wo) => {
-                        const vehicle = vehicles?.find(v => v.id === wo.vehicleId);
-                        return (
-                          <div
-                            key={wo.id}
-                            className={`border border-gray-200 dark:border-gray-700 rounded-lg ${spacing.card} hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50/30 dark:hover:bg-primary-900/10 transition-all cursor-pointer`}
-                            onClick={() => navigate(`/work-orders/${wo.id}`)}
-                          >
-                            <div className="flex items-center justify-between">
-                              <div className="flex-1">
-                                <div className={`flex items-center ${spacing.gap} mb-1`}>
-                                  <span className={`${spacing.text.body} font-semibold text-gray-900 dark:text-gray-100`}>
-                                    {wo.workOrderNumber || `WO-${wo.id.substring(0, 6).toUpperCase()}`}
-                                  </span>
-                                  <span className={`px-2 py-0.5 rounded ${spacing.text.caption} font-medium ${wo.status === 'Completed' ? 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300' :
-                                    wo.status === 'In Progress' ? 'bg-amber-100 dark:bg-amber-900/30 text-amber-800 dark:text-amber-300' :
-                                      'bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300'
-                                    }`}>
-                                    {wo.status}
-                                  </span>
-                                </div>
-                                <div className={`flex items-center ${spacing.gap} ${spacing.text.caption} text-gray-600 dark:text-gray-400`}>
-                                  {vehicle && (
-                                    <span className="flex items-center gap-1">
-                                      <HugeiconsIcon icon={Car01Icon} size={spacing.icon.sm} />
-                                      {vehicle.license_plate}
-                                    </span>
-                                  )}
-                                  <span>{dayjs(wo.created_at).fromNow()}</span>
-                                </div>
-                              </div>
-                              <HugeiconsIcon icon={ArrowRight01Icon} size={spacing.icon.sm} className="text-gray-400 dark:text-gray-500" />
-                            </div>
-                          </div>
-                        );
-                      })}
-                  </div>
-                </div>
+                <Card>
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-sm font-medium">Work Order History</CardTitle>
+                      <Button
+                        variant="link"
+                        size="sm"
+                        onClick={() => navigate(`/work-orders?customer=${selectedCustomer.id}`)}
+                        className="h-auto p-0 text-xs"
+                      >
+                        View All <HugeiconsIcon icon={ArrowRight01Icon} className="w-3 h-3 ml-0.5" />
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="p-0 pt-0">
+                    {workOrders && workOrders.filter(wo => wo.customer_id === selectedCustomer.id).length > 0 ? (
+                      <EnhancedWorkOrderDataTable
+                        workOrders={workOrders.filter(wo => wo.customer_id === selectedCustomer.id)}
+                        technicians={technicians}
+                        locations={locations}
+                        customers={customers ? [selectedCustomer] : []}
+                        vehicles={vehicles || []}
+                        profiles={profiles}
+                        serviceCategories={serviceCategories}
+                        onEdit={(wo) => navigate(`/work-orders/${wo.id}`)}
+                        onDelete={() => { }}
+                        onUpdateWorkOrder={() => { }}
+                        onViewDetails={(id) => navigate(`/work-orders/${id}`)}
+                        enableBulkActions={false}
+                        enableAdvancedFilters={false}
+                        enableExport={false}
+                        compactMode={true}
+                        visibleColumns={['workOrderNumber', 'status', 'priority', 'createdAt', 'service']}
+                      />
+                    ) : (
+                      <div className="text-center py-8">
+                        <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center mx-auto mb-2">
+                          <HugeiconsIcon icon={ClipboardIcon} size={18} className="text-muted-foreground" />
+                        </div>
+                        <p className="text-sm font-medium mb-0.5">No work orders yet</p>
+                        <p className="text-xs text-muted-foreground">
+                          Work orders will appear here
+                        </p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </>
         ) : (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <div className={`${isCompact ? 'w-14 h-14' : 'w-16 h-16'} bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto ${spacing.mb}`}>
-                <HugeiconsIcon icon={UserMultipleIcon} size={spacing.icon.xl} className="text-gray-400 dark:text-gray-500" />
+              <div className="w-14 h-14 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
+                <HugeiconsIcon icon={UserMultipleIcon} size={28} className="text-muted-foreground" />
               </div>
-              <h3 className={`${spacing.text.heading} font-medium text-gray-900 dark:text-gray-100 mb-2`}>Select a Customer</h3>
-              <p className={`${spacing.text.body} text-gray-500 dark:text-gray-400 max-w-sm`}>
+              <h3 className="text-base font-semibold mb-1.5">Select a Customer</h3>
+              <p className="text-sm text-muted-foreground max-w-sm">
                 Choose a customer from the list to view their details, vehicles, and service history.
               </p>
             </div>

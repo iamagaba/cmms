@@ -8,26 +8,26 @@
 
 import React, { useState, useMemo } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-  Home01Icon, 
-  RefreshIcon, 
-  TimelineIcon, 
-  ClipboardIcon, 
-  FolderOpenIcon, 
-  CheckmarkCircle01Icon, 
-  Clock01Icon, 
-  ActivityIcon, 
-  TagIcon, 
-  MenuIcon, 
-  TableIcon, 
-  Settings01Icon, 
-  ArrowRight01Icon, 
-  Add01Icon, 
-  CalendarAdd01Icon, 
-  Search01Icon, 
-  FileIcon, 
-  AlertCircleIcon, 
-  Calendar01Icon 
+import {
+  Home01Icon,
+  RefreshIcon,
+  TimelineIcon,
+  ClipboardIcon,
+  FolderOpenIcon,
+  CheckmarkCircle01Icon,
+  Clock01Icon,
+  ActivityIcon,
+  TagIcon,
+  MenuIcon,
+  TableIcon,
+  Settings01Icon,
+  ArrowRight01Icon,
+  Add01Icon,
+  CalendarAdd01Icon,
+  Search01Icon,
+  FileIcon,
+  AlertCircleIcon,
+  Calendar01Icon
 } from '@hugeicons/core-free-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
@@ -35,21 +35,17 @@ import dayjs from 'dayjs';
 import { cn } from '@/lib/utils';
 
 // Professional Components
-import ProfessionalButton from '@/components/ui/ProfessionalButton';
-import ProfessionalCard from '@/components/ui/ProfessionalCard';
-import { ProfessionalDataTable } from '@/components/advanced';
-import { ProfessionalPageLayout } from '@/components/layout';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+// Removed ProfessionalPageLayout import
 
 // Dashboard Components
 import ModernKPICard from './ModernKPICard';
-import DashboardSection from './DashboardSection';
-import QuickActionsPanel from './QuickActionsPanel';
-import ActivityFeed from './ActivityFeed';
+
 import AssetStatusOverview from './AssetStatusOverview';
 
-// Density hooks
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
+
 
 
 
@@ -93,19 +89,19 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
           )}
         </div>
       </div>
-      
+
       {action && (
-        <ProfessionalButton
+        <Button
           variant="outline"
           size="sm"
-          icon={action.icon}
           onClick={action.onClick}
         >
+          {action.icon && <HugeiconsIcon icon={action.icon} size={16} className="mr-2" />}
           {action.label}
-        </ProfessionalButton>
+        </Button>
       )}
     </div>
-    
+
     {children}
   </div>
 );
@@ -115,9 +111,6 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
 // ============================================
 
 const QuickActionsPanel: React.FC = () => {
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
-  
   const quickActions = [
     {
       id: 'new-work-order',
@@ -150,9 +143,9 @@ const QuickActionsPanel: React.FC = () => {
   ];
 
   return (
-    <ProfessionalCard className={spacing.card}>
-      <h3 className={`${spacing.text.heading} font-semibold text-machinery-900 ${spacing.mb}`}>Quick Actions</h3>
-      <div className={`grid grid-cols-2 ${spacing.gap}`}>
+    <Card className="p-4">
+      <h3 className="text-xl font-semibold text-machinery-900 mb-4">Quick Actions</h3>
+      <div className="grid grid-cols-2 gap-4">
         {quickActions.map((action) => (
           <motion.button
             key={action.id}
@@ -160,17 +153,17 @@ const QuickActionsPanel: React.FC = () => {
             whileTap={{ scale: 0.98 }}
             onClick={action.onClick}
             className={cn(
-              spacing.card,
+              'p-4',
               'rounded-lg text-white text-left transition-colors',
               action.color
             )}
           >
-            <HugeiconsIcon icon={action.icon} size={spacing.icon.lg} className={spacing.mb} />
-            <div className={`${spacing.text.body} font-medium`}>{action.label}</div>
+            <HugeiconsIcon icon={action.icon} size={24} className="mb-2" />
+            <div className="text-sm font-medium">{action.label}</div>
           </motion.button>
         ))}
       </div>
-    </ProfessionalCard>
+    </Card>
   );
 };
 
@@ -179,9 +172,6 @@ const QuickActionsPanel: React.FC = () => {
 // ============================================
 
 const ActivityFeed: React.FC = () => {
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
-  
   const activities = [
     {
       id: 1,
@@ -213,29 +203,29 @@ const ActivityFeed: React.FC = () => {
   ];
 
   return (
-    <ProfessionalCard className={spacing.card}>
-      <div className={`flex items-center justify-between ${spacing.mb}`}>
-        <h3 className={`${spacing.text.heading} font-semibold text-machinery-900`}>Recent Activity</h3>
-        <ProfessionalButton variant="ghost" size="sm">
+    <Card className="p-4">
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="text-xl font-semibold text-machinery-900">Recent Activity</h3>
+        <Button variant="ghost" size="sm">
           View All
-        </ProfessionalButton>
+        </Button>
       </div>
-      
-      <div className={spacing.section}>
+
+      <div className="space-y-4">
         {activities.map((activity) => (
-          <div key={activity.id} className={`flex items-start ${spacing.gap}`}>
-            <div className={cn(`${isCompact ? 'p-1' : 'p-1.5'} rounded-full bg-machinery-100`, activity.color)}>
-              <HugeiconsIcon icon={activity.icon} size={spacing.icon.sm} />
+          <div key={activity.id} className="flex items-start gap-3">
+            <div className={cn('p-1.5 rounded-full bg-machinery-100', activity.color)}>
+              <HugeiconsIcon icon={activity.icon} size={16} />
             </div>
             <div className="flex-1 min-w-0">
-              <p className={`${spacing.text.body} font-medium text-machinery-900`}>{activity.title}</p>
-              <p className={`${spacing.text.caption} text-machinery-600 mt-1`}>{activity.description}</p>
-              <p className={`${spacing.text.caption} text-machinery-500 mt-1`}>{activity.timestamp}</p>
+              <p className="text-sm font-medium text-machinery-900">{activity.title}</p>
+              <p className="text-xs text-machinery-600 mt-1">{activity.description}</p>
+              <p className="text-xs text-machinery-500 mt-1">{activity.timestamp}</p>
             </div>
           </div>
         ))}
       </div>
-    </ProfessionalCard>
+    </Card>
   );
 };
 
@@ -249,9 +239,7 @@ interface ProfessionalDashboardProps {
 
 const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className }) => {
   const [timeRange, setTimeRange] = useState<'today' | 'week' | 'month'>('today');
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
-  
+
   // Mock data - replace with real data
   const kpiData = {
     totalWorkOrders: { value: 156, trend: { value: 12, direction: 'up' as const, label: 'vs last week' } },
@@ -263,12 +251,15 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
   };
 
   return (
-    <ProfessionalPageLayout
-      title="Dashboard Overview"
-      subtitle="Monitor your CMMS operations and key performance indicators"
-      icon={Home01Icon}
-      className={className}
-      actions={
+    <div className={cn("p-6 space-y-6", className)}>
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-machinery-900 flex items-center gap-2">
+            <HugeiconsIcon icon={Home01Icon} size={24} className="text-steel-600" />
+            Dashboard Overview
+          </h1>
+          <p className="text-machinery-600">Monitor your CMMS operations and key performance indicators</p>
+        </div>
         <div className="flex items-center gap-3">
           {/* Time Range Selector */}
           <div className="flex bg-machinery-100 rounded-lg p-1">
@@ -287,18 +278,17 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
               </button>
             ))}
           </div>
-          
-          <ProfessionalButton
+
+          <Button
             variant="outline"
             size="sm"
-            icon={RefreshIcon}
             onClick={() => window.location.reload()}
           >
+            <HugeiconsIcon icon={RefreshIcon} size={16} className="mr-2" />
             Refresh
-          </ProfessionalButton>
+          </Button>
         </div>
-      }
-    >
+      </div>
       <div className="space-y-8">
         {/* KPI Grid */}
         <DashboardSection
@@ -317,7 +307,7 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
               actionLabel="View All"
               onAction={() => console.log('View all work orders')}
             />
-            
+
             <ModernKPICard
               title="Open Orders"
               value={kpiData.openOrders.value}
@@ -328,7 +318,7 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
               actionLabel="Manage"
               onAction={() => console.log('Manage open orders')}
             />
-            
+
             <ModernKPICard
               title="Completed Today"
               value={kpiData.completedToday.value}
@@ -337,7 +327,7 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
               trend={kpiData.completedToday.trend}
               subtitle="Since midnight"
             />
-            
+
             <ModernKPICard
               title="Avg Response Time"
               value={kpiData.avgResponseTime.value}
@@ -346,7 +336,7 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
               trend={kpiData.avgResponseTime.trend}
               subtitle="Time to first response"
             />
-            
+
             <ModernKPICard
               title="Asset Uptime"
               value={kpiData.assetUptime.value}
@@ -355,7 +345,7 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
               trend={kpiData.assetUptime.trend}
               subtitle="Overall availability"
             />
-            
+
             <ModernKPICard
               title="Maintenance Costs"
               value={kpiData.maintenanceCosts.value}
@@ -382,16 +372,16 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
                 icon: ArrowRight01Icon
               }}
             >
-              <ProfessionalCard>
-                <div className={spacing.card}>
+              <Card>
+                <div className="p-6">
                   {/* Work orders table would go here */}
                   <div className="text-center py-12 text-machinery-500">
                     <HugeiconsIcon icon={TableIcon} size={48} className="mx-auto mb-4 opacity-50" />
-                    <p className={`${spacing.text.heading} font-medium mb-2`}>Work Orders Table</p>
-                    <p className={spacing.text.body}>Integration with existing UrgentWorkOrdersTable component</p>
+                    <p className="text-lg font-medium mb-2">Work Orders Table</p>
+                    <p className="text-sm">Integration with existing UrgentWorkOrdersTable component</p>
                   </div>
                 </div>
-              </ProfessionalCard>
+              </Card>
             </DashboardSection>
 
             {/* Asset Status Overview */}
@@ -400,7 +390,7 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
               subtitle="Current status of critical assets"
               icon={Settings01Icon}
             >
-              <AssetStatusOverview 
+              <AssetStatusOverview
                 onStatusClick={(status) => console.log('Navigate to assets:', status.id)}
               />
             </DashboardSection>
@@ -409,35 +399,35 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
           {/* Right Column - Sidebar */}
           <div className="space-y-6">
             <QuickActionsPanel />
-            <ActivityFeed 
+            <ActivityFeed
               onActivityClick={(activity) => console.log('View activity:', activity.id)}
               onViewAll={() => console.log('View all activities')}
             />
-            
+
             {/* Upcoming Maintenance */}
-            <ProfessionalCard className={spacing.card}>
-              <div className={`flex items-center justify-between ${spacing.mb}`}>
-                <h3 className={`${spacing.text.heading} font-semibold text-machinery-900`}>
+            <Card className="p-4">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold text-machinery-900">
                   Upcoming Maintenance
                 </h3>
-                <ProfessionalButton variant="ghost" size="sm">
+                <Button variant="ghost" size="sm">
                   View Schedule
-                </ProfessionalButton>
+                </Button>
               </div>
-              <div className={spacing.section}>
+              <div className="space-y-4">
                 {[
                   { asset: 'Pump A-101', date: 'Tomorrow', type: 'Preventive', priority: 'high' },
                   { asset: 'Motor B-202', date: 'Dec 20', type: 'Inspection', priority: 'medium' },
                   { asset: 'Valve C-303', date: 'Dec 22', type: 'Repair', priority: 'low' }
                 ].map((item, index) => (
-                  <motion.div 
+                  <motion.div
                     key={index}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ duration: 0.3, delay: index * 0.1 }}
-                    className={`flex items-center justify-between ${spacing.card} bg-machinery-50 rounded-lg hover:bg-machinery-100 transition-colors cursor-pointer group`}
+                    className="flex items-center justify-between p-3 bg-machinery-50 rounded-lg hover:bg-machinery-100 transition-colors cursor-pointer group"
                   >
-                    <div className={`flex items-center ${spacing.gap}`}>
+                    <div className="flex items-center gap-3">
                       <div className={cn(
                         'w-2 h-2 rounded-full',
                         item.priority === 'high' && 'bg-warning-500',
@@ -445,27 +435,29 @@ const ProfessionalDashboard: React.FC<ProfessionalDashboardProps> = ({ className
                         item.priority === 'low' && 'bg-industrial-500'
                       )} />
                       <div>
-                        <div className={`${spacing.text.body} font-medium text-machinery-900`}>{item.asset}</div>
-                        <div className={`${spacing.text.caption} text-machinery-600`}>{item.type}</div>
+                        <div className="text-sm font-medium text-machinery-900">{item.asset}</div>
+                        <div className="text-xs text-machinery-600">{item.type}</div>
                       </div>
                     </div>
-                    <div className={`flex items-center ${spacing.gap}`}>
-                      <div className={`${spacing.text.body} font-medium text-steel-600`}>{item.date}</div>
-                      <HugeiconsIcon 
-                        icon={ArrowRight01Icon} 
-                        size={spacing.icon.sm}
-                        className="text-machinery-400 opacity-0 group-hover:opacity-100 transition-opacity" 
+                    <div className="flex items-center gap-2">
+                      <div className="text-sm font-medium text-steel-600">{item.date}</div>
+                      <HugeiconsIcon
+                        icon={ArrowRight01Icon}
+                        size={16}
+                        className="text-machinery-400 opacity-0 group-hover:opacity-100 transition-opacity"
                       />
                     </div>
                   </motion.div>
                 ))}
               </div>
-            </ProfessionalCard>
+            </Card>
           </div>
         </div>
       </div>
-    </ProfessionalPageLayout>
+    </div>
+
   );
 };
+
 
 export default ProfessionalDashboard;

@@ -9,8 +9,7 @@
 import React, { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { useDensitySpacing } from '@/hooks/useDensitySpacing';
-import { useDensity } from '@/context/DensityContext';
+
 import {
   Home01Icon,
   ClipboardIcon,
@@ -23,9 +22,8 @@ import {
   ChartLineData01Icon,
   MessageIcon,
   Settings01Icon,
-  WebDesign02Icon,
-
-  UserIcon
+  UserIcon,
+  PaintBoardIcon
 } from '@hugeicons/core-free-icons';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -175,10 +173,18 @@ export const navigationConfig: NavigationSection[] = [
       {
         id: 'design-system',
         label: 'Design System',
-        href: '/design-system',
-        icon: WebDesign02Icon,
-        description: 'UI components and design tokens',
-        keywords: ['design', 'system', 'components', 'ui', 'tokens', 'theme'],
+        href: '/design-system-v2',
+        icon: PaintBoardIcon,
+        description: 'shadcn/ui component library',
+        keywords: ['design', 'components', 'ui', 'shadcn'],
+      },
+      {
+        id: 'design-system-nova',
+        label: 'Design System (Nova)',
+        href: '/design-system-nova',
+        icon: PaintBoardIcon,
+        description: 'Nova style preview',
+        keywords: ['design', 'nova', 'components', 'ui', 'preview'],
       },
     ],
   },
@@ -218,8 +224,7 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
   isActive,
   onNavigate,
 }) => {
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
+
   const [isHovered, setIsHovered] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
 
@@ -236,15 +241,15 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
     <Link
       to={item.href}
       className={cn(
-        // Base styles - Industrial: sharper corners, defined borders
-        'group relative flex items-center gap-2.5 py-2 transition-colors duration-150 w-full text-left rounded-sm',
-        'text-slate-600 hover:text-slate-900 hover:bg-slate-50',
+        // Base styles - Industrial
+        'group relative flex items-center gap-2.5 py-2 transition-all duration-150 w-full text-left rounded-sm',
+        'text-[var(--industrial-slate-600)] hover:text-[var(--industrial-slate-900)] hover:bg-[var(--industrial-slate-100)]',
         'focus:outline-none no-underline',
         // Padding
         isCollapsed ? 'justify-center px-2' : 'px-2.5',
 
         // Active state - Industrial: stronger accent
-        isActive && 'bg-purple-50 text-purple-700 font-semibold border-l-2 border-purple-600',
+        isActive && 'bg-[rgba(168,85,247,0.08)] text-[var(--brand-purple-700)] font-semibold border-l-2 border-[var(--brand-purple-600)]',
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -253,7 +258,7 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
       {/* Icon */}
       <div className={cn(
         'flex items-center justify-center flex-shrink-0',
-        isActive ? 'text-purple-600' : 'text-slate-400'
+        isActive ? 'text-[var(--brand-purple-600)]' : 'text-[var(--industrial-slate-400)] group-hover:text-[var(--industrial-slate-600)]'
       )}>
         <HugeiconsIcon
           icon={item.icon}
@@ -261,7 +266,7 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
         />
       </div>
 
-      {/* Label - Industrial: slightly bolder */}
+      {/* Label */}
       {!isCollapsed && (
         <span className={cn(
           "flex-1 min-w-0 text-[13px] leading-tight",
@@ -304,26 +309,26 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
           exit={{ opacity: 0, x: -5 }}
           transition={{ duration: 0.1 }}
           className={cn(
-            'absolute left-full ml-2 px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg z-50',
+            'absolute left-full ml-2 px-2 py-1 bg-[var(--industrial-slate-900)] text-white text-xs rounded shadow-lg z-50',
             'pointer-events-none whitespace-nowrap'
           )}
         >
           <div className="flex items-center gap-2">
             <span className="font-medium">{item.label}</span>
             {item.badge && (
-              <span className="inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 bg-alert-600 text-white text-[9px] font-bold rounded-full">
+              <span className="inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 bg-red-600 text-white text-[9px] font-bold rounded-full">
                 {item.badge}
               </span>
             )}
           </div>
           {item.description && (
-            <div className="text-[10px] text-gray-300 mt-0.5">
+            <div className="text-[10px] text-[var(--industrial-slate-300)] mt-0.5">
               {item.description}
             </div>
           )}
 
           {/* Arrow */}
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-gray-900 rotate-45" />
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-[var(--industrial-slate-900)] rotate-45" />
         </motion.div>
       )}
     </Link>
@@ -374,8 +379,7 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
 
   onNavigate,
 }) => {
-  const spacing = useDensitySpacing();
-  const { isCompact } = useDensity();
+
   const [isHovered, setIsHovered] = useState(false);
   const isExpanded = isHovered || !collapsed;
 
@@ -402,8 +406,9 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
         margin: 0,
       }}
       className={cn(
-        'fixed left-0 top-0 bottom-0 z-40 bg-white',
-        'border-r border-gray-200',
+        'fixed left-0 top-0 bottom-0 z-40',
+        'bg-[var(--industrial-slate-50)]', // Changed from bg-white
+        'border-r border-[var(--industrial-slate-200)]', // Changed from border-gray-200
         'flex flex-col overflow-hidden',
         'transition-[width] duration-300 ease-in-out',
         '!rounded-none !shadow-none !m-0',
@@ -412,11 +417,11 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
     >
       {/* Header */}
       <div className={cn(
-        'flex items-center gap-3 px-3 py-3 border-b border-gray-200',
+        'flex items-center gap-3 px-3 py-3 border-b border-[var(--industrial-slate-200)]', // Industrial border
         !isExpanded && 'justify-center px-2'
       )}>
         {/* Logo */}
-        <div className="flex items-center justify-center w-8 h-8 bg-primary-600 rounded-lg shadow-sm flex-shrink-0">
+        <div className="flex items-center justify-center w-8 h-8 bg-[var(--brand-purple-600)] rounded-lg shadow-sm flex-shrink-0">
           <HugeiconsIcon icon={Wrench01Icon} size={16} className="text-white" />
         </div>
 
@@ -430,11 +435,11 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
               transition={{ duration: 0.2 }}
               className="flex-1 min-w-0"
             >
-              <h1 className="text-sm font-bold text-gray-900 leading-tight">
+              <h1 className="text-sm font-bold text-[var(--industrial-slate-900)] leading-tight font-brand tracking-tight">
                 GOGO CMMS
               </h1>
-              <p className="text-[11px] text-gray-500 leading-tight">
-                Maintenance Management
+              <p className="text-[10px] text-[var(--industrial-slate-500)] leading-tight uppercase tracking-wider font-semibold">
+                Maintenance
               </p>
             </motion.div>
           )}
@@ -457,14 +462,14 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
 
       {/* Footer */}
       <div className={cn(
-        'px-3 py-3 border-t border-gray-200',
+        'px-3 py-3 border-t border-[var(--industrial-slate-200)]',
         !isExpanded && 'px-2'
       )}>
         <div className={cn(
           'flex items-center gap-2.5 p-1.5',
           !isExpanded && 'justify-center'
         )}>
-          <div className="w-7 h-7 bg-primary-600 rounded-full flex items-center justify-center flex-shrink-0">
+          <div className="w-7 h-7 bg-[var(--brand-purple-600)] rounded-full flex items-center justify-center flex-shrink-0">
             <HugeiconsIcon icon={UserIcon} size={14} className="text-white" />
           </div>
 
@@ -477,10 +482,10 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
                 transition={{ duration: 0.2 }}
                 className="flex-1 min-w-0"
               >
-                <div className="text-[13px] font-medium text-gray-900 truncate leading-tight">
+                <div className="text-[13px] font-medium text-[var(--industrial-slate-900)] truncate leading-tight">
                   Admin User
                 </div>
-                <div className="text-[11px] text-gray-500 leading-tight">
+                <div className="text-[10px] text-[var(--industrial-slate-500)] leading-tight">
                   Administrator
                 </div>
               </motion.div>

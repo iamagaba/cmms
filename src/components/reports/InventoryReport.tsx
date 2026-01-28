@@ -1,4 +1,4 @@
-import { AlertCircle, Calendar, Clock, Loader2, Tag, TrendingUp } from 'lucide-react';
+import { AlertCircle, Calendar, Clock, Loader2, Tag, TrendingUp, ArrowLeftRight, TrendingUp as AnalyticsUpIcon, PieChart as PieChartIcon } from 'lucide-react';
 import React, { useState } from 'react';
 
 

@@ -15,9 +15,8 @@ import {
   Flag,
   DollarSign,
   BarChart3,
-  BarChart as BarChart3,
-  LineChart as LineChart,
-  Table as Table,
+  LineChart as LineChartIcon,
+  Table as TableIcon,
   Truck,
   Activity,
   CalendarCheck,
@@ -337,7 +336,7 @@ const OverviewReport: React.FC<{
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-1.5">
-            <LineChart className="w-4 h-4 text-primary" />
+            <LineChartIcon className="w-4 h-4 text-primary" />
             Work Orders Timeline
           </CardTitle>
         </CardHeader>

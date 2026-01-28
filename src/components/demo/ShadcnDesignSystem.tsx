@@ -1,4 +1,4 @@
-import { Info } from 'lucide-react';
+import { Info, ExternalLink } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 
@@ -136,12 +136,12 @@ const ShadcnDesignSystem: React.FC = () => {
         <div className="flex gap-4">
           <Button variant="outline" size="sm" asChild>
             <a href="/design-system" target="_blank" rel="noopener noreferrer">
-              View Legacy System <LinkSquare02Icon className="w-4 h-4 ml-2" />
+              View Legacy System <ExternalLink className="w-4 h-4 ml-2" />
             </a>
           </Button>
           <Button variant="outline" size="sm" asChild>
             <a href="https://ui.shadcn.com" target="_blank" rel="noopener noreferrer">
-              shadcn/ui Documentation <LinkSquare02Icon className="w-4 h-4 ml-2" />
+              shadcn/ui Documentation <ExternalLink className="w-4 h-4 ml-2" />
             </a>
           </Button>
         </div>

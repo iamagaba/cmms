@@ -1,4 +1,4 @@
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, Edit } from 'lucide-react';
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -10,7 +10,7 @@ const TypographyHierarchySection: React.FC = () => {
         <Card className="border-teal-200 bg-muted">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-teal-900">
-                    <PencilEdit01Icon className="w-5 h-5" />
+                    <Edit className="w-5 h-5" />
                     Typography Hierarchy System
                 </CardTitle>
                 <CardDescription className="text-foreground">

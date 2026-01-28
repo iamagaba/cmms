@@ -1,4 +1,4 @@
-import { Calendar as CalendarIcon, CheckCircle, ClipboardList, Clock, Info, Plus, RefreshCw, Settings, User, X, Package } from 'lucide-react';
+import { Calendar as CalendarIcon, CheckCircle, ClipboardList, Clock, Info, Plus, RefreshCw, Settings, User, X, Package, Edit } from 'lucide-react';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -88,7 +88,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <PencilEdit01Icon className="w-5 h-5" />
+                        <Edit className="w-5 h-5" />
                         Form Elements
                     </CardTitle>
                     <CardDescription>Input, Label, and form components</CardDescription>
@@ -344,7 +344,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <PencilEdit01Icon className="w-5 h-5" />
+                        <Edit className="w-5 h-5" />
                         Typography Scale
                     </CardTitle>
                     <CardDescription>Text styles and hierarchy</CardDescription>
@@ -414,7 +414,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <PencilEdit01Icon className="w-5 h-5" />
+                        <Edit className="w-5 h-5" />
                         Advanced Form Elements
                     </CardTitle>
                     <CardDescription>Select, textarea, checkbox, and radio components</CardDescription>
@@ -627,7 +627,7 @@ const CoreComponentsSection: React.FC = () => {
                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem>
-                                    <PencilEdit01Icon className="w-4 h-4 mr-2" />
+                                    <Edit className="w-4 h-4 mr-2" />
                                     Edit
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>

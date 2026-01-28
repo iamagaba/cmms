@@ -1,4 +1,4 @@
-import { Info, Package } from 'lucide-react';
+import { Info, Package, Edit } from 'lucide-react';
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -254,7 +254,7 @@ const CodeSnippetsSection: React.FC = () => {
     <DropdownMenuLabel>Work Order Actions</DropdownMenuLabel>
     <DropdownMenuSeparator />
     <DropdownMenuItem>
-      <PencilEdit01Icon className="w-4 h-4 mr-2" />
+      <Edit className="w-4 h-4 mr-2" />
       Edit Details
     </DropdownMenuItem>
     <DropdownMenuItem>

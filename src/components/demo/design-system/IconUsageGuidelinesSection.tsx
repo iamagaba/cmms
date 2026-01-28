@@ -1,4 +1,4 @@
-import { Calendar, CheckCircle, ClipboardList, Info, Plus, Settings, User, Package } from 'lucide-react';
+import { Calendar, CheckCircle, ClipboardList, Info, Plus, Settings, User, Package, Edit } from 'lucide-react';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -106,7 +106,7 @@ const IconUsageGuidelinesSection: React.FC = () => {
                                     Create
                                 </Button>
                                 <Button size="sm" variant="outline">
-                                    <PencilEdit01Icon className="w-4 h-4" />
+                                    <Edit className="w-4 h-4" />
                                     Edit
                                 </Button>
                             </div>
@@ -164,9 +164,9 @@ const IconUsageGuidelinesSection: React.FC = () => {
                             </div>
                         </div>
                         <div className="flex items-center gap-3 p-2 bg-sky-50 rounded">
-                            <PencilEdit01Icon className="w-4 h-4 text-sky-600" />
+                            <Edit className="w-4 h-4 text-sky-600" />
                             <div>
-                                <p className="text-sm font-medium text-gray-900">PencilEdit01Icon</p>
+                                <p className="text-sm font-medium text-gray-900">Edit</p>
                                 <p className="text-xs text-gray-600">Edit, Modify, Update</p>
                             </div>
                         </div>

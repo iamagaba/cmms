@@ -1,4 +1,4 @@
-import { CheckCircle, ClipboardList, User, X, Package } from 'lucide-react';
+import { CheckCircle, ClipboardList, User, X, Package, Edit } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,7 +14,7 @@ const CopywritingGuidelinesSection: React.FC = () => {
         <Card className="border-pink-200 bg-primary/5">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-pink-900">
-                    <PencilEdit01Icon className="w-5 h-5" />
+                    <Edit className="w-5 h-5" />
                     Professional Copywriting Guidelines
                 </CardTitle>
                 <CardDescription className="text-primary">

@@ -3,7 +3,11 @@
 import { useRef, useEffect, useState } from 'react'
 import type mapboxgl from 'mapbox-gl'
 
-const MAPBOX_TOKEN = 'pk.eyJ1IjoiYnJ1Y2VieWFydWdhYmEiLCJhIjoiY21mZWRiNjhwMDV4NTJrczRpOW05czBkbiJ9.abnfEV8P531a4Rlgx73MWQ'
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_API_KEY;
+
+if (!MAPBOX_TOKEN) {
+  console.error('Missing NEXT_PUBLIC_MAPBOX_API_KEY environment variable');
+}
 
 interface MobileMapboxProps {
   center: [number, number] // [lng, lat]

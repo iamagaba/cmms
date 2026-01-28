@@ -1,4 +1,22 @@
-import { AlertCircle, Calendar, Clock, Loader2, Tag, TrendingUp, ArrowLeftRight, TrendingUp as AnalyticsUpIcon, PieChart as PieChartIcon } from 'lucide-react';
+import { 
+  AlertCircle, 
+  Calendar, 
+  Clock, 
+  Loader2, 
+  Tag, 
+  TrendingUp, 
+  ArrowLeftRight, 
+  TrendingUp as AnalyticsUpIcon, 
+  PieChart as PieChartIcon, 
+  Package, 
+  PackageCheck as PackageDeliveredIcon,
+  Layers as Layers01Icon,
+  BarChart3 as ChartIcon,
+  ArrowDown as ArrowDownIcon,
+  ArrowUp as ArrowUpIcon,
+  FileText as Invoice01Icon,
+  Grid3X3 as GridIcon
+} from 'lucide-react';
 import React, { useState } from 'react';
 
 

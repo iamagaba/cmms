@@ -722,7 +722,7 @@ const SettingsPage = () => {
 
             <TabsContent value="help" className="space-y-6">
               <p className="text-sm text-muted-foreground">
-                Guides and documentation for using GOGO CMMS
+                Guides and documentation for using Fleet CMMS
               </p>
               <HelpTab />
             </TabsContent>

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The GOGO CMMS Professional Design System is a comprehensive visual and interaction framework that establishes a distinctive, professional identity for the maintenance management application. This design system moves beyond generic business application aesthetics by incorporating industrial-inspired visual elements, maintenance-specific iconography, and sophisticated interaction patterns that reflect the precision and reliability expected in maintenance operations.
+The Fleet CMMS Professional Design System is a comprehensive visual and interaction framework that establishes a distinctive, professional identity for the maintenance management application. This design system moves beyond generic business application aesthetics by incorporating industrial-inspired visual elements, maintenance-specific iconography, and sophisticated interaction patterns that reflect the precision and reliability expected in maintenance operations.
 
 The system is built on a foundation of design tokens that ensure consistency across all touchpoints while providing flexibility for theming and customization. It supports both desktop and mobile experiences with responsive patterns optimized for maintenance workflows.
 

@@ -13,7 +13,7 @@ const articles = [
             <div className="space-y-4">
                 <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">What is the Diagnostic Feature?</h3>
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">
-                    The Diagnostic feature in GOGO CMMS is a powerful tool designed to standardize vehicle troubleshooting.
+                    The Diagnostic feature is a powerful tool designed to standardize vehicle troubleshooting.
                     It turns expert knowledge into an easy-to-follow, step-by-step guide for technicians of all skill levels.
                 </p>
                 <p className="text-gray-700 dark:text-gray-300 leading-relaxed">

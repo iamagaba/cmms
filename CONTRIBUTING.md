@@ -1,6 +1,6 @@
-# Contributing to GOGO CMMS
+# Contributing to Fleet CMMS
 
-Thank you for contributing to GOGO CMMS! This guide will help you maintain consistency with our design system and coding standards.
+Thank you for contributing to Fleet CMMS! This guide will help you maintain consistency with our design system and coding standards.
 
 ## Design System Compliance
 

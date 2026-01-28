@@ -1,8 +1,8 @@
 
 {
-  "name": "Gogo CMMS Mobile",
-  "short_name": "GogoCMMS",
-  "description": "A mobile web app for the Gogo CMMS.",
+  "name": "Fleet CMMS Mobile",
+  "short_name": "FleetCMMS",
+  "description": "A mobile web app for the Fleet CMMS.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FFFFFF",

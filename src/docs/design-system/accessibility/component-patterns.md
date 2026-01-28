@@ -354,7 +354,7 @@ const SidebarNavigation: React.FC<SidebarProps> = ({
         
         {!collapsed && (
           <h2 className="sidebar-title">
-            GOGO CMMS
+            Fleet CMMS
           </h2>
         )}
       </div>

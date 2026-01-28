@@ -61,9 +61,9 @@ export default function LoginPage() {
         {/* Logo/Header */}
         <div className="text-center mb-8">
           <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-white text-2xl font-bold">G</span>
+            <span className="text-white text-2xl font-bold">F</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">GOGO Electric</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Fleet CMMS</h1>
           <p className="text-gray-600">Mobile Technician Portal</p>
         </div>
 
@@ -133,14 +133,14 @@ export default function LoginPage() {
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
-              Use your existing GOGO Electric account credentials
+              Use your existing Fleet CMMS account credentials
             </p>
           </div>
         </div>
 
         {/* Footer */}
         <div className="text-center mt-8 text-sm text-gray-500">
-          <p>© 2024 GOGO Electric. All rights reserved.</p>
+          <p>© 2024 Fleet CMMS. All rights reserved.</p>
         </div>
       </div>
     </div>

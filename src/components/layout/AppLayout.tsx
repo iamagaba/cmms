@@ -78,7 +78,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         {/* Hamburger removed as it is in bottom nav */}
-                        <h1 className="text-lg font-bold font-brand text-foreground ml-1">GOGO CMMS</h1>
+                        <h1 className="text-lg font-bold font-brand text-foreground ml-1">Fleet CMMS</h1>
                     </div>
                 </div>
 

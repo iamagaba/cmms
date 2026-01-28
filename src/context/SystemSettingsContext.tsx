@@ -23,7 +23,7 @@ interface SystemSettingsContextType {
 const SystemSettingsContext = createContext<SystemSettingsContextType | undefined>(undefined);
 
 const defaultSettings: SystemSettings = {
-  organization_name: 'Gogo CMMS',
+  organization_name: 'Fleet CMMS',
   logo_url: '/logo.png',
   color_scheme: 'light',
   notifications: 'true',

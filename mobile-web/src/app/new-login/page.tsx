@@ -82,9 +82,9 @@ export default function NewLoginPage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <span className="text-white text-2xl font-bold">G</span>
+            <span className="text-white text-2xl font-bold">F</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">GOGO Electric</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Fleet CMMS</h1>
           <p className="text-gray-600">Mobile Technician Portal (New)</p>
         </div>
 

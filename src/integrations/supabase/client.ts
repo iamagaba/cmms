@@ -13,12 +13,12 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     persistSession: true,
     detectSessionInUrl: true,
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-    storageKey: 'gogo-cmms-auth-token',
+    storageKey: 'fleet-cmms-auth-token',
     flowType: 'pkce'
   },
   global: {
     headers: {
-      'x-application-name': 'gogo-cmms-web'
+      'x-application-name': 'fleet-cmms-web'
     }
   }
 });

@@ -432,7 +432,7 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
               className="flex-1 min-w-0"
             >
               <h1 className="text-base font-semibold text-foreground">
-                GOGO CMMS
+                Fleet CMMS
               </h1>
               <p className="text-xs text-muted-foreground">
                 Maintenance

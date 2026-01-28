@@ -6,13 +6,13 @@ import { ToastProvider } from '@/context/ToastContext';
 import { BadgeProvider } from '@/context/BadgeContext';
 
 export const metadata: Metadata = {
-  title: 'Gogo CMMS Mobile',
+  title: 'Fleet CMMS Mobile',
   description: 'Mobile-optimized CMMS for field technicians',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Gogo CMMS Mobile',
+    title: 'Fleet CMMS Mobile',
   },
   formatDetection: {
     telephone: false,

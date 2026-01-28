@@ -110,7 +110,7 @@ export default function SimpleLoginPage() {
       </div>
 
       <div style={{ marginTop: '20px', fontSize: '12px', color: '#666' }}>
-        <p>Use your existing GOGO Electric credentials</p>
+        <p>Use your existing Fleet CMMS credentials</p>
         <p>Check browser console for detailed logs</p>
       </div>
     </div>

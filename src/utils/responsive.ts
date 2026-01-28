@@ -1,7 +1,7 @@
 /**
  * Professional Responsive Design System
  * 
- * Comprehensive responsive utilities for the GOGO CMMS desktop application.
+ * Comprehensive responsive utilities for the Fleet CMMS desktop application.
  * Provides breakpoint management, responsive props, touch-friendly sizing,
  * and adaptive component behavior for optimal cross-device experience.
  * 

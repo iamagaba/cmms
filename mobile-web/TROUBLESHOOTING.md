@@ -23,7 +23,7 @@ Visit `/debug` page to test if CSS is working:
 
 ### 4. Test Authentication
 Visit `/simple-login` page to test basic login:
-- Enter your GOGO Electric credentials
+- Enter your Fleet CMMS credentials
 - Check console logs for detailed error messages
 - Verify Supabase connection
 

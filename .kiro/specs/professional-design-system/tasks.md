@@ -2,7 +2,7 @@
 
 ## Overview
 
-This implementation plan converts the professional design system design into a series of incremental development tasks. Each task builds upon previous work to create a comprehensive, distinctive design system for the GOGO CMMS application. The plan prioritizes core foundation elements first, then builds up to complex components and advanced features.
+This implementation plan converts the professional design system design into a series of incremental development tasks. Each task builds upon previous work to create a comprehensive, distinctive design system for the Fleet CMMS application. The plan prioritizes core foundation elements first, then builds up to complex components and advanced features.
 
 ## Implementation Tasks
 

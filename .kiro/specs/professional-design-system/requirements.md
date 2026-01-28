@@ -2,7 +2,7 @@
 
 ## Introduction
 
-This specification defines the requirements for creating a comprehensive, professional design system for the GOGO CMMS (Computerized Maintenance Management System) application. The design system will establish visual identity, component standards, and user experience patterns that differentiate the application from generic business software while maintaining professional credibility and usability.
+This specification defines the requirements for creating a comprehensive, professional design system for the Fleet CMMS (Computerized Maintenance Management System) application. The design system will establish visual identity, component standards, and user experience patterns that differentiate the application from generic business software while maintaining professional credibility and usability.
 
 ## Glossary
 

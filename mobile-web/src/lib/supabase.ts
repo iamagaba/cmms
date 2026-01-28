@@ -9,12 +9,12 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
     persistSession: true,
     detectSessionInUrl: true,
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-    storageKey: 'gogo-auth-token',
+    storageKey: 'fleet-auth-token',
     flowType: 'pkce'
   },
   global: {
     headers: {
-      'x-application-name': 'gogo-cmms-mobile'
+      'x-application-name': 'fleet-cmms-mobile'
     }
   }
 })

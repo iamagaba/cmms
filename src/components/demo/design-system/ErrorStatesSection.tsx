@@ -1,4 +1,4 @@
-import { ArrowLeft, CheckCircle, RefreshCw, X } from 'lucide-react';
+import { ArrowLeft, CheckCircle, RefreshCw, X, AlertCircle } from 'lucide-react';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

@@ -12,9 +12,11 @@ import {
 } from 'lucide-react';
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
-import { BarChart } from '@mui/x-charts/BarChart';
-import { LineChart } from '@mui/x-charts/LineChart';
-import { PieChart } from '@mui/x-charts/PieChart';
+// Temporarily disabled MUI charts due to react-is version conflict
+// import { BarChart } from '@mui/x-charts/BarChart';
+// import { LineChart } from '@mui/x-charts/LineChart';
+// import { PieChart } from '@mui/x-charts/PieChart';
+import { BarChart, LineChart, PieChart } from '@/components/ChartPlaceholder';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 

@@ -41,9 +41,11 @@ import CustomerExperienceReport from '@/components/reports/CustomerExperienceRep
 import PageHeader from '@/components/layout/PageHeader';
 import { EmptyState } from '@/components/ui/empty-state';
 import dayjs from 'dayjs';
-import { PieChart } from '@mui/x-charts/PieChart';
-import { BarChart } from '@mui/x-charts/BarChart';
-import { LineChart } from '@mui/x-charts/LineChart';
+// Temporarily disabled MUI charts due to react-is version conflict
+// import { PieChart } from '@mui/x-charts/PieChart';
+// import { BarChart } from '@mui/x-charts/BarChart';
+// import { LineChart } from '@mui/x-charts/LineChart';
+import { PieChart, BarChart, LineChart } from '@/components/ChartPlaceholder';
 // Chart colors
 type ReportType = 'overview' | 'fleet' | 'technician' | 'workorder' | 'asset' | 'financial' | 'inventory' | 'cx';
 

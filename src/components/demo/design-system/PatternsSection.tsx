@@ -1,4 +1,4 @@
-import { Calendar, CheckCircle, ClipboardList, Clock, Info, Plus, User, Package, Car, AlertCircle, MoreVertical, Inbox, Table } from 'lucide-react';
+import { Calendar, CheckCircle, ClipboardList, Clock, Info, Plus, User, Package, Car, AlertCircle, MoreVertical, Inbox, Table as TableIcon } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -156,7 +156,7 @@ const PatternsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <Table className="w-5 h-5" />
+                        <TableIcon className="w-5 h-5" />
                         Enhanced Data Table
                     </CardTitle>
                     <CardDescription>Interactive table with actions</CardDescription>

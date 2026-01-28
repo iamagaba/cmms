@@ -1,4 +1,4 @@
-import { ArrowLeft, CheckCircle, Plus, Table, MoreVertical, Inbox, ChevronRight } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Plus, Table as TableIcon, MoreVertical, Inbox, ChevronRight } from 'lucide-react';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ const DataTablePatternsSection: React.FC = () => {
         <Card className="border-violet-200 bg-violet-50">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-violet-900">
-                    <Table className="w-5 h-5" />
+                    <TableIcon className="w-5 h-5" />
                     Data Table Patterns
                 </CardTitle>
                 <CardDescription className="text-violet-700">

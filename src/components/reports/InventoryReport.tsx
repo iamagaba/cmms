@@ -15,7 +15,8 @@ import {
   ArrowDown as ArrowDownIcon,
   ArrowUp as ArrowUpIcon,
   FileText as Invoice01Icon,
-  Grid3X3 as GridIcon
+  Grid3X3 as GridIcon,
+  Building2 as Building04Icon
 } from 'lucide-react';
 import React, { useState } from 'react';
 

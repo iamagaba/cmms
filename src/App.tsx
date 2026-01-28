@@ -24,7 +24,7 @@ const AssetsPage = lazy(() => import("./pages/Assets"));
 const AssetDetailsPage = lazy(() => import("./pages/AssetDetails"));
 const CustomersPage = lazy(() => import("./pages/Customers"));
 const CustomerDetailsPage = lazy(() => import("./pages/CustomerDetails"));
-const InventoryPage = lazy(() => import("./pages/Inventory"));
+const InventoryPage = lazy(() => import("./pages/InventoryMinimal"));
 const LocationsPage = lazy(() => import("./pages/Locations"));
 const SchedulingPage = lazy(() => import("./pages/Scheduling"));
 const ReportsPage = lazy(() => import("./pages/Reports"));

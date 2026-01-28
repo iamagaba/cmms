@@ -12,10 +12,9 @@ import { Calendar, CheckCircle, ClipboardList, User } from 'lucide-react';
 import React from 'react';
 
 
-// Temporarily disabled MUI charts due to react-is version conflict
-// import { BarChart } from '@mui/x-charts/BarChart';
-// import { PieChart } from '@mui/x-charts/PieChart';
-import { BarChart, PieChart } from '@/components/ChartPlaceholder';
+// Charts restored - react-is version conflict resolved
+import { BarChart } from '@mui/x-charts/BarChart';
+import { PieChart } from '@mui/x-charts/PieChart';
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';

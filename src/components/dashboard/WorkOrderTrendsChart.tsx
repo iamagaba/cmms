@@ -1,7 +1,6 @@
 
-// Temporarily disabled MUI charts due to react-is version conflict
-// import { BarChart } from '@mui/x-charts/BarChart';
-import { BarChart } from '@/components/ChartPlaceholder';
+// Charts restored - react-is version conflict resolved
+import { BarChart } from '@mui/x-charts/BarChart';
 import { Clock } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';

@@ -1,4 +1,4 @@
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, LayoutGrid } from 'lucide-react';
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -10,7 +10,7 @@ const SpacingSystemSection: React.FC = () => {
         <Card className="border-cyan-200 bg-muted">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-cyan-900">
-                    <Layout02Icon className="w-5 h-5" />
+                    <LayoutGrid className="w-5 h-5" />
                     Spacing System
                 </CardTitle>
                 <CardDescription className="text-foreground">

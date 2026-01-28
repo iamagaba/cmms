@@ -1,4 +1,4 @@
-import { CheckCircle, ClipboardList, Plus, RefreshCw } from 'lucide-react';
+import { CheckCircle, ClipboardList, Plus, RefreshCw, MoreVertical } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -177,7 +177,7 @@ const CommonCMMSPatternsSection: React.FC = () => {
                                     <DropdownMenuTrigger asChild>
                                         <Button size="sm" variant="outline">
                                             Bulk Actions
-                                            <MoreVerticalIcon className="w-4 h-4" />
+                                            <MoreVertical className="w-4 h-4" />
                                         </Button>
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent>

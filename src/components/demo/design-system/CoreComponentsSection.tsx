@@ -1,4 +1,4 @@
-import { Calendar as CalendarIcon, CheckCircle, ClipboardList, Clock, Info, Plus, RefreshCw, Settings, User, X, Package, Edit } from 'lucide-react';
+import { Calendar as CalendarIcon, CheckCircle, ClipboardList, Clock, Info, Plus, RefreshCw, Settings, User, X, Package, Edit, Tag, Table, Folder, AlertCircle, MoreVertical, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -117,7 +117,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <Tag01Icon className="w-5 h-5" />
+                        <Tag className="w-5 h-5" />
                         Badge Component
                     </CardTitle>
                     <CardDescription>Status indicators and labels</CardDescription>
@@ -159,7 +159,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <Table01Icon className="w-5 h-5" />
+                        <Table className="w-5 h-5" />
                         Table Component
                     </CardTitle>
                     <CardDescription>Data table with shadcn/ui components</CardDescription>
@@ -608,7 +608,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <MoreVerticalIcon className="w-5 h-5" />
+                        <MoreVertical className="w-5 h-5" />
                         Dropdown Menu
                     </CardTitle>
                     <CardDescription>Action menus and context menus</CardDescription>
@@ -620,7 +620,7 @@ const CoreComponentsSection: React.FC = () => {
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline">
                                     Actions
-                                    <MoreVerticalIcon className="w-4 h-4" />
+                                    <MoreVertical className="w-4 h-4" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
@@ -648,7 +648,7 @@ const CoreComponentsSection: React.FC = () => {
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button size="icon" variant="ghost">
-                                    <MoreVerticalIcon className="w-4 h-4" />
+                                    <MoreVertical className="w-4 h-4" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">

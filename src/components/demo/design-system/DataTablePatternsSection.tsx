@@ -1,4 +1,4 @@
-import { ArrowLeft, CheckCircle, Plus } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Plus, Table, MoreVertical, Inbox, ChevronRight } from 'lucide-react';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ const DataTablePatternsSection: React.FC = () => {
         <Card className="border-violet-200 bg-violet-50">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-violet-900">
-                    <Table01Icon className="w-5 h-5" />
+                    <Table className="w-5 h-5" />
                     Data Table Patterns
                 </CardTitle>
                 <CardDescription className="text-violet-700">
@@ -47,7 +47,7 @@ const DataTablePatternsSection: React.FC = () => {
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button size="icon" variant="ghost">
-                                                    <MoreVerticalIcon className="w-4 h-4" />
+                                                    <MoreVertical className="w-4 h-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
@@ -68,7 +68,7 @@ const DataTablePatternsSection: React.FC = () => {
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button size="icon" variant="ghost">
-                                                    <MoreVerticalIcon className="w-4 h-4" />
+                                                    <MoreVertical className="w-4 h-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
@@ -148,7 +148,7 @@ const DataTablePatternsSection: React.FC = () => {
                         <CardContent className="py-12">
                             <div className="text-center">
                                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <InboxIcon className="w-8 h-8 text-gray-400" />
+                                    <Inbox className="w-8 h-8 text-gray-400" />
                                 </div>
                                 <h3 className="text-sm font-semibold text-gray-900">No work orders found</h3>
                                 <p className="text-xs text-gray-600 mt-1">Create your first work order to get started</p>

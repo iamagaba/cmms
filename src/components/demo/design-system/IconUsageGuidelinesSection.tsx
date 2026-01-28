@@ -1,4 +1,4 @@
-import { Calendar, CheckCircle, ClipboardList, Info, Plus, Settings, User, Package, Edit } from 'lucide-react';
+import { Calendar, CheckCircle, ClipboardList, Info, Plus, Settings, User, Package, Edit, Car, AlertCircle, Trash2, ChevronRight, MoreVertical, Inbox, Tag } from 'lucide-react';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ const IconUsageGuidelinesSection: React.FC = () => {
         <Card className="border-sky-200 bg-sky-50">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-sky-900">
-                    <Tag01Icon className="w-5 h-5" />
+                    <Tag className="w-5 h-5" />
                     Icon Usage Guidelines
                 </CardTitle>
                 <CardDescription className="text-sky-700">
@@ -120,7 +120,7 @@ const IconUsageGuidelinesSection: React.FC = () => {
                                 </Button>
                                 <Button size="sm" variant="outline">
                                     More
-                                    <MoreVerticalIcon className="w-4 h-4" />
+                                    <MoreVertical className="w-4 h-4" />
                                 </Button>
                             </div>
                         </div>
@@ -128,7 +128,7 @@ const IconUsageGuidelinesSection: React.FC = () => {
                             <p className="text-sm font-medium text-gray-900 mb-2">Above Text (Empty States, Feature Cards)</p>
                             <Card className="max-w-xs">
                                 <CardContent className="pt-6 text-center">
-                                    <InboxIcon className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                                    <Inbox className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                                     <p className="text-sm font-medium text-gray-900">No items found</p>
                                     <p className="text-xs text-gray-600 mt-1">Create your first item</p>
                                 </CardContent>
@@ -141,7 +141,7 @@ const IconUsageGuidelinesSection: React.FC = () => {
                                     <Settings className="w-5 h-5" />
                                 </Button>
                                 <Button size="icon" variant="ghost">
-                                    <MoreVerticalIcon className="w-4 h-4" />
+                                    <MoreVertical className="w-4 h-4" />
                                 </Button>
                                 <div className="flex items-center gap-2">
                                     <CheckCircle className="w-4 h-4 text-foreground" />

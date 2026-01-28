@@ -1,4 +1,4 @@
-import { CheckCircle, ClipboardList, Info, Settings } from 'lucide-react';
+import { CheckCircle, ClipboardList, Info, Settings, AlertCircle } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

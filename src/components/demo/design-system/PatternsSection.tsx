@@ -1,4 +1,4 @@
-import { Calendar, CheckCircle, ClipboardList, Clock, Info, Plus, User, Package } from 'lucide-react';
+import { Calendar, CheckCircle, ClipboardList, Clock, Info, Plus, User, Package, Car, AlertCircle, MoreVertical, Inbox, Table } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -85,7 +85,7 @@ const PatternsSection: React.FC = () => {
                         <Card>
                             <CardContent className="py-12">
                                 <div className="flex flex-col items-center justify-center text-center">
-                                    <InboxIcon size={48} className="text-gray-400 mb-4" />
+                                    <Inbox size={48} className="text-gray-400 mb-4" />
                                     <h4 className="text-sm font-medium text-gray-900 mb-1">No Work Orders Found</h4>
                                     <p className="text-xs text-gray-500 mb-4">
                                         Get started by creating your first work order
@@ -156,7 +156,7 @@ const PatternsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <Table01Icon className="w-5 h-5" />
+                        <Table className="w-5 h-5" />
                         Enhanced Data Table
                     </CardTitle>
                     <CardDescription>Interactive table with actions</CardDescription>
@@ -193,7 +193,7 @@ const PatternsSection: React.FC = () => {
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button size="icon" variant="ghost">
-                                                    <MoreVerticalIcon className="w-4 h-4" />
+                                                    <MoreVertical className="w-4 h-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
@@ -221,7 +221,7 @@ const PatternsSection: React.FC = () => {
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button size="icon" variant="ghost">
-                                                    <MoreVerticalIcon className="w-4 h-4" />
+                                                    <MoreVertical className="w-4 h-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">

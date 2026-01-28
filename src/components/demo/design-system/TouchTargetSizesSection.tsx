@@ -1,4 +1,4 @@
-import { CheckCircle, Info, Settings, X } from 'lucide-react';
+import { CheckCircle, Info, Settings, X, Smartphone, MoreVertical } from 'lucide-react';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ const TouchTargetSizesSection: React.FC = () => {
         <Card className="border-rose-200 bg-rose-50">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-rose-900">
-                    <SmartPhone01Icon className="w-5 h-5" />
+                    <Smartphone className="w-5 h-5" />
                     Touch Target Sizes
                 </CardTitle>
                 <CardDescription className="text-rose-700">
@@ -159,7 +159,7 @@ const TouchTargetSizesSection: React.FC = () => {
                                     <TableCell><Badge variant="status-open">Open</Badge></TableCell>
                                     <TableCell>
                                         <Button size="icon" variant="ghost" className="h-10 w-10">
-                                            <MoreVerticalIcon className="w-4 h-4" />
+                                            <MoreVertical className="w-4 h-4" />
                                         </Button>
                                     </TableCell>
                                 </TableRow>
@@ -168,7 +168,7 @@ const TouchTargetSizesSection: React.FC = () => {
                                     <TableCell><Badge variant="status-completed">Completed</Badge></TableCell>
                                     <TableCell>
                                         <Button size="icon" variant="ghost" className="h-10 w-10">
-                                            <MoreVerticalIcon className="w-4 h-4" />
+                                            <MoreVertical className="w-4 h-4" />
                                         </Button>
                                     </TableCell>
                                 </TableRow>

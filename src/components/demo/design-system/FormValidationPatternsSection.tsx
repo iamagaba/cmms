@@ -1,4 +1,4 @@
-import { CheckCircle, X } from 'lucide-react';
+import { CheckCircle, X, Check, AlertCircle } from 'lucide-react';
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -26,7 +26,7 @@ const FormValidationPatternsSection: React.FC = () => {
         <Card className="border-lime-200 bg-muted">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lime-900">
-                    <Tick02Icon className="w-5 h-5" />
+                    <Check className="w-5 h-5" />
                     Form Validation Patterns
                 </CardTitle>
                 <CardDescription className="text-foreground">

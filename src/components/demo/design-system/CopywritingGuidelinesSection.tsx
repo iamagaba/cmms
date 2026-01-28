@@ -1,4 +1,4 @@
-import { CheckCircle, ClipboardList, User, X, Package, Edit } from 'lucide-react';
+import { CheckCircle, ClipboardList, User, X, Package, Edit, Car, Inbox, AlertCircle } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -318,7 +318,7 @@ const CopywritingGuidelinesSection: React.FC = () => {
                             <Card>
                                 <CardContent className="py-8">
                                     <div className="text-center">
-                                        <InboxIcon className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                                        <Inbox className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                                         <h4 className="text-sm font-medium text-gray-900">No work orders</h4>
                                         <p className="text-xs text-gray-500 mt-1">Create your first work order to get started</p>
                                         <Button size="sm" className="mt-3">Create Work Order</Button>
@@ -337,7 +337,7 @@ const CopywritingGuidelinesSection: React.FC = () => {
                             <Card>
                                 <CardContent className="py-8">
                                     <div className="text-center">
-                                        <InboxIcon className="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                                        <Inbox className="w-8 h-8 text-gray-400 mx-auto mb-2" />
                                         <h4 className="text-sm font-medium text-gray-900">You don't have any work orders yet!</h4>
                                         <p className="text-xs text-gray-500 mt-1">It looks like you haven't created any work orders. Would you like to create one now?</p>
                                         <Button size="sm" className="mt-3">Click Here to Create Your First Work Order</Button>

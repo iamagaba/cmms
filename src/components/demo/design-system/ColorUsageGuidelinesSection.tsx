@@ -1,4 +1,4 @@
-import { CheckCircle, Info, Palette } from 'lucide-react';
+import { CheckCircle, Info, Palette, AlertCircle, Tag } from 'lucide-react';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -129,7 +129,7 @@ const ColorUsageGuidelinesSection: React.FC = () => {
                             </div>
                         </div>
                         <div className="flex items-start gap-3 p-3 bg-primary/5 rounded border border-primary/20">
-                            <Tag01Icon className="w-5 h-5 text-primary mt-0.5" />
+                            <Tag className="w-5 h-5 text-primary mt-0.5" />
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900">Purple</p>
                                 <p className="text-xs text-gray-600">Primary brand, highlights, featured items</p>

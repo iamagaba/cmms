@@ -1,15 +1,6 @@
 import React, { useState } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  Add01Icon,
-  PackageIcon,
-  ArrowUp01Icon,
-  ArrowDown01Icon,
-  Delete01Icon,
-  Clock01Icon,
-  CheckmarkCircle01Icon,
-  Loading01Icon
-} from '@hugeicons/core-free-icons';
+import { Plus, Package, ChevronUp, ChevronDown, Trash2, Clock, CheckCircle, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { WorkOrder, WorkOrderPart } from '@/types/supabase';
 
 interface WorkOrderCostSummaryCardProps {
@@ -63,16 +54,17 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
   const formatHours = (hours: number) => hours < 1 ? `${Math.round(hours * 60)}m` : `${hours.toFixed(1)}h`;
 
   return (
-    <div className="bg-white border border-gray-200 overflow-hidden shadow-sm">
+    <div className="bg-white border border-border rounded-lg overflow-hidden shadow-sm">
       {setIsAddPartDialogOpen && (
-        <div className="px-3 py-2 border-b border-gray-200 flex items-center justify-end">
-          <button
+        <div className="px-3 py-2 border-b border-border flex items-center justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => setIsAddPartDialogOpen(true)}
-            className="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
           >
-            <HugeiconsIcon icon={Add01Icon} size={12} />
+            <Plus className="w-4 h-4 mr-1.5" />
             Add
-          </button>
+          </Button>
         </div>
       )}
 
@@ -81,19 +73,19 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
         <div>
           <button
             onClick={() => setShowParts(!showParts)}
-            className="w-full flex items-center justify-between px-2 py-1.5 bg-blue-50 rounded hover:bg-blue-100 transition-colors"
+            className="w-full flex items-center justify-between px-2 py-1.5 bg-muted rounded-lg hover:bg-muted transition-colors"
           >
             <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded bg-blue-100 flex items-center justify-center">
-                <HugeiconsIcon icon={PackageIcon} size={12} className="text-blue-600" />
+              <div className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center">
+                <Package className="w-4 h-4 text-muted-foreground" />
               </div>
               <div className="text-left">
-                <p className="text-xs font-medium text-gray-900">Parts ({usedParts.length})</p>
+                <p className="text-xs font-medium text-foreground">Parts ({usedParts.length})</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold text-gray-900">{formatCurrency(partsCost)}</span>
-              <HugeiconsIcon icon={showParts ? ArrowUp01Icon : ArrowDown01Icon} size={12} className="text-gray-400" />
+              <span className="text-xs font-semibold text-foreground">{formatCurrency(partsCost)}</span>
+              {showParts ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
             </div>
           </button>
 
@@ -101,9 +93,9 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
           {showParts && (
             <div className="mt-1.5 space-y-1 max-h-40 overflow-y-auto">
               {usedParts.length === 0 ? (
-                <div className="text-center py-3 bg-gray-50 rounded">
-                  <HugeiconsIcon icon={PackageIcon} size={24} className="text-gray-300 mx-auto mb-1" />
-                  <p className="text-xs text-gray-400">No parts added yet</p>
+                <div className="text-center py-3 bg-muted rounded-lg">
+                  <Package className="w-6 h-6 text-muted-foreground mx-auto mb-1" />
+                  <p className="text-xs text-muted-foreground">No parts added yet</p>
                 </div>
               ) : (
                 usedParts.map((part) => {
@@ -114,25 +106,27 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
                   const lineTotal = price * qty;
 
                   return (
-                    <div key={part.id} className="flex items-center justify-between px-2 py-1.5 bg-gray-50 rounded group">
+                    <div key={part.id} className="flex items-center justify-between px-2 py-1.5 bg-muted rounded-lg group">
                       <div className="flex-1 min-w-0">
-                        <p className="text-xs font-medium text-gray-900 truncate">
+                        <p className="text-xs font-medium text-foreground truncate">
                           {item?.name || 'Unknown'}
-                          {item?.model && <span className="font-normal text-gray-500"> ({item.model})</span>}
+                          {item?.model && <span className="font-normal text-muted-foreground"> ({item.model})</span>}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-muted-foreground">
                           {qty} × {formatCurrency(price)}
                         </p>
                       </div>
                       <div className="flex items-center gap-1.5">
-                        <span className="text-xs font-medium text-gray-700">{formatCurrency(lineTotal)}</span>
+                        <span className="text-xs font-medium text-foreground">{formatCurrency(lineTotal)}</span>
                         {handleRemovePart && (
-                          <button
+                          <Button
+                            variant="ghost"
+                            size="icon"
                             onClick={() => handleRemovePart(part.id)}
-                            className="opacity-0 group-hover:opacity-100 p-0.5 text-gray-400 hover:text-red-500 transition-opacity"
+                            className="opacity-0 group-hover:opacity-100 h-6 w-6 hover:text-destructive hover:bg-destructive/10"
                           >
-                            <HugeiconsIcon icon={Delete01Icon} size={12} />
-                          </button>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                         )}
                       </div>
                     </div>
@@ -144,14 +138,14 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
         </div>
 
         {/* Labor Cost */}
-        <div className="flex items-center justify-between px-2 py-1.5 bg-orange-50 rounded">
+        <div className="flex items-center justify-between px-2 py-1.5 bg-muted rounded-lg">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded bg-orange-100 flex items-center justify-center">
-              <HugeiconsIcon icon={Clock01Icon} size={12} className="text-orange-600" />
+            <div className="w-6 h-6 rounded-lg bg-muted flex items-center justify-center">
+              <Clock className="w-4 h-4 text-muted-foreground" />
             </div>
             <div>
-              <p className="text-xs font-medium text-gray-900">Labor</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs font-medium text-foreground">Labor</p>
+              <p className="text-xs text-muted-foreground">
                 {actualLaborHours > 0
                   ? `${formatHours(actualLaborHours)} @ ${laborRate}/hr`
                   : estimatedHours > 0
@@ -161,24 +155,24 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
               </p>
             </div>
           </div>
-          <span className="text-xs font-semibold text-gray-900">
+          <span className="text-xs font-semibold text-foreground">
             {actualLaborHours > 0 ? formatCurrency(actualLaborCost) : formatCurrency(laborCost)}
           </span>
         </div>
 
         {/* Total Section */}
-        <div className="border-t border-gray-200 pt-2 space-y-1">
+        <div className="border-t border-border pt-2 space-y-1">
           {estimatedHours > 0 && actualLaborHours === 0 && (
             <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-500">Estimated</span>
-              <span className="font-medium text-gray-600">{formatCurrency(estimatedTotal)}</span>
+              <span className="text-muted-foreground">Estimated</span>
+              <span className="font-medium text-muted-foreground">{formatCurrency(estimatedTotal)}</span>
             </div>
           )}
           <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-gray-900">
+            <span className="text-sm font-semibold text-foreground">
               Total
             </span>
-            <span className="text-base font-bold text-gray-900">{formatCurrency(actualTotal)}</span>
+            <span className="text-base font-bold text-foreground">{formatCurrency(actualTotal)}</span>
           </div>
         </div>
 
@@ -188,3 +182,5 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
 };
 
 export default WorkOrderCostSummaryCard;
+
+

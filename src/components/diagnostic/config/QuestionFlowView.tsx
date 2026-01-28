@@ -1,17 +1,9 @@
+import { ArrowLeft, Check, Info, Loader2, RefreshCw, Wrench } from 'lucide-react';
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getQuestions, getAllOptions, getAllFollowupQuestions } from '@/api/diagnosticConfigApi';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-    RefreshIcon, 
-    InformationCircleIcon, 
-    ArrowLeft01Icon, 
-    Tick01Icon, 
-    Wrench01Icon, 
-    ListViewIcon, 
-    Loading01Icon, 
-    GridIcon 
-} from '@hugeicons/core-free-icons';
+
+
 import { DiagnosticQuestionRow, DiagnosticOptionRow, DiagnosticFollowupQuestionRow } from '@/types/diagnostic';
 
 interface TreeNodeProps {
@@ -40,8 +32,8 @@ const TreeNode: React.FC<TreeNodeProps> = ({
     // Detect cycles
     if (visited.has(questionId)) {
         return (
-            <div style={{ marginLeft: depth * 20 }} className="p-2 text-red-500 flex items-center gap-2 bg-red-50 rounded border border-red-100 mb-2">
-                <HugeiconsIcon icon={RefreshIcon} size={16} />
+            <div style={{ marginLeft: depth * 20 }} className="p-2 text-destructive flex items-center gap-2 bg-destructive/10 rounded border border-destructive/20 mb-2">
+                <RefreshCw className="w-5 h-5" />
                 <span>Cycle detected: Link back to {question?.text || questionId}</span>
             </div>
         );
@@ -52,7 +44,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({
     if (!question) {
         if (questionId === 'START') return null; // Wait for load
         return (
-            <div style={{ marginLeft: depth * 20 }} className="p-2 text-yellow-600 bg-yellow-50 rounded border border-yellow-100 mb-2">
+            <div style={{ marginLeft: depth * 20 }} className="p-2 text-amber-600 bg-amber-50 rounded border border-amber-100 mb-2">
                 Missing Question ID: {questionId}
             </div>
         );
@@ -63,28 +55,28 @@ const TreeNode: React.FC<TreeNodeProps> = ({
             <div className={`
         p-3 rounded-lg border flex items-start gap-3
         ${isFollowUp
-                    ? 'bg-purple-50 border-purple-200 dark:bg-purple-900/10 dark:border-purple-800'
-                    : 'bg-white border-gray-200 dark:bg-gray-800 dark:border-gray-700'
+                    ? 'bg-primary/5 border-primary/20'
+                    : 'bg-card border-border'
                 }
       `}>
-                <div className={`mt-0.5 p-1 rounded ${isFollowUp ? 'bg-purple-100 text-purple-600' : 'bg-primary-100 text-primary-600'}`}>
-                    {isFollowUp ? <HugeiconsIcon icon={ArrowLeft01Icon} size={16} /> : <HugeiconsIcon icon={InformationCircleIcon} size={16} />}
+                <div className={`mt-0.5 p-1 rounded ${isFollowUp ? 'bg-primary/10 text-primary' : 'bg-primary/10 text-primary'}`}>
+                    {isFollowUp ? <ArrowLeft className="w-5 h-5" /> : <Info className="w-5 h-5" />}
                 </div>
                 <div className="flex-1">
                     <div className="flex items-center gap-2">
-                        <span className="text-xs font-mono text-gray-500 bg-gray-100 px-1 rounded dark:bg-gray-700 dark:text-gray-400">
+                        <span className="text-xs font-mono text-muted-foreground bg-muted px-1 rounded">
                             {question.question_id}
                         </span>
-                        <span className="font-medium text-gray-900 dark:text-gray-100">{question.text}</span>
+                        <span className="font-medium text-foreground">{question.text}</span>
                     </div>
                     {question.help_text && (
-                        <p className="text-xs text-gray-500 mt-1 italic">{question.help_text}</p>
+                        <p className="text-xs text-muted-foreground mt-1 italic">{question.help_text}</p>
                     )}
                 </div>
             </div>
 
             {/* Options */}
-            <div className="mt-2 ml-4 border-l-2 border-gray-100 dark:border-gray-800 pl-4">
+            <div className="mt-2 ml-4 border-l-2 border-border pl-4">
                 {options.map(opt => {
                     const followups = followupsByOption.get(opt.id) || [];
 
@@ -92,13 +84,13 @@ const TreeNode: React.FC<TreeNodeProps> = ({
                         <div key={opt.id} className="relative mb-4">
                             {/* Option Label */}
                             <div className="flex items-center gap-2 mb-2">
-                                <div className="w-2 h-2 rounded-full bg-gray-300 dark:bg-gray-600" />
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-gray-800 px-2 py-1 rounded border border-gray-200 dark:border-gray-700">
+                                <div className="w-2 h-2 rounded-full bg-muted-foreground/50" />
+                                <span className="text-sm font-medium text-foreground bg-muted px-2 py-1 rounded border border-border">
                                     {opt.label}
                                 </span>
                                 {opt.is_solution && (
-                                    <span className="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded flex items-center gap-1">
-                                        <HugeiconsIcon icon={Tick01Icon} size={12} />
+                                    <span className="text-xs bg-muted text-foreground px-1.5 py-0.5 rounded flex items-center gap-1">
+                                        <Check className="w-5 h-5" />
                                         Solution
                                     </span>
                                 )}
@@ -106,9 +98,9 @@ const TreeNode: React.FC<TreeNodeProps> = ({
 
                             {/* Solution Text */}
                             {opt.is_solution && (
-                                <div className="ml-4 mb-2 p-2 bg-green-50 dark:bg-green-900/10 border border-green-100 dark:border-green-900/30 rounded text-sm text-green-800 dark:text-green-200">
+                                <div className="ml-4 mb-2 p-2 bg-muted border border-emerald-100 rounded text-sm text-emerald-800">
                                     <div className="font-medium flex items-center gap-1 mb-1">
-                                        <HugeiconsIcon icon={Wrench01Icon} size={12} />
+                                        <Wrench className="w-5 h-5" />
                                         Resolution:
                                     </div>
                                     {opt.solution_text}
@@ -124,9 +116,9 @@ const TreeNode: React.FC<TreeNodeProps> = ({
 
                             {/* Follow-up Questions (Queue) */}
                             {followups.length > 0 && (
-                                <div className="ml-4 pl-4 border-l-2 border-purple-100 dark:border-purple-900/30">
-                                    <div className="text-xs font-semibold text-purple-600 mb-2 uppercase tracking-wider flex items-center gap-1">
-                                        <HugeiconsIcon icon={ListViewIcon} size={12} />
+                                <div className="ml-4 pl-4 border-l-2 border-primary/20">
+                                    <div className="text-xs font-semibold text-primary mb-2 uppercase tracking-wider flex items-center gap-1">
+                                        <List className="w-4 h-4" />
                                         Follow-up Sequence
                                     </div>
                                     {followups.map(fp => {
@@ -138,7 +130,7 @@ const TreeNode: React.FC<TreeNodeProps> = ({
 
                                         // We need to find the logical ID of the question linked by the followup
                                         const linkedQ = Array.from(questions.values()).find(q => q.id === fp.question_id);
-                                        if (!linkedQ) return <div key={fp.id} className="text-red-500 text-xs">Broken Link</div>;
+                                        if (!linkedQ) return <div key={fp.id} className="text-destructive text-xs">Broken Link</div>;
 
                                         return (
                                             <TreeNode
@@ -249,7 +241,7 @@ const QuestionFlowView: React.FC = () => {
     if (isLoading) {
         return (
             <div className="flex items-center justify-center p-12">
-                <HugeiconsIcon icon={Loading01Icon} size={32} className="animate-spin text-primary-500" />
+                <Loader2 className="w-8 h-8 animate-spin text-primary-500" />
             </div>
         );
     }
@@ -257,16 +249,16 @@ const QuestionFlowView: React.FC = () => {
     if (!dataMaps) return <div>No data available</div>;
 
     return (
-        <div className="p-4 bg-gray-50 dark:bg-gray-950 rounded-lg min-h-[500px] overflow-auto border border-gray-200 dark:border-gray-800">
+        <div className="p-4 bg-muted rounded-lg min-h-[500px] overflow-auto border border-border">
             <div className="mb-4 flex items-center justify-between">
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                    <HugeiconsIcon icon={GridIcon} size={20} className="text-primary-600" />
+                <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
+                    <GridIcon className="w-5 h-5 text-primary" />
                     Logic Flow Visualization
                 </h3>
-                <div className="flex items-center gap-3 text-xs text-gray-500">
-                    <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-primary-500" /> Main Question</span>
-                    <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-purple-500" /> Follow-up</span>
-                    <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-green-500" /> Solution</span>
+                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-primary" /> Main Question</span>
+                    <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-primary" /> Follow-up</span>
+                    <span className="flex items-center gap-1"><div className="w-2 h-2 rounded-full bg-emerald-500" /> Solution</span>
                 </div>
             </div>
 
@@ -283,3 +275,7 @@ const QuestionFlowView: React.FC = () => {
 };
 
 export default QuestionFlowView;
+
+
+
+

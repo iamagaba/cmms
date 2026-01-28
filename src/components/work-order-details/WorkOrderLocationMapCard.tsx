@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Location01Icon, Building01Icon, MapsOffIcon, ArrowRight01Icon, ViewIcon, ViewOffIcon, Route02Icon } from '@hugeicons/core-free-icons';
+import { MapPin, Building, MapPinOff, ArrowRight, Eye, EyeOff, Route } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { WorkOrder, Location } from '@/types/supabase';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -241,7 +241,7 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
       <div className="bg-white">
 
         <div className="px-3 py-2">
-          <div className="bg-amber-50 border border-amber-200 rounded px-2 py-1.5 text-xs text-amber-700">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg px-2 py-1.5 text-xs text-amber-700">
             Map unavailable: Mapbox API key not configured
           </div>
         </div>
@@ -250,24 +250,25 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
   }
 
   return (
-    <div className="bg-white border border-gray-200 overflow-hidden shadow-sm">
+    <div className="bg-white border border-border rounded-lg overflow-hidden shadow-sm">
       {setShowInteractiveMap && (
-        <div className="px-3 py-2 border-b border-gray-200 flex items-center justify-end">
-          <button
+        <div className="px-3 py-2 border-b border-border flex items-center justify-end">
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setShowInteractiveMap(!showInteractiveMap)}
-            className="text-xs text-primary-600 hover:text-primary-700 font-medium"
           >
             {showInteractiveMap ? (
-              <HugeiconsIcon icon={ViewOffIcon} size={16} />
+              <EyeOff className="w-4 h-4" />
             ) : (
-              <HugeiconsIcon icon={ViewIcon} size={16} />
+              <Eye className="w-4 h-4" />
             )}
-          </button>
+          </Button>
         </div>
       )}
 
       {/* Use divide-y for sections */}
-      <div className="divide-y divide-gray-100">
+      <div className="divide-y divide-border">
         {/* Address Info */}
         {/* Address Info */}
         {(customerAddress || location) && (
@@ -277,22 +278,22 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
                 {/* Customer (Left) */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start gap-1.5">
-                    <HugeiconsIcon icon={Location01Icon} size={14} className="text-red-500 mt-0.5 flex-shrink-0" />
+                    <MapPin className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
                     <div className="min-w-0">
-                      <p className="text-[10px] uppercase tracking-wide text-gray-500 font-medium leading-none mb-0.5">Customer</p>
-                      <p className="text-xs font-medium text-gray-900 truncate" title={customerAddress}>{customerAddress}</p>
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground font-medium leading-none mb-0.5">Customer</p>
+                      <p className="text-xs font-medium text-foreground truncate" title={customerAddress}>{customerAddress}</p>
                     </div>
                   </div>
                 </div>
 
                 {/* Connector (Center) - Enhanced Visibility */}
                 <div className="flex-shrink-0 flex items-center justify-center px-4">
-                  <div className="flex items-center text-gray-300">
-                    <div className="w-8 sm:w-12 h-px bg-gray-200"></div>
+                  <div className="flex items-center text-muted-foreground">
+                    <div className="w-8 sm:w-12 h-px bg-border"></div>
                     <div className="px-2">
-                      <HugeiconsIcon icon={Route02Icon} size={20} className="text-gray-300 transform rotate-45" />
+                      <Route className="w-5 h-5 text-muted-foreground transform rotate-45" />
                     </div>
-                    <div className="w-8 sm:w-12 h-px bg-gray-200"></div>
+                    <div className="w-8 sm:w-12 h-px bg-border"></div>
                   </div>
                 </div>
 
@@ -300,11 +301,11 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
                 <div className="flex-1 min-w-0 text-right">
                   <div className="flex items-start justify-end gap-2">
                     <div className="min-w-0 flex flex-col items-end">
-                      <p className="text-[10px] uppercase tracking-wide text-gray-500 font-medium leading-none mb-0.5">Service Center</p>
-                      <p className="text-xs font-medium text-gray-900 truncate w-full" title={location.name}>{location.name}</p>
+                      <p className="text-xs uppercase tracking-wide text-muted-foreground font-medium leading-none mb-0.5">Service Center</p>
+                      <p className="text-xs font-medium text-foreground truncate w-full" title={location.name}>{location.name}</p>
 
                     </div>
-                    <HugeiconsIcon icon={Building01Icon} size={18} className="text-blue-500 mt-0.5 flex-shrink-0" />
+                    <Building className="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" />
                   </div>
                 </div>
               </div>
@@ -313,19 +314,19 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
               <div className="space-y-1.5">
                 {customerAddress && (
                   <div className="flex items-start gap-1.5">
-                    <HugeiconsIcon icon={Location01Icon} size={12} className="text-red-500 mt-0.5 flex-shrink-0" />
+                    <MapPin className="w-4 h-4 text-destructive mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-gray-500">Customer</p>
-                      <p className="text-xs text-gray-900">{customerAddress}</p>
+                      <p className="text-xs text-muted-foreground">Customer</p>
+                      <p className="text-xs text-foreground">{customerAddress}</p>
                     </div>
                   </div>
                 )}
                 {location && (
                   <div className="flex items-start gap-1.5">
-                    <HugeiconsIcon icon={Building01Icon} size={12} className="text-blue-500 mt-0.5 flex-shrink-0" />
+                    <Building className="w-4 h-4 text-blue-500 mt-0.5 flex-shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-xs text-gray-500">Service Center</p>
-                      <p className="text-xs text-gray-900">{location.name}</p>
+                      <p className="text-xs text-muted-foreground">Service Center</p>
+                      <p className="text-xs text-foreground">{location.name}</p>
 
                     </div>
                   </div>
@@ -338,16 +339,16 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
         {/* Map */}
         <div className="px-3 py-2">
           {hasAnyLocation ? (
-            <div ref={mapContainer} className="h-64 sm:h-72 rounded-lg overflow-hidden border border-gray-200 shadow-sm" />
+            <div ref={mapContainer} className="h-64 sm:h-72 rounded-lg overflow-hidden border border-border shadow-sm" />
           ) : (
-            <div className="h-24 bg-gray-100 rounded flex items-center justify-center">
+            <div className="h-24 bg-muted rounded-lg flex items-center justify-center">
               <div className="text-center">
-                <HugeiconsIcon icon={MapsOffIcon} size={24} className="text-gray-300 mx-auto mb-1" />
-                <p className="text-xs text-gray-400">No location data</p>
+                <MapPinOff className="w-6 h-6 text-muted-foreground mx-auto mb-1" />
+                <p className="text-xs text-muted-foreground">No location data</p>
               </div>
             </div>
           )}
-          {mapError && <p className="text-xs text-red-500 mt-1">{mapError}</p>}
+          {mapError && <p className="text-xs text-destructive mt-1">{mapError}</p>}
         </div>
       </div>
     </div>
@@ -355,3 +356,6 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
 };
 
 export default WorkOrderLocationMapCard;
+
+
+

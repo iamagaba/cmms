@@ -1,24 +1,19 @@
+import { ArrowLeft, CheckCircle, RefreshCw, X } from 'lucide-react';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-    AlertCircleIcon,
-    RefreshIcon,
-    ArrowLeft01Icon,
-    Cancel01Icon,
-    CheckmarkCircle01Icon
-} from "@hugeicons/core-free-icons";
+
+
 
 const ErrorStatesSection: React.FC = () => {
     return (
         <Card className="border-rose-200 bg-rose-50">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-rose-900">
-                    <HugeiconsIcon icon={AlertCircleIcon} size={20} />
+                    <AlertCircle className="w-5 h-5" />
                     Error States
                 </CardTitle>
                 <CardDescription className="text-rose-700">
@@ -36,10 +31,10 @@ const ErrorStatesSection: React.FC = () => {
                                 id="error-email"
                                 type="email"
                                 defaultValue="invalid-email"
-                                className="border-red-500 focus-visible:ring-red-500"
+                                className="border-destructive focus-visible:ring-red-500"
                             />
-                            <p className="text-xs text-red-600 flex items-center gap-1">
-                                <HugeiconsIcon icon={AlertCircleIcon} size={12} />
+                            <p className="text-xs text-destructive flex items-center gap-1">
+                                <AlertCircle className="w-4 h-4" />
                                 Please enter a valid email address
                             </p>
                         </div>
@@ -47,19 +42,19 @@ const ErrorStatesSection: React.FC = () => {
                             <Label htmlFor="error-asset">Asset ID</Label>
                             <Input
                                 id="error-asset"
-                                className="border-red-500 focus-visible:ring-red-500"
+                                className="border-destructive focus-visible:ring-red-500"
                                 placeholder="Required field"
                             />
-                            <p className="text-xs text-red-600 flex items-center gap-1">
-                                <HugeiconsIcon icon={AlertCircleIcon} size={12} />
+                            <p className="text-xs text-destructive flex items-center gap-1">
+                                <AlertCircle className="w-4 h-4" />
                                 Asset ID is required
                             </p>
                         </div>
                         <div className="mt-4 bg-rose-50 p-3 rounded border border-rose-200">
                             <code className="text-xs text-rose-800">
-                                {`<Input className="border-red-500 focus-visible:ring-red-500" />
-<p className="text-xs text-red-600 flex items-center gap-1">
-  <HugeiconsIcon icon={AlertCircleIcon} size={12} />
+                                {`<Input className="border-destructive focus-visible:ring-red-500" />
+<p className="text-xs text-destructive flex items-center gap-1">
+  <AlertCircle className="w-4 h-4" />
   Error message here
 </p>`}
                             </code>
@@ -71,7 +66,7 @@ const ErrorStatesSection: React.FC = () => {
                 <div className="bg-white rounded-lg border border-rose-200 p-4">
                     <h3 className="text-sm font-semibold text-rose-900 mb-4">Form Error Alert</h3>
                     <Alert variant="destructive">
-                        <HugeiconsIcon icon={AlertCircleIcon} size={16} />
+                        <AlertCircle className="w-4 h-4" />
                         <AlertTitle>Unable to save work order</AlertTitle>
                         <AlertDescription>
                             Please fix the following errors:
@@ -104,13 +99,13 @@ const ErrorStatesSection: React.FC = () => {
                         <CardContent className="py-12">
                             <div className="text-center">
                                 <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <HugeiconsIcon icon={AlertCircleIcon} size={32} className="text-red-600" />
+                                    <AlertCircle className="w-8 h-8 text-destructive" />
                                 </div>
                                 <h3 className="text-lg font-semibold text-gray-900">Failed to load work orders</h3>
                                 <p className="text-sm text-gray-600 mt-2">Unable to connect to server</p>
                                 <div className="flex items-center justify-center gap-3 mt-4">
                                     <Button variant="outline" size="sm">
-                                        <HugeiconsIcon icon={RefreshIcon} size={14} />
+                                        <RefreshCw className="w-5 h-5" />
                                         Try Again
                                     </Button>
                                     <Button size="sm">Contact Support</Button>
@@ -124,7 +119,7 @@ const ErrorStatesSection: React.FC = () => {
                 <div className="bg-white rounded-lg border border-rose-200 p-4">
                     <h3 className="text-sm font-semibold text-rose-900 mb-4">Error Toast Notification</h3>
                     <Alert variant="destructive">
-                        <HugeiconsIcon icon={AlertCircleIcon} size={16} />
+                        <AlertCircle className="w-4 h-4" />
                         <AlertTitle>Network Error</AlertTitle>
                         <AlertDescription>
                             Failed to update work order status. Please check your connection and try again.
@@ -147,7 +142,7 @@ const ErrorStatesSection: React.FC = () => {
                                     The work order you're looking for doesn't exist or has been deleted.
                                 </p>
                                 <Button className="mt-4">
-                                    <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
+                                    <ArrowLeft className="w-5 h-5" />
                                     Back to Work Orders
                                 </Button>
                             </div>
@@ -159,7 +154,7 @@ const ErrorStatesSection: React.FC = () => {
                 <div className="bg-white rounded-lg border border-rose-200 p-4">
                     <h3 className="text-sm font-semibold text-rose-900 mb-4">Permission Denied</h3>
                     <Alert variant="destructive">
-                        <HugeiconsIcon icon={Cancel01Icon} size={16} />
+                        <X className="w-5 h-5" />
                         <AlertTitle>Access Denied</AlertTitle>
                         <AlertDescription>
                             You don't have permission to delete work orders. Contact your administrator for access.
@@ -168,7 +163,7 @@ const ErrorStatesSection: React.FC = () => {
                 </div>
 
                 <Alert className="border-rose-300 bg-rose-100">
-                    <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="text-rose-700" />
+                    <CheckCircle className="w-4 h-4 text-rose-700" />
                     <AlertTitle className="text-rose-900">Error State Best Practices</AlertTitle>
                     <AlertDescription className="text-rose-800">
                         <ul className="text-xs space-y-1 mt-2 ml-4 list-disc">
@@ -188,3 +183,6 @@ const ErrorStatesSection: React.FC = () => {
 };
 
 export default ErrorStatesSection;
+
+
+

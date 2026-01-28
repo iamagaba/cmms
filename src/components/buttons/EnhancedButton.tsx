@@ -1,15 +1,31 @@
 import React from 'react';
 import { Button } from '@/components/tailwind-components';
-import { HugeiconsIcon } from '@hugeicons/react';
+import type { LucideIcon } from 'lucide-react';
 
-export const EnhancedButton = ({ children, icon, badge, ...props }: any) => (
-    <Button {...props}>
-        {icon && (
-            <span className="mr-2">
-                {typeof icon === 'string' ? <HugeiconsIcon icon={icon} size={20} /> : icon}
-            </span>
-        )}
-        {children}
-        {badge && <span className="ml-2 bg-red-500 rounded-full px-2 text-white text-xs">{badge}</span>}
-    </Button>
+interface EnhancedButtonProps {
+  children: React.ReactNode;
+  icon?: LucideIcon;
+  badge?: string | number;
+  [key: string]: any;
+}
+
+export const EnhancedButton: React.FC<EnhancedButtonProps> = ({ 
+  children, 
+  icon: IconComponent, 
+  badge, 
+  ...props 
+}) => (
+  <Button {...props}>
+    {IconComponent && (
+      <span className="mr-2">
+        <IconComponent className="w-5 h-5" />
+      </span>
+    )}
+    {children}
+    {badge && (
+      <span className="ml-2 bg-destructive rounded-full px-2 text-white text-xs">
+        {badge}
+      </span>
+    )}
+  </Button>
 );

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { File01Icon as FileIcon, Call02Icon, Wrench01Icon, CheckmarkCircle01Icon, Tick01Icon } from '@hugeicons/core-free-icons';
+import { FileText, Phone, Wrench, CheckCircle, AlertCircle } from 'lucide-react';
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
 
@@ -15,11 +14,11 @@ interface WorkOrderStepperProps {
 }
 
 const STEPS = [
-  { key: 'Open', label: 'Open', icon: FileIcon },
-  { key: 'Confirmation', label: 'Confirmation', icon: Call02Icon },
-  { key: 'Ready', label: 'Ready', icon: Wrench01Icon },
-  { key: 'In Progress', label: 'In Progress', icon: Wrench01Icon },
-  { key: 'Completed', label: 'Completed', icon: CheckmarkCircle01Icon },
+  { key: 'Open', label: 'Open', icon: FileText },
+  { key: 'Confirmation', label: 'Confirmation', icon: Phone },
+  { key: 'Ready', label: 'Ready', icon: Wrench },
+  { key: 'In Progress', label: 'In Progress', icon: Wrench },
+  { key: 'Completed', label: 'Completed', icon: CheckCircle },
 ];
 
 const STATUS_ORDER = ['Open', 'Confirmation', 'Ready', 'In Progress', 'Completed'];
@@ -242,14 +241,11 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
                       showAsCompleted ? 'bg-emerald-500' :
                         'bg-gray-300'
                       }`}>
-                      <HugeiconsIcon
-                        icon={showAsCompleted ? Tick01Icon : step.icon}
-                        size={10}
-                        className={`step-icon ${showAsCurrent ? 'text-white' :
-                          showAsCompleted ? 'text-white' :
-                            'text-gray-500'
-                          }`}
-                      />
+                      {showAsCompleted ? (
+                        <CheckCircle className={`w-3 h-3 step-icon text-white`} />
+                      ) : (
+                        <step.icon className={`w-3 h-3 step-icon ${showAsCurrent ? 'text-white' : 'text-gray-500'}`} />
+                      )}
                       {step.key === 'Confirmation' && needsConfirmationCall && (
                         <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full border border-white animate-pulse" />
                       )}
@@ -343,14 +339,11 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
                     showAsCompleted ? 'bg-emerald-500' :
                       'bg-gray-300'
                     }`}>
-                    <HugeiconsIcon
-                      icon={showAsCompleted ? Tick01Icon : step.icon}
-                      className={`w-4 h-4 step-icon ${showAsCurrent ? 'text-white' :
-                        showAsCompleted ? 'text-white' :
-                          'text-gray-500'
-                        }`}
-                      size={16}
-                    />
+                    {showAsCompleted ? (
+                      <CheckCircle className={`w-4 h-4 step-icon text-white`} />
+                    ) : (
+                      <step.icon className={`w-4 h-4 step-icon ${showAsCurrent ? 'text-white' : 'text-gray-500'}`} />
+                    )}
                     {step.key === 'Confirmation' && needsConfirmationCall && (
                       <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-white animate-pulse" />
                     )}
@@ -404,3 +397,5 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
 };
 
 export default WorkOrderStepper;
+
+

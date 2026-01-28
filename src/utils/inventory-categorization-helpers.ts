@@ -1,22 +1,24 @@
+import { 
+  Settings, 
+  Wrench, 
+  Zap, 
+  Package, 
+  Droplet, 
+  ShieldCheck, 
+  Nut, 
+  Filter, 
+  Battery, 
+  CircleDot,
+  MoreHorizontal 
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import {
   InventoryItem,
   ItemCategory,
   UnitOfMeasure
 } from '@/types/supabase';
-import { IconSvgElement } from '@hugeicons/react';
-import {
-  FlashIcon,
-  Settings01Icon,
-  PackageIcon,
-  DropletIcon,
-  SecurityCheckIcon,
-  Wrench01Icon,
-  NutIcon,
-  FilterIcon,
-  BatteryFullIcon,
-  TireIcon,
-  MoreHorizontalIcon
-} from '@hugeicons/core-free-icons';
+
+
 
 // Define unit of measure labels
 export const UNIT_OF_MEASURE_LABELS: Record<string, string> = {
@@ -123,19 +125,19 @@ export function getCategoryBadgeColor(category: ItemCategory): string {
 /**
  * Get category icon
  */
-export function getCategoryIcon(category: ItemCategory): IconSvgElement {
-  const icons: Record<ItemCategory, IconSvgElement> = {
-    electrical: FlashIcon,
-    mechanical: Settings01Icon,
-    consumables: PackageIcon,
-    fluids: DropletIcon,
-    safety: SecurityCheckIcon,
-    tools: Wrench01Icon,
-    fasteners: NutIcon,
-    filters: FilterIcon,
-    battery: BatteryFullIcon,
-    tires: TireIcon,
-    other: MoreHorizontalIcon,
+export function getCategoryIcon(category: ItemCategory): LucideIcon {
+  const icons: Record<ItemCategory, LucideIcon> = {
+    electrical: Zap,
+    mechanical: Settings,
+    consumables: Package,
+    fluids: Droplet,
+    safety: ShieldCheck,
+    tools: Wrench,
+    fasteners: Nut,
+    filters: Filter,
+    battery: Battery,
+    tires: CircleDot,
+    other: MoreHorizontal,
   };
   return icons[category] || icons.other;
 }

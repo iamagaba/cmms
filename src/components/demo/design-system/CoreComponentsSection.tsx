@@ -1,3 +1,4 @@
+import { Calendar, CheckCircle, ClipboardList, Clock, Info, Plus, RefreshCw, Settings, User, X } from 'lucide-react';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -18,28 +19,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Calendar } from '@/components/ui/calendar';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Slider } from '@/components/ui/slider';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-    Settings02Icon,
-    PackageIcon,
-    PencilEdit01Icon,
-    Tag01Icon,
-    Table01Icon,
-    AlertCircleIcon,
-    InformationCircleIcon,
-    Clock01Icon,
-    Folder01Icon,
-    MoreVerticalIcon,
-    Add01Icon,
-    RefreshIcon,
-    Cancel01Icon,
-    CheckmarkCircle01Icon,
-    Car01Icon,
-    UserIcon,
-    ClipboardIcon,
-    Calendar01Icon,
-    Delete01Icon
-} from '@hugeicons/core-free-icons';
+
+
 
 const CoreComponentsSection: React.FC = () => {
     const [inputValue, setInputValue] = useState('');
@@ -50,7 +31,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={Settings02Icon} size={18} />
+                        <Settings className="w-5 h-5" />
                         Color Palette
                     </CardTitle>
                     <CardDescription>Industrial color scheme (unchanged from legacy)</CardDescription>
@@ -74,7 +55,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={PackageIcon} size={18} />
+                        <Package className="w-5 h-5" />
                         Button Component
                     </CardTitle>
                     <CardDescription>shadcn/ui Button with custom variants</CardDescription>
@@ -107,7 +88,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={PencilEdit01Icon} size={18} />
+                        <PencilEdit01Icon className="w-5 h-5" />
                         Form Elements
                     </CardTitle>
                     <CardDescription>Input, Label, and form components</CardDescription>
@@ -136,7 +117,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={Tag01Icon} size={18} />
+                        <Tag01Icon className="w-5 h-5" />
                         Badge Component
                     </CardTitle>
                     <CardDescription>Status indicators and labels</CardDescription>
@@ -178,7 +159,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={Table01Icon} size={18} />
+                        <Table01Icon className="w-5 h-5" />
                         Table Component
                     </CardTitle>
                     <CardDescription>Data table with shadcn/ui components</CardDescription>
@@ -225,14 +206,14 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={AlertCircleIcon} size={18} />
+                        <AlertCircle className="w-5 h-5" />
                         Alert Component
                     </CardTitle>
                     <CardDescription>Contextual feedback messages</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <Alert>
-                        <HugeiconsIcon icon={InformationCircleIcon} size={16} className="text-blue-600" />
+                        <Info className="w-4 h-4 text-muted-foreground" />
                         <AlertTitle>Information</AlertTitle>
                         <AlertDescription>
                             This is an informational message to provide context.
@@ -240,7 +221,7 @@ const CoreComponentsSection: React.FC = () => {
                     </Alert>
 
                     <Alert variant="destructive">
-                        <HugeiconsIcon icon={AlertCircleIcon} size={16} />
+                        <AlertCircle className="w-4 h-4" />
                         <AlertTitle>Error</AlertTitle>
                         <AlertDescription>
                             An error occurred while processing your request.
@@ -253,7 +234,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={Clock01Icon} size={18} />
+                        <Clock className="w-5 h-5" />
                         Loading States
                     </CardTitle>
                     <CardDescription>Skeleton loaders</CardDescription>
@@ -274,7 +255,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={Folder01Icon} size={18} />
+                        <Folder className="w-5 h-5" />
                         Tabs Component
                     </CardTitle>
                     <CardDescription>Organize content into tabs</CardDescription>
@@ -303,7 +284,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={Settings02Icon} size={18} />
+                        <Settings className="w-5 h-5" />
                         Complete Color Palette
                     </CardTitle>
                     <CardDescription>All color scales used in the application</CardDescription>
@@ -363,7 +344,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={PencilEdit01Icon} size={18} />
+                        <PencilEdit01Icon className="w-5 h-5" />
                         Typography Scale
                     </CardTitle>
                     <CardDescription>Text styles and hierarchy</CardDescription>
@@ -372,11 +353,11 @@ const CoreComponentsSection: React.FC = () => {
                     <div>
                         <h3 className="text-sm font-semibold text-gray-900 mb-4">Headings</h3>
                         <div className="space-y-4">
-                            <div className="border-l-4 border-purple-600 pl-4">
+                            <div className="border-l-4 border-primary pl-4">
                                 <h1 className="text-3xl font-bold text-gray-900 mb-1">Heading 1 - 3xl (30px)</h1>
                                 <code className="text-xs text-gray-500">text-3xl font-bold • Page titles</code>
                             </div>
-                            <div className="border-l-4 border-purple-500 pl-4">
+                            <div className="border-l-4 border-primary pl-4">
                                 <h2 className="text-2xl font-semibold text-gray-900 mb-1">Heading 2 - 2xl (24px)</h2>
                                 <code className="text-xs text-gray-500">text-2xl font-semibold • Section titles</code>
                             </div>
@@ -419,10 +400,10 @@ const CoreComponentsSection: React.FC = () => {
                             <p className="text-sm text-gray-600">Tertiary text - text-gray-600</p>
                             <p className="text-sm text-gray-500">Muted text - text-gray-500</p>
                             <div className="flex gap-4 mt-3">
-                                <p className="text-sm text-purple-600">Purple accent</p>
-                                <p className="text-sm text-emerald-600">Success</p>
-                                <p className="text-sm text-orange-600">Warning</p>
-                                <p className="text-sm text-red-600">Error</p>
+                                <p className="text-sm text-primary">Purple accent</p>
+                                <p className="text-sm text-foreground">Success</p>
+                                <p className="text-sm text-muted-foreground">Warning</p>
+                                <p className="text-sm text-destructive">Error</p>
                             </div>
                         </div>
                     </div>
@@ -433,7 +414,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={PencilEdit01Icon} size={18} />
+                        <PencilEdit01Icon className="w-5 h-5" />
                         Advanced Form Elements
                     </CardTitle>
                     <CardDescription>Select, textarea, checkbox, and radio components</CardDescription>
@@ -469,7 +450,7 @@ const CoreComponentsSection: React.FC = () => {
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input
                                         type="checkbox"
-                                        className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
+                                        className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-purple-600"
                                         defaultChecked
                                     />
                                     <span className="text-sm text-gray-900">Checked option</span>
@@ -477,7 +458,7 @@ const CoreComponentsSection: React.FC = () => {
                                 <label className="flex items-center gap-2 cursor-pointer">
                                     <input
                                         type="checkbox"
-                                        className="w-4 h-4 rounded border-gray-300 text-purple-600 focus:ring-purple-600"
+                                        className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-purple-600"
                                     />
                                     <span className="text-sm text-gray-900">Unchecked option</span>
                                 </label>
@@ -491,7 +472,7 @@ const CoreComponentsSection: React.FC = () => {
                                     <input
                                         type="radio"
                                         name="radio-demo"
-                                        className="w-4 h-4 border-gray-300 text-purple-600 focus:ring-purple-600"
+                                        className="w-4 h-4 border-gray-300 text-primary focus:ring-purple-600"
                                         defaultChecked
                                     />
                                     <span className="text-sm text-gray-900">Option 1</span>
@@ -500,7 +481,7 @@ const CoreComponentsSection: React.FC = () => {
                                     <input
                                         type="radio"
                                         name="radio-demo"
-                                        className="w-4 h-4 border-gray-300 text-purple-600 focus:ring-purple-600"
+                                        className="w-4 h-4 border-gray-300 text-primary focus:ring-purple-600"
                                     />
                                     <span className="text-sm text-gray-900">Option 2</span>
                                 </label>
@@ -514,7 +495,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={PackageIcon} size={18} />
+                        <Package className="w-5 h-5" />
                         Extended Button Variants
                     </CardTitle>
                     <CardDescription>Icon buttons and loading states</CardDescription>
@@ -524,13 +505,13 @@ const CoreComponentsSection: React.FC = () => {
                         <h3 className="text-sm font-semibold text-gray-900 mb-3">Icon Buttons</h3>
                         <div className="flex flex-wrap gap-3">
                             <Button size="icon" variant="outline">
-                                <HugeiconsIcon icon={Settings02Icon} size={16} />
+                                <Settings className="w-5 h-5" />
                             </Button>
                             <Button size="icon" variant="outline">
-                                <HugeiconsIcon icon={RefreshIcon} size={16} />
+                                <RefreshCw className="w-5 h-5" />
                             </Button>
                             <Button size="icon" variant="destructive">
-                                <HugeiconsIcon icon={Cancel01Icon} size={16} />
+                                <X className="w-5 h-5" />
                             </Button>
                         </div>
                     </div>
@@ -539,15 +520,15 @@ const CoreComponentsSection: React.FC = () => {
                         <h3 className="text-sm font-semibold text-gray-900 mb-3">Buttons with Icons</h3>
                         <div className="flex flex-wrap gap-3">
                             <Button>
-                                <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} />
+                                <CheckCircle className="w-5 h-5" />
                                 Save Changes
                             </Button>
                             <Button variant="outline">
-                                <HugeiconsIcon icon={RefreshIcon} size={16} />
+                                <RefreshCw className="w-5 h-5" />
                                 Refresh
                             </Button>
                             <Button variant="destructive">
-                                <HugeiconsIcon icon={Cancel01Icon} size={16} />
+                                <X className="w-5 h-5" />
                                 Delete
                             </Button>
                         </div>
@@ -557,7 +538,7 @@ const CoreComponentsSection: React.FC = () => {
                         <h3 className="text-sm font-semibold text-gray-900 mb-3">Loading States</h3>
                         <div className="flex flex-wrap gap-3">
                             <Button disabled>
-                                <HugeiconsIcon icon={RefreshIcon} size={16} className="animate-spin" />
+                                <RefreshCw className="w-4 h-4 animate-spin" />
                                 Loading...
                             </Button>
                             <Button variant="outline" disabled>
@@ -572,7 +553,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={Add01Icon} size={18} />
+                        <Plus className="w-5 h-5" />
                         Dialog Component
                     </CardTitle>
                     <CardDescription>Modal dialogs for forms and confirmations</CardDescription>
@@ -614,7 +595,7 @@ const CoreComponentsSection: React.FC = () => {
                     </div>
 
                     <Alert>
-                        <HugeiconsIcon icon={InformationCircleIcon} size={16} className="text-blue-600" />
+                        <Info className="w-4 h-4 text-muted-foreground" />
                         <AlertTitle>Accessible by Default</AlertTitle>
                         <AlertDescription>
                             Dialog component includes focus trap, ESC to close, and proper ARIA attributes.
@@ -627,7 +608,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={MoreVerticalIcon} size={18} />
+                        <MoreVerticalIcon className="w-5 h-5" />
                         Dropdown Menu
                     </CardTitle>
                     <CardDescription>Action menus and context menus</CardDescription>
@@ -639,23 +620,23 @@ const CoreComponentsSection: React.FC = () => {
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline">
                                     Actions
-                                    <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
+                                    <MoreVerticalIcon className="w-4 h-4" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                                 <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem>
-                                    <HugeiconsIcon icon={PencilEdit01Icon} size={14} className="mr-2" />
+                                    <PencilEdit01Icon className="w-4 h-4 mr-2" />
                                     Edit
                                 </DropdownMenuItem>
                                 <DropdownMenuItem>
-                                    <HugeiconsIcon icon={RefreshIcon} size={14} className="mr-2" />
+                                    <RefreshCw className="w-4 h-4 mr-2" />
                                     Refresh
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem className="text-red-600">
-                                    <HugeiconsIcon icon={Delete01Icon} size={14} className="mr-2" />
+                                <DropdownMenuItem className="text-destructive">
+                                    <Trash2 className="w-4 h-4 mr-2" />
                                     Delete
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
@@ -667,7 +648,7 @@ const CoreComponentsSection: React.FC = () => {
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button size="icon" variant="ghost">
-                                    <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
+                                    <MoreVerticalIcon className="w-4 h-4" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
@@ -675,7 +656,7 @@ const CoreComponentsSection: React.FC = () => {
                                 <DropdownMenuItem>Assign Technician</DropdownMenuItem>
                                 <DropdownMenuItem>Change Status</DropdownMenuItem>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem className="text-red-600">Cancel Order</DropdownMenuItem>
+                                <DropdownMenuItem className="text-destructive">Cancel Order</DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     </div>
@@ -686,7 +667,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={Settings02Icon} size={18} />
+                        <Settings className="w-5 h-5" />
                         Switch Component
                     </CardTitle>
                     <CardDescription>Toggle switches for boolean settings</CardDescription>
@@ -724,7 +705,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={Clock01Icon} size={18} />
+                        <Clock className="w-5 h-5" />
                         Progress Component
                     </CardTitle>
                     <CardDescription>Progress bars for completion tracking</CardDescription>
@@ -760,7 +741,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={InformationCircleIcon} size={18} />
+                        <Info className="w-5 h-5" />
                         Popover Component
                     </CardTitle>
                     <CardDescription>Contextual information and help text</CardDescription>
@@ -788,7 +769,7 @@ const CoreComponentsSection: React.FC = () => {
                         <Popover>
                             <PopoverTrigger asChild>
                                 <Button size="icon" variant="ghost">
-                                    <HugeiconsIcon icon={InformationCircleIcon} size={16} />
+                                    <Info className="w-5 h-5" />
                                 </Button>
                             </PopoverTrigger>
                             <PopoverContent className="w-64">
@@ -805,7 +786,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={Folder01Icon} size={18} />
+                        <Folder className="w-5 h-5" />
                         Accordion Component
                     </CardTitle>
                     <CardDescription>Collapsible content sections</CardDescription>
@@ -838,7 +819,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={Calendar01Icon} size={18} />
+                        <Calendar className="w-5 h-5" />
                         Calendar Component
                     </CardTitle>
                     <CardDescription>Date picker for scheduling</CardDescription>
@@ -851,7 +832,7 @@ const CoreComponentsSection: React.FC = () => {
                         />
                     </div>
                     <Alert className="mt-4">
-                        <HugeiconsIcon icon={InformationCircleIcon} size={16} className="text-blue-600" />
+                        <Info className="w-4 h-4 text-muted-foreground" />
                         <AlertTitle>Date Selection</AlertTitle>
                         <AlertDescription>
                             Use the calendar component for scheduling work orders, setting due dates, and planning maintenance activities.
@@ -864,7 +845,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={Settings02Icon} size={18} />
+                        <Settings className="w-5 h-5" />
                         Command Component
                     </CardTitle>
                     <CardDescription>Command palette for quick actions</CardDescription>
@@ -876,31 +857,31 @@ const CoreComponentsSection: React.FC = () => {
                             <CommandEmpty>No results found.</CommandEmpty>
                             <CommandGroup heading="Work Orders">
                                 <CommandItem>
-                                    <HugeiconsIcon icon={Add01Icon} size={14} className="mr-2" />
+                                    <Plus className="w-4 h-4 mr-2" />
                                     Create New Work Order
                                 </CommandItem>
                                 <CommandItem>
-                                    <HugeiconsIcon icon={ClipboardIcon} size={14} className="mr-2" />
+                                    <ClipboardList className="w-4 h-4 mr-2" />
                                     View All Work Orders
                                 </CommandItem>
                             </CommandGroup>
                             <CommandGroup heading="Assets">
                                 <CommandItem>
-                                    <HugeiconsIcon icon={Car01Icon} size={14} className="mr-2" />
+                                    <Car className="w-4 h-4 mr-2" />
                                     View Assets
                                 </CommandItem>
                                 <CommandItem>
-                                    <HugeiconsIcon icon={Add01Icon} size={14} className="mr-2" />
+                                    <Plus className="w-4 h-4 mr-2" />
                                     Add New Asset
                                 </CommandItem>
                             </CommandGroup>
                             <CommandGroup heading="Settings">
                                 <CommandItem>
-                                    <HugeiconsIcon icon={Settings02Icon} size={14} className="mr-2" />
+                                    <Settings className="w-4 h-4 mr-2" />
                                     System Settings
                                 </CommandItem>
                                 <CommandItem>
-                                    <HugeiconsIcon icon={UserIcon} size={14} className="mr-2" />
+                                    <User className="w-4 h-4 mr-2" />
                                     User Management
                                 </CommandItem>
                             </CommandGroup>
@@ -913,7 +894,7 @@ const CoreComponentsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={Settings02Icon} size={18} />
+                        <Settings className="w-5 h-5" />
                         Slider Component
                     </CardTitle>
                     <CardDescription>Range inputs for numeric values</CardDescription>
@@ -949,3 +930,7 @@ const CoreComponentsSection: React.FC = () => {
 };
 
 export default CoreComponentsSection;
+
+
+
+

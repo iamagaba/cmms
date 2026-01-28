@@ -22,10 +22,10 @@ const sizes = {
 
 const colors = {
     blue: 'bg-blue-600',
-    red: 'bg-red-600',
-    green: 'bg-green-600',
-    yellow: 'bg-yellow-400',
-    purple: 'bg-purple-600',
+    red: 'bg-destructive',
+    green: 'bg-emerald-600',
+    yellow: 'bg-amber-400',
+    purple: 'bg-primary',
     gray: 'bg-gray-600',
     orange: 'bg-orange-500'
 };
@@ -58,8 +58,10 @@ export const Progress = ({
                 className={`${colors[color] || 'bg-blue-600'} ${sizes[size]} ${radiusSizes[radius]} text-center p-0.5 leading-none font-medium text-blue-100 transition-all duration-500 ease-out`}
                 style={{ width: `${percentage}%` }}
             >
-                {label && <span className="text-[10px] absolute left-1/2 -translate-x-1/2">{label}</span>}
+                {label && <span className="text-xs absolute left-1/2 -translate-x-1/2">{label}</span>}
             </div>
         </div>
     );
 };
+
+

@@ -1,8 +1,9 @@
+import { ArrowLeft, ChevronRight } from 'lucide-react';
 import { ActionIcon } from '../feedback/ActionIcon';
 import { Group } from '../layout/Group';
 import { Text } from '../typography/Text';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { ArrowLeft01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons';
+
+
 import { clsx } from 'clsx';
 
 export interface PaginationProps {
@@ -86,7 +87,7 @@ export function Pagination({
                     color="gray"
                     style={{ width: buttonSize, height: buttonSize }}
                 >
-                    <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
+                    <ArrowLeft className="w-5 h-5" />
                 </ActionIcon>
             )}
 
@@ -129,9 +130,10 @@ export function Pagination({
                     color="gray"
                     style={{ width: buttonSize, height: buttonSize }}
                 >
-                    <HugeiconsIcon icon={ArrowRight01Icon} size={16} />
+                    <ChevronRight className="w-4 h-4" />
                 </ActionIcon>
             )}
         </Group>
     );
 }
+

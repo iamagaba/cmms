@@ -1,22 +1,17 @@
+import { CheckCircle, Info, Palette } from 'lucide-react';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-    PaintBoardIcon,
-    AlertCircleIcon,
-    CheckmarkCircle01Icon,
-    InformationCircleIcon,
-    Tag01Icon
-} from "@hugeicons/core-free-icons";
+
+
 
 const ColorUsageGuidelinesSection: React.FC = () => {
     return (
         <Card className="border-amber-200 bg-amber-50">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-amber-900">
-                    <HugeiconsIcon icon={PaintBoardIcon} size={20} />
+                    <Palette className="w-5 h-5" />
                     Color Usage Guidelines
                 </CardTitle>
                 <CardDescription className="text-amber-700">
@@ -28,7 +23,7 @@ const ColorUsageGuidelinesSection: React.FC = () => {
                 <div className="bg-white rounded-lg border border-amber-200 p-4">
                     <h3 className="text-sm font-semibold text-amber-900 mb-4">Status Colors</h3>
                     <div className="space-y-3">
-                        <div className="flex items-start gap-3 p-3 bg-blue-50 rounded border border-blue-200">
+                        <div className="flex items-start gap-3 p-3 bg-muted rounded border border-blue-200">
                             <Badge variant="status-open" className="mt-0.5">Open</Badge>
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900">Blue (status-open)</p>
@@ -42,14 +37,14 @@ const ColorUsageGuidelinesSection: React.FC = () => {
                                 <p className="text-xs text-gray-600">Active, ongoing, currently being worked on</p>
                             </div>
                         </div>
-                        <div className="flex items-start gap-3 p-3 bg-emerald-50 rounded border border-emerald-200">
+                        <div className="flex items-start gap-3 p-3 bg-muted rounded border border-emerald-200">
                             <Badge variant="status-completed" className="mt-0.5">Completed</Badge>
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900">Emerald (status-completed)</p>
                                 <p className="text-xs text-gray-600">Done, successful, finished, resolved</p>
                             </div>
                         </div>
-                        <div className="flex items-start gap-3 p-3 bg-orange-50 rounded border border-orange-200">
+                        <div className="flex items-start gap-3 p-3 bg-muted rounded border border-orange-200">
                             <Badge variant="status-on-hold" className="mt-0.5">On Hold</Badge>
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900">Orange (status-on-hold)</p>
@@ -70,14 +65,14 @@ const ColorUsageGuidelinesSection: React.FC = () => {
                 <div className="bg-white rounded-lg border border-amber-200 p-4">
                     <h3 className="text-sm font-semibold text-amber-900 mb-4">Priority Colors</h3>
                     <div className="space-y-3">
-                        <div className="flex items-start gap-3 p-3 bg-red-50 rounded border border-red-200">
+                        <div className="flex items-start gap-3 p-3 bg-red-50 rounded border border-destructive/20">
                             <Badge variant="priority-critical" className="mt-0.5">Critical</Badge>
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900">Red (priority-critical)</p>
                                 <p className="text-xs text-gray-600">Immediate action required, safety issue, system down</p>
                             </div>
                         </div>
-                        <div className="flex items-start gap-3 p-3 bg-orange-50 rounded border border-orange-200">
+                        <div className="flex items-start gap-3 p-3 bg-muted rounded border border-orange-200">
                             <Badge variant="priority-high" className="mt-0.5">High</Badge>
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900">Orange (priority-high)</p>
@@ -91,7 +86,7 @@ const ColorUsageGuidelinesSection: React.FC = () => {
                                 <p className="text-xs text-gray-600">Normal priority, standard timeline</p>
                             </div>
                         </div>
-                        <div className="flex items-start gap-3 p-3 bg-blue-50 rounded border border-blue-200">
+                        <div className="flex items-start gap-3 p-3 bg-muted rounded border border-blue-200">
                             <Badge variant="priority-low" className="mt-0.5">Low</Badge>
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900">Blue (priority-low)</p>
@@ -105,36 +100,36 @@ const ColorUsageGuidelinesSection: React.FC = () => {
                 <div className="bg-white rounded-lg border border-amber-200 p-4">
                     <h3 className="text-sm font-semibold text-amber-900 mb-4">Semantic Colors</h3>
                     <div className="space-y-3">
-                        <div className="flex items-start gap-3 p-3 bg-red-50 rounded border border-red-200">
-                            <HugeiconsIcon icon={AlertCircleIcon} size={20} className="text-red-600 mt-0.5" />
+                        <div className="flex items-start gap-3 p-3 bg-red-50 rounded border border-destructive/20">
+                            <AlertCircle className="w-5 h-5 text-destructive mt-0.5" />
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900">Red</p>
                                 <p className="text-xs text-gray-600">Errors, destructive actions, critical alerts, danger</p>
                             </div>
                         </div>
-                        <div className="flex items-start gap-3 p-3 bg-orange-50 rounded border border-orange-200">
-                            <HugeiconsIcon icon={AlertCircleIcon} size={20} className="text-orange-600 mt-0.5" />
+                        <div className="flex items-start gap-3 p-3 bg-muted rounded border border-orange-200">
+                            <AlertCircle className="w-5 h-5 text-muted-foreground mt-0.5" />
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900">Orange</p>
                                 <p className="text-xs text-gray-600">Warnings, caution, needs attention</p>
                             </div>
                         </div>
-                        <div className="flex items-start gap-3 p-3 bg-emerald-50 rounded border border-emerald-200">
-                            <HugeiconsIcon icon={CheckmarkCircle01Icon} size={20} className="text-emerald-600 mt-0.5" />
+                        <div className="flex items-start gap-3 p-3 bg-muted rounded border border-emerald-200">
+                            <CheckCircle className="w-5 h-5 text-foreground mt-0.5" />
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900">Emerald</p>
                                 <p className="text-xs text-gray-600">Success, completion, positive actions</p>
                             </div>
                         </div>
-                        <div className="flex items-start gap-3 p-3 bg-blue-50 rounded border border-blue-200">
-                            <HugeiconsIcon icon={InformationCircleIcon} size={20} className="text-blue-600 mt-0.5" />
+                        <div className="flex items-start gap-3 p-3 bg-muted rounded border border-blue-200">
+                            <Info className="w-5 h-5 text-muted-foreground mt-0.5" />
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900">Blue</p>
                                 <p className="text-xs text-gray-600">Information, neutral actions, links</p>
                             </div>
                         </div>
-                        <div className="flex items-start gap-3 p-3 bg-purple-50 rounded border border-purple-200">
-                            <HugeiconsIcon icon={Tag01Icon} size={20} className="text-purple-600 mt-0.5" />
+                        <div className="flex items-start gap-3 p-3 bg-primary/5 rounded border border-primary/20">
+                            <Tag01Icon className="w-5 h-5 text-primary mt-0.5" />
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900">Purple</p>
                                 <p className="text-xs text-gray-600">Primary brand, highlights, featured items</p>
@@ -192,7 +187,7 @@ const ColorUsageGuidelinesSection: React.FC = () => {
                 </div>
 
                 <Alert className="border-amber-300 bg-amber-100">
-                    <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="text-amber-700" />
+                    <CheckCircle className="w-4 h-4 text-amber-700" />
                     <AlertTitle className="text-amber-900">Color Usage Best Practices</AlertTitle>
                     <AlertDescription className="text-amber-800">
                         <ul className="text-xs space-y-1 mt-2 ml-4 list-disc">
@@ -211,3 +206,6 @@ const ColorUsageGuidelinesSection: React.FC = () => {
 };
 
 export default ColorUsageGuidelinesSection;
+
+
+

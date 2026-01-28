@@ -1,12 +1,8 @@
+import { CheckCircle, Info, X } from 'lucide-react';
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-  AlertCircleIcon,
-  InformationCircleIcon,
-  CheckmarkCircle01Icon,
-  Cancel01Icon
-} from '@hugeicons/core-free-icons';
+
+
 
 export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
     /** Alert variant */
@@ -28,26 +24,26 @@ export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> {
 const variantMap = {
     filled: {
         primary: 'bg-primary-500 text-white border-primary-600',
-        red: 'bg-red-500 text-white border-red-600',
-        green: 'bg-green-500 text-white border-green-600',
+        red: 'bg-destructive text-white border-destructive',
+        green: 'bg-emerald-500 text-white border-emerald-600',
         blue: 'bg-blue-500 text-white border-blue-600',
-        yellow: 'bg-yellow-500 text-white border-yellow-600',
+        yellow: 'bg-amber-500 text-white border-amber-600',
         orange: 'bg-orange-500 text-white border-orange-600',
     },
     light: {
         primary: 'bg-primary-50 text-primary-900 border-primary-200',
-        red: 'bg-red-50 text-red-900 border-red-200',
-        green: 'bg-green-50 text-green-900 border-green-200',
-        blue: 'bg-blue-50 text-blue-900 border-blue-200',
-        yellow: 'bg-yellow-50 text-yellow-900 border-yellow-200',
-        orange: 'bg-orange-50 text-orange-900 border-orange-200',
+        red: 'bg-destructive/10 text-destructive border-destructive/20',
+        green: 'bg-emerald-50 text-emerald-900 border-emerald-200',
+        blue: 'bg-muted text-blue-900 border-blue-200',
+        yellow: 'bg-amber-50 text-amber-900 border-amber-200',
+        orange: 'bg-muted text-orange-900 border-orange-200',
     },
     outline: {
         primary: 'bg-white text-primary-900 border-primary-500',
-        red: 'bg-white text-red-900 border-red-500',
-        green: 'bg-white text-green-900 border-green-500',
+        red: 'bg-white text-destructive border-destructive',
+        green: 'bg-white text-emerald-900 border-emerald-500',
         blue: 'bg-white text-blue-900 border-blue-500',
-        yellow: 'bg-white text-yellow-900 border-yellow-500',
+        yellow: 'bg-white text-amber-900 border-amber-500',
         orange: 'bg-white text-orange-900 border-orange-500',
     },
 };
@@ -95,7 +91,7 @@ export function Alert({
                             onClick={onClose}
                             className="inline-flex rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-offset-2"
                         >
-                            <HugeiconsIcon icon={Cancel01Icon} size={20} />
+                            <X className="w-5 h-5" />
                         </button>
                     </div>
                 )}
@@ -103,3 +99,5 @@ export function Alert({
         </div>
     );
 }
+
+

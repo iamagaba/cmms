@@ -1,11 +1,6 @@
 import React, { useState } from 'react';
 import { InventoryItem } from '@/types/supabase';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  PackageReceiveIcon,
-  Delete01Icon,
-  Loading03Icon
-} from '@hugeicons/core-free-icons';
+import { PackageCheck, Trash2, Loader } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useSuppliers } from '@/hooks/useSuppliers';
@@ -164,8 +159,8 @@ export const StockReceiptDialog: React.FC<StockReceiptDialogProps> = ({
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-              <HugeiconsIcon icon={PackageReceiveIcon} size={24} className="text-emerald-600 dark:text-emerald-400" />
+            <div className="w-10 h-10 rounded-lg bg-muted dark:bg-emerald-900/30 flex items-center justify-center">
+              <PackageCheck className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
               <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">Receive Stock</DialogTitle>
@@ -270,7 +265,7 @@ export const StockReceiptDialog: React.FC<StockReceiptDialogProps> = ({
                     type="button"
                     onClick={handleAddItem}
                     disabled={!selectedItemId}
-                    className="bg-purple-600 hover:bg-purple-700"
+                    variant="default"
                   >
                     Add
                   </Button>
@@ -286,23 +281,23 @@ export const StockReceiptDialog: React.FC<StockReceiptDialogProps> = ({
               {fields.length > 0 && (
                 <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                   <Table>
-                    <TableHeader className="bg-gray-50 dark:bg-gray-800">
+                    <TableHeader>
                       <TableRow>
-                        <TableHead className="px-4 py-3 text-left font-medium text-gray-700 dark:text-gray-300 h-auto">Item</TableHead>
-                        <TableHead className="px-4 py-3 text-center font-medium text-gray-700 dark:text-gray-300 w-24 h-auto">Expected</TableHead>
-                        <TableHead className="px-4 py-3 text-center font-medium text-gray-700 dark:text-gray-300 w-24 h-auto">Received</TableHead>
-                        <TableHead className="px-4 py-3 text-center font-medium text-gray-700 dark:text-gray-300 w-28 h-auto">Unit Cost</TableHead>
-                        <TableHead className="px-4 py-3 w-12 h-auto"></TableHead>
+                        <TableHead>Item</TableHead>
+                        <TableHead className="text-center w-24">Expected</TableHead>
+                        <TableHead className="text-center w-24">Received</TableHead>
+                        <TableHead className="text-center w-28">Unit Cost</TableHead>
+                        <TableHead className="w-12"></TableHead>
                       </TableRow>
                     </TableHeader>
-                    <TableBody className="divide-y divide-gray-200 dark:divide-gray-700">
+                    <TableBody>
                       {fields.map((field, index) => (
                         <TableRow key={field.id}>
-                          <TableCell className="px-4 py-3">
-                            <div className="font-medium text-gray-900 dark:text-gray-100">{field.item_name}</div>
-                            <div className="text-xs text-gray-500">{field.item_sku}</div>
+                          <TableCell>
+                            <div className="font-medium text-sm">{field.item_name}</div>
+                            <div className="text-xs text-muted-foreground">{field.item_sku}</div>
                           </TableCell>
-                          <TableCell className="px-4 py-3">
+                          <TableCell>
                             <FormField
                               control={form.control}
                               name={`items.${index}.quantity_expected`}
@@ -311,14 +306,14 @@ export const StockReceiptDialog: React.FC<StockReceiptDialogProps> = ({
                                   <Input
                                     type="number"
                                     min="0"
-                                    className="h-8 px-2 text-center"
+                                    className="text-center"
                                     {...field}
                                   />
                                 </FormControl>
                               )}
                             />
                           </TableCell>
-                          <TableCell className="px-4 py-3">
+                          <TableCell>
                             <FormField
                               control={form.control}
                               name={`items.${index}.quantity_received`}
@@ -327,14 +322,14 @@ export const StockReceiptDialog: React.FC<StockReceiptDialogProps> = ({
                                   <Input
                                     type="number"
                                     min="0"
-                                    className="h-8 px-2 text-center"
+                                    className="text-center"
                                     {...field}
                                   />
                                 </FormControl>
                               )}
                             />
                           </TableCell>
-                          <TableCell className="px-4 py-3">
+                          <TableCell>
                             <FormField
                               control={form.control}
                               name={`items.${index}.unit_cost`}
@@ -344,20 +339,20 @@ export const StockReceiptDialog: React.FC<StockReceiptDialogProps> = ({
                                     type="number"
                                     min="0"
                                     step="0.01"
-                                    className="h-8 px-2 text-center"
+                                    className="text-center"
                                     {...field}
                                   />
                                 </FormControl>
                               )}
                             />
                           </TableCell>
-                          <TableCell className="px-4 py-3">
+                          <TableCell>
                             <button
                               type="button"
                               onClick={() => remove(index)}
-                              className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
+                              className="p-1.5 text-destructive hover:bg-destructive/10 rounded"
                             >
-                              <HugeiconsIcon icon={Delete01Icon} size={16} />
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </TableCell>
                         </TableRow>
@@ -406,10 +401,9 @@ export const StockReceiptDialog: React.FC<StockReceiptDialogProps> = ({
               </Button>
               <Button
                 type="submit"
-                className="bg-emerald-600 hover:bg-emerald-700"
                 disabled={fields.length === 0 || form.formState.isSubmitting}
               >
-                {form.formState.isSubmitting && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin mr-2" />}
+                {form.formState.isSubmitting && <Loader className="w-4 h-4 animate-spin mr-2" />}
                 Receive Stock
               </Button>
             </div>

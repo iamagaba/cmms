@@ -1,21 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  FullScreenIcon,
-  Cancel01Icon,
-  InformationCircleIcon,
-  TagIcon,
-  Clock01Icon,
-  MapsIcon,
-  Motorbike01Icon,
-  Car01Icon,
-  Wrench01Icon,
-  Calendar01Icon,
-  SecurityCheckIcon,
-  DashboardSpeed01Icon,
-  UserIcon,
-  Call02Icon
-} from '@hugeicons/core-free-icons';
+import { Maximize2, X, Info, Tag, Clock, MapPin, Bike, Car, Wrench, Calendar, Shield, Gauge, User, Phone } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { WorkOrder, Technician, Location, Customer, Vehicle, WorkOrderPart, Profile } from '@/types/supabase';
@@ -29,7 +13,7 @@ import { showSuccess, showError } from "@/utils/toast";
 import { useSession } from "@/context/SessionContext";
 import WorkOrderStepper from '@/components/WorkOrderStepper/WorkOrderStepper';
 import { WorkOrderDetailsInfoCard } from '@/components/work-order-details/WorkOrderDetailsInfoCard';
-
+import { Button } from '@/components/ui/button';
 import { WorkOrderCostSummaryCard } from '@/components/work-order-details/WorkOrderCostSummaryCard';
 import { WorkOrderActivityLogCard } from '@/components/work-order-details/WorkOrderActivityLogCard';
 import { WorkOrderLocationMapCard } from '@/components/work-order-details/WorkOrderLocationMapCard';
@@ -421,12 +405,14 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
           {/* Header */}
           <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-card flex-shrink-0">
             <div className="flex items-center gap-2">
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={onClose}
-                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent rounded transition-colors"
+                className="h-7 w-7"
               >
-                <HugeiconsIcon icon={Cancel01Icon} size={14} />
-              </button>
+                <X className="w-4 h-4" />
+              </Button>
               <div className="h-5 w-px bg-border" />
               {isLoadingWorkOrder ? (
                 <Skeleton height="18px" width="100px" radius="sm" />
@@ -439,17 +425,17 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
 
                   {/* Status Chip - Same level as WO number */}
                   {workOrder && (
-                    <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap ${workOrder.status === 'Completed' ? 'bg-emerald-100 text-emerald-700' :
+                    <span className={`inline-flex items-center gap-1 text-xs font-semibold px-1.5 py-0.5 rounded-full whitespace-nowrap ${workOrder.status === 'Completed' ? 'bg-muted text-foreground' :
                       workOrder.status === 'In Progress' ? 'bg-amber-100 text-amber-700' :
-                        workOrder.status === 'Ready' ? 'bg-blue-100 text-blue-700' :
-                          workOrder.status === 'Confirmation' ? 'bg-purple-100 text-purple-700' :
-                            workOrder.status === 'On Hold' ? 'bg-orange-100 text-orange-700' :
+                        workOrder.status === 'Ready' ? 'bg-muted text-muted-foreground' :
+                          workOrder.status === 'Confirmation' ? 'bg-primary/10 text-primary' :
+                            workOrder.status === 'On Hold' ? 'bg-muted text-muted-foreground' :
                               'bg-muted text-muted-foreground'
                       }`}>
                       <span className={`w-1 h-1 rounded-full animate-pulse ${workOrder.status === 'Completed' ? 'bg-emerald-500' :
                         workOrder.status === 'In Progress' ? 'bg-amber-500' :
                           workOrder.status === 'Ready' ? 'bg-blue-500' :
-                            workOrder.status === 'Confirmation' ? 'bg-purple-500' :
+                            workOrder.status === 'Confirmation' ? 'bg-primary' :
                               workOrder.status === 'On Hold' ? 'bg-orange-500' :
                                 'bg-muted-foreground'
                         }`} />
@@ -460,12 +446,14 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
               )}
             </div>
             <div className="flex items-center gap-1">
-              <button
+              <Button
+                variant="ghost"
+                size="icon"
                 onClick={handleViewFullPage}
-                className="p-1.5 text-muted-foreground hover:text-foreground hover:bg-accent rounded transition-colors"
+                className="h-7 w-7"
               >
-                <HugeiconsIcon icon={FullScreenIcon} size={14} />
-              </button>
+                <Maximize2 className="w-4 h-4" />
+              </Button>
             </div>
           </div>
 
@@ -501,14 +489,12 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
 
           {/* Emergency Bike Banner */}
           {(emergencyEligible || hasActiveEmergencyAssignment) && (
-            <div className={`px-3 py-1.5 flex items-center justify-between border-b ${hasActiveEmergencyAssignment ? 'bg-blue-50 border-blue-200' : 'bg-orange-50 border-orange-200'
+            <div className={`px-3 py-1.5 flex items-center justify-between border-b ${hasActiveEmergencyAssignment ? 'bg-muted border-blue-200' : 'bg-muted border-orange-200'
               }`}>
               <div className="flex items-center gap-2">
-                <div className={`w-5 h-5 rounded-full flex items-center justify-center ${hasActiveEmergencyAssignment ? 'bg-blue-100' : 'bg-orange-100'
+                <div className={`w-5 h-5 rounded-full flex items-center justify-center ${hasActiveEmergencyAssignment ? 'bg-muted' : 'bg-muted'
                   }`}>
-                  <HugeiconsIcon icon={Motorbike01Icon} size={13} className={
-                    hasActiveEmergencyAssignment ? 'text-blue-600' : 'text-orange-600'
-                  } />
+                  <Bike className="w-4 h-4 text-muted-foreground" />
                 </div>
                 <div>
                   <p className={`text-xs font-bold ${hasActiveEmergencyAssignment ? 'text-blue-900' : 'text-orange-900'
@@ -526,11 +512,11 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
                         </div>
                       ) : emergencyBike ? (
                         <>
-                          <p className="text-[10px] text-blue-700">
+                          <p className="text-xs text-muted-foreground">
                             {emergencyBike.make} {emergencyBike.model}
                           </p>
                           {activeEmergencyAssignment?.assigned_at && (
-                            <p className="text-[10px] text-blue-600">
+                            <p className="text-xs text-muted-foreground">
                               Assigned {new Date(activeEmergencyAssignment.assigned_at).toLocaleString([], { 
                                 month: 'short', 
                                 day: 'numeric', 
@@ -542,12 +528,12 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
                           )}
                         </>
                       ) : (
-                        <p className="text-[10px] text-blue-700 italic">Bike details unavailable</p>
+                        <p className="text-xs text-muted-foreground italic">Bike details unavailable</p>
                       )}
                     </>
                   )}
                   {emergencyEligible && (
-                    <p className="text-[10px] text-orange-700">
+                    <p className="text-xs text-muted-foreground">
                       Repair time &gt; 6 hours.
                     </p>
                   )}
@@ -555,14 +541,15 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
               </div>
 
               {!hasActiveEmergencyAssignment ? (
-                <button
+                <Button
+                  size="sm"
                   onClick={() => setIsAssignEmergencyOpen(true)}
-                  className="px-2 py-1 text-[10px] font-medium text-white bg-orange-600 hover:bg-orange-700 rounded shadow-sm transition-colors"
+                  className="h-7 text-xs bg-orange-600 hover:bg-orange-700"
                 >
                   Assign Bike
-                </button>
+                </Button>
               ) : (
-                <span className="px-1.5 py-0.5 bg-blue-200 text-blue-800 text-[10px] font-bold rounded uppercase tracking-wider">
+                <span className="px-1.5 py-0.5 bg-blue-200 text-blue-800 text-xs font-bold rounded-lg uppercase tracking-wider">
                   Active
                 </span>
               )}
@@ -612,23 +599,26 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
           {/* Tabs - Full width border */}
           <div className="flex border-b border-border px-3 flex-shrink-0 bg-card">
             {[
-              { key: 'overview', label: 'Overview', icon: InformationCircleIcon },
-              { key: 'location', label: 'Location', icon: MapsIcon },
-              { key: 'parts', label: 'Parts & Cost', icon: TagIcon },
-              { key: 'activity', label: 'Activity', icon: Clock01Icon },
-            ].map(tab => (
-              <button
-                key={tab.key}
-                onClick={() => setActiveTab(tab.key as any)}
-                className={`flex items-center gap-1.5 px-2.5 py-2 text-xs font-medium border-b-2 transition-colors ${activeTab === tab.key
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
-                  }`}
-              >
-                <HugeiconsIcon icon={tab.icon} size={13} />
-                {tab.label}
-              </button>
-            ))}
+              { key: 'overview', label: 'Overview', icon: Info },
+              { key: 'location', label: 'Location', icon: MapPin },
+              { key: 'parts', label: 'Parts & Cost', icon: Tag },
+              { key: 'activity', label: 'Activity', icon: Clock },
+            ].map(tab => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key as any)}
+                  className={`flex items-center gap-1.5 px-2.5 py-2 text-xs font-medium border-b-2 transition-colors ${activeTab === tab.key
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'
+                    }`}
+                >
+                  <Icon className="w-4 h-4" />
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
 
           {/* Content - Scrollable with thin scrollbar */}
@@ -696,7 +686,7 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
 
           {/* Footer - Simplified, no duplicate button */}
           <div className="px-3 py-2 border-t border-border bg-card flex-shrink-0">
-            <div className="text-[10px] text-muted-foreground">
+            <div className="text-xs text-muted-foreground">
               {workOrder?.created_at && (
                 <span>Created {dayjs(workOrder.created_at).format('MMM D, YYYY • h:mm A')}</span>
               )}
@@ -723,3 +713,5 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
 };
 
 export default WorkOrderDetailsDrawer;
+
+

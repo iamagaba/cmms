@@ -6,11 +6,12 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { ArrowDown01Icon, Search01Icon, Tick01Icon, Cancel01Icon } from '@hugeicons/core-free-icons';
+import { ChevronDown, ChevronUp, Check, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { TableColumn } from './EnhancedDataTable';
+import { Button } from '@/components/ui/button';
+import Icon from '../icons/Icon';
 
 // ============================================
 // INTERFACES
@@ -133,23 +134,20 @@ const MobileCard = <T extends Record<string, any>>({
           
           {/* Expand button */}
           {expandable && (
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={(e) => {
                 e.stopPropagation();
                 onToggleExpand?.();
               }}
-              className={cn(
-                'p-2 rounded-md transition-colors',
-                'hover:bg-machinery-100 active:bg-machinery-200',
-                'focus:outline-none focus:ring-2 focus:ring-steel-500'
-              )}
               aria-label={expanded ? "Collapse details" : "Expand details"}
             >
               <Icon
                 icon={expanded ? "tabler:chevron-up" : "tabler:chevron-down"}
                 className="w-4 h-4 text-machinery-500"
               />
-            </button>
+            </Button>
           )}
         </div>
       </div>
@@ -290,7 +288,7 @@ const MobileSelectionHeader: React.FC<MobileSelectionHeaderProps> = ({
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <HugeiconsIcon icon={Tick01Icon} size={16} className="text-steel-600" />
+          <Check className="w-4 h-4 text-steel-600" />
           <span className="text-sm font-medium text-steel-700">
             {selectedCount} of {totalCount} selected
           </span>
@@ -298,19 +296,21 @@ const MobileSelectionHeader: React.FC<MobileSelectionHeaderProps> = ({
         
         <div className="flex items-center gap-2">
           {selectedCount < totalCount && (
-            <button
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={onSelectAll}
-              className="text-sm text-steel-600 hover:text-steel-700 font-medium"
             >
               Select all
-            </button>
+            </Button>
           )}
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onClearSelection}
-            className="p-1 text-machinery-500 hover:text-machinery-700 transition-colors"
           >
-            <HugeiconsIcon icon={Cancel01Icon} size={16} />
-          </button>
+            <X className="w-4 h-4" />
+          </Button>
         </div>
       </div>
     </motion.div>

@@ -1,7 +1,8 @@
+import { Info } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { InformationCircleIcon, LinkSquare02Icon } from '@hugeicons/core-free-icons';
+
+
 
 // Design System Sections
 import TypographyHierarchySection from './design-system/TypographyHierarchySection';
@@ -126,7 +127,7 @@ const ShadcnDesignSystem: React.FC = () => {
       {/* Footer */}
       <div className="mt-16 p-6 bg-gray-50 rounded-lg border border-gray-200">
         <div className="flex items-center gap-3 mb-2">
-          <HugeiconsIcon icon={InformationCircleIcon} size={20} className="text-gray-600" />
+          <Info className="w-5 h-5 text-gray-600" />
           <h3 className="font-semibold text-gray-900">Legacy Design System</h3>
         </div>
         <p className="text-sm text-gray-600 mb-4">
@@ -135,12 +136,12 @@ const ShadcnDesignSystem: React.FC = () => {
         <div className="flex gap-4">
           <Button variant="outline" size="sm" asChild>
             <a href="/design-system" target="_blank" rel="noopener noreferrer">
-              View Legacy System <HugeiconsIcon icon={LinkSquare02Icon} size={14} className="ml-2" />
+              View Legacy System <LinkSquare02Icon className="w-4 h-4 ml-2" />
             </a>
           </Button>
           <Button variant="outline" size="sm" asChild>
             <a href="https://ui.shadcn.com" target="_blank" rel="noopener noreferrer">
-              shadcn/ui Documentation <HugeiconsIcon icon={LinkSquare02Icon} size={14} className="ml-2" />
+              shadcn/ui Documentation <LinkSquare02Icon className="w-4 h-4 ml-2" />
             </a>
           </Button>
         </div>
@@ -150,3 +151,6 @@ const ShadcnDesignSystem: React.FC = () => {
 };
 
 export default ShadcnDesignSystem;
+
+
+

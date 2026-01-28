@@ -3,8 +3,11 @@ import { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Dialog } from '@headlessui/react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Edit01Icon, Add01Icon, Cancel01Icon, Loading01Icon } from '@hugeicons/core-free-icons';
+import { Edit, Plus, X, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { DiagnosticQuestionRow, DiagnosticCategoryRow } from '@/types/diagnostic';
 import { createQuestion, updateQuestion, getCategories } from '@/api/diagnosticConfigApi';
 import { showSuccess, showError } from '@/utils/toast';
@@ -85,40 +88,41 @@ const QuestionEditor = ({ isOpen, onClose, questionId, initialData }: QuestionEd
             <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
 
             <div className="fixed inset-0 flex items-center justify-center p-4">
-                <Dialog.Panel className="mx-auto max-w-2xl w-full bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-800 flex flex-col max-h-[90vh]">
-                    <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-800">
-                        <Dialog.Title className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                            <HugeiconsIcon icon={isEditing ? Edit01Icon : Add01Icon} size={20} className="text-primary-600 dark:text-primary-400" />
+                <Dialog.Panel className="mx-auto max-w-2xl w-full bg-background rounded-xl shadow-xl border border-border flex flex-col max-h-[90vh]">
+                    <div className="flex items-center justify-between p-6 border-b border-border">
+                        <Dialog.Title className="text-lg font-semibold text-foreground flex items-center gap-2">
+                            {isEditing ? <Edit className="w-5 h-5 text-primary" /> : <Plus className="w-5 h-5 text-primary" />}
                             {isEditing ? 'Edit Question' : 'New Question'}
                         </Dialog.Title>
-                        <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
-                            <HugeiconsIcon icon={Cancel01Icon} size={20} />
-                        </button>
+                        <Button variant="ghost" size="icon" onClick={onClose}>
+                            <X className="w-5 h-5" />
+                        </Button>
                     </div>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="p-6 overflow-y-auto space-y-4">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                    Question ID <span className="text-red-500">*</span>
-                                </label>
-                                <input
+                                <Label htmlFor="question_id" className="text-xs">
+                                    Question ID <span className="text-destructive">*</span>
+                                </Label>
+                                <Input
+                                    id="question_id"
                                     type="text"
                                     {...register('question_id', { required: 'Question ID is required' })}
-                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100"
                                     placeholder="e.g., ENGINE_NOISE"
                                 />
-                                {errors.question_id && <p className="text-xs text-red-500 mt-1">{errors.question_id.message as string}</p>}
-                                <p className="text-xs text-gray-500 mt-1">Unique identifier used in logic (e.g. BATTERY_CHECK)</p>
+                                {errors.question_id && <p className="text-xs text-destructive mt-1">{errors.question_id.message as string}</p>}
+                                <p className="text-xs text-muted-foreground mt-1">Unique identifier used in logic (e.g. BATTERY_CHECK)</p>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                <Label htmlFor="category_id" className="text-xs">
                                     Category
-                                </label>
+                                </Label>
                                 <select
+                                    id="category_id"
                                     {...register('category_id')}
-                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100"
+                                    className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
                                 >
                                     <option value="">Select Category...</option>
                                     {categories?.map(cat => (
@@ -129,38 +133,39 @@ const QuestionEditor = ({ isOpen, onClose, questionId, initialData }: QuestionEd
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Question Text <span className="text-red-500">*</span>
-                            </label>
-                            <input
+                            <Label htmlFor="text" className="text-xs">
+                                Question Text <span className="text-destructive">*</span>
+                            </Label>
+                            <Input
+                                id="text"
                                 type="text"
                                 {...register('text', { required: 'Question text is required' })}
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100"
                                 placeholder="e.g., Is the engine making a noise?"
                             />
-                            {errors.text && <p className="text-xs text-red-500 mt-1">{errors.text.message as string}</p>}
+                            {errors.text && <p className="text-xs text-destructive mt-1">{errors.text.message as string}</p>}
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            <Label htmlFor="help_text" className="text-xs">
                                 Help Text / Instructions
-                            </label>
-                            <textarea
+                            </Label>
+                            <Textarea
+                                id="help_text"
                                 {...register('help_text')}
                                 rows={3}
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100"
                                 placeholder="Additional instructions for the technician..."
                             />
                         </div>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                <Label htmlFor="question_type" className="text-xs">
                                     Question Type
-                                </label>
+                                </Label>
                                 <select
+                                    id="question_type"
                                     {...register('question_type')}
-                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100"
+                                    className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
                                 >
                                     <option value="selection">Selection (Single Choice)</option>
                                     <option value="boolean">Yes / No</option>
@@ -174,38 +179,38 @@ const QuestionEditor = ({ isOpen, onClose, questionId, initialData }: QuestionEd
                                     <input
                                         type="checkbox"
                                         {...register('is_active')}
-                                        className="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500"
+                                        className="w-4 h-4 text-primary rounded border-border focus:ring-primary"
                                     />
-                                    <span className="text-sm text-gray-700 dark:text-gray-300">Active (Visible in flow)</span>
+                                    <span className="text-sm text-foreground">Active (Visible in flow)</span>
                                 </label>
                             </div>
                         </div>
 
                         {isEditing && questionId && (
-                            <div className="pt-6 border-t border-gray-100 dark:border-gray-800">
+                            <div className="pt-6 border-t border-border">
                                 <OptionManager questionId={questionId} />
                             </div>
                         )}
                     </form>
 
-                    <div className="p-6 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-3 bg-gray-50 dark:bg-gray-900/50 rounded-b-xl">
-
-                        <button
+                    <div className="p-6 border-t border-border flex justify-end gap-3 bg-muted/50 rounded-b-xl">
+                        <Button
                             type="button"
+                            variant="outline"
+                            size="sm"
                             onClick={onClose}
-                            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700"
                         >
                             Cancel
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="button"
+                            size="sm"
                             onClick={handleSubmit(onSubmit)}
                             disabled={mutation.isPending}
-                            className="px-4 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50 flex items-center gap-2"
                         >
-                            {mutation.isPending && <HugeiconsIcon icon={Loading01Icon} size={16} className="animate-spin" />}
-                            {isEditing ? 'Save Changes' : 'Create Question'}
-                        </button>
+                            {mutation.isPending && <Loader2 className="w-4 h-4 animate-spin mr-1.5" />}
+                            {isEditing ? 'Save' : 'Create Question'}
+                        </Button>
                     </div>
                 </Dialog.Panel>
             </div>
@@ -214,3 +219,5 @@ const QuestionEditor = ({ isOpen, onClose, questionId, initialData }: QuestionEd
 };
 
 export default QuestionEditor;
+
+

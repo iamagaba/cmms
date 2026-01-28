@@ -1,10 +1,10 @@
 
 import React, { useMemo } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { UserGroupIcon, UserIcon, Car01Icon, AlertCircleIcon, Calendar01Icon, ArrowRight01Icon } from '@hugeicons/core-free-icons';
+import { Users } from 'lucide-react';
 import { useNavigate } from "react-router-dom";
 import { WorkOrder } from "@/types/supabase";
 import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
 
 interface TechniciansListProps {
     technicians: any[];
@@ -30,21 +30,17 @@ export const TechniciansList: React.FC<TechniciansListProps> = ({ technicians, w
             const hasActiveWork = inProgressOrders.length > 0;
 
             let status: 'active' | 'busy' | 'offline';
-            let statusColor: string;
-            let statusBg: string;
+            let badgeVariant: 'success' | 'warning' | 'low';
 
             if (!isSignedIn) {
                 status = 'offline';
-                statusColor = 'text-gray-600';
-                statusBg = 'bg-gray-100';
+                badgeVariant = 'low';
             } else if (hasActiveWork) {
                 status = 'busy';
-                statusColor = 'text-amber-600';
-                statusBg = 'bg-amber-100';
+                badgeVariant = 'warning';
             } else {
                 status = 'active';
-                statusColor = 'text-emerald-600';
-                statusBg = 'bg-emerald-100';
+                badgeVariant = 'success';
             }
 
             return {
@@ -52,8 +48,7 @@ export const TechniciansList: React.FC<TechniciansListProps> = ({ technicians, w
                 openOrdersCount: openOrders.length,
                 inProgressCount: inProgressOrders.length,
                 status,
-                statusColor,
-                statusBg,
+                badgeVariant,
                 isSignedIn
             };
         }).slice(0, 8);
@@ -74,7 +69,7 @@ export const TechniciansList: React.FC<TechniciansListProps> = ({ technicians, w
             <div className="px-4 py-3 border-b border-border">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                        <HugeiconsIcon icon={UserGroupIcon} size={14} className="text-muted-foreground" />
+                        <Users className="w-5 h-5 text-muted-foreground" />
                         <div>
                             <h3 className="text-sm font-semibold text-foreground">Technicians</h3>
                             <p className="text-xs text-muted-foreground mt-0.5">{technicianStats.filter(t => t.isSignedIn).length} online</p>
@@ -95,7 +90,7 @@ export const TechniciansList: React.FC<TechniciansListProps> = ({ technicians, w
                         {technicianStats.map((tech) => (
                             <div
                                 key={tech.id}
-                                className="p-3 hover:bg-accent transition-colors cursor-pointer"
+                                className="p-4 hover:bg-accent transition-colors cursor-pointer"
                                 onClick={() => navigate('/technicians')}
                             >
                                 <div className="flex items-center gap-3">
@@ -106,8 +101,8 @@ export const TechniciansList: React.FC<TechniciansListProps> = ({ technicians, w
                                         {/* Status indicator dot */}
                                         <div className={cn(
                                             'absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-card',
-                                            tech.status === 'active' ? 'bg-emerald-500' :
-                                                tech.status === 'busy' ? 'bg-amber-500' : 'bg-muted-foreground'
+                                            tech.status === 'active' ? 'bg-success' :
+                                                tech.status === 'busy' ? 'bg-warning' : 'bg-muted-foreground'
                                         )} />
                                     </div>
 
@@ -116,15 +111,9 @@ export const TechniciansList: React.FC<TechniciansListProps> = ({ technicians, w
                                             <p className="text-sm font-semibold text-foreground truncate">
                                                 {tech.fullName || tech.name || 'Technician'}
                                             </p>
-                                            <span className={cn(
-                                                'px-2 py-0.5 rounded text-xs font-medium border',
-                                                tech.statusBg,
-                                                tech.statusColor,
-                                                tech.status === 'active' ? 'border-emerald-200' :
-                                                    tech.status === 'busy' ? 'border-amber-200' : 'border-border'
-                                            )}>
+                                            <Badge variant={tech.badgeVariant}>
                                                 {getStatusLabel(tech.status)}
-                                            </span>
+                                            </Badge>
                                         </div>
 
                                         <div className="flex items-center gap-3 text-xs text-muted-foreground">
@@ -139,7 +128,7 @@ export const TechniciansList: React.FC<TechniciansListProps> = ({ technicians, w
                                                     )}
                                                 </>
                                             ) : (
-                                                <span className="text-muted-foreground">No assigned work orders</span>
+                                                <span className="text-muted-foreground">No work orders</span>
                                             )}
                                         </div>
                                     </div>
@@ -149,7 +138,7 @@ export const TechniciansList: React.FC<TechniciansListProps> = ({ technicians, w
                     </>
                 ) : (
                     <div className="p-6 text-center py-8">
-                        <HugeiconsIcon icon={UserGroupIcon} size={48} className="text-muted-foreground/30 mx-auto mb-3" />
+                        <Users className="w-12 h-12 text-muted-foreground/30 mx-auto mb-3" />
                         <p className="text-sm font-medium text-foreground mb-1">No Technicians</p>
                         <p className="text-xs text-muted-foreground">Add technicians to get started</p>
                     </div>

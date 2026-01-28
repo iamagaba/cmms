@@ -1,3 +1,4 @@
+import { ClipboardList, MoreVertical, Eye, Edit, Trash2, ChevronUp, ChevronDown } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 import {
   ColumnDef,
@@ -10,16 +11,8 @@ import {
 } from '@tanstack/react-table';
 import { WorkOrder, Technician, Location, Customer, Vehicle, Profile } from '@/types/supabase';
 import { DiagnosticCategoryRow } from '@/types/diagnostic';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  ClipboardIcon,
-  MoreVerticalIcon,
-  ViewIcon,
-  PencilEdit02Icon,
-  Delete01Icon,
-  ArrowUp01Icon,
-  ArrowDown01Icon,
-} from '@hugeicons/core-free-icons';
+
+
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -58,13 +51,13 @@ interface EnhancedWorkOrderDataTableProps {
 
 // Status colors for badges
 const STATUS_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  'Open': { bg: 'bg-blue-50 dark:bg-blue-900/30', text: 'text-blue-700 dark:text-blue-300', dot: 'bg-blue-500' },
-  'Confirmation': { bg: 'bg-purple-50 dark:bg-purple-900/30', text: 'text-purple-700 dark:text-purple-300', dot: 'bg-purple-500' },
-  'On Hold': { bg: 'bg-amber-50 dark:bg-amber-900/30', text: 'text-amber-700 dark:text-amber-300', dot: 'bg-amber-500' },
-  'Ready': { bg: 'bg-cyan-50 dark:bg-cyan-900/30', text: 'text-cyan-700 dark:text-cyan-300', dot: 'bg-cyan-500' },
-  'In Progress': { bg: 'bg-orange-50 dark:bg-orange-900/30', text: 'text-orange-700 dark:text-orange-300', dot: 'bg-orange-500' },
-  'Completed': { bg: 'bg-emerald-50 dark:bg-emerald-900/30', text: 'text-emerald-700 dark:text-emerald-300', dot: 'bg-emerald-500' },
-  'Cancelled': { bg: 'bg-red-50 dark:bg-red-900/30', text: 'text-red-700 dark:text-red-300', dot: 'bg-red-500' },
+  'Open': { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-blue-500' },
+  'Confirmation': { bg: 'bg-primary/10', text: 'text-primary', dot: 'bg-primary' },
+  'On Hold': { bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500' },
+  'Ready': { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-blue-500' },
+  'In Progress': { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-orange-500' },
+  'Completed': { bg: 'bg-muted', text: 'text-foreground', dot: 'bg-emerald-500' },
+  'Cancelled': { bg: 'bg-destructive/10', text: 'text-destructive', dot: 'bg-destructive' },
 };
 
 // Priority configuration
@@ -180,7 +173,7 @@ export function EnhancedWorkOrderDataTable({
 
           return technician ? (
             <div className="flex items-center gap-2">
-              <div className="h-6 w-6 rounded-full bg-primary-100 dark:bg-primary-900/50 flex items-center justify-center text-primary-700 dark:text-primary-300 text-xs font-semibold">
+              <div className="h-6 w-6 rounded-full bg-primary/10 flex items-center justify-center text-primary text-xs font-semibold">
                 {technician.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase()}
               </div>
               <span className="text-sm">{technician.name}</span>
@@ -237,7 +230,7 @@ export function EnhancedWorkOrderDataTable({
                   className="h-8 w-8 p-0"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
+                  <MoreVertical className="w-4 h-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-36">
@@ -245,14 +238,14 @@ export function EnhancedWorkOrderDataTable({
                   onClick={(e) => { e.stopPropagation(); onViewDetails(wo.id); }}
                   className="text-sm"
                 >
-                  <HugeiconsIcon icon={ViewIcon} size={14} className="mr-2" />
+                  <Eye className="w-4 h-4 mr-2" />
                   View
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={(e) => { e.stopPropagation(); onEdit(wo); }}
                   className="text-sm"
                 >
-                  <HugeiconsIcon icon={PencilEdit02Icon} size={14} className="mr-2" />
+                  <Edit className="w-4 h-4 mr-2" />
                   Edit
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -260,7 +253,7 @@ export function EnhancedWorkOrderDataTable({
                   onClick={(e) => { e.stopPropagation(); onDelete(wo); }}
                   className="text-sm text-destructive focus:text-destructive"
                 >
-                  <HugeiconsIcon icon={Delete01Icon} size={14} className="mr-2" />
+                  <Trash2 className="w-4 h-4 mr-2" />
                   Delete
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -294,9 +287,9 @@ export function EnhancedWorkOrderDataTable({
   // Loading state
   if (loading) {
     return (
-      <div className="border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden bg-card">
+      <div className="border border-border rounded-lg overflow-hidden bg-card">
         <Table>
-          <TableHeader className="bg-gray-50 dark:bg-gray-900">
+          <TableHeader className="bg-muted">
             <TableRow>
               <TableHead>Work Order</TableHead>
               <TableHead>Summary</TableHead>
@@ -310,13 +303,13 @@ export function EnhancedWorkOrderDataTable({
           <TableBody>
             {[...Array(5)].map((_, i) => (
               <TableRow key={i}>
-                <TableCell><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-32 animate-pulse" /></TableCell>
-                <TableCell><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-40 animate-pulse" /></TableCell>
-                <TableCell><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-20 animate-pulse" /></TableCell>
-                <TableCell><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-28 animate-pulse" /></TableCell>
-                <TableCell><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-24 animate-pulse" /></TableCell>
-                <TableCell><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-16 animate-pulse" /></TableCell>
-                <TableCell><div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-8 animate-pulse" /></TableCell>
+                <TableCell><div className="h-4 bg-muted rounded w-32 animate-pulse" /></TableCell>
+                <TableCell><div className="h-4 bg-muted rounded w-40 animate-pulse" /></TableCell>
+                <TableCell><div className="h-4 bg-muted rounded w-20 animate-pulse" /></TableCell>
+                <TableCell><div className="h-4 bg-muted rounded w-28 animate-pulse" /></TableCell>
+                <TableCell><div className="h-4 bg-muted rounded w-24 animate-pulse" /></TableCell>
+                <TableCell><div className="h-4 bg-muted rounded w-16 animate-pulse" /></TableCell>
+                <TableCell><div className="h-4 bg-muted rounded w-8 animate-pulse" /></TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -328,38 +321,38 @@ export function EnhancedWorkOrderDataTable({
   // Empty state
   if (workOrders.length === 0) {
     return (
-      <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-12 bg-card text-center">
-        <div className="mx-auto w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-lg flex items-center justify-center mb-3">
-          <HugeiconsIcon icon={ClipboardIcon} size={20} className="text-gray-400 dark:text-gray-500" />
+      <div className="border border-border rounded-lg p-12 bg-card text-center">
+        <div className="mx-auto w-12 h-12 bg-muted rounded-lg flex items-center justify-center mb-3">
+          <ClipboardList className="w-5 h-5 text-muted-foreground" />
         </div>
-        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No work orders</p>
-        <p className="text-xs text-gray-500 dark:text-gray-400">No work orders match your current filters</p>
+        <p className="text-sm font-medium text-foreground mb-1">No work orders</p>
+        <p className="text-xs text-muted-foreground">No work orders match your current filters</p>
       </div>
     );
   }
 
   // Main table
   return (
-    <div className="flex flex-col h-full max-h-full border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden bg-white dark:bg-gray-950 shadow-sm">
+    <div className="flex flex-col h-full max-h-full border border-border rounded-lg overflow-hidden bg-card shadow-sm">
       {/* Table Container with Flex */}
       <div className="flex-1 overflow-auto min-h-0">
         <Table>
-          <TableHeader className="sticky top-0 z-10 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
+          <TableHeader className="sticky top-0 z-10 bg-muted border-b border-border">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
                   <TableHead key={header.id}>
                     {header.isPlaceholder ? null : (
                       <div
-                        className={header.column.getCanSort() ? 'flex items-center gap-2 cursor-pointer select-none hover:text-gray-900 dark:hover:text-gray-100' : ''}
+                        className={header.column.getCanSort() ? 'flex items-center gap-2 cursor-pointer select-none hover:text-foreground' : ''}
                         onClick={header.column.getToggleSortingHandler()}
                       >
                         {flexRender(header.column.columnDef.header, header.getContext())}
                         {header.column.getCanSort() && (
                           <span className="text-muted-foreground">
                             {{
-                              asc: <HugeiconsIcon icon={ArrowUp01Icon} size={14} />,
-                              desc: <HugeiconsIcon icon={ArrowDown01Icon} size={14} />,
+                              asc: <ChevronUp className="w-4 h-4" />,
+                              desc: <ChevronDown className="w-4 h-4" />,
                             }[header.column.getIsSorted() as string] ?? null}
                           </span>
                         )}
@@ -371,11 +364,13 @@ export function EnhancedWorkOrderDataTable({
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows.map((row) => (
+            {table.getRowModel().rows.map((row, index) => (
               <TableRow
                 key={row.id}
                 onClick={() => onViewDetails(row.original.id)}
-                className="cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-900/50"
+                className={`cursor-pointer hover:bg-accent ${
+                  index % 2 === 1 ? 'bg-muted/50' : 'bg-background'
+                }`}
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
@@ -389,7 +384,7 @@ export function EnhancedWorkOrderDataTable({
       </div>
 
       {/* Pagination - Fixed at bottom */}
-      <div className="flex-shrink-0 px-4 py-3 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-800">
+      <div className="flex-shrink-0 px-4 py-3 bg-muted border-t border-border">
         <div className="flex items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground whitespace-nowrap">
             Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}-
@@ -440,3 +435,7 @@ export function EnhancedWorkOrderDataTable({
     </div>
   );
 }
+
+
+
+

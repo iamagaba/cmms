@@ -1,17 +1,16 @@
-﻿import React, { useState, useMemo } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
+import React, { useState, useMemo } from 'react';
 import {
-  Search01Icon,
-  Settings02Icon,
-  Add01Icon,
-  UserIcon,
-  NoteIcon,
-  Edit01Icon,
-  Delete01Icon,
-  Tick01Icon,
-  TimelineIcon,
-  Location01Icon
-} from '@hugeicons/core-free-icons';
+  Search,
+  Settings2,
+  Plus,
+  User,
+  FileText,
+  Edit,
+  Trash2,
+  Check,
+  Clock,
+  MapPin
+} from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Technician, WorkOrder, Location } from '@/types/supabase';
@@ -19,6 +18,7 @@ import { snakeToCamelCase, camelToSnakeCase } from '@/utils/data-helpers';
 import { showSuccess, showError } from '@/utils/toast';
 import { TechnicianFormDrawer } from '@/components/TechnicianFormDrawer';
 import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog';
+import { EmptyState } from '@/components/ui/empty-state';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import { Card, CardContent } from '@/components/ui/card';
@@ -27,6 +27,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
 
 dayjs.extend(relativeTime);
 import { cn } from '@/lib/utils';
@@ -256,19 +258,19 @@ const TechniciansPage: React.FC = () => {
       <div className="flex h-screen w-full bg-background overflow-hidden">
         <div className="w-80 flex-none border-r border-border bg-card/50 flex flex-col">
           <div className="p-4 border-b border-border">
-            <div className="h-6 bg-muted rounded animate-pulse mb-2"></div>
-            <div className="h-4 bg-muted rounded animate-pulse w-3/4"></div>
+            <Skeleton className="h-6 mb-2" />
+            <Skeleton className="h-4 w-3/4" />
           </div>
           <div className="flex-1 p-4 space-y-3">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="h-16 bg-muted rounded animate-pulse"></div>
+              <Skeleton key={i} className="h-16" />
             ))}
           </div>
         </div>
         <div className="flex-1 overflow-auto bg-background">
           <div className="p-6 space-y-4">
-            <div className="h-8 bg-muted rounded animate-pulse w-1/3"></div>
-            <div className="h-4 bg-muted rounded animate-pulse w-1/2"></div>
+            <Skeleton className="h-8 w-1/3" />
+            <Skeleton className="h-4 w-1/2" />
           </div>
         </div>
       </div>
@@ -281,19 +283,18 @@ const TechniciansPage: React.FC = () => {
       {/* Left Column - Technician List */}
       <div className="w-full sm:w-80 flex-none flex flex-col bg-card">
         {/* Header */}
-        {/* Header */}
         <div className="p-3 border-b">
           <div className="flex items-center justify-between mb-3">
-            <h1 className="text-lg font-semibold">Technicians</h1>
+            <h1 className="text-2xl font-bold">Technicians</h1>
             <div className="flex items-center gap-1">
               <Button
                 variant={filtersOpen || hasActiveFilters ? "secondary" : "ghost"}
                 size="sm"
                 onClick={() => setFiltersOpen(!filtersOpen)}
-                className="h-7 w-7 p-0"
+                className="w-7 p-0"
                 title="Filters"
               >
-                <HugeiconsIcon icon={Settings02Icon} className="w-3.5 h-3.5" />
+                <Settings2 className="w-4 h-4" />
                 {hasActiveFilters && (
                   <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary ring-2 ring-background" />
                 )}
@@ -302,10 +303,10 @@ const TechniciansPage: React.FC = () => {
                 variant="ghost"
                 size="sm"
                 onClick={handleAddTechnician}
-                className="h-7 w-7 p-0"
+                className="w-7 p-0"
                 title="Add Technician"
               >
-                <HugeiconsIcon icon={Add01Icon} className="w-3.5 h-3.5" />
+                <Plus className="w-4 h-4" />
               </Button>
             </div>
           </div>
@@ -313,11 +314,12 @@ const TechniciansPage: React.FC = () => {
           {/* Search */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-              <HugeiconsIcon icon={Search01Icon} size={14} className="text-muted-foreground" />
+              <Search className="w-4 h-4 text-muted-foreground" />
             </div>
             <Input
               type="text"
               placeholder="Search technicians..."
+              aria-label="Search technicians"
               className="w-full pl-8 h-8 text-sm"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -330,29 +332,37 @@ const TechniciansPage: React.FC = () => {
               <div className="grid grid-cols-2 gap-2">
                 <div>
                   <Label className="block text-xs font-medium text-muted-foreground mb-0.5">Status</Label>
-                  <select
+                  <Select
                     value={filters.status[0] || 'all'}
-                    onChange={(e) => setFilters({ ...filters, status: e.target.value === 'all' ? [] : [e.target.value] })}
-                    className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-xs ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    onValueChange={(value) => setFilters({ ...filters, status: value === 'all' ? [] : [value] })}
                   >
-                    <option value="all">All</option>
-                    <option value="available">Available</option>
-                    <option value="busy">Busy</option>
-                    <option value="offline">Offline</option>
-                  </select>
+                    <SelectTrigger className="h-9 text-xs">
+                      <SelectValue placeholder="All" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="available">Available</SelectItem>
+                      <SelectItem value="busy">Busy</SelectItem>
+                      <SelectItem value="offline">Offline</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <Label className="block text-xs font-medium text-muted-foreground mb-0.5">Location</Label>
-                  <select
+                  <Select
                     value={filters.location[0] || 'all'}
-                    onChange={(e) => setFilters({ ...filters, location: e.target.value === 'all' ? [] : [e.target.value] })}
-                    className="flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-xs ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    onValueChange={(value) => setFilters({ ...filters, location: value === 'all' ? [] : [value] })}
                   >
-                    <option value="all">All</option>
-                    {locations?.map(loc => (
-                      <option key={loc.id} value={loc.id}>{loc.name}</option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="h-9 text-xs">
+                      <SelectValue placeholder="All" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      {locations?.map(loc => (
+                        <SelectItem key={loc.id} value={loc.id}>{loc.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               {hasActiveFilters && (
@@ -375,13 +385,11 @@ const TechniciansPage: React.FC = () => {
         {/* Technician List */}
         <div className="flex-1 overflow-auto scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent overscroll-y-contain">
           {filteredTechnicians.length === 0 ? (
-            <div className="empty-state p-4">
-              <HugeiconsIcon icon={UserIcon} size={32} className="empty-state-icon text-muted-foreground mx-auto mb-2" />
-              <p className="text-xs font-medium text-foreground mb-0.5 text-center">No technicians found</p>
-              <p className="text-xs text-muted-foreground text-center">
-                {hasActiveFilters ? "Try adjusting your filters" : "Add your first technician to get started"}
-              </p>
-            </div>
+            <EmptyState
+              icon={<User className="w-6 h-6 text-muted-foreground" />}
+              title="No technicians found"
+              description={hasActiveFilters ? "Try adjusting your filters" : "Add your first technician to get started"}
+            />
           ) : (
             <div className="divide-y divide-border">
               {filteredTechnicians.map((tech) => {
@@ -389,7 +397,7 @@ const TechniciansPage: React.FC = () => {
                 return (
                   <div
                     key={tech.id}
-                    className={`p-3 cursor-pointer border-l-2 transition-all hover:bg-muted/50 ${isSelected
+                    className={`p-3 cursor-pointer border-l-2 transition-colors hover:bg-muted/50 ${isSelected
                       ? 'bg-muted border-l-primary'
                       : 'border-l-transparent'
                       }`}
@@ -407,7 +415,7 @@ const TechniciansPage: React.FC = () => {
                           )}
                         </div>
                         <div>
-                          <p className="text-xs font-bold text-foreground">
+                          <p className="text-sm font-semibold text-foreground">
                             {tech.name}
                           </p>
                           {tech.specializations && tech.specializations.length > 0 && (
@@ -419,19 +427,20 @@ const TechniciansPage: React.FC = () => {
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
-                        <span className={`px-1.5 py-0.5 rounded text-xs font-medium border ${tech.status === 'available' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                          tech.status === 'busy' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                            'bg-muted text-muted-foreground border-border'
-                          }`}>
+                        <Badge variant={
+                          tech.status === 'available' ? 'success' :
+                            tech.status === 'busy' ? 'warning' :
+                              'outline'
+                        }>
                           {tech.status || 'Offline'}
-                        </span>
+                        </Badge>
                       </div>
                     </div>
                     <div className="flex items-center justify-between text-xs text-muted-foreground">
                       <span>{tech.email}</span>
                       {tech.openTasks > 0 && (
                         <span className="flex items-center gap-0.5">
-                          <HugeiconsIcon icon={NoteIcon} size={12} />
+                          <FileText className="w-4 h-4" />
                           {tech.openTasks} WO{tech.openTasks !== 1 ? 's' : ''}
                         </span>
                       )}
@@ -463,19 +472,20 @@ const TechniciansPage: React.FC = () => {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <h2 className="text-sm font-bold font-mono text-foreground">
+                      <h2 className="text-base font-semibold text-foreground">
                         {selectedTechnician.name}
                       </h2>
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium border ${selectedTechnician.status === 'available' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                        selectedTechnician.status === 'busy' ? 'bg-amber-50 text-amber-700 border-amber-200' :
-                          'bg-muted text-muted-foreground border-border'
-                        }`}>
-                        <span className={`w-1 h-1 rounded-full ${selectedTechnician.status === 'available' ? 'bg-emerald-500' :
-                          selectedTechnician.status === 'busy' ? 'bg-amber-500' :
+                      <Badge variant={
+                        selectedTechnician.status === 'available' ? 'success' :
+                          selectedTechnician.status === 'busy' ? 'warning' :
+                            'outline'
+                      }>
+                        <span className={`w-1 h-1 rounded-full mr-1 ${selectedTechnician.status === 'available' ? 'bg-success' :
+                          selectedTechnician.status === 'busy' ? 'bg-warning' :
                             'bg-muted-foreground'
                           }`} />
                         {selectedTechnician.status || 'Offline'}
-                      </span>
+                      </Badge>
                     </div>
                     <p className="text-xs text-muted-foreground">
                       {selectedTechnician.location?.name || 'Unassigned'}
@@ -492,7 +502,7 @@ const TechniciansPage: React.FC = () => {
                     onClick={() => handleEditTechnician(selectedTechnician)}
                     className="px-2.5 py-1 text-xs font-medium flex items-center gap-1.5 h-8"
                   >
-                    <HugeiconsIcon icon={Edit01Icon} size={14} />
+                    <Edit className="w-4 h-4" />
                     Edit
                   </Button>
                   <Button
@@ -501,7 +511,7 @@ const TechniciansPage: React.FC = () => {
                     onClick={() => handleDeleteClick(selectedTechnician)}
                     className="px-2.5 py-1 text-xs font-medium text-destructive hover:bg-destructive/10 flex items-center gap-1.5 h-8"
                   >
-                    <HugeiconsIcon icon={Delete01Icon} size={14} />
+                    <Trash2 className="w-4 h-4" />
                     Delete
                   </Button>
                 </div>
@@ -521,7 +531,7 @@ const TechniciansPage: React.FC = () => {
                       <p className="text-lg font-bold font-mono text-foreground mt-0.5">{selectedTechnician.openTasks}</p>
                     </div>
                     <div className="w-6 h-6 rounded bg-muted flex items-center justify-center">
-                      <HugeiconsIcon icon={NoteIcon} size={12} className="text-primary" />
+                      <FileText className="w-4 h-4 text-primary" />
                     </div>
                   </CardContent>
                 </Card>
@@ -532,8 +542,8 @@ const TechniciansPage: React.FC = () => {
                       <p className="text-xs font-medium text-muted-foreground">Completed</p>
                       <p className="text-lg font-bold font-mono text-foreground mt-0.5">{selectedTechnician.completedTasks}</p>
                     </div>
-                    <div className="w-6 h-6 rounded bg-emerald-50 flex items-center justify-center">
-                      <HugeiconsIcon icon={Tick01Icon} size={12} className="text-emerald-600" />
+                    <div className="w-6 h-6 rounded bg-muted flex items-center justify-center">
+                      <Check className="w-4 h-4 text-foreground" />
                     </div>
                   </CardContent>
                 </Card>
@@ -545,7 +555,7 @@ const TechniciansPage: React.FC = () => {
                       <p className="text-lg font-bold font-mono text-foreground mt-0.5">{Math.round(selectedTechnician.efficiency)}%</p>
                     </div>
                     <div className="w-6 h-6 rounded bg-amber-50 flex items-center justify-center">
-                      <HugeiconsIcon icon={TimelineIcon} size={12} className="text-amber-600" />
+                      <Clock className="w-4 h-4 text-amber-600" />
                     </div>
                   </CardContent>
                 </Card>
@@ -559,7 +569,7 @@ const TechniciansPage: React.FC = () => {
                       </p>
                     </div>
                     <div className="w-6 h-6 rounded bg-muted flex items-center justify-center">
-                      <HugeiconsIcon icon={Location01Icon} size={12} className="text-primary" />
+                      <MapPin className="w-4 h-4 text-primary" />
                     </div>
                   </CardContent>
                 </Card>
@@ -645,25 +655,28 @@ const TechniciansPage: React.FC = () => {
                                     {wo.service || wo.service_notes || 'General Service'}
                                   </td>
                                   <td className="px-3 py-1.5">
-                                    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium border ${wo.status === 'Completed' ? 'bg-industrial-50 dark:bg-industrial-900/30 text-industrial-700 dark:text-industrial-300 border-industrial-200 dark:border-industrial-800' :
-                                      wo.status === 'In Progress' ? 'bg-maintenance-50 dark:bg-maintenance-900/30 text-maintenance-700 dark:text-maintenance-300 border-maintenance-200 dark:border-maintenance-800' :
-                                        'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 border-primary-200 dark:border-primary-800'
-                                      }`}>
-                                      <span className={`w-1 h-1 rounded-full ${wo.status === 'Completed' ? 'bg-industrial-500' :
-                                        wo.status === 'In Progress' ? 'bg-maintenance-500' :
-                                          'bg-primary-500'
+                                    <Badge variant={
+                                      wo.status === 'Completed' ? 'completed' :
+                                        wo.status === 'In Progress' ? 'in-progress' :
+                                          'open'
+                                    } className="inline-flex items-center gap-1">
+                                      <span className={`w-1 h-1 rounded-full ${wo.status === 'Completed' ? 'bg-success' :
+                                        wo.status === 'In Progress' ? 'bg-warning' :
+                                          'bg-info'
                                         }`} />
                                       {wo.status}
-                                    </span>
+                                    </Badge>
                                   </td>
                                   <td className="px-3 py-1.5">
                                     {wo.priority && (
-                                      <span className={`inline-block px-1 py-0.5 rounded text-xs font-medium border ${wo.priority === 'High' ? 'bg-error-50 text-error-700 border-error-100 dark:bg-error-900/20 dark:text-error-400 dark:border-error-900/30' :
-                                        wo.priority === 'Medium' ? 'bg-maintenance-50 text-maintenance-700 border-maintenance-100 dark:bg-maintenance-900/20 dark:text-maintenance-400 dark:border-maintenance-900/30' :
-                                          'bg-muted text-muted-foreground border-border'
-                                        }`}>
+                                      <Badge variant={
+                                        wo.priority === 'Critical' ? 'critical' :
+                                          wo.priority === 'High' ? 'high' :
+                                            wo.priority === 'Medium' ? 'medium' :
+                                              'low'
+                                      }>
                                         {wo.priority}
-                                      </span>
+                                      </Badge>
                                     )}
                                   </td>
                                   <td className="px-3 py-1.5 text-right text-muted-foreground whitespace-nowrap text-xs">
@@ -684,15 +697,11 @@ const TechniciansPage: React.FC = () => {
                       </CardContent>
                     </Card>
                   ) : (
-                    <div className="bg-card border border-border rounded-md p-6">
-                      <div className="text-center">
-                        <div className="mx-auto w-10 h-10 bg-muted rounded-lg flex items-center justify-center mb-2">
-                          <HugeiconsIcon icon={NoteIcon} size={18} className="text-muted-foreground" />
-                        </div>
-                        <p className="text-xs font-medium text-foreground mb-0.5">No work orders</p>
-                        <p className="text-xs text-muted-foreground">This technician has no assigned work orders</p>
-                      </div>
-                    </div>
+                    <EmptyState
+                      icon={<FileText className="w-6 h-6 text-muted-foreground" />}
+                      title="No work orders"
+                      description="This technician has no assigned work orders"
+                    />
                   );
                 })()
                 }
@@ -702,7 +711,7 @@ const TechniciansPage: React.FC = () => {
         ) : (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <HugeiconsIcon icon={UserIcon} size={36} className="text-muted/50 mx-auto mb-3" />
+              <User className="w-9 h-9 text-muted-foreground/50 mx-auto mb-3" />
               <h3 className="text-sm font-medium text-foreground mb-0.5">Select a Technician</h3>
               <p className="text-xs text-muted-foreground">Choose a technician from the list to view details</p>
             </div>
@@ -735,3 +744,5 @@ const TechniciansPage: React.FC = () => {
 };
 
 export default TechniciansPage;
+
+

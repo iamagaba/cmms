@@ -1,3 +1,4 @@
+import { Check, X } from 'lucide-react';
 /**
  * Data Table Bulk Actions Component
  * 
@@ -6,10 +7,11 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Cancel01Icon, Tick01Icon, Keyboard01Icon } from '@hugeicons/core-free-icons';
+
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 import { BulkAction } from './EnhancedDataTable';
 
 // ============================================
@@ -54,21 +56,18 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
   const variantStyles = {
     danger: {
       icon: 'tabler:alert-triangle',
-      iconColor: 'text-warning-500',
-      iconBg: 'bg-warning-100',
-      confirmButton: 'bg-warning-600 hover:bg-warning-700 focus:ring-warning-500',
+      iconColor: 'text-destructive',
+      iconBg: 'bg-destructive/10',
     },
     warning: {
       icon: 'tabler:alert-circle',
-      iconColor: 'text-maintenance-500',
-      iconBg: 'bg-maintenance-100',
-      confirmButton: 'bg-maintenance-600 hover:bg-maintenance-700 focus:ring-maintenance-500',
+      iconColor: 'text-amber-600',
+      iconBg: 'bg-amber-50 dark:bg-amber-950',
     },
     info: {
       icon: 'tabler:info-circle',
-      iconColor: 'text-steel-500',
-      iconBg: 'bg-steel-100',
-      confirmButton: 'bg-steel-600 hover:bg-steel-700 focus:ring-steel-500',
+      iconColor: 'text-primary',
+      iconBg: 'bg-primary/10',
     },
   };
 
@@ -93,8 +92,8 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 20 }}
         className={cn(
-          'relative bg-white rounded-lg shadow-xl max-w-md w-full mx-4',
-          'border border-machinery-200'
+          'relative bg-background rounded-lg shadow-xl max-w-md w-full mx-4',
+          'border border-border'
         )}
       >
         <div className="p-6">
@@ -104,41 +103,31 @@ const ConfirmationDialog: React.FC<ConfirmationDialogProps> = ({
               {/* TODO: Convert styles.icon prop to use HugeiconsIcon component */}
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-machinery-900 mb-2">
+              <h3 className="text-lg font-semibold text-foreground mb-2">
                 {title}
               </h3>
-              <p className="text-machinery-600 text-sm leading-relaxed">
+              <p className="text-muted-foreground text-sm leading-relaxed">
                 {message}
               </p>
             </div>
           </div>
           
           {/* Actions */}
-          <div className="flex items-center justify-end gap-3">
-            <button
+          <div className="flex items-center justify-end gap-4">
+            <Button
               type="button"
               onClick={onCancel}
-              className={cn(
-                'px-4 py-2 text-sm font-medium text-machinery-700',
-                'border border-machinery-300 rounded-md',
-                'hover:bg-machinery-50 focus:outline-none focus:ring-2 focus:ring-steel-500',
-                'transition-colors duration-200'
-              )}
+              variant="outline"
             >
               {cancelText}
-            </button>
-            <button
+            </Button>
+            <Button
               type="button"
               onClick={onConfirm}
-              className={cn(
-                'px-4 py-2 text-sm font-medium text-white rounded-md',
-                'focus:outline-none focus:ring-2 focus:ring-offset-2',
-                'transition-colors duration-200',
-                styles.confirmButton
-              )}
+              variant={variant === 'danger' ? 'destructive' : 'default'}
             >
               {confirmText}
-            </button>
+            </Button>
           </div>
         </div>
       </motion.div>
@@ -163,31 +152,29 @@ const BulkActionButton: React.FC<BulkActionButtonProps> = ({
   onClick,
   disabled = false,
 }) => {
-  const variantStyles = {
-    primary: 'bg-steel-600 hover:bg-steel-700 text-white border-steel-600 hover:border-steel-700',
-    secondary: 'bg-machinery-100 hover:bg-machinery-200 text-machinery-700 border-machinery-300 hover:border-machinery-400',
-    outline: 'bg-white hover:bg-machinery-50 text-machinery-700 border-machinery-300 hover:border-steel-400',
-    ghost: 'bg-transparent hover:bg-machinery-100 text-machinery-700 border-transparent hover:border-machinery-300',
-    danger: 'bg-warning-600 hover:bg-warning-700 text-white border-warning-600 hover:border-warning-700',
+  // Map BulkAction variants to Button variants
+  const getButtonVariant = (variant?: string) => {
+    switch (variant) {
+      case 'primary':
+        return 'default';
+      case 'danger':
+        return 'destructive';
+      case 'secondary':
+        return 'secondary';
+      case 'ghost':
+        return 'ghost';
+      case 'outline':
+      default:
+        return 'outline';
+    }
   };
 
-  const baseStyles = cn(
-    'inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium',
-    'border rounded-md transition-all duration-200',
-    'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-steel-500',
-    'disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-current'
-  );
-
   return (
-    <button
+    <Button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={cn(
-        baseStyles,
-        variantStyles[action.variant || 'outline'],
-        disabled && 'opacity-50 cursor-not-allowed'
-      )}
+      variant={getButtonVariant(action.variant)}
       title={action.shortcut ? `${action.label} (${action.shortcut})` : action.label}
     >
       {/* TODO: Convert action.icon prop to use HugeiconsIcon component */}
@@ -197,7 +184,7 @@ const BulkActionButton: React.FC<BulkActionButtonProps> = ({
           {selectedCount}
         </span>
       )}
-    </button>
+    </Button>
   );
 };
 
@@ -289,7 +276,7 @@ const DataTableBulkActions = <T,>({
         exit={{ height: 0, opacity: 0 }}
         transition={{ duration: 0.2, ease: 'easeInOut' }}
         className={cn(
-          'bg-steel-50 border-b border-steel-200 px-4 py-3',
+          'bg-muted/50 border-b border-border px-4 py-3',
           'shadow-sm',
           className
         )}
@@ -298,14 +285,14 @@ const DataTableBulkActions = <T,>({
           {/* Selection Info */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
-              <HugeiconsIcon icon={Tick01Icon} size={16} className="text-steel-600" />
-              <span className="text-sm font-medium text-steel-700">
+              <Check className="w-5 h-5 text-muted-foreground" />
+              <span className="text-sm font-medium text-foreground">
                 {selectedCount} of {totalCount} selected
               </span>
             </div>
             
             {/* Bulk Actions */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
               {bulkActions.map((action) => {
                 const isDisabled = action.disabled?.(selectedRows) || false;
                 
@@ -323,33 +310,28 @@ const DataTableBulkActions = <T,>({
           </div>
           
           {/* Clear Selection */}
-          <button
+          <Button
             type="button"
             onClick={onClearSelection}
-            className={cn(
-              'flex items-center gap-1.5 px-2 py-1 text-sm',
-              'text-machinery-600 hover:text-steel-700',
-              'hover:bg-white rounded-md transition-colors duration-200',
-              'focus:outline-none focus:ring-2 focus:ring-steel-500'
-            )}
+            variant="ghost"
             title="Clear selection (Esc)"
           >
-            <HugeiconsIcon icon={Cancel01Icon} size={16} />
+            <X className="w-5 h-5" />
             <span>Clear selection</span>
-          </button>
+          </Button>
         </div>
         
         {/* Keyboard Shortcuts Hint */}
         {bulkActions.some(action => action.shortcut) && (
-          <div className="mt-2 pt-2 border-t border-steel-200">
-            <div className="flex items-center gap-4 text-xs text-machinery-500">
-              <HugeiconsIcon icon={Keyboard01Icon} size={12} />
+          <div className="mt-2 pt-2 border-t border-border">
+            <div className="flex items-center gap-4 text-xs text-muted-foreground">
+              <Keyboard01Icon className="w-4 h-4" />
               <span>Keyboard shortcuts:</span>
               {bulkActions
                 .filter(action => action.shortcut)
                 .map(action => (
                   <span key={action.key} className="flex items-center gap-1">
-                    <kbd className="px-1 py-0.5 bg-white border border-machinery-300 rounded text-xs">
+                    <kbd className="px-1 py-0.5 bg-background border border-input rounded text-xs">
                       Ctrl+{action.shortcut}
                     </kbd>
                     <span>{action.label}</span>
@@ -357,7 +339,7 @@ const DataTableBulkActions = <T,>({
                 ))
               }
               <span className="ml-auto">
-                <kbd className="px-1 py-0.5 bg-white border border-machinery-300 rounded text-xs">
+                <kbd className="px-1 py-0.5 bg-background border border-input rounded text-xs">
                   Esc
                 </kbd>
                 <span className="ml-1">Clear selection</span>

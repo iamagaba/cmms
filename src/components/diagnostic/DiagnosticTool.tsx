@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Loading03Icon, AlertCircleIcon, StarIcon, CheckmarkCircle01Icon, Cancel01Icon, ArrowLeft01Icon, InformationCircleIcon, ArrowRight01Icon } from '@hugeicons/core-free-icons';
-import { Stack, Button, Group, Card } from '@/components/tailwind-components';
+import { Loader2, AlertCircle, Star, CheckCircle, X, ArrowLeft, Info, ArrowRight } from 'lucide-react';
+import { Stack, Group, Card } from '@/components/tailwind-components';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { DiagnosticSession, DiagnosticAnswer, DiagnosticOption } from '@/types/diagnostic';
 import { getQuestionByLogicalId } from '@/api/diagnosticConfigApi';
 import { v4 as uuidv4 } from 'uuid';
@@ -191,7 +192,7 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
   if (isLoading) {
     return (
       <Card p="lg" className="flex justify-center py-6">
-        <HugeiconsIcon icon={Loading03Icon} size={24} className="animate-spin text-primary-600" />
+        <Loader2 className="w-6 h-6 animate-spin text-primary" />
       </Card>
     );
   }
@@ -199,12 +200,12 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
   if (error || !currentQuestion) {
     return (
       <Card p="lg" className="text-center">
-        <HugeiconsIcon icon={AlertCircleIcon} size={32} className="text-red-500 mx-auto mb-2" />
-        <p className="text-xs text-gray-700">
+        <AlertCircle className="w-8 h-8 text-destructive mx-auto mb-2" />
+        <p className="text-xs text-foreground">
           {error ? 'Failed to load question.' : 'Diagnostic question not found.'}
         </p>
-        <p className="text-[10px] text-gray-500 mt-1">ID: {session.currentQuestionId}</p>
-        <Button onClick={onCancel} className="mt-2" size="xs">Close</Button>
+        <p className="text-xs text-muted-foreground mt-1">ID: {session.currentQuestionId}</p>
+        <Button onClick={onCancel} className="mt-2" size="sm">Close</Button>
       </Card>
     );
   }
@@ -216,22 +217,22 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
         <Stack gap="sm">
           {/* Header */}
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-              <HugeiconsIcon icon={StarIcon} size={16} className="text-green-600" />
+            <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
+              <Star className="w-4 h-4 text-foreground" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-gray-900">Possible Solution Found</h3>
-              <p className="text-[10px] text-gray-500">Try this troubleshooting step</p>
+              <h3 className="text-sm font-semibold text-foreground">Possible Solution Found</h3>
+              <p className="text-xs text-muted-foreground">Try this troubleshooting step</p>
             </div>
           </div>
 
           {/* Solution */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-2.5">
+          <div className="bg-muted border border-blue-200 rounded-lg p-2.5">
             <h4 className="font-semibold text-xs text-blue-900 mb-2">{solutionOption.solutionText}</h4>
             {solutionOption.solutionSteps && (
               <ol className="space-y-1">
                 {solutionOption.solutionSteps.map((step, index) => (
-                  <li key={index} className="flex gap-1.5 text-[10px] text-blue-800">
+                  <li key={index} className="flex gap-1.5 text-xs text-blue-800">
                     <span className="font-semibold">{index + 1}.</span>
                     <span>{step}</span>
                   </li>
@@ -242,31 +243,30 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
 
           {/* Question */}
           <div className="text-center py-2">
-            <p className="text-xs text-gray-700 font-medium mb-2">Did this solve the problem?</p>
+            <p className="text-xs text-foreground font-medium mb-2">Did this solve the problem?</p>
             <Group justify="center" gap="xs">
               <Button
-                variant="filled"
-                size="xs"
+                size="sm"
                 onClick={() => handleSolutionResponse(true)}
-                leftSection={<HugeiconsIcon icon={CheckmarkCircle01Icon} size={12} />}
-                className="bg-green-600 hover:bg-green-700"
+                className="bg-emerald-600 hover:bg-emerald-700"
               >
+                <CheckCircle className="w-4 h-4 mr-1.5" />
                 Yes, Issue Resolved
               </Button>
               <Button
                 variant="outline"
-                size="xs"
+                size="sm"
                 onClick={() => handleSolutionResponse(false)}
-                leftSection={<HugeiconsIcon icon={Cancel01Icon} size={12} />}
               >
+                <X className="w-4 h-4 mr-1.5" />
                 No, Still Having Issues
               </Button>
             </Group>
           </div>
 
           {/* Back Button */}
-          <Button variant="subtle" size="xs" onClick={handleBack} className="w-full">
-            <HugeiconsIcon icon={ArrowLeft01Icon} size={10} className="mr-1" />
+          <Button variant="ghost" size="sm" onClick={handleBack} className="w-full">
+            <ArrowLeft className="w-4 h-4 mr-1.5" />
             Go Back
           </Button>
         </Stack>
@@ -281,12 +281,12 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
         {/* Progress */}
         <div>
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs font-medium text-gray-700">Diagnostic Progress</span>
-            <span className="text-[10px] text-gray-500">Step {session.answers.length + 1}</span>
+            <span className="text-xs font-medium text-foreground">Diagnostic Progress</span>
+            <span className="text-xs text-muted-foreground">Step {session.answers.length + 1}</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-1">
+          <div className="w-full bg-muted rounded-full h-1">
             <div
-              className="bg-primary-600 h-1 rounded-full transition-all duration-300"
+              className="bg-primary h-1 rounded-full transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -303,15 +303,15 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
             {/* Question */}
             <div className="mb-3">
               <div className="flex items-start gap-2 mb-2">
-                <div className="w-6 h-6 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <HugeiconsIcon icon={InformationCircleIcon} size={12} className="text-primary-600" />
+                <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Info className="w-4 h-4 text-primary" />
                 </div>
                 <div className="flex-1">
-                  <h3 className="text-xs font-semibold text-gray-900 mb-0.5">
+                  <h3 className="text-xs font-semibold text-foreground mb-0.5">
                     {currentQuestion.text}
                   </h3>
                   {currentQuestion.helpText && (
-                    <p className="text-[10px] text-gray-500">{currentQuestion.helpText}</p>
+                    <p className="text-xs text-muted-foreground">{currentQuestion.helpText}</p>
                   )}
                 </div>
               </div>
@@ -323,11 +323,11 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
                     <button
                       key={option.id}
                       onClick={() => handleAnswer(option.id)}
-                      className="w-full text-left px-2.5 py-2 rounded-lg border border-gray-200 hover:border-primary-500 hover:bg-primary-50 transition-all group"
+                      className="w-full text-left px-2.5 py-2 rounded-lg border border-border hover:border-primary hover:bg-primary/5 transition-all group"
                     >
                       <div className="flex items-center justify-between">
-                        <span className="font-medium text-xs text-gray-900 group-hover:text-primary-700 transition-colors">{option.label}</span>
-                        <HugeiconsIcon icon={ArrowRight01Icon} size={14} className="text-gray-400 group-hover:text-primary-500 transition-colors" />
+                        <span className="font-medium text-xs text-foreground group-hover:text-primary transition-colors">{option.label}</span>
+                        <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
                       </div>
                     </button>
                   ))}
@@ -341,8 +341,8 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
                       key={option.id}
                       onClick={() => handleAnswer(option.id)}
                       variant="outline"
-                      size="xs"
-                      className="flex-1 hover:bg-primary-50 hover:border-primary-500 hover:text-primary-700 transition-all"
+                      size="sm"
+                      className="flex-1 hover:bg-primary/5 hover:border-primary hover:text-primary transition-all"
                     >
                       {option.label}
                     </Button>
@@ -352,17 +352,16 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
 
               {currentQuestion.type === 'text-input' && (
                 <div>
-                  <textarea
+                  <Textarea
                     value={currentAnswer as string}
                     onChange={(e) => setCurrentAnswer(e.target.value)}
                     placeholder="Describe the issue in detail..."
                     rows={3}
-                    className="w-full px-2 py-1.5 text-xs border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                   />
                   <Button
                     onClick={() => handleAnswer(currentAnswer)}
                     disabled={!currentAnswer}
-                    size="xs"
+                    size="sm"
                     className="mt-2"
                   >
                     Continue
@@ -374,12 +373,12 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
         </AnimatePresence>
 
         {/* Navigation */}
-        <Group justify="space-between" className="pt-1.5 border-t border-gray-100 mt-1">
-          <Button variant="subtle" size="xs" onClick={handleBack} disabled={session.answers.length === 0}>
-            <HugeiconsIcon icon={ArrowLeft01Icon} size={10} className="mr-1" />
+        <Group justify="space-between" className="pt-1.5 border-t border-border mt-1">
+          <Button variant="ghost" size="sm" onClick={handleBack} disabled={session.answers.length === 0}>
+            <ArrowLeft className="w-4 h-4 mr-1.5" />
             Back
           </Button>
-          <Button variant="outline" size="xs" onClick={onCancel}>
+          <Button variant="outline" size="sm" onClick={onCancel}>
             Cancel
           </Button>
         </Group>
@@ -389,3 +388,6 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
 };
 
 export default DiagnosticTool;
+
+
+

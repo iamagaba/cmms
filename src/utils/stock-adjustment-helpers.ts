@@ -1,16 +1,18 @@
+import { 
+  ArrowLeft, 
+  Clock, 
+  RefreshCw, 
+  Settings, 
+  Download, 
+  AlertCircle, 
+  Trash2, 
+  ArrowRight, 
+  Package, 
+  MoreHorizontal 
+} from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { InventoryItem, AdjustmentReason, BatchAdjustmentInput } from '@/types/supabase';
-import {
-  PackageIcon,
-  AlertCircleIcon,
-  RefreshIcon,
-  Settings02Icon,
-  Delete01Icon,
-  Clock01Icon,
-  ArrowRight01Icon,
-  ArrowLeft01Icon,
-  MoreHorizontalIcon,
-  Download01Icon
-} from '@hugeicons/core-free-icons';
+
 
 export interface AdjustmentValidationResult {
   valid: boolean;
@@ -163,28 +165,28 @@ export function getReasonBadgeColor(reason: AdjustmentReason): string {
 /**
  * Gets the icon for an adjustment reason
  */
-export function getReasonIcon(reason: AdjustmentReason): any {
+export function getReasonIcon(reason: AdjustmentReason): LucideIcon {
   switch (reason) {
     case 'received':
-      return Download01Icon;
+      return Download;
     case 'damaged':
-      return AlertCircleIcon;
+      return AlertCircle;
     case 'returned':
-      return RefreshIcon;
+      return RefreshCw;
     case 'cycle_count':
-      return Settings02Icon;
+      return Settings;
     case 'theft':
-      return Delete01Icon;
+      return Trash2;
     case 'expired':
-      return Clock01Icon;
+      return Clock;
     case 'transfer_out':
-      return ArrowRight01Icon;
+      return ArrowRight;
     case 'transfer_in':
-      return ArrowLeft01Icon;
+      return ArrowLeft;
     case 'initial_stock':
-      return PackageIcon;
+      return Package;
     case 'other':
     default:
-      return MoreHorizontalIcon;
+      return MoreHorizontal;
   }
 }

@@ -1,9 +1,6 @@
-import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-  Menu01Icon,
-  Wrench01Icon,
-  UserIcon
-} from '@hugeicons/core-free-icons';
+import { User, Wrench } from 'lucide-react';
+
+
 
 interface CustodyFilterButtonsProps {
   activeFilter: 'all' | 'in-custody' | 'with-customer';
@@ -37,7 +34,7 @@ export const CustodyFilterButtons = ({
         onClick={() => onFilterChange('all')}
         className={buttonClass('all')}
       >
-        <HugeiconsIcon icon={Menu01Icon} size={16} />
+        <Menu01Icon className="w-4 h-4" />
         All
       </button>
 
@@ -45,11 +42,11 @@ export const CustodyFilterButtons = ({
         onClick={() => onFilterChange('in-custody')}
         className={buttonClass('in-custody')}
       >
-        <HugeiconsIcon icon={Wrench01Icon} size={16} />
+        <Wrench className="w-5 h-5" />
         In Custody
         {inCustodyCount !== undefined && (
           <span className={`px-2 py-0.5 rounded-full text-xs ${
-            activeFilter === 'in-custody' ? 'bg-blue-600' : 'bg-blue-100 text-blue-700'
+            activeFilter === 'in-custody' ? 'bg-blue-600' : 'bg-muted text-muted-foreground'
           }`}>
             {inCustodyCount}
           </span>
@@ -60,7 +57,7 @@ export const CustodyFilterButtons = ({
         onClick={() => onFilterChange('with-customer')}
         className={buttonClass('with-customer')}
       >
-        <HugeiconsIcon icon={UserIcon} size={16} />
+        <User className="w-5 h-5" />
         With Customer
         {withCustomerCount !== undefined && (
           <span className={`px-2 py-0.5 rounded-full text-xs ${
@@ -73,3 +70,4 @@ export const CustodyFilterButtons = ({
     </div>
   );
 };
+

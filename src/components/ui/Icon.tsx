@@ -1,5 +1,6 @@
+import { Search } from 'lucide-react';
 import React from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
+
 import { cn } from '@/lib/utils';
 
 // ============================================
@@ -45,10 +46,10 @@ interface IconProps {
  * Usage:
  * ```tsx
  * import { Icon, ICON_SIZES } from '@/components/ui/Icon';
- * import { Search01Icon } from '@hugeicons/react';
  * 
- * <Icon icon={Search01Icon} size="base" />
- * <Icon icon={Search01Icon} size={ICON_SIZES.lg} />
+ * 
+ * <Icon icon={Search} size="base" />
+ * <Icon icon={Search} size={ICON_SIZES.lg} />
  * ```
  * 
  * Variants:
@@ -90,8 +91,7 @@ export const Icon: React.FC<IconProps> = ({
         ['--icon-stroke-width' as any]: getStrokeWidth(),
       }}
     >
-      <HugeiconsIcon 
-        icon={icon} 
+      <icon 
         size={pixelSize}
         className={cn(
           'transition-colors',

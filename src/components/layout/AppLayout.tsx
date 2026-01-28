@@ -64,7 +64,7 @@ export function AppLayout({ children }: AppLayoutProps) {
     }, []);
 
     return (
-        <div className="min-h-screen bg-white theme-transition">
+        <div className="min-h-screen bg-background theme-transition">
             {/* Floating Professional Sidebar - Auto-expands on hover */}
             <div className="hidden lg:block">
                 <ProfessionalSidebar
@@ -74,12 +74,11 @@ export function AppLayout({ children }: AppLayoutProps) {
             </div>
 
             {/* Mobile Navigation Overlay */}
-            {/* Mobile Navigation Overlay */}
             <div className="lg:hidden">
-                <div className="fixed top-0 left-0 right-0 z-50 bg-white border-b border-machinery-200 p-4 flex items-center justify-between">
+                <div className="fixed top-0 left-0 right-0 z-50 bg-background border-b border-border p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         {/* Hamburger removed as it is in bottom nav */}
-                        <h1 className="text-lg font-bold font-brand text-machinery-900 ml-1">GOGO CMMS</h1>
+                        <h1 className="text-lg font-bold font-brand text-foreground ml-1">GOGO CMMS</h1>
                     </div>
                 </div>
 
@@ -92,7 +91,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 )}
 
                 {/* Mobile Sidebar */}
-                <div className={`fixed inset-y-0 left-0 z-[70] w-[200px] bg-white transform transition-transform duration-300 ease-in-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+                <div className={`fixed inset-y-0 left-0 z-[70] w-[200px] bg-background transform transition-transform duration-300 ease-in-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}>
                     <ProfessionalSidebar
                         collapsed={false}
@@ -112,23 +111,23 @@ export function AppLayout({ children }: AppLayoutProps) {
                 />
             </div>
 
-            {/* Main content - dynamic padding based on sidebar state and density */}
+            {/* Main content - dynamic padding based on sidebar state */}
             <main
                 className="min-h-screen theme-transition transition-all duration-[400ms] ease-[cubic-bezier(0.25,0.1,0.25,1)] pb-[80px] lg:pb-0"
                 style={{
                     paddingLeft: sidebarExpanded ? '200px' : '56px',
                 }}
             >
-                <div className="lg:hidden pt-16" /> {/* Mobile header spacing */}
-                <div className="lg:hidden pt-16" /> {/* Mobile header spacing */}
+                {/* Mobile header spacing - single spacer */}
+                <div className="lg:hidden pt-16" />
+                
                 {location.pathname === '/chat' || /^\/work-orders\/[^/]+$/.test(location.pathname) ? (
-                    // Chat and Details pages need full width/height without standard page padding
-
+                    // Full-bleed pages: Chat and work order details (no extra padding)
                     <div className="w-full h-full">
                         {children}
                     </div>
                 ) : (
-                    // Standard pages get density-aware padding and max-width container
+                    // Standard pages: Canonical padding pattern with max-width container
                     <div className="p-6 md:p-8">
                         <div className="max-w-[2400px] mx-auto w-full">
                             {children}
@@ -141,3 +140,4 @@ export function AppLayout({ children }: AppLayoutProps) {
 }
 
 export default AppLayout;
+

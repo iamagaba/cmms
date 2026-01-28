@@ -1,13 +1,8 @@
+import { CheckCircle, Clock, X } from 'lucide-react';
 import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  Location01Icon,
-  AlertCircleIcon,
-  CheckmarkCircle01Icon,
-  Clock01Icon,
-  Cancel01Icon
-} from '@hugeicons/core-free-icons';
+
+
 import { WorkOrder, Location, Vehicle } from '@/types/supabase';
 import { DiagnosticCategoryRow } from '@/types/diagnostic';
 import dayjs from 'dayjs';
@@ -461,7 +456,7 @@ export const WorkOrdersMap: React.FC<WorkOrdersMapProps> = ({
         <div className="absolute inset-0 flex items-center justify-center bg-gray-50/80 rounded-lg">
           <div className="text-center p-6">
             <div className="mx-auto w-12 h-12 bg-amber-100 rounded-lg flex items-center justify-center mb-3">
-              <HugeiconsIcon icon={Cancel01Icon} size={24} className="text-amber-600" />
+              <X className="w-6 h-6 text-amber-600" />
             </div>
             <h3 className="text-sm font-medium text-gray-900 mb-1">No Location Data</h3>
             <p className="text-xs text-gray-500 max-w-xs">
@@ -475,3 +470,6 @@ export const WorkOrdersMap: React.FC<WorkOrdersMapProps> = ({
 };
 
 export default WorkOrdersMap;
+
+
+

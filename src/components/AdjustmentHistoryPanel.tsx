@@ -1,11 +1,7 @@
+import { Clock } from 'lucide-react';
 import React, { useState } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  AlertCircleIcon,
-  FilterIcon,
-  Clock01Icon,
-  ArrowRight01Icon
-} from '@hugeicons/core-free-icons';
+
+
 import {
   useItemAdjustmentHistory,
   useAdjustmentHistory,
@@ -58,7 +54,7 @@ export const AdjustmentHistoryPanel: React.FC<AdjustmentHistoryPanelProps> = ({
 
   const getDeltaColor = (delta: number) => {
     if (delta > 0) return 'text-emerald-600 dark:text-emerald-400';
-    if (delta < 0) return 'text-red-600 dark:text-red-400';
+    if (delta < 0) return 'text-destructive';
     return 'text-gray-600 dark:text-gray-400';
   };
 
@@ -83,8 +79,8 @@ export const AdjustmentHistoryPanel: React.FC<AdjustmentHistoryPanelProps> = ({
     console.error('Adjustment history error:', error, 'Item ID:', inventoryItemId);
     return (
       <div className="p-4 text-center">
-        <HugeiconsIcon icon={AlertCircleIcon} size={32} className="text-red-500 mx-auto mb-2" />
-        <p className="text-sm text-red-600 dark:text-red-400">Failed to load history</p>
+        <AlertCircle className="w-8 h-8 text-destructive mx-auto mb-2" />
+        <p className="text-sm text-destructive">Failed to load history</p>
         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
           {error instanceof Error ? error.message : 'Unknown error'}
         </p>
@@ -104,11 +100,11 @@ export const AdjustmentHistoryPanel: React.FC<AdjustmentHistoryPanelProps> = ({
             <button
               onClick={() => setShowFilters(!showFilters)}
               className={`inline-flex items-center gap-1 px-2 py-1 text-xs font-medium rounded transition-colors ${showFilters || Object.keys(filters).length > 0
-                ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+                ? 'bg-primary/10 text-primary'
                 : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                 }`}
             >
-              <HugeiconsIcon icon={FilterIcon} size={14} />
+              <FilterIcon className="w-4 h-4" />
               Filters
             </button>
           </div>
@@ -163,7 +159,7 @@ export const AdjustmentHistoryPanel: React.FC<AdjustmentHistoryPanelProps> = ({
       <div className="overflow-auto pl-2 pr-4 py-2" style={{ maxHeight }}>
         {!adjustments || adjustments.length === 0 ? (
           <div className="p-8 text-center">
-            <HugeiconsIcon icon={Clock01Icon} size={32} className="text-gray-300 dark:text-gray-600 mx-auto mb-2" />
+            <Clock className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
             <p className="text-sm text-gray-500 dark:text-gray-400">No adjustment history</p>
           </div>
         ) : (
@@ -178,13 +174,13 @@ export const AdjustmentHistoryPanel: React.FC<AdjustmentHistoryPanelProps> = ({
               const deltaColorClass = isPositive
                 ? 'text-emerald-600 dark:text-emerald-400'
                 : isNegative
-                  ? 'text-red-600 dark:text-red-400'
+                  ? 'text-destructive'
                   : 'text-gray-600 dark:text-gray-400';
 
               const dotColorClass = isPositive
                 ? 'bg-emerald-500 ring-4 ring-white dark:ring-gray-900'
                 : isNegative
-                  ? 'bg-red-500 ring-4 ring-white dark:ring-gray-900'
+                  ? 'bg-destructive ring-4 ring-white dark:ring-gray-900'
                   : 'bg-gray-400 ring-4 ring-white dark:ring-gray-900';
 
               return (
@@ -195,7 +191,7 @@ export const AdjustmentHistoryPanel: React.FC<AdjustmentHistoryPanelProps> = ({
                     <div className="text-xs font-medium text-gray-900 dark:text-gray-100">
                       {new Date(adjustment.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                     </div>
-                    <div className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">
+                    <div className="text-xs text-gray-400 dark:text-gray-500 font-medium">
                       {new Date(adjustment.created_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
                     </div>
                   </div>
@@ -213,7 +209,7 @@ export const AdjustmentHistoryPanel: React.FC<AdjustmentHistoryPanelProps> = ({
                         {/* Reason Badge & User */}
                         <div className="flex items-center gap-2 mb-0.5">
                           <AdjustmentReasonBadge reason={adjustment.reason} size="sm" showIcon={false} />
-                          <span className="text-[10px] text-gray-400 dark:text-gray-500 flex items-center gap-1">
+                          <span className="text-xs text-gray-400 dark:text-gray-500 flex items-center gap-1">
                             by {getUserName(adjustment)}
                           </span>
                         </div>
@@ -242,7 +238,7 @@ export const AdjustmentHistoryPanel: React.FC<AdjustmentHistoryPanelProps> = ({
                           <div className="text-xs font-medium text-gray-900 dark:text-gray-100">
                             {adjustment.inventory_items.name}
                           </div>
-                          <div className="text-[10px] text-gray-400">
+                          <div className="text-xs text-gray-400">
                             {adjustment.inventory_items.sku}
                           </div>
                         </div>
@@ -259,3 +255,8 @@ export const AdjustmentHistoryPanel: React.FC<AdjustmentHistoryPanelProps> = ({
     </div>
   );
 };
+
+
+
+
+

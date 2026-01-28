@@ -1,14 +1,7 @@
+import { Calendar, ClipboardList, Clock, Loader2, Wrench } from 'lucide-react';
 import React from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-  PackageIcon,
-  AnalyticsUpIcon,
-  Calendar01Icon,
-  Loading01Icon,
-  ClipboardIcon,
-  Clock01Icon,
-  Wrench01Icon
-} from '@hugeicons/core-free-icons';
+
+
 import { usePartsForInventoryItem, useReservationsForInventoryItem } from '@/hooks/useWorkOrderParts';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -32,7 +25,7 @@ export const InventoryPartsUsagePanel: React.FC<InventoryPartsUsagePanelProps> =
   if (isLoading) {
     return (
       <div className="p-4 text-center text-gray-500">
-        <HugeiconsIcon icon={Loading01Icon} size={24} className="animate-spin mx-auto mb-2" />
+        <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2" />
         Loading usage data...
       </div>
     );
@@ -43,7 +36,7 @@ export const InventoryPartsUsagePanel: React.FC<InventoryPartsUsagePanelProps> =
   if (!hasData) {
     return (
       <div className="p-6 text-center">
-        <HugeiconsIcon icon={ClipboardIcon} size={40} className="text-gray-300 mx-auto mb-2" />
+        <ClipboardList className="w-5 h-5 text-gray-300 mx-auto mb-2" />
         <p className="text-sm text-gray-500">No work order usage history</p>
         <p className="text-xs text-gray-400 mt-1">Parts used on work orders will appear here</p>
       </div>
@@ -65,11 +58,11 @@ export const InventoryPartsUsagePanel: React.FC<InventoryPartsUsagePanelProps> =
             <p className="text-xs text-gray-500">Total Used</p>
           </div>
           <div>
-            <p className="text-lg font-semibold text-orange-600">{totalReserved}</p>
+            <p className="text-lg font-semibold text-muted-foreground">{totalReserved}</p>
             <p className="text-xs text-gray-500">Reserved</p>
           </div>
           <div>
-            <p className="text-lg font-semibold text-emerald-600">UGX {Math.round(totalCost).toLocaleString()}</p>
+            <p className="text-lg font-semibold text-foreground">UGX {Math.round(totalCost).toLocaleString()}</p>
             <p className="text-xs text-gray-500">Total Value</p>
           </div>
         </div>
@@ -85,10 +78,10 @@ export const InventoryPartsUsagePanel: React.FC<InventoryPartsUsagePanelProps> =
             {reservations.map(res => (
               <div
                 key={res.id}
-                className="flex items-center justify-between p-2 bg-orange-50 dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800"
+                className="flex items-center justify-between p-2 bg-muted dark:bg-orange-900/20 rounded-lg border border-orange-200 dark:border-orange-800"
               >
                 <div className="flex items-center gap-2">
-                  <HugeiconsIcon icon={Clock01Icon} size={16} className="text-orange-600" />
+                  <Clock className="w-4 h-4 text-muted-foreground" />
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       {(res as any).work_orders?.work_order_number || 'Work Order'}
@@ -99,7 +92,7 @@ export const InventoryPartsUsagePanel: React.FC<InventoryPartsUsagePanelProps> =
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-medium text-orange-600">
+                  <p className="text-sm font-medium text-muted-foreground">
                     {res.quantity_reserved} reserved
                   </p>
                   {res.expires_at && (
@@ -127,7 +120,7 @@ export const InventoryPartsUsagePanel: React.FC<InventoryPartsUsagePanelProps> =
                 className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded-lg"
               >
                 <div className="flex items-center gap-2">
-                  <HugeiconsIcon icon={Wrench01Icon} size={16} className="text-gray-400" />
+                  <Wrench className="w-4 h-4 text-gray-400" />
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
                       {(part as any).work_orders?.work_order_number || 'Work Order'}
@@ -153,3 +146,5 @@ export const InventoryPartsUsagePanel: React.FC<InventoryPartsUsagePanelProps> =
     </div>
   );
 };
+
+

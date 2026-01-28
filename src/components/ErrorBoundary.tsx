@@ -2,8 +2,7 @@
 // For new implementations, use the enhanced ErrorBoundary from ./error/ErrorBoundary
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import { Alert, Button, Stack, Text, Title } from '@/components/tailwind-components';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { AlertCircleIcon } from '@hugeicons/core-free-icons';
+import { AlertCircle } from 'lucide-react';
 
 interface Props {
   children: ReactNode;
@@ -62,12 +61,12 @@ class ErrorBoundary extends Component<Props, State> {
       return (
         <div style={{ padding: '24px', maxWidth: '600px', margin: '0 auto' }}>
           <Stack gap="lg" align="center">
-            <HugeiconsIcon icon={AlertCircleIcon} size={64} style={{ color: '#ef4444' }} />
+            <AlertCircle size={64} style={{ color: '#ef4444' }} />
 
             <Title order={2} ta="center">Something went wrong</Title>
 
             <Text ta="center" c="dimmed">
-              An unexpected error occurred. Please try refreshing the page or contact support if the problem persists.
+              An unexpected error occurred. Refresh the page or contact support if the problem persists.
             </Text>
 
             <Stack gap="sm" style={{ width: '100%' }}>

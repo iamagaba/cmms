@@ -1,16 +1,12 @@
+import { CheckCircle, X } from 'lucide-react';
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-    Tick02Icon,
-    AlertCircleIcon,
-    CheckmarkCircle01Icon,
-    Cancel01Icon
-} from "@hugeicons/core-free-icons";
+
+
 
 const FormValidationPatternsSection: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -27,13 +23,13 @@ const FormValidationPatternsSection: React.FC = () => {
     };
 
     return (
-        <Card className="border-lime-200 bg-lime-50">
+        <Card className="border-lime-200 bg-muted">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lime-900">
-                    <HugeiconsIcon icon={Tick02Icon} size={20} />
+                    <Tick02Icon className="w-5 h-5" />
                     Form Validation Patterns
                 </CardTitle>
-                <CardDescription className="text-lime-700">
+                <CardDescription className="text-foreground">
                     Real-time validation and error display patterns
                 </CardDescription>
             </CardHeader>
@@ -44,7 +40,7 @@ const FormValidationPatternsSection: React.FC = () => {
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="email-validation">
-                                Email Address <span className="text-red-500">*</span>
+                                Email Address <span className="text-destructive">*</span>
                             </Label>
                             <Input
                                 id="email-validation"
@@ -53,22 +49,22 @@ const FormValidationPatternsSection: React.FC = () => {
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 onBlur={() => validateEmail(email)}
-                                className={emailError ? 'border-red-500' : ''}
+                                className={emailError ? 'border-destructive' : ''}
                             />
                             {emailError && (
-                                <p className="text-xs text-red-600 flex items-center gap-1">
-                                    <HugeiconsIcon icon={AlertCircleIcon} size={12} />
+                                <p className="text-xs text-destructive flex items-center gap-1">
+                                    <AlertCircle className="w-4 h-4" />
                                     {emailError}
                                 </p>
                             )}
                             {!emailError && email && (
-                                <p className="text-xs text-emerald-600 flex items-center gap-1">
-                                    <HugeiconsIcon icon={CheckmarkCircle01Icon} size={12} />
+                                <p className="text-xs text-foreground flex items-center gap-1">
+                                    <CheckCircle className="w-5 h-5" />
                                     Valid email address
                                 </p>
                             )}
                         </div>
-                        <div className="bg-lime-50 p-3 rounded border border-lime-200">
+                        <div className="bg-muted p-3 rounded border border-lime-200">
                             <p className="text-xs text-lime-800">
                                 <strong>Best Practice:</strong> Validate on blur (when user leaves field), not on every keystroke. Show success checkmark for valid fields.
                             </p>
@@ -82,29 +78,29 @@ const FormValidationPatternsSection: React.FC = () => {
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="title-error">
-                                Work Order Title <span className="text-red-500">*</span>
+                                Work Order Title <span className="text-destructive">*</span>
                             </Label>
                             <Input
                                 id="title-error"
                                 placeholder="Enter title"
-                                className="border-red-500"
+                                className="border-destructive"
                             />
-                            <p className="text-xs text-red-600 flex items-center gap-1">
-                                <HugeiconsIcon icon={AlertCircleIcon} size={12} />
+                            <p className="text-xs text-destructive flex items-center gap-1">
+                                <AlertCircle className="w-4 h-4" />
                                 Title is required
                             </p>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="asset-error">
-                                Asset <span className="text-red-500">*</span>
+                                Asset <span className="text-destructive">*</span>
                             </Label>
                             <Input
                                 id="asset-error"
                                 placeholder="Select asset"
-                                className="border-red-500"
+                                className="border-destructive"
                             />
-                            <p className="text-xs text-red-600 flex items-center gap-1">
-                                <HugeiconsIcon icon={AlertCircleIcon} size={12} />
+                            <p className="text-xs text-destructive flex items-center gap-1">
+                                <AlertCircle className="w-4 h-4" />
                                 Please select an asset
                             </p>
                         </div>
@@ -115,7 +111,7 @@ const FormValidationPatternsSection: React.FC = () => {
                 <div className="bg-white rounded-lg border border-lime-200 p-4">
                     <h3 className="text-sm font-semibold text-lime-900 mb-4">Form Error Alert (Multiple Errors)</h3>
                     <Alert variant="destructive">
-                        <HugeiconsIcon icon={AlertCircleIcon} size={16} />
+                        <AlertCircle className="w-4 h-4" />
                         <AlertTitle>Unable to save work order</AlertTitle>
                         <AlertDescription>
                             Please fix the following errors:
@@ -126,7 +122,7 @@ const FormValidationPatternsSection: React.FC = () => {
                             </ul>
                         </AlertDescription>
                     </Alert>
-                    <div className="mt-3 bg-lime-50 p-3 rounded border border-lime-200">
+                    <div className="mt-3 bg-muted p-3 rounded border border-lime-200">
                         <p className="text-xs text-lime-800">
                             Show a summary alert at the top of the form when there are multiple errors. List all errors so users can fix them at once.
                         </p>
@@ -139,7 +135,7 @@ const FormValidationPatternsSection: React.FC = () => {
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="required-1">
-                                Asset Name <span className="text-red-500">*</span>
+                                Asset Name <span className="text-destructive">*</span>
                             </Label>
                             <Input id="required-1" placeholder="Enter asset name" />
                             <p className="text-xs text-gray-500">Required field</p>
@@ -151,7 +147,7 @@ const FormValidationPatternsSection: React.FC = () => {
                             <Input id="optional-1" placeholder="Add notes" />
                         </div>
                     </div>
-                    <div className="mt-4 bg-lime-50 p-3 rounded border border-lime-200">
+                    <div className="mt-4 bg-muted p-3 rounded border border-lime-200">
                         <p className="text-xs text-lime-800">
                             <strong>Mark required fields with asterisk (*)</strong> in the label. Optionally mark optional fields with "(Optional)" text.
                         </p>
@@ -162,22 +158,22 @@ const FormValidationPatternsSection: React.FC = () => {
                 <div className="bg-white rounded-lg border border-lime-200 p-4">
                     <h3 className="text-sm font-semibold text-lime-900 mb-4">Validation Timing Guidelines</h3>
                     <div className="space-y-3">
-                        <div className="flex items-start gap-3 p-3 bg-emerald-50 rounded border border-emerald-200">
-                            <HugeiconsIcon icon={CheckmarkCircle01Icon} size={20} className="text-emerald-600 mt-0.5" />
+                        <div className="flex items-start gap-3 p-3 bg-muted rounded border border-emerald-200">
+                            <CheckCircle className="w-5 h-5 text-foreground mt-0.5" />
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900">On Blur (Recommended)</p>
                                 <p className="text-xs text-gray-600">Validate when user leaves the field. Best user experience.</p>
                             </div>
                         </div>
                         <div className="flex items-start gap-3 p-3 bg-yellow-50 rounded border border-yellow-200">
-                            <HugeiconsIcon icon={AlertCircleIcon} size={20} className="text-yellow-600 mt-0.5" />
+                            <AlertCircle className="w-5 h-5 text-yellow-600 mt-0.5" />
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900">On Submit (Fallback)</p>
                                 <p className="text-xs text-gray-600">Validate all fields when form is submitted. Show all errors at once.</p>
                             </div>
                         </div>
-                        <div className="flex items-start gap-3 p-3 bg-red-50 rounded border border-red-200">
-                            <HugeiconsIcon icon={Cancel01Icon} size={20} className="text-red-600 mt-0.5" />
+                        <div className="flex items-start gap-3 p-3 bg-red-50 rounded border border-destructive/20">
+                            <X className="w-5 h-5 text-destructive mt-0.5" />
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900">On Change (Avoid)</p>
                                 <p className="text-xs text-gray-600">Don't validate on every keystroke - it's annoying and distracting.</p>
@@ -192,29 +188,29 @@ const FormValidationPatternsSection: React.FC = () => {
                     <div className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="complete-title">
-                                Title <span className="text-red-500">*</span>
+                                Title <span className="text-destructive">*</span>
                             </Label>
                             <Input
                                 id="complete-title"
                                 placeholder="e.g., Replace brake pads"
                                 className="border-emerald-500"
                             />
-                            <p className="text-xs text-emerald-600 flex items-center gap-1">
-                                <HugeiconsIcon icon={CheckmarkCircle01Icon} size={12} />
+                            <p className="text-xs text-foreground flex items-center gap-1">
+                                <CheckCircle className="w-5 h-5" />
                                 Valid title
                             </p>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="complete-asset">
-                                Asset <span className="text-red-500">*</span>
+                                Asset <span className="text-destructive">*</span>
                             </Label>
                             <Input
                                 id="complete-asset"
                                 placeholder="Select asset"
-                                className="border-red-500"
+                                className="border-destructive"
                             />
-                            <p className="text-xs text-red-600 flex items-center gap-1">
-                                <HugeiconsIcon icon={AlertCircleIcon} size={12} />
+                            <p className="text-xs text-destructive flex items-center gap-1">
+                                <AlertCircle className="w-4 h-4" />
                                 Asset is required
                             </p>
                         </div>
@@ -235,8 +231,8 @@ const FormValidationPatternsSection: React.FC = () => {
                     </div>
                 </div>
 
-                <Alert className="border-lime-300 bg-lime-100">
-                    <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="text-lime-700" />
+                <Alert className="border-lime-300 bg-muted">
+                    <CheckCircle className="w-4 h-4 text-foreground" />
                     <AlertTitle className="text-lime-900">Form Validation Best Practices</AlertTitle>
                     <AlertDescription className="text-lime-800">
                         <ul className="text-xs space-y-1 mt-2 ml-4 list-disc">
@@ -256,3 +252,7 @@ const FormValidationPatternsSection: React.FC = () => {
 };
 
 export default FormValidationPatternsSection;
+
+
+
+

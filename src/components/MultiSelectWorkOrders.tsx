@@ -257,7 +257,7 @@ export function MultiSelectWorkOrders({
               {/* Batch Operations */}
               <button
                 onClick={() => setShowBatchOperations(true)}
-                className="flex items-center justify-center space-x-2 p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors"
+                className="flex items-center justify-center space-x-2 p-3 bg-muted text-muted-foreground rounded-lg hover:bg-muted transition-colors"
               >
                 <Settings className="w-4 h-4" />
                 <span className="text-sm font-medium">Batch Actions</span>
@@ -267,7 +267,7 @@ export function MultiSelectWorkOrders({
               <button
                 onClick={handlePlanRoute}
                 disabled={!userLocation || selectedWithLocation.length === 0}
-                className="flex items-center justify-center space-x-2 p-3 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="flex items-center justify-center space-x-2 p-3 bg-muted text-foreground rounded-lg hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <Navigation className="w-4 h-4" />
                 <span className="text-sm font-medium">
@@ -287,7 +287,7 @@ export function MultiSelectWorkOrders({
                   // This would trigger export directly
                   console.log('Quick export for:', selectedIds);
                 }}
-                className="flex-1 flex items-center justify-center space-x-1 p-2 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 transition-colors"
+                className="flex-1 flex items-center justify-center space-x-1 p-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors"
               >
                 <Download className="w-3 h-3" />
                 <span className="text-xs font-medium">Export</span>
@@ -298,7 +298,7 @@ export function MultiSelectWorkOrders({
                   // Quick assign action - would show technician picker
                   console.log('Quick assign for:', Array.from(multiSelect.selectedItems));
                 }}
-                className="flex-1 flex items-center justify-center space-x-1 p-2 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 transition-colors"
+                className="flex-1 flex items-center justify-center space-x-1 p-2 bg-muted text-muted-foreground rounded-lg hover:bg-muted transition-colors"
               >
                 <Users className="w-3 h-3" />
                 <span className="text-xs font-medium">Assign</span>
@@ -330,7 +330,7 @@ export function MultiSelectWorkOrders({
             className="bg-white rounded-full p-2 shadow-lg border border-gray-200"
           >
             <div className="flex items-center space-x-1 text-xs">
-              <CheckSquare className="w-4 h-4 text-blue-600" />
+              <CheckSquare className="w-4 h-4 text-muted-foreground" />
               <span className="font-medium text-gray-900">{multiSelect.selectionCount}</span>
             </div>
           </motion.div>
@@ -434,7 +434,7 @@ export function MultiSelectWorkOrderCard({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className={`absolute inset-0 border-2 rounded-xl z-10 pointer-events-none ${isSelected ? 'border-blue-500 bg-blue-50 bg-opacity-20' : 'border-gray-300 border-dashed'
+            className={`absolute inset-0 border-2 rounded-xl z-10 pointer-events-none ${isSelected ? 'border-blue-500 bg-muted bg-opacity-20' : 'border-gray-300 border-dashed'
               }`}
           />
         )}

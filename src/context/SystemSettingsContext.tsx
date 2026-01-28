@@ -29,6 +29,7 @@ const defaultSettings: SystemSettings = {
   notifications: 'true',
   defaultPriority: 'Medium',
   slaThreshold: '3',
+  sla_config: '{}',
 };
 
 export const SystemSettingsProvider = ({ children }: { children: ReactNode }) => {

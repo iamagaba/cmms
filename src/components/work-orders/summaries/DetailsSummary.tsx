@@ -1,6 +1,7 @@
+import { AlertCircle, Calendar, Store } from 'lucide-react';
 import React from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { AlertCircleIcon, Alert01Icon, Store01Icon, Calendar01Icon, NoteIcon } from '@hugeicons/core-free-icons';
+
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -30,10 +31,10 @@ export const DetailsSummary: React.FC<DetailsSummaryProps> = ({ data }) => {
     });
 
     const priorityConfig = {
-        low: { color: 'text-blue-700 bg-blue-50 border-blue-100', icon: Alert01Icon },
-        medium: { color: 'text-amber-700 bg-amber-50 border-amber-100', icon: Alert01Icon },
-        high: { color: 'text-orange-700 bg-orange-50 border-orange-100', icon: Alert01Icon },
-        urgent: { color: 'text-red-700 bg-red-50 border-red-100', icon: AlertCircleIcon }
+        low: { color: 'text-muted-foreground bg-muted border-muted-foreground/20', icon: AlertCircle },
+        medium: { color: 'text-amber-700 bg-amber-50 border-amber-200', icon: AlertCircle },
+        high: { color: 'text-amber-700 bg-amber-50 border-amber-200', icon: AlertCircle },
+        urgent: { color: 'text-destructive bg-destructive/10 border-destructive/20', icon: AlertCircle }
     };
 
     const priorityLabels = {
@@ -49,14 +50,14 @@ export const DetailsSummary: React.FC<DetailsSummaryProps> = ({ data }) => {
         <div className="mt-1 grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-1">
             {/* Priority & Location */}
             <div className="space-y-1">
-                <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium border ${currentConfig.color}`}>
-                    <HugeiconsIcon icon={currentConfig.icon} size={10} />
+                <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-xs font-medium border ${currentConfig.color}`}>
+                    <currentConfig.icon className="w-4 h-4" />
                     {priorityLabels[data.priority]}
                 </span>
 
                 {location && (
-                    <div className="flex items-center gap-1.5 text-xs text-gray-700">
-                        <HugeiconsIcon icon={Store01Icon} size={12} className="text-gray-400" />
+                    <div className="flex items-center gap-1.5 text-xs text-foreground">
+                        <Store className="w-4 h-4 text-muted-foreground" />
                         <span className="font-medium">{location.name}</span>
                     </div>
                 )}
@@ -65,8 +66,8 @@ export const DetailsSummary: React.FC<DetailsSummaryProps> = ({ data }) => {
             {/* Schedule & Notes */}
             <div className="space-y-0.5">
                 {data.scheduledDate ? (
-                    <div className="flex items-center gap-1.5 text-xs text-gray-700">
-                        <HugeiconsIcon icon={Calendar01Icon} size={12} className="text-gray-400" />
+                    <div className="flex items-center gap-1.5 text-xs text-foreground">
+                        <Calendar className="w-5 h-5 text-muted-foreground" />
                         <span>
                             {new Date(data.scheduledDate).toLocaleString('en-US', {
                                 weekday: 'short',
@@ -78,16 +79,16 @@ export const DetailsSummary: React.FC<DetailsSummaryProps> = ({ data }) => {
                         </span>
                     </div>
                 ) : (
-                    <div className="flex items-center gap-1.5 text-xs text-gray-500 italic">
-                        <HugeiconsIcon icon={Calendar01Icon} size={12} className="text-gray-300" />
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground italic">
+                        <Calendar className="w-5 h-5" />
                         Immediate / No schedule
                     </div>
                 )}
 
                 {data.customerNotes && (
                     <div className="flex items-start gap-1.5 mt-0.5">
-                        <HugeiconsIcon icon={NoteIcon} size={12} className="text-gray-400 mt-0.5" />
-                        <p className="text-[10px] text-gray-600 line-clamp-1 italic">
+                        <FileText className="w-4 h-4 text-muted-foreground mt-0.5" />
+                        <p className="text-xs text-muted-foreground line-clamp-1 italic">
                             "{data.customerNotes}"
                         </p>
                     </div>
@@ -96,3 +97,6 @@ export const DetailsSummary: React.FC<DetailsSummaryProps> = ({ data }) => {
         </div>
     );
 };
+
+
+

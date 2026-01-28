@@ -1,6 +1,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Input } from '@/components/ui/input';
 
 // Initialize Supabase Client (Replace with your actual env vars if using Vite env)
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -91,13 +95,13 @@ const WhatsAppTest = () => {
             <h1 className="text-2xl font-bold mb-6">WhatsApp Integration Test</h1>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="border rounded-lg p-4 h-[600px] overflow-y-auto flex flex-col bg-gray-50">
+                <div className="border rounded-lg p-4 h-[600px] overflow-y-auto flex flex-col bg-muted">
                     {messages.map((msg) => (
                         <div
                             key={msg.id}
                             className={`mb-4 p-3 rounded-lg max-w-[80%] ${msg.direction === 'outbound'
-                                    ? 'bg-blue-500 text-white self-end'
-                                    : 'bg-white border self-start'
+                                    ? 'bg-primary text-primary-foreground self-end'
+                                    : 'bg-card border self-start'
                                 }`}
                         >
                             <div className="text-xs opacity-75 mb-1">{msg.contact_phone}</div>
@@ -110,38 +114,39 @@ const WhatsAppTest = () => {
                 <div className="p-4 border rounded-lg">
                     <form onSubmit={sendMessage} className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium mb-1">To Phone Number</label>
-                            <input
+                            <Label htmlFor="phone" className="text-xs">To Phone Number</Label>
+                            <Input
+                                id="phone"
                                 type="text"
                                 value={phone}
                                 onChange={(e) => setPhone(e.target.value)}
                                 placeholder="e.g. 15550000000"
-                                className="w-full p-2 border rounded"
                                 required
                             />
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-xs text-muted-foreground mt-1">
                                 Format: Country code + Number (no +, no dashes).
                                 For test numbers, you must add this number to your Meta App as a recipient.
                             </p>
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium mb-1">Message</label>
-                            <textarea
+                            <Label htmlFor="message" className="text-xs">Message</Label>
+                            <Textarea
+                                id="message"
                                 value={newMessage}
                                 onChange={(e) => setNewMessage(e.target.value)}
-                                className="w-full p-2 border rounded h-32"
+                                className="h-32"
                                 required
                             />
                         </div>
 
-                        <button
+                        <Button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700 disabled:opacity-50"
+                            className="w-full bg-green-600 hover:bg-green-700"
                         >
                             {loading ? 'Sending...' : 'Send Message'}
-                        </button>
+                        </Button>
                     </form>
                 </div>
             </div>
@@ -150,3 +155,4 @@ const WhatsAppTest = () => {
 };
 
 export default WhatsAppTest;
+

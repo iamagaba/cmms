@@ -1,6 +1,7 @@
+import { Clock } from 'lucide-react';
 import React from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Clock02Icon, Clock01Icon } from '@hugeicons/core-free-icons';
+
+
 import { WorkOrder, Vehicle } from '@/types/supabase';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -27,13 +28,13 @@ interface WorkOrderRelatedHistoryCardProps {
 }
 
 const STATUS_CONFIG: Record<string, { bg: string; text: string; dot: string }> = {
-  'Open': { bg: 'bg-blue-50', text: 'text-blue-700', dot: 'bg-blue-500' },
-  'Confirmation': { bg: 'bg-purple-50', text: 'text-purple-700', dot: 'bg-purple-500' },
+  'Open': { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-blue-500' },
+  'Confirmation': { bg: 'bg-primary/5', text: 'text-primary', dot: 'bg-primary' },
   'On Hold': { bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500' },
-  'Ready': { bg: 'bg-cyan-50', text: 'text-cyan-700', dot: 'bg-cyan-500' },
-  'In Progress': { bg: 'bg-orange-50', text: 'text-orange-700', dot: 'bg-orange-500' },
-  'Completed': { bg: 'bg-emerald-50', text: 'text-emerald-700', dot: 'bg-emerald-500' },
-  'Cancelled': { bg: 'bg-red-50', text: 'text-red-700', dot: 'bg-red-500' },
+  'Ready': { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-blue-500' },
+  'In Progress': { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-orange-500' },
+  'Completed': { bg: 'bg-muted', text: 'text-foreground', dot: 'bg-emerald-500' },
+  'Cancelled': { bg: 'bg-destructive/10', text: 'text-destructive', dot: 'bg-destructive' },
 };
 
 export const WorkOrderRelatedHistoryCard: React.FC<WorkOrderRelatedHistoryCardProps> = ({
@@ -66,20 +67,20 @@ export const WorkOrderRelatedHistoryCard: React.FC<WorkOrderRelatedHistoryCardPr
   }
 
   return (
-    <div className="bg-white border border-gray-200 overflow-hidden shadow-sm">
+    <div className="bg-white border border-border rounded-lg overflow-hidden shadow-sm">
       {/* Header */}
-      <div className="px-3 py-2 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
+      <div className="px-3 py-2 border-b border-border bg-muted flex items-center justify-between">
         <div className="flex items-center gap-1.5">
-          <HugeiconsIcon icon={Clock02Icon} size={14} className="text-gray-500" />
-          <h3 className="text-[10px] font-semibold text-gray-500 uppercase tracking-wide">History</h3>
+          <Clock className="w-4 h-4 text-muted-foreground" />
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">History</h3>
           {vehicleHistory && vehicleHistory.length > 0 && (
-            <span className="bg-gray-200 text-gray-600 text-[10px] px-1 py-0.5 rounded-full font-medium">
+            <span className="bg-muted text-muted-foreground text-xs px-1 py-0.5 rounded-full font-medium">
               {vehicleHistory.length}
             </span>
           )}
         </div>
         {vehicle && (
-          <span className="text-[10px] text-gray-500 font-medium">{vehicle.license_plate}</span>
+          <span className="text-xs text-muted-foreground font-medium">{vehicle.license_plate}</span>
         )}
       </div>
 
@@ -93,8 +94,8 @@ export const WorkOrderRelatedHistoryCard: React.FC<WorkOrderRelatedHistoryCardPr
       ) : vehicleHistory && vehicleHistory.length > 0 ? (
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="text-[11px] font-semibold text-gray-600 uppercase bg-gray-50 border-b border-gray-200">
-              <TableRow className="bg-gray-50 hover:bg-gray-50 border-none">
+            <TableHeader className="text-xs font-semibold text-muted-foreground uppercase bg-muted border-b border-border">
+              <TableRow className="bg-muted hover:bg-muted border-none">
                 <TableHead className="px-3 py-2 w-[140px] h-auto font-semibold">Work Order</TableHead>
                 <TableHead className="px-3 py-2 h-auto font-semibold">Issue</TableHead>
                 <TableHead className="px-3 py-2 w-[140px] h-auto font-semibold">Status</TableHead>
@@ -102,7 +103,7 @@ export const WorkOrderRelatedHistoryCard: React.FC<WorkOrderRelatedHistoryCardPr
                 <TableHead className="px-3 py-2 w-[100px] text-right h-auto font-semibold">Priority</TableHead>
               </TableRow>
             </TableHeader>
-            <TableBody className="divide-y divide-gray-100">
+            <TableBody className="divide-y divide-border">
               {vehicleHistory.map((wo) => {
                 const rWo = wo as any;
                 const categoryLabel = serviceCategories?.find(cat => cat.id === rWo.service)?.label;
@@ -113,31 +114,31 @@ export const WorkOrderRelatedHistoryCard: React.FC<WorkOrderRelatedHistoryCardPr
                   <TableRow
                     key={rWo.id}
                     onClick={() => onViewWorkOrder?.(rWo.id)}
-                    className="hover:bg-primary-50/30 hover:shadow-sm transition-all cursor-pointer group border-b border-gray-100 last:border-0"
+                    className="hover:bg-primary/5 hover:shadow-sm transition-all cursor-pointer group border-b border-border last:border-0"
                   >
-                    <TableCell className="px-3 py-2 font-medium text-gray-900 whitespace-nowrap text-sm">
+                    <TableCell className="px-3 py-2 font-medium text-foreground whitespace-nowrap text-sm">
                       {rWo.workOrderNumber || `WO-${rWo.id.substring(0, 6).toUpperCase()}`}
                     </TableCell>
-                    <TableCell className="px-3 py-2 text-gray-600 text-sm">
+                    <TableCell className="px-3 py-2 text-muted-foreground text-sm">
                       <div className="truncate max-w-[300px]">
                         {description || 'General Service'}
                       </div>
                     </TableCell>
                     <TableCell className="px-3 py-2">
-                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium border ${statusConfig.bg} ${statusConfig.text} border-current/20`}>
+                      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-medium border ${statusConfig.bg} ${statusConfig.text} border-current/20`}>
                         <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot}`} />
                         {rWo.status}
                       </span>
                     </TableCell>
-                    <TableCell className="px-3 py-2 text-right text-gray-500 whitespace-nowrap text-xs">
+                    <TableCell className="px-3 py-2 text-right text-muted-foreground whitespace-nowrap text-xs">
                       {rWo.created_at ? dayjs(rWo.created_at).fromNow() : 'Unknown'}
                     </TableCell>
                     <TableCell className="px-3 py-2 text-right">
                       {rWo.priority && (
-                        <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium border ${rWo.priority === 'Critical' ? 'bg-red-50 text-red-700 border-red-200' :
-                          rWo.priority === 'High' ? 'bg-orange-50 text-orange-700 border-orange-200' :
-                            rWo.priority === 'Medium' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
-                              'bg-gray-50 text-gray-600 border-gray-200'
+                        <span className={`inline-block px-2 py-0.5 rounded-lg text-xs font-medium border ${rWo.priority === 'Critical' ? 'bg-destructive/10 text-destructive border-destructive/20' :
+                          rWo.priority === 'High' ? 'bg-muted text-muted-foreground border-orange-200' :
+                            rWo.priority === 'Medium' ? 'bg-amber-50 text-amber-700 border-amber-200' :
+                              'bg-muted text-muted-foreground border-border'
                           }`}>
                           {rWo.priority.charAt(0).toUpperCase() + rWo.priority.slice(1).toLowerCase()}
                         </span>
@@ -151,11 +152,11 @@ export const WorkOrderRelatedHistoryCard: React.FC<WorkOrderRelatedHistoryCardPr
         </div>
       ) : (
         <div className="text-center py-6">
-          <div className="mx-auto w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mb-1.5">
-            <HugeiconsIcon icon={Clock01Icon} size={16} className="text-gray-400" />
+          <div className="mx-auto w-8 h-8 bg-muted rounded-lg flex items-center justify-center mb-1.5">
+            <Clock className="w-5 h-5 text-muted-foreground" />
           </div>
-          <p className="text-xs font-medium text-gray-900 mb-0.5">No previous work orders</p>
-          <p className="text-[10px] text-gray-500">This vehicle has no service history</p>
+          <p className="text-xs font-medium text-foreground mb-0.5">No previous work orders</p>
+          <p className="text-xs text-muted-foreground">This vehicle has no service history</p>
         </div>
       )}
     </div>
@@ -163,3 +164,7 @@ export const WorkOrderRelatedHistoryCard: React.FC<WorkOrderRelatedHistoryCardPr
 };
 
 export default WorkOrderRelatedHistoryCard;
+
+
+
+

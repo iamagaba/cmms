@@ -20,72 +20,37 @@
   --industrial-slate-800: #1e293b;
   --industrial-slate-900: #0f172a;
 
-  /* Safety Amber - for warnings and attention */
-  --safety-amber-50: #fffbeb;
-  --safety-amber-100: #fef3c7;
-  --safety-amber-200: #fde68a;
-  --safety-amber-300: #fcd34d;
-  --safety-amber-400: #fbbf24;
-  --safety-amber-500: #f59e0b;
-  --safety-amber-600: #d97706;
-  --safety-amber-700: #b45309;
+  /* Safety Amber - for warnings and attention (Muted) */
+  --safety-amber-50: #fbf6ec;
+  --safety-amber-100: #f5eedb;
+  --safety-amber-200: #ede0b8;
+  --safety-amber-300: #dfc888;
+  --safety-amber-400: #cfaa57;
+  --safety-amber-500: #b88a38;
+  /* Muted Gold/Amber */
+  --safety-amber-600: #99702b;
+  --safety-amber-700: #7d5a22;
 
-  /* Operational Green - for success/active states */
-  --operational-green-500: #22c55e;
-  --operational-green-600: #16a34a;
-  --operational-green-700: #15803d;
+  /* Operational Green - for success/active states (Muted) */
+  --operational-green-500: #3b8766;
+  /* Muted Emerald */
+  --operational-green-600: #2d6b50;
+  --operational-green-700: #214f3a;
 
-  /* Alert Red - for critical/stopped states */
-  --alert-red-500: #ef4444;
-  --alert-red-600: #dc2626;
-  --alert-red-700: #b91c1c;
+  /* Alert Red - for critical/stopped states (Muted) */
+  --alert-red-500: #cd4c4c;
+  /* Muted Brick */
+  --alert-red-600: #b03a3a;
+  --alert-red-700: #8f2c2c;
 
-  /* Brand Purple - preserved */
-  --brand-purple-500: #a855f7;
-  --brand-purple-600: #9333ea;
-  --brand-purple-700: #7e22ce;
+  /* Brand Purple - preserved but muted */
+  --brand-purple-500: #7e5cad;
+  /* Muted Violet */
+  --brand-purple-600: #684894;
+  --brand-purple-700: #55397a;
 
-  /* -----------------------------------------------------------------------------
-     SHADCN TOKENS - Mapped to Industrial Palette
-     ----------------------------------------------------------------------------- */
-  --background: 0 0% 100%;
-  --foreground: 222.2 84% 4.9%;
-  /* Slate-900 */
-
-  --card: 0 0% 100%;
-  --card-foreground: 222.2 84% 4.9%;
-
-  --popover: 0 0% 100%;
-  --popover-foreground: 222.2 84% 4.9%;
-
-  --primary: 262.1 83.3% 57.8%;
-  /* Brand Purple */
-  --primary-foreground: 210 40% 98%;
-
-  --secondary: 210 40% 96.1%;
-  /* Slate-100 */
-  --secondary-foreground: 222.2 47.4% 11.2%;
-
-  --muted: 210 40% 96.1%;
-  /* Slate-100 */
-  --muted-foreground: 215.4 16.3% 46.9%;
-  /* Slate-500 */
-
-  --accent: 210 40% 96.1%;
-  /* Slate-100 */
-  --accent-foreground: 222.2 47.4% 11.2%;
-
-  --destructive: 0 84.2% 60.2%;
-  /* Red-500 */
-  --destructive-foreground: 210 40% 98%;
-
-  --border: 214.3 31.8% 91.4%;
-  /* Slate-200 */
-  --input: 214.3 31.8% 91.4%;
-  --ring: 262.1 83.3% 57.8%;
-  /* Brand Purple */
-
-  --radius: 0.5rem;
+  /* REMOVED: SHADCN TOKENS - These are now defined in App.css only */
+  /* This prevents conflicts with dark mode */
 }
 
 /* -----------------------------------------------------------------------------

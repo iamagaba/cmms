@@ -1,3 +1,4 @@
+import { AlertCircle, Calendar, ClipboardList, Clock, User } from 'lucide-react';
 /**
  * Modern Work Order Data Table
  * 
@@ -6,15 +7,8 @@
  */
 
 import React, { useMemo } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  UserIcon,
-  Car01Icon,
-  Alert01Icon,
-  ClipboardIcon,
-  Calendar01Icon,
-  Clock01Icon
-} from '@hugeicons/core-free-icons';
+
+
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 import EnhancedDataTable, {
@@ -174,14 +168,14 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
       render: (value: string, record: WorkOrder) => (
         <div className="flex items-center gap-3">
           {/* Enhancement #5: Icon integration with visual balance */}
-          <div className="w-8 h-8 rounded bg-slate-100 flex items-center justify-center flex-shrink-0">
-            <HugeiconsIcon icon={ClipboardIcon} size={16} className="text-slate-600" />
+          <div className="w-8 h-8 rounded bg-muted flex items-center justify-center flex-shrink-0">
+            <ClipboardList className="w-5 h-5 text-muted-foreground" />
           </div>
           <div>
-            <div className="font-mono font-medium tracking-tight text-sm text-slate-800">
+            <div className="font-mono font-medium tracking-tight text-sm text-foreground">
               {value || `WO-${record.id.slice(-6).toUpperCase()}`}
             </div>
-            <div className="text-[10px] text-slate-400 font-mono">
+            <div className="text-xs text-muted-foreground font-mono">
               ID: {record.id.slice(-8)}
             </div>
           </div>
@@ -262,7 +256,7 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
         return (
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 bg-steel-500 rounded-lg flex items-center justify-center">
-              <HugeiconsIcon icon={UserIcon} size={12} className="text-white" />
+              <User className="w-4 h-4 text-white" />
             </div>
             <div>
               <div className="text-sm font-medium text-machinery-700">
@@ -287,7 +281,7 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
       render: (value: string, record: WorkOrder) => {
         if (!value) {
           return (
-            <span className="text-slate-400 italic text-sm">
+            <span className="text-muted-foreground italic text-sm">
               No asset assigned
             </span>
           );
@@ -298,18 +292,18 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
 
         return (
           <div className="flex items-center gap-2">
-            <HugeiconsIcon icon={Car01Icon} size={16} className="text-slate-500" />
+            <Car className="w-4 h-4 text-muted-foreground" />
             <div>
-              <div className="text-sm font-semibold text-slate-700">
+              <div className="text-sm font-semibold text-foreground">
                 {vehicle?.make} {vehicle?.model}
               </div>
               {vehicle?.licensePlate && (
-                <div className="font-mono font-medium tracking-tight text-xs text-purple-700">
+                <div className="font-mono font-medium tracking-tight text-xs text-primary">
                   {vehicle.licensePlate}
                 </div>
               )}
               {customer && (
-                <div className="text-xs text-slate-500">
+                <div className="text-xs text-muted-foreground">
                   {customer.name}
                 </div>
               )}
@@ -328,7 +322,7 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
         // Enhancement #5: Icon integration for dates
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-machinery-100 flex items-center justify-center flex-shrink-0">
-            <HugeiconsIcon icon={Calendar01Icon} size={16} className="text-machinery-600" />
+            <Calendar className="w-4 h-4 text-machinery-600" />
           </div>
           <div className="text-sm">
             <div className="text-machinery-700 font-medium">
@@ -352,7 +346,7 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
           return (
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-machinery-100 flex items-center justify-center flex-shrink-0">
-                <HugeiconsIcon icon={Clock01Icon} size={16} className="text-machinery-400" />
+                <Clock className="w-4 h-4 text-machinery-400" />
               </div>
               <span className="text-machinery-400 italic text-sm">
                 No due date
@@ -378,7 +372,7 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
         return (
           <div className="flex items-center gap-2">
             <div className={`w-8 h-8 rounded-lg ${iconBgColor} flex items-center justify-center flex-shrink-0`}>
-              <HugeiconsIcon icon={Clock01Icon} size={16} className={iconColor} />
+              <Clock className="w-4 h-4" className={iconColor} />
             </div>
             <div className={`text-sm ${isOverdue ? 'text-warning-600' :
               isToday ? 'text-maintenance-600' :
@@ -602,7 +596,7 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
   if (error) {
     return (
       <div className="bg-white rounded-lg shadow-sm p-8 text-center">
-        <HugeiconsIcon icon={Alert01Icon} size={48} className="text-warning-500 mx-auto mb-4" />
+        <AlertCircle className="w-5 h-5 text-warning-500 mx-auto mb-4" />
         <h3 className="text-lg font-semibold text-machinery-900 mb-2">Error Loading Work Orders</h3>
         <p className="text-machinery-600">{error}</p>
       </div>
@@ -632,3 +626,6 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
 };
 
 export default ModernWorkOrderDataTable;
+
+
+

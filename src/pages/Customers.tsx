@@ -1,17 +1,17 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { HugeiconsIcon } from '@hugeicons/react';
 import {
-  FilterIcon,
-  Search01Icon,
-  LinkSquare02Icon,
-  Car01Icon,
-  ClipboardIcon,
-  Clock01Icon,
-  Calendar01Icon,
-  ArrowRight01Icon,
-  UserMultipleIcon
-} from '@hugeicons/core-free-icons';
+  Filter,
+  Search,
+  ExternalLink,
+  Car,
+  ClipboardList,
+  Clock,
+  Calendar,
+  ArrowRight,
+  Users,
+  ArrowLeft
+} from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { Customer, Vehicle, WorkOrder } from "@/types/supabase";
 import { snakeToCamelCase } from "@/utils/data-helpers";
@@ -20,7 +20,6 @@ import dayjs from "dayjs";
 import relativeTime from 'dayjs/plugin/relativeTime';
 
 import { useMediaQuery } from '@/hooks/tailwind';
-import { ArrowLeft01Icon } from '@hugeicons/core-free-icons';
 
 import { EnhancedWorkOrderDataTable } from "@/components/EnhancedWorkOrderDataTable";
 import { useWorkOrderData } from "@/hooks/useWorkOrderData";
@@ -29,10 +28,12 @@ import { useWorkOrderData } from "@/hooks/useWorkOrderData";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { EmptyState } from '@/components/ui/empty-state';
 
 dayjs.extend(relativeTime);
 
@@ -150,26 +151,27 @@ const CustomersPage = () => {
         {/* Header */}
         <div className="p-3 border-b">
           <div className="flex items-center justify-between mb-3">
-            <h1 className="text-lg font-semibold">Customers</h1>
+            <h1 className="text-2xl font-bold">Customers</h1>
             <Button
               variant={filtersOpen ? "secondary" : "ghost"}
               size="sm"
               onClick={() => setFiltersOpen(!filtersOpen)}
-              className="h-7 w-7 p-0"
+              className="w-7 p-0"
             >
-              <HugeiconsIcon icon={FilterIcon} className="w-3.5 h-3.5" />
+              <Filter className="w-4 h-4" />
             </Button>
           </div>
 
           {/* Search */}
           <div className="relative">
             <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-              <HugeiconsIcon icon={Search01Icon} size={14} className="text-muted-foreground" />
+              <Search className="w-4 h-4 text-muted-foreground" />
             </div>
             <Input
               type="text"
               placeholder="Search customers..."
-              className="pl-8 h-8 text-sm"
+              aria-label="Search customers"
+              className="pl-8 text-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -181,7 +183,7 @@ const CustomersPage = () => {
               <div className="mb-3">
                 <label className="block text-xs font-medium text-muted-foreground mb-1.5">Customer Type</label>
                 <Select value={customerTypeFilter} onValueChange={setCustomerTypeFilter}>
-                  <SelectTrigger className="h-8 text-sm">
+                  <SelectTrigger className="text-sm">
                     <SelectValue placeholder="All Types" />
                   </SelectTrigger>
                   <SelectContent>
@@ -199,29 +201,23 @@ const CustomersPage = () => {
         {/* Customer List */}
         <div className="flex-1 overflow-y-auto overscroll-y-contain">
           {isLoading ? (
-            <div className="p-3 space-y-2">
+            <div className="p-4 space-y-4">
               {[...Array(8)].map((_, i) => (
                 <div key={i} className="flex items-center gap-2.5 p-2">
-                  <div className="w-8 h-8 bg-muted rounded-full animate-pulse" />
+                  <Skeleton className="w-8 h-8 rounded-full" />
                   <div className="flex-1 space-y-1.5">
-                    <div className="h-3.5 w-32 bg-muted rounded animate-pulse" />
-                    <div className="h-3 w-24 bg-muted rounded animate-pulse" />
+                    <Skeleton className="h-3.5 w-32" />
+                    <Skeleton className="h-3 w-24" />
                   </div>
                 </div>
               ))}
             </div>
           ) : filteredCustomers.length === 0 ? (
-            <div className="p-4">
-              <div className="text-center">
-                <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
-                  <HugeiconsIcon icon={UserMultipleIcon} size={20} className="text-muted-foreground" />
-                </div>
-                <p className="text-sm font-medium mb-1">No customers found</p>
-                <p className="text-xs text-muted-foreground">
-                  {hasActiveFilters ? "Try adjusting your filters" : "Add your first customer"}
-                </p>
-              </div>
-            </div>
+            <EmptyState
+              icon={<Users className="w-6 h-6 text-muted-foreground" />}
+              title="No customers found"
+              description={hasActiveFilters ? "Try adjusting your filters" : "Add your first customer"}
+            />
           ) : (
             <div className="divide-y">
               {filteredCustomers.map((customer) => {
@@ -232,9 +228,8 @@ const CustomersPage = () => {
                 return (
                   <button
                     key={customer.id}
-                    className={`w-full text-left p-2.5 transition-colors hover:bg-accent ${
-                      isSelected ? 'bg-accent border-l-2 border-l-primary' : ''
-                    }`}
+                    className={`w-full text-left p-2.5 transition-colors hover:bg-accent ${isSelected ? 'bg-accent border-l-2 border-l-primary' : ''
+                      }`}
                     onClick={() => handleViewDetails(customer.id)}
                   >
                     <div className="flex items-center gap-2">
@@ -248,21 +243,21 @@ const CustomersPage = () => {
                           <h3 className="text-sm font-medium truncate">
                             {customer.name}
                           </h3>
-                          <Badge variant={customerType === 'WATU' ? 'default' : 'secondary'} className="text-[9px] h-3.5 px-1">
+                          <Badge variant={customerType === 'WATU' ? 'default' : 'secondary'} className="text-xs h-3.5 px-1">
                             {customerType}
                           </Badge>
                         </div>
                         <div className="flex items-center gap-2 text-xs text-muted-foreground">
                           <span className="flex items-center gap-0.5">
-                            <HugeiconsIcon icon={Car01Icon} className="w-3 h-3" />
+                            <Car className="w-3 h-3" />
                             {stats.vehicleCount}
                           </span>
                           <span className="flex items-center gap-0.5">
-                            <HugeiconsIcon icon={ClipboardIcon} className="w-3 h-3" />
+                            <ClipboardList className="w-3 h-3" />
                             {stats.totalWorkOrders}
                           </span>
                           {stats.openWorkOrders > 0 && (
-                            <Badge variant="outline" className="text-[9px] h-3.5 px-1">
+                            <Badge variant="outline" className="text-xs h-3.5 px-1">
                               {stats.openWorkOrders}
                             </Badge>
                           )}
@@ -292,7 +287,7 @@ const CustomersPage = () => {
                       onClick={() => setSelectedCustomerId(null)}
                       className="mr-1 -ml-1 h-7 w-7 p-0"
                     >
-                      <HugeiconsIcon icon={ArrowLeft01Icon} className="w-4 h-4" />
+                      <ArrowLeft className="w-4 h-4" />
                     </Button>
                   )}
                   <Avatar className="w-9 h-9">
@@ -310,39 +305,39 @@ const CustomersPage = () => {
                   onClick={() => navigate(`/customers/${selectedCustomer.id}`)}
                   className="text-xs h-7"
                 >
-                  <HugeiconsIcon icon={LinkSquare02Icon} className="w-3.5 h-3.5" />
+                  <ExternalLink className="w-3.5 h-3.5" />
                   View Details
                 </Button>
               </div>
             </div>
 
             {/* Stats Ribbon */}
-            <div className="grid grid-cols-4 gap-2 p-3 border-b bg-muted/30">
+            <div className="grid grid-cols-4 gap-4 p-4 border-b bg-muted/30">
               <div className="space-y-1">
                 <div className="flex items-center gap-1.5">
-                  <HugeiconsIcon icon={Car01Icon} className="w-3.5 h-3.5 text-muted-foreground" />
-                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Vehicles</p>
+                  <Car className="w-3.5 h-3.5 text-muted-foreground" />
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Vehicles</p>
                 </div>
                 <p className="text-xl font-bold">{selectedCustomerStats?.vehicleCount || 0}</p>
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-1.5">
-                  <HugeiconsIcon icon={ClipboardIcon} className="w-3.5 h-3.5 text-muted-foreground" />
-                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Total</p>
+                  <ClipboardList className="w-3.5 h-3.5 text-muted-foreground" />
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total</p>
                 </div>
                 <p className="text-xl font-bold">{selectedCustomerStats?.totalWorkOrders || 0}</p>
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-1.5">
-                  <HugeiconsIcon icon={Clock01Icon} className="w-3.5 h-3.5 text-muted-foreground" />
-                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Open</p>
+                  <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Open</p>
                 </div>
                 <p className="text-xl font-bold">{selectedCustomerStats?.openWorkOrders || 0}</p>
               </div>
               <div className="space-y-1">
                 <div className="flex items-center gap-1.5">
-                  <HugeiconsIcon icon={Calendar01Icon} className="w-3.5 h-3.5 text-muted-foreground" />
-                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wide">Since</p>
+                  <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Since</p>
                 </div>
                 <p className="text-sm font-semibold">
                   {dayjs(selectedCustomer.created_at).format('MMM YYYY')}
@@ -359,10 +354,10 @@ const CustomersPage = () => {
                     <CardTitle className="text-sm font-medium">Contact Information</CardTitle>
                   </CardHeader>
                   <CardContent className="pt-0">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       {selectedCustomer.phone && (
                         <div className="bg-muted rounded-md p-2.5">
-                          <div className="text-[10px] font-medium text-muted-foreground mb-0.5 uppercase tracking-wide">Phone</div>
+                          <div className="text-xs font-medium text-muted-foreground mb-0.5 uppercase tracking-wide">Phone</div>
                           <div className="text-sm font-semibold">{selectedCustomer.phone}</div>
                         </div>
                       )}
@@ -381,7 +376,7 @@ const CustomersPage = () => {
                         onClick={() => navigate(`/work-orders?customer=${selectedCustomer.id}`)}
                         className="h-auto p-0 text-xs"
                       >
-                        View All <HugeiconsIcon icon={ArrowRight01Icon} className="w-3 h-3 ml-0.5" />
+                        View All <ArrowRight className="w-3 h-3 ml-0.5" />
                       </Button>
                     </div>
                   </CardHeader>
@@ -406,15 +401,11 @@ const CustomersPage = () => {
                         visibleColumns={['workOrderNumber', 'status', 'priority', 'createdAt', 'service']}
                       />
                     ) : (
-                      <div className="text-center py-8">
-                        <div className="w-10 h-10 bg-muted rounded-full flex items-center justify-center mx-auto mb-2">
-                          <HugeiconsIcon icon={ClipboardIcon} size={18} className="text-muted-foreground" />
-                        </div>
-                        <p className="text-sm font-medium mb-0.5">No work orders yet</p>
-                        <p className="text-xs text-muted-foreground">
-                          Work orders will appear here
-                        </p>
-                      </div>
+                      <EmptyState
+                        icon={<ClipboardList className="w-6 h-6 text-muted-foreground" />}
+                        title="No work orders yet"
+                        description="Work orders will appear here"
+                      />
                     )}
                   </CardContent>
                 </Card>
@@ -425,7 +416,7 @@ const CustomersPage = () => {
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
               <div className="w-14 h-14 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
-                <HugeiconsIcon icon={UserMultipleIcon} size={28} className="text-muted-foreground" />
+                <Users className="w-8 h-8 text-muted-foreground" />
               </div>
               <h3 className="text-base font-semibold mb-1.5">Select a Customer</h3>
               <p className="text-sm text-muted-foreground max-w-sm">
@@ -440,3 +431,5 @@ const CustomersPage = () => {
 };
 
 export default CustomersPage;
+
+

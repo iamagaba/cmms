@@ -1,19 +1,20 @@
+import { Info } from 'lucide-react';
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { PackageIcon, InformationCircleIcon } from '@hugeicons/core-free-icons';
+
+
 
 const CodeSnippetsSection: React.FC = () => {
   return (
-    <Card className="border-indigo-200 bg-indigo-50">
+    <Card className="border-primary/20 bg-primary/5">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-indigo-900">
-          <HugeiconsIcon icon={PackageIcon} size={20} />
+          <Package className="w-5 h-5" />
           Quick Copy Templates
         </CardTitle>
-        <CardDescription className="text-indigo-700">
+        <CardDescription className="text-primary">
           Ready-to-use code snippets for common CMMS scenarios
         </CardDescription>
       </CardHeader>
@@ -31,14 +32,14 @@ const CodeSnippetsSection: React.FC = () => {
           <TabsContent value="form-dialog" className="space-y-3">
             <div>
               <h4 className="text-sm font-semibold text-indigo-900 mb-2">Work Order Creation Dialog</h4>
-              <p className="text-xs text-indigo-700 mb-3">Complete form dialog with validation-ready structure</p>
+              <p className="text-xs text-primary mb-3">Complete form dialog with validation-ready structure</p>
             </div>
             <div className="relative">
               <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg text-xs overflow-x-auto">
                 {`<Dialog>
   <DialogTrigger asChild>
     <Button>
-      <HugeiconsIcon icon={Add01Icon} size={16} />
+      <Plus className="w-5 h-5" />
       Create Work Order
     </Button>
   </DialogTrigger>
@@ -95,7 +96,7 @@ const CodeSnippetsSection: React.FC = () => {
           <TabsContent value="data-table" className="space-y-3">
             <div>
               <h4 className="text-sm font-semibold text-indigo-900 mb-2">Interactive Data Table</h4>
-              <p className="text-xs text-indigo-700 mb-3">Table with selection, actions, and status badges</p>
+              <p className="text-xs text-primary mb-3">Table with selection, actions, and status badges</p>
             </div>
             <div className="relative">
               <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg text-xs overflow-x-auto">
@@ -130,14 +131,14 @@ const CodeSnippetsSection: React.FC = () => {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button size="icon" variant="ghost">
-                <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
+                <MoreVerticalIcon className="w-4 h-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem>View Details</DropdownMenuItem>
               <DropdownMenuItem>Edit</DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600">
+              <DropdownMenuItem className="text-destructive">
                 Delete
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -155,7 +156,7 @@ const CodeSnippetsSection: React.FC = () => {
           <TabsContent value="stat-ribbon" className="space-y-3">
             <div>
               <h4 className="text-sm font-semibold text-indigo-900 mb-2">Dashboard Stat Ribbon</h4>
-              <p className="text-xs text-indigo-700 mb-3">Horizontal metrics bar with icons and color-coded values</p>
+              <p className="text-xs text-primary mb-3">Horizontal metrics bar with icons and color-coded values</p>
             </div>
             <div className="relative">
               <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg text-xs overflow-x-auto">
@@ -163,40 +164,32 @@ const CodeSnippetsSection: React.FC = () => {
   <CardContent className="pt-6">
     <div className="flex items-center divide-x divide-gray-200">
       <div className="flex items-center gap-2 px-4 first:pl-0">
-        <HugeiconsIcon 
-          icon={ClipboardIcon} 
-          size={14} 
-          className="text-blue-600" 
+        <ClipboardIcon 
+          className="w-4 h-4 text-muted-foreground" 
         />
         <span className="text-xs text-gray-500">Total:</span>
         <span className="text-lg font-semibold text-gray-900">24</span>
       </div>
       <div className="flex items-center gap-2 px-4">
-        <HugeiconsIcon 
-          icon={CheckmarkCircle01Icon} 
-          size={14} 
-          className="text-emerald-600" 
+        <CheckmarkCircle01Icon 
+          className="w-4 h-4 text-foreground" 
         />
         <span className="text-xs text-gray-500">Completed:</span>
-        <span className="text-lg font-semibold text-emerald-700">18</span>
+        <span className="text-lg font-semibold text-foreground">18</span>
       </div>
       <div className="flex items-center gap-2 px-4">
-        <HugeiconsIcon 
-          icon={Clock01Icon} 
-          size={14} 
-          className="text-orange-600" 
+        <Clock01Icon 
+          className="w-4 h-4 text-muted-foreground" 
         />
         <span className="text-xs text-gray-500">In Progress:</span>
-        <span className="text-lg font-semibold text-orange-700">4</span>
+        <span className="text-lg font-semibold text-muted-foreground">4</span>
       </div>
       <div className="flex items-center gap-2 px-4">
-        <HugeiconsIcon 
-          icon={AlertCircleIcon} 
-          size={14} 
-          className="text-red-600" 
+        <AlertCircle 
+          className="w-4 h-4 text-destructive" 
         />
         <span className="text-xs text-gray-500">Overdue:</span>
-        <span className="text-lg font-semibold text-red-700">2</span>
+        <span className="text-lg font-semibold text-destructive">2</span>
       </div>
     </div>
   </CardContent>
@@ -209,7 +202,7 @@ const CodeSnippetsSection: React.FC = () => {
           <TabsContent value="status-badge" className="space-y-3">
             <div>
               <h4 className="text-sm font-semibold text-indigo-900 mb-2">Status & Priority Badges</h4>
-              <p className="text-xs text-indigo-700 mb-3">All available badge variants for work orders</p>
+              <p className="text-xs text-primary mb-3">All available badge variants for work orders</p>
             </div>
             <div className="relative">
               <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg text-xs overflow-x-auto">
@@ -246,7 +239,7 @@ const CodeSnippetsSection: React.FC = () => {
           <TabsContent value="action-menu" className="space-y-3">
             <div>
               <h4 className="text-sm font-semibold text-indigo-900 mb-2">Dropdown Action Menu</h4>
-              <p className="text-xs text-indigo-700 mb-3">Context menu for row actions and bulk operations</p>
+              <p className="text-xs text-primary mb-3">Context menu for row actions and bulk operations</p>
             </div>
             <div className="relative">
               <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg text-xs overflow-x-auto">
@@ -254,27 +247,27 @@ const CodeSnippetsSection: React.FC = () => {
   <DropdownMenuTrigger asChild>
     <Button variant="outline">
       Actions
-      <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
+      <MoreVerticalIcon className="w-4 h-4" />
     </Button>
   </DropdownMenuTrigger>
   <DropdownMenuContent align="end">
     <DropdownMenuLabel>Work Order Actions</DropdownMenuLabel>
     <DropdownMenuSeparator />
     <DropdownMenuItem>
-      <HugeiconsIcon icon={PencilEdit01Icon} size={14} className="mr-2" />
+      <PencilEdit01Icon className="w-4 h-4 mr-2" />
       Edit Details
     </DropdownMenuItem>
     <DropdownMenuItem>
-      <HugeiconsIcon icon={UserIcon} size={14} className="mr-2" />
+      <UserIcon className="w-4 h-4 mr-2" />
       Assign Technician
     </DropdownMenuItem>
     <DropdownMenuItem>
-      <HugeiconsIcon icon={RefreshIcon} size={14} className="mr-2" />
+      <RefreshIcon className="w-4 h-4 mr-2" />
       Change Status
     </DropdownMenuItem>
     <DropdownMenuSeparator />
-    <DropdownMenuItem className="text-red-600">
-      <HugeiconsIcon icon={Delete01Icon} size={14} className="mr-2" />
+    <DropdownMenuItem className="text-destructive">
+      <Trash2 className="w-4 h-4 mr-2" />
       Delete Work Order
     </DropdownMenuItem>
   </DropdownMenuContent>
@@ -284,8 +277,8 @@ const CodeSnippetsSection: React.FC = () => {
           </TabsContent>
         </Tabs>
 
-        <Alert className="border-indigo-300 bg-indigo-100 mt-4">
-          <HugeiconsIcon icon={InformationCircleIcon} size={16} className="text-indigo-700" />
+        <Alert className="border-indigo-300 bg-primary/10 mt-4">
+          <Info className="w-4 h-4 text-primary" />
           <AlertTitle className="text-indigo-900">How to Use These Templates</AlertTitle>
           <AlertDescription className="text-indigo-800">
             <ol className="text-xs space-y-1 mt-2 ml-4 list-decimal">
@@ -303,3 +296,7 @@ const CodeSnippetsSection: React.FC = () => {
 };
 
 export default CodeSnippetsSection;
+
+
+
+

@@ -35,37 +35,37 @@ const variantMap = {
     filled: {
         primary: 'bg-primary-500 text-white hover:bg-primary-600',
         gray: 'bg-gray-500 text-white hover:bg-gray-600',
-        red: 'bg-red-500 text-white hover:bg-red-600',
-        green: 'bg-green-500 text-white hover:bg-green-600',
+        red: 'bg-destructive text-white hover:bg-destructive',
+        green: 'bg-emerald-500 text-white hover:bg-emerald-600',
         blue: 'bg-blue-500 text-white hover:bg-blue-600',
     },
     light: {
         primary: 'bg-primary-50 text-primary-700 hover:bg-primary-100',
         gray: 'bg-gray-100 text-gray-700 hover:bg-gray-200',
-        red: 'bg-red-50 text-red-700 hover:bg-red-100',
-        green: 'bg-green-50 text-green-700 hover:bg-green-100',
-        blue: 'bg-blue-50 text-blue-700 hover:bg-blue-100',
+        red: 'bg-destructive/10 text-destructive hover:bg-destructive/10',
+        green: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100',
+        blue: 'bg-muted text-muted-foreground hover:bg-muted',
     },
     outline: {
         primary: 'border border-primary-500 text-primary-500 hover:bg-primary-50',
         gray: 'border border-gray-500 text-gray-500 hover:bg-gray-50',
-        red: 'border border-red-500 text-red-500 hover:bg-red-50',
-        green: 'border border-green-500 text-green-500 hover:bg-green-50',
-        blue: 'border border-blue-500 text-blue-500 hover:bg-blue-50',
+        red: 'border border-destructive text-destructive hover:bg-destructive/5',
+        green: 'border border-emerald-500 text-emerald-500 hover:bg-emerald-50',
+        blue: 'border border-blue-500 text-blue-500 hover:bg-muted',
     },
     subtle: {
         primary: 'text-primary-600 hover:bg-primary-50',
         gray: 'text-gray-600 hover:bg-gray-50',
-        red: 'text-red-600 hover:bg-red-50',
-        green: 'text-green-600 hover:bg-green-50',
-        blue: 'text-blue-600 hover:bg-blue-50',
+        red: 'text-destructive hover:bg-destructive/5',
+        green: 'text-emerald-600 hover:bg-emerald-50',
+        blue: 'text-muted-foreground hover:bg-muted',
     },
     transparent: {
         primary: 'text-primary-600 hover:bg-primary-50/50',
         gray: 'text-gray-600 hover:bg-gray-50/50',
-        red: 'text-red-600 hover:bg-red-50/50',
-        green: 'text-green-600 hover:bg-green-50/50',
-        blue: 'text-blue-600 hover:bg-blue-50/50',
+        red: 'text-destructive hover:bg-destructive/5/50',
+        green: 'text-emerald-600 hover:bg-emerald-50/50',
+        blue: 'text-muted-foreground hover:bg-muted/50',
     },
 };
 
@@ -99,3 +99,4 @@ export function ActionIcon({
         </button>
     );
 }
+

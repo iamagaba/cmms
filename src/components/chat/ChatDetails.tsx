@@ -1,12 +1,7 @@
+import { Bike, Plus } from 'lucide-react';
 import React, { useState } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-    Call02Icon,
-    Message01Icon as MessageIcon,
-    Location01Icon,
-    Motorbike01Icon,
-    Add01Icon,
-} from '@hugeicons/core-free-icons';
+
+
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
@@ -61,18 +56,18 @@ export const ChatDetails: React.FC<ChatDetailsProps> = ({ chat }) => {
 
                         <div className="mt-3 w-full space-y-2.5">
                             <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                <HugeiconsIcon icon={Call02Icon} size={14} className="text-primary" />
+                                <Phone className="w-4 h-4 text-primary" />
                                 <span>{chat.customerPhone}</span>
                             </div>
                             {chat.whatsappVerified && (
                                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                    <HugeiconsIcon icon={MessageIcon} size={14} className="text-green-500" />
+                                    <MessageIcon className="w-4 h-4 text-green-500" />
                                     <span className="text-green-600 dark:text-green-400 font-medium">WhatsApp Verified</span>
                                 </div>
                             )}
                             {chat.location && (
                                 <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                                    <HugeiconsIcon icon={Location01Icon} size={14} className="text-muted-foreground" />
+                                    <Location01Icon className="w-4 h-4 text-muted-foreground" />
                                     <span>{chat.location}</span>
                                 </div>
                             )}
@@ -92,7 +87,7 @@ export const ChatDetails: React.FC<ChatDetailsProps> = ({ chat }) => {
                             <div className="group hover:bg-muted/50 p-2.5 -mx-2.5 rounded-xl transition-all cursor-pointer border border-transparent hover:border-border">
                                 <div className="flex justify-between items-start mb-1">
                                     <span className="text-sm font-bold text-primary font-mono">WO-20260109-6248</span>
-                                    <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 text-[10px] font-bold rounded">Ready</span>
+                                    <span className="px-1.5 py-0.5 bg-muted text-muted-foreground dark:bg-blue-900/30 dark:text-blue-300 text-xs font-bold rounded">Ready</span>
                                 </div>
                                 <p className="text-sm text-muted-foreground mb-1">Engine Issues</p>
                                 <div className="flex justify-between items-center text-xs text-muted-foreground">
@@ -104,7 +99,7 @@ export const ChatDetails: React.FC<ChatDetailsProps> = ({ chat }) => {
                             <div className="group hover:bg-muted/50 p-2.5 -mx-2.5 rounded-xl transition-all cursor-pointer border border-transparent hover:border-border">
                                 <div className="flex justify-between items-start mb-1">
                                     <span className="text-sm font-bold text-primary font-mono">WO-20260106-5402</span>
-                                    <span className="px-1.5 py-0.5 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 text-[10px] font-bold rounded">Completed</span>
+                                    <span className="px-1.5 py-0.5 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300 text-xs font-bold rounded">Completed</span>
                                 </div>
                                 <p className="text-sm text-muted-foreground mb-1">Engine Issues</p>
                                 <div className="flex justify-between items-center text-xs text-muted-foreground">
@@ -115,7 +110,7 @@ export const ChatDetails: React.FC<ChatDetailsProps> = ({ chat }) => {
                         </div>
 
                         <Button className="w-full mt-6 text-sm font-bold gap-2" size="sm">
-                            <HugeiconsIcon icon={Add01Icon} size={16} />
+                            <Plus className="w-5 h-5" />
                             Create Work Order
                         </Button>
 
@@ -126,3 +121,6 @@ export const ChatDetails: React.FC<ChatDetailsProps> = ({ chat }) => {
         </div>
     );
 };
+
+
+

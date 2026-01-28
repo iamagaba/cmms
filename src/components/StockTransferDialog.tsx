@@ -1,12 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  ArrowRight01Icon,
-  Building02Icon,
-  Delete01Icon,
-  Loading03Icon,
-  ArrowDataTransferHorizontalIcon
-} from '@hugeicons/core-free-icons';
+import { ArrowRight, Building2, Trash2, Loader, ArrowLeftRight } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { InventoryItem } from '@/types/supabase';
@@ -171,8 +164,8 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-              <HugeiconsIcon icon={ArrowDataTransferHorizontalIcon} size={24} className="text-blue-600 dark:text-blue-400" />
+            <div className="w-10 h-10 rounded-lg bg-muted dark:bg-blue-900/30 flex items-center justify-center">
+              <ArrowLeftRight className="w-6 h-6 text-muted-foreground dark:text-blue-400" />
             </div>
             <div>
               <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">Transfer Stock</DialogTitle>
@@ -260,15 +253,15 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
 
               {/* Visual Transfer Indicator */}
               {fromWarehouse && toWarehouse && (
-                <div className="flex items-center justify-center gap-4 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                <div className="flex items-center justify-center gap-4 p-4 bg-muted rounded-lg">
                   <div className="text-center">
-                    <HugeiconsIcon icon={Building02Icon} size={32} className="text-gray-400 mx-auto mb-1" />
-                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{fromWarehouse}</div>
+                    <Building2 className="w-8 h-8 text-muted-foreground mx-auto mb-1" />
+                    <div className="text-sm font-medium">{fromWarehouse}</div>
                   </div>
-                  <HugeiconsIcon icon={ArrowRight01Icon} size={24} className="text-blue-500" />
+                  <ArrowRight className="w-6 h-6 text-primary" />
                   <div className="text-center">
-                    <HugeiconsIcon icon={Building02Icon} size={32} className="text-blue-500 mx-auto mb-1" />
-                    <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{toWarehouse}</div>
+                    <Building2 className="w-8 h-8 text-primary mx-auto mb-1" />
+                    <div className="text-sm font-medium">{toWarehouse}</div>
                   </div>
                 </div>
               )}
@@ -297,7 +290,7 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
                       type="button"
                       onClick={handleAddItem}
                       disabled={!selectedItemId}
-                      className="bg-purple-600 hover:bg-purple-700"
+                      variant="default"
                     >
                       Add
                     </Button>
@@ -314,22 +307,22 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
               {fields.length > 0 && (
                 <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
                   <Table>
-                    <TableHeader className="bg-gray-50 dark:bg-gray-800">
+                    <TableHeader>
                       <TableRow>
-                        <TableHead className="text-left font-medium text-gray-700 dark:text-gray-300">Item</TableHead>
-                        <TableHead className="text-center font-medium text-gray-700 dark:text-gray-300 w-24">Available</TableHead>
-                        <TableHead className="text-center font-medium text-gray-700 dark:text-gray-300 w-28">Transfer Qty</TableHead>
+                        <TableHead>Item</TableHead>
+                        <TableHead className="text-center w-24">Available</TableHead>
+                        <TableHead className="text-center w-28">Transfer Qty</TableHead>
                         <TableHead className="w-12"></TableHead>
                       </TableRow>
                     </TableHeader>
-                    <TableBody className="divide-y divide-gray-200 dark:divide-gray-700">
+                    <TableBody>
                       {fields.map((field, index) => (
                         <TableRow key={field.id}>
                           <TableCell>
-                            <div className="font-medium text-gray-900 dark:text-gray-100">{field.item_name}</div>
-                            <div className="text-xs text-gray-500">{field.item_sku}</div>
+                            <div className="font-medium text-sm">{field.item_name}</div>
+                            <div className="text-xs text-muted-foreground">{field.item_sku}</div>
                           </TableCell>
-                          <TableCell className="text-center text-gray-600 dark:text-gray-400">
+                          <TableCell className="text-center text-muted-foreground">
                             {field.maxQuantity}
                           </TableCell>
                           <TableCell>
@@ -342,7 +335,7 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
                                     type="number"
                                     min="1"
                                     max={fields[index].maxQuantity}
-                                    className="h-8 px-2 text-center"
+                                    className="text-center"
                                     {...field}
                                   />
                                 </FormControl>
@@ -353,9 +346,9 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
                             <button
                               type="button"
                               onClick={() => remove(index)}
-                              className="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
+                              className="p-1.5 text-destructive hover:bg-destructive/10 rounded"
                             >
-                              <HugeiconsIcon icon={Delete01Icon} size={16} />
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </TableCell>
                         </TableRow>
@@ -382,8 +375,8 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
 
               {/* Summary */}
               {fields.length > 0 && (
-                <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-                  <div className="text-sm text-blue-700 dark:text-blue-300">
+                <div className="bg-muted dark:bg-blue-900/20 rounded-lg p-4">
+                  <div className="text-sm text-muted-foreground dark:text-blue-300">
                     Transferring <span className="font-semibold">{fields.length}</span> items ({totalItems} units) from {fromWarehouse} to {toWarehouse}
                   </div>
                 </div>
@@ -401,10 +394,9 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
               </Button>
               <Button
                 type="submit"
-                className="bg-blue-600 hover:bg-blue-700"
                 disabled={fields.length === 0 || !fromWarehouse || !toWarehouse || form.formState.isSubmitting}
               >
-                {form.formState.isSubmitting && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin mr-2" />}
+                {form.formState.isSubmitting && <Loader className="w-4 h-4 animate-spin mr-2" />}
                 Transfer
               </Button>
             </div>

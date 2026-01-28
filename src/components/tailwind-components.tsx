@@ -232,7 +232,7 @@ const TabsTab: React.FC<{ value: string; children: React.ReactNode; leftSection?
   return (
     <button
       onClick={() => setActiveTab(value)}
-      className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-all ${isActive ? 'border-primary-600 text-primary-700 font-semibold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+      className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-all ${isActive ? 'border-primary text-primary font-semibold' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
         }`}
     >
       {leftSection}
@@ -265,10 +265,10 @@ interface AlertProps {
 }
 
 const alertColorMap = {
-  blue: 'bg-blue-50 border-blue-200 text-blue-800',
+  blue: 'bg-muted border-blue-200 text-blue-800',
   yellow: 'bg-amber-50 border-amber-200 text-amber-800',
-  red: 'bg-red-50 border-red-200 text-red-800',
-  green: 'bg-emerald-50 border-emerald-200 text-emerald-800',
+  red: 'bg-destructive/10 border-destructive/20 text-destructive',
+  green: 'bg-muted border-emerald-200 text-emerald-800',
 };
 
 export const Alert: React.FC<AlertProps> = ({ children, color = 'blue', title, icon, className = '', style, withCloseButton, onClose }) => (
@@ -458,8 +458,8 @@ export const ThemeIcon: React.FC<ThemeIconProps> = ({
   let variantClass = '';
   if (color === 'blue') {
     if (variant === 'filled') variantClass = 'bg-blue-600 text-white';
-    else if (variant === 'outline') variantClass = 'border border-blue-600 text-blue-600';
-    else if (variant === 'light') variantClass = 'bg-blue-50 text-blue-700';
+    else if (variant === 'outline') variantClass = 'border border-blue-600 text-muted-foreground';
+    else if (variant === 'light') variantClass = 'bg-muted text-muted-foreground';
   } else {
     if (variant === 'filled') variantClass = 'bg-primary-600 text-white';
     else if (variant === 'outline') variantClass = 'border border-primary-600 text-primary-600';
@@ -653,13 +653,13 @@ interface BadgeProps {
 
 const badgeColorMap = {
   gray: { filled: 'bg-gray-600 text-white', outline: 'border-gray-600 text-gray-600', light: 'bg-gray-100 text-gray-800' },
-  red: { filled: 'bg-red-600 text-white', outline: 'border-red-600 text-red-600', light: 'bg-red-100 text-red-800' },
-  yellow: { filled: 'bg-yellow-600 text-white', outline: 'border-yellow-600 text-yellow-600', light: 'bg-yellow-100 text-yellow-800' },
-  green: { filled: 'bg-green-600 text-white', outline: 'border-green-600 text-green-600', light: 'bg-green-100 text-green-800' },
-  blue: { filled: 'bg-blue-600 text-white', outline: 'border-blue-600 text-blue-600', light: 'bg-blue-100 text-blue-800' },
-  indigo: { filled: 'bg-indigo-600 text-white', outline: 'border-indigo-600 text-indigo-600', light: 'bg-indigo-100 text-indigo-800' },
-  purple: { filled: 'bg-purple-600 text-white', outline: 'border-purple-600 text-purple-600', light: 'bg-purple-100 text-purple-800' },
-  pink: { filled: 'bg-pink-600 text-white', outline: 'border-pink-600 text-pink-600', light: 'bg-pink-100 text-pink-800' },
+  red: { filled: 'bg-destructive text-white', outline: 'border-destructive text-destructive', light: 'bg-destructive/20 text-destructive' },
+  yellow: { filled: 'bg-amber-600 text-white', outline: 'border-amber-600 text-amber-600', light: 'bg-amber-100 text-amber-800' },
+  green: { filled: 'bg-emerald-600 text-white', outline: 'border-emerald-600 text-emerald-600', light: 'bg-emerald-100 text-emerald-800' },
+  blue: { filled: 'bg-blue-600 text-white', outline: 'border-blue-600 text-muted-foreground', light: 'bg-muted text-blue-800' },
+  indigo: { filled: 'bg-primary text-white', outline: 'border-primary text-primary', light: 'bg-primary/10 text-primary' },
+  purple: { filled: 'bg-primary text-white', outline: 'border-primary text-primary', light: 'bg-primary/10 text-primary' },
+  pink: { filled: 'bg-primary text-white', outline: 'border-primary text-primary', light: 'bg-primary/10 text-primary' },
 };
 
 const badgeSizeMap = {

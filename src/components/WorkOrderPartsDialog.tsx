@@ -1,13 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  Add01Icon,
-  PackageIcon,
-  Clock01Icon,
-  Search01Icon,
-  Delete01Icon,
-  PackageRemoveIcon
-} from '@hugeicons/core-free-icons';
+import { Plus, Package, Clock, Search, Trash2, PackageX } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { InventoryItem } from '@/types/supabase';
@@ -19,6 +11,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   useWorkOrderParts,
   usePartReservations,
@@ -156,64 +153,60 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
-          <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden flex flex-col p-0">
+        <DialogHeader className="p-4 pb-0">
+          <DialogTitle className="text-base font-semibold">
             Parts & Materials
           </DialogTitle>
-          <DialogDescription className="text-sm text-gray-500 dark:text-gray-400">
+          <DialogDescription className="text-xs">
             {workOrderNumber ? `Work Order: ${workOrderNumber}` : 'Manage parts for this work order'}
           </DialogDescription>
         </DialogHeader>
 
         {/* Tabs */}
-        <div className="flex border-b border-gray-200 dark:border-gray-700">
-          {[
-            { id: 'add', label: 'Add Parts', icon: Add01Icon },
-            { id: 'used', label: `Used (${usedParts?.length || 0})`, icon: PackageIcon },
-            { id: 'reserved', label: `Reserved (${reservations?.length || 0})`, icon: Clock01Icon },
-          ].map(tab => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id as TabType)}
-              className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${activeTab === tab.id
-                ? 'text-purple-600 dark:text-purple-400 border-b-2 border-purple-600 dark:border-purple-400'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
-                }`}
-            >
-              <HugeiconsIcon icon={tab.icon} size={16} />
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as TabType)} className="flex-1 flex flex-col">
+          <TabsList className="w-full justify-start rounded-none border-b h-auto p-0">
+            <TabsTrigger value="add" className="flex items-center gap-2 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+              <Plus className="w-4 h-4" />
+              Add Parts
+            </TabsTrigger>
+            <TabsTrigger value="used" className="flex items-center gap-2 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+              <Package className="w-4 h-4" />
+              Used ({usedParts?.length || 0})
+            </TabsTrigger>
+            <TabsTrigger value="reserved" className="flex items-center gap-2 data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+              <Clock className="w-4 h-4" />
+              Reserved ({reservations?.length || 0})
+            </TabsTrigger>
+          </TabsList>
 
-        {/* Content */}
-        <div className="flex-1 overflow-auto p-6">
-          {activeTab === 'add' && (
-            <div className="space-y-4">
+          {/* Content */}
+          <div className="flex-1 overflow-auto p-4">
+            <TabsContent value="add" className="mt-0 space-y-4">
               {/* Search */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <Label htmlFor="search" className="text-xs font-medium mb-1.5">
                   Search Inventory
-                </label>
+                </Label>
                 <div className="relative">
                   <div className="absolute left-3 top-1/2 -translate-y-1/2">
-                    <HugeiconsIcon icon={Search01Icon} size={16} className="text-gray-400" />
+                    <Search className="w-4 h-4 text-muted-foreground" />
                   </div>
-                  <input
+                  <Input
+                    id="search"
                     type="text"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     placeholder="Search inventory..."
-                    className="w-full pl-10 pr-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm"
+                    className="pl-10"
                   />
                 </div>
               </div>
 
               {/* Item Selection */}
-              <div className="max-h-48 overflow-auto border border-gray-200 dark:border-gray-700 rounded-lg">
+              <div className="max-h-48 overflow-auto border rounded-lg">
                 {filteredItems.length === 0 ? (
-                  <div className="p-4 text-center text-sm text-gray-500">No items found</div>
+                  <div className="p-4 text-center text-sm text-muted-foreground">No items found</div>
                 ) : (
                   filteredItems.map(item => {
                     const isSelected = selectedItemId === item.id;
@@ -225,25 +218,25 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
                         key={item.id}
                         onClick={() => setSelectedItemId(item.id)}
                         disabled={isOutOfStock}
-                        className={`w-full flex items-center justify-between p-3 text-left border-b border-gray-100 dark:border-gray-800 last:border-0 transition-colors ${isSelected
-                          ? 'bg-purple-50 dark:bg-purple-900/30'
+                        className={`w-full flex items-center justify-between p-3 text-left border-b last:border-0 transition-colors ${isSelected
+                          ? 'bg-primary/5'
                           : isOutOfStock
-                            ? 'bg-gray-50 dark:bg-gray-800/50 opacity-50 cursor-not-allowed'
-                            : 'hover:bg-gray-50 dark:hover:bg-gray-800'
+                            ? 'bg-muted/50 opacity-50 cursor-not-allowed'
+                            : 'hover:bg-muted/50'
                           }`}
                       >
                         <div>
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.name}</p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-sm font-medium">{item.name}</p>
+                          <p className="text-xs text-muted-foreground">
                             {item.sku || 'No SKU'}
                             {item.model && ` • ${item.model}`}
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className={`text-sm font-medium ${isOutOfStock ? 'text-red-600' : 'text-gray-900 dark:text-gray-100'}`}>
+                          <p className={`text-sm font-medium ${isOutOfStock ? 'text-destructive' : ''}`}>
                             {formatQuantityWithUnit(qty, item.unit_of_measure)}
                           </p>
-                          <p className="text-xs text-gray-500">UGX {(item.unit_price ?? 0).toLocaleString()}</p>
+                          <p className="text-xs text-muted-foreground">UGX {(item.unit_price ?? 0).toLocaleString()}</p>
                         </div>
                       </button>
                     );
@@ -253,14 +246,14 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
 
               {/* Selected Item Details */}
               {selectedItem && (
-                <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
+                <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
                   <div className="flex items-center justify-between mb-3">
                     <div>
-                      <p className="font-medium text-gray-900 dark:text-gray-100">
+                      <p className="font-medium text-sm">
                         {selectedItem.name}
-                        {selectedItem.model && <span className="text-gray-500 font-normal"> ({selectedItem.model})</span>}
+                        {selectedItem.model && <span className="text-muted-foreground font-normal"> ({selectedItem.model})</span>}
                       </p>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         Available: {availableQty ?? selectedItem.quantity_on_hand ?? 0} |
                         Price: UGX {(selectedItem.unit_price ?? 0).toLocaleString()}
                       </p>
@@ -269,147 +262,154 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
 
                   <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      <Label htmlFor="quantity" className="text-xs font-medium mb-1.5">
                         Quantity
-                      </label>
-                      <input
+                      </Label>
+                      <Input
+                        id="quantity"
                         type="number"
                         min="1"
                         max={availableQty ?? selectedItem.quantity_on_hand ?? 999}
                         value={quantity}
                         onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                        className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm"
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                      <Label className="text-xs font-medium mb-1.5">
                         Total Cost
-                      </label>
-                      <div className="px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-sm font-medium">
+                      </Label>
+                      <div className="px-3 py-2 bg-muted rounded-lg text-sm font-medium h-10 flex items-center">
                         UGX {(quantity * (selectedItem.unit_price ?? 0)).toLocaleString()}
                       </div>
                     </div>
                   </div>
 
                   <div className="mt-3">
-                    <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    <Label htmlFor="notes" className="text-xs font-medium mb-1.5">
                       Notes (optional)
-                    </label>
-                    <input
+                    </Label>
+                    <Input
+                      id="notes"
                       type="text"
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
                       placeholder="Add notes..."
-                      className="w-full px-3 py-2 border border-gray-200 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-sm"
                     />
                   </div>
 
-                  <div className="mt-4 flex items-center gap-3">
-                    <label className="flex items-center gap-2 text-sm">
-                      <input
-                        type="checkbox"
-                        checked={isReserving}
-                        onChange={(e) => setIsReserving(e.target.checked)}
-                        className="rounded border-gray-300"
-                      />
-                      <span className="text-gray-700 dark:text-gray-300">Reserve only (don't deduct yet)</span>
-                    </label>
+                  <div className="mt-3 flex items-center gap-2">
+                    <Checkbox
+                      id="reserve"
+                      checked={isReserving}
+                      onCheckedChange={(checked) => setIsReserving(checked === true)}
+                    />
+                    <Label htmlFor="reserve" className="text-xs font-normal cursor-pointer">
+                      Reserve only (don't deduct yet)
+                    </Label>
                   </div>
 
-                  <button
+                  <Button
                     onClick={handleAddPart}
                     disabled={addPartMutation.isPending || reservePartMutation.isPending}
-                    className="mt-4 w-full flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                    className="mt-3 w-full"
+                    size="sm"
                   >
-                    <HugeiconsIcon icon={isReserving ? Clock01Icon : Add01Icon} size={16} />
-                    {isReserving ? 'Reserve Part' : 'Add Part'}
-                  </button>
+                    {isReserving ? (
+                      <>
+                        <Clock className="w-4 h-4 mr-1.5" />
+                        Reserve Part
+                      </>
+                    ) : (
+                      <>
+                        <Plus className="w-4 h-4 mr-1.5" />
+                        Add Part
+                      </>
+                    )}
+                  </Button>
                 </div>
               )}
-            </div>
-          )}
+            </TabsContent>
 
-          {activeTab === 'used' && (
-            <div className="space-y-3">
+            <TabsContent value="used" className="mt-0 space-y-3">
               {isLoadingParts ? (
-                <div className="text-center py-8 text-gray-500">Loading...</div>
+                <div className="text-center py-8 text-muted-foreground text-sm">Loading...</div>
               ) : !usedParts?.length ? (
                 <div className="text-center py-8">
-                  <HugeiconsIcon icon={PackageRemoveIcon} size={48} className="text-gray-300 mx-auto mb-2" />
-                  <p className="text-sm text-gray-500">No parts used yet</p>
+                  <PackageX className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">No parts used yet</p>
                 </div>
               ) : (
                 <>
                   {usedParts.map(part => (
                     <div
                       key={part.id}
-                      className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
                     >
                       <div>
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        <p className="text-sm font-medium">
                           {part.inventory_items?.name || 'Unknown Item'}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-muted-foreground">
                           {part.inventory_items?.sku || 'No SKU'}
                           {part.inventory_items?.model && ` • ${part.inventory_items.model}`} • Qty: {part.quantity_used}
                         </p>
                         {part.notes && (
-                          <p className="text-xs text-gray-400 mt-1">{part.notes}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{part.notes}</p>
                         )}
                       </div>
                       <div className="flex items-center gap-3">
-                        <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                        <span className="text-sm font-medium">
                           UGX {(part.total_cost || 0).toLocaleString()}
                         </span>
-                        <button
+                        <Button
+                          variant="ghost"
+                          size="icon"
                           onClick={() => handleRemovePart(part.id)}
                           disabled={removePartMutation.isPending}
-                          className="p-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded"
+                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                           title="Remove and restore to inventory"
                         >
-                          <HugeiconsIcon icon={Delete01Icon} size={16} />
-                        </button>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
                   ))}
 
                   {/* Total */}
-                  <div className="flex items-center justify-between p-3 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                    <span className="text-sm font-medium text-gray-900 dark:text-gray-100">Total Parts Cost</span>
-                    <span className="text-lg font-semibold text-purple-600 dark:text-purple-400">
+                  <div className="flex items-center justify-between p-3 bg-primary/5 rounded-lg border border-primary/10">
+                    <span className="text-sm font-medium">Total Parts Cost</span>
+                    <span className="text-lg font-semibold text-primary">
                       UGX {totalPartsCost.toLocaleString()}
                     </span>
                   </div>
                 </>
               )}
-            </div>
-          )}
+            </TabsContent>
 
-          {activeTab === 'reserved' && (
-            <div className="space-y-3">
+            <TabsContent value="reserved" className="mt-0 space-y-3">
               {isLoadingReservations ? (
-                <div className="text-center py-8 text-gray-500">Loading...</div>
+                <div className="text-center py-8 text-muted-foreground text-sm">Loading...</div>
               ) : !reservations?.length ? (
                 <div className="text-center py-8">
-                  <HugeiconsIcon icon={Clock01Icon} size={48} className="text-gray-300 mx-auto mb-2" />
-                  <p className="text-sm text-gray-500">No reservations</p>
+                  <Clock className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">No reservations</p>
                 </div>
               ) : (
                 reservations.map(res => (
                   <div
                     key={res.id}
-                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
+                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
                   >
                     <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                      <p className="text-sm font-medium">
                         {res.inventory_items?.name || 'Unknown Item'}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-muted-foreground">
                         Qty: {res.quantity_reserved}
                         {res.inventory_items?.model && ` • ${res.inventory_items.model}`} • Status: {res.status}
                       </p>
                       {res.expires_at && (
-                        <p className="text-xs text-orange-600">
+                        <p className="text-xs text-muted-foreground">
                           Expires: {new Date(res.expires_at).toLocaleDateString()}
                         </p>
                       )}
@@ -417,30 +417,34 @@ export const WorkOrderPartsDialog: React.FC<WorkOrderPartsDialogProps> = ({
                     <div className="flex items-center gap-2">
                       {res.status === 'pending' && (
                         <>
-                          <button
+                          <Button
+                            size="sm"
                             onClick={() => handleFulfillReservation(res.id)}
                             disabled={fulfillReservationMutation.isPending}
-                            className="px-3 py-1.5 text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded"
+                            className="bg-emerald-600 hover:bg-emerald-700"
                           >
                             Use Now
-                          </button>
-                          <button
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
                             onClick={() => handleCancelReservation(res.id)}
                             disabled={cancelReservationMutation.isPending}
-                            className="px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded border border-red-200"
+                            className="text-destructive border-destructive/20 hover:bg-destructive/10"
                           >
                             Cancel
-                          </button>
+                          </Button>
                         </>
                       )}
                     </div>
                   </div>
                 ))
               )}
-            </div>
-          )}
-        </div>
+            </TabsContent>
+          </div>
+        </Tabs>
       </DialogContent>
     </Dialog>
   );
 };
+

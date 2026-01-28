@@ -68,7 +68,7 @@ export const ShiftEditorDialog: React.FC<ShiftEditorDialogProps> = ({
 
   const handleSave = async () => {
     if (!locationId) {
-      setError('Please select a location');
+      setError('Select a location');
       return;
     }
 
@@ -155,7 +155,6 @@ export const ShiftEditorDialog: React.FC<ShiftEditorDialogProps> = ({
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
-                className="h-9"
               />
             </div>
 
@@ -166,7 +165,6 @@ export const ShiftEditorDialog: React.FC<ShiftEditorDialogProps> = ({
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}
-                className="h-9"
               />
             </div>
           </div>
@@ -174,7 +172,7 @@ export const ShiftEditorDialog: React.FC<ShiftEditorDialogProps> = ({
           <div className="grid gap-2">
             <Label htmlFor="location">Location</Label>
             <Select value={locationId} onValueChange={setLocationId}>
-              <SelectTrigger id="location" className="h-9">
+              <SelectTrigger id="location">
                 <SelectValue placeholder="Select a location" />
               </SelectTrigger>
               <SelectContent>
@@ -201,13 +199,13 @@ export const ShiftEditorDialog: React.FC<ShiftEditorDialogProps> = ({
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="ghost" size="sm" onClick={onClose} disabled={saving}>
+          <Button variant="ghost" onClick={onClose} disabled={saving}>
             Cancel
           </Button>
-          <Button variant="outline" size="sm" onClick={() => handleSave(false)} disabled={saving || !locationId}>
+          <Button variant="outline" onClick={() => handleSave(false)} disabled={saving || !locationId}>
             {saving ? 'Saving...' : 'Save Draft'}
           </Button>
-          <Button size="sm" onClick={() => handleSave(true)} disabled={saving || !locationId}>
+          <Button onClick={() => handleSave(true)} disabled={saving || !locationId}>
             {saving ? 'Publishing...' : shift ? 'Publish' : 'Create Shift'}
           </Button>
         </DialogFooter>
@@ -215,3 +213,4 @@ export const ShiftEditorDialog: React.FC<ShiftEditorDialogProps> = ({
     </Dialog>
   );
 };
+

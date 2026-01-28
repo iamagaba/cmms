@@ -17,8 +17,7 @@
  */
 
 import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { ArrowDown01Icon, Cancel01Icon, Download01Icon, Database01Icon, ArrowRight01Icon, Search01Icon, ArrowUp01Icon } from '@hugeicons/core-free-icons';
+import { ArrowDown, X, Download, Database, ArrowRight, Search, ArrowUp, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from './button';
@@ -164,7 +163,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
   };
 
   return (
-    <div className="border-b border-gray-100 bg-white">
+    <div className="border-b border-border bg-background">
       <div className="flex items-center justify-between p-4">
         <div className="flex items-center gap-3">
           <Button
@@ -175,7 +174,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
             <Icon icon={isExpanded ? "tabler:chevron-up" : "tabler:chevron-down"} className="w-4 h-4" />
             Filters
             {activeFilterCount > 0 && (
-              <span className="ml-2 px-2 py-0.5 text-xs bg-steel-600 text-white rounded-full">
+              <span className="ml-2 px-2 py-0.5 text-xs bg-primary text-primary-foreground rounded-full">
                 {activeFilterCount}
               </span>
             )}
@@ -194,7 +193,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-sm text-machinery-600">
+          <span className="text-sm text-muted-foreground">
             {activeFilterCount} filter{activeFilterCount !== 1 ? 's' : ''} applied
           </span>
         </div>
@@ -212,7 +211,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
             <div className="p-4 pt-0 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
               {filters.map((filter) => (
                 <div key={filter.key} className="space-y-2">
-                  <label className="text-sm font-medium text-machinery-700">
+                  <label className="text-sm font-medium text-foreground">
                     {filter.label}
                   </label>
 
@@ -220,7 +219,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                     <select
                       value={activeFilters[filter.key] || ''}
                       onChange={(e) => handleFilterChange(filter.key, e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-machinery-300 rounded-md focus:ring-2 focus:ring-steel-500 focus:border-steel-500"
+                      className="w-full px-3 py-2 text-sm border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-input bg-background"
                     >
                       <option value="">{filter.placeholder || 'All'}</option>
                       {filter.options?.map((option) => (
@@ -246,7 +245,7 @@ const FilterBar: React.FC<FilterBarProps> = ({
                       type="date"
                       value={activeFilters[filter.key] || ''}
                       onChange={(e) => handleFilterChange(filter.key, e.target.value)}
-                      className="w-full px-3 py-2 text-sm border border-machinery-300 rounded-md focus:ring-2 focus:ring-steel-500 focus:border-steel-500"
+                      className="w-full px-3 py-2 text-sm border border-input rounded-md focus:ring-2 focus:ring-ring focus:border-input bg-background"
                     />
                   )}
                 </div>
@@ -287,11 +286,11 @@ const BulkActionsBar = <T,>({
       initial={{ height: 0, opacity: 0 }}
       animate={{ height: 'auto', opacity: 1 }}
       exit={{ height: 0, opacity: 0 }}
-      className="bg-steel-50 border-b border-gray-100 px-4 py-3"
+      className="bg-accent border-b border-border px-4 py-3"
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <span className="text-sm font-medium text-steel-700">
+          <span className="text-sm font-medium text-foreground">
             {selectedCount} of {totalCount} selected
           </span>
 
@@ -368,7 +367,7 @@ const DensityControl: React.FC<DensityControlProps> = ({ density, onDensityChang
             initial={{ opacity: 0, scale: 0.95, y: -10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
-            className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-machinery-200 py-2 z-50"
+            className="absolute right-0 top-full mt-2 w-48 bg-background rounded-lg shadow-lg border border-border py-2 z-50"
           >
             {densityOptions.map((option) => (
               <button
@@ -379,14 +378,14 @@ const DensityControl: React.FC<DensityControlProps> = ({ density, onDensityChang
                 }}
                 className={cn(
                   'w-full px-4 py-2 text-left text-sm flex items-center gap-3',
-                  'hover:bg-machinery-50 transition-colors',
-                  density === option.value && 'bg-steel-50 text-steel-700 font-medium'
+                  'hover:bg-accent transition-colors',
+                  density === option.value && 'bg-accent text-foreground font-medium'
                 )}
               >
                 <Icon icon={option.icon} className="w-4 h-4" />
                 {option.label}
                 {density === option.value && (
-                  <Icon icon="tabler:check" className="w-4 h-4 ml-auto text-steel-600" />
+                  <Icon icon="tabler:check" className="w-4 h-4 ml-auto text-primary" />
                 )}
               </button>
             ))}
@@ -434,20 +433,21 @@ const ExportMenu = <T,>({ exportOptions, data, onExport }: ExportMenuProps<T>) =
             initial={{ opacity: 0, scale: 0.95, y: -10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
-            className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-machinery-200 py-2 z-50"
+            className="absolute right-0 top-full mt-2 w-48 bg-background rounded-lg shadow-lg border border-border py-2 z-50"
           >
             {exportOptions.map((option) => (
-              <button
+              <Button
                 key={option.key}
+                variant="ghost"
                 onClick={() => {
                   onExport(option.format, data);
                   setIsOpen(false);
                 }}
-                className="w-full px-4 py-2 text-left text-sm text-machinery-700 hover:bg-machinery-50 flex items-center gap-3"
+                className="w-full justify-start px-4 py-2 text-sm"
               >
-                <HugeiconsIcon icon={option.icon} size={16} />
+                <Icon icon={option.icon} className="w-4 h-4 mr-2" />
                 {option.label}
-              </button>
+              </Button>
             ))}
           </motion.div>
         )}
@@ -493,24 +493,24 @@ const TableSkeleton: React.FC<{ columns: number; rows?: number }> = ({
 }) => (
   <div>
     {/* Header skeleton */}
-    <div className="bg-white border-b border-gray-100 p-4">
+    <div className="bg-background border-b border-border p-4">
       <div className="flex gap-4">
         {Array.from({ length: columns }).map((_, i) => (
-          <div key={i} className="h-4 bg-machinery-200 rounded flex-1 animate-pulse" />
+          <div key={i} className="h-4 bg-muted rounded flex-1 animate-pulse" />
         ))}
       </div>
     </div>
 
     {/* Enhancement #9: Rows skeleton with shimmer */}
     {Array.from({ length: rows }).map((_, rowIndex) => (
-      <div key={rowIndex} className="border-b border-machinery-100 p-4">
+      <div key={rowIndex} className="border-b border-border p-4">
         <div className="flex gap-4">
           {Array.from({ length: columns }).map((_, colIndex) => (
             <div
               key={colIndex}
               className={cn(
                 'h-4 rounded flex-1',
-                'bg-gradient-to-r from-machinery-200 via-machinery-100 to-machinery-200',
+                'bg-gradient-to-r from-muted via-muted/50 to-muted',
                 'bg-[length:1000px_100%]',
                 'animate-shimmer'
               )}
@@ -537,17 +537,17 @@ interface EmptyStateProps {
 }
 
 const EmptyState: React.FC<EmptyStateProps> = ({
-  icon = Database01Icon,
+  icon = Database,
   title = "No data available",
   description = "There are no items to display at the moment.",
   action,
 }) => (
   <div className="flex flex-col items-center justify-center py-12 px-4">
-    <div className="w-16 h-16 bg-machinery-100 rounded-full flex items-center justify-center mb-4">
-      <HugeiconsIcon icon={Database01Icon} size={32} className="text-machinery-400" />
+    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+      <Database className="w-8 h-8 text-muted-foreground" />
     </div>
-    <h3 className="text-lg font-semibold text-machinery-700 mb-2">{title}</h3>
-    <p className="text-machinery-500 text-center max-w-md mb-6">{description}</p>
+    <h3 className="text-lg font-semibold text-foreground mb-2">{title}</h3>
+    <p className="text-sm text-muted-foreground text-center max-w-md mb-6">{description}</p>
     {action}
   </div>
 );
@@ -599,13 +599,13 @@ const MobileTable = <T extends Record<string, any>>({
             transition={{ delay: index * 0.05 }}
             className={cn(
               // Enhancement #1: Visual depth for mobile cards
-              'bg-white border border-gray-200 rounded-lg p-4',
-              'shadow-md ring-1 ring-black/5',
+              'bg-background border border-border rounded-lg p-4',
+              'shadow-sm ring-1 ring-black/5',
               'transition-all duration-200 ease-out',
               // Enhancement #2: Smooth hover for mobile
               'active:scale-[0.98]',
-              isSelected && 'border-steel-300 bg-steel-50 shadow-lg',
-              onRowClick && 'cursor-pointer active:shadow-xl'
+              isSelected && 'border-primary bg-accent shadow-md',
+              onRowClick && 'cursor-pointer active:shadow-lg'
             )}
             onClick={() => onRowClick?.(record)}
           >
@@ -625,10 +625,10 @@ const MobileTable = <T extends Record<string, any>>({
                   onClick={(e) => e.stopPropagation()}
                   className={cn(
                     'w-4 h-4 rounded border-2 transition-all',
-                    'border-machinery-300 text-steel-600',
-                    'focus:ring-2 focus:ring-steel-500 focus:ring-offset-2',
-                    'checked:bg-steel-600 checked:border-steel-600',
-                    'hover:border-steel-400'
+                    'border-input text-primary',
+                    'focus:ring-2 focus:ring-ring focus:ring-offset-2',
+                    'checked:bg-primary checked:border-primary',
+                    'hover:border-primary'
                   )}
                 />
               </div>
@@ -644,10 +644,10 @@ const MobileTable = <T extends Record<string, any>>({
 
                 return (
                   <div key={column.key} className="flex justify-between items-start">
-                    <span className="text-sm font-medium text-machinery-600 min-w-0 flex-shrink-0 mr-3">
+                    <span className="text-sm font-medium text-muted-foreground min-w-0 flex-shrink-0 mr-3">
                       {column.title}:
                     </span>
-                    <div className="text-sm text-machinery-900 text-right min-w-0 flex-1">
+                    <div className="text-sm text-foreground text-right min-w-0 flex-1">
                       {content}
                     </div>
                   </div>
@@ -791,7 +791,9 @@ const EnhancedDataTable = <T extends Record<string, any>>({
           const isExpanded = expandedRows.has(key);
 
           return (
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={(e) => {
                 e.stopPropagation();
                 const newExpanded = new Set(expandedRows);
@@ -802,15 +804,14 @@ const EnhancedDataTable = <T extends Record<string, any>>({
                 }
                 setExpandedRows(newExpanded);
               }}
-              className="p-1 hover:bg-machinery-100 rounded focus:outline-none focus:ring-2 focus:ring-steel-500"
               aria-label={isExpanded ? "Collapse row" : "Expand row"}
             >
-              <HugeiconsIcon
-                icon={isExpanded ? ArrowDown01Icon : ArrowRight01Icon}
-                size={16}
-                className="text-machinery-500"
-              />
-            </button>
+              {isExpanded ? (
+                <ArrowDown className="w-4 h-4 text-muted-foreground" />
+              ) : (
+                <ArrowRight className="w-4 h-4 text-muted-foreground" />
+              )}
+            </Button>
           );
         },
       });
@@ -850,8 +851,8 @@ const EnhancedDataTable = <T extends Record<string, any>>({
       ref={tableRef}
       className={cn(
         // Enhancement #1: Visual hierarchy with depth
-        'bg-white rounded-lg overflow-hidden',
-        'shadow-md border border-machinery-200',
+        'bg-background rounded-lg overflow-hidden',
+        'shadow-sm border border-border',
         'ring-1 ring-black/5',
         className
       )}
@@ -887,7 +888,7 @@ const EnhancedDataTable = <T extends Record<string, any>>({
 
       {/* Search and Export Bar */}
       {(searchable || exportOptions.length > 0) && (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 border-b border-machinery-200 bg-machinery-25/50">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 border-b border-border bg-muted/50">
           {searchable && (
             <div className="relative w-full sm:max-w-md">
               <Icon icon="tabler:search" className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -954,7 +955,7 @@ const EnhancedDataTable = <T extends Record<string, any>>({
                             onSelectionChange([]);
                           }
                         }}
-                        className="w-4 h-4 rounded border-2 border-machinery-300 text-steel-600"
+                        className="w-4 h-4 rounded border-2 border-input text-primary"
                       />
                     </TableHead>
                   )}
@@ -983,8 +984,8 @@ const EnhancedDataTable = <T extends Record<string, any>>({
                     <React.Fragment key={key}>
                       <TableRow
                         className={cn(
-                          'group cursor-pointer hover:bg-muted/50',
-                          isSelected && 'bg-steel-50',
+                          'group cursor-pointer',
+                          isSelected && 'bg-accent',
                           localDensity === 'compact' && 'h-10',
                           localDensity === 'comfortable' && 'h-14',
                           localDensity === 'spacious' && 'h-16'
@@ -1005,7 +1006,7 @@ const EnhancedDataTable = <T extends Record<string, any>>({
                                 }
                               }}
                               onClick={(e) => e.stopPropagation()}
-                              className="w-4 h-4 rounded border-2 border-machinery-300 text-steel-600"
+                              className="w-4 h-4 rounded border-2 border-input text-primary"
                             />
                           </TableCell>
                         )}

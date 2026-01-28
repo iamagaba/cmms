@@ -1,9 +1,5 @@
 import React from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-    Sun01Icon,
-    ThumbsDownIcon
-} from '@hugeicons/core-free-icons';
+import { Sun, ThumbsDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 export type ShiftStatus = 'assigned' | 'open' | 'unavailable' | 'conflict';
@@ -36,10 +32,10 @@ const ShiftCard: React.FC<ShiftCardProps> = ({
         switch (status) {
             case 'open':
                 return {
-                    container: 'bg-green-50/50 dark:bg-green-900/10 border-l-4 border-l-green-500 hover:bg-green-50 dark:hover:bg-green-900/20',
-                    time: 'text-green-700 dark:text-green-400',
-                    text: 'text-green-600 dark:text-green-300',
-                    iconColor: 'text-green-600 dark:text-green-400'
+                    container: 'bg-muted/50 border-l-4 border-l-primary hover:bg-muted',
+                    time: 'text-foreground',
+                    text: 'text-muted-foreground',
+                    iconColor: 'text-muted-foreground'
                 };
             case 'unavailable':
                 return {
@@ -50,10 +46,10 @@ const ShiftCard: React.FC<ShiftCardProps> = ({
                 };
             case 'conflict':
                 return {
-                    container: 'bg-orange-50/50 dark:bg-orange-900/10 border-l-4 border-l-orange-500 hover:bg-orange-50 dark:hover:bg-orange-900/20',
-                    time: 'text-orange-700 dark:text-orange-400',
-                    text: 'text-orange-600 dark:text-orange-300',
-                    iconColor: 'text-orange-600 dark:text-orange-400'
+                    container: 'bg-muted/50 border-l-4 border-l-border hover:bg-muted',
+                    time: 'text-foreground',
+                    text: 'text-muted-foreground',
+                    iconColor: 'text-muted-foreground'
                 };
             case 'assigned':
             default:
@@ -80,20 +76,20 @@ const ShiftCard: React.FC<ShiftCardProps> = ({
             <div className="flex flex-col gap-0.5">
                 {/* Time Row */}
                 {(startTime && endTime) ? (
-                    <div className={cn("text-[10px] font-bold", styles.time)}>
+                    <div className={cn("text-xs font-bold", styles.time)}>
                         {startTime} - {endTime}
                     </div>
                 ) : (
-                    <div className={cn("text-[10px] font-bold flex items-center gap-1", styles.time)}>
-                        {status === 'unavailable' && <HugeiconsIcon icon={Sun01Icon} size={10} />}
-                        {status === 'conflict' && <HugeiconsIcon icon={ThumbsDownIcon} size={10} />}
+                    <div className={cn("text-xs font-bold flex items-center gap-1", styles.time)}>
+                        {status === 'unavailable' && <Sun className="w-3 h-3" />}
+                        {status === 'conflict' && <ThumbsDown className="w-3 h-3" />}
                         {notes || "All Day"}
                     </div>
                 )}
 
                 {/* Location */}
                 {location && (
-                    <div className="text-[10px] text-muted-foreground truncate">
+                    <div className="text-xs text-muted-foreground truncate">
                         {location}
                     </div>
                 )}

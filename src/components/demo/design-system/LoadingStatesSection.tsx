@@ -1,3 +1,4 @@
+import { Info, RefreshCw } from 'lucide-react';
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -5,56 +6,53 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableRow } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-    RefreshIcon,
-    InformationCircleIcon
-} from "@hugeicons/core-free-icons";
+
+
 
 const LoadingStatesSection: React.FC = () => {
     const [isLoading, setIsLoading] = useState(false);
 
     return (
-        <Card className="border-indigo-200 bg-indigo-50">
+        <Card className="border-primary/20 bg-primary/5">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-indigo-900">
-                    <HugeiconsIcon icon={RefreshIcon} size={20} />
+                    <RefreshCw className="w-5 h-5" />
                     Loading States
                 </CardTitle>
-                <CardDescription className="text-indigo-700">
+                <CardDescription className="text-primary">
                     Comprehensive loading patterns for better user experience
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
                 {/* Button Loading */}
-                <div className="bg-white rounded-lg border border-indigo-200 p-4">
+                <div className="bg-white rounded-lg border border-primary/20 p-4">
                     <h3 className="text-sm font-semibold text-indigo-900 mb-4">Button Loading States</h3>
                     <div className="space-y-4">
                         <div>
                             <p className="text-xs text-gray-600 mb-3">Primary action with spinner:</p>
                             <Button disabled onClick={() => setIsLoading(!isLoading)}>
-                                <HugeiconsIcon icon={RefreshIcon} size={16} className="animate-spin" />
+                                <RefreshCw className="w-4 h-4 animate-spin" />
                                 Saving...
                             </Button>
                         </div>
                         <div>
                             <p className="text-xs text-gray-600 mb-3">Secondary action loading:</p>
                             <Button variant="outline" disabled>
-                                <HugeiconsIcon icon={RefreshIcon} size={16} className="animate-spin" />
+                                <RefreshCw className="w-4 h-4 animate-spin" />
                                 Processing...
                             </Button>
                         </div>
                         <div>
                             <p className="text-xs text-gray-600 mb-3">Success action loading:</p>
                             <Button variant="success" disabled>
-                                <HugeiconsIcon icon={RefreshIcon} size={16} className="animate-spin" />
+                                <RefreshCw className="w-4 h-4 animate-spin" />
                                 Completing...
                             </Button>
                         </div>
-                        <div className="mt-4 bg-indigo-50 p-3 rounded border border-indigo-200">
+                        <div className="mt-4 bg-primary/5 p-3 rounded border border-primary/20">
                             <code className="text-xs text-indigo-800">
                                 {`<Button disabled>
-  <HugeiconsIcon icon={RefreshIcon} size={16} className="animate-spin" />
+  <RefreshCw className="w-4 h-4 animate-spin" />
   Saving...
 </Button>`}
                             </code>
@@ -63,7 +61,7 @@ const LoadingStatesSection: React.FC = () => {
                 </div>
 
                 {/* Skeleton Loading */}
-                <div className="bg-white rounded-lg border border-indigo-200 p-4">
+                <div className="bg-white rounded-lg border border-primary/20 p-4">
                     <h3 className="text-sm font-semibold text-indigo-900 mb-4">Skeleton Loaders</h3>
                     <div className="space-y-4">
                         <div>
@@ -97,7 +95,7 @@ const LoadingStatesSection: React.FC = () => {
                                 </Table>
                             </div>
                         </div>
-                        <div className="mt-4 bg-indigo-50 p-3 rounded border border-indigo-200">
+                        <div className="mt-4 bg-primary/5 p-3 rounded border border-primary/20">
                             <code className="text-xs text-indigo-800">
                                 {`<Skeleton className="h-4 w-full" />
 <Skeleton className="h-4 w-3/4" />
@@ -108,22 +106,22 @@ const LoadingStatesSection: React.FC = () => {
                 </div>
 
                 {/* Full Page Loading */}
-                <div className="bg-white rounded-lg border border-indigo-200 p-4">
+                <div className="bg-white rounded-lg border border-primary/20 p-4">
                     <h3 className="text-sm font-semibold text-indigo-900 mb-4">Full Page Loading</h3>
                     <div className="space-y-4">
                         <Card>
                             <CardContent className="py-12">
                                 <div className="flex flex-col items-center justify-center">
-                                    <HugeiconsIcon icon={RefreshIcon} size={32} className="animate-spin text-indigo-600 mb-4" />
+                                    <RefreshCw className="w-8 h-8 animate-spin text-primary mb-4" />
                                     <p className="text-sm font-medium text-gray-900">Loading work orders...</p>
                                     <p className="text-xs text-gray-500 mt-1">Please wait</p>
                                 </div>
                             </CardContent>
                         </Card>
-                        <div className="mt-4 bg-indigo-50 p-3 rounded border border-indigo-200">
+                        <div className="mt-4 bg-primary/5 p-3 rounded border border-primary/20">
                             <code className="text-xs text-indigo-800">
                                 {`<div className="flex flex-col items-center justify-center h-64">
-  <HugeiconsIcon icon={RefreshIcon} size={32} className="animate-spin text-gray-400" />
+  <RefreshCw className="w-8 h-8 animate-spin text-gray-400" />
   <p className="text-sm text-gray-600 mt-4">Loading...</p>
 </div>`}
                             </code>
@@ -132,7 +130,7 @@ const LoadingStatesSection: React.FC = () => {
                 </div>
 
                 {/* Progress Bar Loading */}
-                <div className="bg-white rounded-lg border border-indigo-200 p-4">
+                <div className="bg-white rounded-lg border border-primary/20 p-4">
                     <h3 className="text-sm font-semibold text-indigo-900 mb-4">Progress Bar Loading</h3>
                     <div className="space-y-4">
                         <div>
@@ -152,8 +150,8 @@ const LoadingStatesSection: React.FC = () => {
                     </div>
                 </div>
 
-                <Alert className="border-indigo-300 bg-indigo-100">
-                    <HugeiconsIcon icon={InformationCircleIcon} size={16} className="text-indigo-700" />
+                <Alert className="border-indigo-300 bg-primary/10">
+                    <Info className="w-4 h-4 text-primary" />
                     <AlertTitle className="text-indigo-900">Loading State Best Practices</AlertTitle>
                     <AlertDescription className="text-indigo-800">
                         <ul className="text-xs space-y-1 mt-2 ml-4 list-disc">
@@ -172,3 +170,5 @@ const LoadingStatesSection: React.FC = () => {
 };
 
 export default LoadingStatesSection;
+
+

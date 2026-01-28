@@ -1,12 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Button } from '@/components/tailwind-components';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  Cancel01Icon,
-  Tick01Icon,
-  ArrowRight01Icon
-} from '@hugeicons/core-free-icons';
+import { Button } from '@/components/ui/button';
+import { X, Check, ArrowRight } from 'lucide-react';
 import { DiagnosticSession } from '@/types/diagnostic';
 import { CustomerVehicleStep } from './steps/CustomerVehicleStep';
 import { DiagnosticStep } from './steps/DiagnosticStep';
@@ -135,7 +130,7 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
         if (activeSection > i) {
           setActiveSection(i);
         }
-        showError(`Please complete the ${['Vehicle', 'Diagnostic', 'Details'][i]} section first`);
+        showError(`Complete the ${['Vehicle', 'Diagnostic', 'Details'][i]} section first`);
         break;
       } else {
         // Mark valid sections as completed if not already
@@ -227,34 +222,42 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
     }
   }, [isOpen, initialData]);
 
+  // Auto-complete sections when we have pre-filled data
+  useEffect(() => {
+    if (isOpen && initialData?.vehicleId && initialData?.customerId) {
+      // Don't auto-complete the section, just pre-fill the data
+      // User still needs to enter location, so keep them on step 1
+      // The section will be marked complete when they fill in location and proceed
+    }
+  }, [isOpen, initialData?.vehicleId, initialData?.customerId]);
+
 
 
   if (!isOpen) return null;
 
   const sections = [
-    { title: 'Vehicle & Customer Information', label: 'Vehicle' },
-    { title: 'Diagnostic Information', label: 'Diagnostic' },
-    { title: 'Additional Details', label: 'Details' },
+    { title: 'Vehicle & Customer', label: 'Vehicle' },
+    { title: 'Diagnostic', label: 'Diagnostic' },
+    { title: 'Details', label: 'Details' },
     { title: 'Submit', label: 'Submit' }
   ];
 
   return (
     <>
       <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-40" onClick={onClose} />
-      <div className="fixed inset-y-0 right-0 w-full max-w-xl bg-white shadow-sm z-50 flex flex-col">
+      <div className="fixed inset-y-0 right-0 w-full max-w-xl bg-background shadow-sm z-50 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-3 py-2 border-b border-gray-200 bg-gray-50 flex-shrink-0">
+        <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted flex-shrink-0">
           <div>
-            <h2 className="text-sm font-semibold text-gray-900">Create Work Order</h2>
-            <p className="text-[10px] text-gray-500 mt-0.5">Fill in the details below</p>
+            <h2 className="text-sm font-semibold text-foreground">Create Work Order</h2>
           </div>
-          <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg">
-            <HugeiconsIcon icon={Cancel01Icon} size={16} />
-          </button>
+          <Button variant="ghost" size="icon" onClick={onClose}>
+            <X className="w-4 h-4" />
+          </Button>
         </div>
 
         {/* Clickable Stepper */}
-        <div className="px-3 py-2 border-b border-gray-200 bg-white flex-shrink-0">
+        <div className="px-3 py-2 border-b border-border bg-background flex-shrink-0">
           <div className="flex items-center gap-2">
             {sections.map((step, idx) => (
               <React.Fragment key={idx}>
@@ -262,25 +265,25 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
                   onClick={() => handleStepperClick(idx)}
                   className="flex items-center gap-1.5 cursor-pointer group"
                 >
-                  <div className={`flex items-center justify-center w-6 h-6 rounded-full text-[10px] font-medium transition-all ${idx === activeSection
-                    ? 'bg-brand-600 text-white ring-2 ring-brand-100'
+                  <div className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium transition-all ${idx === activeSection
+                    ? 'bg-primary text-primary-foreground ring-2 ring-primary/20'
                     : completedSections.includes(idx)
-                      ? 'bg-success-600 text-white'
-                      : 'bg-gray-100 text-gray-500 group-hover:bg-purple-100 group-hover:text-purple-600'
+                      ? 'bg-emerald-600 text-white'
+                      : 'bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary'
                     }`}>
-                    {completedSections.includes(idx) && idx !== activeSection ? <HugeiconsIcon icon={Tick01Icon} size={12} /> : idx + 1}
+                    {completedSections.includes(idx) && idx !== activeSection ? <Check className="w-4 h-4" /> : idx + 1}
                   </div>
                   <span className={`text-xs font-medium whitespace-nowrap hidden sm:block ${idx === activeSection
-                    ? 'text-brand-600'
+                    ? 'text-primary'
                     : completedSections.includes(idx)
-                      ? 'text-success-600'
-                      : 'text-gray-500 group-hover:text-purple-600'
+                      ? 'text-emerald-600'
+                      : 'text-muted-foreground group-hover:text-primary'
                     }`}>
                     {step.label}
                   </span>
                 </div>
                 {idx < 3 && (
-                  <div className={`flex-1 h-0.5 min-w-[20px] mx-1 rounded transition-all ${completedSections.includes(idx) ? 'bg-success-600' : 'bg-gray-200'
+                  <div className={`flex-1 h-0.5 min-w-5 mx-1 rounded transition-all ${completedSections.includes(idx) ? 'bg-emerald-600' : 'bg-border'
                     }`} />
                 )}
               </React.Fragment>
@@ -292,7 +295,7 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
         <div className="flex-1 overflow-y-auto px-3 py-2 pb-20">
           <SectionCard
             index={0}
-            title="Vehicle & Customer Information"
+            title="Vehicle & Customer"
             isCompleted={completedSections.includes(0)}
             isActive={activeSection === 0}
             isLocked={false}
@@ -304,8 +307,8 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
             hasErrors={sectionErrors[0]}
           >
             <CustomerVehicleStep data={formData} onChange={updateFormData} initialLicensePlate={initialData?.licensePlate} />
-            <div className="flex justify-end pt-2 border-t border-gray-100 mt-2">
-              <Button onClick={() => handleToggleSection(1)} size="xs">
+            <div className="flex justify-end pt-2 border-t border-border mt-2">
+              <Button onClick={() => handleToggleSection(1)} size="sm">
                 Next: Diagnostic
                 <motion.div
                   animate={{ x: [0, 4, 0] }}
@@ -315,7 +318,7 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
                     ease: "easeInOut"
                   }}
                 >
-                  <HugeiconsIcon icon={ArrowRight01Icon} size={12} className="ml-1" />
+                  <ArrowRight className="w-4 h-4 ml-1.5" />
                 </motion.div>
               </Button>
             </div>
@@ -332,8 +335,8 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
             hasErrors={sectionErrors[1]}
           >
             <DiagnosticStep data={formData} onChange={updateFormData} />
-            <div className="flex justify-end pt-2 border-t border-gray-100 mt-2">
-              <Button onClick={() => handleToggleSection(2)} size="xs">
+            <div className="flex justify-end pt-2 border-t border-border mt-2">
+              <Button onClick={() => handleToggleSection(2)} size="sm">
                 Next: Details
                 <motion.div
                   animate={{ x: [0, 4, 0] }}
@@ -343,7 +346,7 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
                     ease: "easeInOut"
                   }}
                 >
-                  <HugeiconsIcon icon={ArrowRight01Icon} size={12} className="ml-1" />
+                  <ArrowRight className="w-4 h-4 ml-1.5" />
                 </motion.div>
               </Button>
             </div>
@@ -360,8 +363,8 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
             hasErrors={sectionErrors[2]}
           >
             <AdditionalDetailsStep data={formData} onChange={updateFormData} />
-            <div className="flex justify-end pt-2 border-t border-gray-100 mt-2">
-              <Button onClick={() => handleToggleSection(3)} size="xs">
+            <div className="flex justify-end pt-2 border-t border-border mt-2">
+              <Button onClick={() => handleToggleSection(3)} size="sm">
                 Next: Review & Submit
                 <motion.div
                   animate={{ x: [0, 4, 0] }}
@@ -371,7 +374,7 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
                     ease: "easeInOut"
                   }}
                 >
-                  <HugeiconsIcon icon={ArrowRight01Icon} size={12} className="ml-1" />
+                  <ArrowRight className="w-4 h-4 ml-1.5" />
                 </motion.div>
               </Button>
             </div>
@@ -392,3 +395,7 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
     </>
   );
 };
+
+
+
+

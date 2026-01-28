@@ -1,9 +1,10 @@
+import { Info, Palette } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { PaintBoardIcon, InformationCircleIcon } from '@hugeicons/core-free-icons';
+
+
 
 interface TokenGroup {
     category: string;
@@ -124,7 +125,7 @@ const TokenSwatch = ({ name, value }: { name: string, value: string }) => {
             />
             <div className="flex-1 min-w-0">
                 <p className="text-xs font-semibold text-gray-900 truncate" title={name}>{name}</p>
-                <code className="text-[10px] text-gray-500 truncate block mt-1" title={value}>{value}</code>
+                <code className="text-xs text-gray-500 truncate block mt-1" title={value}>{value}</code>
             </div>
         </div>
     );
@@ -156,13 +157,13 @@ const DesignTokensSection: React.FC = () => {
     }, []);
 
     return (
-        <Card className="border-indigo-200 bg-indigo-50/30">
+        <Card className="border-primary/20 bg-primary/5/30">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-indigo-900">
-                    <HugeiconsIcon icon={PaintBoardIcon} size={20} />
+                    <Palette className="w-5 h-5" />
                     Live Design Tokens
                 </CardTitle>
-                <CardDescription className="text-indigo-700">
+                <CardDescription className="text-primary">
                     Programmatically retrieved CSS variable values from the active stylesheet.
                     These represent the <strong>actual code source of truth</strong>.
                 </CardDescription>
@@ -194,7 +195,7 @@ const DesignTokensSection: React.FC = () => {
                 {/* Industrial Theme System */}
                 <div className="space-y-4 mt-8">
                     <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                        <span className="w-1 h-6 bg-purple-600 rounded-full"></span>
+                        <span className="w-1 h-6 bg-primary rounded-full"></span>
                         Industrial Theme System
                     </h3>
                     <p className="text-sm text-gray-600 mb-4">Values defined in <code>industrial-theme.css</code> using Hex format.</p>
@@ -213,8 +214,8 @@ const DesignTokensSection: React.FC = () => {
                     </div>
                 </div>
 
-                <Alert className="bg-white border-indigo-200">
-                    <HugeiconsIcon icon={InformationCircleIcon} size={16} className="text-indigo-600" />
+                <Alert className="bg-white border-primary/20">
+                    <Info className="w-4 h-4 text-primary" />
                     <AlertTitle className="text-indigo-900">Developer Note</AlertTitle>
                     <AlertDescription className="text-indigo-800 text-xs">
                         These values are live-read from <code>document.documentElement</code>.
@@ -229,3 +230,7 @@ const DesignTokensSection: React.FC = () => {
 };
 
 export default DesignTokensSection;
+
+
+
+

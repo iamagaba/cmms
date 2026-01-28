@@ -1,25 +1,19 @@
+import { Archive, Plus, RefreshCw, Search, Settings, AlertCircle, Edit, Trash2, Package, Store, ArrowLeftRight, PlusCircle } from 'lucide-react';
 import React, { useState, useMemo, useCallback } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  AlertCircleIcon,
-  RefreshIcon,
-  Search01Icon,
-  Settings02Icon,
-  PlusMinusIcon,
-  ArrowDataTransferHorizontalIcon,
-  Add01Icon,
-  Archive01Icon,
-  PencilEdit02Icon,
-  Delete01Icon,
-  Store01Icon,
-  PackageIcon,
-} from '@hugeicons/core-free-icons';
+import PageHeader from '@/components/layout/PageHeader';
+import { EmptyState } from '@/components/ui/empty-state';
+
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { InventoryItem, ItemCategory, Supplier } from '@/types/supabase';
 import { snakeToCamelCase, camelToSnakeCase } from '@/utils/data-helpers';
 import { showSuccess, showError } from '@/utils/toast';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
+import { Skeleton } from '@/components/ui/skeleton';
 import { SimpleTabs as Tabs, SimpleTabsContent as TabsContent, SimpleTabsList as TabsList, SimpleTabsTrigger as TabsTrigger } from '@/components/SimpleTabs';
 import { InventoryItemFormDialog } from '@/components/InventoryItemFormDialog';
 import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog';
@@ -49,25 +43,32 @@ interface InventoryFilters {
   sortOrder: 'asc' | 'desc';
 }
 
-const formatCurrency = (amount: number) => `UGX ${amount.toLocaleString()}`;
+const formatCurrency = (amount: number) => {
+  if (amount >= 1000000) {
+    return `UGX ${(amount / 1000000).toFixed(1)}M`;
+  } else if (amount >= 1000) {
+    return `UGX ${(amount / 1000).toFixed(1)}K`;
+  }
+  return `UGX ${amount.toLocaleString()}`;
+};
 
-const StatusBadge: React.FC<{ item: InventoryItem }> = ({ item }) => {
+const StockStatusBadge: React.FC<{ item: InventoryItem }> = ({ item }) => {
   const qty = item.quantityOnHand ?? item.quantity_on_hand ?? 0;
   const reorderLvl = item.reorderLevel ?? item.reorder_level ?? 0;
   const isLowStock = qty > 0 && qty <= reorderLvl;
   const isOutOfStock = qty === 0;
 
+  const variant = isOutOfStock ? 'error' : isLowStock ? 'warning' : 'success';
+  const label = isOutOfStock ? 'Out of Stock' : isLowStock ? 'Low Stock' : 'In Stock';
+
   return (
-    <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-medium border ${isOutOfStock ? 'bg-red-50 text-red-700 border-red-200' :
-      isLowStock ? 'bg-orange-50 text-orange-700 border-orange-200' :
-        'bg-emerald-50 text-emerald-700 border-emerald-200'
-      }`}>
-      <span className={`w-1.5 h-1.5 rounded-full ${isOutOfStock ? 'bg-red-500' :
+    <Badge variant={variant} className="gap-1.5">
+      <span className={`w-1.5 h-1.5 rounded-full ${isOutOfStock ? 'bg-rose-500' :
         isLowStock ? 'bg-orange-500' :
           'bg-emerald-500'
         }`} />
-      {isOutOfStock ? 'Out of Stock' : isLowStock ? 'Low Stock' : 'In Stock'}
-    </span>
+      {label}
+    </Badge>
   );
 };
 
@@ -308,28 +309,28 @@ const InventoryPage: React.FC = () => {
   // Loading state
   if (isLoading) {
     return (
-      <div className="flex h-screen w-full bg-white overflow-hidden">
+      <div className="flex h-screen w-full bg-background overflow-hidden">
         {/* List Column */}
-        <div className="w-80 flex-none border-r border-gray-200 bg-white flex flex-col">
-          <div className="p-4 border-b border-gray-200">
-            <div className="h-6 bg-gray-200 rounded animate-pulse mb-2"></div>
-            <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4"></div>
+        <div className="w-80 flex-none border-r border-border bg-card flex flex-col">
+          <div className="p-4 border-b border-border">
+            <Skeleton className="h-6 mb-2" />
+            <Skeleton className="h-4 w-3/4" />
           </div>
-          <div className="flex-1 p-4 space-y-3">
+          <div className="flex-1 p-4 space-y-4">
             {[...Array(8)].map((_, i) => (
-              <div key={i} className="h-16 bg-gray-200 rounded animate-pulse"></div>
+              <Skeleton key={i} className="h-16" />
             ))}
           </div>
         </div>
 
         {/* Detail Column */}
-        <div className="flex-1 overflow-auto bg-white">
+        <div className="flex-1 overflow-auto bg-background">
           <div className="p-6 space-y-4">
-            <div className="h-8 bg-gray-200 rounded animate-pulse w-1/3"></div>
-            <div className="h-4 bg-gray-200 rounded animate-pulse w-1/2"></div>
+            <Skeleton className="h-8 w-1/3" />
+            <Skeleton className="h-4 w-1/2" />
             <div className="space-y-2">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                <Skeleton key={i} className="h-4" />
               ))}
             </div>
           </div>
@@ -341,21 +342,21 @@ const InventoryPage: React.FC = () => {
   // Error state
   if (error) {
     return (
-      <div className="flex h-screen w-full bg-white overflow-hidden">
+      <div className="flex h-screen w-full bg-background overflow-hidden">
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="mx-auto w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mb-4">
-              <HugeiconsIcon icon={AlertCircleIcon} size={32} className=" text-red-600" />
+            <div className="mx-auto w-16 h-16 bg-destructive/20 rounded-full flex items-center justify-center mb-4">
+              <AlertCircle className="w-8 h-8 text-destructive" />
             </div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">Error Loading Inventory</h3>
-            <p className="text-sm text-gray-600 mb-4 max-w-md mx-auto">
+            <h3 className="text-lg font-semibold text-foreground mb-2">Error Loading Inventory</h3>
+            <p className="text-sm text-muted-foreground mb-4 max-w-md mx-auto">
               {error.message || 'An unexpected error occurred.'}
             </p>
             <button
               onClick={() => refetch()}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-md transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-destructive-foreground bg-destructive hover:bg-destructive/90 rounded-md transition-colors"
             >
-              <HugeiconsIcon icon={RefreshIcon} size={16} className="" />
+              <RefreshCw className="w-5 h-5" />
               Try Again
             </button>
           </div>
@@ -366,34 +367,40 @@ const InventoryPage: React.FC = () => {
 
 
   return (
-    <div className="flex h-[calc(100vh-2rem)] w-full bg-white dark:bg-gray-900 overflow-hidden">
+    <div className="flex h-[calc(100vh-2rem)] w-full bg-background overflow-hidden">
       {/* List Column - Inventory List */}
-      <div className="w-80 flex-none border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex flex-col">
+      <div className="w-80 flex-none border-r border-border bg-card flex flex-col">
         {/* Header with Stat Ribbon */}
-        <div className="border-b border-gray-200 dark:border-gray-800">
-          {/* Page Title */}
-          {/* Page Title & Add Action */}
-          <div className="px-3 py-2 flex items-center justify-between">
-            <h1 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Inventory</h1>
-            <button
-              onClick={() => { setEditingItem(null); setIsDialogOpen(true); }}
-              className="inline-flex items-center justify-center w-6 h-6 text-white bg-purple-600 hover:bg-purple-700 rounded-md transition-colors"
-              title="Add Item"
-            >
-              <HugeiconsIcon icon={Add01Icon} size={14} />
-            </button>
+        <div className="border-b border-border">
+          {/* Page Header */}
+          <div className="px-3 py-2">
+            <PageHeader
+              title="Inventory"
+              subtitle="Manage parts and supplies"
+              icon={<Package className="w-5 h-5 text-muted-foreground" />}
+              actions={
+                <button
+                  onClick={() => { setEditingItem(null); setIsDialogOpen(true); }}
+                  className="inline-flex items-center justify-center w-6 h-6 text-primary-foreground bg-primary hover:bg-primary/90 rounded-md transition-colors"
+                  title="Add Item"
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
+              }
+            />
           </div>
 
           {/* Search */}
           <div className="px-3 py-2">
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <HugeiconsIcon icon={Search01Icon} size={14} className="text-gray-400 dark:text-gray-500" />
+                <Search className="w-5 h-5 text-muted-foreground" />
               </div>
               <input
                 type="text"
                 placeholder="Search inventory..."
-                className="w-full pl-10 pr-4 py-1.5 text-xs border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                aria-label="Search inventory"
+                className="w-full pl-10 pr-4 py-1.5 text-xs border border-input rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -401,75 +408,83 @@ const InventoryPage: React.FC = () => {
           </div>
 
           {/* Filters Toggle */}
-          <div className="px-3 py-2 flex items-center gap-2 overflow-x-auto no-scrollbar">
+          <div className="px-3 py-2 flex items-center gap-4 overflow-x-auto no-scrollbar">
             <button
               onClick={() => setFiltersOpen(!filtersOpen)}
               className={`inline-flex items-center gap-1.5 px-2 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${filtersOpen || hasActiveFilters
-                ? 'bg-purple-50 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-700'
-                : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700'
+                ? 'bg-primary/10 text-primary border border-primary/20'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted border border-border'
                 }`}
             >
-              <HugeiconsIcon icon={Settings02Icon} size={14} className="" />
+              <Settings className="w-5 h-5" />
               Filters
               {hasActiveFilters && (
-                <span className="inline-flex items-center justify-center min-w-[16px] h-3.5 px-1 rounded-full bg-purple-600 text-white text-[10px] font-semibold">
+                <span className="inline-flex items-center justify-center min-w-4 h-4 h-3.5 px-1 rounded-full bg-primary text-primary-foreground text-xs font-semibold">
                   {[searchTerm, filters.stockStatus !== 'all', filters.category !== 'all', filters.categories.length > 0, filters.supplierId !== 'all', filters.warehouse !== 'all'].filter(Boolean).length}
                 </span>
               )}
             </button>
             <button
               onClick={handleOpenBatchAdjustment}
-              className="inline-flex items-center gap-1.5 px-2 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md transition-colors whitespace-nowrap"
+              className="inline-flex items-center gap-1.5 px-2 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted border border-border rounded-md transition-colors whitespace-nowrap"
               title="Adjust Stock"
             >
-              <HugeiconsIcon icon={PlusMinusIcon} size={14} className="" />
+              <PlusCircle className="w-4 h-4" />
               Adjust
             </button>
             <button
               onClick={() => setTransactionsPanelOpen(true)}
-              className="inline-flex items-center gap-1.5 px-2 py-1.5 text-xs font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-md transition-colors whitespace-nowrap"
+              className="inline-flex items-center gap-1.5 px-2 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted border border-border rounded-md transition-colors whitespace-nowrap"
               title="Inventory Transactions"
             >
-              <HugeiconsIcon icon={ArrowDataTransferHorizontalIcon} size={14} className="" />
+              <ArrowLeftRight className="w-4 h-4" />
               Transactions
             </button>
           </div>
 
           {/* Advanced Filters */}
           {filtersOpen && (
-            <div className="px-3 pb-3 border-t border-gray-100 dark:border-gray-800 pt-2 space-y-2">
-              <div className="grid grid-cols-2 gap-2">
+            <div className="px-4 pb-4 border-t border-border pt-2 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-medium text-gray-700 dark:text-gray-300 mb-1">Status</label>
-                  <select
+                  <Label className="block text-xs font-medium text-muted-foreground mb-1">Status</Label>
+                  <Select
                     value={filters.stockStatus}
-                    onChange={(e) => setFilters({ ...filters, stockStatus: e.target.value })}
-                    className="h-7 w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2.5 py-1 text-xs dark:text-gray-200"
+                    onValueChange={(value) => setFilters({ ...filters, stockStatus: value })}
                   >
-                    <option value="all">All</option>
-                    <option value="in-stock">In Stock</option>
-                    <option value="low-stock">Low Stock</option>
-                    <option value="out-of-stock">Out of Stock</option>
-                  </select>
+                    <SelectTrigger className="h-7 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All</SelectItem>
+                      <SelectItem value="in-stock">In Stock</SelectItem>
+                      <SelectItem value="low-stock">Low Stock</SelectItem>
+                      <SelectItem value="out-of-stock">Out of Stock</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-medium text-gray-700 dark:text-gray-300 mb-1">Sort</label>
-                  <select
+                  <Label className="block text-xs font-medium text-muted-foreground mb-1">Sort</Label>
+                  <Select
                     value={filters.sortBy}
-                    onChange={(e) => setFilters({ ...filters, sortBy: e.target.value })}
-                    className="h-7 w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2.5 py-1 text-xs dark:text-gray-200"
+                    onValueChange={(value) => setFilters({ ...filters, sortBy: value })}
                   >
-                    <option value="name">Name</option>
-                    <option value="sku">SKU</option>
-                    <option value="quantity">Quantity</option>
-                    <option value="price">Price</option>
-                  </select>
+                    <SelectTrigger className="h-7 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="name">Name</SelectItem>
+                      <SelectItem value="sku">SKU</SelectItem>
+                      <SelectItem value="quantity">Quantity</SelectItem>
+                      <SelectItem value="price">Price</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
               {/* Category Filter */}
               <div>
-                <label className="block text-[10px] font-medium text-gray-700 dark:text-gray-300 mb-1">Categories</label>
+                <Label className="block text-xs font-medium text-muted-foreground mb-1">Categories</Label>
                 <div className="flex flex-wrap gap-1">
                   {ALL_CATEGORIES.slice(0, 6).map(cat => (
                     <button
@@ -481,9 +496,9 @@ const InventoryPage: React.FC = () => {
                           : [...filters.categories, cat];
                         setFilters({ ...filters, categories: newCategories });
                       }}
-                      className={`px-2 py-0.5 text-[10px] rounded border transition-colors ${filters.categories.includes(cat)
-                        ? 'bg-purple-100 dark:bg-purple-900/40 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-700'
-                        : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-gray-300'
+                      className={`px-2 py-0.5 text-xs rounded border transition-colors ${filters.categories.includes(cat)
+                        ? 'bg-primary/10 text-primary border-primary/20'
+                        : 'bg-background text-muted-foreground border-border hover:border-muted-foreground'
                         }`}
                     >
                       {ITEM_CATEGORY_LABELS[cat]}
@@ -493,39 +508,47 @@ const InventoryPage: React.FC = () => {
               </div>
 
               {/* Supplier & Warehouse Filters */}
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-medium text-gray-700 dark:text-gray-300 mb-1">Supplier</label>
-                  <select
+                  <Label className="block text-xs font-medium text-muted-foreground mb-1">Supplier</Label>
+                  <Select
                     value={filters.supplierId}
-                    onChange={(e) => setFilters({ ...filters, supplierId: e.target.value })}
-                    className="h-7 w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2.5 py-1 text-xs dark:text-gray-200"
+                    onValueChange={(value) => setFilters({ ...filters, supplierId: value })}
                   >
-                    <option value="all">All Suppliers</option>
-                    {suppliers?.map(s => (
-                      <option key={s.id} value={s.id}>{s.name}</option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="h-7 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Suppliers</SelectItem>
+                      {suppliers?.map(s => (
+                        <SelectItem key={s.id} value={s.id}>{s.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
-                  <label className="block text-[10px] font-medium text-gray-700 dark:text-gray-300 mb-1">Warehouse</label>
-                  <select
+                  <Label className="block text-xs font-medium text-muted-foreground mb-1">Warehouse</Label>
+                  <Select
                     value={filters.warehouse}
-                    onChange={(e) => setFilters({ ...filters, warehouse: e.target.value })}
-                    className="h-7 w-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2.5 py-1 text-xs dark:text-gray-200"
+                    onValueChange={(value) => setFilters({ ...filters, warehouse: value })}
                   >
-                    <option value="all">All Warehouses</option>
-                    {uniqueWarehouses.map(w => (
-                      <option key={w} value={w}>{w}</option>
-                    ))}
-                  </select>
+                    <SelectTrigger className="h-7 text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Warehouses</SelectItem>
+                      {uniqueWarehouses.map(w => (
+                        <SelectItem key={w} value={w}>{w}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 
               {hasActiveFilters && (
                 <button
                   onClick={handleClearFilters}
-                  className="text-[10px] text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 underline"
+                  className="text-xs text-muted-foreground hover:text-foreground underline"
                 >
                   Clear all filters
                 </button>
@@ -537,15 +560,13 @@ const InventoryPage: React.FC = () => {
         {/* Inventory List */}
         <div className="flex-1 overflow-auto overscroll-y-contain">
           {filteredItems.length === 0 ? (
-            <div className="empty-state">
-              <HugeiconsIcon icon={Archive01Icon} className="empty-state-icon" />
-              <p className="text-xs font-medium text-gray-900 dark:text-gray-100 mb-1">No items found</p>
-              <p className="empty-state-text">
-                {hasActiveFilters ? "Try adjusting your filters" : "Add your first inventory item to get started"}
-              </p>
-            </div>
+            <EmptyState
+              icon={<Archive className="w-6 h-6 text-muted-foreground" />}
+              title="No items found"
+              description={hasActiveFilters ? "Try adjusting your filters" : "Add your first inventory item to get started"}
+            />
           ) : (
-            <div className="divide-y divide-gray-100 dark:divide-gray-800">
+            <div className="divide-y divide-border">
               {filteredItems.map((item) => {
                 const qty = item.quantityOnHand ?? item.quantity_on_hand ?? 0;
                 const reorderLvl = item.reorderLevel ?? item.reorder_level ?? 0;
@@ -562,25 +583,22 @@ const InventoryPage: React.FC = () => {
                   >
                     <div className="flex items-center justify-between mb-1.5">
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-md bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-                          <HugeiconsIcon icon={Archive01Icon} size={14} className=" text-purple-600 dark:text-purple-400" />
+                        <div className="w-7 h-7 rounded-md bg-primary/10 flex items-center justify-center">
+                          <Archive className="w-5 h-5 text-primary" />
                         </div>
                         <div>
-                          <p className="text-xs font-semibold text-gray-900 dark:text-gray-100">
+                          <p className="text-xs font-semibold text-foreground">
                             {item.name || 'Unnamed Item'}
                           </p>
-                          <p className="text-[10px] text-gray-500 dark:text-gray-400">
+                          <p className="text-xs text-muted-foreground">
                             {item.sku || 'No SKU'}
                           </p>
                         </div>
                       </div>
                       <div className="flex items-center gap-1">
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-medium border ${isOutOfStock ? 'bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800' :
-                          isLowStock ? 'bg-orange-50 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 border-orange-200 dark:border-orange-800' :
-                            'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 border-emerald-200 dark:border-emerald-800'
-                          }`}>
+                        <Badge variant={isOutOfStock ? 'error' : isLowStock ? 'warning' : 'success'} className="text-xs">
                           {isOutOfStock ? 'Out' : isLowStock ? 'Low' : 'In Stock'}
-                        </span>
+                        </Badge>
                       </div>
                     </div>
                     {/* Category badges */}
@@ -590,46 +608,46 @@ const InventoryPage: React.FC = () => {
                           <CategoryBadge key={cat} category={cat} size="sm" showIcon={false} />
                         ))}
                         {itemCategories.length > 2 && (
-                          <span className="text-[10px] text-gray-400">+{itemCategories.length - 2}</span>
+                          <span className="text-xs text-muted-foreground">+{itemCategories.length - 2}</span>
                         )}
                       </div>
                     )}
-                    <div className="flex items-center justify-between text-[10px] text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
                       <span>{formatQuantityWithUnit(qty, item.unit_of_measure, item.units_per_package)}</span>
                       <span>UGX {(item.unitPrice ?? item.unit_price ?? 0).toLocaleString()}</span>
                     </div>
 
                     {/* Quick Actions - Show on hover */}
-                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 bg-white dark:bg-gray-800 rounded-md shadow-lg border border-gray-200 dark:border-gray-700 p-1">
+                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 bg-card rounded-md shadow-lg border border-border p-1">
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleQuickAdjust(item);
                         }}
-                        className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                        className="p-1 hover:bg-muted rounded transition-colors"
                         title="Adjust Stock"
                       >
-                        <HugeiconsIcon icon={PlusMinusIcon} size={14} className=" text-gray-600 dark:text-gray-400" />
+                        <PlusCircle className="w-4 h-4 text-muted-foreground" />
                       </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEdit(item);
                         }}
-                        className="p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded transition-colors"
+                        className="p-1.5 hover:bg-muted rounded-md transition-colors"
                         title="Edit"
                       >
-                        <HugeiconsIcon icon={PencilEdit02Icon} size={14} className=" text-gray-600 dark:text-gray-400" />
+                        <Edit className="w-4 h-4 text-muted-foreground" />
                       </button>
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
                           handleDeleteClick(item);
                         }}
-                        className="p-1 hover:bg-red-50 dark:hover:bg-red-900/30 rounded transition-colors"
+                        className="p-1.5 hover:bg-destructive/10 rounded-md transition-colors"
                         title="Delete"
                       >
-                        <HugeiconsIcon icon={Delete01Icon} size={14} className=" text-red-600 dark:text-red-400" />
+                        <Trash2 className="w-4 h-4 text-destructive" />
                       </button>
                     </div>
                   </div>
@@ -641,72 +659,72 @@ const InventoryPage: React.FC = () => {
       </div>
 
       {/* Detail Column */}
-      <div className="flex-1 flex flex-col overflow-hidden bg-white dark:bg-gray-900">
+      <div className="flex-1 flex flex-col overflow-hidden bg-background">
         {selectedItem ? (
           <div className="flex flex-col h-full">
-            <div className="flex-none px-4 py-3 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 z-10">
+            <div className="flex-none px-4 py-3 border-b border-border bg-background z-10">
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-3">
-                    <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                    <h2 className="text-lg font-bold text-foreground">
                       {selectedItem.name || 'Unnamed Item'}
                     </h2>
-                    <StatusBadge item={selectedItem} />
+                    <StockStatusBadge item={selectedItem} />
                   </div>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 font-mono mt-1">
+                  <p className="text-xs text-muted-foreground font-mono mt-1">
                     {selectedItem.sku || 'No SKU'}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 pointer-events-auto">
                   <button
                     onClick={() => handleQuickAdjust(selectedItem)}
-                    className="inline-flex items-center justify-center w-8 h-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200 dark:border-gray-800"
+                    className="inline-flex items-center justify-center h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors border border-border"
                     title="Adjust Stock"
                   >
-                    <HugeiconsIcon icon={PlusMinusIcon} size={18} />
+                    <PlusCircle className="w-4 h-4" />
                   </button>
                   <button
                     onClick={() => handleEdit(selectedItem)}
-                    className="inline-flex items-center justify-center w-8 h-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200 dark:border-gray-800"
+                    className="inline-flex items-center justify-center h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors border border-border"
                     title="Edit Item"
                   >
-                    <HugeiconsIcon icon={PencilEdit02Icon} size={18} />
+                    <Edit className="w-4 h-4" />
                   </button>
                 </div>
               </div>
             </div>
 
-            <div className="flex-1 overflow-auto px-4 py-6 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700 scrollbar-track-transparent overscroll-y-contain">
+            <div className="flex-1 overflow-auto px-4 py-6 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent overscroll-y-contain">
               {/* Tabs Navigation */}
               <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="w-full justify-start border-b border-gray-200 dark:border-gray-700 rounded-none bg-transparent p-0 h-auto mb-6">
+                <TabsList className="w-full justify-start border-b border-border rounded-none bg-transparent p-0 h-auto mb-6">
                   <TabsTrigger
                     value="overview"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2 text-xs font-medium"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2 text-xs font-medium"
                   >
                     Overview
                   </TabsTrigger>
                   <TabsTrigger
                     value="configuration"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2 text-xs font-medium"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2 text-xs font-medium"
                   >
                     Configuration
                   </TabsTrigger>
                   <TabsTrigger
                     value="logistics"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2 text-xs font-medium"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2 text-xs font-medium"
                   >
                     Logistics
                   </TabsTrigger>
                   <TabsTrigger
                     value="history"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2 text-xs font-medium"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2 text-xs font-medium"
                   >
                     Adjustment History
                   </TabsTrigger>
                   <TabsTrigger
                     value="usage"
-                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2 text-xs font-medium"
+                    className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:shadow-none px-4 py-2 text-xs font-medium"
                   >
                     Work Order Usage
                   </TabsTrigger>
@@ -716,33 +734,67 @@ const InventoryPage: React.FC = () => {
                 <TabsContent value="overview" className="mt-0 space-y-6">
                   {/* 1. Stock & Valuation Card */}
                   <div>
-                    <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide mb-3">Stock & Valuation</h3>
+                    <h3 className="text-xs font-semibold text-foreground uppercase tracking-wide mb-4">Stock & Valuation</h3>
                     <div className="grid grid-cols-3 gap-4">
                       {/* On Hand - Primary Metric */}
-                      <div className="col-span-1 bg-purple-50 dark:bg-purple-900/10 rounded-lg p-4 border border-purple-100 dark:border-purple-900/30">
-                        <span className="block text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider mb-1">On Hand</span>
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-2xl font-bold text-purple-900 dark:text-purple-100">
+                      <div className="col-span-1 bg-card rounded-lg p-5 border border-border shadow-sm">
+                        <span className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">On Hand</span>
+                        <div className="flex items-baseline gap-1 mb-3">
+                          <span className="text-3xl font-bold text-foreground">
                             {(selectedItem.quantityOnHand ?? selectedItem.quantity_on_hand ?? 0).toLocaleString()}
                           </span>
-                          <span className="text-xs font-medium text-purple-600 dark:text-purple-400">
+                          <span className="text-sm font-medium text-muted-foreground">
                             {UNIT_OF_MEASURE_LABELS[selectedItem.unitOfMeasure ?? selectedItem.unit_of_measure ?? 'each'] ?? 'Units'}
                           </span>
                         </div>
+                        {/* Stock Level Progress Bar */}
+                        {(() => {
+                          const qty = selectedItem.quantityOnHand ?? selectedItem.quantity_on_hand ?? 0;
+                          const reorderLvl = selectedItem.reorderLevel ?? selectedItem.reorder_level ?? 0;
+                          const maxStock = reorderLvl * 3 || 100; // Assume max is 3x reorder level
+                          const percentage = Math.min((qty / maxStock) * 100, 100);
+                          const isLow = qty <= reorderLvl && qty > 0;
+                          const isOut = qty === 0;
+
+                          return (
+                            <div className="space-y-1.5">
+                              <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
+                                <div
+                                  className={`h-full rounded-full transition-all duration-300 ${isOut ? 'bg-rose-500' :
+                                      isLow ? 'bg-amber-500' :
+                                        'bg-emerald-500'
+                                    }`}
+                                  style={{ width: `${percentage}%` }}
+                                />
+                              </div>
+                              <div className="flex justify-between text-xs">
+                                <span className="text-muted-foreground">
+                                  Reorder: {reorderLvl}
+                                </span>
+                                <span className={`font-medium ${isOut ? 'text-rose-600 dark:text-rose-400' :
+                                    isLow ? 'text-amber-600 dark:text-amber-400' :
+                                      'text-emerald-600 dark:text-emerald-400'
+                                  }`}>
+                                  {percentage.toFixed(0)}%
+                                </span>
+                              </div>
+                            </div>
+                          );
+                        })()}
                       </div>
 
                       {/* Value & Price - Secondary Metrics */}
                       <div className="col-span-2 grid grid-cols-2 gap-4">
-                        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
-                          <span className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Total Value</span>
-                          <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
+                        <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
+                          <span className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Total Value</span>
+                          <span className="text-2xl font-bold text-foreground">
                             {formatCurrency((selectedItem.quantityOnHand ?? selectedItem.quantity_on_hand ?? 0) * (selectedItem.unitPrice ?? selectedItem.unit_price ?? 0))}
                           </span>
                         </div>
-                        <div className="bg-white dark:bg-gray-800 rounded-lg p-4 border border-gray-200 dark:border-gray-700 shadow-sm">
-                          <span className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Unit Price</span>
-                          <span className="text-lg font-bold text-gray-900 dark:text-gray-100">
-                            UGX {(selectedItem.unitPrice ?? selectedItem.unit_price ?? 0).toLocaleString()}
+                        <div className="bg-card rounded-lg p-5 border border-border shadow-sm">
+                          <span className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Unit Price</span>
+                          <span className="text-2xl font-bold text-foreground">
+                            {formatCurrency(selectedItem.unitPrice ?? selectedItem.unit_price ?? 0)}
                           </span>
                         </div>
                       </div>
@@ -752,35 +804,35 @@ const InventoryPage: React.FC = () => {
                   {/* 2. Overview Section */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="md:col-span-2">
-                      <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide mb-3">Details</h3>
-                      <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-4 border border-gray-100 dark:border-gray-800">
+                      <h3 className="text-xs font-semibold text-foreground uppercase tracking-wide mb-3">Details</h3>
+                      <div className="bg-muted/50 rounded-lg p-4 border border-border">
                         <div className="grid grid-cols-2 gap-y-4 gap-x-8">
                           {/* Categories */}
                           <div className="col-span-2">
-                            <span className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1.5">Categories</span>
+                            <span className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5">Categories</span>
                             <div className="flex flex-wrap gap-1.5">
                               {selectedItem.categories && selectedItem.categories.length > 0 ? (
                                 selectedItem.categories.map(cat => (
                                   <CategoryBadge key={cat} category={cat} size="sm" showIcon={true} />
                                 ))
                               ) : (
-                                <span className="text-sm text-gray-400 italic">Uncategorized</span>
+                                <span className="text-sm text-muted-foreground italic">Uncategorized</span>
                               )}
                             </div>
                           </div>
 
                           {/* Description */}
                           <div className="col-span-2">
-                            <span className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Description</span>
-                            <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                              {selectedItem.description || <span className="text-gray-400 italic">No description provided.</span>}
+                            <span className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Description</span>
+                            <p className="text-sm text-foreground leading-relaxed">
+                              {selectedItem.description || <span className="text-muted-foreground italic">No description provided.</span>}
                             </p>
                           </div>
 
                           {/* Model */}
                           <div>
-                            <span className="block text-[10px] font-medium text-gray-500 uppercase tracking-wider mb-1">Model</span>
-                            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{selectedItem.model || '-'}</span>
+                            <span className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Model</span>
+                            <span className="text-sm font-medium text-foreground">{selectedItem.model || '-'}</span>
                           </div>
                         </div>
                       </div>
@@ -791,23 +843,23 @@ const InventoryPage: React.FC = () => {
                 {/* Configuration Tab */}
                 <TabsContent value="configuration" className="mt-0">
                   <div className="space-y-4">
-                    <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide">Configuration</h3>
-                    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 divide-y divide-gray-100 dark:divide-gray-800">
+                    <h3 className="text-xs font-semibold text-foreground uppercase tracking-wide">Configuration</h3>
+                    <div className="bg-card rounded-lg border border-border divide-y divide-border">
                       <div className="p-3 flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <HugeiconsIcon icon={Settings02Icon} size={16} className="text-gray-400" />
-                          <span className="text-sm text-gray-600 dark:text-gray-300">Reorder Level</span>
+                          <Settings className="w-5 h-5 text-muted-foreground" />
+                          <span className="text-sm text-foreground">Reorder Level</span>
                         </div>
-                        <span className="font-mono font-medium text-gray-900 dark:text-gray-100">
+                        <span className="font-mono font-medium text-foreground">
                           {selectedItem.reorderLevel ?? selectedItem.reorder_level ?? 0}
                         </span>
                       </div>
                       <div className="p-3 flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <HugeiconsIcon icon={PackageIcon} size={16} className="text-gray-400" />
-                          <span className="text-sm text-gray-600 dark:text-gray-300">Pack Size</span>
+                          <Package className="w-4 h-4 text-muted-foreground" />
+                          <span className="text-sm text-foreground">Pack Size</span>
                         </div>
-                        <span className="font-mono font-medium text-gray-900 dark:text-gray-100">
+                        <span className="font-mono font-medium text-foreground">
                           {selectedItem.unitsPerPackage ?? selectedItem.units_per_package ?? 1}
                         </span>
                       </div>
@@ -818,26 +870,26 @@ const InventoryPage: React.FC = () => {
                 {/* Logistics Tab */}
                 <TabsContent value="logistics" className="mt-0">
                   <div className="space-y-4">
-                    <h3 className="text-xs font-semibold text-gray-900 dark:text-gray-100 uppercase tracking-wide">Logistics</h3>
-                    <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-3 space-y-3">
+                    <h3 className="text-xs font-semibold text-foreground uppercase tracking-wide">Logistics</h3>
+                    <div className="bg-card rounded-lg border border-border p-3 space-y-3">
                       {/* Storage Location */}
                       <div>
-                        <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider block mb-1">Exact Location</span>
-                        <div className="flex items-center gap-2 text-gray-900 dark:text-gray-100 bg-gray-50 dark:bg-gray-900/50 p-2 rounded border border-gray-100 dark:border-gray-800 font-mono text-xs">
-                          <HugeiconsIcon icon={Store01Icon} size={14} className="text-gray-400" />
+                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider block mb-1">Exact Location</span>
+                        <div className="flex items-center gap-2 text-foreground bg-muted/50 p-2 rounded border border-border font-mono text-xs">
+                          <Store className="w-4 h-4 text-muted-foreground" />
                           {formatStorageLocation(selectedItem)}
                         </div>
                       </div>
 
                       {/* Supplier */}
                       <div>
-                        <span className="text-[10px] font-medium text-gray-500 uppercase tracking-wider block mb-1">Preferred Supplier</span>
+                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider block mb-1">Preferred Supplier</span>
                         {selectedItem.supplier ? (
-                          <div className="text-sm text-gray-900 dark:text-gray-100">
+                          <div className="text-sm text-foreground">
                             {selectedItem.supplier.name}
                           </div>
                         ) : (
-                          <span className="text-sm text-gray-400 italic">No supplier assigned</span>
+                          <span className="text-sm text-muted-foreground italic">No supplier assigned</span>
                         )}
                       </div>
                     </div>
@@ -846,14 +898,14 @@ const InventoryPage: React.FC = () => {
 
                 {/* Adjustment History Tab */}
                 <TabsContent value="history" className="mt-0">
-                  <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+                  <div className="border border-border rounded-md overflow-hidden">
                     <AdjustmentHistoryPanel inventoryItemId={selectedItem.id} maxHeight="500px" />
                   </div>
                 </TabsContent>
 
                 {/* Work Order Usage Tab */}
                 <TabsContent value="usage" className="mt-0">
-                  <div className="border border-gray-200 dark:border-gray-700 rounded-md overflow-hidden">
+                  <div className="border border-border rounded-md overflow-hidden">
                     <InventoryPartsUsagePanel inventoryItemId={selectedItem.id} maxHeight="500px" />
                   </div>
                 </TabsContent>
@@ -863,9 +915,9 @@ const InventoryPage: React.FC = () => {
         ) : (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <HugeiconsIcon icon={PackageIcon} size={40} className=" text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-              <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">Select an Item</h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Choose an inventory item from the list to view details</p>
+              <Package size={40} className="text-muted-foreground mx-auto mb-3" />
+              <h3 className="text-sm font-medium text-foreground mb-1">Select an Item</h3>
+              <p className="text-xs text-muted-foreground">Choose an inventory item from the list to view details</p>
             </div>
           </div>
         )}
@@ -913,3 +965,7 @@ const InventoryPage: React.FC = () => {
 };
 
 export default InventoryPage;
+
+
+
+

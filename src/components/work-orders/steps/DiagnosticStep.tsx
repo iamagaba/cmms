@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { CheckmarkCircle01Icon, AlertCircleIcon, PencilEdit02Icon, NoteIcon } from '@hugeicons/core-free-icons';
-import { Stack, Button, Card } from '@/components/tailwind-components';
+import { CheckCircle, AlertCircle, Edit, FileText } from 'lucide-react';
+import { Stack, Card } from '@/components/tailwind-components';
+import { Button } from '@/components/ui/button';
 import { DiagnosticTool } from '@/components/diagnostic/DiagnosticTool';
 import { DiagnosticSession } from '@/types/diagnostic';
 
@@ -47,12 +47,12 @@ export const DiagnosticStep: React.FC<DiagnosticStepProps> = ({
           <Stack gap="md">
             {/* Diagnostic Summary */}
             <div className="flex items-start gap-2">
-              <div className="w-7 h-7 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <HugeiconsIcon icon={CheckmarkCircle01Icon} className="text-green-600" size={14} />
+              <div className="w-7 h-7 bg-emerald-50 rounded-full flex items-center justify-center flex-shrink-0">
+                <CheckCircle className="text-foreground w-4 h-4" />
               </div>
               <div className="flex-1">
-                <h4 className="font-semibold text-xs text-gray-900 mb-0.5">Diagnostic Complete</h4>
-                <p className="text-[10px] text-gray-600">
+                <h4 className="font-semibold text-xs text-foreground mb-0.5">Diagnostic Complete</h4>
+                <p className="text-xs text-muted-foreground">
                   Category: <span className="font-medium">{data.diagnosticSession.finalCategory}</span>
                   {data.diagnosticSession.finalSubcategory && (
                     <> • Subcategory: <span className="font-medium">{data.diagnosticSession.finalSubcategory}</span></>
@@ -64,21 +64,21 @@ export const DiagnosticStep: React.FC<DiagnosticStepProps> = ({
             {/* Solution Status */}
             {data.diagnosticSession.solutionFound && (
               <div className={`p-2 rounded-lg ${data.diagnosticSession.solutionSuccessful
-                ? 'bg-green-50 border border-green-200'
-                : 'bg-yellow-50 border border-yellow-200'
+                ? 'bg-emerald-50 border border-emerald-200'
+                : 'bg-amber-50 border border-amber-200'
                 }`}>
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <HugeiconsIcon
-                    icon={data.diagnosticSession.solutionSuccessful ? CheckmarkCircle01Icon : AlertCircleIcon}
-                    className={data.diagnosticSession.solutionSuccessful ? 'text-green-600' : 'text-yellow-600'}
-                    size={12}
-                  />
-                  <span className={`text-xs font-medium ${data.diagnosticSession.solutionSuccessful ? 'text-green-900' : 'text-yellow-900'
+                  {data.diagnosticSession.solutionSuccessful ? (
+                    <CheckCircle className="w-4 h-4 text-foreground" />
+                  ) : (
+                    <AlertCircle className="w-4 h-4 text-amber-700" />
+                  )}
+                  <span className={`text-xs font-medium ${data.diagnosticSession.solutionSuccessful ? 'text-foreground' : 'text-amber-700'
                     }`}>
                     Solution {data.diagnosticSession.solutionSuccessful ? 'Successful' : 'Attempted'}
                   </span>
                 </div>
-                <p className={`text-[10px] ${data.diagnosticSession.solutionSuccessful ? 'text-green-700' : 'text-yellow-700'
+                <p className={`text-xs ${data.diagnosticSession.solutionSuccessful ? 'text-foreground' : 'text-amber-700'
                   }`}>
                   {data.diagnosticSession.solutionText}
                 </p>
@@ -87,9 +87,9 @@ export const DiagnosticStep: React.FC<DiagnosticStepProps> = ({
 
             {/* Issue Summary */}
             <div>
-              <h5 className="text-xs font-medium text-gray-700 mb-1">Issue Description:</h5>
-              <div className="bg-gray-50 rounded-lg p-2">
-                <ul className="text-[10px] text-gray-700 space-y-0.5 list-disc list-inside">
+              <h5 className="text-xs font-medium text-muted-foreground mb-1">Issue Description:</h5>
+              <div className="bg-muted rounded-lg p-2">
+                <ul className="text-xs text-foreground space-y-0.5 list-disc list-inside">
                   {data.diagnosticSession.summary.split('\n').filter(line => line.trim()).map((line, idx) => (
                     <li key={idx} className="leading-relaxed">{line.trim()}</li>
                   ))}
@@ -100,19 +100,19 @@ export const DiagnosticStep: React.FC<DiagnosticStepProps> = ({
             {/* Edit Button */}
             <Button
               variant="outline"
-              size="xs"
+              size="sm"
               onClick={handleEditDiagnostic}
-              leftSection={<HugeiconsIcon icon={PencilEdit02Icon} size={12} />}
             >
+              <Edit className="w-4 h-4 mr-1.5" />
               Edit Diagnostic
             </Button>
           </Stack>
         </Card>
       ) : (
         <Card p="lg" className="text-center">
-          <HugeiconsIcon icon={NoteIcon} className="text-gray-400 mx-auto mb-2" size={32} />
-          <p className="text-xs text-gray-600 mb-2">No diagnostic completed yet</p>
-          <Button onClick={() => setShowDiagnostic(true)} size="xs">
+          <FileText className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+          <p className="text-xs text-muted-foreground mb-2">No diagnostic completed yet</p>
+          <Button onClick={() => setShowDiagnostic(true)} size="sm">
             Start Diagnostic
           </Button>
         </Card>
@@ -121,3 +121,5 @@ export const DiagnosticStep: React.FC<DiagnosticStepProps> = ({
     </Stack>
   );
 };
+
+

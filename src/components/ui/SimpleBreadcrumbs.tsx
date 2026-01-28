@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { ArrowRight01Icon } from '@hugeicons/core-free-icons';
+import { ChevronRight } from 'lucide-react';
 
 interface BreadcrumbItem {
   label: string;
@@ -15,21 +14,21 @@ interface SimpleBreadcrumbsProps {
 
 export const SimpleBreadcrumbs: React.FC<SimpleBreadcrumbsProps> = ({ items }) => {
   return (
-    <nav className="flex items-center gap-2 text-caption font-caption text-neutral-500">
+    <nav className="flex items-center gap-2 text-caption font-caption text-muted-foreground">
       {items.map((item, index) => (
         <React.Fragment key={index}>
           {index > 0 && (
-            <HugeiconsIcon icon={ArrowRight01Icon} size={12} className="text-neutral-400" />
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
           )}
           {item.href && !item.active ? (
             <Link
               to={item.href}
-              className="hover:text-neutral-700 transition-colors"
+              className="hover:text-foreground transition-colors"
             >
               {item.label}
             </Link>
           ) : (
-            <span className={item.active ? 'text-neutral-900' : ''}>
+            <span className={item.active ? 'text-foreground' : ''}>
               {item.label}
             </span>
           )}
@@ -38,4 +37,6 @@ export const SimpleBreadcrumbs: React.FC<SimpleBreadcrumbsProps> = ({ items }) =
     </nav>
   );
 };
+
+
 

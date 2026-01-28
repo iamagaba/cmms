@@ -1,27 +1,19 @@
+import { Calendar, CheckCircle, ClipboardList, User } from 'lucide-react';
+/**
+ * TV Widgets Component
+ * 
+ * Note: This component intentionally uses neutral colors (bg-neutral-*, text-neutral-*)
+ * instead of semantic tokens. TV dashboards require high contrast and specific color
+ * palettes optimized for large display visibility from distance.
+ * 
+ * This is an approved exception to the shadcn/ui compliance rules.
+ */
 
 import React from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-    AnalyticsUpIcon,
-    AnalyticsDownIcon,
-    AlertCircleIcon,
-    CheckmarkCircle01Icon,
-    ClipboardIcon,
-    UserIcon,
-    Calendar01Icon
-} from '@hugeicons/core-free-icons';
-import {
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    ResponsiveContainer,
-    PieChart,
-    Pie,
-    Cell
-} from 'recharts';
+
+
+import { BarChart } from '@mui/x-charts/BarChart';
+import { PieChart } from '@mui/x-charts/PieChart';
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -46,7 +38,7 @@ export const MetricCard = ({ label, value, sublabel, variant = 'normal', icon }:
             case 'warning': return 'bg-warning-50 text-warning-800 border-warning-200 dark:bg-warning-900/40 dark:border-warning-500/50 dark:text-warning-100';
             case 'success': return 'bg-success-50 text-success-800 border-success-200 dark:bg-success-900/40 dark:border-success-500/50 dark:text-success-100';
             case 'info': return 'bg-primary-50 text-primary-800 border-primary-200 dark:bg-primary-900/40 dark:border-primary-500/50 dark:text-primary-100';
-            default: return 'bg-white text-neutral-900 border-neutral-200 dark:bg-neutral-800 dark:border-neutral-700 dark:text-white';
+            default: return 'bg-card text-foreground border';
         }
     };
 
@@ -90,7 +82,7 @@ export const ActiveWorkOrderList = ({ workOrders, assetLookup, techLookup }: Act
             <div className="p-4 bg-neutral-50 dark:bg-neutral-800 border-b border-neutral-200 dark:border-neutral-700 flex items-center gap-3 transition-colors duration-300">
                 <div className="w-2 h-2 rounded-full bg-primary-500 animate-pulse"></div>
                 <h3 className="font-bold text-lg tracking-wide text-neutral-900 dark:text-white">LIVE ACTIVITY FEED</h3>
-                <span className="text-xs text-neutral-500 ml-auto uppercase tracking-wider font-mono">
+                <span className="text-xs text-muted-foreground ml-auto uppercase tracking-wider font-mono">
                     {workOrders.length} ACTIVE
                 </span>
             </div>
@@ -100,8 +92,8 @@ export const ActiveWorkOrderList = ({ workOrders, assetLookup, techLookup }: Act
                 className="flex-1 overflow-y-auto p-4 space-y-3 relative custom-scrollbar"
             >
                 {workOrders.length === 0 ? (
-                    <div className="h-full flex flex-col items-center justify-center text-neutral-500 opacity-50">
-                        <HugeiconsIcon icon={CheckmarkCircle01Icon} size={64} className="mb-4" />
+                    <div className="h-full flex flex-col items-center justify-center text-muted-foreground opacity-50">
+                        <CheckCircle className="w-5 h-5 mb-4" />
                         <span className="text-xl font-medium">No Active Work</span>
                     </div>
                 ) : (
@@ -120,14 +112,14 @@ export const ActiveWorkOrderList = ({ workOrders, assetLookup, techLookup }: Act
                                         <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isUrgent ? 'bg-error-100 text-error-600 dark:bg-error-900/30 dark:text-error-500' : 'bg-primary-50 text-primary-600 dark:bg-primary-900/30 dark:text-primary-500'
                                             }`}>
 
-                                            <HugeiconsIcon icon={ClipboardIcon} size={24} />
+                                            <ClipboardList className="w-5 h-5" />
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-2">
-                                                <span className="font-mono font-bold text-neutral-500 dark:text-neutral-400 text-sm">#{wo.id.slice(0, 6)}</span>
+                                                <span className="font-mono font-bold text-muted-foreground dark:text-neutral-400 text-sm">#{wo.id.slice(0, 6)}</span>
                                                 <span className="font-semibold text-lg text-neutral-900 dark:text-white">{wo.service || wo.description}</span>
                                             </div>
-                                            <div className="flex items-center gap-3 text-sm text-neutral-500 dark:text-neutral-400 mt-1">
+                                            <div className="flex items-center gap-3 text-sm text-muted-foreground dark:text-neutral-400 mt-1">
                                                 <span className="font-medium text-neutral-700 dark:text-neutral-300">{assetName}</span>
                                                 <span className="w-1 h-1 rounded-full bg-neutral-400 dark:bg-neutral-600"></span>
                                                 <span>{dayjs(wo.created_at).fromNow()}</span>
@@ -136,13 +128,13 @@ export const ActiveWorkOrderList = ({ workOrders, assetLookup, techLookup }: Act
                                     </div>
 
                                     <div className="flex flex-col items-end gap-1">
-                                        <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${wo.status === 'In Progress' ? 'bg-primary-100 text-primary-700 dark:bg-primary-500/20 dark:text-primary-300' : 'bg-neutral-200 text-neutral-600 dark:bg-neutral-700 dark:text-neutral-300'
+                                        <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${wo.status === 'In Progress' ? 'bg-primary-100 text-primary-700 dark:bg-primary-500/20 dark:text-primary-300' : 'bg-neutral-200 text-muted-foreground dark:bg-neutral-700 dark:text-neutral-300'
                                             }`}>
                                             {wo.status}
                                         </div>
                                         {wo.assignedTechnicianId && (
-                                            <span className="text-xs font-medium text-neutral-500 flex items-center gap-1">
-                                                <HugeiconsIcon icon={UserIcon} size={12} />
+                                            <span className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                                                <User className="w-5 h-5" />
                                                 {techName}
                                             </span>
                                         )}
@@ -176,23 +168,45 @@ export const WeeklyTrendChart = ({ data }: { data: any[] }) => {
 
     return (
         <div className="h-full w-full min-h-[12rem]">
-            <ResponsiveContainer width="100%" height={200}>
-                <BarChart data={data}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                    <XAxis
-                        dataKey="date"
-                        axisLine={false}
-                        tickLine={false}
-                        tick={{ fontSize: 10, fill: '#6b7280' }}
-                        dy={10}
-                    />
-                    <Tooltip
-                        cursor={{ fill: '#f3f4f6' }}
-                        contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                    />
-                    <Bar dataKey="count" fill="#9333ea" radius={[4, 4, 0, 0]} />
-                </BarChart>
-            </ResponsiveContainer>
+            <BarChart
+                dataset={data}
+                xAxis={[{
+                    scaleType: 'band',
+                    dataKey: 'date',
+                    tickLabelStyle: {
+                        fontSize: 10,
+                        fill: '#6b7280'
+                    }
+                }]}
+                series={[{
+                    dataKey: 'count',
+                    color: '#9333ea',
+                }]}
+                grid={{ horizontal: true, vertical: false }}
+                margin={{ top: 10, right: 10, bottom: 20, left: 10 }}
+                borderRadius={4}
+                slotProps={{
+                    legend: {}
+                }}
+                sx={{
+                    '& .MuiChartsGrid-line': {
+                        stroke: '#e5e7eb',
+                        strokeDasharray: '3 3',
+                    },
+                    '& .MuiChartsAxis-line': {
+                        display: 'none',
+                    },
+                    '& .MuiChartsAxis-tick': {
+                        display: 'none',
+                    },
+                    '& .MuiChartsAxis-left': {
+                        display: 'none',
+                    },
+                    '& .MuiChartsLegend-root': {
+                        display: 'none',
+                    }
+                }}
+            />
         </div>
     );
 };
@@ -211,25 +225,30 @@ export const TeamStatusChart = ({ data }: { data: { status: string, count: numbe
 
     return (
         <div className="h-full w-full min-h-[12rem]">
-            <ResponsiveContainer width="100%" height={200}>
-                <PieChart>
-                    <Pie
-                        data={data}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={80}
-                        paddingAngle={5}
-                        dataKey="count"
-                        nameKey="status"
-                    >
-                        {data.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-                        ))}
-                    </Pie>
-                    <Tooltip contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
-                </PieChart>
-            </ResponsiveContainer>
+            <PieChart
+                series={[
+                    {
+                        data: data.map((item, index) => ({
+                            id: index,
+                            value: item.count,
+                            label: item.status,
+                            color: colors[index % colors.length],
+                        })),
+                        innerRadius: 60,
+                        outerRadius: 80,
+                        paddingAngle: 5,
+                        highlightScope: { faded: 'global', highlighted: 'item' },
+                    },
+                ]}
+                margin={{ top: 10, right: 10, bottom: 10, left: 10 }}
+                slotProps={{
+                }}
+                sx={{
+                    '& .MuiChartsLegend-root': {
+                        display: 'none',
+                    }
+                }}
+            />
         </div>
     );
 }
@@ -247,8 +266,8 @@ export const UpNextSchedule = ({ orders }: UpNextScheduleProps) => {
         <div className="h-full flex flex-col">
             <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar">
                 {orders.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center py-10 text-neutral-500 opacity-60">
-                        <HugeiconsIcon icon={Calendar01Icon} size={48} className="mb-3" />
+                    <div className="flex flex-col items-center justify-center py-10 text-muted-foreground opacity-60">
+                        <Calendar className="w-5 h-5 mb-3" />
                         <span className="text-sm font-medium">No Appointments (24h)</span>
                     </div>
                 ) : (
@@ -258,7 +277,7 @@ export const UpNextSchedule = ({ orders }: UpNextScheduleProps) => {
                                 <div className="text-neutral-900 dark:text-white font-medium text-base mb-1">
                                     {dayjs(order.appointmentDate || order.scheduledDate).format('h:mm A')}
                                 </div>
-                                <div className="text-neutral-500 dark:text-neutral-400 text-xs uppercase tracking-wide truncate max-w-[150px]">
+                                <div className="text-muted-foreground dark:text-neutral-400 text-xs uppercase tracking-wide truncate max-w-[150px]">
                                     {order.service || order.title}
                                 </div>
                             </div>
@@ -266,7 +285,7 @@ export const UpNextSchedule = ({ orders }: UpNextScheduleProps) => {
                                 <div className="text-sm font-bold text-neutral-700 dark:text-neutral-300">
                                     {dayjs(order.appointmentDate || order.scheduledDate).format('MMM D')}
                                 </div>
-                                <span className="text-[10px] text-neutral-500 bg-neutral-200 dark:bg-neutral-800 px-2 py-0.5 rounded-full">
+                                <span className="text-xs text-muted-foreground bg-neutral-200 dark:bg-neutral-800 px-2 py-0.5 rounded-full">
                                     SCHEDULED
                                 </span>
                             </div>
@@ -277,3 +296,7 @@ export const UpNextSchedule = ({ orders }: UpNextScheduleProps) => {
         </div>
     );
 };
+
+
+
+

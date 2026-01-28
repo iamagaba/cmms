@@ -1,6 +1,9 @@
+import { Check } from 'lucide-react';
 import React, { useState } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Tick01Icon } from '@hugeicons/core-free-icons';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+
 import { ItemCategory } from '@/types/supabase';
 import { getCategoryBadgeColor, getCategoryIcon, ALL_CATEGORIES, ITEM_CATEGORY_LABELS } from '@/utils/inventory-categorization-helpers';
 import {
@@ -12,6 +15,11 @@ import {
   CommandSeparator,
 } from "@/components/ui/command"
 import { cn } from "@/lib/utils"
+
+interface CategoryMultiSelectProps {
+  value: ItemCategory[];
+  onChange: (categories: ItemCategory[]) => void;
+}
 
 export const CategoryMultiSelect: React.FC<CategoryMultiSelectProps> = ({
   value,
@@ -45,16 +53,19 @@ export const CategoryMultiSelect: React.FC<CategoryMultiSelectProps> = ({
             {value.length === 0 ? (
               <span className="text-muted-foreground">Select categories...</span>
             ) : (
-              value.map(category => (
-                <Badge
-                  key={category}
-                  variant="secondary"
-                  className="gap-1"
-                >
-                  <HugeiconsIcon icon={getCategoryIcon(category)} size={12} />
-                  {ITEM_CATEGORY_LABELS[category]}
-                </Badge>
-              ))
+              value.map(category => {
+                const IconComponent = getCategoryIcon(category);
+                return (
+                  <Badge
+                    key={category}
+                    variant="secondary"
+                    className="gap-1"
+                  >
+                    <IconComponent className="w-4 h-4" />
+                    {ITEM_CATEGORY_LABELS[category]}
+                  </Badge>
+                );
+              })
             )}
           </div>
         </Button>
@@ -66,6 +77,7 @@ export const CategoryMultiSelect: React.FC<CategoryMultiSelectProps> = ({
             <CommandGroup>
               {ALL_CATEGORIES.map(category => {
                 const isSelected = value.includes(category);
+                const IconComponent = getCategoryIcon(category);
                 return (
                   <CommandItem
                     key={category}
@@ -80,13 +92,11 @@ export const CategoryMultiSelect: React.FC<CategoryMultiSelectProps> = ({
                           : "opacity-50 [&_svg]:invisible"
                       )}
                     >
-                      <HugeiconsIcon icon={Tick01Icon} size={14} className="text-white" />
+                      <Check className="w-4 h-4 text-white" />
                     </div>
-                    <HugeiconsIcon
-                      icon={getCategoryIcon(category)}
-                      size={16}
+                    <IconComponent
                       className={cn(
-                        "mr-2",
+                        "w-4 h-4 mr-2",
                         isSelected ? "text-primary" : "text-muted-foreground"
                       )}
                     />
@@ -128,11 +138,15 @@ export const CategoryBadge: React.FC<CategoryBadgeProps> = ({
   showIcon = true,
 }) => {
   const sizeClasses = size === 'sm' ? 'px-1.5 py-0.5 text-xs' : 'px-2 py-1 text-sm';
+  const IconComponent = getCategoryIcon(category);
+  const iconSize = size === 'sm' ? 'w-3 h-3' : 'w-4 h-4';
 
   return (
     <span className={`inline-flex items-center gap-1 rounded border font-medium ${getCategoryBadgeColor(category)} ${sizeClasses}`}>
-      {showIcon && <HugeiconsIcon icon={getCategoryIcon(category)} size={size === 'sm' ? 12 : 16} className="text-current" />}
+      {showIcon && <IconComponent className={`${iconSize} text-current`} />}
       {ITEM_CATEGORY_LABELS[category]}
     </span>
   );
 };
+
+

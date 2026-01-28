@@ -1,0 +1,170 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { WorkOrder } from "@/types/supabase";
+import { HugeiconsIcon } from '@hugeicons/react';
+import { ArrowLeft01Icon, Home01Icon, ClipboardIcon } from '@hugeicons/core-free-icons';
+import AppBreadcrumb from "@/components/Breadcrumbs";
+
+interface WorkOrderDetailsProps {
+  isDrawerMode?: boolean;
+  workOrderId?: string | null;
+}
+
+const WorkOrderDetailsEnhanced = ({ isDrawerMode = false, workOrderId }: WorkOrderDetailsProps) => {
+  const { id: paramId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const id = isDrawerMode ? workOrderId : paramId;
+
+  // Fetch work order data
+  const { data: workOrder, isLoading, error } = useQuery({
+    queryKey: ['work_order', id],
+    queryFn: async () => {
+      if (!id) throw new Error('No work order ID provided');
+      
+      const { data, error } = await supabase
+        .from('work_orders')
+        .select(`
+          *,
+          customers (*),
+          vehicles (*),
+          technicians (*),
+          locations (*)
+        `)
+        .eq('id', id)
+        .single();
+
+      if (error) throw error;
+      return data as WorkOrder;
+    },
+    enabled: !!id,
+  });
+
+  // Back button for breadcrumb
+  const backButton = (
+    <button
+      onClick={() => !isDrawerMode && navigate('/work-orders')}
+      className="p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors focus:outline-none focus:ring-2 focus:ring-ring"
+      aria-label="Go back to Work Orders"
+    >
+      <HugeiconsIcon icon={ArrowLeft01Icon} className="w-4 h-4" />
+    </button>
+  );
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col h-screen bg-background">
+        {!isDrawerMode && (
+          <div className="w-full px-4 pt-2 flex-none">
+            <AppBreadcrumb
+              backButton={backButton}
+              customBreadcrumbs={[
+                { label: 'Home', path: '/', icon: Home01Icon },
+                { label: 'Work Orders', path: '/work-orders', icon: ClipboardIcon },
+                { label: 'Loading...', path: `/work-orders/${id}`, isClickable: false }
+              ]}
+            />
+          </div>
+        )}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading work order...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !workOrder) {
+    return (
+      <div className="flex flex-col h-screen bg-background">
+        {!isDrawerMode && (
+          <div className="w-full px-4 pt-2 flex-none">
+            <AppBreadcrumb
+              backButton={backButton}
+              customBreadcrumbs={[
+                { label: 'Home', path: '/', icon: Home01Icon },
+                { label: 'Work Orders', path: '/work-orders', icon: ClipboardIcon },
+                { label: 'Error', path: `/work-orders/${id}`, isClickable: false }
+              ]}
+            />
+          </div>
+        )}
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-center">
+            <div className="text-destructive text-lg font-semibold mb-2">Error Loading Work Order</div>
+            <p className="text-muted-foreground mb-4">
+              {error?.message || 'Work order not found'}
+            </p>
+            <button
+              onClick={() => navigate('/work-orders')}
+              className="px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90"
+            >
+              Back to Work Orders
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-1rem)] lg:h-screen bg-background">
+      {!isDrawerMode && (
+        <div className="w-full px-4 pt-2 flex-none">
+          <AppBreadcrumb
+            backButton={backButton}
+            customBreadcrumbs={[
+              { label: 'Home', path: '/', icon: Home01Icon },
+              { label: 'Work Orders', path: '/work-orders', icon: ClipboardIcon },
+              { label: workOrder?.workOrderNumber || workOrder?.id || 'Loading...', path: `/work-orders/${id}`, isClickable: false }
+            ]}
+          />
+        </div>
+      )}
+
+      <div className="flex-1 overflow-hidden">
+        <div className="h-full p-6">
+          <div className="bg-card border border-border rounded-lg p-6 h-full">
+            <h1 className="text-2xl font-bold text-foreground mb-4">
+              Work Order: {workOrder.workOrderNumber}
+            </h1>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Details</h3>
+                <div className="space-y-2 text-sm">
+                  <p><span className="font-medium">Status:</span> {workOrder.status}</p>
+                  <p><span className="font-medium">Priority:</span> {workOrder.priority}</p>
+                  <p><span className="font-medium">Issue:</span> {workOrder.issue}</p>
+                  <p><span className="font-medium">Description:</span> {workOrder.description}</p>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Assignment</h3>
+                <div className="space-y-2 text-sm">
+                  <p><span className="font-medium">Customer:</span> {workOrder.customers?.name}</p>
+                  <p><span className="font-medium">Vehicle:</span> {workOrder.vehicles?.licensePlate}</p>
+                  <p><span className="font-medium">Technician:</span> {workOrder.technicians?.firstName} {workOrder.technicians?.lastName}</p>
+                  <p><span className="font-medium">Location:</span> {workOrder.locations?.name}</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 p-4 bg-muted/50 rounded-lg">
+              <p className="text-sm text-muted-foreground">
+                ✅ Basic work order details are now loading successfully! 
+                The full functionality with tabs, forms, and advanced features will be restored gradually.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default WorkOrderDetailsEnhanced;

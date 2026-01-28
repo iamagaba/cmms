@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { ArrowDown01Icon, ArrowUp01Icon } from '@hugeicons/core-free-icons';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 export interface SelectOption {
     value: string;
@@ -80,7 +79,7 @@ export function Select({
             {label && (
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                     {label}
-                    {required && <span className="text-red-500 ml-1">*</span>}
+                    {required && <span className="text-destructive ml-1">*</span>}
                 </label>
             )}
             {description && (
@@ -96,7 +95,7 @@ export function Select({
                         'w-full text-left border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent',
                         'transition-colors flex items-center justify-between',
                         sizeMap[size],
-                        error && 'border-red-500 focus:ring-red-500',
+                        error && 'border-destructive focus:ring-red-500',
                         disabled && 'bg-gray-100 cursor-not-allowed opacity-60',
                         'rounded-none'
                     )}
@@ -104,11 +103,11 @@ export function Select({
                     <span className={cn(!selectedOption && 'text-gray-400')}>
                         {selectedOption?.label || placeholder}
                     </span>
-                    <HugeiconsIcon
-                        icon={isOpen ? ArrowUp01Icon : ArrowDown01Icon}
-                        className="text-gray-400"
-                        size={20}
-                    />
+                    {isOpen ? (
+                        <ChevronUp className="w-5 h-5 text-gray-400" />
+                    ) : (
+                        <ChevronDown className="w-5 h-5 text-gray-400" />
+                    )}
                 </button>
 
                 {isOpen && !disabled && (
@@ -139,8 +138,10 @@ export function Select({
             </div>
 
             {error && (
-                <p className="text-xs text-red-500 mt-1">{error}</p>
+                <p className="text-xs text-destructive mt-1">{error}</p>
             )}
         </div>
     );
 }
+
+

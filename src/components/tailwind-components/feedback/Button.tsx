@@ -23,7 +23,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 }
 
 const sizeMap = {
-    xs: 'px-2 py-0.5 text-[10px] h-6',
+    xs: 'px-2 py-0.5 text-xs h-6',
     sm: 'px-2.5 py-1 text-xs h-7',
     md: 'px-4 py-2 text-sm h-9',
     lg: 'px-5 py-2.5 text-base h-10',
@@ -34,34 +34,34 @@ const variantMap = {
     filled: {
         primary: 'bg-primary-500 text-white hover:bg-primary-600 active:bg-primary-700',
         gray: 'bg-gray-500 text-white hover:bg-gray-600 active:bg-gray-700',
-        red: 'bg-red-500 text-white hover:bg-red-600 active:bg-red-700',
-        green: 'bg-green-500 text-white hover:bg-green-600 active:bg-green-700',
+        red: 'bg-destructive text-white hover:bg-destructive active:bg-destructive',
+        green: 'bg-emerald-500 text-white hover:bg-emerald-600 active:bg-emerald-700',
         blue: 'bg-blue-500 text-white hover:bg-blue-600 active:bg-blue-700',
-        yellow: 'bg-yellow-500 text-white hover:bg-yellow-600 active:bg-yellow-700',
+        yellow: 'bg-amber-500 text-white hover:bg-amber-600 active:bg-amber-700',
     },
     outline: {
         primary: 'border-2 border-primary-500 text-primary-500 hover:bg-primary-50',
         gray: 'border-2 border-gray-500 text-gray-500 hover:bg-gray-50',
-        red: 'border-2 border-red-500 text-red-500 hover:bg-red-50',
-        green: 'border-2 border-green-500 text-green-500 hover:bg-green-50',
-        blue: 'border-2 border-blue-500 text-blue-500 hover:bg-blue-50',
-        yellow: 'border-2 border-yellow-500 text-yellow-500 hover:bg-yellow-50',
+        red: 'border-2 border-destructive text-destructive hover:bg-destructive/5',
+        green: 'border-2 border-emerald-500 text-emerald-500 hover:bg-emerald-50',
+        blue: 'border-2 border-blue-500 text-blue-500 hover:bg-muted',
+        yellow: 'border-2 border-amber-500 text-amber-500 hover:bg-amber-50',
     },
     light: {
         primary: 'bg-primary-50 text-primary-700 hover:bg-primary-100',
         gray: 'bg-gray-100 text-gray-700 hover:bg-gray-200',
-        red: 'bg-red-50 text-red-700 hover:bg-red-100',
-        green: 'bg-green-50 text-green-700 hover:bg-green-100',
-        blue: 'bg-blue-50 text-blue-700 hover:bg-blue-100',
-        yellow: 'bg-yellow-50 text-yellow-700 hover:bg-yellow-100',
+        red: 'bg-destructive/10 text-destructive hover:bg-destructive/10',
+        green: 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100',
+        blue: 'bg-muted text-muted-foreground hover:bg-muted',
+        yellow: 'bg-amber-50 text-amber-700 hover:bg-amber-100',
     },
     subtle: {
         primary: 'text-primary-600 hover:bg-primary-50',
         gray: 'text-gray-600 hover:bg-gray-50',
-        red: 'text-red-600 hover:bg-red-50',
-        green: 'text-green-600 hover:bg-green-50',
-        blue: 'text-blue-600 hover:bg-blue-50',
-        yellow: 'text-yellow-600 hover:bg-yellow-50',
+        red: 'text-destructive hover:bg-destructive/5',
+        green: 'text-emerald-600 hover:bg-emerald-50',
+        blue: 'text-muted-foreground hover:bg-muted',
+        yellow: 'text-amber-600 hover:bg-amber-50',
     },
     default: {
         primary: 'bg-gray-100 text-gray-900 hover:bg-gray-200',
@@ -132,3 +132,5 @@ export function Button({
         </button>
     );
 }
+
+

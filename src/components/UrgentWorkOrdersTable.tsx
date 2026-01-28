@@ -1,6 +1,8 @@
+import { CheckCircle, User } from 'lucide-react';
 import { StatusBadge } from '@/components/badges';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { UserIcon, Location01Icon, AlertCircleIcon, CheckmarkCircle01Icon } from '@hugeicons/core-free-icons';
+import { EmptyState } from '@/components/ui/empty-state';
+
+
 import { WorkOrder, Technician, Vehicle } from '@/types/supabase';
 import { formatDistanceToNow, isPast, isValid } from 'date-fns';
 import React from 'react';
@@ -62,11 +64,11 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
     const tech = technicians.find(t => t.id === techId);
     return tech ? (
       <div className="flex items-center gap-2">
-        <div className="w-5 h-5 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 overflow-hidden">
+        <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center text-primary overflow-hidden">
           {tech.avatar ? (
             <img src={tech.avatar} alt={tech.name} className="w-full h-full object-cover" />
           ) : (
-            <HugeiconsIcon icon={UserIcon} size={12} />
+            <User className="w-5 h-5" />
           )}
         </div>
         <span className="text-xs truncate max-w-[100px]">{tech.name}</span>
@@ -78,7 +80,7 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
 
   const renderAddress = (address: string) => address ? (
     <div className="flex items-center gap-1">
-      <HugeiconsIcon icon={Location01Icon} className="w-3 h-3 text-gray-500" size={12} />
+      <Location01Icon className="w-3 h-3 text-gray-500 w-4 h-4" />
       <span className="text-xs truncate max-w-[150px]" title={address}>{address}</span>
     </div>
   ) : <span className="text-xs text-gray-400">N/A</span>;
@@ -102,14 +104,14 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
   const rowCount = 5;
 
   return (
-    <div className="bg-white border border-slate-100 shadow-sm h-full flex flex-col rounded-xl overflow-hidden">
-      <div className="p-4 border-b border-slate-50 flex items-center gap-3">
+    <div className="bg-white border border-border shadow-sm h-full flex flex-col rounded-xl overflow-hidden">
+      <div className="p-4 border-b border-border flex items-center gap-3">
         <div className="w-6 h-6 rounded-full flex items-center justify-center bg-rose-50 text-rose-500">
-          <HugeiconsIcon icon={AlertCircleIcon} className="w-4 h-4" size={16} />
+          <AlertCircle className="w-4 h-4 w-4 h-4" />
         </div>
         <div>
-          <span className="text-sm font-bold text-slate-800 block">Urgent Work Orders</span>
-          <span className="text-xs text-slate-500">
+          <span className="text-sm font-bold text-foreground block">Urgent Work Orders</span>
+          <span className="text-xs text-muted-foreground">
             Due &lt; 24h
           </span>
         </div>
@@ -120,35 +122,34 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
           loading ? (
             <div className="p-4 flex flex-col gap-2">
               {Array.from({ length: rowCount }).map((_, idx) => (
-                <div key={idx} className="flex justify-between items-center py-2 border-b border-slate-50 last:border-0">
-                  <div className="h-4 w-20 bg-slate-100 rounded animate-pulse" />
-                  <div className="h-4 w-24 bg-slate-100 rounded animate-pulse" />
-                  <div className="h-4 w-20 bg-slate-100 rounded animate-pulse" />
-                  <div className="h-4 w-24 bg-slate-100 rounded animate-pulse" />
+                <div key={idx} className="flex justify-between items-center py-2 border-b border-border last:border-0">
+                  <div className="h-4 w-20 bg-muted rounded animate-pulse" />
+                  <div className="h-4 w-24 bg-muted rounded animate-pulse" />
+                  <div className="h-4 w-20 bg-muted rounded animate-pulse" />
+                  <div className="h-4 w-24 bg-muted rounded animate-pulse" />
                 </div>
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center py-8 gap-2">
-              <div className="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center">
-                <HugeiconsIcon icon={CheckmarkCircle01Icon} className="w-5 h-5 text-emerald-500" size={20} />
-              </div>
-              <span className="text-xs font-medium text-slate-500">No urgent work orders</span>
-            </div>
+            <EmptyState
+              icon={<CheckCircle className="w-6 h-6 text-emerald-500" />}
+              title="No urgent work orders"
+              description="All urgent work orders have been completed"
+            />
           )
         ) : (
           <div className="min-w-[600px]">
             <div className="min-w-[600px] p-2">
               <Table>
                 <TableHeader>
-                  <TableRow className="border-b border-slate-50 hover:bg-transparent">
-                    <TableHead className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">License Plate</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Custody</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Service</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Technician</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Location</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Status</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-bold text-slate-500 uppercase tracking-wider">Due</TableHead>
+                  <TableRow className="border-b border-border hover:bg-transparent">
+                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">License Plate</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Custody</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Service</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Technician</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Location</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Status</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Due</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -163,13 +164,13 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
                           onViewDetails(record.id);
                         }
                       }}
-                      className="group cursor-pointer hover:bg-slate-50/50 focus:outline-none focus:bg-primary-50/50"
+                      className="group cursor-pointer hover:bg-muted/50 focus:outline-none focus:bg-primary/5"
                     >
                       <TableCell className="px-4 py-3 border-r border-transparent">{renderLicensePlate(record)}</TableCell>
                       <TableCell className="px-4 py-3 border-r border-transparent">
                         <AssetCustodyBadge vehicle={record.vehicleId ? vehicleMap.get(record.vehicleId) : null} size="sm" />
                       </TableCell>
-                      <TableCell className="px-4 py-3 border-r border-transparent"><span className="text-xs font-medium text-slate-700">{record.service}</span></TableCell>
+                      <TableCell className="px-4 py-3 border-r border-transparent"><span className="text-xs font-medium text-foreground">{record.service}</span></TableCell>
                       <TableCell className="px-4 py-3 border-r border-transparent">{renderTechnician(record.assignedTechnicianId || '')}</TableCell>
                       <TableCell className="px-4 py-3 border-r border-transparent">{renderAddress(record.customerAddress || '')}</TableCell>
                       <TableCell className="px-4 py-3 border-r border-transparent">{renderDueStatus(record.slaDue as string)}</TableCell>
@@ -187,3 +188,7 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
 };
 
 export default React.memo(UrgentWorkOrdersTable);
+
+
+
+

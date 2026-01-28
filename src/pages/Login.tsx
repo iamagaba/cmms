@@ -1,14 +1,8 @@
+import { AlertCircle, Eye, Loader2, Lock, Mail, Wrench } from 'lucide-react';
 import { useEffect, useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  ToolsIcon,
-  Mail01Icon,
-  LockIcon,
-  EyeIcon,
-  Alert01Icon,
-  Loading01Icon
-} from '@hugeicons/core-free-icons';
+
+
 import { motion } from 'framer-motion';
 import { supabase } from '@/integrations/supabase/client';
 import { useSession } from '@/context/SessionContext';
@@ -48,10 +42,10 @@ export default function Login() {
 
     const newErrors: { email?: string; password?: string } = {};
     if (!/^\S+@\S+$/.test(email)) {
-      newErrors.email = 'Please enter a valid email';
+      newErrors.email = 'Enter a valid email';
     }
     if (!password) {
-      newErrors.password = 'Please enter your password';
+      newErrors.password = 'Enter your password';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -79,7 +73,7 @@ export default function Login() {
       console.error('Login exception:', err);
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
       if (errorMessage.toLowerCase().includes('fetch') || errorMessage.toLowerCase().includes('network')) {
-        showError('Network connection error. Please try again.');
+        showError('Network connection failed. Try again.');
       } else {
         showError(errorMessage);
       }
@@ -90,7 +84,7 @@ export default function Login() {
 
   const handleForgotPassword = async () => {
     if (!email) {
-      showError('Please enter your email first.');
+      showError('Enter your email first');
       return;
     }
     try {
@@ -102,7 +96,7 @@ export default function Login() {
       if (error) {
         showError(error.message);
       } else {
-        showSuccess('Password reset link sent. Please check your email.');
+        showSuccess('Password reset link sent. Check your email.');
       }
     } finally {
       setLoading(false);
@@ -131,7 +125,7 @@ export default function Login() {
         className="w-full max-w-sm relative z-10"
       >
         {/* Login Card */}
-        <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-lg border border-machinery-200/50 dark:border-gray-800/50 shadow-sm overflow-hidden">
+        <div className="bg-card/80 backdrop-blur-xl rounded-lg border border-border/50 shadow-sm overflow-hidden">
           {/* Logo Section - Clean & Minimal */}
           <div className="px-8 pt-10 pb-6 flex justify-center">
             <motion.div
@@ -142,7 +136,7 @@ export default function Login() {
 
               className="w-16 h-16 bg-gradient-to-br from-steel-500 to-steel-600 rounded-lg flex items-center justify-center shadow-sm ring-4 ring-steel-500/10"
             >
-              <HugeiconsIcon icon={ToolsIcon} size={36} className="text-white" />
+              <Wrench className="w-9 h-9 text-white" />
             </motion.div>
           </div>
 
@@ -155,7 +149,7 @@ export default function Login() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.2, duration: 0.4 }}
               >
-                <label htmlFor="email" className="block text-xs font-semibold text-machinery-600 dark:text-gray-400 mb-2 uppercase tracking-wider">
+                <label htmlFor="email" className="block text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
                   Email
                 </label>
                 <div className="relative group">
@@ -167,7 +161,7 @@ export default function Login() {
                     }}
                     transition={{ duration: 0.3 }}
                   >
-                    <HugeiconsIcon icon={Mail01Icon} size={18} className="text-machinery-400 dark:text-gray-500 group-focus-within:text-steel-500 dark:group-focus-within:text-steel-400 transition-colors" />
+                    <Mail className="w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                   </motion.div>
                   <motion.input
                     id="email"
@@ -186,9 +180,9 @@ export default function Login() {
                       "focus:outline-none focus:ring-4",
                       errors.email
                         ? "border-warning-300 focus:border-warning-500 focus:ring-warning-500/20 bg-warning-50/50 dark:bg-warning-900/10 dark:border-warning-700"
-                        : "border-machinery-200 dark:border-gray-700 focus:border-steel-500 focus:ring-steel-500/20 bg-white dark:bg-gray-800 dark:text-gray-100 hover:border-machinery-300 dark:hover:border-gray-600",
-                      "disabled:bg-machinery-100 dark:disabled:bg-gray-800 disabled:text-machinery-400 disabled:cursor-not-allowed",
-                      "placeholder:text-machinery-400 dark:placeholder:text-gray-500"
+                        : "border-input focus:border-primary focus:ring-primary/20 bg-background text-foreground hover:border-border",
+                      "disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed",
+                      "placeholder:text-muted-foreground"
                     )}
                     placeholder="you@example.com"
                   />
@@ -199,7 +193,7 @@ export default function Login() {
                     animate={{ opacity: 1, y: 0 }}
                     className="mt-2 text-xs text-warning-600 dark:text-warning-400 flex items-center gap-1.5 font-medium"
                   >
-                    <HugeiconsIcon icon={Alert01Icon} size={14} />
+                    <AlertCircle className="w-5 h-5" />
                     {errors.email}
                   </motion.p>
                 )}
@@ -211,7 +205,7 @@ export default function Login() {
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.3, duration: 0.4 }}
               >
-                <label htmlFor="password" className="block text-xs font-semibold text-machinery-600 dark:text-gray-400 mb-2 uppercase tracking-wider">
+                <label htmlFor="password" className="block text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wider">
                   Password
                 </label>
                 <div className="relative group">
@@ -223,7 +217,7 @@ export default function Login() {
                     }}
                     transition={{ duration: 0.3 }}
                   >
-                    <HugeiconsIcon icon={LockIcon} size={18} className="text-machinery-400 dark:text-gray-500 group-focus-within:text-steel-500 dark:group-focus-within:text-steel-400 transition-colors" />
+                    <Lock className="w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
                   </motion.div>
                   <motion.input
                     id="password"
@@ -241,9 +235,9 @@ export default function Login() {
                       "focus:outline-none focus:ring-4",
                       errors.password
                         ? "border-warning-300 focus:border-warning-500 focus:ring-warning-500/20 bg-warning-50/50 dark:bg-warning-900/10 dark:border-warning-700"
-                        : "border-machinery-200 dark:border-gray-700 focus:border-steel-500 focus:ring-steel-500/20 bg-white dark:bg-gray-800 dark:text-gray-100 hover:border-machinery-300 dark:hover:border-gray-600",
-                      "disabled:bg-machinery-100 dark:disabled:bg-gray-800 disabled:text-machinery-400 disabled:cursor-not-allowed",
-                      "placeholder:text-machinery-400 dark:placeholder:text-gray-500"
+                        : "border-input focus:border-primary focus:ring-primary/20 bg-background text-foreground hover:border-border",
+                      "disabled:bg-muted disabled:text-muted-foreground disabled:cursor-not-allowed",
+                      "placeholder:text-muted-foreground"
                     )}
                     placeholder="••••••••"
                   />
@@ -262,11 +256,9 @@ export default function Login() {
                       }}
                       transition={{ duration: 0.2 }}
                     >
-                      <HugeiconsIcon
-                        icon={EyeIcon}
-                        size={18}
+                      <Eye
                         className={cn(
-                          "transition-colors",
+                          "w-5 h-5 transition-colors",
                           showPassword ? 'text-steel-500 dark:text-steel-400' : ''
                         )}
                       />
@@ -279,7 +271,7 @@ export default function Login() {
                     animate={{ opacity: 1, y: 0 }}
                     className="mt-2 text-xs text-warning-600 dark:text-warning-400 flex items-center gap-1.5 font-medium"
                   >
-                    <HugeiconsIcon icon={Alert01Icon} size={14} />
+                    <AlertCircle className="w-5 h-5" />
                     {errors.password}
                   </motion.p>
                 )}
@@ -298,9 +290,9 @@ export default function Login() {
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
                     disabled={loading || oauthLoading}
-                    className="w-4 h-4 text-steel-600 border-machinery-300 dark:border-gray-600 rounded focus:ring-steel-500 focus:ring-offset-0 cursor-pointer disabled:cursor-not-allowed dark:bg-gray-800 transition-all"
+                    className="w-4 h-4 text-primary border-input rounded focus:ring-primary focus:ring-offset-0 cursor-pointer disabled:cursor-not-allowed bg-background transition-all"
                   />
-                  <span className="text-xs font-medium text-machinery-600 dark:text-gray-400 group-hover:text-machinery-800 dark:group-hover:text-gray-200 transition-colors">
+                  <span className="text-xs font-medium text-muted-foreground group-hover:text-foreground transition-colors">
                     Remember me
                   </span>
                 </label>
@@ -332,7 +324,7 @@ export default function Login() {
                   className="w-full mt-6 shadow-sm hover:shadow-md transition-shadow"
                   disabled={loading || oauthLoading}
                 >
-                  {loading && <HugeiconsIcon icon={Loading01Icon} size={16} className="animate-spin" />}
+                  {loading && <Loader2 className="w-4 h-4 animate-spin" />}
                   Sign in
                 </Button>
               </motion.div>
@@ -345,10 +337,10 @@ export default function Login() {
                 transition={{ delay: 0.6, duration: 0.4 }}
               >
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-machinery-200 dark:border-gray-700"></div>
+                  <div className="w-full border-t border-border"></div>
                 </div>
                 <div className="relative flex justify-center text-xs">
-                  <span className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm px-4 text-machinery-400 dark:text-gray-500 font-medium uppercase tracking-wider">
+                  <span className="bg-card/80 backdrop-blur-sm px-4 text-muted-foreground font-medium uppercase tracking-wider">
                     or
                   </span>
                 </div>
@@ -371,7 +363,7 @@ export default function Login() {
                     handleGoogleLogin();
                   }}
                 >
-                  {oauthLoading && <HugeiconsIcon icon={Loading01Icon} size={16} className="animate-spin" />}
+                  {oauthLoading && <Loader2 className="w-4 h-4 animate-spin" />}
                   {!oauthLoading && (
                     <div className="flex items-center justify-center gap-2">
                       <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -392,3 +384,6 @@ export default function Login() {
     </div>
   );
 }
+
+
+

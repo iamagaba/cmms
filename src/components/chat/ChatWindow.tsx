@@ -1,14 +1,7 @@
+import { Check, Info, Plus } from 'lucide-react';
 import React, { useRef, useEffect } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-    Tick01Icon,
-    InformationCircleIcon,
-    MoreVerticalIcon,
-    Add01Icon,
-    File01Icon as FileIcon,
-    StarIcon,
-    ArrowRight01Icon,
-} from '@hugeicons/core-free-icons';
+
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -54,7 +47,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                             {chat.customerName}
                         </h2>
                         {chat.whatsappVerified && (
-                            <HugeiconsIcon icon={Tick01Icon} size={14} className="text-green-500" />
+                            <Check className="w-4 h-4 text-green-500" />
                         )}
                     </div>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -71,11 +64,11 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                 </div>
 
                 <div className="flex items-center gap-3">
-                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
-                        <HugeiconsIcon icon={InformationCircleIcon} size={18} />
+                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" aria-label="Chat information">
+                        <Info className="w-5 h-5" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
-                        <HugeiconsIcon icon={MoreVerticalIcon} size={18} />
+                    <Button variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground" aria-label="More options">
+                        <MoreVerticalIcon className="w-5 h-5" />
                     </Button>
                 </div>
             </div>
@@ -97,14 +90,14 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
             {/* INPUT AREA */}
             <div className="p-4 bg-background border-t border-border shrink-0">
                 <div className="flex items-center gap-3 max-w-4xl mx-auto bg-secondary/50 rounded-xl px-4 py-2 border border-border focus-within:ring-1 focus-within:ring-ring focus-within:border-primary transition-all">
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                        <HugeiconsIcon icon={Add01Icon} size={20} />
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" aria-label="Add attachment">
+                        <Plus className="w-5 h-5" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                        <HugeiconsIcon icon={FileIcon} size={20} />
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" aria-label="Attach file">
+                        <FileIcon className="w-5 h-5" />
                     </Button>
-                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground">
-                        <HugeiconsIcon icon={StarIcon} size={20} />
+                    <Button variant="ghost" size="icon" className="h-8 w-8 text-muted-foreground hover:text-foreground" aria-label="Add to favorites">
+                        <StarIcon className="w-5 h-5" />
                     </Button>
 
                     <input
@@ -113,6 +106,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                         onChange={(e) => onNewMessageChange(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && onSendMessage()}
                         placeholder="Type your message..."
+                        aria-label="Type message"
                         className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-sm text-foreground placeholder:text-muted-foreground"
                     />
 
@@ -120,6 +114,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                         onClick={onSendMessage}
                         disabled={!newMessage.trim()}
                         size="icon"
+                        aria-label="Send message"
                         className={cn(
                             "h-8 w-8 rounded-full transition-colors",
                             newMessage.trim()
@@ -127,7 +122,7 @@ export const ChatWindow: React.FC<ChatWindowProps> = ({
                                 : "bg-muted text-muted-foreground"
                         )}
                     >
-                        <HugeiconsIcon icon={ArrowRight01Icon} size={18} />
+                        <ChevronRight className="w-5 h-5" />
                     </Button>
                 </div>
             </div>
@@ -140,7 +135,7 @@ const MessageBubble: React.FC<{ message: WhatsAppMessage; chat: WhatsAppChat }> 
         return (
             <div className="flex justify-center py-2">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground bg-secondary px-4 py-2 rounded-full border border-border">
-                    <HugeiconsIcon icon={Tick01Icon} size={14} className="text-green-500" />
+                    <Check className="w-4 h-4 text-green-500" />
                     <span>{message.content}</span>
                     <span className="mx-1">•</span>
                     <span>{message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
@@ -194,3 +189,5 @@ const MessageBubble: React.FC<{ message: WhatsAppMessage; chat: WhatsAppChat }> 
         </div>
     );
 };
+
+

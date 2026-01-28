@@ -1,10 +1,11 @@
+import { Map as MapIcon } from 'lucide-react';
 
 import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { WorkOrder } from '@/types/supabase';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Location01Icon, AlertCircleIcon, MapsIcon } from '@hugeicons/core-free-icons';
+
+
 import 'leaflet/dist/leaflet.css';
 
 // Fix for default marker icons not showing in React Leaflet
@@ -72,8 +73,8 @@ export const WorkOrderMapWidget = ({ workOrders, isDarkMode = true }: WorkOrderM
                         <Popup>
                             <div className="p-1 min-w-[150px]">
                                 <div className="font-bold text-sm mb-1">#{wo.workOrderNumber}</div>
-                                <div className="text-xs text-neutral-600 mb-2">{wo.service || wo.title}</div>
-                                <div className={`inline-block px-2 py-0.5 text-[10px] font-bold rounded uppercase ${wo.status === 'In Progress' ? 'bg-primary-100 text-primary-700' : 'bg-neutral-100 text-neutral-600'
+                                <div className="text-xs text-muted-foreground mb-2">{wo.service || wo.title}</div>
+                                <div className={`inline-block px-2 py-0.5 text-xs font-bold rounded uppercase ${wo.status === 'In Progress' ? 'bg-primary-100 text-primary-700' : 'bg-neutral-100 text-muted-foreground'
                                     }`}>
                                     {wo.status}
                                 </div>
@@ -88,9 +89,9 @@ export const WorkOrderMapWidget = ({ workOrders, isDarkMode = true }: WorkOrderM
             {/* Overlay Title */}
             <div className="absolute top-4 left-4 z-[400] bg-white/90 dark:bg-neutral-900/90 backdrop-blur px-3 py-1.5 rounded-lg shadow-sm border border-neutral-200 dark:border-neutral-700">
                 <div className="flex items-center gap-2">
-                    <HugeiconsIcon icon={MapsIcon} size={16} className="text-primary-500" />
+                    <MapIcon className="w-4 h-4 text-primary-500" />
                     <span className="text-xs font-bold text-neutral-900 dark:text-white uppercase tracking-wider">Field Operations</span>
-                    <span className="ml-1 bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 text-[10px] px-1.5 rounded-full font-mono">
+                    <span className="ml-1 bg-primary-100 text-primary-700 dark:bg-primary-900/50 dark:text-primary-300 text-xs px-1.5 rounded-full font-mono">
                         {mapOrders.length}
                     </span>
                 </div>
@@ -98,3 +99,8 @@ export const WorkOrderMapWidget = ({ workOrders, isDarkMode = true }: WorkOrderM
         </div>
     );
 };
+
+
+
+
+

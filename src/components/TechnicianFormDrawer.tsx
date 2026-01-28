@@ -2,20 +2,7 @@ import React, { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-    UserIcon,
-    Call02Icon,
-    Mail01Icon,
-    Location01Icon,
-    RecordIcon,
-    ClipboardIcon,
-    Wrench01Icon,
-    Add01Icon,
-    FloppyDiskIcon,
-    Tick01Icon,
-    Cancel01Icon
-} from '@hugeicons/core-free-icons';
+import { User, Phone, Mail, MapPin, Circle, Clipboard, Wrench, Plus, Save, Check, X } from 'lucide-react';
 import { Technician, Location } from '@/types/supabase';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -143,11 +130,11 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
         <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
             <SheetContent className="sm:max-w-xl w-full overflow-y-auto">
                 <SheetHeader>
-                    <SheetTitle>{technician ? 'Edit Technician' : 'Add New Technician'}</SheetTitle>
+                    <SheetTitle>{technician ? 'Edit Technician' : 'Add Technician'}</SheetTitle>
                     <SheetDescription>
                         {technician
                             ? 'Update technician information and assignments.'
-                            : 'Create a new technician profile to assign work orders.'}
+                            : 'Create technician profile to assign work orders.'}
                     </SheetDescription>
                 </SheetHeader>
 
@@ -164,7 +151,7 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                                         <FormLabel>Full Name <span className="text-destructive">*</span></FormLabel>
                                         <FormControl>
                                             <div className="relative">
-                                                <HugeiconsIcon icon={UserIcon} size={16} className="absolute left-3 top-2.5 text-muted-foreground" />
+                                                <User className="w-4 h-4 absolute left-3 top-2.5 text-muted-foreground" />
                                                 <Input {...field} className="pl-9" placeholder="Enter technician name" />
                                             </div>
                                         </FormControl>
@@ -181,7 +168,7 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                                         <FormLabel>Email Address</FormLabel>
                                         <FormControl>
                                             <div className="relative">
-                                                <HugeiconsIcon icon={Mail01Icon} size={16} className="absolute left-3 top-2.5 text-muted-foreground" />
+                                                <Mail className="w-4 h-4 absolute left-3 top-2.5 text-muted-foreground" />
                                                 <Input {...field} className="pl-9" placeholder="technician@example.com" type="email" />
                                             </div>
                                         </FormControl>
@@ -198,7 +185,7 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                                         <FormLabel>Phone Number</FormLabel>
                                         <FormControl>
                                             <div className="relative">
-                                                <HugeiconsIcon icon={Call02Icon} size={16} className="absolute left-3 top-2.5 text-muted-foreground" />
+                                                <Phone className="w-4 h-4 absolute left-3 top-2.5 text-muted-foreground" />
                                                 <Input {...field} className="pl-9" placeholder="+256 XXX XXX XXX" type="tel" />
                                             </div>
                                         </FormControl>
@@ -221,7 +208,7 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                                             <FormControl>
                                                 <SelectTrigger>
                                                     <div className="flex items-center gap-2">
-                                                        <HugeiconsIcon icon={RecordIcon} size={16} className="text-muted-foreground" />
+                                                        <Circle className="w-4 h-4 text-muted-foreground" />
                                                         <SelectValue placeholder="Select status" />
                                                     </div>
                                                 </SelectTrigger>
@@ -247,7 +234,7 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                                             <FormControl>
                                                 <SelectTrigger>
                                                     <div className="flex items-center gap-2">
-                                                        <HugeiconsIcon icon={Location01Icon} size={16} className="text-muted-foreground" />
+                                                        <MapPin className="w-4 h-4 text-muted-foreground" />
                                                         <SelectValue placeholder="Select a location" />
                                                     </div>
                                                 </SelectTrigger>
@@ -273,7 +260,7 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                                         <FormLabel>Max Concurrent Work Orders</FormLabel>
                                         <FormControl>
                                             <div className="relative">
-                                                <HugeiconsIcon icon={ClipboardIcon} size={16} className="absolute left-3 top-2.5 text-muted-foreground" />
+                                                <Clipboard className="w-4 h-4 absolute left-3 top-2.5 text-muted-foreground" />
                                                 <Input {...field} className="pl-9" type="number" min={1} max={20} />
                                             </div>
                                         </FormControl>
@@ -291,7 +278,7 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
 
                             <div className="flex gap-2">
                                 <div className="relative flex-1">
-                                    <HugeiconsIcon icon={Wrench01Icon} size={16} className="absolute left-3 top-2.5 text-muted-foreground" />
+                                    <Wrench className="w-4 h-4 absolute left-3 top-2.5 text-muted-foreground" />
                                     <Input
                                         value={newSkill}
                                         onChange={(e) => setNewSkill(e.target.value)}
@@ -306,7 +293,7 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                                     />
                                 </div>
                                 <Button type="button" size="sm" onClick={addSkill} className="shrink-0">
-                                    <HugeiconsIcon icon={Add01Icon} size={16} className="mr-1" />
+                                    <Plus className="w-4 h-4 mr-1.5" />
                                     Add
                                 </Button>
                             </div>
@@ -315,14 +302,14 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                                 {specializations.length > 0 ? (
                                     specializations.map((skill, index) => (
                                         <Badge key={index} variant="secondary" className="pl-2 pr-1 py-1 gap-1">
-                                            <HugeiconsIcon icon={Tick01Icon} size={12} className="text-primary" />
+                                            <Check className="w-3 h-3 text-primary" />
                                             {skill}
                                             <button
                                                 type="button"
                                                 onClick={() => removeSkill(skill)}
                                                 className="ml-1 hover:text-destructive transition-colors"
                                             >
-                                                <HugeiconsIcon icon={Cancel01Icon} size={14} />
+                                                <X className="w-3 h-3" />
                                             </button>
                                         </Badge>
                                     ))
@@ -339,7 +326,7 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
                                 Cancel
                             </Button>
                             <Button type="submit">
-                                <HugeiconsIcon icon={FloppyDiskIcon} size={16} className="mr-2" />
+                                <Save className="w-4 h-4 mr-1.5" />
                                 {technician ? 'Update Technician' : 'Create Technician'}
                             </Button>
                         </SheetFooter>
@@ -349,3 +336,5 @@ export const TechnicianFormDrawer: React.FC<TechnicianFormDrawerProps> = ({
         </Sheet>
     );
 };
+
+

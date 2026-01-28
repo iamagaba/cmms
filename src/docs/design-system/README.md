@@ -80,33 +80,32 @@ shadcn/ui Components → Semantic Tokens → CSS Variables → Theme
 3. **CSS Variables**: Theme-specific values in HSL format
 4. **Theme System**: Light/dark mode support through CSS variable switching
 
-## Nova-Inspired Compact Spacing
+## shadcn/ui Default Spacing
 
 ### Spacing Philosophy
 
-Our Nova-inspired approach uses **reduced padding and margins** for content-dense layouts:
+We **trust shadcn/ui defaults** for optimal spacing and visual hierarchy:
 
-| Component | Standard | Nova-Inspired | Usage |
-|-----------|----------|---------------|-------|
-| **Buttons** | `px-4 py-2` | `px-3 py-1.5` (h-8) | Compact, efficient |
-| **Cards** | `p-6` | `p-4` | Tighter content spacing |
-| **Card Headers** | `p-6` | `p-4` | Consistent with content |
-| **Gaps** | `gap-4` | `gap-3` or `gap-4` | Context-dependent |
-| **Icon Sizes** | 16px | 13-14px | Proportional to text |
+| Component | shadcn/ui Default | Usage |
+|-----------|-------------------|-------|
+| **Buttons** | `h-9 px-4 py-2` (default), `h-8` (sm), `h-10` (lg) | Use default sizes |
+| **Cards** | `p-6` (CardContent), `p-4` (CardHeader) | Comfortable spacing |
+| **Gaps** | `gap-4` (16px standard), `gap-6` (24px spacious) | Context-dependent |
+| **Icon Sizes** | `w-4 h-4` (16px), `w-5 h-5` (20px), `w-6 h-6` (24px) | Standard sizes |
 
-### When to Use Compact Spacing
+### When to Customize Spacing
 
-✅ **Use compact spacing for:**
-- Data-dense interfaces (tables, dashboards)
-- Navigation elements (tabs, menus)
-- Toolbars and action bars
-- Mobile interfaces
+✅ **Use shadcn/ui defaults for:**
+- All standard interfaces (recommended)
+- Forms and dialogs
+- Cards and content areas
+- Navigation elements
 
-⚠️ **Use standard spacing for:**
-- Marketing pages
-- Onboarding flows
-- Forms with complex inputs
-- Content-heavy pages
+⚠️ **Only customize when:**
+- You have specific design requirements
+- Building specialized data-dense interfaces
+- Creating custom component variants
+- Matching existing brand guidelines
 
 ## Design Tokens
 
@@ -137,53 +136,106 @@ The design system uses **semantic color tokens** that adapt to light/dark themes
 
 ### Typography Scale
 
-Consistent typography optimized for readability:
+Consistent typography optimized for readability (shadcn/ui defaults):
 
 | Size Class | Font Size | Usage |
 |------------|-----------|-------|
-| `text-xs` | 12px | Badges, labels, metadata |
-| `text-sm` | 14px | Body text, buttons, inputs |
-| `text-base` | 16px | Standard body text |
+| `text-xs` | 12px | Captions, metadata, timestamps |
+| `text-sm` | 14px | **Body text** (primary readable size) |
+| `text-base` | 16px | Emphasized body text |
 | `text-lg` | 18px | Section headers |
 | `text-xl` | 20px | Page subtitles |
-| `text-2xl` | 24px | Page titles (CardTitle default) |
+| `text-2xl` | 24px | **Page titles, CardTitle** (default) |
 
 **Font Weights:**
 - `font-normal` (400) - Body text
-- `font-medium` (500) - Emphasis
-- `font-semibold` (600) - Subheadings
-- `font-bold` (700) - Headings
+- `font-medium` (500) - Emphasis, labels
+- `font-semibold` (600) - Section headers
+- `font-bold` (700) - Page titles
+
+**Important Guidelines:**
+- ✅ Use `text-sm` (14px) for body text - readable and comfortable
+- ✅ Use `text-xs` (12px) for captions and metadata only
+- ✅ Use `text-2xl` for page titles (or CardTitle component)
+- ❌ Never use arbitrary sizes like `text-[10px]` or `text-[13px]`
 
 ### Spacing System
 
-Based on Tailwind's 4px grid system:
+Based on Tailwind's 4px grid system (shadcn/ui defaults):
 
 | Class | Size | Usage |
 |-------|------|-------|
-| `p-2` | 8px | Tight padding |
-| `p-3` | 12px | Compact padding |
-| `p-4` | 16px | Standard padding (Nova-inspired) |
-| `p-6` | 24px | Spacious padding |
-| `gap-2` | 8px | Tight gaps |
-| `gap-3` | 12px | Compact gaps |
-| `gap-4` | 16px | Standard gaps |
+| `p-2` | 8px | Tight padding (badges, small elements) |
+| `p-4` | 16px | Standard padding (CardHeader, dialogs) |
+| `p-6` | 24px | **Comfortable padding (CardContent default)** |
+| `gap-2` | 8px | Tight gaps (inline elements) |
+| `gap-4` | 16px | **Standard gaps (default)** |
+| `gap-6` | 24px | Spacious gaps (sections) |
+| `space-y-4` | 16px | **Form field spacing** |
+| `space-y-6` | 24px | **Section spacing** |
+
+**Important Guidelines:**
+- ✅ Use `p-6` for CardContent (shadcn/ui default)
+- ✅ Use `gap-4` for standard spacing between elements
+- ✅ Use `space-y-6` for spacing between major sections
+- ❌ Never use custom utilities like `p-compact` or `gap-compact`
 
 ### Icon Sizing
 
-Consistent icon sizes for visual hierarchy:
+Consistent icon sizes for visual hierarchy (shadcn/ui standards):
 
 | Size | Pixels | Usage |
 |------|--------|-------|
-| `size={13}` | 13px | Small icons (inline with text-xs) |
-| `size={14}` | 14px | Standard icons (inline with text-sm) |
-| `size={16}` | 16px | Medium icons (headers) |
-| `size={20}` | 20px | Large icons (emphasis) |
+| `w-4 h-4` | 16px | **Small icons** (inline with text, buttons) |
+| `w-5 h-5` | 20px | **Standard icons** (card headers, default) |
+| `w-6 h-6` | 24px | **Large icons** (page headers, emphasis) |
+| `w-8 h-8` | 32px | Extra large icons (empty states, hero sections) |
+
+**Important Guidelines:**
+- ✅ Use `w-4 h-4` (16px) for icons in buttons and inline with text
+- ✅ Use `w-5 h-5` (20px) for standard icons in card headers
+- ✅ Use `w-6 h-6` (24px) for icons in page titles
+- ❌ Never use arbitrary sizes like `size={10}`, `size={13}`, or `w-[14px]`
 
 ## shadcn/ui Components
 
 All components are from shadcn/ui (`@/components/ui/*`) with Nova-inspired compact styling.
 
 ### Core Components
+
+#### Badges
+```tsx
+import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/StatusBadge";
+import { PriorityBadge } from "@/components/PriorityBadge";
+
+// Use semantic badge variants
+<Badge variant="success">Completed</Badge>
+<Badge variant="warning">Pending</Badge>
+<Badge variant="error">Failed</Badge>
+<Badge variant="info">Info</Badge>
+
+// Work order status badges
+<Badge variant="open">Open</Badge>
+<Badge variant="in-progress">In Progress</Badge>
+<Badge variant="completed">Completed</Badge>
+<Badge variant="cancelled">Cancelled</Badge>
+
+// Priority badges
+<Badge variant="critical">Critical</Badge>
+<Badge variant="high">High</Badge>
+<Badge variant="medium">Medium</Badge>
+<Badge variant="low">Low</Badge>
+
+// Helper components for common use cases
+<StatusBadge status="in-progress" />
+<PriorityBadge priority="critical" />
+```
+
+**Important Guidelines:**
+- ✅ Use Badge component with semantic variants
+- ✅ Use StatusBadge and PriorityBadge helpers for common cases
+- ❌ Never use inline color classes like `bg-emerald-50 text-emerald-700`
 
 #### Buttons
 ```tsx
@@ -195,8 +247,11 @@ import { Button } from "@/components/ui/button";
 <Button variant="ghost">Tertiary</Button>
 <Button variant="destructive">Delete</Button>
 
-// Compact size for toolbars
-<Button size="sm" className="h-8 text-xs">Compact</Button>
+// Size variants
+<Button size="default">Default (h-9)</Button>
+<Button size="sm">Small (h-8)</Button>
+<Button size="lg">Large (h-10)</Button>
+<Button size="icon"><Icon className="w-4 h-4" /></Button>
 ```
 
 **Variants:**
@@ -206,11 +261,16 @@ import { Button } from "@/components/ui/button";
 - `destructive` - Dangerous actions (red)
 - `link` - Text links
 
+**Important Guidelines:**
+- ✅ Use default button sizes (h-9, h-8, h-10)
+- ✅ Icons in buttons should be `w-4 h-4` (16px)
+- ❌ Never override button heights with custom values
+
 #### Cards
 ```tsx
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 
-// Use defaults - p-4 padding is Nova-inspired
+// Use defaults - p-6 for CardContent, p-4 for CardHeader
 <Card>
   <CardHeader>
     <CardTitle>Title</CardTitle> {/* text-2xl default */}
@@ -221,6 +281,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
   </CardContent>
 </Card>
 ```
+
+**Important Guidelines:**
+- ✅ Use CardHeader + CardTitle + CardDescription structure
+- ✅ CardContent has default `p-6` padding (comfortable)
+- ✅ CardTitle uses `text-2xl` by default (appropriate size)
+- ❌ Don't override card padding unless absolutely necessary
 
 #### Forms
 ```tsx
@@ -486,42 +552,74 @@ Use the standard typography scale:
 <p className="text-[13px]">Body text</p>
 ```
 
-### 4. Compact Spacing for Data Interfaces
-Use Nova-inspired compact spacing for data-dense interfaces:
+### 4. Use Standard Spacing
+Follow shadcn/ui spacing defaults:
 
 ```tsx
-// ✅ Good - Compact for data tables
-<Button size="sm" className="h-8 text-xs">Action</Button>
-<Card className="p-4">...</Card>
+// ✅ Good - shadcn/ui defaults
+<Card>
+  <CardContent> {/* p-6 default */}
+    <div className="space-y-4"> {/* 16px between items */}
+      {/* Content */}
+    </div>
+  </CardContent>
+</Card>
 
-// ✅ Also good - Standard for content pages
-<Button>Action</Button>
-<Card>...</Card>
+// ❌ Avoid - Custom spacing without reason
+<Card className="p-3">
+  <CardContent className="p-2">
+    <div className="space-y-[10px]">
+      {/* Content */}
+    </div>
+  </CardContent>
+</Card>
 ```
 
 ### 5. Consistent Icon Sizing
-Match icon sizes to text sizes:
+Match icon sizes to context and use standard sizes:
 
 ```tsx
-// ✅ Good - Proportional sizing
-<Button className="text-xs">
-  <Icon className="w-4 h-4" /> {/* 16px with 12px text */}
+// ✅ Good - Standard sizes
+<Button>
+  <Icon className="w-4 h-4 mr-2" /> {/* 16px in buttons */}
   Action
 </Button>
 
-<p className="text-sm">
-  <Icon className="w-4 h-4" /> {/* 16px with 14px text */}
-  Text
-</p>
+<CardHeader>
+  <Icon className="w-5 h-5" /> {/* 20px in headers */}
+  <CardTitle>Title</CardTitle>
+</CardHeader>
 
-// ❌ Avoid - Mismatched sizing
-<Button className="text-xs">
-  <Icon className="w-8 h-8" /> {/* Too large */}
+<h1 className="text-2xl font-bold flex items-center gap-2">
+  <Icon className="w-6 h-6" /> {/* 24px in page titles */}
+  Page Title
+</h1>
+
+// ❌ Avoid - Arbitrary sizing
+<Button>
+  <Icon size={13} /> {/* Non-standard size */}
   Action
 </Button>
+
+<Icon className="w-[14px] h-[14px]" /> {/* Arbitrary size */}
 ```
 
-### 6. Accessibility First
+### 6. Use Badge Variants
+Always use Badge component with semantic variants:
+
+```tsx
+// ✅ Good - Badge variants
+<Badge variant="success">Completed</Badge>
+<Badge variant="in-progress">In Progress</Badge>
+<PriorityBadge priority="critical" />
+
+// ❌ Avoid - Inline color classes
+<span className="px-2 py-1 text-xs rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+  Completed
+</span>
+```
+
+### 7. Accessibility First
 Always include proper accessibility attributes:
 
 ```tsx
@@ -602,8 +700,10 @@ When contributing to the design system:
 ### Typography
 - Page titles: `text-2xl font-bold`
 - Section headers: `text-lg font-semibold`
-- Body text: `text-sm`
-- Metadata: `text-xs text-muted-foreground`
+- Body text: `text-sm` (14px - primary readable size)
+- Secondary text: `text-sm text-muted-foreground`
+- Captions/metadata: `text-xs text-muted-foreground`
+- ❌ Never use arbitrary sizes like `text-[10px]`
 
 ### Colors
 - Primary text: `text-foreground`
@@ -611,15 +711,32 @@ When contributing to the design system:
 - Backgrounds: `bg-card`, `bg-muted`, `bg-accent`
 - Borders: `border-border`
 - Interactive: `text-primary`, `bg-primary`
+- ❌ Never use hardcoded colors like `bg-purple-600`
 
 ### Spacing
-- Card padding: `p-4`
-- Button height: `h-8` (compact) or `h-9` (default)
-- Gaps: `gap-3` or `gap-4`
-- Icon sizes: `w-4 h-4` (14-16px)
+- Card content padding: `p-6` (CardContent default)
+- Card header padding: `p-4` (CardHeader default)
+- Button heights: `h-9` (default), `h-8` (sm), `h-10` (lg)
+- Standard gaps: `gap-4` (16px)
+- Section spacing: `space-y-6` (24px)
+- Form field spacing: `space-y-4` (16px)
+- ❌ Never use custom utilities like `p-compact`
+
+### Icons
+- Small (buttons, inline): `w-4 h-4` (16px)
+- Standard (headers): `w-5 h-5` (20px)
+- Large (page titles): `w-6 h-6` (24px)
+- ❌ Never use arbitrary sizes like `size={13}`
+
+### Badges
+- Use Badge component: `<Badge variant="success">Completed</Badge>`
+- Status badges: `<StatusBadge status="in-progress" />`
+- Priority badges: `<PriorityBadge priority="critical" />`
+- ❌ Never use inline color classes
 
 ### Components
 - Buttons: `<Button variant="default|outline|ghost|destructive">`
 - Cards: `<Card><CardHeader><CardTitle>...</CardTitle></CardHeader><CardContent>...</CardContent></Card>`
 - Forms: Use `<Form>` with `<FormField>` composition
 - Tables: Use `<Table>` with semantic structure
+- Badges: Use `<Badge variant="...">` or helper components

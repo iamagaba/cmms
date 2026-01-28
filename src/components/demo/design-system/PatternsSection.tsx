@@ -1,3 +1,4 @@
+import { Calendar, CheckCircle, ClipboardList, Clock, Info, Plus, User } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -5,22 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-    PackageIcon,
-    Table01Icon,
-    InformationCircleIcon,
-    MoreVerticalIcon,
-    Add01Icon,
-    CheckmarkCircle01Icon,
-    Car01Icon,
-    UserIcon,
-    ClipboardIcon,
-    Calendar01Icon,
-    Clock01Icon,
-    AlertCircleIcon,
-    InboxIcon
-} from '@hugeicons/core-free-icons';
+
+
 
 const PatternsSection: React.FC = () => {
     return (
@@ -29,7 +16,7 @@ const PatternsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={PackageIcon} size={18} />
+                        <Package className="w-5 h-5" />
                         Utility Patterns
                     </CardTitle>
                     <CardDescription>Common UI patterns for CMMS applications</CardDescription>
@@ -42,17 +29,17 @@ const PatternsSection: React.FC = () => {
                             <CardContent className="pt-6">
                                 <div className="flex items-center divide-x divide-gray-200">
                                     <div className="flex items-center gap-2 px-4 first:pl-0">
-                                        <HugeiconsIcon icon={UserIcon} size={14} className="text-blue-600" />
+                                        <User className="w-4 h-4 text-muted-foreground" />
                                         <span className="text-xs text-gray-500">Customer:</span>
                                         <span className="text-sm font-medium text-gray-900">John Doe</span>
                                     </div>
                                     <div className="flex items-center gap-2 px-4">
-                                        <HugeiconsIcon icon={Car01Icon} size={14} className="text-purple-600" />
+                                        <Car className="w-4 h-4 text-primary" />
                                         <span className="text-xs text-gray-500">Asset:</span>
                                         <span className="text-sm font-medium text-gray-900">ABC-123</span>
                                     </div>
                                     <div className="flex items-center gap-2 px-4">
-                                        <HugeiconsIcon icon={Calendar01Icon} size={14} className="text-emerald-600" />
+                                        <Calendar className="w-4 h-4 text-foreground" />
                                         <span className="text-xs text-gray-500">Date:</span>
                                         <span className="text-sm font-medium text-gray-900">Dec 21, 2024</span>
                                     </div>
@@ -68,24 +55,24 @@ const PatternsSection: React.FC = () => {
                             <CardContent className="pt-6">
                                 <div className="flex items-center divide-x divide-gray-200">
                                     <div className="flex items-center gap-2 px-4 first:pl-0">
-                                        <HugeiconsIcon icon={ClipboardIcon} size={14} className="text-blue-600" />
+                                        <ClipboardList className="w-4 h-4 text-muted-foreground" />
                                         <span className="text-xs text-gray-500">Total:</span>
                                         <span className="text-lg font-semibold text-gray-900">24</span>
                                     </div>
                                     <div className="flex items-center gap-2 px-4">
-                                        <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} className="text-emerald-600" />
+                                        <CheckCircle className="w-4 h-4 text-foreground" />
                                         <span className="text-xs text-gray-500">Completed:</span>
-                                        <span className="text-lg font-semibold text-emerald-700">18</span>
+                                        <span className="text-lg font-semibold text-foreground">18</span>
                                     </div>
                                     <div className="flex items-center gap-2 px-4">
-                                        <HugeiconsIcon icon={Clock01Icon} size={14} className="text-orange-600" />
+                                        <Clock className="w-4 h-4 text-muted-foreground" />
                                         <span className="text-xs text-gray-500">In Progress:</span>
-                                        <span className="text-lg font-semibold text-orange-700">4</span>
+                                        <span className="text-lg font-semibold text-muted-foreground">4</span>
                                     </div>
                                     <div className="flex items-center gap-2 px-4">
-                                        <HugeiconsIcon icon={AlertCircleIcon} size={14} className="text-red-600" />
+                                        <AlertCircle className="w-4 h-4 text-destructive" />
                                         <span className="text-xs text-gray-500">Overdue:</span>
-                                        <span className="text-lg font-semibold text-red-700">2</span>
+                                        <span className="text-lg font-semibold text-destructive">2</span>
                                     </div>
                                 </div>
                             </CardContent>
@@ -98,13 +85,13 @@ const PatternsSection: React.FC = () => {
                         <Card>
                             <CardContent className="py-12">
                                 <div className="flex flex-col items-center justify-center text-center">
-                                    <HugeiconsIcon icon={InboxIcon} size={48} className="text-gray-400 mb-4" />
+                                    <InboxIcon size={48} className="text-gray-400 mb-4" />
                                     <h4 className="text-sm font-medium text-gray-900 mb-1">No Work Orders Found</h4>
                                     <p className="text-xs text-gray-500 mb-4">
                                         Get started by creating your first work order
                                     </p>
                                     <Button size="sm">
-                                        <HugeiconsIcon icon={Add01Icon} size={14} />
+                                        <Plus className="w-5 h-5" />
                                         Create Work Order
                                     </Button>
                                 </div>
@@ -124,8 +111,8 @@ const PatternsSection: React.FC = () => {
                                             <p className="text-2xl font-bold text-gray-900 mt-1">1,234</p>
                                             <p className="text-xs text-gray-500 mt-1">+12% vs last week</p>
                                         </div>
-                                        <div className="w-12 h-12 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                                            <HugeiconsIcon icon={ClipboardIcon} size={24} />
+                                        <div className="w-12 h-12 rounded-lg bg-muted text-muted-foreground flex items-center justify-center">
+                                            <ClipboardList className="w-5 h-5" />
                                         </div>
                                     </div>
                                 </CardContent>
@@ -137,10 +124,10 @@ const PatternsSection: React.FC = () => {
                                         <div>
                                             <p className="text-xs font-medium text-gray-500">Completed</p>
                                             <p className="text-2xl font-bold text-gray-900 mt-1">892</p>
-                                            <p className="text-xs text-emerald-600 mt-1">+8% vs last week</p>
+                                            <p className="text-xs text-foreground mt-1">+8% vs last week</p>
                                         </div>
-                                        <div className="w-12 h-12 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
-                                            <HugeiconsIcon icon={CheckmarkCircle01Icon} size={24} />
+                                        <div className="w-12 h-12 rounded-lg bg-muted text-foreground flex items-center justify-center">
+                                            <CheckCircle className="w-5 h-5" />
                                         </div>
                                     </div>
                                 </CardContent>
@@ -152,10 +139,10 @@ const PatternsSection: React.FC = () => {
                                         <div>
                                             <p className="text-xs font-medium text-gray-500">Overdue</p>
                                             <p className="text-2xl font-bold text-gray-900 mt-1">23</p>
-                                            <p className="text-xs text-red-600 mt-1">Needs attention</p>
+                                            <p className="text-xs text-destructive mt-1">Needs attention</p>
                                         </div>
-                                        <div className="w-12 h-12 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
-                                            <HugeiconsIcon icon={AlertCircleIcon} size={24} />
+                                        <div className="w-12 h-12 rounded-lg bg-red-50 text-destructive flex items-center justify-center">
+                                            <AlertCircle className="w-6 h-6" />
                                         </div>
                                     </div>
                                 </CardContent>
@@ -169,7 +156,7 @@ const PatternsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={Table01Icon} size={18} />
+                        <Table01Icon className="w-5 h-5" />
                         Enhanced Data Table
                     </CardTitle>
                     <CardDescription>Interactive table with actions</CardDescription>
@@ -206,14 +193,14 @@ const PatternsSection: React.FC = () => {
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button size="icon" variant="ghost">
-                                                    <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
+                                                    <MoreVerticalIcon className="w-4 h-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuItem>View Details</DropdownMenuItem>
                                                 <DropdownMenuItem>Edit</DropdownMenuItem>
                                                 <DropdownMenuSeparator />
-                                                <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+                                                <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
@@ -234,14 +221,14 @@ const PatternsSection: React.FC = () => {
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button size="icon" variant="ghost">
-                                                    <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
+                                                    <MoreVerticalIcon className="w-4 h-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuItem>View Details</DropdownMenuItem>
                                                 <DropdownMenuItem>Edit</DropdownMenuItem>
                                                 <DropdownMenuSeparator />
-                                                <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+                                                <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
@@ -256,7 +243,7 @@ const PatternsSection: React.FC = () => {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
-                        <HugeiconsIcon icon={PackageIcon} size={18} />
+                        <Package className="w-5 h-5" />
                         List Row Pattern
                     </CardTitle>
                     <CardDescription>Selectable list items with hover states</CardDescription>
@@ -272,7 +259,7 @@ const PatternsSection: React.FC = () => {
                                 <Badge variant="status-in-progress">In Progress</Badge>
                             </div>
                         </div>
-                        <div className="p-3 border-b border-gray-100 bg-purple-50 border-l-4 border-l-purple-600 cursor-pointer">
+                        <div className="p-3 border-b border-gray-100 bg-primary/5 border-l-4 border-l-purple-600 cursor-pointer">
                             <div className="flex items-center justify-between">
                                 <div>
                                     <h4 className="text-sm font-semibold text-gray-900">Work Order #1235</h4>
@@ -292,7 +279,7 @@ const PatternsSection: React.FC = () => {
                         </div>
                     </div>
                     <Alert className="mt-4">
-                        <HugeiconsIcon icon={InformationCircleIcon} size={16} className="text-blue-600" />
+                        <Info className="w-4 h-4 text-muted-foreground" />
                         <AlertTitle>List Row States</AlertTitle>
                         <AlertDescription>
                             Normal state has hover effect. Selected state (middle item) has purple background and left border.
@@ -305,3 +292,6 @@ const PatternsSection: React.FC = () => {
 };
 
 export default PatternsSection;
+
+
+

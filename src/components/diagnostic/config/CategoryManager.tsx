@@ -1,9 +1,12 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Add01Icon, FolderIcon, Edit01Icon, Delete01Icon, Cancel01Icon, Loading01Icon } from '@hugeicons/core-free-icons';
+import { Plus, Folder, Edit, Trash2, X, Loader2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { showSuccess, showError } from '@/utils/toast';
 import {
     getCategories,
@@ -92,19 +95,19 @@ const CategoryManager = ({
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">Categories</h3>
-                <button
+                <h3 className="text-lg font-medium text-foreground">Categories</h3>
+                <Button
                     onClick={handleCreate}
-                    className="flex items-center gap-2 px-3 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors text-sm font-medium"
+                    size="sm"
                 >
-                    <HugeiconsIcon icon={Add01Icon} size={16} />
+                    <Plus className="w-4 h-4 mr-1.5" />
                     {viewMode === 'full' && "Add Category"}
-                </button>
+                </Button>
             </div>
 
             {isLoading ? (
                 <div className="space-y-3">
-                    {[1, 2, 3].map(i => <div key={i} className="h-16 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />)}
+                    {[1, 2, 3].map(i => <div key={i} className="h-16 bg-muted rounded-lg animate-pulse" />)}
                 </div>
             ) : (
                 <div className={`grid ${gridClass} gap-4`}>
@@ -112,45 +115,48 @@ const CategoryManager = ({
                         <div
                             key={cat.id}
                             onClick={() => onSelectCategory && onSelectCategory(cat)}
-                            className={`bg-white dark:bg-gray-900 border rounded-lg p-4 group transition-colors cursor-pointer ${selectedCategory?.id === cat.id
-                                    ? 'border-primary-500 ring-1 ring-primary-500 bg-primary-50 dark:bg-primary-900/20'
-                                    : 'border-gray-200 dark:border-gray-800 hover:border-primary-300 dark:hover:border-primary-700'
+                            className={`bg-background border rounded-lg p-4 group transition-colors cursor-pointer ${selectedCategory?.id === cat.id
+                                    ? 'border-primary ring-1 ring-primary bg-primary/5'
+                                    : 'border-border hover:border-primary'
                                 }`}
                         >
                             <div className="flex justify-between items-start mb-2">
                                 <div className="flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded bg-primary-50 dark:bg-primary-900/30 flex items-center justify-center text-primary-600 dark:text-primary-400">
-                                        <HugeiconsIcon icon={FolderIcon} size={20} />
+                                    <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center text-primary">
+                                        <Folder className="w-5 h-5" />
                                     </div>
-                                    <h4 className="font-semibold text-gray-900 dark:text-gray-100">{cat.label}</h4>
+                                    <h4 className="font-semibold text-foreground">{cat.label}</h4>
                                 </div>
                                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
                                         onClick={(e) => handleEdit(cat, e)}
-                                        className="p-1 text-gray-500 hover:text-primary-600 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
                                         title="Edit"
                                     >
-                                        <HugeiconsIcon icon={Edit01Icon} size={16} />
-                                    </button>
-                                    <button
+                                        <Edit className="w-4 h-4" />
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
                                         onClick={(e) => handleDelete(cat.id, cat.label, e)}
-                                        className="p-1 text-gray-500 hover:text-red-600 rounded hover:bg-gray-100 dark:hover:bg-gray-800"
                                         title="Delete"
+                                        className="text-destructive hover:text-destructive"
                                     >
-                                        <HugeiconsIcon icon={Delete01Icon} size={16} />
-                                    </button>
+                                        <Trash2 className="w-4 h-4" />
+                                    </Button>
                                 </div>
                             </div>
-                            <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">{cat.description || "No description provided."}</p>
-                            <div className="mt-3 flex items-center gap-2 text-xs text-gray-500">
-                                <span className={`px-2 py-0.5 rounded ${cat.is_active ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' : 'bg-gray-100 text-gray-600 dark:bg-gray-800'}`}>
+                            <p className="text-sm text-muted-foreground line-clamp-2">{cat.description || "No description provided."}</p>
+                            <div className="mt-3 flex items-center gap-2 text-xs text-muted-foreground">
+                                <span className={`px-2 py-0.5 rounded ${cat.is_active ? 'bg-muted text-foreground' : 'bg-muted text-muted-foreground'}`}>
                                     {cat.is_active ? 'Active' : 'Inactive'}
                                 </span>
                             </div>
                         </div>
                     ))}
                     {categories?.length === 0 && (
-                        <div className="col-span-full py-8 text-center text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-dashed border-gray-300 dark:border-gray-700">
+                        <div className="col-span-full py-8 text-center text-muted-foreground bg-muted/50 rounded-lg border border-dashed border-border">
                             No categories found.
                         </div>
                     )}
@@ -192,64 +198,67 @@ const CategoryModal = ({ isOpen, onClose, initialData, onSubmit, isSubmitting }:
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <div className="bg-white dark:bg-gray-900 w-full max-w-md rounded-xl shadow-2xl border border-gray-200 dark:border-gray-800">
-                <div className="p-6 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <div className="bg-background w-full max-w-md rounded-xl shadow-2xl border border-border">
+                <div className="p-6 border-b border-border flex justify-between items-center">
+                    <h3 className="text-lg font-semibold text-foreground">
                         {initialData ? 'Edit Category' : 'New Category'}
                     </h3>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
-                        <HugeiconsIcon icon={Cancel01Icon} size={20} />
-                    </button>
+                    <Button variant="ghost" size="icon" onClick={onClose}>
+                        <X className="w-5 h-5" />
+                    </Button>
                 </div>
 
                 <form onSubmit={handleSubmit(onSubmit)} className="p-6 space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Label</label>
-                        <input
+                        <Label htmlFor="label" className="text-xs">Label</Label>
+                        <Input
+                            id="label"
                             {...register('label', { required: 'Label is required' })}
-                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100"
                             placeholder="e.g. Engine Issues"
                         />
-                        {errors.label && <p className="text-red-500 text-xs mt-1">{errors.label.message as string}</p>}
+                        {errors.label && <p className="text-destructive text-xs mt-1">{errors.label.message as string}</p>}
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">ID (Internal Name)</label>
-                        <input
+                        <Label htmlFor="name" className="text-xs">ID (Internal Name)</Label>
+                        <Input
+                            id="name"
                             {...register('name', { required: 'ID is required' })}
-                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-mono text-sm"
                             placeholder="e.g. ENGINE"
-                            disabled={!!initialData} // Lock ID on edit
+                            disabled={!!initialData}
+                            className="font-mono text-sm"
                         />
-                        {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message as string}</p>}
+                        {errors.name && <p className="text-destructive text-xs mt-1">{errors.name.message as string}</p>}
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Icon (Iconify string)</label>
-                        <input
+                        <Label htmlFor="icon" className="text-xs">Icon (Iconify string)</Label>
+                        <Input
+                            id="icon"
                             {...register('icon')}
-                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-mono text-sm"
                             placeholder="e.g. tabler:engine"
+                            className="font-mono text-sm"
                         />
-                        <p className="text-xs text-gray-500 mt-1">Use Iconify names (e.g. tabler:car, mdi:engine)</p>
+                        <p className="text-xs text-muted-foreground mt-1">Use Iconify names (e.g. tabler:car, mdi:engine)</p>
                     </div>
 
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Description</label>
-                        <textarea
+                        <Label htmlFor="description" className="text-xs">Description</Label>
+                        <Textarea
+                            id="description"
                             {...register('description')}
-                            className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 min-h-[80px]"
                             placeholder="Brief description of this category..."
+                            className="min-h-[80px]"
                         />
                     </div>
 
                     <div className="flex gap-4">
                         <div className="flex-1">
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Display Order</label>
-                            <input
+                            <Label htmlFor="display_order" className="text-xs">Display Order</Label>
+                            <Input
+                                id="display_order"
                                 type="number"
                                 {...register('display_order', { valueAsNumber: true })}
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100"
                             />
                         </div>
                         <div className="flex items-center pt-6">
@@ -257,29 +266,30 @@ const CategoryModal = ({ isOpen, onClose, initialData, onSubmit, isSubmitting }:
                                 <input
                                     type="checkbox"
                                     {...register('is_active')}
-                                    className="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500"
+                                    className="w-4 h-4 text-primary rounded border-border focus:ring-primary"
                                 />
-                                <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Active</span>
+                                <span className="text-sm font-medium text-foreground">Active</span>
                             </label>
                         </div>
                     </div>
 
                     <div className="flex justify-end gap-3 pt-4">
-                        <button
+                        <Button
                             type="button"
+                            variant="outline"
+                            size="sm"
                             onClick={onClose}
-                            className="px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
                         >
                             Cancel
-                        </button>
-                        <button
+                        </Button>
+                        <Button
                             type="submit"
+                            size="sm"
                             disabled={isSubmitting}
-                            className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 flex items-center gap-2"
                         >
-                            {isSubmitting && <HugeiconsIcon icon={Loading01Icon} size={16} className="animate-spin" />}
-                            {initialData ? 'Save Changes' : 'Create Category'}
-                        </button>
+                            {isSubmitting && <Loader2 className="w-4 h-4 animate-spin mr-1.5" />}
+                            {initialData ? 'Save' : 'Create Category'}
+                        </Button>
                     </div>
                 </form>
             </div>
@@ -288,3 +298,6 @@ const CategoryModal = ({ isOpen, onClose, initialData, onSubmit, isSubmitting }:
 };
 
 export default CategoryManager;
+
+
+

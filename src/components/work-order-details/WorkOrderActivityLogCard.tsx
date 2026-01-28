@@ -1,6 +1,7 @@
+import { Clock } from 'lucide-react';
 import React from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { TimelineIcon, Clock01Icon } from '@hugeicons/core-free-icons';
+
+
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -35,11 +36,11 @@ export const WorkOrderActivityLogCard: React.FC<WorkOrderActivityLogCardProps> =
 
   const getActivityColor = (activity: string): string => {
     const lower = activity.toLowerCase();
-    if (lower.includes('completed')) return 'text-emerald-600 bg-emerald-100';
+    if (lower.includes('completed')) return 'text-foreground bg-muted';
     if (lower.includes('hold')) return 'text-amber-600 bg-amber-100';
-    if (lower.includes('assigned')) return 'text-blue-600 bg-blue-100';
-    if (lower.includes('created')) return 'text-purple-600 bg-purple-100';
-    if (lower.includes('progress')) return 'text-orange-600 bg-orange-100';
+    if (lower.includes('assigned')) return 'text-muted-foreground bg-muted';
+    if (lower.includes('created')) return 'text-primary bg-primary/10';
+    if (lower.includes('progress')) return 'text-muted-foreground bg-muted';
     return 'text-gray-600 bg-gray-100';
   };
 
@@ -48,12 +49,12 @@ export const WorkOrderActivityLogCard: React.FC<WorkOrderActivityLogCardProps> =
   );
 
   return (
-    <div className="bg-white border border-gray-200 overflow-hidden shadow-sm">
+    <div className="bg-white border border-border rounded-lg overflow-hidden shadow-sm">
 
       <div className="px-3 py-2">
         {sortedLog.length === 0 ? (
           <div className="text-center py-4">
-            <HugeiconsIcon icon={Clock01Icon} size={24} className="text-gray-300 mx-auto mb-1" />
+            <Clock className="w-5 h-5 text-gray-300 mx-auto mb-1" />
             <p className="text-xs text-gray-400">No activity recorded yet</p>
           </div>
         ) : (
@@ -79,7 +80,7 @@ export const WorkOrderActivityLogCard: React.FC<WorkOrderActivityLogCardProps> =
 
                   {/* Activity icon */}
                   <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 relative z-10 ${getActivityColor(entry.activity)}`}>
-                    <HugeiconsIcon icon={TimelineIcon} size={12} />
+                    <Clock className="w-4 h-4" />
                   </div>
 
                   {/* Activity content */}
@@ -104,3 +105,5 @@ export const WorkOrderActivityLogCard: React.FC<WorkOrderActivityLogCardProps> =
 };
 
 export default WorkOrderActivityLogCard;
+
+

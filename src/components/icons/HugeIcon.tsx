@@ -8,7 +8,7 @@
  * import { HugeIcon } from '@/components/icons/HugeIcon';
  * import { User02Icon } from '@hugeicons/core-free-icons';
  * 
- * <HugeIcon icon={User02Icon} size={16} className="text-gray-400" />
+ * <HugeIcon icon={User02Icon} className="w-4 h-4 text-gray-400" />
  */
 
 import React from 'react';
@@ -29,8 +29,7 @@ export const HugeIcon: React.FC<HugeIconProps> = ({
   ...props
 }) => {
   return (
-    <HugeiconsIcon
-      icon={icon}
+    <icon
       size={size}
       className={className}
       strokeWidth={strokeWidth}
@@ -65,3 +64,5 @@ export const tailwindSizeToPixels = (className: string): number => {
 };
 
 export default HugeIcon;
+
+

@@ -1,10 +1,7 @@
+import { CheckCircle, X } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-  CheckmarkCircle01Icon,
-  AlertCircleIcon,
-  Cancel01Icon
-} from '@hugeicons/core-free-icons';
+
+
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
 import duration from 'dayjs/plugin/duration';
@@ -65,19 +62,19 @@ export const WorkOrderSLATimerCard: React.FC<WorkOrderSLATimerCardProps> = ({ wo
   const urgency = getUrgencyLevel();
 
   const urgencyConfig = {
-    safe: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', bar: 'bg-emerald-500', icon: CheckmarkCircle01Icon },
-    warning: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', bar: 'bg-amber-500', icon: AlertCircleIcon },
-    critical: { bg: 'bg-orange-50', border: 'border-orange-200', text: 'text-orange-700', bar: 'bg-orange-500', icon: AlertCircleIcon },
-    overdue: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', bar: 'bg-red-500', icon: Cancel01Icon },
+    safe: { bg: 'bg-muted', border: 'border-emerald-200', text: 'text-foreground', bar: 'bg-emerald-500', icon: CheckCircle },
+    warning: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', bar: 'bg-amber-500', icon: AlertCircle },
+    critical: { bg: 'bg-muted', border: 'border-orange-200', text: 'text-muted-foreground', bar: 'bg-orange-500', icon: AlertCircle },
+    overdue: { bg: 'bg-destructive/10', border: 'border-destructive/20', text: 'text-destructive', bar: 'bg-destructive', icon: X },
   };
 
   const config = urgencyConfig[urgency];
 
   return (
-    <div className={`${config.bg} border ${config.border} rounded-xl overflow-hidden`}>
+    <div className={`${config.bg} border ${config.border} rounded-lg overflow-hidden`}>
       <div className="px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <HugeiconsIcon icon={config.icon} size={20} className={config.text} />
+          <config.icon className={`w-5 h-5 ${config.text}`} />
           <span className={`text-sm font-semibold ${config.text}`}>
             {isOverdue ? 'SLA Overdue' : 'SLA Timer'}
           </span>
@@ -86,7 +83,7 @@ export const WorkOrderSLATimerCard: React.FC<WorkOrderSLATimerCardProps> = ({ wo
           <div className={`text-2xl font-bold ${config.text}`}>
             {isOverdue ? '-' : ''}{formatTime(remaining)}
           </div>
-          <div className="text-xs text-gray-500">
+          <div className="text-xs text-muted-foreground">
             {isOverdue ? 'overdue' : 'remaining'}
           </div>
         </div>
@@ -100,7 +97,7 @@ export const WorkOrderSLATimerCard: React.FC<WorkOrderSLATimerCardProps> = ({ wo
             style={{ width: `${Math.min(progress, 100)}%` }}
           />
         </div>
-        <div className="flex justify-between mt-2 text-xs text-gray-500">
+        <div className="flex justify-between mt-2 text-xs text-muted-foreground">
           <span>Created: {created.format('MMM D, h:mm A')}</span>
           <span>Due: {slaDue.format('MMM D, h:mm A')}</span>
         </div>
@@ -110,3 +107,5 @@ export const WorkOrderSLATimerCard: React.FC<WorkOrderSLATimerCardProps> = ({ wo
 };
 
 export default WorkOrderSLATimerCard;
+
+

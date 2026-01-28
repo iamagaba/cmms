@@ -8,6 +8,7 @@ import { ComprehensiveErrorProvider } from "./components/error/ComprehensiveErro
 import { NotificationsProvider } from "./context/NotificationsContext";
 import { SessionProvider, useSession } from "./context/SessionContext";
 import { SystemSettingsProvider } from "./context/SystemSettingsContext";
+import { ThemeProvider } from "./providers/ThemeProvider";
 import './App.css';
 import { RealtimeDataProvider } from "./context/RealtimeDataContext";
 
@@ -47,9 +48,9 @@ const queryClient = new QueryClient({
 
 const LoadingSkeleton = () => (
   <div className="p-6 space-y-4 animate-pulse">
-    <div className="h-2 bg-gray-200 rounded w-full"></div>
-    <div className="h-2 bg-gray-200 rounded w-full"></div>
-    <div className="h-2 bg-gray-200 rounded w-3/4"></div>
+    <div className="h-2 bg-muted rounded w-full"></div>
+    <div className="h-2 bg-muted rounded w-full"></div>
+    <div className="h-2 bg-muted rounded w-3/4"></div>
   </div>
 );
 
@@ -108,30 +109,32 @@ const AppContent = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
-      <ComprehensiveErrorProvider
-        enableGlobalErrorHandling={true}
-        enablePerformanceMonitoring={false}
-        enableErrorReporting={true}
-        enableErrorDashboard={true}
-        maxRetries={3}
-        feature="app"
-      >
-        <ErrorProvider
-          enableGlobalErrorHandling={false}
+      <ThemeProvider>
+        <ComprehensiveErrorProvider
+          enableGlobalErrorHandling={true}
           enablePerformanceMonitoring={false}
+          enableErrorReporting={true}
+          enableErrorDashboard={true}
           maxRetries={3}
+          feature="app"
         >
-          <SessionProvider>
-            <SystemSettingsProvider>
-              <NotificationsProvider>
-                <RealtimeDataProvider>
-                  <AppContent />
-                </RealtimeDataProvider>
-              </NotificationsProvider>
-            </SystemSettingsProvider>
-          </SessionProvider>
-        </ErrorProvider>
-      </ComprehensiveErrorProvider>
+          <ErrorProvider
+            enableGlobalErrorHandling={false}
+            enablePerformanceMonitoring={false}
+            maxRetries={3}
+          >
+            <SessionProvider>
+              <SystemSettingsProvider>
+                <NotificationsProvider>
+                  <RealtimeDataProvider>
+                    <AppContent />
+                  </RealtimeDataProvider>
+                </NotificationsProvider>
+              </SystemSettingsProvider>
+            </SessionProvider>
+          </ErrorProvider>
+        </ComprehensiveErrorProvider>
+      </ThemeProvider>
     </BrowserRouter>
   </QueryClientProvider>
 );

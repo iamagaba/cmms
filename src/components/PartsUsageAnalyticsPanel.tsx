@@ -1,15 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  AnalyticsUpIcon,
-  AnalyticsDownIcon,
-  PackageIcon,
-  Calendar01Icon,
-  Cancel01Icon,
-  Loading01Icon,
-  Car01Icon,
-  GridIcon
-} from '@hugeicons/core-free-icons';
+import { TrendingUp, TrendingDown, Package, Calendar, X, Loader, Car, Grid } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useTopUsedParts, usePartsUsageAnalytics } from '@/hooks/useWorkOrderParts';
@@ -26,8 +16,6 @@ type TimeRange = '7d' | '30d' | '90d' | '1y' | 'all';
 
 export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> = ({
   isOpen,
-  onClose,
-}) => {
   onClose,
 }) => {
   const [activeView, setActiveView] = useState<ViewType>('overview');
@@ -202,7 +190,7 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
               <option value="all">All time</option>
             </select>
             <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-              <HugeiconsIcon icon={Cancel01Icon} size={20} className="text-gray-500" />
+              <X className="w-5 h-5 text-gray-500" />
             </button>
           </div>
         </div>
@@ -233,7 +221,7 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
         <div className="flex-1 overflow-auto p-6">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <HugeiconsIcon icon={Loading01Icon} size={32} className="animate-spin text-purple-600" />
+              <Loader className="w-32 h-32 animate-spin text-purple-600" />
             </div>
           ) : (
             <>
@@ -345,7 +333,7 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
                 <div className="space-y-2">
                   {isLoadingVehicle ? (
                     <div className="text-center py-8">
-                      <HugeiconsIcon icon={Loading01Icon} size={24} className="animate-spin mx-auto text-purple-600" />
+                      <Loader className="w-6 h-6 animate-spin mx-auto text-purple-600" />
                     </div>
                   ) : (
                     <>
@@ -356,7 +344,7 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
                         >
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                              <HugeiconsIcon icon={Car01Icon} size={20} className="text-blue-600 dark:text-blue-400" />
+                              <Car className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                             </div>
                             <div>
                               <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -391,7 +379,7 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
                 <div className="space-y-2">
                   {isLoadingCategory ? (
                     <div className="text-center py-8">
-                      <HugeiconsIcon icon={Loading01Icon} size={24} className="animate-spin mx-auto text-purple-600" />
+                      <Loader className="w-6 h-6 animate-spin mx-auto text-purple-600" />
                     </div>
                   ) : (
                     <>
@@ -402,7 +390,7 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
                         >
                           <div className="flex items-center gap-3">
                             <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
-                              <HugeiconsIcon icon={GridIcon} size={20} className="text-orange-600 dark:text-orange-400" />
+                              <Grid className="w-5 h-5 text-orange-600 dark:text-orange-400" />
                             </div>
                             <div>
                               <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -481,3 +469,5 @@ function getStartDate(range: TimeRange): string | null {
 }
 
 export default PartsUsageAnalyticsPanel;
+
+

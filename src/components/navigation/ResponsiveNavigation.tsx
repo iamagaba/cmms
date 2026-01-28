@@ -1,3 +1,4 @@
+import { Home, Settings, X, MoreVertical } from 'lucide-react';
 /**
  * Responsive Navigation Component
  * 
@@ -7,14 +8,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  Menu01Icon,
-  Cancel01Icon,
-  Home01Icon,
-  Settings01Icon,
-  MoreVerticalIcon
-} from '@hugeicons/core-free-icons';
+
+
 import { Icon } from '@/components/icons/Icon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -121,9 +116,9 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
           disabled={item.disabled}
           className={cn(
             'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all duration-200',
-            'hover:bg-steel-50 focus:outline-none focus:ring-2 focus:ring-steel-500 focus:ring-offset-1',
-            isActive && 'bg-steel-100 text-steel-700 font-medium',
-            !isActive && 'text-machinery-600 hover:text-machinery-800',
+            'hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1',
+            isActive && 'bg-accent text-primary font-medium',
+            !isActive && 'text-foreground hover:text-foreground',
             item.disabled && 'opacity-50 cursor-not-allowed',
             level > 0 && 'ml-6 text-sm',
             isCollapsed && level === 0 && 'justify-center px-2'
@@ -134,7 +129,7 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
             icon={item.icon}
             className={cn(
               'flex-shrink-0 transition-colors',
-              isActive ? 'text-steel-600' : 'text-machinery-500',
+              isActive ? 'text-primary' : 'text-muted-foreground',
               isCollapsed ? 'w-6 h-6' : 'w-5 h-5'
             )}
             strokeWidth={isActive ? 2 : 1.5}
@@ -145,7 +140,7 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
               <span className="flex-1 truncate">{item.label}</span>
 
               {item.badge && (
-                <span className="px-2 py-0.5 text-xs bg-steel-600 text-white rounded-full">
+                <span className="px-2 py-0.5 text-xs bg-primary text-primary-foreground rounded-full">
                   {item.badge}
                 </span>
               )}
@@ -153,7 +148,7 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
               {hasChildren && (
                 <Icon
                   icon={isExpanded ? "tabler:chevron-down" : "tabler:chevron-right"}
-                  className="w-4 h-4 text-machinery-400 transition-transform"
+                  className="w-4 h-4 text-muted-foreground transition-transform"
                 />
               )}
             </>
@@ -185,13 +180,13 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
       animate={{ width: isCollapsed ? '80px' : '280px' }}
       transition={{ duration: 0.3, ease: 'easeInOut' }}
       className={cn(
-        'bg-white border-r border-machinery-200 flex flex-col h-full',
+        'bg-card border-r border-border flex flex-col h-full',
         className
       )}
     >
       {/* Header */}
       <div className={cn(
-        'flex items-center justify-between p-4 border-b border-machinery-200',
+        'flex items-center justify-between p-4 border-b border-border',
         isCollapsed && 'justify-center'
       )}>
         {!isCollapsed && logo && (
@@ -201,12 +196,12 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
         {collapsible && (
           <button
             onClick={toggleCollapse}
-            className="p-2 hover:bg-machinery-50 rounded-lg transition-colors"
+            className="p-2 hover:bg-accent rounded-lg transition-colors"
             aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             <Icon
               icon={isCollapsed ? "tabler:menu-2" : "tabler:x"}
-              className="w-5 h-5 text-machinery-600"
+              className="w-5 h-5 text-muted-foreground"
             />
           </button>
         )}
@@ -220,7 +215,7 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
       {/* User Menu */}
       {userMenu && (
         <div className={cn(
-          'p-4 border-t border-machinery-200',
+          'p-4 border-t border-border',
           isCollapsed && 'flex justify-center'
         )}>
           {userMenu}
@@ -289,9 +284,9 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
           disabled={item.disabled}
           className={cn(
             'w-full flex items-center gap-4 px-4 py-3 text-left transition-colors min-h-[48px]',
-            'hover:bg-steel-50 focus:outline-none focus:ring-2 focus:ring-steel-500 focus:ring-inset',
-            isActive && 'bg-steel-100 text-steel-700 font-medium',
-            !isActive && 'text-machinery-600',
+            'hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset',
+            isActive && 'bg-accent text-primary font-medium',
+            !isActive && 'text-foreground',
             item.disabled && 'opacity-50 cursor-not-allowed',
             level > 0 && 'ml-8 text-sm'
           )}
@@ -300,7 +295,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
             icon={item.icon}
             className={cn(
               'flex-shrink-0 w-6 h-6',
-              isActive ? 'text-steel-600' : 'text-machinery-500'
+              isActive ? 'text-primary' : 'text-muted-foreground'
             )}
             strokeWidth={isActive ? 2 : 1.5}
           />
@@ -308,7 +303,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
           <span className="flex-1">{item.label}</span>
 
           {item.badge && (
-            <span className="px-2 py-1 text-xs bg-steel-600 text-white rounded-full">
+            <span className="px-2 py-1 text-xs bg-primary text-primary-foreground rounded-full">
               {item.badge}
             </span>
           )}
@@ -316,7 +311,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
           {hasChildren && (
             <Icon
               icon={isExpanded ? "tabler:chevron-down" : "tabler:chevron-right"}
-              className="w-5 h-5 text-machinery-400"
+              className="w-5 h-5 text-muted-foreground"
             />
           )}
         </button>
@@ -329,7 +324,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="overflow-hidden bg-machinery-25"
+              className="overflow-hidden bg-muted/50"
             >
               {item.children!.map(child => renderNavigationItem(child, level + 1))}
             </motion.div>
@@ -358,17 +353,17 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ type: 'tween', duration: 0.3 }}
-            className="fixed left-0 top-0 h-full w-80 bg-white shadow-xl z-50 flex flex-col"
+            className="fixed left-0 top-0 h-full w-80 bg-card shadow-xl z-50 flex flex-col"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-machinery-200">
+            <div className="flex items-center justify-between p-4 border-b border-border">
               {logo && <div className="flex-1">{logo}</div>}
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-machinery-50 rounded-lg transition-colors"
+                className="p-2 hover:bg-accent rounded-lg transition-colors"
                 aria-label="Close navigation"
               >
-                <HugeiconsIcon icon={Cancel01Icon} size={24} className="text-machinery-600" />
+                <X className="w-6 h-6 text-muted-foreground" />
               </button>
             </div>
 
@@ -379,7 +374,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
 
             {/* User Menu */}
             {userMenu && (
-              <div className="p-4 border-t border-machinery-200">
+              <div className="p-4 border-t border-border">
                 {userMenu}
               </div>
             )}
@@ -418,7 +413,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-machinery-200 z-40">
+    <nav className="fixed bottom-0 left-0 right-0 bg-card border-t border-border z-40">
       <div className="flex">
         {visibleItems.map((item) => {
           const isActive = activeItem === item.id;
@@ -430,9 +425,9 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
               disabled={item.disabled}
               className={cn(
                 'flex-1 flex flex-col items-center justify-center py-2 px-1 min-h-[64px]',
-                'transition-colors focus:outline-none focus:ring-2 focus:ring-steel-500 focus:ring-inset',
-                isActive && 'text-steel-600',
-                !isActive && 'text-machinery-500 hover:text-machinery-700',
+                'transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset',
+                isActive && 'text-primary',
+                !isActive && 'text-muted-foreground hover:text-foreground',
                 item.disabled && 'opacity-50 cursor-not-allowed'
               )}
             >
@@ -443,7 +438,7 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
                   strokeWidth={isActive ? 2 : 1.5}
                 />
                 {item.badge && (
-                  <span className="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs bg-steel-600 text-white rounded-full min-w-[18px] text-center">
+                  <span className="absolute -top-1 -right-1 px-1.5 py-0.5 text-xs bg-primary text-primary-foreground rounded-full min-w-5 h-5 text-center">
                     {item.badge}
                   </span>
                 )}
@@ -456,8 +451,8 @@ const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         })}
 
         {hasMoreItems && (
-          <button className="flex-1 flex flex-col items-center justify-center py-2 px-1 min-h-[64px] text-machinery-500">
-            <HugeiconsIcon icon={MoreVerticalIcon} size={24} className="mb-1" />
+          <button className="flex-1 flex flex-col items-center justify-center py-2 px-1 min-h-[64px] text-muted-foreground">
+            <MoreVertical className="w-6 h-6 mb-1" />
             <span className="text-xs font-medium">More</span>
           </button>
         )}
@@ -513,14 +508,14 @@ const ResponsiveNavigation: React.FC<ResponsiveNavigationProps> = ({
     <>
       {/* Mobile Header with Toggle */}
       {showMobileToggle && mobileVariant === 'drawer' && (
-        <header className="bg-white border-b border-machinery-200 px-4 py-3 flex items-center justify-between">
+        <header className="bg-card border-b border-border px-4 py-3 flex items-center justify-between">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setIsMobileMenuOpen(true)}
             aria-label="Open navigation"
           >
-            <HugeiconsIcon icon={Menu01Icon} size={24} />
+            <Menu01Icon className="w-6 h-6" />
           </Button>
           {logo && <div className="flex-1 flex justify-center">{logo}</div>}
           <div className="w-10" /> {/* Spacer for centering */}
@@ -566,3 +561,5 @@ export type {
   ResponsiveNavigationProps,
   NavigationItem,
 };
+
+

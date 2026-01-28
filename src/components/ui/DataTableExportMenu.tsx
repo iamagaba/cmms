@@ -6,18 +6,12 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-  Download01Icon, 
-  Cancel01Icon, 
-  Tick01Icon, 
-  Database01Icon, 
-  InformationCircleIcon 
-} from '@hugeicons/core-free-icons';
+import { Download, X, Check, Database, Info, Loader2 } from 'lucide-react';
 import { Icon } from '@/components/icons/Icon';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ExportOption } from './EnhancedDataTable';
+import { Button } from '@/components/ui/button';
 
 // ============================================
 // INTERFACES
@@ -61,18 +55,19 @@ const ExportProgress: React.FC<ExportProgressProps> = ({
       <div className="bg-white border border-machinery-200 rounded-lg shadow-lg p-4 min-w-80">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <HugeiconsIcon icon={Download01Icon} size={16} className="text-steel-600" />
+            <Download className="w-4 h-4 text-steel-600" />
             <span className="text-sm font-medium text-machinery-700">
               Exporting as {format.toUpperCase()}
             </span>
           </div>
           {onCancel && (
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={onCancel}
-              className="text-machinery-400 hover:text-machinery-600 transition-colors"
             >
-              <HugeiconsIcon icon={Cancel01Icon} size={16} />
-            </button>
+              <X className="w-4 h-4" />
+            </Button>
           )}
         </div>
         
@@ -124,8 +119,8 @@ const ExportOptionButton: React.FC<ExportOptionButtonProps> = ({
 
   return (
     <div className="relative">
-      <button
-        type="button"
+      <Button
+        variant="ghost"
         onClick={() => {
           if (hasSelection) {
             setShowSubmenu(!showSubmenu);
@@ -134,15 +129,10 @@ const ExportOptionButton: React.FC<ExportOptionButtonProps> = ({
           }
         }}
         disabled={disabled}
-        className={cn(
-          'w-full flex items-center gap-3 px-4 py-3 text-left',
-          'text-machinery-700 hover:bg-machinery-50 transition-colors',
-          'disabled:opacity-50 disabled:cursor-not-allowed',
-          'focus:outline-none focus:bg-machinery-50'
-        )}
+        className="w-full justify-start px-4 py-3 h-auto"
       >
-        {/* TODO: Convert option.icon prop to use HugeiconsIcon component */}
-        <div className="flex-1">
+        {/* TODO: Convert option.icon prop to use Lucide React icon */}
+        <div className="flex-1 text-left">
           <div className="font-medium">{option.label}</div>
           <div className="text-xs text-machinery-500">
             {dataCount} record{dataCount !== 1 ? 's' : ''}
@@ -155,7 +145,7 @@ const ExportOptionButton: React.FC<ExportOptionButtonProps> = ({
             className="w-4 h-4 text-machinery-400" 
           />
         )}
-      </button>
+      </Button>
 
       {/* Submenu for selection choice */}
       <AnimatePresence>
@@ -166,32 +156,32 @@ const ExportOptionButton: React.FC<ExportOptionButtonProps> = ({
             exit={{ opacity: 0, x: -10 }}
             className="absolute left-full top-0 ml-1 bg-white border border-machinery-200 rounded-md shadow-lg min-w-48 z-10"
           >
-            <button
-              type="button"
+            <Button
+              variant="ghost"
               onClick={() => handleExport(true)}
-              className="w-full flex items-center gap-3 px-4 py-3 text-left text-machinery-700 hover:bg-machinery-50 transition-colors"
+              className="w-full justify-start px-4 py-3 h-auto"
             >
-              <HugeiconsIcon icon={Tick01Icon} size={16} className="text-steel-600" />
-              <div>
+              <Check className="w-4 h-4 text-steel-600 mr-3" />
+              <div className="text-left">
                 <div className="font-medium">Export Selected</div>
                 <div className="text-xs text-machinery-500">
                   {selectedCount} record{selectedCount !== 1 ? 's' : ''}
                 </div>
               </div>
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              variant="ghost"
               onClick={() => handleExport(false)}
-              className="w-full flex items-center gap-3 px-4 py-3 text-left text-machinery-700 hover:bg-machinery-50 transition-colors"
+              className="w-full justify-start px-4 py-3 h-auto"
             >
-              <HugeiconsIcon icon={Database01Icon} size={16} className="text-machinery-500" />
-              <div>
+              <Database className="w-4 h-4 text-machinery-500 mr-3" />
+              <div className="text-left">
                 <div className="font-medium">Export All</div>
                 <div className="text-xs text-machinery-500">
                   {dataCount} record{dataCount !== 1 ? 's' : ''}
                 </div>
               </div>
-            </button>
+            </Button>
           </motion.div>
         )}
       </AnimatePresence>
@@ -275,25 +265,20 @@ const DataTableExportMenu = <T,>({
   return (
     <>
       <div className={cn('relative', className)}>
-        <button
-          type="button"
+        <Button
+          variant="outline"
+          size="sm"
           onClick={() => setIsOpen(!isOpen)}
           disabled={disabled || data.length === 0}
-          className={cn(
-            'inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium',
-            'text-machinery-700 bg-white border border-machinery-300 rounded-md',
-            'hover:bg-machinery-50 hover:border-steel-400 transition-colors',
-            'focus:outline-none focus:ring-2 focus:ring-steel-500',
-            'disabled:opacity-50 disabled:cursor-not-allowed'
-          )}
+          className="gap-2"
         >
-          <HugeiconsIcon icon={Download01Icon} size={16} />
+          <Download className="w-4 h-4" />
           <span>Export</span>
           <Icon 
             icon={isOpen ? "tabler:chevron-up" : "tabler:chevron-down"} 
             className="w-3 h-3" 
           />
-        </button>
+        </Button>
         
         <AnimatePresence>
           {isOpen && (
@@ -307,7 +292,7 @@ const DataTableExportMenu = <T,>({
               {/* Header */}
               <div className="px-4 py-2 border-b border-machinery-200">
                 <div className="flex items-center gap-2">
-                  <HugeiconsIcon icon={Download01Icon} size={16} className="text-steel-600" />
+                  <Download className="w-4 h-4 text-steel-600" />
                   <span className="text-sm font-medium text-machinery-700">
                     Export Data
                   </span>
@@ -334,7 +319,7 @@ const DataTableExportMenu = <T,>({
               {/* Footer */}
               <div className="px-4 py-2 border-t border-machinery-200">
                 <div className="flex items-center gap-2 text-xs text-machinery-500">
-                  <HugeiconsIcon icon={InformationCircleIcon} size={12} />
+                  <Info className="w-4 h-4" />
                   <span>
                     Exports include all visible columns and applied filters
                   </span>

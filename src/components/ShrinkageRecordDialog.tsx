@@ -1,21 +1,29 @@
 import React, { useState } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-  Cancel01Icon,
-  Alert01Icon,
-  Shield01Icon,
-  Clock01Icon,
-  CloudIcon,
-  InformationCircleIcon,
-  MoreHorizontalIcon,
-  Loading03Icon
-} from '@hugeicons/core-free-icons';
+import { AlertCircle, X, Shield, AlertTriangle, Clock, Cloud, Info, MoreHorizontal, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { InventoryItem, LossType, LOSS_TYPE_LABELS } from '@/types/supabase';
 import { useCreateShrinkageRecord } from '@/hooks/useInventoryTransactions';
 import { snakeToCamelCase } from '@/utils/data-helpers';
-import type { IconSvgObject } from '@hugeicons/core-free-icons';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import type { LucideIcon } from 'lucide-react';
 
 interface ShrinkageRecordDialogProps {
   isOpen: boolean;
@@ -26,22 +34,22 @@ interface ShrinkageRecordDialogProps {
 
 const LOSS_TYPES: LossType[] = ['theft', 'damage', 'expired', 'spoilage', 'unknown', 'other'];
 
-const LOSS_TYPE_ICONS: Record<LossType, IconSvgObject> = {
-  theft: Shield01Icon,
-  damage: Alert01Icon,
-  expired: Clock01Icon,
-  spoilage: CloudIcon,
-  unknown: InformationCircleIcon,
-  other: MoreHorizontalIcon,
+const LOSS_TYPE_ICONS: Record<LossType, LucideIcon> = {
+  theft: Shield,
+  damage: AlertTriangle,
+  expired: Clock,
+  spoilage: Cloud,
+  unknown: Info,
+  other: MoreHorizontal,
 };
 
 const LOSS_TYPE_COLORS: Record<LossType, string> = {
-  theft: 'bg-red-100 text-red-700 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800',
-  damage: 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800',
-  expired: 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800',
-  spoilage: 'bg-amber-100 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800',
-  unknown: 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700',
-  other: 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700',
+  theft: 'bg-destructive/10 text-destructive border-destructive/20',
+  damage: 'bg-muted text-muted-foreground border-orange-200',
+  expired: 'bg-amber-50 text-amber-700 border-amber-200',
+  spoilage: 'bg-amber-100 text-amber-700 border-amber-200',
+  unknown: 'bg-muted text-muted-foreground border-border',
+  other: 'bg-muted text-muted-foreground border-border',
 };
 
 export const ShrinkageRecordDialog: React.FC<ShrinkageRecordDialogProps> = ({
@@ -103,95 +111,97 @@ export const ShrinkageRecordDialog: React.FC<ShrinkageRecordDialogProps> = ({
 
   if (!isOpen) return null;
 
+  const LossIcon = LOSS_TYPE_ICONS[lossType];
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-lg">
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-lg">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center">
-              <HugeiconsIcon icon={Alert01Icon} size={20} className="text-red-600 dark:text-red-400" />
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Record Shrinkage</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Log inventory loss or damage</p>
-            </div>
+        <DialogHeader className="flex-row items-center gap-3 space-y-0">
+          <div className="w-10 h-10 rounded-lg bg-destructive/10 flex items-center justify-center flex-shrink-0">
+            <AlertCircle className="w-5 h-5 text-destructive" />
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-            <HugeiconsIcon icon={Cancel01Icon} size={20} className="text-gray-500" />
-          </button>
-        </div>
+          <div>
+            <DialogTitle className="text-base">Record Shrinkage</DialogTitle>
+            <DialogDescription className="text-xs">Log inventory loss or damage</DialogDescription>
+          </div>
+        </DialogHeader>
 
         <form onSubmit={handleSubmit}>
-          <div className="p-6 space-y-5">
+          <div className="space-y-4">
             {/* Item Selection */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Item *</label>
-              <select
+              <Label htmlFor="item" className="text-xs">Item <span className="text-destructive">*</span></Label>
+              <Select
                 value={selectedItemId}
-                onChange={(e) => {
-                  setSelectedItemId(e.target.value);
+                onValueChange={(value) => {
+                  setSelectedItemId(value);
                   setQuantityLost(1);
                 }}
-                className="w-full h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
                 required
               >
-                <option value="">Select item...</option>
-                {inventoryItems?.filter(i => (i.quantity_on_hand ?? 0) > 0).map(item => (
-                  <option key={item.id} value={item.id}>
-                    {item.name} ({item.sku}) - {item.quantity_on_hand} in stock
-                  </option>
-                ))}
-              </select>
+                <SelectTrigger id="item">
+                  <SelectValue placeholder="Select item..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {inventoryItems?.filter(i => (i.quantity_on_hand ?? 0) > 0).map(item => (
+                    <SelectItem key={item.id} value={item.id}>
+                      {item.name} ({item.sku}) - {item.quantity_on_hand} in stock
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             {/* Loss Type */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Loss Type *</label>
+              <Label className="text-xs mb-2 block">Loss Type <span className="text-destructive">*</span></Label>
               <div className="grid grid-cols-3 gap-2">
-                {LOSS_TYPES.map(type => (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => setLossType(type)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                      lossType === type
-                        ? LOSS_TYPE_COLORS[type]
-                        : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
-                    }`}
-                  >
-                    <HugeiconsIcon icon={LOSS_TYPE_ICONS[type]} size={16} />
-                    {LOSS_TYPE_LABELS[type]}
-                  </button>
-                ))}
+                {LOSS_TYPES.map(type => {
+                  const Icon = LOSS_TYPE_ICONS[type];
+                  return (
+                    <Button
+                      key={type}
+                      type="button"
+                      variant={lossType === type ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setLossType(type)}
+                      className={`justify-start ${
+                        lossType === type ? LOSS_TYPE_COLORS[type] : ''
+                      }`}
+                    >
+                      <Icon className="w-4 h-4 mr-1.5" />
+                      {LOSS_TYPE_LABELS[type]}
+                    </Button>
+                  );
+                })}
               </div>
             </div>
 
             {/* Quantity and Date */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Quantity Lost *</label>
-                <input
+                <Label htmlFor="quantity" className="text-xs">Quantity Lost <span className="text-destructive">*</span></Label>
+                <Input
+                  id="quantity"
                   type="number"
                   min="1"
                   max={maxQuantity}
                   value={quantityLost}
                   onChange={(e) => setQuantityLost(Math.min(parseInt(e.target.value) || 1, maxQuantity))}
-                  className="w-full h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
                   required
                 />
                 {selectedItem && (
-                  <p className="text-xs text-gray-500 mt-1">Max: {maxQuantity}</p>
+                  <p className="text-xs text-muted-foreground mt-1">Max: {maxQuantity}</p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Discovered Date</label>
-                <input
+                <Label htmlFor="date" className="text-xs">Discovered Date</Label>
+                <Input
+                  id="date"
                   type="date"
                   value={discoveredDate}
                   onChange={(e) => setDiscoveredDate(e.target.value)}
-                  className="w-full h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
                   required
                 />
               </div>
@@ -199,26 +209,26 @@ export const ShrinkageRecordDialog: React.FC<ShrinkageRecordDialogProps> = ({
 
             {/* Notes */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
-              <textarea
+              <Label htmlFor="notes" className="text-xs">Notes</Label>
+              <Textarea
+                id="notes"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 rows={2}
                 placeholder="Describe the circumstances..."
-                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
               />
             </div>
 
             {/* Estimated Value */}
             {selectedItem && quantityLost > 0 && (
-              <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4">
+              <div className="bg-destructive/10 rounded-lg p-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-red-700 dark:text-red-300">Estimated Loss Value</span>
-                  <span className="text-lg font-semibold text-red-700 dark:text-red-300">
+                  <span className="text-sm text-destructive">Estimated Loss Value</span>
+                  <span className="text-lg font-semibold text-destructive">
                     UGX {estimatedValue.toLocaleString()}
                   </span>
                 </div>
-                <p className="text-xs text-red-600 dark:text-red-400 mt-1">
+                <p className="text-xs text-destructive mt-1">
                   {quantityLost} × UGX {(selectedItem.unit_price ?? 0).toLocaleString()} per unit
                 </p>
               </div>
@@ -226,25 +236,29 @@ export const ShrinkageRecordDialog: React.FC<ShrinkageRecordDialogProps> = ({
           </div>
 
           {/* Footer */}
-          <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-            <button
+          <div className="flex items-center justify-end gap-2 mt-6 pt-4 border-t border-border">
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={onClose}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
             >
               Cancel
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
+              variant="destructive"
+              size="sm"
               disabled={!selectedItemId || quantityLost <= 0 || createShrinkage.isPending}
-              className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              {createShrinkage.isPending && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin" />}
+              {createShrinkage.isPending && <Loader2 className="w-4 h-4 animate-spin mr-1.5" />}
               Record Shrinkage
-            </button>
+            </Button>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
+
+

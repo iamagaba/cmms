@@ -7,17 +7,7 @@
  */
 
 import React, { forwardRef, useState } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-  ArrowRight01Icon, 
-  MoreHorizontalIcon, 
-  ArrowLeft01Icon, 
-  ArrowRight02Icon, 
-  DoubleArrowLeft01Icon, 
-  DoubleArrowRight01Icon, 
-  ArrowDown01Icon, 
-  ArrowUp01Icon 
-} from '@hugeicons/core-free-icons';
+import { ChevronRight, MoreHorizontal, ChevronLeft, ChevronsLeft, ChevronsRight, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -111,42 +101,32 @@ const ProfessionalBreadcrumb = forwardRef<HTMLNavElement, ProfessionalBreadcrumb
                     <li>
                       <button
                         onClick={() => setShowAll(true)}
-                        className="flex items-center gap-1 px-2 py-1 text-machinery-500 hover:text-machinery-700 hover:bg-machinery-100 rounded transition-colors"
+                        className="flex items-center gap-1 px-2 py-1 text-muted-foreground hover:text-foreground hover:bg-accent rounded transition-colors"
                         title={`Show ${collapsedCount} hidden items`}
                       >
-                        <HugeiconsIcon icon={MoreHorizontalIcon} size={16} />
+                        <MoreHorizontal className="w-4 h-4" />
                         <span className="text-xs">+{collapsedCount}</span>
                       </button>
                     </li>
-                    <HugeiconsIcon
-                      icon={ArrowRight01Icon}
-                      size={16}
-                      className="text-machinery-400"
-                    />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
                   </>
                 )}
 
                 <li className="flex items-center">
                   <div className="flex items-center gap-1.5">
-                    {item.icon && (
-                      <HugeiconsIcon
-                        icon={item.icon}
-                        size={16}
-                        className="text-machinery-500"
-                      />
-                    )}
+                    {item.icon && <item.icon className="w-4 h-4 text-muted-foreground" />}
                     {item.href && !isLast ? (
                       <a
                         href={item.href}
-                        className="text-machinery-600 hover:text-steel-600 transition-colors focus:outline-none focus:ring-2 focus:ring-steel-500 focus:ring-offset-1 rounded"
+                        className="text-muted-foreground hover:text-primary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1 rounded"
                       >
                         {item.label}
                       </a>
                     ) : (
                       <span className={cn(
                         isLast
-                          ? 'text-machinery-900 font-medium'
-                          : 'text-machinery-600'
+                          ? 'text-foreground font-medium'
+                          : 'text-muted-foreground'
                       )}>
                         {item.label}
                       </span>
@@ -155,11 +135,7 @@ const ProfessionalBreadcrumb = forwardRef<HTMLNavElement, ProfessionalBreadcrumb
                 </li>
 
                 {!isLast && (
-                  <HugeiconsIcon
-                    icon={ArrowRight01Icon}
-                    size={16}
-                    className="text-machinery-400"
-                  />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 )}
               </React.Fragment>
             );
@@ -234,24 +210,24 @@ const ProfessionalTabs = forwardRef<HTMLDivElement, ProfessionalTabsProps>(
 
     const variantClasses = {
       default: {
-        container: 'border-b border-machinery-200',
-        tab: 'border-b-2 border-transparent hover:border-machinery-300 hover:text-machinery-700',
-        active: 'border-steel-600 text-steel-600',
+        container: 'border-b border-border',
+        tab: 'border-b-2 border-transparent hover:border-border hover:text-foreground',
+        active: 'border-primary text-primary',
       },
       pills: {
-        container: 'bg-machinery-100 p-1 rounded-lg',
-        tab: 'rounded-md hover:bg-white hover:text-machinery-700',
-        active: 'bg-white text-steel-600 shadow-sm',
+        container: 'bg-muted p-1 rounded-lg',
+        tab: 'rounded-md hover:bg-card hover:text-foreground',
+        active: 'bg-card text-primary shadow-sm',
       },
       underline: {
         container: '',
-        tab: 'border-b-2 border-transparent hover:border-machinery-300',
-        active: 'border-steel-600 text-steel-600',
+        tab: 'border-b-2 border-transparent hover:border-border',
+        active: 'border-primary text-primary',
       },
       cards: {
         container: 'gap-2',
-        tab: 'border border-machinery-200 rounded-lg hover:border-machinery-300 hover:bg-machinery-50',
-        active: 'border-steel-600 bg-steel-50 text-steel-600',
+        tab: 'border border-border rounded-lg hover:border-border hover:bg-accent',
+        active: 'border-primary bg-primary/5 text-primary',
       },
     };
 
@@ -296,7 +272,7 @@ const ProfessionalTabs = forwardRef<HTMLDivElement, ProfessionalTabsProps>(
                 fullWidth && 'flex-1 justify-center',
 
                 // Default colors
-                !isActive && 'text-machinery-600'
+                !isActive && 'text-muted-foreground'
               )}
             >
               {/* Icon */}
@@ -313,7 +289,7 @@ const ProfessionalTabs = forwardRef<HTMLDivElement, ProfessionalTabsProps>(
 
               {/* Badge */}
               {item.badge && (
-                <span className="ml-1 px-1.5 py-0.5 bg-machinery-200 text-machinery-700 text-xs rounded-full min-w-[1.25rem] h-5 flex items-center justify-center">
+                <span className="ml-1 px-1.5 py-0.5 bg-muted text-muted-foreground text-xs rounded-full min-w-[1.25rem] h-5 flex items-center justify-center">
                   {item.badge}
                 </span>
               )}
@@ -322,7 +298,7 @@ const ProfessionalTabs = forwardRef<HTMLDivElement, ProfessionalTabsProps>(
               {variant === 'pills' && isActive && (
                 <motion.div
                   layoutId="activeTab"
-                  className="absolute inset-0 bg-white rounded-md shadow-sm -z-10"
+                  className="absolute inset-0 bg-card rounded-md shadow-sm -z-10"
                   transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
                 />
               )}
@@ -484,7 +460,7 @@ const ProfessionalPagination = forwardRef<HTMLDivElement, ProfessionalPagination
         )}
       >
         {/* Page info and size selector */}
-        <div className="flex items-center gap-4 text-sm text-machinery-600">
+        <div className="flex items-center gap-4 text-sm text-muted-foreground">
           {totalItems && (
             <span>
               Showing {startItem.toLocaleString()} to {endItem.toLocaleString()} of {totalItems.toLocaleString()} results
@@ -521,7 +497,7 @@ const ProfessionalPagination = forwardRef<HTMLDivElement, ProfessionalPagination
               className={sizeClasses[size]}
               aria-label="Go to first page"
             >
-              <HugeiconsIcon icon={DoubleArrowLeft01Icon} size={16} />
+              <ChevronsLeft className="w-4 h-4" />
             </Button>
           )}
 
@@ -535,7 +511,7 @@ const ProfessionalPagination = forwardRef<HTMLDivElement, ProfessionalPagination
               className={sizeClasses[size]}
               aria-label="Go to previous page"
             >
-              <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
+              <ChevronLeft className="w-4 h-4" />
             </Button>
           )}
 
@@ -543,7 +519,7 @@ const ProfessionalPagination = forwardRef<HTMLDivElement, ProfessionalPagination
           {pageNumbers.map((page, index) => (
             <React.Fragment key={index}>
               {page === 'ellipsis' ? (
-                <span className="px-2 text-machinery-400">…</span>
+                <span className="px-2 text-muted-foreground">…</span>
               ) : (
                 <Button
                   variant={page === currentPage ? 'default' : 'ghost'}
@@ -569,7 +545,7 @@ const ProfessionalPagination = forwardRef<HTMLDivElement, ProfessionalPagination
               className={sizeClasses[size]}
               aria-label="Go to next page"
             >
-              <HugeiconsIcon icon={ArrowRight02Icon} size={16} />
+              <ChevronRight className="w-4 h-4" />
             </Button>
           )}
 
@@ -583,7 +559,7 @@ const ProfessionalPagination = forwardRef<HTMLDivElement, ProfessionalPagination
               className={sizeClasses[size]}
               aria-label="Go to last page"
             >
-              <HugeiconsIcon icon={DoubleArrowRight01Icon} size={16} />
+              <ChevronsRight className="w-4 h-4" />
             </Button>
           )}
         </div>
@@ -660,25 +636,22 @@ const ContextualNavigation = forwardRef<HTMLDivElement, ContextualNavigationProp
       <nav
         ref={ref}
         className={cn(
-          'bg-white border border-machinery-200 rounded-lg p-4',
+          'bg-card border border-border rounded-lg p-4',
           className
         )}
       >
         {/* Navigation Header */}
         {title && (
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-semibold text-machinery-900">
+            <h3 className="text-sm font-semibold text-foreground">
               {title}
             </h3>
             {collapsible && (
               <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
-                className="p-1 text-machinery-500 hover:text-machinery-700 rounded"
+                className="p-1 text-muted-foreground hover:text-foreground rounded"
               >
-                <HugeiconsIcon
-                  icon={isCollapsed ? ArrowDown01Icon : ArrowUp01Icon}
-                  size={16}
-                />
+                {isCollapsed ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
               </button>
             )}
           </div>
@@ -703,11 +676,11 @@ const ContextualNavigation = forwardRef<HTMLDivElement, ContextualNavigationProp
                     disabled={item.disabled}
                     className={cn(
                       'flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg transition-colors',
-                      'focus:outline-none focus:ring-2 focus:ring-steel-500 focus:ring-offset-2',
+                      'focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2',
                       'disabled:opacity-50 disabled:cursor-not-allowed',
                       isActive
-                        ? 'bg-steel-100 text-steel-700'
-                        : 'text-machinery-600 hover:text-machinery-900 hover:bg-machinery-50'
+                        ? 'bg-primary/10 text-primary'
+                        : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                     )}
                   >
                     {item.icon && (
@@ -719,7 +692,7 @@ const ContextualNavigation = forwardRef<HTMLDivElement, ContextualNavigationProp
                     )}
                     <span className="truncate">{item.label}</span>
                     {item.badge && (
-                      <span className="ml-auto px-1.5 py-0.5 bg-machinery-200 text-machinery-700 text-xs rounded-full">
+                      <span className="ml-auto px-1.5 py-0.5 bg-muted text-muted-foreground text-xs rounded-full">
                         {item.badge}
                       </span>
                     )}

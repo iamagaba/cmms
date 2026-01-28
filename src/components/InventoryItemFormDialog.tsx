@@ -1,6 +1,9 @@
+import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Form,
   FormControl,
@@ -12,7 +15,33 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from '@/components/ui/sheet';
 import { useToast } from '@/hooks/use-toast';
+import { CategoryMultiSelect } from './CategoryMultiSelect';
+import { SupplierSelect } from './SupplierSelect';
+import { UnitOfMeasureSelect } from './UnitOfMeasureSelect';
+import { StorageLocationFields } from './StorageLocationFields';
+import { Package, Info, Tag, Ruler, MapPin, ChevronDown, Check, Loader2 } from 'lucide-react';
+
+interface InventoryItem {
+  id: string;
+  name: string;
+  model?: string | null;
+  sku: string;
+  description?: string | null;
+  categories?: string[];
+  warehouse?: string | null;
+  zone?: string | null;
+  aisle?: string | null;
+  bin?: string | null;
+  shelf?: string | null;
+}
 
 
 interface InventoryItemFormDialogProps {
@@ -155,7 +184,7 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
       console.error('Error saving inventory item:', error);
       toast({
         title: "Error",
-        description: "Failed to save inventory item. Please try again.",
+        description: "Unable to save inventory item. Try again.",
         variant: "destructive"
       });
     }
@@ -164,14 +193,14 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
-        <SheetHeader className="border-b border-gray-200 bg-gray-50 -mx-6 -mt-6 px-6 py-4 mb-6">
+        <SheetHeader className="border-b border-border bg-muted/50 -mx-6 -mt-6 px-6 py-3 mb-4">
           <div className="flex items-center gap-2">
-            <HugeiconsIcon icon={PackageIcon} size={24} className="text-purple-600" />
+            <Package className="w-4 h-4 text-primary" />
             <div>
-              <SheetTitle className="text-lg font-semibold text-gray-900">
+              <SheetTitle className="text-base font-semibold">
                 {item ? 'Edit Item' : 'Add Item'}
               </SheetTitle>
-              <SheetDescription className="text-xs text-gray-500 mt-0.5">
+              <SheetDescription className="text-xs mt-0.5">
                 {item ? 'Update item details' : 'Add item to inventory'}
               </SheetDescription>
             </div>
@@ -184,8 +213,8 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
 
               {/* Basic Information */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <HugeiconsIcon icon={InformationCircleIcon} size={20} className="text-purple-600" />
+                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                  <Info className="w-4 h-4 text-primary" />
                   Basic Information
                 </h3>
                 <div className="space-y-4">
@@ -194,7 +223,7 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Item Name <span className="text-red-500">*</span></FormLabel>
+                        <FormLabel>Item Name <span className="text-destructive">*</span></FormLabel>
                         <FormControl>
                           <Input placeholder="Item name" {...field} />
                         </FormControl>
@@ -218,32 +247,35 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
                               onBlur={() => setTimeout(() => setShowModelDropdown(false), 200)}
                             />
                           </FormControl>
-                          <button
+                          <Button
                             type="button"
+                            variant="ghost"
+                            size="icon"
                             onClick={() => setShowModelDropdown(!showModelDropdown)}
-                            className="absolute right-0 top-0 h-full px-3 flex items-center justify-center text-gray-500 hover:text-gray-700"
+                            className="absolute right-0 top-0 h-full"
                             tabIndex={-1}
                           >
-                            <HugeiconsIcon icon={ArrowDown01Icon} size={16} />
-                          </button>
+                            <ChevronDown className="w-4 h-4" />
+                          </Button>
                         </div>
                         {showModelDropdown && filteredModels.length > 0 && (
-                          <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                          <div className="absolute z-10 w-full mt-1 bg-background border border-border rounded-lg shadow-lg max-h-48 overflow-y-auto">
                             {filteredModels.map((model) => (
-                              <button
+                              <Button
                                 key={model}
                                 type="button"
+                                variant="ghost"
                                 onClick={() => {
                                   form.setValue('model', model);
                                   setShowModelDropdown(false);
                                 }}
-                                className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center justify-between group"
+                                className="w-full justify-between h-auto py-2 px-4"
                               >
-                                <span className="text-sm text-gray-700">{model}</span>
+                                <span className="text-sm">{model}</span>
                                 {field.value === model && (
-                                  <HugeiconsIcon icon={Tick01Icon} size={16} className="text-purple-600" />
+                                  <Check className="w-4 h-4 text-primary" />
                                 )}
-                              </button>
+                              </Button>
                             ))}
                           </div>
                         )}
@@ -257,7 +289,7 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
                     name="sku"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>SKU <span className="text-red-500">*</span></FormLabel>
+                        <FormLabel>SKU <span className="text-destructive">*</span></FormLabel>
                         <FormControl>
                           <Input placeholder="SKU" {...field} />
                         </FormControl>
@@ -284,8 +316,8 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
 
               {/* Categorization */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <HugeiconsIcon icon={Tag01Icon} size={20} className="text-purple-600" />
+                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                  <Tag className="w-4 h-4 text-primary" />
                   Categorization
                 </h3>
                 <div className="space-y-4">
@@ -327,8 +359,8 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
 
               {/* Unit of Measure */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <HugeiconsIcon icon={RulerIcon} size={20} className="text-purple-600" />
+                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                  <Ruler className="w-4 h-4 text-primary" />
                   Unit of Measure
                 </h3>
                 <div className="space-y-4">
@@ -343,8 +375,8 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
 
               {/* Storage Location */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <HugeiconsIcon icon={Location01Icon} size={20} className="text-purple-600" />
+                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                  <MapPin className="w-4 h-4 text-primary" />
                   Storage Location
                 </h3>
                 <div className="space-y-4">
@@ -361,8 +393,8 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
 
               {/* Stock Information */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                  <HugeiconsIcon icon={PackageIcon} size={20} className="text-purple-600" />
+                <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                  <Package className="w-4 h-4 text-primary" />
                   Stock Information
                 </h3>
                 <div className="space-y-4">
@@ -372,7 +404,7 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
                       name="quantity_on_hand"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Quantity on Hand <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel>Quantity on Hand <span className="text-destructive">*</span></FormLabel>
                           <FormControl>
                             <Input type="number" min="0" {...field} />
                           </FormControl>
@@ -386,7 +418,7 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
                       name="reorder_level"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Reorder Level <span className="text-red-500">*</span></FormLabel>
+                          <FormLabel>Reorder Level <span className="text-destructive">*</span></FormLabel>
                           <FormControl>
                             <Input type="number" min="0" {...field} />
                           </FormControl>
@@ -401,7 +433,7 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
                     name="unit_price"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Unit Price <span className="text-red-500">*</span></FormLabel>
+                        <FormLabel>Unit Price <span className="text-destructive">*</span></FormLabel>
                         <div className="relative">
                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                             <span className="text-sm text-gray-500">UGX</span>
@@ -417,8 +449,8 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
 
                   {/* Total Value */}
                   <div className="mt-4 flex items-center justify-between px-1">
-                    <span className="text-sm font-medium text-gray-500">Total Inventory Value</span>
-                    <span className="text-lg font-bold text-gray-900">
+                    <span className="text-sm font-medium text-muted-foreground">Total Inventory Value</span>
+                    <span className="text-lg font-bold">
                       UGX {((form.watch('quantity_on_hand') || 0) * (form.watch('unit_price') || 0)).toLocaleString()}
                     </span>
                   </div>
@@ -430,9 +462,10 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
         </Form>
 
         {/* Footer Actions - Sticky */}
-        <div className="flex items-center justify-between border-t border-gray-200 bg-gray-50 p-4">
+        <div className="flex items-center justify-between border-t border-border bg-muted/50 p-3">
           <Button
             variant="outline"
+            size="sm"
             type="button"
             onClick={onClose}
             disabled={form.formState.isSubmitting}
@@ -441,12 +474,12 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
           </Button>
 
           <Button
+            size="sm"
             type="submit"
             form="inventory-item-form"
             disabled={form.formState.isSubmitting}
-            className="bg-purple-600 hover:bg-purple-700"
           >
-            {form.formState.isSubmitting && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin mr-2" />}
+            {form.formState.isSubmitting && <Loader2 className="w-4 h-4 animate-spin mr-1.5" />}
             {item ? 'Update Item' : 'Create Item'}
           </Button>
         </div>
@@ -454,3 +487,4 @@ export const InventoryItemFormDialog: React.FC<InventoryItemFormDialogProps> = (
     </Sheet >
   );
 };
+

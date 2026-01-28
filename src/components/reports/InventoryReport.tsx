@@ -1,29 +1,7 @@
+import { AlertCircle, Calendar, Clock, Loader2, Tag, TrendingUp } from 'lucide-react';
 import React, { useState } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  FileIcon,
-  Download01Icon,
-  Calendar01Icon,
-  PackageIcon,
-  Store01Icon,
-  Loading01Icon,
-  TimelineIcon,
-  TagIcon,
-  ArrowDataTransferHorizontalIcon,
-  Clock01Icon,
-  AnalyticsUpIcon,
-  PieChartIcon,
-  Layers01Icon,
-  ChartIcon,
-  ArrowDownIcon,
-  ArrowUpIcon,
-  Invoice01Icon,
-  Building04Icon,
-  ChartLineData01Icon,
-  PackageDeliveredIcon,
-  Alert01Icon,
-  GridIcon
-} from '@hugeicons/core-free-icons';
+
+
 import {
   useInventoryValuation,
   useStockMovementHistory,
@@ -48,9 +26,9 @@ import dayjs from 'dayjs';
 type InventoryReportType = 'valuation' | 'movement' | 'slow-moving' | 'trends' | 'cost-analysis';
 
 const INVENTORY_REPORT_TABS = [
-  { id: 'valuation', label: 'Valuation', icon: TagIcon },
-  { id: 'movement', label: 'Stock Movement', icon: ArrowDataTransferHorizontalIcon },
-  { id: 'slow-moving', label: 'Slow/Dead Stock', icon: Clock01Icon },
+  { id: 'valuation', label: 'Valuation', icon: Tag },
+  { id: 'movement', label: 'Stock Movement', icon: ArrowLeftRight },
+  { id: 'slow-moving', label: 'Slow/Dead Stock', icon: Clock },
   { id: 'trends', label: 'Usage Trends', icon: AnalyticsUpIcon },
   { id: 'cost-analysis', label: 'Cost Analysis', icon: PieChartIcon },
 ];
@@ -74,7 +52,7 @@ const InventoryReport: React.FC = () => {
               : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
               }`}
           >
-            <HugeiconsIcon icon={tab.icon} size={14} />
+            <tab.icon className="w-4 h-4" />
             {tab.label}
           </button>
         ))}
@@ -107,7 +85,7 @@ const ValuationReport: React.FC = () => {
         <StatCard
           label="Total Items"
           value={data.totalItems.toLocaleString()}
-          icon={PackageIcon}
+          icon={Package}
           color="purple"
         />
         <StatCard
@@ -119,7 +97,7 @@ const ValuationReport: React.FC = () => {
         <StatCard
           label="Total Value"
           value={formatCurrency(data.totalValue)}
-          icon={TagIcon}
+          icon={Tag}
           color="emerald"
         />
         <StatCard
@@ -134,7 +112,7 @@ const ValuationReport: React.FC = () => {
         {/* Value by Category */}
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md overflow-hidden">
           <div className="px-3 py-1.5 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-            <h3 className="text-[10px] font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Value by Category</h3>
+            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Value by Category</h3>
           </div>
           <div className="overflow-x-auto">
             <Table>
@@ -154,7 +132,7 @@ const ValuationReport: React.FC = () => {
                         {ITEM_CATEGORY_LABELS[category as keyof typeof ITEM_CATEGORY_LABELS] || category}
                       </TableCell>
                       <TableCell className="py-1.5 px-3 text-right text-gray-600 dark:text-gray-400">{stats.count}</TableCell>
-                      <TableCell className="py-1.5 px-3 text-right font-semibold text-emerald-600 dark:text-emerald-400">
+                      <TableCell className="py-1.5 px-3 text-right font-semibold text-foreground">
                         {formatCurrency(stats.value)}
                       </TableCell>
                     </TableRow>
@@ -167,7 +145,7 @@ const ValuationReport: React.FC = () => {
         {/* Value by Warehouse */}
         <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md overflow-hidden">
           <div className="px-3 py-1.5 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-            <h3 className="text-[10px] font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Value by Warehouse</h3>
+            <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Value by Warehouse</h3>
           </div>
           <div className="overflow-x-auto">
             <Table>
@@ -185,7 +163,7 @@ const ValuationReport: React.FC = () => {
                     <TableRow key={warehouse} className="hover:bg-gray-50 dark:hover:bg-gray-800">
                       <TableCell className="py-1.5 px-3 text-gray-900 dark:text-gray-100 font-medium">{warehouse}</TableCell>
                       <TableCell className="py-1.5 px-3 text-right text-gray-600 dark:text-gray-400">{stats.count}</TableCell>
-                      <TableCell className="py-1.5 px-3 text-right font-semibold text-emerald-600 dark:text-emerald-400">
+                      <TableCell className="py-1.5 px-3 text-right font-semibold text-foreground">
                         {formatCurrency(stats.value)}
                       </TableCell>
                     </TableRow>
@@ -199,7 +177,7 @@ const ValuationReport: React.FC = () => {
       {/* Top Value Items */}
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-md overflow-hidden">
         <div className="px-3 py-1.5 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-          <h3 className="text-[10px] font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Top 10 Highest Value Items</h3>
+          <h3 className="text-xs font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Top 10 Highest Value Items</h3>
         </div>
         <div className="overflow-x-auto">
           <Table>
@@ -224,7 +202,7 @@ const ValuationReport: React.FC = () => {
                   <TableCell className="py-1.5 px-3 text-gray-600 dark:text-gray-400 font-mono">{item.sku || '-'}</TableCell>
                   <TableCell className="py-1.5 px-3 text-right text-gray-900 dark:text-gray-100">{item.quantity_on_hand}</TableCell>
                   <TableCell className="py-1.5 px-3 text-right text-gray-900 dark:text-gray-100">{formatCurrency(item.unit_price)}</TableCell>
-                  <TableCell className="py-1.5 px-3 text-right font-semibold text-emerald-600 dark:text-emerald-400">
+                  <TableCell className="py-1.5 px-3 text-right font-semibold text-foreground">
                     {formatCurrency(item.total_value)}
                   </TableCell>
                 </TableRow>
@@ -306,7 +284,7 @@ const StockMovementReport: React.FC = () => {
         <StatCard
           label="Net Change"
           value={data.netChange >= 0 ? `+${data.netChange}` : data.netChange.toString()}
-          icon={ArrowDataTransferHorizontalIcon}
+          icon={ArrowLeftRight}
           color={data.netChange >= 0 ? 'blue' : 'orange'}
         />
         <StatCard
@@ -325,9 +303,9 @@ const StockMovementReport: React.FC = () => {
             <div key={reason} className="p-2 bg-gray-50 dark:bg-gray-800 rounded">
               <p className="text-xs font-medium text-gray-900 dark:text-gray-100 mb-0.5">{REASON_LABELS[reason] || reason}</p>
               <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                {stats.count} <span className="text-[10px] font-normal text-gray-500">transactions</span>
+                {stats.count} <span className="text-xs font-normal text-gray-500">transactions</span>
               </p>
-              <p className={`text-xs ${stats.quantity >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+              <p className={`text-xs ${stats.quantity >= 0 ? 'text-foreground' : 'text-destructive'}`}>
                 {stats.quantity >= 0 ? '+' : ''}{stats.quantity} units
               </p>
             </div>
@@ -360,13 +338,13 @@ const StockMovementReport: React.FC = () => {
                   </TableCell>
                   <TableCell className="py-1.5 px-3">
                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${record.quantity_delta > 0
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : 'bg-red-100 text-red-700'
+                      ? 'bg-muted text-foreground'
+                      : 'bg-destructive/10 text-destructive'
                       }`}>
                       {REASON_LABELS[record.reason] || record.reason}
                     </span>
                   </TableCell>
-                  <TableCell className={`py-1.5 px-3 text-right font-medium ${record.quantity_delta > 0 ? 'text-emerald-600' : 'text-red-600'
+                  <TableCell className={`py-1.5 px-3 text-right font-medium ${record.quantity_delta > 0 ? 'text-foreground' : 'text-destructive'
                     }`}>
                     {record.quantity_delta > 0 ? '+' : ''}{record.quantity_delta}
                   </TableCell>
@@ -404,25 +382,25 @@ const SlowMovingReport: React.FC = () => {
         <StatCard
           label="Slow-Moving Items"
           value={(slowMoving?.length || 0).toString()}
-          icon={Clock01Icon}
+          icon={Clock}
           color="orange"
         />
         <StatCard
           label="Slow-Moving Value"
           value={formatCurrency(slowMovingValue)}
-          icon={TagIcon}
+          icon={Tag}
           color="orange"
         />
         <StatCard
           label="Dead Stock Items"
           value={(deadStock?.length || 0).toString()}
-          icon={Alert01Icon}
+          icon={AlertCircle}
           color="red"
         />
         <StatCard
           label="Dead Stock Value"
           value={formatCurrency(deadStockValue)}
-          icon={TagIcon}
+          icon={Tag}
           color="red"
         />
       </div>
@@ -436,7 +414,7 @@ const SlowMovingReport: React.FC = () => {
               key={days}
               onClick={() => setThreshold(days as any)}
               className={`px-2 py-1 text-xs rounded transition-colors ${threshold === days
-                ? 'bg-primary-600 text-white'
+                ? 'bg-primary text-primary-foreground'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'
                 }`}
             >
@@ -475,13 +453,13 @@ const SlowMovingReport: React.FC = () => {
                     </TableCell>
                     <TableCell className="py-1.5 px-3 text-gray-500">{item.warehouse || '-'}</TableCell>
                     <TableCell className="py-1.5 px-3 text-right text-gray-900 dark:text-gray-100">{item.quantity_on_hand}</TableCell>
-                    <TableCell className="py-1.5 px-3 text-right font-medium text-orange-600">
+                    <TableCell className="py-1.5 px-3 text-right font-medium text-muted-foreground">
                       {formatCurrency(item.total_value)}
                     </TableCell>
                     <TableCell className="py-1.5 px-3 text-right">
                       <span className={`px-2 py-0.5 rounded text-xs font-medium ${item.days_since_movement >= 180
-                        ? 'bg-red-100 text-red-700'
-                        : 'bg-orange-100 text-orange-700'
+                        ? 'bg-destructive/10 text-destructive'
+                        : 'bg-muted text-muted-foreground'
                         }`}>
                         {item.days_since_movement} days
                       </span>
@@ -523,7 +501,7 @@ const UsageTrendsReport: React.FC = () => {
               key={period}
               onClick={() => setPeriodType(period)}
               className={`px-2 py-1 text-xs rounded capitalize transition-colors ${periodType === period
-                ? 'bg-primary-600 text-white'
+                ? 'bg-primary text-primary-foreground'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'
                 }`}
             >
@@ -538,7 +516,7 @@ const UsageTrendsReport: React.FC = () => {
         <StatCard
           label="Avg Monthly Usage"
           value={Math.round(data.averageMonthlyUsage).toLocaleString()}
-          icon={ChartLineData01Icon}
+          icon={TrendingUp}
           color="purple"
         />
         <StatCard
@@ -580,7 +558,7 @@ const UsageTrendsReport: React.FC = () => {
                 {/* Usage bar (red) */}
                 <div className="flex-1 h-6 bg-gray-200 dark:bg-gray-700 rounded overflow-hidden relative">
                   <div
-                    className="h-full bg-red-400 dark:bg-red-500"
+                    className="h-full bg-destructive/60"
                     style={{ width: `${(trend.totalUsed / maxUsage) * 100}%` }}
                   />
                   <span className="absolute inset-0 flex items-center justify-center text-xs font-medium text-gray-700 dark:text-gray-300">
@@ -590,7 +568,7 @@ const UsageTrendsReport: React.FC = () => {
                 {/* Received bar (green) */}
                 <div className="flex-1 h-6 bg-gray-200 dark:bg-gray-700 rounded overflow-hidden relative">
                   <div
-                    className="h-full bg-emerald-400 dark:bg-emerald-500"
+                    className="h-full bg-primary/60"
                     style={{ width: `${(trend.totalReceived / maxUsage) * 100}%` }}
                   />
                   <span className="absolute inset-0 flex items-center justify-center text-xs font-medium text-gray-700 dark:text-gray-300">
@@ -598,7 +576,7 @@ const UsageTrendsReport: React.FC = () => {
                   </span>
                 </div>
               </div>
-              <span className={`w-16 text-xs font-medium text-right ${trend.netChange >= 0 ? 'text-emerald-600' : 'text-red-600'
+              <span className={`w-16 text-xs font-medium text-right ${trend.netChange >= 0 ? 'text-foreground' : 'text-destructive'
                 }`}>
                 {trend.netChange >= 0 ? '+' : ''}{trend.netChange}
               </span>
@@ -607,11 +585,11 @@ const UsageTrendsReport: React.FC = () => {
         </div>
         <div className="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-red-400 rounded" />
+            <div className="w-3 h-3 bg-destructive/60 rounded" />
             <span className="text-xs text-gray-500">Used</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-emerald-400 rounded" />
+            <div className="w-3 h-3 bg-primary/60 rounded" />
             <span className="text-xs text-gray-500">Received</span>
           </div>
         </div>
@@ -637,7 +615,7 @@ const CostAnalysisReport: React.FC = () => {
         <StatCard
           label="Total Inventory Value"
           value={formatCurrency(data.totalInventoryValue)}
-          icon={TagIcon}
+          icon={Tag}
           color="emerald"
         />
         <StatCard
@@ -678,15 +656,15 @@ const CostAnalysisReport: React.FC = () => {
                 <div className="flex items-center gap-1.5">
                   <div className="flex-1 h-1.5 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-primary-500"
+                      className="h-full bg-primary"
                       style={{ width: `${(cat.totalValue / maxCategoryValue) * 100}%` }}
                     />
                   </div>
-                  <span className="text-[10px] text-gray-500 w-10 text-right">
+                  <span className="text-xs text-gray-500 w-10 text-right">
                     {cat.percentageOfTotal.toFixed(1)}%
                   </span>
                 </div>
-                <p className="text-[10px] text-gray-500 mt-0.5">
+                <p className="text-xs text-gray-500 mt-0.5">
                   {cat.itemCount} items • Avg: {formatCurrency(cat.averageUnitCost)}/unit
                 </p>
               </div>
@@ -701,21 +679,21 @@ const CostAnalysisReport: React.FC = () => {
             {data.bySupplier.map((supplier, idx) => (
               <div key={supplier.supplier_id || idx} className="flex items-center justify-between p-2 bg-gray-50 dark:bg-gray-800 rounded">
                 <div className="flex items-center gap-2">
-                  <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900/30 rounded flex items-center justify-center">
-                    <HugeiconsIcon icon={Building04Icon} size={12} className="text-blue-600 dark:text-blue-400" />
+                  <div className="w-6 h-6 bg-muted rounded flex items-center justify-center">
+                    <Building04Icon className="w-4 h-4 text-muted-foreground" />
                   </div>
                   <div>
                     <p className="text-xs font-medium text-gray-900 dark:text-gray-100">
                       {supplier.supplier_name}
                     </p>
-                    <p className="text-[10px] text-gray-500">{supplier.itemCount} items</p>
+                    <p className="text-xs text-gray-500">{supplier.itemCount} items</p>
                   </div>
                 </div>
                 <div className="text-right">
                   <p className="text-xs font-semibold text-gray-900 dark:text-gray-100">
                     {formatCurrency(supplier.totalValue)}
                   </p>
-                  <p className="text-[10px] text-gray-500">{supplier.percentageOfTotal.toFixed(1)}%</p>
+                  <p className="text-xs text-gray-500">{supplier.percentageOfTotal.toFixed(1)}%</p>
                 </div>
               </div>
             ))}
@@ -735,11 +713,11 @@ const StatCard: React.FC<{
   color: 'purple' | 'emerald' | 'blue' | 'orange' | 'red';
 }> = ({ label, value, icon, color }) => {
   const colorClasses = {
-    purple: 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
-    emerald: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400',
-    blue: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
-    orange: 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400',
-    red: 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400',
+    purple: 'bg-primary/10 text-primary',
+    emerald: 'bg-muted text-muted-foreground',
+    blue: 'bg-muted text-muted-foreground',
+    orange: 'bg-muted text-muted-foreground',
+    red: 'bg-destructive/10 text-destructive',
   };
 
   return (
@@ -747,7 +725,7 @@ const StatCard: React.FC<{
       <div className="flex items-center justify-between mb-1">
         <span className="text-xs font-medium text-gray-500 dark:text-gray-400">{label}</span>
         <div className={`w-6 h-6 rounded flex items-center justify-center ${colorClasses[color]}`}>
-          <HugeiconsIcon icon={icon} size={12} />
+          <icon className="w-4 h-4" />
         </div>
       </div>
       <div className="text-lg font-bold text-gray-900 dark:text-gray-100">{value}</div>
@@ -765,9 +743,12 @@ const LoadingState: React.FC = () => (
 
 const EmptyState: React.FC<{ message: string }> = ({ message }) => (
   <div className="text-center py-12">
-    <HugeiconsIcon icon={TimelineIcon} size={48} className="text-gray-300 mx-auto mb-3" />
+    <Clock size={48} className="text-gray-300 mx-auto mb-3" />
     <p className="text-sm text-gray-500">{message}</p>
   </div>
 );
 
 export default InventoryReport;
+
+
+

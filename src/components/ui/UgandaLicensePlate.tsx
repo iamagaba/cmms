@@ -42,7 +42,7 @@ export const UgandaLicensePlate: React.FC<UgandaLicensePlateProps> = ({
                     style={{ width: '18px', padding: '2px 0' }} // Narrower strip
                 >
                     {/* Flag */}
-                    <div className="flex flex-col w-[12px] h-[8px] mb-[1.5px]">
+                    <div className="flex flex-col w-4 h-4 h-[8px] mb-[1.5px]">
                         <div className="flex-1 bg-black"></div>
                         <div className="flex-1 bg-[#ffd700]"></div>
                         <div className="flex-1 bg-[#d40000]"></div>
@@ -74,4 +74,5 @@ export const UgandaLicensePlate: React.FC<UgandaLicensePlateProps> = ({
         </>
     );
 };
+
 

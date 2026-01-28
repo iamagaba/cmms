@@ -6,17 +6,12 @@
  */
 
 import React from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  AnalyticsUpIcon,
-  AnalyticsDownIcon,
-  MinusSignIcon,
-  ArrowRight01Icon
-} from '@hugeicons/core-free-icons';
+import { TrendingUp, TrendingDown, Minus, ArrowRight } from 'lucide-react';
 import { Icon } from '@/components/icons/Icon';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import type { LucideIcon } from 'lucide-react';
 
 // ============================================
 // INTERFACES
@@ -25,7 +20,7 @@ import { Card } from '@/components/ui/card';
 export interface ModernKPICardProps {
   title: string;
   value: string | number;
-  icon: string;
+  icon: LucideIcon;
   trend?: {
     value: number;
     direction: 'up' | 'down' | 'neutral';
@@ -44,52 +39,33 @@ export interface ModernKPICardProps {
 // COLOR SYSTEM
 // ============================================
 
+// Use CSS variables for theming
 const colorClasses = {
   primary: {
-    bg: 'bg-white',
-    border: 'border-l-4 border-l-steel-500 border-t border-r border-b border-gray-200',
-    icon: 'text-steel-600',
-    iconBg: 'bg-steel-50',
-    value: 'text-gray-900',
-    label: 'text-gray-600',
-    hover: 'hover:shadow-md hover:border-gray-300'
+    border: 'border-l-4 border-l-primary',
+    icon: 'text-primary',
+    iconBg: 'bg-primary/10',
   },
   success: {
-    bg: 'bg-white',
-    border: 'border-l-4 border-l-emerald-500 border-t border-r border-b border-gray-200',
-    icon: 'text-emerald-600',
-    iconBg: 'bg-emerald-50',
-    value: 'text-gray-900',
-    label: 'text-gray-600',
-    hover: 'hover:shadow-md hover:border-gray-300'
+    border: 'border-l-4 border-l-success',
+    icon: 'text-success-foreground',
+    iconBg: 'bg-success/10',
   },
   warning: {
-    bg: 'bg-white',
-    border: 'border-l-4 border-l-amber-500 border-t border-r border-b border-gray-200',
-    icon: 'text-amber-600',
-    iconBg: 'bg-amber-50',
-    value: 'text-gray-900',
-    label: 'text-gray-600',
-    hover: 'hover:shadow-md hover:border-gray-300'
+    border: 'border-l-4 border-l-warning',
+    icon: 'text-warning-foreground',
+    iconBg: 'bg-warning/10',
   },
   danger: {
-    bg: 'bg-white',
-    border: 'border-l-4 border-l-rose-500 border-t border-r border-b border-gray-200',
-    icon: 'text-rose-600',
-    iconBg: 'bg-rose-50',
-    value: 'text-gray-900',
-    label: 'text-gray-600',
-    hover: 'hover:shadow-md hover:border-gray-300'
+    border: 'border-l-4 border-l-destructive',
+    icon: 'text-destructive-foreground',
+    iconBg: 'bg-destructive/10',
   },
   info: {
-    bg: 'bg-white',
-    border: 'border-l-4 border-l-slate-500 border-t border-r border-b border-gray-200',
-    icon: 'text-slate-600',
-    iconBg: 'bg-slate-50',
-    value: 'text-gray-900',
-    label: 'text-gray-600',
-    hover: 'hover:shadow-md hover:border-gray-300'
-  }
+    border: 'border-l-4 border-l-info',
+    icon: 'text-info-foreground',
+    iconBg: 'bg-info/10',
+  },
 };
 
 // ============================================
@@ -97,18 +73,18 @@ const colorClasses = {
 // ============================================
 
 const KPICardSkeleton: React.FC<{ className?: string }> = ({ className }) => (
-  <Card className={cn('h-full animate-pulse', className)}>
-    <div className="p-6 space-y-4">
+  <Card className={cn('h-full', className)}>
+    <CardContent className="p-6 space-y-4 animate-pulse">
       <div className="flex justify-between items-start">
         <div className="space-y-2">
-          <div className="h-4 w-24 bg-machinery-200 rounded" />
-          <div className="h-3 w-16 bg-machinery-200 rounded" />
+          <div className="h-4 w-24 bg-muted rounded" />
+          <div className="h-3 w-16 bg-muted rounded" />
         </div>
-        <div className="h-10 w-10 bg-machinery-200 rounded-lg" />
+        <div className="h-10 w-10 bg-muted rounded-lg" />
       </div>
-      <div className="h-8 w-16 bg-machinery-200 rounded" />
-      <div className="h-4 w-20 bg-machinery-200 rounded" />
-    </div>
+      <div className="h-8 w-16 bg-muted rounded" />
+      <div className="h-4 w-20 bg-muted rounded" />
+    </CardContent>
   </Card>
 );
 
@@ -116,19 +92,19 @@ const KPICardSkeleton: React.FC<{ className?: string }> = ({ className }) => (
 // TREND UTILITIES
 // ============================================
 
-const getTrendIcon = (direction: 'up' | 'down' | 'neutral') => {
+const getTrendIcon = (direction: 'up' | 'down' | 'neutral'): LucideIcon => {
   switch (direction) {
-    case 'up': return AnalyticsUpIcon;
-    case 'down': return AnalyticsDownIcon;
-    default: return MinusSignIcon;
+    case 'up': return TrendingUp;
+    case 'down': return TrendingDown;
+    default: return Minus;
   }
 };
 
 const getTrendColor = (direction: 'up' | 'down' | 'neutral') => {
   switch (direction) {
-    case 'up': return 'text-emerald-600';
-    case 'down': return 'text-rose-600';
-    default: return 'text-gray-500';
+    case 'up': return 'text-success';
+    case 'down': return 'text-destructive';
+    default: return 'text-muted-foreground';
   }
 };
 
@@ -139,7 +115,7 @@ const getTrendColor = (direction: 'up' | 'down' | 'neutral') => {
 const ModernKPICard: React.FC<ModernKPICardProps> = ({
   title,
   value,
-  icon,
+  icon: IconComponent,
   trend,
   color,
   loading = false,
@@ -163,51 +139,52 @@ const ModernKPICard: React.FC<ModernKPICardProps> = ({
       transition={{ duration: 0.15, ease: 'easeOut' }}
       className={cn('h-full', className)}
     >
-      <div
+      <Card
         className={cn(
-          'h-full transition-all duration-200 rounded-lg',
-          classes.bg,
+          'h-full transition-all duration-200 hover:shadow-md',
           classes.border,
-          classes.hover,
           isClickable && 'cursor-pointer'
         )}
         onClick={isClickable ? onAction : undefined}
       >
-        <div className="p-5">
+        <CardContent className="p-6">
           {/* Header */}
           <div className="flex items-start justify-between mb-6">
             <div className="flex-1 min-w-0">
-              <p className={cn('text-xs font-medium uppercase tracking-wider mb-1', classes.label)}>
+              <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider mb-1">
                 {title}
               </p>
               {subtitle && (
-                <p className="text-xs text-gray-500">{subtitle}</p>
+                <p className="text-xs text-muted-foreground">{subtitle}</p>
               )}
             </div>
             <div className={cn('p-2 rounded-lg flex-shrink-0 ml-3', classes.iconBg)}>
-              <HugeiconsIcon icon={icon} size={20} className={cn(classes.icon)} />
+              <IconComponent className={cn('w-5 h-5', classes.icon)} />
             </div>
           </div>
 
           {/* Value */}
           <div className="mb-4">
-            <div className={cn('text-3xl font-bold tracking-tight', classes.value)}>
+            <div className="text-3xl font-bold tracking-tight">
               {typeof value === 'number' ? value.toLocaleString() : value}
             </div>
           </div>
 
           {/* Footer */}
           <div className="flex items-center justify-between">
-            {trend && (
-              <div className={cn(
-                'flex items-center gap-1.5 text-xs font-medium',
-                getTrendColor(trend.direction)
-              )}>
-                <HugeiconsIcon icon={getTrendIcon(trend.direction)} size={14} />
-                <span>{Math.abs(trend.value)}%</span>
-                <span className="text-gray-500">{trend.label}</span>
-              </div>
-            )}
+            {trend && (() => {
+              const TrendIcon = getTrendIcon(trend.direction);
+              return (
+                <div className={cn(
+                  'flex items-center gap-1.5 text-xs font-medium',
+                  getTrendColor(trend.direction)
+                )}>
+                  <TrendIcon className="w-4 h-4" />
+                  <span>{Math.abs(trend.value)}%</span>
+                  <span className="text-muted-foreground">{trend.label}</span>
+                </div>
+              );
+            })()}
 
             {actionLabel && isClickable && (
               <button
@@ -215,18 +192,15 @@ const ModernKPICard: React.FC<ModernKPICardProps> = ({
                   e.stopPropagation();
                   onAction?.();
                 }}
-                className="text-xs font-medium text-gray-600 hover:text-gray-900 transition-colors flex items-center gap-1 group"
+                className="text-xs font-medium text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1 group"
               >
                 {actionLabel}
-                <Icon
-                  icon="tabler:arrow-right"
-                  className="w-3 h-3 transition-transform group-hover:translate-x-0.5"
-                />
+                <ArrowRight className="w-3 h-3 transition-transform group-hover:translate-x-0.5" />
               </button>
             )}
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </motion.div>
   );
 };

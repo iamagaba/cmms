@@ -1,16 +1,5 @@
 import React, { useState } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  ArrowUp01Icon,
-  ArrowDown01Icon,
-  PackageIcon,
-  UserIcon,
-  Cancel01Icon,
-  ArrowRight01Icon,
-  ArrowDataTransferHorizontalIcon,
-  CheckmarkCircle01Icon,
-  AlertCircleIcon
-} from '@hugeicons/core-free-icons';
+import { ArrowUp, ArrowDown, Package, User, X, ArrowRight, ArrowLeftRight, CheckCircle, AlertCircle } from 'lucide-react';
 import { StockReceiptDialog } from './StockReceiptDialog';
 import { StockTransferDialog } from './StockTransferDialog';
 import { CycleCountDialog } from './CycleCountDialog';
@@ -115,7 +104,7 @@ export const InventoryTransactionsPanel: React.FC<InventoryTransactionsPanelProp
               <p className="text-sm text-gray-500 dark:text-gray-400">Select a transaction type</p>
             </div>
             <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-              <HugeiconsIcon icon={Cancel01Icon} size={20} className="text-gray-500" />
+              <X className="w-5 h-5 text-gray-500" />
             </button>
           </div>
 
@@ -130,22 +119,21 @@ export const InventoryTransactionsPanel: React.FC<InventoryTransactionsPanelProp
                   className={`w-full flex items-center gap-4 p-4 rounded-lg border ${colors.border} ${colors.hover} transition-colors text-left`}
                 >
                   <div className={`w-12 h-12 rounded-lg ${colors.bg} flex items-center justify-center flex-shrink-0`}>
-                    <HugeiconsIcon
-                      icon={
-                        option.type === 'receipt' ? ArrowDown01Icon :
-                          option.type === 'transfer' ? ArrowDataTransferHorizontalIcon :
-                            option.type === 'cycle_count' ? CheckmarkCircle01Icon :
-                              AlertCircleIcon
-                      }
-                      size={24}
-                      className={colors.text}
-                    />
+                    {option.type === 'receipt' ? (
+                      <ArrowDown className={`w-6 h-6 ${colors.text}`} />
+                    ) : option.type === 'transfer' ? (
+                      <ArrowLeftRight className={`w-6 h-6 ${colors.text}`} />
+                    ) : option.type === 'cycle_count' ? (
+                      <CheckCircle className={`w-6 h-6 ${colors.text}`} />
+                    ) : (
+                      <AlertCircle className={`w-6 h-6 ${colors.text}`} />
+                    )}
                   </div>
                   <div className="flex-1">
                     <div className="font-medium text-gray-900 dark:text-gray-100">{option.title}</div>
                     <div className="text-sm text-gray-500 dark:text-gray-400">{option.description}</div>
                   </div>
-                  <HugeiconsIcon icon={ArrowRight01Icon} size={20} className="text-gray-400" />
+                  <ArrowRight className="w-5 h-5 text-gray-400" />
                 </button>
               );
             })}

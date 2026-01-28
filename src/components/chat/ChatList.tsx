@@ -1,6 +1,7 @@
+import { Search } from 'lucide-react';
 import React from 'react';
-import { Search01Icon } from '@hugeicons/core-free-icons';
-import { HugeiconsIcon } from '@hugeicons/react';
+
+
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { WhatsAppChat } from './types';
@@ -26,10 +27,8 @@ export const ChatList: React.FC<ChatListProps> = ({
         <div className="w-80 border-r border-border bg-background flex flex-col h-full">
             <div className="p-4 border-b border-border">
                 <div className="relative mb-4">
-                    <HugeiconsIcon
-                        icon={Search01Icon}
-                        size={18}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                    <Search
+                        className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
                     />
                     <Input
                         type="text"
@@ -94,7 +93,7 @@ export const ChatList: React.FC<ChatListProps> = ({
                                 </div>
                                 <div className="flex items-center gap-1.5 mb-1">
                                     {chat.licensePlate && (
-                                        <span className="text-xs font-medium text-blue-600 dark:text-blue-400 font-mono">
+                                        <span className="text-xs font-medium text-muted-foreground dark:text-blue-400 font-mono">
                                             {chat.licensePlate}
                                         </span>
                                     )}
@@ -135,3 +134,5 @@ export const ChatList: React.FC<ChatListProps> = ({
         </div>
     );
 };
+
+

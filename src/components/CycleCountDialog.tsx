@@ -1,11 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  Cancel01Icon,
-  ClipboardIcon,
-  Tick01Icon,
-  Loading03Icon
-} from '@hugeicons/core-free-icons';
+import { Clipboard, Check, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { InventoryItem } from '@/types/supabase';
@@ -27,6 +21,18 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface CycleCountDialogProps {
   isOpen: boolean;
@@ -160,16 +166,16 @@ export const CycleCountDialog: React.FC<CycleCountDialogProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col p-0">
-        <DialogHeader className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 m-0">
+        <DialogHeader className="px-6 py-3 border-b border-border m-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
-              <HugeiconsIcon icon={ClipboardIcon} size={20} className="text-purple-600 dark:text-purple-400" />
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+              <Clipboard className="w-4 h-4 text-primary" />
             </div>
             <div>
-              <DialogTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+              <DialogTitle className="text-base font-semibold">
                 {mode === 'setup' ? 'Start Cycle Count' : 'Cycle Count in Progress'}
               </DialogTitle>
-              <DialogDescription className="text-sm text-gray-500 dark:text-gray-400">
+              <DialogDescription className="text-xs">
                 {mode === 'setup' ? 'Select items to count' : 'Enter counted quantities'}
               </DialogDescription>
             </div>
@@ -180,30 +186,34 @@ export const CycleCountDialog: React.FC<CycleCountDialogProps> = ({
           {mode === 'setup' ? (
             <>
               {/* Setup Mode */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Warehouse (Optional)</label>
-                  <select
+                  <Label htmlFor="warehouse" className="text-xs mb-1.5">Warehouse (Optional)</Label>
+                  <Select
                     value={warehouse}
-                    onChange={(e) => {
-                      setWarehouse(e.target.value);
+                    onValueChange={(value) => {
+                      setWarehouse(value);
                       setLineItems([]);
                     }}
-                    className="w-full h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
                   >
-                    <option value="">All Warehouses</option>
-                    {warehouses.map(w => (
-                      <option key={w} value={w}>{w}</option>
-                    ))}
-                  </select>
+                    <SelectTrigger id="warehouse">
+                      <SelectValue placeholder="All Warehouses" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">All Warehouses</SelectItem>
+                      {warehouses.map(w => (
+                        <SelectItem key={w} value={w}>{w}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Count Date</label>
-                  <input
+                  <Label htmlFor="countDate" className="text-xs mb-1.5">Count Date</Label>
+                  <Input
+                    id="countDate"
                     type="date"
                     value={countDate}
                     onChange={(e) => setCountDate(e.target.value)}
-                    className="w-full h-10 px-3 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
                     required
                   />
                 </div>
@@ -212,47 +222,51 @@ export const CycleCountDialog: React.FC<CycleCountDialogProps> = ({
               {/* Item Selection */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  <Label className="text-xs">
                     Select Items to Count ({lineItems.length} selected)
-                  </label>
+                  </Label>
                   <div className="flex gap-2">
-                    <button
+                    <Button
                       type="button"
+                      variant="link"
+                      size="sm"
                       onClick={handleSelectAll}
-                      className="text-xs text-purple-600 hover:text-purple-700"
+                      className="h-auto p-0 text-xs"
                     >
                       Select All
-                    </button>
-                    <button
+                    </Button>
+                    <Button
                       type="button"
+                      variant="link"
+                      size="sm"
                       onClick={handleClearAll}
-                      className="text-xs text-gray-500 hover:text-gray-700"
+                      className="h-auto p-0 text-xs text-muted-foreground"
                     >
                       Clear
-                    </button>
+                    </Button>
                   </div>
                 </div>
-                <div className="border border-gray-200 dark:border-gray-700 rounded-lg max-h-64 overflow-y-auto">
+                <div className="border border-border rounded-lg max-h-64 overflow-y-auto">
                   {warehouseItems.map(item => {
                     const isSelected = lineItems.some(li => li.inventory_item_id === item.id);
                     return (
                       <div
                         key={item.id}
                         onClick={() => handleToggleItem(item)}
-                        className={`flex items-center gap-3 px-4 py-2 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 border-b border-gray-100 dark:border-gray-800 last:border-0 ${isSelected ? 'bg-purple-50 dark:bg-purple-900/20' : ''
-                          }`}
+                        className={`flex items-center gap-3 px-4 py-2 cursor-pointer hover:bg-muted/50 border-b border-border last:border-0 ${
+                          isSelected ? 'bg-primary/5' : ''
+                        }`}
                       >
-                        <div className={`w-5 h-5 rounded border flex items-center justify-center ${isSelected
-                          ? 'bg-purple-600 border-purple-600'
-                          : 'border-gray-300 dark:border-gray-600'
-                          }`}>
-                          {isSelected && <HugeiconsIcon icon={Tick01Icon} size={12} className="text-white" />}
-                        </div>
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => handleToggleItem(item)}
+                          className="pointer-events-none"
+                        />
                         <div className="flex-1">
-                          <div className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.name}</div>
-                          <div className="text-xs text-gray-500">{item.sku} • {item.warehouse || 'No location'}</div>
+                          <div className="text-sm font-medium">{item.name}</div>
+                          <div className="text-xs text-muted-foreground">{item.sku} • {item.warehouse || 'No location'}</div>
                         </div>
-                        <div className="text-sm text-gray-600 dark:text-gray-400">
+                        <div className="text-sm text-muted-foreground">
                           Qty: {item.quantity_on_hand ?? 0}
                         </div>
                       </div>
@@ -263,48 +277,48 @@ export const CycleCountDialog: React.FC<CycleCountDialogProps> = ({
 
               {/* Notes */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
-                <textarea
+                <Label htmlFor="notes" className="text-xs mb-1.5">Notes</Label>
+                <Textarea
+                  id="notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={2}
                   placeholder="Optional notes..."
-                  className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-sm"
                 />
               </div>
             </>
           ) : (
             <>
               {/* Counting Mode */}
-              <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 flex items-center justify-between">
+              <div className="bg-primary/5 rounded-lg p-3 flex items-center justify-between">
                 <div>
-                  <div className="text-sm font-medium text-purple-700 dark:text-purple-300">
+                  <div className="text-sm font-medium text-primary">
                     Progress: {countedItems} / {lineItems.length} items counted
                   </div>
-                  <div className="text-xs text-purple-600 dark:text-purple-400 mt-1">
+                  <div className="text-xs text-primary mt-1">
                     Total Variance: {totalVariance > 0 ? '+' : ''}{totalVariance}
                   </div>
                 </div>
-                <div className="w-32 h-2 bg-purple-200 dark:bg-purple-800 rounded-full overflow-hidden">
+                <div className="w-32 h-2 bg-primary/20 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-purple-600 transition-all"
+                    className="h-full bg-primary transition-all"
                     style={{ width: `${(countedItems / lineItems.length) * 100}%` }}
                   />
                 </div>
               </div>
 
               {/* Count Entry Table */}
-              <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
+              <div className="border border-border rounded-lg overflow-hidden">
                 <Table>
-                  <TableHeader className="bg-gray-50 dark:bg-gray-800">
+                  <TableHeader>
                     <TableRow>
-                      <TableHead className="text-left font-medium text-gray-700 dark:text-gray-300">Item</TableHead>
-                      <TableHead className="text-center font-medium text-gray-700 dark:text-gray-300 w-24">System Qty</TableHead>
-                      <TableHead className="text-center font-medium text-gray-700 dark:text-gray-300 w-28">Counted Qty</TableHead>
-                      <TableHead className="text-center font-medium text-gray-700 dark:text-gray-300 w-24">Variance</TableHead>
+                      <TableHead>Item</TableHead>
+                      <TableHead className="text-center w-24">System Qty</TableHead>
+                      <TableHead className="text-center w-28">Counted Qty</TableHead>
+                      <TableHead className="text-center w-24">Variance</TableHead>
                     </TableRow>
                   </TableHeader>
-                  <TableBody className="divide-y divide-gray-200 dark:divide-gray-700">
+                  <TableBody>
                     {lineItems.map(li => {
                       const variance = li.counted_quantity !== undefined
                         ? li.counted_quantity - li.system_quantity
@@ -312,30 +326,31 @@ export const CycleCountDialog: React.FC<CycleCountDialogProps> = ({
                       return (
                         <TableRow key={li.inventory_item_id}>
                           <TableCell>
-                            <div className="font-medium text-gray-900 dark:text-gray-100">{li.item?.name}</div>
-                            <div className="text-xs text-gray-500">{li.item?.sku}</div>
+                            <div className="font-medium text-sm">{li.item?.name}</div>
+                            <div className="text-xs text-muted-foreground">{li.item?.sku}</div>
                           </TableCell>
-                          <TableCell className="text-center text-gray-600 dark:text-gray-400">
+                          <TableCell className="text-center text-muted-foreground">
                             {li.system_quantity}
                           </TableCell>
                           <TableCell>
-                            <input
+                            <Input
                               type="number"
                               min="0"
                               value={li.counted_quantity ?? ''}
                               onChange={(e) => handleUpdateCount(li.inventory_item_id, parseInt(e.target.value) || 0)}
                               placeholder="Count"
-                              className="w-full h-8 px-2 text-center rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+                              className="h-8 text-center"
                             />
                           </TableCell>
                           <TableCell className="text-center">
                             {variance !== null && (
-                              <span className={`font-medium ${variance === 0
-                                ? 'text-gray-500'
-                                : variance > 0
-                                  ? 'text-emerald-600'
-                                  : 'text-red-600'
-                                }`}>
+                              <span className={`font-medium ${
+                                variance === 0
+                                  ? 'text-muted-foreground'
+                                  : variance > 0
+                                    ? 'text-foreground'
+                                    : 'text-destructive'
+                              }`}>
                                 {variance > 0 ? '+' : ''}{variance}
                               </span>
                             )}
@@ -351,35 +366,37 @@ export const CycleCountDialog: React.FC<CycleCountDialogProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
-          <button
+        <div className="flex items-center justify-end gap-2 px-6 py-3 border-t border-border bg-muted/50">
+          <Button
             type="button"
+            variant="outline"
+            size="sm"
             onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg"
           >
             Cancel
-          </button>
+          </Button>
           {mode === 'setup' ? (
-            <button
+            <Button
+              size="sm"
               onClick={handleStartCount}
               disabled={lineItems.length === 0 || createCycleCount.isPending}
-              className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              {createCycleCount.isPending && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin" />}
+              {createCycleCount.isPending && <Loader2 className="w-4 h-4 animate-spin mr-1.5" />}
               Start Count ({lineItems.length} items)
-            </button>
+            </Button>
           ) : (
-            <button
+            <Button
+              size="sm"
               onClick={handleCompleteCount}
               disabled={countedItems < lineItems.length || completeCycleCount.isPending}
-              className="px-4 py-2 text-sm font-medium text-white bg-purple-600 hover:bg-purple-700 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-              {completeCycleCount.isPending && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin" />}
+              {completeCycleCount.isPending && <Loader2 className="w-4 h-4 animate-spin mr-1.5" />}
               Complete Count
-            </button>
+            </Button>
           )}
         </div>
       </DialogContent>
     </Dialog>
   );
 };
+

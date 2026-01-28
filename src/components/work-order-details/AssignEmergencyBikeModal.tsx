@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Motorbike01Icon, InformationCircleIcon, Cancel01Icon, Tick01Icon, CheckmarkCircle01Icon } from '@hugeicons/core-free-icons';
-import { Button, Stack } from '@/components/tailwind-components';
+import { Bike, Info, X, Check, CheckCircle, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { Vehicle } from '@/types/supabase';
 
@@ -108,33 +110,34 @@ const AssignEmergencyBikeModal: React.FC<AssignEmergencyBikeModalProps> = ({
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-orange-50 to-white">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-gradient-to-r from-orange-50 to-white">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-orange-600 flex items-center justify-center shadow-sm">
-                <HugeiconsIcon icon={Motorbike01Icon} className="w-4 h-4 text-white" size={16} />
+                <Bike className="w-4 h-4 text-white" />
               </div>
               <div>
-                <h2 id="assign-emergency-bike-title" className="text-base font-semibold text-gray-900">Assign Emergency Bike</h2>
-                <p className="text-xs text-gray-600">Temporary bike for customer</p>
+                <h2 id="assign-emergency-bike-title" className="text-base font-semibold text-foreground">Assign Emergency Bike</h2>
+                <p className="text-xs text-muted-foreground">Temporary bike for customer</p>
               </div>
             </div>
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={handleClose}
               disabled={isSubmitting}
-              className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-white/80 rounded-lg transition-all disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-orange-500"
               aria-label="Close dialog"
             >
-              <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" size={16} />
-            </button>
+              <X className="w-4 h-4" />
+            </Button>
           </div>
 
           {/* Content */}
           <div className="p-4 overflow-y-auto max-h-[calc(90vh-140px)]">
-            <Stack gap="sm">
+            <div className="space-y-4">
               {/* Info Alert */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 shadow-sm">
+              <div className="bg-muted border border-blue-200 rounded-lg p-3 shadow-sm">
                 <div className="flex gap-3">
-                  <HugeiconsIcon icon={InformationCircleIcon} className="text-blue-600 flex-shrink-0 mt-0.5" size={20} />
+                  <Info className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-blue-800">
                     Assign an emergency bike to the customer while their vehicle is being repaired.
                     The bike will be marked as in-use until the work order is completed.
@@ -144,62 +147,58 @@ const AssignEmergencyBikeModal: React.FC<AssignEmergencyBikeModalProps> = ({
 
               {/* Available Bikes */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <Label className="text-xs font-medium mb-2">
                   Select Available Emergency Bike
-                </label>
+                </Label>
 
                 {isLoading ? (
                   <div className="space-y-2">
-                    <div className="h-20 bg-gray-100 rounded-lg animate-pulse" />
-                    <div className="h-20 bg-gray-100 rounded-lg animate-pulse" />
+                    <div className="h-20 bg-muted rounded-lg animate-pulse" />
+                    <div className="h-20 bg-muted rounded-lg animate-pulse" />
                   </div>
                 ) : availableBikes.length === 0 ? (
-                  <div className="text-center py-8 bg-gray-50 rounded-lg border border-gray-200">
-                    <HugeiconsIcon icon={Motorbike01Icon} className="text-gray-400 mx-auto mb-2" size={48} />
-                    <p className="text-sm text-gray-600">No emergency bikes available at the moment</p>
-                    <p className="text-xs text-gray-500 mt-1">All bikes are currently assigned</p>
+                  <div className="text-center py-8 bg-muted rounded-lg border border-border">
+                    <Bike className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
+                    <p className="text-sm text-muted-foreground">No emergency bikes available at the moment</p>
+                    <p className="text-xs text-muted-foreground mt-1">All bikes are currently assigned</p>
                   </div>
                 ) : (
                   <div className="space-y-2 max-h-[240px] overflow-y-auto">
                     {availableBikes.map(bike => (
-                      <button
+                      <Button
                         key={bike.id}
-                        type="button"
+                        variant="outline"
                         onClick={() => setSelectedBikeId(bike.id)}
-                        className={`w-full text-left p-3 rounded-lg border-2 transition-all ${selectedBikeId === bike.id
-                          ? 'border-orange-500 bg-orange-50 shadow-sm'
-                          : 'border-gray-200 hover:border-gray-300 bg-white'
+                        className={`w-full h-auto p-3 justify-start ${selectedBikeId === bike.id
+                          ? 'border-orange-500 bg-muted shadow-sm'
+                          : 'border-border hover:border-border/80 bg-background'
                           }`}
                       >
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
+                        <div className="flex items-start justify-between w-full">
+                          <div className="flex-1 text-left">
                             <div className="flex items-center gap-2 mb-1">
-                              <HugeiconsIcon
-                                icon={Motorbike01Icon}
-                                className={selectedBikeId === bike.id ? 'text-orange-600' : 'text-gray-600'}
-                                size={18}
+                              <Bike
+                                className={`w-4 h-4 ${selectedBikeId === bike.id ? 'text-muted-foreground' : 'text-muted-foreground'}`}
                               />
-                              <span className="font-semibold text-gray-900 text-sm">
+                              <span className="font-semibold text-foreground text-sm">
                                 {bike.registration_number || bike.license_plate}
                               </span>
-                              <span className="px-1.5 py-0.5 text-xs font-medium bg-green-100 text-green-700 rounded">
-                                Available
-                              </span>
+                              <Badge variant="success">Available</Badge>
                             </div>
-                            <div className="text-sm text-gray-600">
+                            <div className="text-sm text-muted-foreground">
                               {bike.make} {bike.model} {bike.year ? `(${bike.year})` : ''}
                             </div>
                             {bike.color && (
-                              <div className="text-xs text-gray-500 mt-1">
+                              <div className="text-xs text-muted-foreground mt-1">
                                 Color: {bike.color}
                               </div>
                             )}
                           </div>
                           {selectedBikeId === bike.id && (
-                            <HugeiconsIcon icon={CheckmarkCircle01Icon} className="text-orange-600 flex-shrink-0" size={20} />
+                            <CheckCircle className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                           )}
                         </div>
-                      </button>
+                      </Button>
                     ))}
                   </div>
                 )}
@@ -207,52 +206,49 @@ const AssignEmergencyBikeModal: React.FC<AssignEmergencyBikeModalProps> = ({
 
               {/* Notes */}
               <div>
-                <label htmlFor="emergency-bike-notes" className="block text-sm font-medium text-gray-700 mb-1">
+                <Label htmlFor="emergency-bike-notes" className="text-xs font-medium mb-1">
                   Notes (Optional)
-                </label>
-                <textarea
+                </Label>
+                <Textarea
                   id="emergency-bike-notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="Add any notes about this emergency bike assignment..."
                   rows={3}
-                  className="w-full px-3 py-2 text-sm border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none outline-none transition-colors"
+                  className="resize-none"
                 />
               </div>
-            </Stack>
+            </div>
           </div>
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-end gap-2 px-4 py-3 border-t border-gray-200 bg-gray-50">
-            <button
-              type="button"
+          <div className="flex items-center justify-end gap-2 px-4 py-3 border-t border-border bg-muted/30">
+            <Button
+              variant="outline"
+              size="sm"
               onClick={handleClose}
               disabled={isSubmitting}
-              className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Cancel
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              size="sm"
               onClick={handleAssign}
               disabled={!selectedBikeId || isSubmitting}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-orange-600 text-white font-medium text-sm rounded-lg hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="bg-orange-600 hover:bg-orange-700"
             >
               {isSubmitting ? (
                 <>
-                  <svg className="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
+                  <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
                   <span>Assigning...</span>
                 </>
               ) : (
                 <>
-                  <HugeiconsIcon icon={Tick01Icon} className="w-3 h-3" size={12} />
+                  <Check className="w-4 h-4 mr-1.5" />
                   <span>Assign Emergency Bike</span>
                 </>
               )}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -260,4 +256,7 @@ const AssignEmergencyBikeModal: React.FC<AssignEmergencyBikeModalProps> = ({
   );
 };
 
+export { AssignEmergencyBikeModal };
 export default AssignEmergencyBikeModal;
+
+

@@ -1,16 +1,17 @@
+import { Info } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { InformationCircleIcon } from '@hugeicons/core-free-icons';
+
+
 
 const ComponentUsageGuideSection: React.FC = () => {
     return (
         <Card className="border-primary bg-accent">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                    <HugeiconsIcon icon={InformationCircleIcon} size={20} />
+                    <Info className="w-5 h-5" />
                     Component Selection Guide
                 </CardTitle>
                 <CardDescription>
@@ -92,7 +93,7 @@ const ComponentUsageGuideSection: React.FC = () => {
                         </AccordionContent>
                     </AccordionItem>
 
-                    <AccordionItem value="dialogs" className="border-purple-200">
+                    <AccordionItem value="dialogs" className="border-primary/20">
                         <AccordionTrigger className="text-sm font-semibold text-purple-900">
                             Dialog vs Popover vs Dropdown?
                         </AccordionTrigger>
@@ -101,23 +102,23 @@ const ComponentUsageGuideSection: React.FC = () => {
                                 <div>
                                     <p className="font-medium mb-1">Dialog (Modal):</p>
                                     <p className="text-xs">Forms, confirmations, important messages that require user attention</p>
-                                    <p className="text-xs text-purple-600 mt-1">Example: Create Work Order, Delete Confirmation</p>
+                                    <p className="text-xs text-primary mt-1">Example: Create Work Order, Delete Confirmation</p>
                                 </div>
                                 <div>
                                     <p className="font-medium mb-1">Popover:</p>
                                     <p className="text-xs">Additional information, help text, non-critical content</p>
-                                    <p className="text-xs text-purple-600 mt-1">Example: Field descriptions, tooltips</p>
+                                    <p className="text-xs text-primary mt-1">Example: Field descriptions, tooltips</p>
                                 </div>
                                 <div>
                                     <p className="font-medium mb-1">Dropdown Menu:</p>
                                     <p className="text-xs">List of actions or options</p>
-                                    <p className="text-xs text-purple-600 mt-1">Example: Row actions, bulk operations, filters</p>
+                                    <p className="text-xs text-primary mt-1">Example: Row actions, bulk operations, filters</p>
                                 </div>
                             </div>
                         </AccordionContent>
                     </AccordionItem>
 
-                    <AccordionItem value="forms" className="border-purple-200">
+                    <AccordionItem value="forms" className="border-primary/20">
                         <AccordionTrigger className="text-sm font-semibold text-purple-900">
                             Which form component should I use?
                         </AccordionTrigger>
@@ -161,3 +162,5 @@ const ComponentUsageGuideSection: React.FC = () => {
 };
 
 export default ComponentUsageGuideSection;
+
+

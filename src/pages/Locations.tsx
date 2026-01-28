@@ -1,25 +1,22 @@
+import { Check, CheckCircle, Map, MapPin, Search, Settings, User, X, FileText, List, ChevronRight } from 'lucide-react';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Stack, Text, Skeleton, SimpleGrid } from '@/components/tailwind-components';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  Settings02Icon,
-  Search01Icon,
-  Cancel01Icon,
-  UserIcon,
-  NoteIcon,
-  Tick01Icon,
-  Delete01Icon,
-  Location03Icon,
-  ListViewIcon,
-  MapsIcon,
-  CheckmarkCircle01Icon
-} from '@hugeicons/core-free-icons';
+import PageHeader from '@/components/layout/PageHeader';
+import { EmptyState } from '@/components/ui/empty-state';
+
+
 import { useQuery } from '@tanstack/react-query';
 import { useDisclosure } from '@/hooks/tailwind';
 import { supabase } from '@/integrations/supabase/client';
 import { EnhancedWorkOrderDataTable } from '@/components/EnhancedWorkOrderDataTable';
 import { Location, Technician, WorkOrder, Vehicle, Customer, Profile } from '@/types/supabase';
 import { snakeToCamelCase } from '@/utils/data-helpers';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import MasterListShell from '@/components/layout/MasterListShell';
+import MasterListRow from '@/components/layout/MasterListRow';
+import MasterListShell from '@/components/layout/MasterListShell';
+import MasterListRow from '@/components/layout/MasterListRow';
 import mapboxgl from 'mapbox-gl';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -31,9 +28,9 @@ mapboxgl.accessToken = import.meta.env.VITE_APP_MAPBOX_API_KEY || '';
 type ViewMode = 'list' | 'map';
 
 const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-  'Open': { bg: 'bg-blue-50', text: 'text-blue-700' },
-  'In Progress': { bg: 'bg-orange-50', text: 'text-orange-700' },
-  'Completed': { bg: 'bg-emerald-50', text: 'text-emerald-700' },
+  'Open': { bg: 'bg-muted', text: 'text-muted-foreground' },
+  'In Progress': { bg: 'bg-muted', text: 'text-muted-foreground' },
+  'Completed': { bg: 'bg-muted', text: 'text-foreground' },
   'On Hold': { bg: 'bg-amber-50', text: 'text-amber-700' },
 };
 
@@ -161,7 +158,7 @@ const LocationsPage: React.FC = () => {
       const el = document.createElement('div');
       el.className = 'location-marker';
       el.style.cssText = 'position:relative;cursor:pointer;';
-      el.innerHTML = `<div style="width:36px;height:36px;background:#7c3aed;border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><svg size={16}  viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>${(stats?.openOrders || 0) > 0 ? `<div style="position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;background:#ef4444;border:2px solid white;border-radius:9999px;font-size:9px;font-weight:700;color:white;display:flex;align-items:center;justify-content:center;">${stats?.openOrders}</div>` : ''}`;
+      el.innerHTML = `<div style="width:36px;height:36px;background:#7c3aed;border:3px solid white;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;"><svg className="w-4 h-4"  viewBox="0 0 24 24" fill="white"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg></div>${(stats?.openOrders || 0) > 0 ? `<div style="position:absolute;top:-4px;right:-4px;min-width:16px;height:16px;background:#ef4444;border:2px solid white;border-radius:9999px;font-size:9px;font-weight:700;color:white;display:flex;align-items:center;justify-content:center;">${stats?.openOrders}</div>` : ''}`;
       el.addEventListener('click', () => setSelectedLocation(loc));
       new mapboxgl.Marker({ element: el }).setLngLat([loc.lng!, loc.lat!]).addTo(map.current!);
     });
@@ -193,13 +190,13 @@ const LocationsPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex h-screen bg-white">
-        <div className="w-80 border-r border-gray-200 flex flex-col">
-          <div className="px-4 py-4 border-b border-gray-200">
+      <div className="flex h-screen bg-background">
+        <div className="w-80 border-r border-border flex flex-col">
+          <div className="px-4 py-4 border-b border-border">
             <Skeleton height={24} width={120} radius="md" className="mb-3" />
             <Skeleton height={36} radius="md" />
           </div>
-          <div className="flex-1 p-4 space-y-3">
+          <div className="flex-1 p-4 space-y-4">
             {[...Array(8)].map((_, i) => (
               <div key={i} className="flex items-center gap-3 p-3">
                 <Skeleton height={40} width={40} radius="lg" />
@@ -226,123 +223,101 @@ const LocationsPage: React.FC = () => {
   // Detail View
   if (selectedLocation) {
     return (
-      <div className="flex h-screen bg-white dark:bg-gray-900">
+      <div className="flex h-screen bg-background">
         {/* Left Panel - Location List */}
-        <div className="w-80 border-r border-gray-200 dark:border-gray-800 flex flex-col">
-          {/* Header */}
-          <div className="px-4 py-4 border-b border-gray-200 dark:border-gray-800">
-            <div className="flex items-center justify-between mb-3">
-              <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Service Centers</h1>
-              <button
-                onClick={toggleFilters}
-                className={`p-2 rounded-lg transition-colors ${showFilters ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-                  }`}
-              >
-                <HugeiconsIcon icon={Settings02Icon} className="w-4 h-4" />
-              </button>
-            </div>
+        <MasterListShell
+          title="Service Centers"
+          subtitle="Manage service locations"
+          searchValue={searchTerm}
+          onSearchChange={setSearchTerm}
+          searchPlaceholder="Search locations..."
+          showFilters={true}
+          onToggleFilters={toggleFilters}
+          filtersActive={showFilters}
+          itemCount={filteredLocations.length}
+        >
+          {filteredLocations.map((location) => {
+            const stats = locationStats.get(location.id);
+            const isSelected = selectedLocation?.id === location.id;
 
-            {/* Search */}
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <HugeiconsIcon icon={Search01Icon} className="w-4 h-4 text-gray-400" />
-              </div>
-              <input
-                type="text"
-                placeholder="Search locations..."
-                className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+            return (
+              <MasterListRow
+                key={location.id}
+                title={location.name}
+                subtitle={location.address}
+                icon={<MapPin className="w-5 h-5 text-primary" />}
+                isSelected={isSelected}
+                onClick={() => setSelectedLocation(location)}
+                metadata={[
+                  {
+                    label: 'Techs',
+                    value: stats?.technicians.length || 0,
+                    icon: <User className="w-3 h-3" />
+                  },
+                  {
+                    label: 'Orders',
+                    value: stats?.workOrders.length || 0,
+                    icon: <ClipboardList className="w-3 h-3" />
+                  },
+                  ...(stats?.openOrders && stats.openOrders > 0 ? [{
+                    label: 'Open',
+                    value: stats.openOrders,
+                    icon: <AlertCircle className="w-3 h-3" />
+                  }] : [])
+                ]}
               />
-            </div>
-          </div>
-
-          {/* Location List */}
-          <div className="flex-1 overflow-y-auto">
-            <div className="divide-y divide-gray-100 dark:divide-gray-800">
-              {filteredLocations.map((location) => {
-                const stats = locationStats.get(location.id);
-                const isSelected = selectedLocation?.id === location.id;
-
-                return (
-                  <div
-                    key={location.id}
-                    className={`p-4 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${isSelected ? 'bg-primary-50 dark:bg-primary-900/30 border-r-2 border-primary-500' : ''
-                      }`}
-                    onClick={() => setSelectedLocation(location)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center text-primary-700 dark:text-primary-300 flex-shrink-0">
-                        <HugeiconsIcon icon={Location03Icon} className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
-                          {location.name}
-                        </h3>
-                        <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400 mt-1">
-                          <span>{stats?.technicians.length || 0} techs</span>
-                          <span>{stats?.workOrders.length || 0} orders</span>
-                          {(stats?.openOrders || 0) > 0 && (
-                            <span className="text-amber-600 dark:text-amber-400">{stats?.openOrders} open</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        </div>
+            );
+          })}
+        </MasterListShell>
 
         {/* Right Panel - Location Details */}
         <div className="flex-1 flex flex-col">
           {/* Header */}
-          <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
+          <div className="px-6 py-4 border-b border-border">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center text-primary-700 dark:text-primary-300">
-                  <HugeiconsIcon icon={Location03Icon} className="w-6 h-6" />
+                <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
+                  <MapPin className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{selectedLocation.name}</h2>
+                  <h2 className="text-lg font-semibold text-foreground">{selectedLocation.name}</h2>
                   {selectedLocation.address && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400">{selectedLocation.address}</p>
+                    <p className="text-sm text-muted-foreground">{selectedLocation.address}</p>
                   )}
                 </div>
               </div>
               <button
                 onClick={() => setSelectedLocation(null)}
-                className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-primary-500"
+                className="px-3 py-2 text-sm font-medium text-muted-foreground bg-background border border-input rounded-lg hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary"
               >
-                <HugeiconsIcon icon={Cancel01Icon} className="w-4 h-4" />
+                <X className="w-5 h-5" />
               </button>
             </div>
           </div>
 
           {/* Stats Ribbon */}
-          <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-            <div className="grid grid-cols-3 divide-x divide-gray-200 dark:divide-gray-800">
+          <div className="bg-background border-b border-border">
+            <div className="grid grid-cols-3 divide-x divide-border">
               <div className="px-6 py-4">
                 <div className="flex items-center gap-2 mb-1">
-                  <HugeiconsIcon icon={UserIcon} className="w-4 h-4 text-primary-600 dark:text-primary-400" />
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Technicians</p>
+                  <User className="w-5 h-5 text-primary" />
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Technicians</p>
                 </div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{selectedStats?.technicians.length || 0}</p>
+                <p className="text-2xl font-bold text-foreground">{selectedStats?.technicians.length || 0}</p>
               </div>
               <div className="px-6 py-4">
                 <div className="flex items-center gap-2 mb-1">
-                  <HugeiconsIcon icon={NoteIcon} className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Open Orders</p>
+                  <FileText className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Open Orders</p>
                 </div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{selectedStats?.openOrders || 0}</p>
+                <p className="text-2xl font-bold text-foreground">{selectedStats?.openOrders || 0}</p>
               </div>
               <div className="px-6 py-4">
                 <div className="flex items-center gap-2 mb-1">
-                  <HugeiconsIcon icon={Tick01Icon} className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Completed</p>
+                  <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Completed</p>
                 </div>
-                <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                <p className="text-2xl font-bold text-foreground">
                   {(selectedStats?.workOrders.length || 0) - (selectedStats?.openOrders || 0)}
                 </p>
               </div>
@@ -353,64 +328,69 @@ const LocationsPage: React.FC = () => {
           <div className="flex-1 overflow-y-auto p-6">
             <div className="space-y-6">
               {/* Map */}
-              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Location</h3>
-                </div>
-                {selectedLocation.lat && selectedLocation.lng ? (
-                  <div ref={detailMapContainer} className="h-[300px]" />
-                ) : (
-                  <div className="h-[300px] flex items-center justify-center bg-gray-50 dark:bg-gray-800">
-                    <div className="text-center">
-                      <HugeiconsIcon icon={Location03Icon} className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500 dark:text-gray-400">No coordinates available</p>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Location</CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  {selectedLocation.lat && selectedLocation.lng ? (
+                    <div ref={detailMapContainer} className="h-[300px]" />
+                  ) : (
+                    <div className="h-[300px] flex items-center justify-center bg-muted">
+                      <div className="text-center">
+                        <MapPin className="w-5 h-5 text-muted-foreground mx-auto mb-2" />
+                        <p className="text-sm text-muted-foreground">No coordinates available</p>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
+                  )}
+                </CardContent>
+              </Card>
 
               {/* Technicians */}
-              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
-                <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Assigned Technicians</h3>
-                </div>
-                <div className="p-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Assigned Technicians</CardTitle>
+                </CardHeader>
+                <CardContent>
                   {(selectedStats?.technicians.length || 0) === 0 ? (
-                    <div className="text-center py-8">
-                      <HugeiconsIcon icon={UserIcon} className="w-8 h-8 text-gray-300 dark:text-gray-600 mx-auto mb-2" />
-                      <p className="text-sm text-gray-500 dark:text-gray-400">No technicians assigned</p>
-                    </div>
+                    <EmptyState
+                      icon={<User className="w-6 h-6 text-muted-foreground" />}
+                      title="No technicians assigned"
+                      description="Technicians will appear here when assigned to this location"
+                    />
                   ) : (
                     <div className="space-y-2">
                       {selectedStats?.technicians.map(tech => (
-                        <div key={tech.id} className="flex items-center gap-3 p-3 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50/30 dark:hover:bg-primary-900/20 transition-all">
-                          <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-sm font-bold text-gray-600 dark:text-gray-300">
+                        <div key={tech.id} className="flex items-center gap-3 p-3 border border-border rounded-lg hover:border-primary hover:bg-primary/5 transition-all">
+                          <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-sm font-bold text-muted-foreground">
                             {tech.name.charAt(0)}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{tech.name}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{tech.email || tech.phone || 'No contact'}</p>
+                            <p className="text-sm font-medium text-foreground truncate">{tech.name}</p>
+                            <p className="text-xs text-muted-foreground">{tech.email || tech.phone || 'No contact'}</p>
                           </div>
-                          <span className={`px-2 py-1 rounded text-xs font-medium ${tech.status === 'available' ? 'bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400' :
-                            tech.status === 'busy' ? 'bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400' :
-                              'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
-                            }`}>
+                          <Badge 
+                            variant={
+                              tech.status === 'available' ? 'success' :
+                              tech.status === 'busy' ? 'warning' : 'secondary'
+                            }
+                          >
                             {tech.status || 'offline'}
-                          </span>
+                          </Badge>
                         </div>
                       ))}
                     </div>
                   )}
-                </div>
-              </div>
+                </CardContent>
+              </Card>
 
               {/* Work Orders */}
-              <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden flex flex-col h-[500px]">
-                <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700 flex items-center justify-between flex-none">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Work Orders</h3>
-                  <span className="text-xs text-gray-500 dark:text-gray-400">{selectedStats?.workOrders.length || 0} total</span>
-                </div>
-                <div className="flex-1 overflow-hidden">
+              <Card className="flex flex-col h-[500px]">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                  <CardTitle>Work Orders</CardTitle>
+                  <span className="text-xs text-muted-foreground">{selectedStats?.workOrders.length || 0} total</span>
+                </CardHeader>
+                <CardContent className="flex-1 overflow-hidden p-0">
                   <EnhancedWorkOrderDataTable
                     workOrders={selectedStats?.workOrders || []}
                     technicians={technicians || []}
@@ -425,8 +405,8 @@ const LocationsPage: React.FC = () => {
                     loading={isLoading}
                     visibleColumns={['workOrderNumber', 'service', 'status', 'technician', 'priority']}
                   />
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>
@@ -437,132 +417,100 @@ const LocationsPage: React.FC = () => {
 
   // List View
   return (
-    <div className="flex h-screen bg-white dark:bg-gray-900">
+    <div className="flex h-screen bg-background">
       {/* Left Panel - Location List */}
-      <div className="w-80 border-r border-gray-200 dark:border-gray-800 flex flex-col">
-        {/* Header */}
-        <div className="px-4 py-4 border-b border-gray-200 dark:border-gray-800">
-          <div className="flex items-center justify-between mb-3">
-            <h1 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Service Centers</h1>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setViewMode('list')}
-                className={`p-2 rounded-lg transition-colors ${viewMode === 'list' ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-                  }`}
-              >
-                <HugeiconsIcon icon={ListViewIcon} className="w-4 h-4" />
-              </button>
-              <button
-                onClick={() => setViewMode('map')}
-                className={`p-2 rounded-lg transition-colors ${viewMode === 'map' ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
-                  }`}
-              >
-                <HugeiconsIcon icon={MapsIcon} className="w-4 h-4" />
-              </button>
+      <MasterListShell
+        title="Service Centers"
+        subtitle="Manage service locations"
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        searchPlaceholder="Search locations..."
+        showFilters={false}
+        itemCount={filteredLocations.length}
+        emptyState={
+          <div className="p-6 text-center">
+            <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
+              <MapPin className="w-5 h-5 text-muted-foreground" />
             </div>
+            <p className="text-sm font-medium text-foreground mb-1">No locations found</p>
+            <p className="text-xs text-muted-foreground">Add your first service center</p>
           </div>
+        }
+        className="w-80"
+      >
+        {filteredLocations.map((location) => {
+          const stats = locationStats.get(location.id);
 
-          {/* Search */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <HugeiconsIcon icon={Search01Icon} className="w-4 h-4 text-gray-400" />
-            </div>
-            <input
-              type="text"
-              placeholder="Search locations..."
-              className="w-full pl-10 pr-4 py-2 text-sm border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+          return (
+            <MasterListRow
+              key={location.id}
+              title={location.name}
+              subtitle={location.address}
+              badge={
+                (stats?.openOrders || 0) > 0 ? {
+                  text: `${stats?.openOrders} open`,
+                  variant: 'warning'
+                } : undefined
+              }
+              icon={<MapPin className="w-5 h-5 text-primary" />}
+              onClick={() => setSelectedLocation(location)}
+              metadata={[
+                {
+                  label: 'Techs',
+                  value: stats?.technicians.length || 0,
+                  icon: <User className="w-3 h-3" />
+                },
+                {
+                  label: 'Orders',
+                  value: stats?.workOrders.length || 0,
+                  icon: <FileText className="w-3 h-3" />
+                }
+              ]}
             />
-          </div>
-        </div>
-
-        {/* Location List */}
-        <div className="flex-1 overflow-y-auto">
-          {filteredLocations.length === 0 ? (
-            <div className="p-6 text-center">
-              <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-3">
-                <HugeiconsIcon icon={Location03Icon} className="w-6 h-6 text-gray-400" />
-              </div>
-              <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No locations found</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Add your first service center</p>
-            </div>
-          ) : (
-            <div className="divide-y divide-gray-100 dark:divide-gray-800">
-              {filteredLocations.map((location) => {
-                const stats = locationStats.get(location.id);
-
-                return (
-                  <div
-                    key={location.id}
-                    className="p-4 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
-                    onClick={() => setSelectedLocation(location)}
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center text-primary-700 dark:text-primary-300 flex-shrink-0">
-                        <HugeiconsIcon icon={Location03Icon} className="w-5 h-5" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
-                          {location.name}
-                        </h3>
-                        <div className="flex items-center gap-3 text-xs text-gray-600 dark:text-gray-400 mt-1">
-                          <span>{stats?.technicians.length || 0} techs</span>
-                          <span>{stats?.workOrders.length || 0} orders</span>
-                          {(stats?.openOrders || 0) > 0 && (
-                            <span className="text-amber-600 dark:text-amber-400">{stats?.openOrders} open</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-      </div>
+          );
+        })}
+      </MasterListShell>
 
       {/* Right Panel - Content */}
       <div className="flex-1 flex flex-col">
         {viewMode === 'map' ? (
           <>
             {/* Map Header */}
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-800">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Location Map</h2>
-              <p className="text-sm text-gray-600 dark:text-gray-400">Click on markers to view location details</p>
+            <div className="px-6 py-4 border-b border-border">
+              <h2 className="text-lg font-semibold text-foreground">Location Map</h2>
+              <p className="text-sm text-muted-foreground">Click on markers to view location details</p>
             </div>
 
             {/* Stats Ribbon */}
-            <div className="bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800">
-              <div className="grid grid-cols-4 divide-x divide-gray-200 dark:divide-gray-800">
+            <div className="bg-background border-b border-border">
+              <div className="grid grid-cols-4 divide-x divide-border">
                 <div className="px-6 py-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <HugeiconsIcon icon={Location03Icon} className="w-4 h-4 text-primary-600 dark:text-primary-400" />
-                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Centers</p>
+                    <MapPin className="w-5 h-5 text-primary" />
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Centers</p>
                   </div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{overallStats.total}</p>
+                  <p className="text-2xl font-bold text-foreground">{overallStats.total}</p>
                 </div>
                 <div className="px-6 py-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <HugeiconsIcon icon={UserIcon} className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">With Technicians</p>
+                    <User className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">With Technicians</p>
                   </div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{overallStats.withTechnicians}</p>
+                  <p className="text-2xl font-bold text-foreground">{overallStats.withTechnicians}</p>
                 </div>
                 <div className="px-6 py-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <HugeiconsIcon icon={NoteIcon} className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Active Orders</p>
+                    <FileText className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Active Orders</p>
                   </div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{overallStats.withOpenOrders}</p>
+                  <p className="text-2xl font-bold text-foreground">{overallStats.withOpenOrders}</p>
                 </div>
                 <div className="px-6 py-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <HugeiconsIcon icon={CheckmarkCircle01Icon} className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Technicians</p>
+                    <CheckCircle className="w-5 h-5 text-muted-foreground dark:text-blue-400" />
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Technicians</p>
                   </div>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{overallStats.totalTechnicians}</p>
+                  <p className="text-2xl font-bold text-foreground">{overallStats.totalTechnicians}</p>
                 </div>
               </div>
             </div>
@@ -575,11 +523,11 @@ const LocationsPage: React.FC = () => {
         ) : (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <div className="w-16 h-16 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                <HugeiconsIcon icon={Location03Icon} className="w-8 h-8 text-gray-400" />
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                <MapPin className="w-5 h-5 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Select a Service Center</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 max-w-sm">
+              <h3 className="text-lg font-medium text-foreground mb-2">Select a Service Center</h3>
+              <p className="text-sm text-muted-foreground max-w-sm">
                 Choose a location from the list to view its details, technicians, and work orders.
               </p>
             </div>
@@ -591,3 +539,5 @@ const LocationsPage: React.FC = () => {
 };
 
 export default LocationsPage;
+
+

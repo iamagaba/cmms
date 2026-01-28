@@ -1,3 +1,5 @@
+import { Building2, Check, Plus } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
 import {
   Command,
   CommandEmpty,
@@ -5,11 +7,24 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
-} from "@/components/ui/command"
-import { cn } from "@/lib/utils"
+} from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 
-// ... imports remain the same ...
+
+import { useSuppliers, useCreateSupplier } from "@/hooks/useSuppliers";
+
+interface SupplierSelectProps {
+  value: string | null;
+  onChange: (value: string | null) => void;
+  allowCreate?: boolean;
+}
 
 export const SupplierSelect: React.FC<SupplierSelectProps> = ({
   value,
@@ -59,11 +74,7 @@ export const SupplierSelect: React.FC<SupplierSelectProps> = ({
           className="w-full justify-between"
         >
           {selectedSupplier?.name || 'Select supplier...'}
-          <HugeiconsIcon
-            icon={Building01Icon}
-            size={16}
-            className="ml-2 h-4 w-4 shrink-0 opacity-50"
-          />
+          <Building2 className="w-5 h-5 ml-2   shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-[400px] p-0">
@@ -75,10 +86,10 @@ export const SupplierSelect: React.FC<SupplierSelectProps> = ({
               {allowCreate && !showCreateForm && (
                 <CommandItem
                   onSelect={() => setShowCreateForm(true)}
-                  className="text-blue-600 cursor-pointer"
+                  className="text-muted-foreground cursor-pointer"
                 >
-                  <HugeiconsIcon icon={Add01Icon} size={14} className="mr-2" />
-                  Create new supplier
+                  <Plus className="w-5 h-5 mr-2" />
+                  Create supplier
                 </CommandItem>
               )}
               {suppliers?.map((supplier) => (
@@ -90,9 +101,7 @@ export const SupplierSelect: React.FC<SupplierSelectProps> = ({
                     setIsOpen(false);
                   }}
                 >
-                  <HugeiconsIcon
-                    icon={Tick01Icon}
-                    size={16}
+                  <Check
                     className={cn(
                       "mr-2 h-4 w-4",
                       value === supplier.id ? "opacity-100" : "opacity-0"
@@ -152,59 +161,5 @@ export const SupplierSelect: React.FC<SupplierSelectProps> = ({
     </Popover>
   );
 };
-{/* Create New Supplier */ }
-{
-  allowCreate && (
-    <div className="border-t p-2">
-      {showCreateForm ? (
-        <div className="space-y-2">
-          <Input
-            placeholder="Supplier name"
-            value={newSupplierName}
-            onChange={(e) => setNewSupplierName(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleCreateSupplier();
-              }
-            }}
-            autoFocus
-          />
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              onClick={handleCreateSupplier}
-              disabled={!newSupplierName.trim() || createMutation.isPending}
-              className="flex-1"
-            >
-              {createMutation.isPending ? 'Creating...' : 'Create'}
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => {
-                setShowCreateForm(false);
-                setNewSupplierName('');
-              }}
-            >
-              Cancel
-            </Button>
-          </div>
-        </div>
-      ) : (
-        <Button
-          variant="ghost"
-          className="w-full justify-start"
-          onClick={() => setShowCreateForm(true)}
-        >
-          <HugeiconsIcon icon={Add01Icon} size={16} className="mr-2" />
-          Add new supplier
-        </Button>
-      )}
-    </div>
-  )
-}
-        </div >
-      </PopoverContent >
-    </Popover >
-  );
-};
+
+

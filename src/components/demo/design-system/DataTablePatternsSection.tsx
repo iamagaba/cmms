@@ -1,3 +1,4 @@
+import { ArrowLeft, CheckCircle, Plus } from 'lucide-react';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,23 +7,15 @@ import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-    Table01Icon,
-    MoreVerticalIcon,
-    InboxIcon,
-    Add01Icon,
-    ArrowLeft01Icon,
-    ArrowRight01Icon,
-    CheckmarkCircle01Icon
-} from "@hugeicons/core-free-icons";
+
+
 
 const DataTablePatternsSection: React.FC = () => {
     return (
         <Card className="border-violet-200 bg-violet-50">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-violet-900">
-                    <HugeiconsIcon icon={Table01Icon} size={20} />
+                    <Table01Icon className="w-5 h-5" />
                     Data Table Patterns
                 </CardTitle>
                 <CardDescription className="text-violet-700">
@@ -54,14 +47,14 @@ const DataTablePatternsSection: React.FC = () => {
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button size="icon" variant="ghost">
-                                                    <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
+                                                    <MoreVerticalIcon className="w-4 h-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuItem>View Details</DropdownMenuItem>
                                                 <DropdownMenuItem>Edit</DropdownMenuItem>
                                                 <DropdownMenuSeparator />
-                                                <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+                                                <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
@@ -75,14 +68,14 @@ const DataTablePatternsSection: React.FC = () => {
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
                                                 <Button size="icon" variant="ghost">
-                                                    <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
+                                                    <MoreVerticalIcon className="w-4 h-4" />
                                                 </Button>
                                             </DropdownMenuTrigger>
                                             <DropdownMenuContent align="end">
                                                 <DropdownMenuItem>View Details</DropdownMenuItem>
                                                 <DropdownMenuItem>Edit</DropdownMenuItem>
                                                 <DropdownMenuSeparator />
-                                                <DropdownMenuItem className="text-red-600">Delete</DropdownMenuItem>
+                                                <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
                                             </DropdownMenuContent>
                                         </DropdownMenu>
                                     </TableCell>
@@ -117,7 +110,7 @@ const DataTablePatternsSection: React.FC = () => {
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                <TableRow className="bg-purple-50">
+                                <TableRow className="bg-primary/5">
                                     <TableCell>
                                         <input type="checkbox" className="rounded border-gray-300" defaultChecked />
                                     </TableCell>
@@ -136,7 +129,7 @@ const DataTablePatternsSection: React.FC = () => {
                             </TableBody>
                         </Table>
                     </div>
-                    <div className="mt-3 bg-purple-100 border border-purple-300 rounded p-3">
+                    <div className="mt-3 bg-primary/10 border border-purple-300 rounded p-3">
                         <div className="flex items-center justify-between">
                             <span className="text-sm text-purple-900">1 item selected</span>
                             <div className="flex gap-2">
@@ -155,12 +148,12 @@ const DataTablePatternsSection: React.FC = () => {
                         <CardContent className="py-12">
                             <div className="text-center">
                                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                    <HugeiconsIcon icon={InboxIcon} size={32} className="text-gray-400" />
+                                    <InboxIcon className="w-8 h-8 text-gray-400" />
                                 </div>
                                 <h3 className="text-sm font-semibold text-gray-900">No work orders found</h3>
                                 <p className="text-xs text-gray-600 mt-1">Create your first work order to get started</p>
                                 <Button size="sm" className="mt-4">
-                                    <HugeiconsIcon icon={Add01Icon} size={14} />
+                                    <Plus className="w-5 h-5" />
                                     Create Work Order
                                 </Button>
                             </div>
@@ -246,7 +239,7 @@ const DataTablePatternsSection: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-2">
                             <Button size="sm" variant="outline" disabled>
-                                <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
+                                <ArrowLeft className="w-5 h-5" />
                                 Previous
                             </Button>
                             <div className="flex gap-1">
@@ -258,14 +251,14 @@ const DataTablePatternsSection: React.FC = () => {
                             </div>
                             <Button size="sm" variant="outline">
                                 Next
-                                <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
+                                <ChevronRight className="w-4 h-4" />
                             </Button>
                         </div>
                     </div>
                 </div>
 
                 <Alert className="border-violet-300 bg-violet-100">
-                    <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="text-violet-700" />
+                    <CheckCircle className="w-4 h-4 text-violet-700" />
                     <AlertTitle className="text-violet-900">Data Table Best Practices</AlertTitle>
                     <AlertDescription className="text-violet-800">
                         <ul className="text-xs space-y-1 mt-2 ml-4 list-disc">
@@ -286,3 +279,7 @@ const DataTablePatternsSection: React.FC = () => {
 };
 
 export default DataTablePatternsSection;
+
+
+
+

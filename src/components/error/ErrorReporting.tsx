@@ -3,15 +3,15 @@ import {
   Modal,
   Stack,
   Text,
-  Button,
   Group,
   Alert,
-  Badge,
   Divider,
   Title
 } from '@/components/tailwind-components';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { CheckmarkCircle01Icon, BugIcon, CodeIcon, ArrowUp01Icon, ArrowDown01Icon, SentIcon } from '@hugeicons/core-free-icons';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
+import { CheckCircle, Bug, Code, ChevronUp, ChevronDown, Send } from 'lucide-react';
 import { showSuccess, showError } from '@/utils/toast';
 
 export interface ErrorReport {
@@ -101,7 +101,7 @@ export function ErrorReportingModal({
     return (
       <Modal opened={opened} onClose={onClose} title="Error Report Sent">
         <Stack align="center" gap="md">
-          <HugeiconsIcon icon={CheckmarkCircle01Icon} size={48} color="green" />
+          <CheckCircle className="w-12 h-12 text-green-600" />
           <Text className="text-center">
             Your error report has been sent successfully. Thank you for helping us improve the application.
           </Text>
@@ -120,7 +120,7 @@ export function ErrorReportingModal({
       <Stack gap="md">
         <Alert
           color="red"
-          icon={<HugeiconsIcon icon={BugIcon} size={16} />}
+          icon={<Bug className="w-4 h-4" />}
           title="Error Detected"
         >
           <Text size="sm">
@@ -131,7 +131,7 @@ export function ErrorReportingModal({
 
         <Stack gap="xs">
           <Text className="font-medium text-sm">Error ID</Text>
-          <Badge variant="light" color="red" size="lg">
+          <Badge variant="destructive" className="text-sm">
             {errorId}
           </Badge>
         </Stack>
@@ -139,18 +139,17 @@ export function ErrorReportingModal({
         {feature && (
           <Stack gap="xs">
             <Text className="font-medium text-sm">Feature</Text>
-            <Badge variant="light" color="blue" size="md">
+            <Badge variant="secondary" className="text-sm">
               {feature}
             </Badge>
           </Stack>
         )}
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
+          <label className="block text-sm font-medium text-foreground mb-1">
             What were you doing when this error occurred? (Optional)
           </label>
-          <textarea
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          <Textarea
             placeholder="Describe the steps you took before the error happened..."
             value={userDescription}
             onChange={(e) => setUserDescription(e.target.value)}
@@ -158,31 +157,32 @@ export function ErrorReportingModal({
           />
         </div>
 
-        <div className="border rounded-md overflow-hidden">
+        <div className="border border-border rounded-md overflow-hidden">
           <button
             onClick={() => setShowDetails(!showDetails)}
-            className="w-full flex items-center justify-between px-4 py-3 bg-gray-50 hover:bg-gray-100 transition-colors"
+            className="w-full flex items-center justify-between px-4 py-3 bg-muted hover:bg-muted/80 transition-colors"
           >
             <span className="flex items-center gap-2">
-              <HugeiconsIcon icon={CodeIcon} size={16} />
+              <Code className="w-4 h-4" />
               <span className="font-medium">Technical Details</span>
             </span>
-            <HugeiconsIcon
-              icon={showDetails ? ArrowUp01Icon : ArrowDown01Icon}
-              size={20}
-            />
+            {showDetails ? (
+              <ChevronUp className="w-5 h-5" />
+            ) : (
+              <ChevronDown className="w-5 h-5" />
+            )}
           </button>
           {showDetails && (
-            <div className="px-4 py-3 space-y-3 border-t">
+            <div className="px-4 py-3 space-y-3 border-t border-border">
               <div>
                 <Text className="font-medium text-sm mb-1">Error Message</Text>
-                <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto">{error.message}</pre>
+                <pre className="bg-muted p-2 rounded text-xs overflow-x-auto">{error.message}</pre>
               </div>
 
               {error.stack && (
                 <div>
                   <Text className="font-medium text-sm mb-1">Stack Trace</Text>
-                  <pre className="bg-gray-100 p-2 rounded text-xs overflow-auto max-h-48">
+                  <pre className="bg-muted p-2 rounded text-xs overflow-auto max-h-48">
                     {error.stack}
                   </pre>
                 </div>
@@ -190,19 +190,19 @@ export function ErrorReportingModal({
 
               <div>
                 <Text className="font-medium text-sm mb-1">Browser Information</Text>
-                <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto">
+                <pre className="bg-muted p-2 rounded text-xs overflow-x-auto">
                   {navigator.userAgent}
                 </pre>
               </div>
 
               <div>
                 <Text className="font-medium text-sm mb-1">Page URL</Text>
-                <pre className="bg-gray-100 p-2 rounded text-xs">{window.location.href}</pre>
+                <pre className="bg-muted p-2 rounded text-xs">{window.location.href}</pre>
               </div>
 
               <div>
                 <Text className="font-medium text-sm mb-1">Timestamp</Text>
-                <pre className="bg-gray-100 p-2 rounded text-xs">{new Date().toISOString()}</pre>
+                <pre className="bg-muted p-2 rounded text-xs">{new Date().toISOString()}</pre>
               </div>
             </div>
           )}
@@ -211,14 +211,15 @@ export function ErrorReportingModal({
         <Divider />
 
         <Group justify="flex-end">
-          <Button variant="subtle" onClick={onClose} disabled={isSubmitting}>
+          <Button variant="outline" size="sm" onClick={onClose} disabled={isSubmitting}>
             Cancel
           </Button>
           <Button
+            size="sm"
             onClick={handleSubmit}
-            loading={isSubmitting}
-            leftSection={<HugeiconsIcon icon={SentIcon} size={16} />}
+            disabled={isSubmitting}
           >
+            <Send className="w-4 h-4 mr-1.5" />
             Send Report
           </Button>
         </Group>

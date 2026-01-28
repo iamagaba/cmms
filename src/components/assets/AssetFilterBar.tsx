@@ -37,7 +37,7 @@ export const AssetFilterBar = ({
     ];
 
     return (
-        <div className="bg-white/85 backdrop-blur-md backdrop-saturate-150 shadow-sm rounded-lg border border-slate-200 px-3 py-2 mb-3 sticky top-2 z-20">
+        <div className="bg-white/85 backdrop-blur-md backdrop-saturate-150 shadow-sm rounded-lg border border-border px-3 py-2 mb-3 sticky top-2 z-20">
             <TableFiltersBar
                 searchValue={searchTerm}
                 onSearchChange={setSearchTerm}
@@ -47,7 +47,7 @@ export const AssetFilterBar = ({
                 className="bg-transparent border-none p-0 shadow-none"
             >
                 <div className="flex flex-wrap gap-2 items-center w-full sm:w-auto">
-                    <div className="h-5 w-px bg-slate-200 hidden sm:block mx-1"></div>
+                    <div className="h-5 w-px bg-muted hidden sm:block mx-1"></div>
 
                     <Select
                         value={ownership}
@@ -108,3 +108,4 @@ export const AssetFilterBar = ({
         </div>
     );
 };
+

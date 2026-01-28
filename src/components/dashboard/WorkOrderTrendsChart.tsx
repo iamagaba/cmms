@@ -1,78 +1,186 @@
-import React from 'react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { TimelineIcon } from '@hugeicons/core-free-icons';
 
-export const WorkOrderTrendsChart = ({ data }: { data: any[] }) => {
+import { BarChart } from '@mui/x-charts/BarChart';
+import { Clock } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+
+// Status color configuration matching the application's status colors
+const STATUS_COLORS = {
+  'Open': '#3b82f6',           // Blue
+  'Confirmation': '#8b5cf6',   // Purple  
+  'On Hold': '#f59e0b',        // Amber
+  'Ready': '#06b6d4',          // Cyan
+  'In Progress': '#f97316',    // Orange
+  'Completed': '#10b981',      // Emerald
+  'Cancelled': '#ef4444',      // Red
+};
+
+const STATUS_ORDER = ['Open', 'Confirmation', 'Ready', 'In Progress', 'On Hold', 'Completed', 'Cancelled'];
+
+export const WorkOrderTrendsChart = ({
+    data,
+    range = 7,
+    onRangeChange
+}: {
+    data: any[],
+    range?: 7 | 14,
+    onRangeChange?: (days: 7 | 14) => void
+}) => {
     // Handle empty data
     if (!data || data.length === 0) {
         return (
-            <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
-                <div className="px-4 py-3 border-b border-border">
-                    <div className="flex items-center gap-2">
-                        <HugeiconsIcon icon={TimelineIcon} size={14} className="text-muted-foreground" />
-                        <div>
-                            <h3 className="text-sm font-semibold text-foreground">Work Order Trends</h3>
-                            <p className="text-xs text-muted-foreground mt-0.5">Last 7 days activity</p>
+            <Card>
+                <CardHeader>
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <Clock className="w-5 h-5 text-muted-foreground" />
+                            <div>
+                                <CardTitle>Work Order Trends</CardTitle>
+                                <CardDescription>Last {range} days</CardDescription>
+                            </div>
                         </div>
+                        {onRangeChange && (
+                            <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-lg">
+                                {[7, 14].map((days) => (
+                                    <Button
+                                        key={days}
+                                        variant={range === days ? "secondary" : "ghost"}
+                                        size="sm"
+                                        className={`h-7 text-xs px-2 ${range === days ? 'bg-background shadow-sm' : 'hover:bg-background/50'}`}
+                                        onClick={() => onRangeChange(days as 7 | 14)}
+                                    >
+                                        {days}d
+                                    </Button>
+                                ))}
+                            </div>
+                        )}
                     </div>
-                </div>
-                <div className="p-4">
+                </CardHeader>
+                <CardContent>
                     <div className="h-[180px] w-full flex items-center justify-center text-muted-foreground text-sm">
                         No data available
                     </div>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
         );
     }
 
+    // Get CSS variable values for theming
+    const borderColor = getComputedStyle(document.documentElement)
+        .getPropertyValue('--border')
+        .trim();
+    const mutedForeground = getComputedStyle(document.documentElement)
+        .getPropertyValue('--muted-foreground')
+        .trim();
+
+    // Determine which statuses have data in the current period
+    const statusesWithData = new Set<string>();
+    data.forEach(dayData => {
+        STATUS_ORDER.forEach(status => {
+            const dataKey = status.toLowerCase().replace(' ', '_');
+            if (dayData[dataKey] && dayData[dataKey] > 0) {
+                statusesWithData.add(status);
+            }
+        });
+    });
+
+    // Create series only for statuses that have data
+    const series = STATUS_ORDER
+        .filter(status => statusesWithData.has(status))
+        .map(status => ({
+            dataKey: status.toLowerCase().replace(' ', '_'),
+            label: status,
+            color: STATUS_COLORS[status as keyof typeof STATUS_COLORS],
+            stack: 'status'
+        }));
+
     return (
-        <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm">
-            {/* Header */}
-            <div className="px-4 py-3 border-b border-border">
-                <div className="flex items-center gap-2">
-                    <HugeiconsIcon icon={TimelineIcon} size={14} className="text-muted-foreground" />
-                    <div>
-                        <h3 className="text-sm font-semibold text-foreground">Work Order Trends</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">Last 7 days activity</p>
+        <Card>
+            <CardHeader>
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <Clock className="w-5 h-5 text-muted-foreground" />
+                        <div>
+                            <CardTitle className="text-lg">Work Order Trends</CardTitle>
+                            <CardDescription>Last {range} days</CardDescription>
+                        </div>
                     </div>
+                    {onRangeChange && (
+                        <div className="flex items-center gap-1 bg-muted/50 p-1 rounded-lg">
+                            {[7, 14].map((days) => (
+                                <Button
+                                    key={days}
+                                    variant={range === days ? "secondary" : "ghost"}
+                                    size="sm"
+                                    className={`h-7 text-xs px-2 ${range === days ? 'bg-background shadow-sm' : 'hover:bg-background/50'}`}
+                                    onClick={() => onRangeChange(days as 7 | 14)}
+                                >
+                                    {days}d
+                                </Button>
+                            ))}
+                        </div>
+                    )}
                 </div>
-            </div>
-            {/* Content */}
-            <div className="p-4">
-                <div className="h-[180px] w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={data} margin={{ top: 10, right: 10, bottom: 0, left: 0 }}>
-                            <defs>
-                                <linearGradient id="colorCount" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.1} />
-                                    <stop offset="95%" stopColor="#3b82f6" stopOpacity={0} />
-                                </linearGradient>
-                            </defs>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e5e7eb" />
-                            <XAxis
-                                dataKey="date"
-                                axisLine={false}
-                                tickLine={false}
-                                tick={{ fontSize: 10, fill: '#6b7280' }}
-                                dy={10}
-                            />
-                            <Tooltip
-                                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                                cursor={{ stroke: '#3b82f6', strokeWidth: 1, strokeDasharray: '3 3' }}
-                            />
-                            <Area
-                                type="monotone"
-                                dataKey="count"
-                                stroke="#3b82f6"
-                                strokeWidth={2}
-                                fillOpacity={1}
-                                fill="url(#colorCount)"
-                            />
-                        </AreaChart>
-                    </ResponsiveContainer>
+            </CardHeader>
+            <CardContent>
+                <div className="h-[200px] w-full">
+                    <BarChart
+                        dataset={data}
+                        xAxis={[
+                            {
+                                scaleType: 'band',
+                                dataKey: 'date',
+                                tickLabelStyle: {
+                                    fontSize: 10,
+                                    fill: `hsl(${mutedForeground})`,
+                                },
+                            },
+                        ]}
+                        yAxis={[
+                            {
+                                // Hide Y-axis labels but keep the scale
+                                tickLabelStyle: {
+                                    display: 'none',
+                                },
+                            },
+                        ]}
+                        series={series}
+                        margin={{ top: 40, right: 10, bottom: 30, left: 10 }}
+                        grid={{ horizontal: true, vertical: false }}
+                        borderRadius={4}
+                        legend={{
+                            direction: 'row',
+                            position: { vertical: 'top', horizontal: 'left' },
+                            padding: 0,
+                            itemMarkWidth: 12,
+                            itemMarkHeight: 12,
+                            markGap: 6,
+                            itemGap: 16,
+                            labelStyle: {
+                                fontSize: 12,
+                                fill: `hsl(${mutedForeground})`,
+                            },
+                        }}
+                        sx={{
+                            '& .MuiChartsGrid-line': {
+                                stroke: `hsl(${borderColor})`,
+                                strokeDasharray: '3 3',
+                            },
+                            '& .MuiChartsAxis-line': {
+                                display: 'none',
+                            },
+                            '& .MuiChartsAxis-tick': {
+                                display: 'none',
+                            },
+                            // Hide Y-axis labels
+                            '& .MuiChartsAxis-left .MuiChartsAxis-tickLabel': {
+                                display: 'none',
+                            },
+                        }}
+                    />
                 </div>
-            </div>
-        </div>
+            </CardContent>
+        </Card>
     );
 };
+

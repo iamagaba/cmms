@@ -1,23 +1,10 @@
+import { AlertCircle, Bike, CheckCircle, ClipboardList, Clock, Info, Lock, Plus, UserCircle, History, Edit, Phone, ChevronRight } from 'lucide-react';
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  ClipboardIcon,
-  PencilEdit02Icon,
-  Motorbike01Icon,
-  InformationCircleIcon,
-  LockIcon,
-  UserCircleIcon,
-  Call02Icon,
-  ArrowRight01Icon,
-  Clock01Icon,
-  Alert01Icon,
-  CheckmarkCircle01Icon,
-  TimelineIcon,
-  Add01Icon,
-  AlertCircleIcon
-} from '@hugeicons/core-free-icons';
+import PageHeader from '@/components/layout/PageHeader';
+
+
 import { Stack, Button, Skeleton, Tabs } from '@/components/tailwind-components';
 import {
   Table,
@@ -27,12 +14,14 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { Vehicle, Customer, WorkOrder } from '@/types/supabase';
 import { snakeToCamelCase, camelToSnakeCase } from '@/utils/data-helpers';
 import { AssetFormDialog } from '@/components/AssetFormDialog';
 import { showSuccess, showError } from '@/utils/toast';
-import AppBreadcrumb from '@/components/Breadcrumbs';
+
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -75,7 +64,9 @@ const AssetDetails = () => {
         .order('created_at', { ascending: false })
         .limit(10);
       if (error) throw error;
-      return (data || []).map(wo => snakeToCamelCase(wo)) as WorkOrder[];
+      const transformed = (data || []).map(wo => snakeToCamelCase(wo)) as WorkOrder[];
+      console.log('Work Orders Data:', transformed); // Debug log
+      return transformed;
     },
     enabled: !!id
   });
@@ -97,20 +88,22 @@ const AssetDetails = () => {
   if (!vehicle) {
     return (
       <div className="w-full p-6">
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6 text-center">
-          <HugeiconsIcon icon={Alert01Icon} className="mx-auto text-gray-400 dark:text-gray-500 mb-4" size={48} />
-          <h3 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-2">Asset Not Found</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">The asset you're looking for doesn't exist.</p>
-          <Button onClick={() => navigate('/assets')}>Back to Assets</Button>
-        </div>
+        <Card>
+          <CardContent className="p-12 text-center">
+            <AlertCircle className="mx-auto text-muted-foreground mb-4" size={48} />
+            <CardTitle className="text-xl mb-2">Asset Not Found</CardTitle>
+            <CardDescription className="mb-4">The asset you're looking for doesn't exist.</CardDescription>
+            <Button onClick={() => navigate('/assets')}>Back to Assets</Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   const statusColors = {
-    'Normal': 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800',
-    'In Repair': 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800',
-    'Decommissioned': 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800'
+    'Normal': 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800',
+    'In Repair': 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800',
+    'Decommissioned': 'bg-destructive/10 text-destructive border-destructive/20 dark:bg-destructive/20 dark:text-destructive dark:border-destructive/30'
   };
 
   const recentWorkOrders = workOrders?.slice(0, 5) || [];
@@ -121,17 +114,17 @@ const AssetDetails = () => {
     <div className="flex items-center gap-2">
       <button
         onClick={() => navigate(`/work-orders?vehicle=${id}`)}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-lg transition-colors"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-foreground bg-card border border-border hover:bg-muted rounded-lg transition-colors"
       >
-        <HugeiconsIcon icon={ClipboardIcon} size={16} />
+        <ClipboardList className="w-5 h-5" />
         <span className="hidden sm:inline">View Work Orders</span>
         <span className="sm:hidden">Work Orders</span>
       </button>
       <button
         onClick={() => setIsEditDialogOpen(true)}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors"
       >
-        <HugeiconsIcon icon={PencilEdit02Icon} size={16} />
+        <Edit className="w-4 h-4" />
         <span className="hidden sm:inline">Edit Asset</span>
         <span className="sm:hidden">Edit</span>
       </button>
@@ -140,81 +133,89 @@ const AssetDetails = () => {
 
   return (
     <>
-      <AppBreadcrumb
-        actions={pageActions}
-        customBreadcrumbs={[
-          { label: 'Home', path: '/', icon: 'tabler:home' },
-          { label: 'Assets', path: '/assets', icon: 'tabler:motorbike' },
-          { label: vehicle.license_plate || 'Asset Details', path: `/assets/${id}`, isClickable: false }
-        ]}
-      />
+      <div className="w-full px-6 py-4">
+        <PageHeader
+          title={vehicle.license_plate}
+          subtitle={`${vehicle.make} ${vehicle.model} ${vehicle.year ? `(${vehicle.year})` : ''}`}
+          icon={<Bike className="w-5 h-5 text-muted-foreground" />}
+          actions={
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/work-orders?vehicle=${id}`)}
+              >
+                <ClipboardList className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">View Work Orders</span>
+                <span className="sm:hidden">Work Orders</span>
+              </Button>
+              <Button onClick={() => setIsEditDialogOpen(true)}>
+                <Edit className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Edit Asset</span>
+                <span className="sm:hidden">Edit</span>
+              </Button>
+            </div>
+          }
+        />
+      </div>
       <div className="w-full px-6 pt-2 pb-6">
         <Stack gap="md">
 
           {/* Vehicle Header Card with Owner & Specifications */}
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-            {/* Vehicle Title Section */}
-            <div className="flex items-start gap-6 pb-3 border-b border-gray-200 dark:border-gray-700">
-              <div className="w-14 h-14 rounded-lg bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0">
-                <HugeiconsIcon icon={Motorbike01Icon} size={24} className="text-primary-600 dark:text-primary-400" />
+          <Card>
+            <CardContent className="p-6">
+              {/* Vehicle Status and Badges */}
+              <div className="flex items-center gap-2 mb-4 flex-wrap">
+                <Badge variant={vehicle.status === 'Normal' ? 'success' : vehicle.status === 'In Repair' ? 'warning' : 'destructive'}>
+                  {vehicle.status || 'Normal'}
+                </Badge>
+                {vehicle.is_emergency_bike && (
+                  <Badge variant="info" className="gap-1">
+                    <Info className="w-4 h-4" />
+                    Emergency Bike
+                  </Badge>
+                )}
+                {vehicle.warranty_end_date && dayjs(vehicle.warranty_end_date).isAfter(dayjs()) && (
+                  <Badge variant="outline" className="gap-1 border-primary/20 text-primary">
+                    <Lock className="w-4 h-4" />
+                    Under Warranty
+                  </Badge>
+                )}
               </div>
-              <div className="flex-1 min-w-0">
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{vehicle.license_plate}</h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{vehicle.make} {vehicle.model} {vehicle.year && `(${vehicle.year})`}</p>
-                <div className="flex items-center gap-2 mt-2 flex-wrap">
-                  <span className={`px-2.5 py-1 rounded text-xs font-medium border ${statusColors[vehicle.status || 'Normal']}`}>
-                    {vehicle.status || 'Normal'}
-                  </span>
-                  {vehicle.is_emergency_bike && (
-                    <span className="px-2.5 py-1 rounded text-xs font-medium bg-blue-100 text-blue-700 border border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800">
-                      <HugeiconsIcon icon={InformationCircleIcon} size={12} className="inline mr-1" />
-                      Emergency Bike
-                    </span>
-                  )}
-                  {vehicle.warranty_end_date && dayjs(vehicle.warranty_end_date).isAfter(dayjs()) && (
-                    <span className="px-2.5 py-1 rounded text-xs font-medium bg-purple-100 text-purple-700 border border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800">
-                      <HugeiconsIcon icon={LockIcon} size={12} className="inline mr-1" />
-                      Under Warranty
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
 
             {/* Owner Information & Vehicle Specifications - Side by Side */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
               {/* Owner Information */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                    <HugeiconsIcon icon={UserCircleIcon} size={18} className="text-gray-600 dark:text-gray-400" />
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <UserCircle className="w-5 h-5 text-muted-foreground" />
                     Owner Information
                   </h3>
                   {vehicle.customers?.phone && (
                     <a
                       href={`tel:${vehicle.customers.phone}`}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors"
                     >
-                      <HugeiconsIcon icon={Call02Icon} size={14} />
+                      <Phone className="w-4 h-4" />
                       Call
                     </a>
                   )}
                 </div>
                 <div className="space-y-2">
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Owner Name</div>
-                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{vehicle.customers?.name || 'N/A'}</div>
+                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                    <div className="text-xs font-medium text-muted-foreground mb-1">Owner Name</div>
+                    <div className="text-sm font-semibold text-foreground">{vehicle.customers?.name || 'N/A'}</div>
                   </div>
                   {vehicle.customers?.phone && (
-                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Phone Number</div>
-                      <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{vehicle.customers.phone}</div>
+                    <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                      <div className="text-xs font-medium text-muted-foreground mb-1">Phone Number</div>
+                      <div className="text-sm font-semibold text-foreground">{vehicle.customers.phone}</div>
                     </div>
                   )}
                   {vehicle.customers?.email && (
-                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Email Address</div>
-                      <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{vehicle.customers.email}</div>
+                    <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                      <div className="text-xs font-medium text-muted-foreground mb-1">Email Address</div>
+                      <div className="text-sm font-semibold text-foreground truncate">{vehicle.customers.email}</div>
                     </div>
                   )}
                 </div>
@@ -222,297 +223,328 @@ const AssetDetails = () => {
 
               {/* Vehicle Specifications */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
-                  <HugeiconsIcon icon={InformationCircleIcon} size={18} className="text-gray-600 dark:text-gray-400" />
+                <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <Info className="w-5 h-5 text-muted-foreground" />
                   Vehicle Specifications
                 </h3>
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Ownership Type</div>
-                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                    <div className="text-xs font-medium text-muted-foreground mb-1">Ownership Type</div>
+                    <div className="text-sm font-semibold text-foreground">
                       {vehicle.is_company_asset ? 'Company Asset' : 'Individual Asset'}
                     </div>
                   </div>
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">License Plate</div>
-                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{vehicle.license_plate}</div>
+                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                    <div className="text-xs font-medium text-muted-foreground mb-1">License Plate</div>
+                    <div className="text-sm font-semibold text-foreground">{vehicle.license_plate}</div>
                   </div>
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">VIN</div>
-                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 font-mono break-all">{vehicle.vin || 'N/A'}</div>
+                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                    <div className="text-xs font-medium text-muted-foreground mb-1">VIN</div>
+                    <div className="text-sm font-semibold text-foreground font-mono break-all">{vehicle.vin || 'N/A'}</div>
                   </div>
                   {vehicle.motor_number && (
-                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Motor Number</div>
-                      <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 font-mono">{vehicle.motor_number}</div>
+                    <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                      <div className="text-xs font-medium text-muted-foreground mb-1">Motor Number</div>
+                      <div className="text-sm font-semibold text-foreground font-mono">{vehicle.motor_number}</div>
                     </div>
                   )}
                   {vehicle.mileage && (
-                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Mileage</div>
-                      <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{vehicle.mileage.toLocaleString()} km</div>
+                    <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                      <div className="text-xs font-medium text-muted-foreground mb-1">Mileage</div>
+                      <div className="text-sm font-semibold text-foreground">{vehicle.mileage.toLocaleString()} km</div>
                     </div>
                   )}
                   {vehicle.battery_capacity && (
-                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Battery Capacity</div>
-                      <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{vehicle.battery_capacity} kWh</div>
+                    <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                      <div className="text-xs font-medium text-muted-foreground mb-1">Battery Capacity</div>
+                      <div className="text-sm font-semibold text-foreground">{vehicle.battery_capacity} kWh</div>
                     </div>
                   )}
                   {vehicle.date_of_manufacture && (
-                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Date of Manufacture</div>
-                      <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{dayjs(vehicle.date_of_manufacture).format('MMM DD, YYYY')}</div>
+                    <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                      <div className="text-xs font-medium text-muted-foreground mb-1">Date of Manufacture</div>
+                      <div className="text-sm font-semibold text-foreground">{dayjs(vehicle.date_of_manufacture).format('MMM DD, YYYY')}</div>
                     </div>
                   )}
                   {vehicle.year && (
-                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Year</div>
-                      <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{vehicle.year}</div>
+                    <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                      <div className="text-xs font-medium text-muted-foreground mb-1">Year</div>
+                      <div className="text-sm font-semibold text-foreground">{vehicle.year}</div>
                     </div>
                   )}
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Added to System</div>
-                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{dayjs(vehicle.created_at).format('MMM DD, YYYY')}</div>
+                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                    <div className="text-xs font-medium text-muted-foreground mb-1">Added to System</div>
+                    <div className="text-sm font-semibold text-foreground">{dayjs(vehicle.created_at).format('MMM DD, YYYY')}</div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
+            </CardContent>
+          </Card>
 
           {/* Quick Stats Row */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
-            <div
-              className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6 hover:border-gray-300 dark:hover:border-gray-700 transition-colors cursor-pointer"
+            <Card 
+              className="cursor-pointer hover:bg-muted/50 hover:border-primary/20 transition-all"
               onClick={() => navigate(`/work-orders?vehicle=${id}`)}
             >
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Total Work Orders</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{totalWorkOrders}</p>
-                </div>
-                <div className="w-12 h-12 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center">
-                  <HugeiconsIcon icon={ClipboardIcon} className="w-6 h-6 text-blue-600 dark:text-blue-400" />
-                </div>
-              </div>
-              <div className="mt-3 flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
-                <HugeiconsIcon icon={ArrowRight01Icon} className="w-3 h-3" />
-                <span>View all</span>
-              </div>
-            </div>
-
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Open Work Orders</p>
-                  <p className="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-1">{openWorkOrders}</p>
-                </div>
-                <div className="w-12 h-12 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center">
-                  <HugeiconsIcon icon={Clock01Icon} className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-                </div>
-              </div>
-              {openWorkOrders > 0 && (
-                <div className="mt-3 flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
-                  <HugeiconsIcon icon={Alert01Icon} className="w-3 h-3" />
-                  <span>Needs attention</span>
-                </div>
-              )}
-            </div>
-
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Current Status</p>
-                  <div className="mt-1">
-                    <span className={`inline-block px-2.5 py-1 rounded text-xs font-medium border ${statusColors[vehicle.status || 'Normal']}`}>
-                      {vehicle.status || 'Normal'}
-                    </span>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground">Total Work Orders</p>
+                    <p className="text-2xl font-bold text-foreground mt-1">{totalWorkOrders}</p>
+                  </div>
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <ClipboardList className="w-5 h-5 text-primary" />
                   </div>
                 </div>
-                <div className="w-12 h-12 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center">
-                  <HugeiconsIcon icon={CheckmarkCircle01Icon} className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+                <div className="mt-3 flex items-center gap-1 text-xs text-primary">
+                  <ChevronRight className="w-3 h-3" />
+                  <span>View all</span>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-gray-500 dark:text-gray-400">Warranty Status</p>
-                  <p className="text-sm font-bold text-gray-900 dark:text-gray-100 mt-1">
-                    {vehicle.warranty_end_date && dayjs(vehicle.warranty_end_date).isAfter(dayjs()) ? 'Active' : 'Expired'}
-                  </p>
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground">Open Work Orders</p>
+                    <p className="text-2xl font-bold text-foreground mt-1">{openWorkOrders}</p>
+                  </div>
+                  <div className="w-12 h-12 rounded-lg bg-amber-50 dark:bg-amber-900/30 flex items-center justify-center">
+                    <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                  </div>
                 </div>
-                <div className="w-12 h-12 rounded-lg bg-purple-50 dark:bg-purple-900/30 flex items-center justify-center">
-                  <HugeiconsIcon icon={LockIcon} className="w-6 h-6 text-purple-600 dark:text-purple-400" />
+                {openWorkOrders > 0 && (
+                  <div className="mt-3 flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
+                    <AlertCircle className="w-5 h-5" />
+                    <span>Needs attention</span>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground">Status</p>
+                    <div className="mt-1">
+                      <span className={`inline-block px-2.5 py-1 rounded text-xs font-medium border ${statusColors[vehicle.status || 'Normal']}`}>
+                        {vehicle.status || 'Normal'}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="w-12 h-12 rounded-lg bg-emerald-50 dark:bg-emerald-900/30 flex items-center justify-center">
+                    <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                  </div>
                 </div>
-              </div>
-              {vehicle.warranty_end_date && dayjs(vehicle.warranty_end_date).isAfter(dayjs()) && (
-                <div className="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                  Expires {dayjs(vehicle.warranty_end_date).fromNow()}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground">Warranty Status</p>
+                    <p className="text-sm font-bold text-foreground mt-1">
+                      {vehicle.warranty_end_date && dayjs(vehicle.warranty_end_date).isAfter(dayjs()) ? 'Active' : 'Expired'}
+                    </p>
+                  </div>
+                  <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                    <Lock className="w-5 h-5 text-primary" />
+                  </div>
                 </div>
-              )}
-            </div>
+                {vehicle.warranty_end_date && dayjs(vehicle.warranty_end_date).isAfter(dayjs()) && (
+                  <div className="mt-3 text-xs text-muted-foreground">
+                    Expires {dayjs(vehicle.warranty_end_date).fromNow()}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           </div>
 
           {/* Service History */}
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                <HugeiconsIcon icon={TimelineIcon} size={18} className="text-gray-600 dark:text-gray-400" />
-                Service History
-              </h3>
-              <button
-                onClick={() => navigate(`/work-orders?vehicle=${id}`)}
-                className="inline-flex items-center gap-1 text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors"
-              >
-                View All
-                <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
-              </button>
-            </div>
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <History className="w-5 h-5 text-muted-foreground" />
+                  Service History
+                </CardTitle>
+                <button
+                  onClick={() => navigate(`/work-orders?vehicle=${id}`)}
+                  className="inline-flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-medium transition-colors"
+                >
+                  View All
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </CardHeader>
+            <CardContent>
             {recentWorkOrders.length === 0 ? (
               <div className="text-center py-12">
-                <div className="w-16 h-16 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-3">
-                  <HugeiconsIcon icon={ClipboardIcon} className="text-gray-400 dark:text-gray-500" size={32} />
+                <div className="w-16 h-16 rounded-lg bg-muted/50 border border-border flex items-center justify-center mx-auto mb-3">
+                  <ClipboardList className="text-muted-foreground w-8 h-8" />
                 </div>
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No service history</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">This vehicle hasn't had any work orders yet</p>
+                <p className="text-sm font-medium text-foreground mb-1">No service history</p>
+                <p className="text-xs text-muted-foreground mb-4">This vehicle hasn't had any work orders yet</p>
                 <button
                   onClick={() => navigate(`/work-orders/new?vehicle=${id}`)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors"
                 >
-                  <HugeiconsIcon icon={Add01Icon} size={14} />
+                  <Plus className="w-5 h-5" />
                   Create First Work Order
                 </button>
               </div>
             ) : (
-              <div className="overflow-x-auto">
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow className="border-b border-gray-200 dark:border-gray-700">
-                        <TableHead className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3 h-auto">Work Order #</TableHead>
-                        <TableHead className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3 h-auto">Status</TableHead>
-                        <TableHead className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3 h-auto">Description</TableHead>
-                        <TableHead className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3 h-auto">Priority</TableHead>
-                        <TableHead className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3 h-auto">Technician</TableHead>
-                        <TableHead className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3 h-auto">Service Type</TableHead>
-                        <TableHead className="text-left text-xs font-semibold text-gray-600 dark:text-gray-400 pb-3 px-3 h-auto">Created Date</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {recentWorkOrders.slice(0, 5).map((wo) => (
-                        <TableRow
-                          key={wo.id}
-                          className="group border-b border-gray-100 dark:border-gray-800 hover:bg-primary-50/30 dark:hover:bg-primary-900/20 transition-colors cursor-pointer"
-                          onClick={() => navigate(`/work-orders/${wo.id}`)}
-                        >
-                          <TableCell className="py-3 px-3">
-                            <span className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">
-                              {wo.workOrderNumber || `WO-${wo.id.substring(0, 6).toUpperCase()}`}
+              <div className="overflow-x-auto -mx-5">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide pb-3 px-5 w-[140px]">Work Order</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide pb-3 px-3">Issue</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide pb-3 px-3 w-[130px]">Status</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide pb-3 px-3 w-[150px]">Location</th>
+                      <th className="text-left text-xs font-semibold text-muted-foreground uppercase tracking-wide pb-3 px-3 w-[120px]">Created</th>
+                      <th className="text-right text-xs font-semibold text-muted-foreground uppercase tracking-wide pb-3 px-5 w-[110px]">Priority</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {recentWorkOrders.slice(0, 5).map((wo, index) => (
+                      <tr
+                        key={wo.id}
+                        className={`group border-b border-border last:border-b-0 hover:bg-primary/5 hover:shadow-sm transition-all duration-200 cursor-pointer ${
+                          index % 2 === 1 ? 'bg-muted/30' : 'bg-background'
+                        }`}
+                        onClick={() => navigate(`/work-orders/${wo.id}`)}
+                      >
+                        <td className="py-5 px-5">
+                          <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors font-mono">
+                            {wo.workOrderNumber || `WO-${wo.id.substring(0, 8).toUpperCase()}`}
+                          </span>
+                        </td>
+                        <td className="py-5 px-3">
+                          <p className="text-sm text-foreground line-clamp-1">
+                            {wo.description || wo.service || 'General Service'}
+                          </p>
+                        </td>
+                        <td className="py-5 px-3">
+                          <Badge 
+                            variant={
+                              wo.status === 'Completed' ? 'success' :
+                              wo.status === 'In Progress' ? 'warning' :
+                              wo.status === 'On Hold' ? 'secondary' :
+                              wo.status === 'Ready' ? 'info' :
+                              wo.status === 'Confirmation' ? 'default' :
+                              wo.status === 'Open' ? 'info' : 'secondary'
+                            }
+                            className="gap-1.5"
+                          >
+                            {wo.status === 'Completed' && <CheckCircle className="w-4 h-4" />}
+                            {(wo.status === 'Open' || wo.status === 'In Progress') && <Clock className="w-4 h-4" />}
+                            {wo.status || 'Open'}
+                          </Badge>
+                        </td>
+                        <td className="py-5 px-3">
+                          <div className="flex items-center gap-1.5">
+                            <Info className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+                            <span className="text-sm text-muted-foreground">
+                              {wo.locationId ? 'Service Center' : 'Not assigned'}
                             </span>
-                          </TableCell>
-                          <TableCell className="py-3 px-3">
-                            <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap border ${wo.status === 'Completed' ? 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-400 dark:border-emerald-800' :
-                              wo.status === 'In Progress' ? 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-400 dark:border-amber-800' :
-                                wo.status === 'On Hold' ? 'bg-slate-100 text-slate-600 border-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700' :
-                                  wo.status === 'Ready' ? 'bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800' :
-                                    wo.status === 'Confirmation' ? 'bg-purple-100 text-purple-800 border-purple-200 dark:bg-purple-900/30 dark:text-purple-400 dark:border-purple-800' :
-                                      'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
-                              }`}>
-                              {wo.status || 'Open'}
-                            </span>
-                          </TableCell>
-                          <TableCell className="py-3 px-3">
-                            <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-2 max-w-xs">
-                              {wo.description || wo.service || 'General Service'}
-                            </p>
-                          </TableCell>
-                          <TableCell className="py-3 px-3">
-                            <span className={`px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap border ${wo.priority === 'Critical' ? 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-400 dark:border-red-800' :
-                              wo.priority === 'High' ? 'bg-orange-100 text-orange-800 border-orange-200 dark:bg-orange-900/30 dark:text-orange-400 dark:border-orange-800' :
-                                wo.priority === 'Medium' ? 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-400 dark:border-yellow-800' :
-                                  wo.priority === 'Low' ? 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-400 dark:border-green-800' :
-                                    'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
-                              }`}>
-                              {wo.priority || 'Medium'}
-                            </span>
-                          </TableCell>
-                          <TableCell className="py-3 px-3">
-                            <span className="text-xs text-gray-700 dark:text-gray-300">
-                              {wo.assignedTechnicianId ? 'Assigned' : 'Unassigned'}
-                            </span>
-                          </TableCell>
-                          <TableCell className="py-3 px-3">
-                            <span className="text-xs text-gray-700 dark:text-gray-300">
-                              {wo.service || '-'}
-                            </span>
-                          </TableCell>
-                          <TableCell className="py-3 px-3">
-                            <div className="flex flex-col gap-0.5">
-                              <span className="text-xs text-gray-700 dark:text-gray-300">{dayjs(wo.created_at).format('MMM DD, YYYY')}</span>
-                              <span className="text-xs text-gray-500 dark:text-gray-400">{dayjs(wo.created_at).fromNow()}</span>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                  {workOrders && workOrders.length > 5 && (
-                    <button
-                      onClick={() => navigate(`/work-orders?vehicle=${id}`)}
-                      className="w-full py-2 text-xs font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors mt-2"
-                    >
-                      View {workOrders.length - 5} more work orders
-                    </button>
-                  )}
-                </div>
-            )}
+                          </div>
+                        </td>
+                        <td className="py-5 px-3">
+                          <span className="text-sm text-muted-foreground" title={wo.createdAt ? dayjs(wo.createdAt).format('MMMM D, YYYY h:mm A') : wo.created_at ? dayjs(wo.created_at).format('MMMM D, YYYY h:mm A') : 'N/A'}>
+                            {wo.createdAt ? dayjs(wo.createdAt).format('MMM D, YYYY') : wo.created_at ? dayjs(wo.created_at).format('MMM D, YYYY') : 'N/A'}
+                          </span>
+                        </td>
+                        <td className="py-5 px-5 text-right">
+                          <Badge 
+                            variant={
+                              (wo.priority === 'urgent' || wo.priority === 'Critical' || wo.priority === 'Urgent') ? 'destructive' :
+                              (wo.priority === 'high' || wo.priority === 'High') ? 'warning' :
+                              (wo.priority === 'medium' || wo.priority === 'Medium') ? 'secondary' :
+                              (wo.priority === 'low' || wo.priority === 'Low') ? 'outline' : 'secondary'
+                            }
+                            className="gap-1.5"
+                          >
+                            {(wo.priority === 'urgent' || wo.priority === 'Critical' || wo.priority === 'Urgent') && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                            )}
+                            {(wo.priority === 'high' || wo.priority === 'High') && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                            )}
+                            {(wo.priority === 'medium' || wo.priority === 'Medium') && (
+                              <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
+                            )}
+                            {wo.priority ? wo.priority.charAt(0).toUpperCase() + wo.priority.slice(1) : 'Medium'}
+                          </Badge>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {workOrders && workOrders.length > 5 && (
+                  <button
+                    onClick={() => navigate(`/work-orders?vehicle=${id}`)}
+                    className="w-full py-3 text-sm font-medium text-primary hover:text-primary/80 hover:bg-muted/50 rounded-lg transition-colors mt-1 border-t border-border"
+                  >
+                    View {workOrders.length - 5} more work orders
+                  </button>
+                )}
               </div>
+            )}
+            </CardContent>
+          </Card>
 
           {/* Warranty Information */}
-            {vehicle.warranty_end_date && (
-              <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                  <HugeiconsIcon icon={LockIcon} size={18} className="text-gray-600 dark:text-gray-400" />
+          {vehicle.warranty_end_date && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <Lock className="w-5 h-5 text-muted-foreground" />
                   Warranty Information
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Status</div>
-                    <div className="text-sm font-semibold">
-                      {dayjs(vehicle.warranty_end_date).isAfter(dayjs()) ? (
-                        <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                          <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} />
-                          Active
-                        </span>
-                      ) : (
-                        <span className="text-red-600 dark:text-red-400 flex items-center gap-1">
-                          <HugeiconsIcon icon={AlertCircleIcon} size={16} />
-                          Expired
-                        </span>
-                      )}
-                    </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                  <div className="text-xs font-medium text-muted-foreground mb-1">Status</div>
+                  <div className="text-sm font-semibold">
+                    {dayjs(vehicle.warranty_end_date).isAfter(dayjs()) ? (
+                      <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                        <CheckCircle className="w-5 h-5" />
+                        Active
+                      </span>
+                    ) : (
+                      <span className="text-destructive flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" />
+                        Expired
+                      </span>
+                    )}
                   </div>
-                  {vehicle.warranty_start_date && (
-                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Start Date</div>
-                      <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{dayjs(vehicle.warranty_start_date).format('MMM DD, YYYY')}</div>
-                    </div>
-                  )}
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">End Date</div>
-                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{dayjs(vehicle.warranty_end_date).format('MMM DD, YYYY')}</div>
-                  </div>
-                  {vehicle.warranty_months && (
-                    <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                      <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Duration</div>
-                      <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{vehicle.warranty_months} months</div>
-                    </div>
-                  )}
                 </div>
+                {vehicle.warranty_start_date && (
+                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                    <div className="text-xs font-medium text-muted-foreground mb-1">Start Date</div>
+                    <div className="text-sm font-semibold text-foreground">{dayjs(vehicle.warranty_start_date).format('MMM DD, YYYY')}</div>
+                  </div>
+                )}
+                <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                  <div className="text-xs font-medium text-muted-foreground mb-1">End Date</div>
+                  <div className="text-sm font-semibold text-foreground">{dayjs(vehicle.warranty_end_date).format('MMM DD, YYYY')}</div>
+                </div>
+                {vehicle.warranty_months && (
+                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                    <div className="text-xs font-medium text-muted-foreground mb-1">Duration</div>
+                    <div className="text-sm font-semibold text-foreground">{vehicle.warranty_months} months</div>
+                  </div>
+                )}
               </div>
-            )}
+            </CardContent>
+          </Card>
+          )}
         </Stack>
 
         {/* Edit Asset Dialog */}
@@ -546,3 +578,7 @@ const AssetDetails = () => {
 };
 
 export default AssetDetails;
+
+
+
+

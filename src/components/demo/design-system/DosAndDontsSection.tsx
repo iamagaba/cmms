@@ -1,21 +1,22 @@
+import { CheckCircle, X } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { CheckmarkCircle01Icon, Cancel01Icon, AlertCircleIcon, InboxIcon } from '@hugeicons/core-free-icons';
+
+
 
 const DosAndDontsSection: React.FC = () => {
     return (
-        <Card className="border-blue-200 bg-blue-50">
+        <Card className="border-blue-200 bg-muted">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-blue-900">
-                    <HugeiconsIcon icon={CheckmarkCircle01Icon} size={20} />
+                    <CheckCircle className="w-5 h-5" />
                     Do's and Don'ts
                 </CardTitle>
-                <CardDescription className="text-blue-700">
+                <CardDescription className="text-muted-foreground">
                     Visual examples of correct vs incorrect component usage
                 </CardDescription>
             </CardHeader>
@@ -26,8 +27,8 @@ const DosAndDontsSection: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="border-2 border-emerald-500 bg-white p-4 rounded-lg">
                             <div className="flex items-center gap-2 mb-3">
-                                <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="text-emerald-600" />
-                                <p className="text-emerald-700 font-semibold text-sm">Do</p>
+                                <CheckCircle className="w-4 h-4 text-foreground" />
+                                <p className="text-foreground font-semibold text-sm">Do</p>
                             </div>
                             <div className="space-y-3">
                                 <div className="flex gap-2">
@@ -39,10 +40,10 @@ const DosAndDontsSection: React.FC = () => {
                                 </p>
                             </div>
                         </div>
-                        <div className="border-2 border-red-500 bg-white p-4 rounded-lg">
+                        <div className="border-2 border-destructive bg-white p-4 rounded-lg">
                             <div className="flex items-center gap-2 mb-3">
-                                <HugeiconsIcon icon={Cancel01Icon} size={16} className="text-red-600" />
-                                <p className="text-red-700 font-semibold text-sm">Don't</p>
+                                <X className="w-4 h-4 text-destructive" />
+                                <p className="text-destructive font-semibold text-sm">Don't</p>
                             </div>
                             <div className="space-y-3">
                                 <div className="flex gap-2">
@@ -63,8 +64,8 @@ const DosAndDontsSection: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="border-2 border-emerald-500 bg-white p-4 rounded-lg">
                             <div className="flex items-center gap-2 mb-3">
-                                <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="text-emerald-600" />
-                                <p className="text-emerald-700 font-semibold text-sm">Do</p>
+                                <CheckCircle className="w-4 h-4 text-foreground" />
+                                <p className="text-foreground font-semibold text-sm">Do</p>
                             </div>
                             <div className="space-y-3">
                                 <div className="flex items-center gap-2">
@@ -76,10 +77,10 @@ const DosAndDontsSection: React.FC = () => {
                                 </p>
                             </div>
                         </div>
-                        <div className="border-2 border-red-500 bg-white p-4 rounded-lg">
+                        <div className="border-2 border-destructive bg-white p-4 rounded-lg">
                             <div className="flex items-center gap-2 mb-3">
-                                <HugeiconsIcon icon={Cancel01Icon} size={16} className="text-red-600" />
-                                <p className="text-red-700 font-semibold text-sm">Don't</p>
+                                <X className="w-4 h-4 text-destructive" />
+                                <p className="text-destructive font-semibold text-sm">Don't</p>
                             </div>
                             <div className="space-y-3">
                                 <div className="flex items-center gap-2">
@@ -100,8 +101,8 @@ const DosAndDontsSection: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="border-2 border-emerald-500 bg-white p-4 rounded-lg">
                             <div className="flex items-center gap-2 mb-3">
-                                <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="text-emerald-600" />
-                                <p className="text-emerald-700 font-semibold text-sm">Do</p>
+                                <CheckCircle className="w-4 h-4 text-foreground" />
+                                <p className="text-foreground font-semibold text-sm">Do</p>
                             </div>
                             <div className="space-y-3">
                                 <div className="space-y-2">
@@ -113,10 +114,10 @@ const DosAndDontsSection: React.FC = () => {
                                 </p>
                             </div>
                         </div>
-                        <div className="border-2 border-red-500 bg-white p-4 rounded-lg">
+                        <div className="border-2 border-destructive bg-white p-4 rounded-lg">
                             <div className="flex items-center gap-2 mb-3">
-                                <HugeiconsIcon icon={Cancel01Icon} size={16} className="text-red-600" />
-                                <p className="text-red-700 font-semibold text-sm">Don't</p>
+                                <X className="w-4 h-4 text-destructive" />
+                                <p className="text-destructive font-semibold text-sm">Don't</p>
                             </div>
                             <div className="space-y-3">
                                 <div className="space-y-2">
@@ -136,8 +137,8 @@ const DosAndDontsSection: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="border-2 border-emerald-500 bg-white p-4 rounded-lg">
                             <div className="flex items-center gap-2 mb-3">
-                                <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="text-emerald-600" />
-                                <p className="text-emerald-700 font-semibold text-sm">Do</p>
+                                <CheckCircle className="w-4 h-4 text-foreground" />
+                                <p className="text-foreground font-semibold text-sm">Do</p>
                             </div>
                             <div className="space-y-2">
                                 <p className="text-xs font-medium">Use dialogs for:</p>
@@ -148,10 +149,10 @@ const DosAndDontsSection: React.FC = () => {
                                 </ul>
                             </div>
                         </div>
-                        <div className="border-2 border-red-500 bg-white p-4 rounded-lg">
+                        <div className="border-2 border-destructive bg-white p-4 rounded-lg">
                             <div className="flex items-center gap-2 mb-3">
-                                <HugeiconsIcon icon={Cancel01Icon} size={16} className="text-red-600" />
-                                <p className="text-red-700 font-semibold text-sm">Don't</p>
+                                <X className="w-4 h-4 text-destructive" />
+                                <p className="text-destructive font-semibold text-sm">Don't</p>
                             </div>
                             <div className="space-y-2">
                                 <p className="text-xs font-medium">Avoid dialogs for:</p>
@@ -171,12 +172,12 @@ const DosAndDontsSection: React.FC = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="border-2 border-emerald-500 bg-white p-4 rounded-lg">
                             <div className="flex items-center gap-2 mb-3">
-                                <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="text-emerald-600" />
-                                <p className="text-emerald-700 font-semibold text-sm">Do</p>
+                                <CheckCircle className="w-4 h-4 text-foreground" />
+                                <p className="text-foreground font-semibold text-sm">Do</p>
                             </div>
                             <div className="space-y-3">
                                 <div className="flex items-center gap-2">
-                                    <HugeiconsIcon icon={AlertCircleIcon} size={16} className="text-red-600" />
+                                    <AlertCircle className="w-4 h-4 text-destructive" />
                                     <Badge variant="priority-critical">Critical</Badge>
                                 </div>
                                 <p className="text-xs text-gray-600">
@@ -184,14 +185,14 @@ const DosAndDontsSection: React.FC = () => {
                                 </p>
                             </div>
                         </div>
-                        <div className="border-2 border-red-500 bg-white p-4 rounded-lg">
+                        <div className="border-2 border-destructive bg-white p-4 rounded-lg">
                             <div className="flex items-center gap-2 mb-3">
-                                <HugeiconsIcon icon={Cancel01Icon} size={16} className="text-red-600" />
-                                <p className="text-red-700 font-semibold text-sm">Don't</p>
+                                <X className="w-4 h-4 text-destructive" />
+                                <p className="text-destructive font-semibold text-sm">Don't</p>
                             </div>
                             <div className="space-y-3">
                                 <div className="flex items-center gap-2">
-                                    <div className="w-3 h-3 rounded-full bg-red-600"></div>
+                                    <div className="w-3 h-3 rounded-full bg-destructive"></div>
                                     <span className="text-sm">Critical</span>
                                 </div>
                                 <p className="text-xs text-gray-600">
@@ -207,3 +208,6 @@ const DosAndDontsSection: React.FC = () => {
 };
 
 export default DosAndDontsSection;
+
+
+

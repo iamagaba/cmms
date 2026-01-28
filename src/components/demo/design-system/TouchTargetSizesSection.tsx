@@ -1,3 +1,4 @@
+import { CheckCircle, Info, Settings, X } from 'lucide-react';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -6,22 +7,15 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableHeader, TableBody, TableHead, TableRow, TableCell } from "@/components/ui/table";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { HugeiconsIcon } from "@hugeicons/react";
-import {
-    SmartPhone01Icon,
-    InformationCircleIcon,
-    CheckmarkCircle01Icon,
-    Cancel01Icon,
-    Settings02Icon,
-    MoreVerticalIcon
-} from "@hugeicons/core-free-icons";
+
+
 
 const TouchTargetSizesSection: React.FC = () => {
     return (
         <Card className="border-rose-200 bg-rose-50">
             <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-rose-900">
-                    <HugeiconsIcon icon={SmartPhone01Icon} size={20} />
+                    <SmartPhone01Icon className="w-5 h-5" />
                     Touch Target Sizes
                 </CardTitle>
                 <CardDescription className="text-rose-700">
@@ -34,42 +28,42 @@ const TouchTargetSizesSection: React.FC = () => {
                     <h3 className="text-sm font-semibold text-rose-900 mb-4">Minimum Touch Target Sizes</h3>
                     <div className="space-y-4">
                         <Alert>
-                            <HugeiconsIcon icon={InformationCircleIcon} size={16} className="text-blue-600" />
+                            <Info className="w-4 h-4 text-muted-foreground" />
                             <AlertTitle>WCAG 2.1 Guideline</AlertTitle>
                             <AlertDescription className="text-xs">
                                 Touch targets should be at least 44x44 pixels (iOS) or 48x48 pixels (Android) for accessibility compliance.
                             </AlertDescription>
                         </Alert>
                         <div className="space-y-3">
-                            <div className="flex items-center gap-4 p-3 bg-emerald-50 rounded border border-emerald-200">
+                            <div className="flex items-center gap-4 p-3 bg-muted rounded border border-emerald-200">
                                 <div className="w-11 h-11 bg-emerald-600 rounded flex items-center justify-center text-white">
-                                    <HugeiconsIcon icon={CheckmarkCircle01Icon} size={20} />
+                                    <CheckCircle className="w-5 h-5" />
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-sm font-medium text-gray-900">44x44px (Minimum)</p>
                                     <p className="text-xs text-gray-600">iOS guideline, WCAG compliant</p>
                                 </div>
-                                <code className="text-xs text-emerald-700 bg-white px-2 py-1 rounded">h-11 w-11</code>
+                                <code className="text-xs text-foreground bg-white px-2 py-1 rounded">h-11 w-11</code>
                             </div>
-                            <div className="flex items-center gap-4 p-3 bg-emerald-50 rounded border border-emerald-200">
+                            <div className="flex items-center gap-4 p-3 bg-muted rounded border border-emerald-200">
                                 <div className="w-12 h-12 bg-emerald-600 rounded flex items-center justify-center text-white">
-                                    <HugeiconsIcon icon={CheckmarkCircle01Icon} size={20} />
+                                    <CheckCircle className="w-5 h-5" />
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-sm font-medium text-gray-900">48x48px (Recommended)</p>
                                     <p className="text-xs text-gray-600">Android guideline, more comfortable</p>
                                 </div>
-                                <code className="text-xs text-emerald-700 bg-white px-2 py-1 rounded">h-12 w-12</code>
+                                <code className="text-xs text-foreground bg-white px-2 py-1 rounded">h-12 w-12</code>
                             </div>
-                            <div className="flex items-center gap-4 p-3 bg-red-50 rounded border border-red-200">
-                                <div className="w-8 h-8 bg-red-600 rounded flex items-center justify-center text-white">
-                                    <HugeiconsIcon icon={Cancel01Icon} size={16} />
+                            <div className="flex items-center gap-4 p-3 bg-red-50 rounded border border-destructive/20">
+                                <div className="w-8 h-8 bg-destructive rounded flex items-center justify-center text-white">
+                                    <X className="w-5 h-5" />
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-sm font-medium text-gray-900">32x32px (Too Small)</p>
                                     <p className="text-xs text-gray-600">Not accessible, hard to tap</p>
                                 </div>
-                                <code className="text-xs text-red-700 bg-white px-2 py-1 rounded">h-8 w-8</code>
+                                <code className="text-xs text-destructive bg-white px-2 py-1 rounded">h-8 w-8</code>
                             </div>
                         </div>
                     </div>
@@ -126,7 +120,7 @@ const TouchTargetSizesSection: React.FC = () => {
                     <div className="space-y-3">
                         <div className="flex items-center gap-4">
                             <Button size="icon" variant="outline" className="h-9 w-9">
-                                <HugeiconsIcon icon={Settings02Icon} size={16} />
+                                <Settings className="w-5 h-5" />
                             </Button>
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900">Default (36x36px)</p>
@@ -136,7 +130,7 @@ const TouchTargetSizesSection: React.FC = () => {
                         </div>
                         <div className="flex items-center gap-4">
                             <Button size="icon" variant="outline" className="h-12 w-12">
-                                <HugeiconsIcon icon={Settings02Icon} size={20} />
+                                <Settings className="w-5 h-5" />
                             </Button>
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900">Large (48x48px)</p>
@@ -165,7 +159,7 @@ const TouchTargetSizesSection: React.FC = () => {
                                     <TableCell><Badge variant="status-open">Open</Badge></TableCell>
                                     <TableCell>
                                         <Button size="icon" variant="ghost" className="h-10 w-10">
-                                            <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
+                                            <MoreVerticalIcon className="w-4 h-4" />
                                         </Button>
                                     </TableCell>
                                 </TableRow>
@@ -174,7 +168,7 @@ const TouchTargetSizesSection: React.FC = () => {
                                     <TableCell><Badge variant="status-completed">Completed</Badge></TableCell>
                                     <TableCell>
                                         <Button size="icon" variant="ghost" className="h-10 w-10">
-                                            <HugeiconsIcon icon={MoreVerticalIcon} size={16} />
+                                            <MoreVerticalIcon className="w-4 h-4" />
                                         </Button>
                                     </TableCell>
                                 </TableRow>
@@ -199,7 +193,7 @@ const TouchTargetSizesSection: React.FC = () => {
                                 <Button size="sm">Button 2</Button>
                                 <Button size="sm">Button 3</Button>
                             </div>
-                            <p className="text-xs text-red-600 mt-2">❌ Only 4px gap - easy to mis-tap</p>
+                            <p className="text-xs text-destructive mt-2">❌ Only 4px gap - easy to mis-tap</p>
                         </div>
                         <div>
                             <p className="text-sm font-medium text-gray-900 mb-3">Good Spacing (Easy to Tap)</p>
@@ -208,7 +202,7 @@ const TouchTargetSizesSection: React.FC = () => {
                                 <Button size="default">Button 2</Button>
                                 <Button size="default">Button 3</Button>
                             </div>
-                            <p className="text-xs text-emerald-600 mt-2">✅ 12px gap - comfortable spacing</p>
+                            <p className="text-xs text-foreground mt-2">✅ 12px gap - comfortable spacing</p>
                         </div>
                     </div>
                 </div>
@@ -235,7 +229,7 @@ const TouchTargetSizesSection: React.FC = () => {
                 </div>
 
                 <Alert className="border-rose-300 bg-rose-100">
-                    <HugeiconsIcon icon={CheckmarkCircle01Icon} size={16} className="text-rose-700" />
+                    <CheckCircle className="w-4 h-4 text-rose-700" />
                     <AlertTitle className="text-rose-900">Touch Target Best Practices</AlertTitle>
                     <AlertDescription className="text-rose-800">
                         <ul className="text-xs space-y-1 mt-2 ml-4 list-disc">
@@ -255,3 +249,7 @@ const TouchTargetSizesSection: React.FC = () => {
 };
 
 export default TouchTargetSizesSection;
+
+
+
+

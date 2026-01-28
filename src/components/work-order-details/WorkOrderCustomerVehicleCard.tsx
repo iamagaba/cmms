@@ -1,16 +1,5 @@
 import React from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-  UserIcon, 
-  Call02Icon, 
-  Motorbike01Icon, 
-  CheckmarkCircle01Icon,
-  AlertCircleIcon,
-  Cancel01Icon,
-  SecurityCheckIcon,
-  Alert01Icon,
-
-} from '@hugeicons/core-free-icons';
+import { User, Phone, Bike, AlertCircle, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { WorkOrder, Customer, Vehicle } from '@/types/supabase';
 
 interface WorkOrderCustomerVehicleCardProps {
@@ -64,7 +53,7 @@ export const WorkOrderCustomerVehicleCard: React.FC<WorkOrderCustomerVehicleCard
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <HugeiconsIcon icon={UserIcon} size={12} className="text-gray-400" />
+                  <User  className="text-gray-400" />
                   <p className="text-xs font-bold text-gray-900">{customerName || '-'}</p>
                 </div>
                 {customerType && (
@@ -80,7 +69,7 @@ export const WorkOrderCustomerVehicleCard: React.FC<WorkOrderCustomerVehicleCard
                     href={`tel:${customerPhone}`}
                     className="text-[10px] text-primary-600 hover:text-primary-700 flex items-center gap-1 mt-1"
                   >
-                    <HugeiconsIcon icon={Call02Icon} size={12} />
+                    <Phone  />
                     {customerPhone}
                   </a>
                 )}
@@ -102,12 +91,12 @@ export const WorkOrderCustomerVehicleCard: React.FC<WorkOrderCustomerVehicleCard
                 />
               ) : (
                 <div className="w-14 h-14 bg-gray-100 rounded border border-gray-200 flex items-center justify-center flex-shrink-0">
-                  <HugeiconsIcon icon={Motorbike01Icon} size={28} className="text-gray-300" />
+                  <Bike  className="text-gray-300" />
                 </div>
               )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 mb-0.5">
-                  <HugeiconsIcon icon={Motorbike01Icon} size={12} className="text-gray-400" />
+                  <Bike  className="text-gray-400" />
                   <span className="text-xs font-bold text-gray-900">
                     {vehicle?.make} {vehicle?.model}
                   </span>
@@ -221,12 +210,13 @@ const WarrantyStatus: React.FC<{ vehicle?: Vehicle | null }> = ({ vehicle }) => 
       }`}>
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1 flex-1 min-w-0">
-          <HugeiconsIcon
-            icon={isExpired ? Alert01Icon : isExpiringSoon ? AlertCircleIcon : SecurityCheckIcon}
-            size={12}
-            className={`flex-shrink-0 ${isExpired ? 'text-red-600' : isExpiringSoon ? 'text-amber-600' : 'text-emerald-600'
-              }`}
-          />
+          {isExpired ? (
+            <AlertTriangle className={`w-4 h-4 flex-shrink-0 text-red-600`} />
+          ) : isExpiringSoon ? (
+            <AlertCircle className={`w-4 h-4 flex-shrink-0 text-amber-600`} />
+          ) : (
+            <ShieldCheck className={`w-4 h-4 flex-shrink-0 text-emerald-600`} />
+          )}
           <div className="flex-1 min-w-0">
             <p className={`text-[10px] font-medium ${isExpired ? 'text-red-700' : isExpiringSoon ? 'text-amber-700' : 'text-emerald-700'
               }`}>
@@ -249,3 +239,5 @@ const WarrantyStatus: React.FC<{ vehicle?: Vehicle | null }> = ({ vehicle }) => 
 };
 
 export default WorkOrderCustomerVehicleCard;
+
+

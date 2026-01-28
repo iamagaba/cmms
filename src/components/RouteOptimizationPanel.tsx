@@ -37,7 +37,7 @@ export function RouteOptimizationPanel({
     if (!success) {
       toast({
         title: "Error",
-        description: "Failed to open map application. Please ensure you have a maps app installed.",
+        description: "Unable to open map application. Ensure you have a maps app installed.",
         variant: "destructive"
       });
     }
@@ -87,34 +87,34 @@ export function RouteOptimizationPanel({
 
           {/* Route Stats */}
           {routeStats && (
-            <div className="p-4 bg-blue-50 border-b border-blue-200">
+            <div className="p-4 bg-muted border-b border-border">
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center">
                   <div className="flex items-center justify-center mb-1">
-                    <Route className="w-4 h-4 text-blue-600" />
+                    <Route className="w-4 h-4 text-muted-foreground" />
                   </div>
-                  <p className="text-lg font-semibold text-blue-900">
+                  <p className="text-lg font-semibold text-foreground">
                     {formatDistance(routeStats.totalDistance)}
                   </p>
-                  <p className="text-xs text-blue-700">Total Distance</p>
+                  <p className="text-xs text-muted-foreground">Total Distance</p>
                 </div>
                 <div className="text-center">
                   <div className="flex items-center justify-center mb-1">
-                    <Clock className="w-4 h-4 text-blue-600" />
+                    <Clock className="w-4 h-4 text-muted-foreground" />
                   </div>
-                  <p className="text-lg font-semibold text-blue-900">
+                  <p className="text-lg font-semibold text-foreground">
                     {formatDuration(routeStats.estimatedTravelTime)}
                   </p>
-                  <p className="text-xs text-blue-700">Travel Time</p>
+                  <p className="text-xs text-muted-foreground">Travel Time</p>
                 </div>
                 <div className="text-center">
                   <div className="flex items-center justify-center mb-1">
-                    <MapPin className="w-4 h-4 text-blue-600" />
+                    <MapPin className="w-4 h-4 text-muted-foreground" />
                   </div>
-                  <p className="text-lg font-semibold text-blue-900">
+                  <p className="text-lg font-semibold text-foreground">
                     {routeStats.totalStops}
                   </p>
-                  <p className="text-xs text-blue-700">Stops</p>
+                  <p className="text-xs text-muted-foreground">Stops</p>
                 </div>
               </div>
             </div>
@@ -122,8 +122,8 @@ export function RouteOptimizationPanel({
 
           {/* Route Summary */}
           {routeSummary && (
-            <div className="p-4 bg-green-50 border-b border-green-200">
-              <p className="text-sm text-green-800">{routeSummary}</p>
+            <div className="p-4 bg-muted border-b border-border">
+              <p className="text-sm text-muted-foreground">{routeSummary}</p>
             </div>
           )}
 
@@ -135,7 +135,7 @@ export function RouteOptimizationPanel({
                 {optimizationResult.optimizedOrder.map((workOrder, index) => (
                   <div key={workOrder.id} className="flex items-start space-x-3">
                     {/* Step Number */}
-                    <div className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-medium">
+                    <div className="flex-shrink-0 w-6 h-6 bg-primary text-primary-foreground rounded-full flex items-center justify-center text-xs font-medium">
                       {index + 1}
                     </div>
 
@@ -147,9 +147,9 @@ export function RouteOptimizationPanel({
                         </p>
                         <div className="flex items-center space-x-2 text-xs text-gray-500">
                           {workOrder.priority && (
-                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${workOrder.priority === 'High' ? 'bg-red-100 text-red-700' :
-                              workOrder.priority === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
-                                'bg-gray-100 text-gray-700'
+                            <span className={`px-2 py-0.5 rounded text-xs font-medium ${workOrder.priority === 'High' ? 'bg-destructive/10 text-destructive' :
+                              workOrder.priority === 'Medium' ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400' :
+                                'bg-muted text-muted-foreground'
                               }`}>
                               {workOrder.priority}
                             </span>
@@ -173,8 +173,8 @@ export function RouteOptimizationPanel({
                       {/* Distance from previous stop */}
                       {index > 0 && optimizationResult.distances && (
                         <div className="flex items-center space-x-1 mt-1">
-                          <Navigation className="w-3 h-3 text-blue-500" />
-                          <p className="text-xs text-blue-600">
+                          <Navigation className="w-3 h-3 text-primary" />
+                          <p className="text-xs text-primary">
                             {formatDistance(optimizationResult.distances[index - 1])} from previous
                           </p>
                         </div>
@@ -192,7 +192,7 @@ export function RouteOptimizationPanel({
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => handleOpenInMaps('google')}
-                className="flex items-center justify-center space-x-2 p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                className="flex items-center justify-center space-x-2 p-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
               >
                 <ExternalLink className="w-4 h-4" />
                 <span className="font-medium">Google Maps</span>
@@ -200,7 +200,7 @@ export function RouteOptimizationPanel({
 
               <button
                 onClick={() => handleOpenInMaps('apple')}
-                className="flex items-center justify-center space-x-2 p-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors"
+                className="flex items-center justify-center space-x-2 p-3 bg-secondary text-secondary-foreground rounded-lg hover:bg-secondary/90 transition-colors"
               >
                 <Smartphone className="w-4 h-4" />
                 <span className="font-medium">Apple Maps</span>
@@ -227,7 +227,7 @@ export function RouteOptimizationPanel({
                     });
                   }
                 }}
-                className="flex-1 p-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                className="flex-1 p-2 text-sm text-muted-foreground bg-muted rounded-lg hover:bg-muted/80 transition-colors"
               >
                 Copy Summary
               </button>
@@ -257,14 +257,14 @@ export function RouteOptimizationPanel({
                     });
                   }
                 }}
-                className="flex-1 p-2 text-sm text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                className="flex-1 p-2 text-sm text-muted-foreground bg-muted rounded-lg hover:bg-muted/80 transition-colors"
               >
                 Share Route
               </button>
             </div>
 
             {/* Disclaimer */}
-            <p className="text-xs text-gray-500 text-center">
+            <p className="text-xs text-muted-foreground text-center">
               Route optimization is based on distance and priority. Actual travel times may vary due to traffic conditions.
             </p>
           </div>

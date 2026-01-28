@@ -1,34 +1,19 @@
+import { AlertCircle, Bike, CheckCircle, ClipboardList, Clock, Info, Mail, Plus, ChevronRight, Car, UserCircle, Phone, Edit, Clock as TimelineIcon, User } from 'lucide-react';
+import PageHeader from '@/components/layout/PageHeader';
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  UserCircleIcon,
-  ClipboardIcon,
-  PencilEdit02Icon,
-  Mail01Icon,
-  Call02Icon,
-  Car01Icon,
-  LinkSquare02Icon,
-  Clock01Icon,
-  Alert01Icon,
-  CheckmarkCircle01Icon,
-  ArrowRight01Icon,
-  Motorbike01Icon,
-  TimelineIcon,
-  Add01Icon,
-  InformationCircleIcon,
-  Location01Icon
-} from '@hugeicons/core-free-icons';
-import { Stack, Button, Skeleton } from '@/components/tailwind-components';
+
+
+import { Button } from '@/components/ui/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 import { Customer, Vehicle, WorkOrder } from '@/types/supabase';
 import { snakeToCamelCase } from '@/utils/data-helpers';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
-
-import { EnhancedWorkOrderDataTable } from '@/components/EnhancedWorkOrderDataTable';
-import { useWorkOrderData } from '@/hooks/useWorkOrderData';
 
 dayjs.extend(relativeTime);
 
@@ -89,25 +74,27 @@ const CustomerDetails = () => {
 
   if (isLoading) {
     return (
-      <div className="w-full px-6 py-6">
-        <Stack gap="lg">
-          <Skeleton height={40} width={200} />
-          <Skeleton height={300} />
-          <Skeleton height={200} />
-        </Stack>
+      <div className="w-full p-6">
+        <div className="space-y-6">
+          <Skeleton className="h-10 w-48" />
+          <Skeleton className="h-64" />
+          <Skeleton className="h-48" />
+        </div>
       </div>
     );
   }
 
   if (!customer) {
     return (
-      <div className="w-full px-6 py-6">
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-12 text-center">
-          <HugeiconsIcon icon={Alert01Icon} className="mx-auto text-gray-400 dark:text-gray-500 mb-4" size={64} />
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Customer Not Found</h3>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">The customer you're looking for doesn't exist.</p>
-          <Button onClick={() => navigate('/customers')}>Back to Customers</Button>
-        </div>
+      <div className="w-full p-6">
+        <Card>
+          <CardContent className="p-12 text-center">
+            <AlertCircle className="w-5 h-5 mx-auto text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">Customer Not Found</h3>
+            <p className="text-sm text-muted-foreground mb-4">The customer you're looking for doesn't exist.</p>
+            <Button onClick={() => navigate('/customers')}>Back to Customers</Button>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -117,116 +104,110 @@ const CustomerDetails = () => {
   const completedWorkOrders = workOrders?.filter(wo => wo.status === 'Completed').length || 0;
   const totalVehicles = vehicles?.length || 0;
 
-  const customerTypeColors = {
-    'individual': 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-400',
-    'business': 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400',
-    'fleet': 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+  // Customer type badge variants
+  const customerTypeBadgeVariant = {
+    'individual': 'success' as const,
+    'business': 'warning' as const,
+    'fleet': 'info' as const
   };
 
   return (
     <div className="w-full p-6">
-      <Stack gap="md">
-        {/* Breadcrumb Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate('/customers')}
-              className="text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 flex items-center gap-1 transition-colors"
-            >
-              <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="rotate-180" />
-              Customers
-            </button>
-            <HugeiconsIcon icon={ArrowRight01Icon} size={14} className="text-gray-400 dark:text-gray-500" />
-            <span className="text-sm font-medium text-gray-900 dark:text-gray-100">{customer.name}</span>
-          </div>
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => navigate(`/work-orders?customer=${id}`)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-            >
-              <HugeiconsIcon icon={ClipboardIcon} size={16} />
-              <span className="hidden sm:inline">View Work Orders</span>
-              <span className="sm:hidden">Work Orders</span>
-            </button>
-            <button
-              onClick={() => navigate(`/customers`)}
-              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg font-medium text-white bg-primary-600 hover:bg-primary-700 transition-colors"
-            >
-              <HugeiconsIcon icon={PencilEdit02Icon} size={16} />
-              <span className="hidden sm:inline">Edit Customer</span>
-              <span className="sm:hidden">Edit</span>
-            </button>
-          </div>
-        </div>
+      <div className="space-y-6">
+        {/* Page Header */}
+        <PageHeader
+          title={customer.name}
+          subtitle={customer.company || undefined}
+          icon={<User className="w-5 h-5 text-muted-foreground" />}
+          actions={
+            <>
+              <Button
+                variant="outline"
+                onClick={() => navigate(`/work-orders?customer=${id}`)}
+              >
+                <ClipboardList className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">View Work Orders</span>
+                <span className="sm:hidden">Work Orders</span>
+              </Button>
+              <Button onClick={() => navigate(`/customers`)}>
+                <Edit className="w-4 h-4 mr-2" />
+                <span className="hidden sm:inline">Edit Customer</span>
+                <span className="sm:hidden">Edit</span>
+              </Button>
+            </>
+          }
+        />
 
         {/* Customer Header Card */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
-          <div className="flex items-start gap-6">
-            <div className="w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/30 flex items-center justify-center flex-shrink-0 text-primary-700 dark:text-primary-400 font-semibold text-2xl">
-              {customer.name ? customer.name.charAt(0).toUpperCase() : 'C'}
-            </div>
-            <div className="flex-1 min-w-0">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{customer.name}</h1>
-              {customer.company && (
-                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{customer.company}</p>
-              )}
-              <div className="flex items-center gap-2 mt-2 flex-wrap">
-                <span className={`px-2.5 py-1 rounded text-xs font-medium ${customerTypeColors[customer.customerType || 'individual']}`}>
-                  {customer.customerType || 'Individual'}
-                </span>
-                {customer.email && (
-                  <span className="px-2.5 py-1 rounded text-xs font-medium bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                    <HugeiconsIcon icon={Mail01Icon} size={12} className="inline mr-1" />
-                    Verified
-                  </span>
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-start gap-6">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 text-primary font-semibold text-2xl">
+                {customer.name ? customer.name.charAt(0).toUpperCase() : 'C'}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h1 className="text-2xl font-bold">{customer.name}</h1>
+                {customer.company && (
+                  <p className="text-sm text-muted-foreground mt-1">{customer.company}</p>
                 )}
+                <div className="flex items-center gap-2 mt-2 flex-wrap">
+                  <Badge variant={customerTypeBadgeVariant[customer.customerType || 'individual']}>
+                    {customer.customerType || 'Individual'}
+                  </Badge>
+                  {customer.email && (
+                    <Badge variant="outline">
+                      <Mail className="w-5 h-5 mr-1" />
+                      Verified
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Stats Ribbon */}
-        <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
-          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-gray-200 dark:divide-gray-800">
-            <div
-              className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+        <Card>
+          <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-border">
+            <button
+              className="px-6 py-4 hover:bg-accent transition-colors text-left"
               onClick={() => navigate(`/assets?customer=${id}`)}
             >
               <div className="flex items-center gap-2 mb-1">
-                <HugeiconsIcon icon={Car01Icon} className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Vehicles</p>
+                <Car className="w-4 h-4 text-muted-foreground dark:text-blue-400" />
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Vehicles</p>
               </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{totalVehicles}</p>
-              <div className="mt-2 flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
-                <HugeiconsIcon icon={ArrowRight01Icon} className="w-3 h-3" />
+              <p className="text-2xl font-bold">{totalVehicles}</p>
+              <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground dark:text-blue-400">
+                <ChevronRight className="w-3 h-3" />
                 <span>View vehicles</span>
               </div>
-            </div>
+            </button>
 
-            <div
-              className="px-6 py-4 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors cursor-pointer"
+            <button
+              className="px-6 py-4 hover:bg-accent transition-colors text-left"
               onClick={() => navigate(`/work-orders?customer=${id}`)}
             >
               <div className="flex items-center gap-2 mb-1">
-                <HugeiconsIcon icon={ClipboardIcon} className="w-4 h-4 text-primary-600 dark:text-primary-400" />
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Total Work Orders</p>
+                <ClipboardList className="w-5 h-5 text-primary" />
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total Work Orders</p>
               </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{totalWorkOrders}</p>
-              <div className="mt-2 flex items-center gap-1 text-xs text-primary-600 dark:text-primary-400">
-                <HugeiconsIcon icon={ArrowRight01Icon} className="w-3 h-3" />
+              <p className="text-2xl font-bold">{totalWorkOrders}</p>
+              <div className="mt-2 flex items-center gap-1 text-xs text-primary">
+                <ChevronRight className="w-3 h-3" />
                 <span>View all</span>
               </div>
-            </div>
+            </button>
 
             <div className="px-6 py-4">
               <div className="flex items-center gap-2 mb-1">
-                <HugeiconsIcon icon={Clock01Icon} className="w-4 h-4 text-amber-600 dark:text-amber-400" />
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Open Work Orders</p>
+                <Clock className="w-5 h-5 text-amber-600 dark:text-amber-400" />
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Open Work Orders</p>
               </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{openWorkOrders}</p>
+              <p className="text-2xl font-bold">{openWorkOrders}</p>
               {openWorkOrders > 0 && (
                 <div className="mt-2 flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400">
-                  <HugeiconsIcon icon={Alert01Icon} className="w-3 h-3" />
+                  <AlertCircle className="w-5 h-5" />
                   <span>Needs attention</span>
                 </div>
               )}
@@ -234,208 +215,230 @@ const CustomerDetails = () => {
 
             <div className="px-6 py-4">
               <div className="flex items-center gap-2 mb-1">
-                <HugeiconsIcon icon={CheckmarkCircle01Icon} className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                <p className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">Completed</p>
+                <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Completed</p>
               </div>
-              <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{completedWorkOrders}</p>
+              <p className="text-2xl font-bold">{completedWorkOrders}</p>
             </div>
           </div>
-        </div>
+        </Card>
 
         {/* Main Content Grid */}
-        <div className="grid grid-cols-1 gap-4">
+        <div className="space-y-6">
           {/* Contact Information */}
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                <HugeiconsIcon icon={UserCircleIcon} size={18} className="text-gray-600 dark:text-gray-400" />
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <UserCircle className="w-5 h-5 text-muted-foreground" />
                 Contact Information
-              </h3>
+              </CardTitle>
               {customer.phone && (
-                <a
-                  href={`tel:${customer.phone}`}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
-                >
-                  <HugeiconsIcon icon={Call02Icon} size={14} />
-                  Call Customer
-                </a>
+                <Button size="sm" asChild>
+                  <a href={`tel:${customer.phone}`}>
+                    <Phone className="w-4 h-4 mr-2" />
+                    Call Customer
+                  </a>
+                </Button>
               )}
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {customer.phone && (
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Phone Number</div>
-                  <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{customer.phone}</div>
-                </div>
-              )}
-              {customer.email && (
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Email Address</div>
-                  <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{customer.email}</div>
-                </div>
-              )}
-              {customer.address && (
-                <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                  <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Address</div>
-                  <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">{customer.address}</div>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Vehicles */}
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                <HugeiconsIcon icon={Car01Icon} size={18} className="text-gray-600 dark:text-gray-400" />
-                Vehicles
-              </h3>
-              <button
-                onClick={() => navigate(`/assets?customer=${id}`)}
-                className="inline-flex items-center gap-1 text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors"
-              >
-                View All
-                <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
-              </button>
-            </div>
-            {vehicles && vehicles.length > 0 ? (
-              <div className="space-y-2">
-                {vehicles.slice(0, 5).map((vehicle) => (
-                  <div
-                    key={vehicle.id}
-                    className="group border border-gray-200 dark:border-gray-700 rounded-lg p-3 hover:border-primary-300 dark:hover:border-primary-700 hover:bg-primary-50/30 dark:hover:bg-primary-900/20 transition-all cursor-pointer"
-                    onClick={() => navigate(`/assets/${vehicle.id}`)}
-                  >
-                    <div className="flex items-center justify-between gap-3">
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center flex-shrink-0">
-                          <HugeiconsIcon icon={Motorbike01Icon} className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 group-hover:text-primary-700 dark:group-hover:text-primary-400 transition-colors">
-                            {vehicle.license_plate}
-                          </p>
-                          <p className="text-xs text-gray-600 dark:text-gray-400 truncate">
-                            {vehicle.make} {vehicle.model} {vehicle.year && `(${vehicle.year})`}
-                          </p>
-                        </div>
-                      </div>
-                      <HugeiconsIcon icon={ArrowRight01Icon} className="w-4 h-4 text-gray-400 dark:text-gray-500 group-hover:text-primary-600 dark:group-hover:text-primary-400 transition-colors flex-shrink-0" />
-                    </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {customer.phone && (
+                  <div className="bg-muted rounded-lg p-4">
+                    <div className="text-xs font-medium text-muted-foreground mb-1">Phone Number</div>
+                    <div className="text-sm font-semibold">{customer.phone}</div>
                   </div>
-                ))}
-                {vehicles.length > 5 && (
-                  <button
-                    onClick={() => navigate(`/assets?customer=${id}`)}
-                    className="w-full py-2 text-xs font-medium text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 hover:bg-primary-50 dark:hover:bg-primary-900/20 rounded-lg transition-colors"
-                  >
-                    View {vehicles.length - 5} more vehicles
-                  </button>
+                )}
+                {customer.email && (
+                  <div className="bg-muted rounded-lg p-4">
+                    <div className="text-xs font-medium text-muted-foreground mb-1">Email Address</div>
+                    <div className="text-sm font-semibold truncate">{customer.email}</div>
+                  </div>
+                )}
+                {customer.address && (
+                  <div className="bg-muted rounded-lg p-4">
+                    <div className="text-xs font-medium text-muted-foreground mb-1">Address</div>
+                    <div className="text-sm font-semibold">{customer.address}</div>
+                  </div>
                 )}
               </div>
-            ) : (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-3">
-                  <HugeiconsIcon icon={Car01Icon} className="w-8 h-8 text-gray-400 dark:text-gray-500" />
-                </div>
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No Vehicles</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">This customer doesn't have any vehicles yet</p>
-                <button
-                  onClick={() => navigate(`/assets/new?customer=${id}`)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
-                >
-                  <HugeiconsIcon icon={Add01Icon} size={14} />
-                  Add Vehicle
-                </button>
-              </div>
-            )}
-          </div>
+            </CardContent>
+          </Card>
 
-          {/* Service History - Using Standardized Table */}
-          <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg overflow-hidden">
-            <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-800">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                <HugeiconsIcon icon={TimelineIcon} size={18} className="text-gray-600 dark:text-gray-400" />
+          {/* Vehicles */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Car className="w-5 h-5 text-muted-foreground" />
+                Vehicles
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate(`/assets?customer=${id}`)}
+              >
+                View All
+                <ChevronRight className="w-4 h-4 ml-2" />
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {vehicles && vehicles.length > 0 ? (
+                <div className="space-y-4">
+                  {vehicles.slice(0, 5).map((vehicle) => (
+                    <button
+                      key={vehicle.id}
+                      className="group w-full border border-border rounded-lg p-4 hover:border-primary hover:bg-accent transition-all text-left"
+                      onClick={() => navigate(`/assets/${vehicle.id}`)}
+                    >
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-4 flex-1 min-w-0">
+                          <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
+                            <Bike className="w-5 h-5 text-muted-foreground" />
+                          </div>
+                          <div className="min-w-0">
+                            <p className="text-sm font-semibold group-hover:text-primary transition-colors">
+                              {vehicle.license_plate}
+                            </p>
+                            <p className="text-xs text-muted-foreground truncate">
+                              {vehicle.make} {vehicle.model} {vehicle.year && `(${vehicle.year})`}
+                            </p>
+                          </div>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+                      </div>
+                    </button>
+                  ))}
+                  {vehicles.length > 5 && (
+                    <Button
+                      variant="ghost"
+                      className="w-full"
+                      onClick={() => navigate(`/assets?customer=${id}`)}
+                    >
+                      View {vehicles.length - 5} more vehicles
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                    <Car className="w-8 h-8 text-muted-foreground" />
+                  </div>
+                  <p className="text-sm font-medium mb-1">No Vehicles</p>
+                  <p className="text-xs text-muted-foreground mb-4">This customer doesn't have any vehicles yet</p>
+                  <Button size="sm" onClick={() => navigate(`/assets/new?customer=${id}`)}>
+                    <Plus className="w-5 h-5 mr-2" />
+                    Add Vehicle
+                  </Button>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Service History */}
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between border-b">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Clock className="w-5 h-5 text-muted-foreground" />
                 Service History
-              </h3>
-              <button
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => navigate(`/work-orders?customer=${id}`)}
-                className="inline-flex items-center gap-1 text-xs text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300 font-medium transition-colors"
                 title="View in main table"
               >
                 View All
-                <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
-              </button>
-            </div>
+                <ChevronRight className="w-4 h-4 ml-2" />
+              </Button>
+            </CardHeader>
 
             {workOrders && workOrders.length > 0 ? (
-              <EnhancedWorkOrderDataTable
-                workOrders={workOrders}
-                technicians={technicians}
-                locations={locations}
-                customers={customer ? [customer] : []}
-                vehicles={vehicles || []}
-                profiles={profiles}
-                serviceCategories={serviceCategories}
-                onEdit={(wo) => navigate(`/work-orders/${wo.id}`)}
-                onDelete={() => { }} // Read-only view mostly
-                onUpdateWorkOrder={() => { }}
-                onViewDetails={(id) => navigate(`/work-orders/${id}`)}
-                loading={loadingWorkOrders}
-                enableBulkActions={false}
-                enableAdvancedFilters={false}
-                enableExport={false}
-                compactMode={false}
-                visibleColumns={['workOrderNumber', 'status', 'priority', 'createdAt', 'service']}
-              />
-            ) : (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mx-auto mb-3">
-                  <HugeiconsIcon icon={ClipboardIcon} className="w-8 h-8 text-gray-400 dark:text-gray-500" />
+              <CardContent className="p-6">
+                <div className="space-y-4">
+                  {workOrders.slice(0, 5).map((wo) => (
+                    <button
+                      key={wo.id}
+                      className="group w-full border border-border rounded-lg p-4 hover:border-primary hover:bg-accent transition-all text-left"
+                      onClick={() => navigate(`/work-orders/${wo.id}`)}
+                    >
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="text-sm font-semibold group-hover:text-primary transition-colors">
+                              {wo.workOrderNumber || `WO-${wo.id}`}
+                            </p>
+                            <Badge variant={wo.status === 'Completed' ? 'completed' : wo.status === 'In Progress' ? 'in-progress' : 'open'}>
+                              {wo.status}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            {dayjs(wo.createdAt).format('MMM D, YYYY')} • {wo.description || 'No description'}
+                          </p>
+                        </div>
+                        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
+                      </div>
+                    </button>
+                  ))}
+                  {workOrders.length > 5 && (
+                    <Button
+                      variant="ghost"
+                      className="w-full"
+                      onClick={() => navigate(`/work-orders?customer=${id}`)}
+                    >
+                      View {workOrders.length - 5} more work orders
+                    </Button>
+                  )}
                 </div>
-                <p className="text-sm font-medium text-gray-900 dark:text-gray-100 mb-1">No Service History</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">This customer hasn't had any work orders yet</p>
-                <button
-                  onClick={() => navigate(`/work-orders/new?customer=${id}`)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors"
-                >
-                  <HugeiconsIcon icon={Add01Icon} size={14} />
+              </CardContent>
+            ) : (
+              <CardContent className="p-12 text-center">
+                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                  <ClipboardList className="w-5 h-5 text-muted-foreground" />
+                </div>
+                <p className="text-sm font-medium mb-1">No Service History</p>
+                <p className="text-xs text-muted-foreground mb-4">This customer hasn't had any work orders yet</p>
+                <Button size="sm" onClick={() => navigate(`/work-orders/new?customer=${id}`)}>
+                  <Plus className="w-5 h-5 mr-2" />
                   Create Work Order
-                </button>
-              </div>
+                </Button>
+              </CardContent>
             )}
-          </div>
+          </Card>
 
           {/* Additional Information */}
           {(customer.notes || customer.created_at) && (
-            <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-5">
-              <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4 flex items-center gap-2">
-                <HugeiconsIcon icon={InformationCircleIcon} size={18} className="text-gray-600 dark:text-gray-400" />
-                Additional Information
-              </h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {customer.notes && (
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Notes</div>
-                    <div className="text-sm text-gray-900 dark:text-gray-100">{customer.notes}</div>
-                  </div>
-                )}
-                {customer.created_at && (
-                  <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-3">
-                    <div className="text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Customer Since</div>
-                    <div className="text-sm font-semibold text-gray-900 dark:text-gray-100">
-                      {dayjs(customer.created_at).format('MMMM D, YYYY')}
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2">
+                  <Info className="w-5 h-5 text-muted-foreground" />
+                  Additional Information
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {customer.notes && (
+                    <div className="bg-muted rounded-lg p-4">
+                      <div className="text-xs font-medium text-muted-foreground mb-1">Notes</div>
+                      <div className="text-sm">{customer.notes}</div>
                     </div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                      {dayjs(customer.created_at).fromNow()}
+                  )}
+                  {customer.created_at && (
+                    <div className="bg-muted rounded-lg p-4">
+                      <div className="text-xs font-medium text-muted-foreground mb-1">Customer Since</div>
+                      <div className="text-sm font-semibold">
+                        {dayjs(customer.created_at).format('MMMM D, YYYY')}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {dayjs(customer.created_at).fromNow()}
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           )}
         </div>
-      </Stack>
+      </div>
     </div>
   );
 };

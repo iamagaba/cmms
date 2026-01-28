@@ -192,9 +192,9 @@ export function BatchOperationsPanel({
 
           {/* Processing Indicator */}
           {isProcessing && (
-            <div className="p-4 bg-blue-50 border-b border-blue-200">
+            <div className="p-4 bg-muted border-b border-blue-200">
               <div className="flex items-center space-x-3">
-                <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+                <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
                 <div className="flex-1">
                   <p className="text-sm font-medium text-blue-900">{currentOperation}</p>
                   <div className="w-full bg-blue-200 rounded-full h-2 mt-1">
@@ -203,7 +203,7 @@ export function BatchOperationsPanel({
                       style={{ width: `${progress}%` }}
                     />
                   </div>
-                  <p className="text-xs text-blue-700 mt-1">{Math.round(progress)}% complete</p>
+                  <p className="text-xs text-muted-foreground mt-1">{Math.round(progress)}% complete</p>
                 </div>
               </div>
             </div>
@@ -211,16 +211,16 @@ export function BatchOperationsPanel({
 
           {/* Error Display */}
           {error && (
-            <div className="p-4 bg-red-50 border-b border-red-200">
+            <div className="p-4 bg-destructive/10 border-b border-destructive/20">
               <div className="flex items-center space-x-2">
-                <XCircle className="w-5 h-5 text-red-600 flex-shrink-0" />
+                <XCircle className="w-5 h-5 text-destructive flex-shrink-0" />
                 <div>
-                  <p className="text-sm font-medium text-red-900">Operation Failed</p>
-                  <p className="text-xs text-red-700">{error}</p>
+                  <p className="text-sm font-medium text-destructive">Operation Failed</p>
+                  <p className="text-xs text-destructive">{error}</p>
                 </div>
                 <button
                   onClick={clearResult}
-                  className="ml-auto text-red-600 hover:text-red-800"
+                  className="ml-auto text-destructive hover:text-destructive/80"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -230,21 +230,21 @@ export function BatchOperationsPanel({
 
           {/* Success/Result Display */}
           {lastResult && !error && (
-            <div className="p-4 bg-green-50 border-b border-green-200">
+            <div className="p-4 bg-emerald-500/10 border-b border-emerald-500/20">
               <div className="flex items-center space-x-2">
-                <CheckCircle className="w-5 h-5 text-green-600 flex-shrink-0" />
+                <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-green-900">
+                  <p className="text-sm font-medium text-emerald-900 dark:text-emerald-100">
                     Operation Completed
                   </p>
-                  <p className="text-xs text-green-700">
+                  <p className="text-xs text-foreground dark:text-emerald-300">
                     {lastResult.successful.length} successful
                     {lastResult.failed.length > 0 && `, ${lastResult.failed.length} failed`}
                   </p>
                 </div>
                 <button
                   onClick={clearResult}
-                  className="text-green-600 hover:text-green-800"
+                  className="text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -279,7 +279,7 @@ export function BatchOperationsPanel({
                 <button
                   onClick={() => setShowStatusDropdown(!showStatusDropdown)}
                   disabled={isProcessing}
-                  className="w-full flex items-center justify-between p-3 bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="w-full flex items-center justify-between p-3 bg-muted text-muted-foreground rounded-lg hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <div className="flex items-center space-x-2">
                     <Clock className="w-5 h-5" />
@@ -308,7 +308,7 @@ export function BatchOperationsPanel({
                 <button
                   onClick={() => setShowPriorityDropdown(!showPriorityDropdown)}
                   disabled={isProcessing}
-                  className="w-full flex items-center justify-between p-3 bg-orange-50 text-orange-700 rounded-lg hover:bg-orange-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="w-full flex items-center justify-between p-3 bg-muted text-muted-foreground rounded-lg hover:bg-muted disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <div className="flex items-center space-x-2">
                     <AlertTriangle className="w-5 h-5" />
@@ -337,7 +337,7 @@ export function BatchOperationsPanel({
                 <button
                   onClick={() => setShowTechnicianDropdown(!showTechnicianDropdown)}
                   disabled={isProcessing || technicians.length === 0}
-                  className="w-full flex items-center justify-between p-3 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  className="w-full flex items-center justify-between p-3 bg-emerald-500/10 text-foreground dark:text-emerald-300 rounded-lg hover:bg-emerald-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   <div className="flex items-center space-x-2">
                     <User className="w-5 h-5" />
@@ -371,7 +371,7 @@ export function BatchOperationsPanel({
               <button
                 onClick={handleExport}
                 disabled={isProcessing}
-                className="w-full flex items-center justify-center space-x-2 p-3 bg-purple-50 text-purple-700 rounded-lg hover:bg-purple-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="w-full flex items-center justify-center space-x-2 p-3 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               >
                 <Download className="w-5 h-5" />
                 <span className="font-medium">Export to CSV</span>

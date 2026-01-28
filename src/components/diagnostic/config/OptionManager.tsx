@@ -1,10 +1,13 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Add01Icon, Tick01Icon, ArrowRight01Icon, Edit01Icon, Delete01Icon } from '@hugeicons/core-free-icons';
+import { Plus, Check, ArrowRight, Edit, Trash2 } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { Dialog } from '@headlessui/react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { DiagnosticOptionRow, DiagnosticQuestionRow } from '@/types/diagnostic';
 import { getOptions, createOption, updateOption, deleteOption, getQuestions } from '@/api/diagnosticConfigApi';
 import { showSuccess, showError } from '@/utils/toast';
@@ -59,38 +62,39 @@ const OptionManager = ({ questionId }: OptionManagerProps) => {
     return (
         <div className="space-y-4">
             <div className="flex items-center justify-between">
-                <h4 className="text-sm font-medium text-gray-900 dark:text-gray-100">Answer Options</h4>
-                <button
+                <h4 className="text-sm font-medium text-foreground">Answer Options</h4>
+                <Button
                     type="button"
+                    variant="ghost"
+                    size="sm"
                     onClick={handleCreate}
-                    className="text-xs flex items-center gap-1 px-2 py-1 bg-primary-50 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 rounded hover:bg-primary-100 dark:hover:bg-primary-900/50"
                 >
-                    <HugeiconsIcon icon={Add01Icon} size={12} />
+                    <Plus className="w-4 h-4 mr-1.5" />
                     Add Option
-                </button>
+                </Button>
             </div>
 
             {isLoadingOptions ? (
-                <div className="text-xs text-gray-500">Loading options...</div>
+                <div className="text-xs text-muted-foreground">Loading options...</div>
             ) : (
                 <div className="space-y-2">
                     {options?.map((opt, index) => (
-                        <div key={opt.id} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg group">
+                        <div key={opt.id} className="flex items-center justify-between p-3 bg-muted/50 border border-border rounded-lg group">
                             <div className="flex items-center gap-3">
-                                <span className="flex items-center justify-center w-5 h-5 rounded-full bg-gray-200 dark:bg-gray-700 text-xs font-medium text-gray-600 dark:text-gray-400">
+                                <span className="flex items-center justify-center w-5 h-5 rounded-full bg-muted text-xs font-medium text-muted-foreground">
                                     {index + 1}
                                 </span>
                                 <div>
-                                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{opt.label}</p>
-                                    <div className="text-xs text-gray-500 flex items-center gap-2 mt-0.5">
+                                    <p className="text-sm font-medium text-foreground">{opt.label}</p>
+                                    <div className="text-xs text-muted-foreground flex items-center gap-2 mt-0.5">
                                         {opt.is_solution ? (
-                                            <span className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                                                <HugeiconsIcon icon={Tick01Icon} size={12} />
+                                            <span className="flex items-center gap-1 text-foreground">
+                                                <Check className="w-4 h-4" />
                                                 Solution
                                             </span>
                                         ) : (
-                                            <span className="flex items-center gap-1 text-blue-600 dark:text-blue-400">
-                                                <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
+                                            <span className="flex items-center gap-1 text-muted-foreground">
+                                                <ArrowRight className="w-4 h-4" />
                                                 To: {opt.next_question_id || 'End'}
                                             </span>
                                         )}
@@ -99,25 +103,28 @@ const OptionManager = ({ questionId }: OptionManagerProps) => {
                             </div>
 
                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button
+                                <Button
                                     type="button"
+                                    variant="ghost"
+                                    size="icon"
                                     onClick={() => handleEdit(opt)}
-                                    className="p-1.5 text-gray-500 hover:text-primary-600 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
                                 >
-                                    <HugeiconsIcon icon={Edit01Icon} size={16} />
-                                </button>
-                                <button
+                                    <Edit className="w-4 h-4" />
+                                </Button>
+                                <Button
                                     type="button"
+                                    variant="ghost"
+                                    size="icon"
                                     onClick={() => handleDelete(opt.id)}
-                                    className="p-1.5 text-gray-500 hover:text-red-600 hover:bg-gray-200 dark:hover:bg-gray-700 rounded"
+                                    className="text-destructive hover:text-destructive"
                                 >
-                                    <HugeiconsIcon icon={Delete01Icon} size={16} />
-                                </button>
+                                    <Trash2 className="w-4 h-4" />
+                                </Button>
                             </div>
                         </div>
                     ))}
                     {options?.length === 0 && (
-                        <p className="text-xs text-gray-500 italic text-center py-2">No options defined yet.</p>
+                        <p className="text-xs text-muted-foreground italic text-center py-2">No options defined yet.</p>
                     )}
                 </div>
             )}
@@ -221,58 +228,59 @@ const OptionModal = ({ isOpen, onClose, initialData, questionId, allQuestions }:
         <Dialog open={isOpen} onClose={onClose} className="relative z-[60]">
             <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" aria-hidden="true" />
             <div className="fixed inset-0 flex items-center justify-center p-4">
-                <Dialog.Panel className="mx-auto max-w-md w-full bg-white dark:bg-gray-900 rounded-xl shadow-xl border border-gray-200 dark:border-gray-800 flex flex-col">
-                    <div className="p-4 border-b border-gray-200 dark:border-gray-800">
-                        <Dialog.Title className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                <Dialog.Panel className="mx-auto max-w-md w-full bg-background rounded-xl shadow-xl border border-border flex flex-col">
+                    <div className="p-4 border-b border-border">
+                        <Dialog.Title className="text-lg font-semibold text-foreground">
                             {isEditing ? 'Edit Option' : 'New Option'}
                         </Dialog.Title>
                     </div>
 
                     <form onSubmit={handleSubmit(onSubmit)} className="p-4 space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                                Option Label <span className="text-red-500">*</span>
-                            </label>
-                            <input
+                            <Label htmlFor="label" className="text-xs">
+                                Option Label <span className="text-destructive">*</span>
+                            </Label>
+                            <Input
+                                id="label"
                                 type="text"
                                 {...register('label', { required: 'Label is required' })}
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100"
                                 placeholder="e.g., Yes, the noise is loud"
                             />
-                            {errors.label && <p className="text-xs text-red-500 mt-1">{errors.label.message as string}</p>}
+                            {errors.label && <p className="text-xs text-destructive mt-1">{errors.label.message as string}</p>}
                         </div>
 
                         <div className="flex items-center gap-2">
                             <input
                                 type="checkbox"
                                 {...register('is_solution')}
-                                className="w-4 h-4 text-primary-600 rounded border-gray-300 focus:ring-primary-500"
+                                className="w-4 h-4 text-primary rounded border-border focus:ring-primary"
                             />
-                            <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            <label className="text-sm font-medium text-foreground">
                                 This is a solution (End of flow)
                             </label>
                         </div>
 
                         {isSolution ? (
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                <Label htmlFor="solution_text" className="text-xs">
                                     Solution Text/Steps
-                                </label>
-                                <textarea
+                                </Label>
+                                <Textarea
+                                    id="solution_text"
                                     {...register('solution_text')}
                                     rows={3}
-                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100"
                                     placeholder="Describe the fix..."
                                 />
                             </div>
                         ) : (
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                                <Label htmlFor="next_question_id" className="text-xs">
                                     Next Question
-                                </label>
+                                </Label>
                                 <select
+                                    id="next_question_id"
                                     {...register('next_question_id')}
-                                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100"
+                                    className="w-full px-3 py-2 border border-border rounded-lg bg-background text-foreground"
                                 >
                                     <option value="">-- Select Next Question --</option>
                                     {allQuestions.filter(q => q.id !== questionId).map(q => (
@@ -281,18 +289,18 @@ const OptionModal = ({ isOpen, onClose, initialData, questionId, allQuestions }:
                                         </option>
                                     ))}
                                 </select>
-                                <p className="text-xs text-gray-500 mt-1">Leave empty if this is just an information step (not common)</p>
+                                <p className="text-xs text-muted-foreground mt-1">Leave empty if this is just an information step (not common)</p>
                             </div>
                         )}
 
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            <Label htmlFor="display_order" className="text-xs">
                                 Display Order
-                            </label>
-                            <input
+                            </Label>
+                            <Input
+                                id="display_order"
                                 type="number"
                                 {...register('display_order')}
-                                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100"
                             />
                         </div>
 
@@ -303,21 +311,21 @@ const OptionModal = ({ isOpen, onClose, initialData, questionId, allQuestions }:
                         )}
 
                         <div className="flex justify-end gap-3 pt-2">
-
-                            <button
+                            <Button
                                 type="button"
+                                variant="outline"
+                                size="sm"
                                 onClick={onClose}
-                                className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg"
                             >
                                 Cancel
-                            </button>
-                            <button
+                            </Button>
+                            <Button
                                 type="submit"
+                                size="sm"
                                 disabled={mutation.isPending}
-                                className="px-3 py-2 text-sm font-medium text-white bg-primary-600 rounded-lg hover:bg-primary-700 disabled:opacity-50"
                             >
                                 {mutation.isPending ? 'Saving...' : 'Save Option'}
-                            </button>
+                            </Button>
                         </div>
                     </form>
                 </Dialog.Panel>
@@ -327,3 +335,5 @@ const OptionModal = ({ isOpen, onClose, initialData, questionId, allQuestions }:
 };
 
 export default OptionManager;
+
+

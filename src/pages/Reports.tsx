@@ -1,46 +1,52 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { HugeiconsIcon } from '@hugeicons/react';
 import {
-  Home01Icon,
-  Wrench01Icon,
-  UserIcon,
-  ClipboardIcon,
-  Car01Icon,
-  Tag01Icon as TagIcon,
-  PackageIcon,
-  File01Icon as FileIcon,
-  TimelineIcon,
-  CheckmarkCircle01Icon,
-  Clock01Icon,
-  Flag01Icon as FlagIcon,
-  Coins01Icon as CoinsDollarIcon,
-  BarChartIcon as Chart01Icon,
-  ChartHistogramIcon,
-  ChartLineData01Icon,
-  TableIcon,
-  Car01Icon as TruckIcon,
-  ActivityIcon as Activity01Icon,
-  Calendar01Icon as CalendarCheckIn01Icon,
-  Invoice01Icon as ReceiptDollarIcon,
-} from '@hugeicons/core-free-icons';
+  Home,
+  Wrench,
+  User,
+  Clipboard,
+  Car,
+  Tag,
+  Package,
+  FileText,
+  TrendingUp,
+  CheckCircle,
+  Clock,
+  Flag,
+  DollarSign,
+  BarChart3,
+  BarChart as BarChart3,
+  LineChart as LineChart,
+  Table as Table,
+  Truck,
+  Activity,
+  CalendarCheck,
+  Receipt,
+  Users,
+} from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { WorkOrder, Technician, Vehicle } from '@/types/supabase';
+import InventoryReport from '@/components/reports/InventoryReport';
+import CustomerExperienceReport from '@/components/reports/CustomerExperienceReport';
+import PageHeader from '@/components/layout/PageHeader';
+import { EmptyState } from '@/components/ui/empty-state';
 import dayjs from 'dayjs';
-import {
-  PieChart, Pie, Cell,
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  AreaChart, Area
-} from 'recharts';
+import { PieChart } from '@mui/x-charts/PieChart';
+import { BarChart } from '@mui/x-charts/BarChart';
+import { LineChart } from '@mui/x-charts/LineChart';
 // Chart colors
+type ReportType = 'overview' | 'fleet' | 'technician' | 'workorder' | 'asset' | 'financial' | 'inventory' | 'cx';
+
 const CHART_COLORS = {
   primary: '#2563eb',
   extended: ['#2563eb', '#1d4ed8', '#1e40af', '#1e3a8a'],
@@ -154,17 +160,17 @@ const OverviewReport: React.FC<{
   return (
     <div className="space-y-4">
       {/* Key Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardContent className="pt-3 pb-3">
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-medium text-muted-foreground">Total Work Orders</span>
               <div className="p-1 bg-primary/10 rounded">
-                <HugeiconsIcon icon={ClipboardIcon} size={14} className="text-primary" />
+                <Clipboard className="w-4 h-4 text-primary" />
               </div>
             </div>
             <div className="text-xl font-bold">{stats.total}</div>
-            <div className="text-[10px] text-muted-foreground">
+            <div className="text-xs text-muted-foreground">
               {dayjs(startDate).format('MMM D')} - {dayjs(endDate).format('MMM D, YYYY')}
             </div>
           </CardContent>
@@ -174,12 +180,12 @@ const OverviewReport: React.FC<{
           <CardContent className="pt-3 pb-3">
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-medium text-muted-foreground">Completion Rate</span>
-              <div className="p-1 bg-green-100 dark:bg-green-900/30 rounded">
-                <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} className="text-green-600 dark:text-green-400" />
+              <div className="p-1 bg-emerald-50 dark:bg-emerald-900/30 rounded">
+                <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               </div>
             </div>
             <div className="text-xl font-bold">{stats.completionRate}%</div>
-            <div className="text-[10px] text-muted-foreground">
+            <div className="text-xs text-muted-foreground">
               {stats.completed} of {stats.total} completed
             </div>
           </CardContent>
@@ -189,14 +195,14 @@ const OverviewReport: React.FC<{
           <CardContent className="pt-3 pb-3">
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-medium text-muted-foreground">Total Revenue</span>
-              <div className="p-1 bg-green-100 dark:bg-green-900/30 rounded">
-                <HugeiconsIcon icon={CoinsDollarIcon} size={14} className="text-green-600 dark:text-green-400" />
+              <div className="p-1 bg-emerald-50 dark:bg-emerald-900/30 rounded">
+                <DollarSign className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               </div>
             </div>
             <div className="text-xl font-bold">
               UGX {(stats.totalCost / 1000000).toFixed(1)}M
             </div>
-            <div className="text-[10px] text-muted-foreground">
+            <div className="text-xs text-muted-foreground">
               Avg: UGX {(stats.avgCost / 1000).toFixed(0)}K
             </div>
           </CardContent>
@@ -206,12 +212,12 @@ const OverviewReport: React.FC<{
           <CardContent className="pt-3 pb-3">
             <div className="flex items-center justify-between mb-1">
               <span className="text-xs font-medium text-muted-foreground">Active Technicians</span>
-              <div className="p-1 bg-purple-100 dark:bg-purple-900/30 rounded">
-                <HugeiconsIcon icon={Wrench01Icon} size={14} className="text-purple-600 dark:text-purple-400" />
+              <div className="p-1 bg-primary/10 rounded">
+                <Wrench className="w-4 h-4 text-primary" />
               </div>
             </div>
             <div className="text-xl font-bold">{stats.activeTechnicians}</div>
-            <div className="text-[10px] text-muted-foreground">
+            <div className="text-xs text-muted-foreground">
               Managing {stats.totalVehicles} vehicles
             </div>
           </CardContent>
@@ -224,47 +230,50 @@ const OverviewReport: React.FC<{
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-1.5">
-              <HugeiconsIcon icon={Chart01Icon} size={14} className="text-primary" />
+              <BarChart3 className="w-4 h-4 text-primary" />
               Status Distribution
             </CardTitle>
           </CardHeader>
           <CardContent>
             {statusChartData.some(item => item.value > 0) ? (
               <div className="h-[220px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={statusChartData.map((item, index) => ({
-                        name: item.name,
+                <PieChart
+                  series={[
+                    {
+                      data: statusChartData.map((item, index) => ({
+                        id: index,
                         value: item.value,
+                        label: item.name,
                         color: item.color,
-                      }))}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={2}
-                      dataKey="value"
-                    >
-                      {statusChartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                    />
-                    <Legend
-                      layout="horizontal"
-                      verticalAlign="bottom"
-                      align="center"
-                      iconSize={8}
-                      wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
+                      })),
+                      innerRadius: 60,
+                      outerRadius: 80,
+                      paddingAngle: 2,
+                    },
+                  ]}
+                  margin={{ top: 10, right: 10, bottom: 40, left: 10 }}
+                  slotProps={{
+                    legend: {
+                      direction: 'horizontal',
+                      position: { vertical: 'bottom', horizontal: 'middle' },
+                      padding: 0,
+                      itemMarkWidth: 8,
+                      itemMarkHeight: 8,
+                      markGap: 4,
+                      itemGap: 8,
+                      labelStyle: {
+                        fontSize: 10,
+                      },
+                    },
+                  }}
+                />
               </div>
             ) : (
-              <div className="h-[220px] flex items-center justify-center text-xs text-muted-foreground">No data available</div>
+              <EmptyState
+                icon={<BarChart3 className="w-6 h-6 text-muted-foreground" />}
+                title="No data available"
+                description="Chart data will appear here when available"
+              />
             )}
           </CardContent>
         </Card>
@@ -273,47 +282,50 @@ const OverviewReport: React.FC<{
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-1.5">
-              <HugeiconsIcon icon={ChartHistogramIcon} size={14} className="text-primary" />
+              <BarChart3 className="w-4 h-4 text-primary" />
               Priority Distribution
             </CardTitle>
           </CardHeader>
           <CardContent>
             {priorityChartData.length > 0 ? (
               <div className="h-[220px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={priorityChartData.map((item) => ({
-                        name: item.name,
+                <PieChart
+                  series={[
+                    {
+                      data: priorityChartData.map((item, index) => ({
+                        id: index,
                         value: item.count,
+                        label: item.name,
                         color: item.color,
-                      }))}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={2}
-                      dataKey="value"
-                    >
-                      {priorityChartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                    />
-                    <Legend
-                      layout="horizontal"
-                      verticalAlign="bottom"
-                      align="center"
-                      iconSize={8}
-                      wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
+                      })),
+                      innerRadius: 60,
+                      outerRadius: 80,
+                      paddingAngle: 2,
+                    },
+                  ]}
+                  margin={{ top: 10, right: 10, bottom: 40, left: 10 }}
+                  slotProps={{
+                    legend: {
+                      direction: 'horizontal',
+                      position: { vertical: 'bottom', horizontal: 'middle' },
+                      padding: 0,
+                      itemMarkWidth: 8,
+                      itemMarkHeight: 8,
+                      markGap: 4,
+                      itemGap: 8,
+                      labelStyle: {
+                        fontSize: 10,
+                      },
+                    },
+                  }}
+                />
               </div>
             ) : (
-              <div className="h-[220px] flex items-center justify-center text-xs text-muted-foreground">No data available</div>
+              <EmptyState
+                icon={<BarChart3 className="w-6 h-6 text-muted-foreground" />}
+                title="No data available"
+                description="Chart data will appear here when available"
+              />
             )}
           </CardContent>
         </Card>
@@ -323,61 +335,81 @@ const OverviewReport: React.FC<{
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-1.5">
-            <HugeiconsIcon icon={ChartLineData01Icon} size={14} className="text-primary" />
+            <LineChart className="w-4 h-4 text-primary" />
             Work Orders Timeline
           </CardTitle>
         </CardHeader>
         <CardContent>
           {timelineData.length > 0 ? (
             <div className="h-[220px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={timelineData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorCreated" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={CHART_COLORS.steelBlue} stopOpacity={0.1} />
-                      <stop offset="95%" stopColor={CHART_COLORS.steelBlue} stopOpacity={0} />
-                    </linearGradient>
-                    <linearGradient id="colorCompleted" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor={CHART_COLORS.industrialGreen} stopOpacity={0.1} />
-                      <stop offset="95%" stopColor={CHART_COLORS.industrialGreen} stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <XAxis
-                    dataKey="date"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 10, fill: '#6b7280' }}
-                    dy={10}
-                  />
-                  <CartesianGrid vertical={false} stroke="#e5e7eb" strokeDasharray="3 3" />
-                  <Tooltip
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  />
-                  <Legend
-                    layout="horizontal"
-                    verticalAlign="bottom"
-                    align="center"
-                    iconSize={8}
-                    wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }}
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="created"
-                    name="Created"
-                    stroke={CHART_COLORS.steelBlue}
-                    fillOpacity={1}
-                    fill="url(#colorCreated)"
-                  />
-                  <Area
-                    type="monotone"
-                    dataKey="completed"
-                    name="Completed"
-                    stroke={CHART_COLORS.industrialGreen}
-                    fillOpacity={1}
-                    fill="url(#colorCompleted)"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
+              <LineChart
+                dataset={timelineData}
+                xAxis={[
+                  {
+                    scaleType: 'point',
+                    dataKey: 'date',
+                    tickLabelStyle: {
+                      fontSize: 10,
+                      fill: '#6b7280',
+                    },
+                  },
+                ]}
+                series={[
+                  {
+                    dataKey: 'created',
+                    label: 'Created',
+                    area: true,
+                    showMark: false,
+                    color: CHART_COLORS.steelBlue,
+                    curve: 'linear',
+                  },
+                  {
+                    dataKey: 'completed',
+                    label: 'Completed',
+                    area: true,
+                    showMark: false,
+                    color: CHART_COLORS.industrialGreen,
+                    curve: 'linear',
+                  },
+                ]}
+                margin={{ top: 10, right: 10, bottom: 30, left: 10 }}
+                grid={{ horizontal: true, vertical: false }}
+                slotProps={{
+                  legend: {
+                    direction: 'row',
+                    position: { vertical: 'bottom', horizontal: 'middle' },
+                    padding: 0,
+                    itemMarkWidth: 8,
+                    itemMarkHeight: 8,
+                    markGap: 4,
+                    itemGap: 8,
+                    labelStyle: {
+                      fontSize: 10,
+                    },
+                  },
+                }}
+                sx={{
+                  '& .MuiLineElement-root': {
+                    strokeWidth: 2,
+                  },
+                  '& .MuiMarkElement-root': {
+                    strokeWidth: 2,
+                  },
+                  '& .MuiAreaElement-root': {
+                    fillOpacity: 0.1,
+                  },
+                  '& .MuiChartsGrid-line': {
+                    stroke: '#e5e7eb',
+                    strokeDasharray: '3 3',
+                  },
+                  '& .MuiChartsAxis-line': {
+                    display: 'none',
+                  },
+                  '& .MuiChartsAxis-tick': {
+                    display: 'none',
+                  },
+                }}
+              />
             </div>
           ) : (
             <div className="h-[220px] flex items-center justify-center text-xs text-muted-foreground">No data available</div>
@@ -429,38 +461,69 @@ const TechnicianPerformanceReport: React.FC<{
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-1.5">
-            <HugeiconsIcon icon={ChartHistogramIcon} size={14} className="text-primary" />
+            <BarChart3 className="w-4 h-4 text-primary" />
             Technician Performance Comparison
           </CardTitle>
         </CardHeader>
         <CardContent>
           {technicianChartData.length > 0 ? (
             <div className="h-[220px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={technicianChartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                  <CartesianGrid vertical={false} stroke="#e5e7eb" strokeDasharray="3 3" />
-                  <XAxis
-                    dataKey="name"
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 10, fill: '#6b7280' }}
-                    dy={10}
-                  />
-                  <Tooltip
-                    cursor={{ fill: '#f3f4f6' }}
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  />
-                  <Legend
-                    layout="horizontal"
-                    verticalAlign="bottom"
-                    align="center"
-                    iconSize={8}
-                    wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }}
-                  />
-                  <Bar dataKey="completed" name="Completed" fill={CHART_COLORS.completed} radius={[4, 4, 0, 0]} stackId="a" />
-                  <Bar dataKey="inProgress" name="In Progress" fill={CHART_COLORS.inProgress} radius={[4, 4, 0, 0]} stackId="a" />
-                </BarChart>
-              </ResponsiveContainer>
+              <BarChart
+                dataset={technicianChartData}
+                xAxis={[
+                  {
+                    scaleType: 'band',
+                    dataKey: 'name',
+                    tickLabelStyle: {
+                      fontSize: 10,
+                      fill: '#6b7280',
+                    },
+                  },
+                ]}
+                series={[
+                  {
+                    dataKey: 'completed',
+                    label: 'Completed',
+                    color: CHART_COLORS.completed,
+                    stack: 'total',
+                  },
+                  {
+                    dataKey: 'inProgress',
+                    label: 'In Progress',
+                    color: CHART_COLORS.inProgress,
+                    stack: 'total',
+                  },
+                ]}
+                margin={{ top: 10, right: 10, bottom: 30, left: 10 }}
+                grid={{ horizontal: true, vertical: false }}
+                borderRadius={4}
+                slotProps={{
+                  legend: {
+                    direction: 'row',
+                    position: { vertical: 'bottom', horizontal: 'middle' },
+                    padding: 0,
+                    itemMarkWidth: 8,
+                    itemMarkHeight: 8,
+                    markGap: 4,
+                    itemGap: 8,
+                    labelStyle: {
+                      fontSize: 10,
+                    },
+                  },
+                }}
+                sx={{
+                  '& .MuiChartsGrid-line': {
+                    stroke: '#e5e7eb',
+                    strokeDasharray: '3 3',
+                  },
+                  '& .MuiChartsAxis-line': {
+                    display: 'none',
+                  },
+                  '& .MuiChartsAxis-tick': {
+                    display: 'none',
+                  },
+                }}
+              />
             </div>
           ) : (
             <div className="h-[220px] flex items-center justify-center text-xs text-muted-foreground">No data available</div>
@@ -474,49 +537,46 @@ const TechnicianPerformanceReport: React.FC<{
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-                  <TableHead className="text-left py-1.5 px-3 font-semibold text-gray-600 dark:text-muted-foreground uppercase tracking-wider text-xs">Technician</TableHead>
-                  <TableHead className="text-center py-1.5 px-3 font-semibold text-gray-600 dark:text-muted-foreground uppercase tracking-wider text-xs">Status</TableHead>
-                  <TableHead className="text-center py-1.5 px-3 font-semibold text-gray-600 dark:text-muted-foreground uppercase tracking-wider text-xs">Total WOs</TableHead>
-                  <TableHead className="text-center py-1.5 px-3 font-semibold text-gray-600 dark:text-muted-foreground uppercase tracking-wider text-xs">Completed</TableHead>
-                  <TableHead className="text-center py-1.5 px-3 font-semibold text-gray-600 dark:text-muted-foreground uppercase tracking-wider text-xs">In Progress</TableHead>
-                  <TableHead className="text-center py-1.5 px-3 font-semibold text-gray-600 dark:text-muted-foreground uppercase tracking-wider text-xs">Completion Rate</TableHead>
-                  <TableHead className="text-right py-1.5 px-3 font-semibold text-gray-600 dark:text-muted-foreground uppercase tracking-wider text-xs">Revenue</TableHead>
+                <TableRow className="bg-muted border-b">
+                  <TableHead className="text-left py-1.5 px-3 font-semibold text-muted-foreground uppercase tracking-wider text-xs">Technician</TableHead>
+                  <TableHead className="text-center py-1.5 px-3 font-semibold text-muted-foreground uppercase tracking-wider text-xs">Status</TableHead>
+                  <TableHead className="text-center py-1.5 px-3 font-semibold text-muted-foreground uppercase tracking-wider text-xs">Total WOs</TableHead>
+                  <TableHead className="text-center py-1.5 px-3 font-semibold text-muted-foreground uppercase tracking-wider text-xs">Completed</TableHead>
+                  <TableHead className="text-center py-1.5 px-3 font-semibold text-muted-foreground uppercase tracking-wider text-xs">In Progress</TableHead>
+                  <TableHead className="text-center py-1.5 px-3 font-semibold text-muted-foreground uppercase tracking-wider text-xs">Completion Rate</TableHead>
+                  <TableHead className="text-right py-1.5 px-3 font-semibold text-muted-foreground uppercase tracking-wider text-xs">Revenue</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody className="divide-y divide-gray-100 dark:divide-gray-700">
+              <TableBody className="divide-y divide-border">
                 {technicianStats.map(tech => (
-                  <TableRow key={tech.id} className="hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                  <TableRow key={tech.id} className="hover:bg-muted/50 transition-colors">
                     <TableCell className="py-1.5 px-3">
                       <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-primary-100 dark:bg-primary-900/30 rounded-full flex items-center justify-center flex-shrink-0">
-                          <HugeiconsIcon icon={Wrench01Icon} size={16} className="text-primary-600 dark:text-primary-400" />
+                        <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                          <Wrench className="w-4 h-4 text-primary" />
                         </div>
                         <div>
-                          <p className="font-medium text-gray-900 dark:text-gray-100">{tech.name}</p>
-                          <p className="text-xs text-gray-500 dark:text-muted-foreground">{tech.specialization}</p>
+                          <p className="font-medium">{tech.name}</p>
+                          <p className="text-xs text-muted-foreground">{tech.specialization}</p>
                         </div>
                       </div>
                     </TableCell>
                     <TableCell className="py-1.5 px-3 text-center">
-                      <span className={`inline-flex px-2 py-0.5 rounded-full text-xs font-medium ${tech.status === 'active'
-                        ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                        : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-muted-foreground'
-                        }`}>
+                      <Badge variant={tech.status === 'active' ? 'success' : 'secondary'}>
                         {tech.status}
-                      </span>
+                      </Badge>
                     </TableCell>
                     <TableCell className="py-1.5 px-3 text-center">
-                      <span className="font-semibold text-gray-900 dark:text-gray-100">{tech.total}</span>
+                      <span className="font-semibold text-foreground">{tech.total}</span>
                     </TableCell>
                     <TableCell className="py-1.5 px-3 text-center">
-                      <span className="font-semibold text-green-600 dark:text-green-400">{tech.completed}</span>
+                      <span className="font-semibold text-emerald-600 dark:text-emerald-400">{tech.completed}</span>
                     </TableCell>
                     <TableCell className="py-1.5 px-3 text-center">
-                      <span className="font-semibold text-blue-600 dark:text-blue-400">{tech.inProgress}</span>
+                      <span className="font-semibold text-muted-foreground dark:text-blue-400">{tech.inProgress}</span>
                     </TableCell>
                     <TableCell className="py-1.5 px-3 text-center">
-                      <span className="font-semibold text-purple-600 dark:text-purple-400">{tech.completionRate}%</span>
+                      <span className="font-semibold text-primary">{tech.completionRate}%</span>
                     </TableCell>
                     <TableCell className="py-1.5 px-3 text-right">
                       <span className="font-semibold text-emerald-600 dark:text-emerald-400">
@@ -624,33 +684,55 @@ const WorkOrderAnalysisReport: React.FC<{
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-1.5">
-            <HugeiconsIcon icon={ChartHistogramIcon} size={14} className="text-primary" />
+            <BarChart3 className="w-4 h-4 text-primary" />
             Work Orders by Service Type
           </CardTitle>
         </CardHeader>
         <CardContent>
           {serviceTypeChartData.length > 0 ? (
             <div className="h-[220px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart layout="vertical" data={serviceTypeChartData} margin={{ top: 10, right: 30, left: 10, bottom: 0 }}>
-                  <CartesianGrid horizontal={false} stroke="#e5e7eb" strokeDasharray="3 3" />
-                  <XAxis type="number" hide />
-                  <YAxis
-                    dataKey="name"
-                    type="category"
-                    width={100}
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 10, fill: '#6b7280' }}
-                  />
-                  <Tooltip
-                    cursor={{ fill: '#f3f4f6' }}
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  />
-                  <Bar dataKey="value" fill={CHART_COLORS.steelBlue} radius={[0, 4, 4, 0]}>
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              <BarChart
+                dataset={serviceTypeChartData}
+                layout="horizontal"
+                yAxis={[
+                  {
+                    scaleType: 'band',
+                    dataKey: 'name',
+                    tickLabelStyle: {
+                      fontSize: 10,
+                      fill: '#6b7280',
+                    },
+                  },
+                ]}
+                xAxis={[
+                  {
+                    tickLabelStyle: {
+                      display: 'none',
+                    },
+                  },
+                ]}
+                series={[
+                  {
+                    dataKey: 'value',
+                    color: CHART_COLORS.steelBlue,
+                  },
+                ]}
+                margin={{ top: 10, right: 30, bottom: 10, left: 100 }}
+                grid={{ vertical: false, horizontal: true }}
+                borderRadius={4}
+                sx={{
+                  '& .MuiChartsGrid-line': {
+                    stroke: '#e5e7eb',
+                    strokeDasharray: '3 3',
+                  },
+                  '& .MuiChartsAxis-line': {
+                    display: 'none',
+                  },
+                  '& .MuiChartsAxis-tick': {
+                    display: 'none',
+                  },
+                }}
+              />
             </div>
           ) : (
             <div className="h-[220px] flex items-center justify-center text-xs text-muted-foreground">No data available</div>
@@ -664,44 +746,43 @@ const WorkOrderAnalysisReport: React.FC<{
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-1.5">
-              <HugeiconsIcon icon={Chart01Icon} size={14} className="text-primary" />
+              <BarChart3 className="w-4 h-4 text-primary" />
               By Status
             </CardTitle>
           </CardHeader>
           <CardContent>
             {statusChartData.length > 0 ? (
               <div className="h-[220px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={statusChartData.map((item) => ({
-                        name: item.name,
+                <PieChart
+                  series={[
+                    {
+                      data: statusChartData.map((item, index) => ({
+                        id: index,
                         value: item.value,
+                        label: item.name,
                         color: item.color,
-                      }))}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={2}
-                      dataKey="value"
-                    >
-                      {statusChartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                    />
-                    <Legend
-                      layout="horizontal"
-                      verticalAlign="bottom"
-                      align="center"
-                      iconSize={8}
-                      wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
+                      })),
+                      innerRadius: 60,
+                      outerRadius: 80,
+                      paddingAngle: 2,
+                    },
+                  ]}
+                  margin={{ top: 10, right: 10, bottom: 40, left: 10 }}
+                  slotProps={{
+                    legend: {
+                      direction: 'horizontal',
+                      position: { vertical: 'bottom', horizontal: 'middle' },
+                      padding: 0,
+                      itemMarkWidth: 8,
+                      itemMarkHeight: 8,
+                      markGap: 4,
+                      itemGap: 8,
+                      labelStyle: {
+                        fontSize: 10,
+                      },
+                    },
+                  }}
+                />
               </div>
             ) : (
               <div className="h-[220px] flex items-center justify-center text-xs text-muted-foreground">No data available</div>
@@ -713,44 +794,43 @@ const WorkOrderAnalysisReport: React.FC<{
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-1.5">
-              <HugeiconsIcon icon={FlagIcon} size={14} className="text-primary" />
+              <Flag className="w-4 h-4 text-primary" />
               By Priority
             </CardTitle>
           </CardHeader>
           <CardContent>
             {priorityChartData.length > 0 ? (
               <div className="h-[220px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={priorityChartData.map((item) => ({
-                        name: item.name,
+                <PieChart
+                  series={[
+                    {
+                      data: priorityChartData.map((item, index) => ({
+                        id: index,
                         value: item.value,
+                        label: item.name,
                         color: item.color,
-                      }))}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={2}
-                      dataKey="value"
-                    >
-                      {priorityChartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                    />
-                    <Legend
-                      layout="horizontal"
-                      verticalAlign="bottom"
-                      align="center"
-                      iconSize={8}
-                      wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
+                      })),
+                      innerRadius: 60,
+                      outerRadius: 80,
+                      paddingAngle: 2,
+                    },
+                  ]}
+                  margin={{ top: 10, right: 10, bottom: 40, left: 10 }}
+                  slotProps={{
+                    legend: {
+                      direction: 'horizontal',
+                      position: { vertical: 'bottom', horizontal: 'middle' },
+                      padding: 0,
+                      itemMarkWidth: 8,
+                      itemMarkHeight: 8,
+                      markGap: 4,
+                      itemGap: 8,
+                      labelStyle: {
+                        fontSize: 10,
+                      },
+                    },
+                  }}
+                />
               </div>
             ) : (
               <div className="h-[220px] flex items-center justify-center text-xs text-muted-foreground">No data available</div>
@@ -795,32 +875,56 @@ const AssetReport: React.FC<{
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-1.5">
-            <HugeiconsIcon icon={ChartHistogramIcon} size={14} className="text-primary" />
+            <BarChart3 className="w-4 h-4 text-primary" />
             Top 10 Vehicles by Service Frequency
           </CardTitle>
         </CardHeader>
         <CardContent>
           {top10VehiclesChartData.length > 0 ? (
             <div className="h-[250px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart layout="vertical" data={top10VehiclesChartData} margin={{ top: 10, right: 30, left: 10, bottom: 0 }}>
-                  <CartesianGrid horizontal={false} stroke="#e5e7eb" strokeDasharray="3 3" />
-                  <XAxis type="number" hide />
-                  <YAxis
-                    dataKey="name"
-                    type="category"
-                    width={100}
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 10, fill: '#6b7280' }}
-                  />
-                  <Tooltip
-                    cursor={{ fill: '#f3f4f6' }}
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  />
-                  <Bar dataKey="workOrders" name="Work Orders" fill={CHART_COLORS.steelBlue} radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
+              <BarChart
+                dataset={top10VehiclesChartData}
+                layout="horizontal"
+                yAxis={[
+                  {
+                    scaleType: 'band',
+                    dataKey: 'name',
+                    tickLabelStyle: {
+                      fontSize: 10,
+                      fill: '#6b7280',
+                    },
+                  },
+                ]}
+                xAxis={[
+                  {
+                    tickLabelStyle: {
+                      display: 'none',
+                    },
+                  },
+                ]}
+                series={[
+                  {
+                    dataKey: 'workOrders',
+                    label: 'Work Orders',
+                    color: CHART_COLORS.steelBlue,
+                  },
+                ]}
+                margin={{ top: 10, right: 30, bottom: 10, left: 100 }}
+                grid={{ vertical: false, horizontal: true }}
+                borderRadius={4}
+                sx={{
+                  '& .MuiChartsGrid-line': {
+                    stroke: '#e5e7eb',
+                    strokeDasharray: '3 3',
+                  },
+                  '& .MuiChartsAxis-line': {
+                    display: 'none',
+                  },
+                  '& .MuiChartsAxis-tick': {
+                    display: 'none',
+                  },
+                }}
+              />
             </div>
           ) : (
             <div className="h-[250px] flex items-center justify-center text-xs text-muted-foreground">No data available</div>
@@ -830,9 +934,9 @@ const AssetReport: React.FC<{
 
       {/* Detailed Table */}
       <Card>
-        <CardHeader className="px-3 py-1.5 bg-gray-50 dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
-          <CardTitle className="text-[10px] font-semibold text-gray-700 dark:text-gray-300 uppercase tracking-wide flex items-center gap-1.5">
-            <HugeiconsIcon icon={TableIcon} size={14} className="text-primary" />
+        <CardHeader className="px-3 py-1.5 bg-muted border-b">
+          <CardTitle className="text-xs font-semibold uppercase tracking-wide flex items-center gap-1.5">
+            <Table className="w-4 h-4 text-primary" />
             All Vehicles Service History
           </CardTitle>
         </CardHeader>
@@ -840,41 +944,41 @@ const AssetReport: React.FC<{
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="bg-gray-50 border-b border-gray-200">
-                  <TableHead className="text-left py-1.5 px-3 font-semibold text-gray-600 uppercase tracking-wider text-xs h-auto">Rank</TableHead>
-                  <TableHead className="text-left py-1.5 px-3 font-semibold text-gray-600 uppercase tracking-wider text-xs h-auto">Vehicle</TableHead>
-                  <TableHead className="text-left py-1.5 px-3 font-semibold text-gray-600 uppercase tracking-wider text-xs h-auto">Make/Model</TableHead>
-                  <TableHead className="text-center py-1.5 px-3 font-semibold text-gray-600 uppercase tracking-wider text-xs h-auto">Work Orders</TableHead>
-                  <TableHead className="text-right py-1.5 px-3 font-semibold text-gray-600 uppercase tracking-wider text-xs h-auto">Total Cost</TableHead>
+                <TableRow className="bg-muted border-b">
+                  <TableHead className="text-left py-1.5 px-3 font-semibold text-muted-foreground uppercase tracking-wider text-xs h-auto">Rank</TableHead>
+                  <TableHead className="text-left py-1.5 px-3 font-semibold text-muted-foreground uppercase tracking-wider text-xs h-auto">Vehicle</TableHead>
+                  <TableHead className="text-left py-1.5 px-3 font-semibold text-muted-foreground uppercase tracking-wider text-xs h-auto">Make/Model</TableHead>
+                  <TableHead className="text-center py-1.5 px-3 font-semibold text-muted-foreground uppercase tracking-wider text-xs h-auto">Work Orders</TableHead>
+                  <TableHead className="text-right py-1.5 px-3 font-semibold text-muted-foreground uppercase tracking-wider text-xs h-auto">Total Cost</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {vehicleStats.slice(0, 20).map((vehicle, index) => (
-                  <TableRow key={vehicle.id} className="border-b border-gray-100 hover:bg-gray-50 transition-colors">
+                  <TableRow key={vehicle.id} className="border-b hover:bg-muted/50 transition-colors">
                     <TableCell className="py-1.5 px-3">
-                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${index === 0 ? 'bg-yellow-100 text-yellow-700' :
-                        index === 1 ? 'bg-gray-100 text-gray-700' :
-                          index === 2 ? 'bg-orange-100 text-orange-700' :
-                            'bg-gray-50 text-gray-600'
+                      <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${index === 0 ? 'bg-amber-50 text-amber-700' :
+                        index === 1 ? 'bg-muted text-muted-foreground' :
+                          index === 2 ? 'bg-muted text-muted-foreground' :
+                            'bg-muted text-muted-foreground'
                         }`}>
                         {index + 1}
                       </div>
                     </TableCell>
                     <TableCell className="py-1.5 px-3">
                       <div className="flex items-center gap-2">
-                        <HugeiconsIcon icon={Car01Icon} size={14} className="text-muted-foreground" />
-                        <span className="font-medium text-gray-900">{vehicle.registration_number}</span>
+                        <Car className="w-4 h-4 text-muted-foreground" />
+                        <span className="font-medium">{vehicle.registration_number}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="py-1.5 px-3 text-gray-600">
+                    <TableCell className="py-1.5 px-3 text-muted-foreground">
                       {vehicle.make} {vehicle.model}
                     </TableCell>
                     <TableCell className="py-1.5 px-3 text-center">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-700">
+                      <Badge variant="default">
                         {vehicle.workOrderCount}
-                      </span>
+                      </Badge>
                     </TableCell>
-                    <TableCell className="py-1.5 px-3 text-right font-semibold text-gray-900">
+                    <TableCell className="py-1.5 px-3 text-right font-semibold">
                       UGX {(vehicle.totalCost / 1000000).toFixed(2)}M
                     </TableCell>
                   </TableRow>
@@ -883,7 +987,7 @@ const AssetReport: React.FC<{
             </Table>
           </div>
           {vehicleStats.length > 20 && (
-            <div className="px-3 py-1.5 bg-gray-50 dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 text-center text-[10px] text-gray-500 dark:text-muted-foreground">
+            <div className="px-3 py-1.5 bg-muted border-t text-center text-xs text-muted-foreground">
               Showing top 20 of {vehicleStats.length} vehicles
             </div>
           )}
@@ -939,12 +1043,12 @@ const FinancialReport: React.FC<{
         <Card>
           <CardContent className="pt-3 pb-3">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium text-gray-500 dark:text-muted-foreground">Total Revenue</span>
-              <div className="p-1 bg-gray-50 dark:bg-gray-800 rounded">
-                <HugeiconsIcon icon={CoinsDollarIcon} size={14} className="text-gray-600 dark:text-muted-foreground" />
+              <span className="text-xs font-medium text-muted-foreground">Total Revenue</span>
+              <div className="p-1 bg-muted rounded">
+                <DollarSign className="w-4 h-4 text-muted-foreground" />
               </div>
             </div>
-            <div className="text-xl font-bold text-gray-900 dark:text-gray-100">
+            <div className="text-xl font-bold">
               UGX {(financialStats.totalRevenue / 1000000).toFixed(1)}M
             </div>
           </CardContent>
@@ -953,12 +1057,12 @@ const FinancialReport: React.FC<{
         <Card>
           <CardContent className="pt-3 pb-3">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium text-gray-500 dark:text-muted-foreground">Completed Revenue</span>
-              <div className="p-1 bg-green-50 dark:bg-green-900/30 rounded">
-                <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} className="text-green-600 dark:text-green-400" />
+              <span className="text-xs font-medium text-muted-foreground">Completed Revenue</span>
+              <div className="p-1 bg-emerald-50 dark:bg-emerald-900/30 rounded">
+                <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               </div>
             </div>
-            <div className="text-xl font-bold text-green-600 dark:text-green-400">
+            <div className="text-xl font-bold text-emerald-600 dark:text-emerald-400">
               UGX {(financialStats.completedRevenue / 1000000).toFixed(1)}M
             </div>
           </CardContent>
@@ -967,12 +1071,12 @@ const FinancialReport: React.FC<{
         <Card>
           <CardContent className="pt-3 pb-3">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium text-gray-500 dark:text-muted-foreground">Pending Revenue</span>
-              <div className="p-1 bg-yellow-50 dark:bg-yellow-900/30 rounded">
-                <HugeiconsIcon icon={Clock01Icon} size={14} className="text-yellow-600 dark:text-yellow-400" />
+              <span className="text-xs font-medium text-muted-foreground">Pending Revenue</span>
+              <div className="p-1 bg-amber-50 dark:bg-amber-900/30 rounded">
+                <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
               </div>
             </div>
-            <div className="text-xl font-bold text-yellow-600 dark:text-yellow-400">
+            <div className="text-xl font-bold text-amber-600 dark:text-amber-400">
               UGX {(financialStats.pendingRevenue / 1000000).toFixed(1)}M
             </div>
           </CardContent>
@@ -985,45 +1089,44 @@ const FinancialReport: React.FC<{
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-1.5">
-              <HugeiconsIcon icon={Chart01Icon} size={14} className="text-primary" />
+              <BarChart3 className="w-4 h-4 text-primary" />
               Revenue by Status
             </CardTitle>
           </CardHeader>
           <CardContent>
             {revenueBreakdownData.some(item => item.value > 0) ? (
               <div className="h-[220px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={revenueBreakdownData.map((item) => ({
-                        name: item.name,
+                <PieChart
+                  series={[
+                    {
+                      data: revenueBreakdownData.map((item, index) => ({
+                        id: index,
                         value: item.value,
+                        label: item.name,
                         color: item.color,
-                      }))}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={2}
-                      dataKey="value"
-                    >
-                      {revenueBreakdownData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(value: number) => `UGX ${(value / 1000000).toFixed(2)}M`}
-                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                    />
-                    <Legend
-                      layout="horizontal"
-                      verticalAlign="bottom"
-                      align="center"
-                      iconSize={8}
-                      wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
+                      })),
+                      innerRadius: 60,
+                      outerRadius: 80,
+                      paddingAngle: 2,
+                      valueFormatter: (value) => `UGX ${(value.value / 1000000).toFixed(2)}M`,
+                    },
+                  ]}
+                  margin={{ top: 10, right: 10, bottom: 40, left: 10 }}
+                  slotProps={{
+                    legend: {
+                      direction: 'horizontal',
+                      position: { vertical: 'bottom', horizontal: 'middle' },
+                      padding: 0,
+                      itemMarkWidth: 8,
+                      itemMarkHeight: 8,
+                      markGap: 4,
+                      itemGap: 8,
+                      labelStyle: {
+                        fontSize: 10,
+                      },
+                    },
+                  }}
+                />
               </div>
             ) : (
               <div className="h-[220px] flex items-center justify-center text-xs text-muted-foreground">No data available</div>
@@ -1035,45 +1138,44 @@ const FinancialReport: React.FC<{
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-1.5">
-              <HugeiconsIcon icon={Chart01Icon} size={14} className="text-primary" />
+              <BarChart3 className="w-4 h-4 text-primary" />
               Cost Breakdown
             </CardTitle>
           </CardHeader>
           <CardContent>
             {costBreakdownData.some(item => item.value > 0) ? (
               <div className="h-[220px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={costBreakdownData.map((item) => ({
-                        name: item.name,
+                <PieChart
+                  series={[
+                    {
+                      data: costBreakdownData.map((item, index) => ({
+                        id: index,
                         value: item.value,
+                        label: item.name,
                         color: item.color,
-                      }))}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={2}
-                      dataKey="value"
-                    >
-                      {costBreakdownData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      formatter={(value: number) => `UGX ${(value / 1000000).toFixed(2)}M`}
-                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                    />
-                    <Legend
-                      layout="horizontal"
-                      verticalAlign="bottom"
-                      align="center"
-                      iconSize={8}
-                      wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
+                      })),
+                      innerRadius: 60,
+                      outerRadius: 80,
+                      paddingAngle: 2,
+                      valueFormatter: (value) => `UGX ${(value.value / 1000000).toFixed(2)}M`,
+                    },
+                  ]}
+                  margin={{ top: 10, right: 10, bottom: 40, left: 10 }}
+                  slotProps={{
+                    legend: {
+                      direction: 'horizontal',
+                      position: { vertical: 'bottom', horizontal: 'middle' },
+                      padding: 0,
+                      itemMarkWidth: 8,
+                      itemMarkHeight: 8,
+                      markGap: 4,
+                      itemGap: 8,
+                      labelStyle: {
+                        fontSize: 10,
+                      },
+                    },
+                  }}
+                />
               </div>
             ) : (
               <div className="h-[220px] flex items-center justify-center text-xs text-muted-foreground">No data available</div>
@@ -1086,80 +1188,92 @@ const FinancialReport: React.FC<{
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-1.5">
-            <HugeiconsIcon icon={ReceiptDollarIcon} size={14} className="text-primary" />
+            <Receipt className="w-4 h-4 text-primary" />
             Detailed Cost Analysis
           </CardTitle>
         </CardHeader>
         <CardContent>
           {financialStats.totalRevenue > 0 ? (
             <div className="h-[180px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  layout="vertical"
-                  data={[
-                    { name: 'Labor', value: (financialStats.totalLabor / financialStats.totalRevenue) * 100, color: CHART_COLORS.steelBlue },
-                    { name: 'Parts', value: (financialStats.totalParts / financialStats.totalRevenue) * 100, color: CHART_COLORS.industrialGreen }
-                  ]}
-                  margin={{ top: 10, right: 30, left: 10, bottom: 0 }}
-                >
-                  <CartesianGrid horizontal={false} stroke="#e5e7eb" strokeDasharray="3 3" />
-                  <XAxis type="number" domain={[0, 100]} hide />
-                  <YAxis
-                    dataKey="name"
-                    type="category"
-                    width={60}
-                    axisLine={false}
-                    tickLine={false}
-                    tick={{ fontSize: 10, fill: '#6b7280' }}
-                  />
-                  <Tooltip
-                    formatter={(value: number) => `${value.toFixed(1)}%`}
-                    cursor={{ fill: '#f3f4f6' }}
-                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                  />
-                  <Bar dataKey="value" fill="#8884d8" radius={[0, 4, 4, 0]}>
-                    {
-                      [
-                        { color: CHART_COLORS.steelBlue },
-                        { color: CHART_COLORS.industrialGreen }
-                      ].map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))
-                    }
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+              <BarChart
+                dataset={[
+                  { name: 'Labor', value: (financialStats.totalLabor / financialStats.totalRevenue) * 100, color: CHART_COLORS.steelBlue },
+                  { name: 'Parts', value: (financialStats.totalParts / financialStats.totalRevenue) * 100, color: CHART_COLORS.industrialGreen }
+                ]}
+                layout="horizontal"
+                yAxis={[
+                  {
+                    scaleType: 'band',
+                    dataKey: 'name',
+                    tickLabelStyle: {
+                      fontSize: 10,
+                      fill: '#6b7280',
+                    },
+                  },
+                ]}
+                xAxis={[
+                  {
+                    min: 0,
+                    max: 100,
+                    tickLabelStyle: {
+                      display: 'none',
+                    },
+                  },
+                ]}
+                series={[
+                  {
+                    dataKey: 'value',
+                    valueFormatter: (value) => `${value.toFixed(1)}%`,
+                  },
+                ]}
+                margin={{ top: 10, right: 30, bottom: 10, left: 60 }}
+                grid={{ vertical: false, horizontal: true }}
+                borderRadius={4}
+                colors={[CHART_COLORS.steelBlue, CHART_COLORS.industrialGreen]}
+                sx={{
+                  '& .MuiChartsGrid-line': {
+                    stroke: '#e5e7eb',
+                    strokeDasharray: '3 3',
+                  },
+                  '& .MuiChartsAxis-line': {
+                    display: 'none',
+                  },
+                  '& .MuiChartsAxis-tick': {
+                    display: 'none',
+                  },
+                }}
+              />
             </div>
           ) : (
             <div className="h-[180px] flex items-center justify-center text-xs text-muted-foreground">No data available</div>
           )}
 
-          <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+          <div className="mt-3 pt-3 border-t">
             <div className="grid grid-cols-3 gap-3">
-              <div className="text-center p-2 bg-gray-50 dark:bg-gray-800 rounded">
-                <p className="text-[10px] text-gray-600 dark:text-muted-foreground mb-0.5">Labor Costs</p>
-                <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+              <div className="text-center p-2 bg-muted rounded">
+                <p className="text-xs text-muted-foreground mb-0.5">Labor Costs</p>
+                <p className="text-sm font-bold">
                   UGX {(financialStats.totalLabor / 1000000).toFixed(2)}M
                 </p>
-                <p className="text-[10px] text-gray-500 dark:text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {((financialStats.totalLabor / financialStats.totalRevenue) * 100).toFixed(1)}%
                 </p>
               </div>
-              <div className="text-center p-2 bg-gray-50 dark:bg-gray-800 rounded">
-                <p className="text-[10px] text-gray-600 dark:text-muted-foreground mb-0.5">Parts Costs</p>
-                <p className="text-sm font-bold text-gray-900 dark:text-gray-100">
+              <div className="text-center p-2 bg-muted rounded">
+                <p className="text-xs text-muted-foreground mb-0.5">Parts Costs</p>
+                <p className="text-sm font-bold">
                   UGX {(financialStats.totalParts / 1000000).toFixed(2)}M
                 </p>
-                <p className="text-[10px] text-gray-500 dark:text-muted-foreground">
+                <p className="text-xs text-muted-foreground">
                   {((financialStats.totalParts / financialStats.totalRevenue) * 100).toFixed(1)}%
                 </p>
               </div>
-              <div className="text-center p-2 bg-primary-50 dark:bg-primary-900/30 rounded">
-                <p className="text-[10px] text-gray-600 dark:text-muted-foreground mb-0.5">Avg Order Value</p>
-                <p className="text-sm font-bold text-primary-700 dark:text-primary-400">
+              <div className="text-center p-2 bg-primary/10 rounded">
+                <p className="text-xs text-muted-foreground mb-0.5">Avg Order Value</p>
+                <p className="text-sm font-bold text-primary">
                   UGX {(financialStats.avgOrderValue / 1000).toFixed(0)}K
                 </p>
-                <p className="text-[10px] text-gray-500 dark:text-muted-foreground">Per work order</p>
+                <p className="text-xs text-muted-foreground">Per work order</p>
               </div>
             </div>
           </div>
@@ -1220,12 +1334,12 @@ const FleetOverviewReport: React.FC<{
         <Card>
           <CardContent className="pt-3 pb-3">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium text-gray-500 dark:text-muted-foreground">Total Fleet Size</span>
-              <div className="p-1 bg-blue-50 dark:bg-blue-900/30 rounded">
-                <HugeiconsIcon icon={TruckIcon} size={14} className="text-blue-600 dark:text-blue-400" />
+              <span className="text-xs font-medium text-muted-foreground">Total Fleet Size</span>
+              <div className="p-1 bg-primary/10 rounded">
+                <Truck className="w-4 h-4 text-primary" />
               </div>
             </div>
-            <div className="text-xl font-bold text-gray-900 dark:text-gray-100">{stats.total}</div>
+            <div className="text-xl font-bold">{stats.total}</div>
           </CardContent>
         </Card>
 
@@ -1233,13 +1347,13 @@ const FleetOverviewReport: React.FC<{
         <Card>
           <CardContent className="pt-3 pb-3">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium text-gray-500 dark:text-muted-foreground">Availability Rate</span>
-              <div className="p-1 bg-green-50 dark:bg-green-900/30 rounded">
-                <HugeiconsIcon icon={Activity01Icon} size={14} className="text-green-600 dark:text-green-400" />
+              <span className="text-xs font-medium text-muted-foreground">Availability Rate</span>
+              <div className="p-1 bg-emerald-50 dark:bg-emerald-900/30 rounded">
+                <Activity className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               </div>
             </div>
-            <div className="text-xl font-bold text-gray-900 dark:text-gray-100">{stats.availabilityRate}%</div>
-            <div className="text-[10px] text-muted-foreground dark:text-gray-500">{stats.active} vehicles available</div>
+            <div className="text-xl font-bold">{stats.availabilityRate}%</div>
+            <div className="text-xs text-muted-foreground">{stats.active} vehicles available</div>
           </CardContent>
         </Card>
 
@@ -1247,13 +1361,13 @@ const FleetOverviewReport: React.FC<{
         <Card>
           <CardContent className="pt-3 pb-3">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium text-gray-500 dark:text-muted-foreground">In Maintenance</span>
-              <div className="p-1 bg-yellow-50 dark:bg-yellow-900/30 rounded">
-                <HugeiconsIcon icon={Wrench01Icon} size={14} className="text-yellow-600 dark:text-yellow-400" />
+              <span className="text-xs font-medium text-muted-foreground">In Maintenance</span>
+              <div className="p-1 bg-amber-50 dark:bg-amber-900/30 rounded">
+                <Wrench className="w-4 h-4 text-amber-600 dark:text-amber-400" />
               </div>
             </div>
-            <div className="text-xl font-bold text-gray-900 dark:text-gray-100">{stats.maintenance}</div>
-            <div className="text-[10px] text-muted-foreground dark:text-gray-500">Currently being serviced</div>
+            <div className="text-xl font-bold">{stats.maintenance}</div>
+            <div className="text-xs text-muted-foreground">Currently being serviced</div>
           </CardContent>
         </Card>
 
@@ -1261,13 +1375,13 @@ const FleetOverviewReport: React.FC<{
         <Card>
           <CardContent className="pt-3 pb-3">
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium text-gray-500 dark:text-muted-foreground">Average Age</span>
-              <div className="p-1 bg-gray-50 dark:bg-gray-800 rounded">
-                <HugeiconsIcon icon={CalendarCheckIn01Icon} size={14} className="text-gray-600 dark:text-muted-foreground" />
+              <span className="text-xs font-medium text-muted-foreground">Average Age</span>
+              <div className="p-1 bg-muted rounded">
+                <CalendarCheck className="w-4 h-4 text-muted-foreground" />
               </div>
             </div>
-            <div className="text-xl font-bold text-gray-900 dark:text-gray-100">{stats.avgAge}</div>
-            <div className="text-[10px] text-muted-foreground dark:text-gray-500">Years</div>
+            <div className="text-xl font-bold">{stats.avgAge}</div>
+            <div className="text-xs text-muted-foreground">Years</div>
           </CardContent>
         </Card>
       </div>
@@ -1278,44 +1392,43 @@ const FleetOverviewReport: React.FC<{
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-1.5">
-              <HugeiconsIcon icon={Chart01Icon} size={14} className="text-primary" />
+              <BarChart3 className="w-4 h-4 text-primary" />
               Fleet Status Distribution
             </CardTitle>
           </CardHeader>
           <CardContent>
             {statusData.some(item => item.value > 0) ? (
               <div className="h-[220px] w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={statusData.map((item) => ({
-                        name: item.name,
+                <PieChart
+                  series={[
+                    {
+                      data: statusData.map((item, index) => ({
+                        id: index,
                         value: item.value,
+                        label: item.name,
                         color: item.color,
-                      }))}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={2}
-                      dataKey="value"
-                    >
-                      {statusData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-                    />
-                    <Legend
-                      layout="horizontal"
-                      verticalAlign="bottom"
-                      align="center"
-                      iconSize={8}
-                      wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
+                      })),
+                      innerRadius: 60,
+                      outerRadius: 80,
+                      paddingAngle: 2,
+                    },
+                  ]}
+                  margin={{ top: 10, right: 10, bottom: 40, left: 10 }}
+                  slotProps={{
+                    legend: {
+                      direction: 'horizontal',
+                      position: { vertical: 'bottom', horizontal: 'middle' },
+                      padding: 0,
+                      itemMarkWidth: 8,
+                      itemMarkHeight: 8,
+                      markGap: 4,
+                      itemGap: 8,
+                      labelStyle: {
+                        fontSize: 10,
+                      },
+                    },
+                  }}
+                />
               </div>
             ) : (
               <div className="h-[220px] flex items-center justify-center text-xs text-muted-foreground">No data available</div>
@@ -1342,13 +1455,13 @@ class ReportsErrorBoundary extends React.Component<{ children: React.ReactNode }
   render() {
     if (this.state.hasError) {
       return (
-        <div className="p-8 m-4 border-2 border-red-500 bg-red-50 text-red-900 rounded-lg">
+        <div className="p-8 m-4 border-2 border-destructive bg-destructive/10 rounded-lg">
           <h2 className="text-xl font-bold mb-4">Something went wrong in the Reports page</h2>
-          <pre className="bg-white p-4 rounded border overflow-auto text-xs whitespace-pre-wrap">
+          <pre className="bg-background p-4 rounded border overflow-auto text-xs whitespace-pre-wrap">
             {this.state.error?.toString()}
           </pre>
           <div className="mt-4">
-            <Button onClick={() => window.location.reload()} className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700 h-11 md:h-10">Reload Page</Button>
+            <Button onClick={() => window.location.reload()} className="px-4 py-2 bg-destructive text-destructive-foreground rounded hover:bg-destructive/90 h-11 md:h-10">Reload Page</Button>
           </div>
         </div>
       );
@@ -1460,21 +1573,21 @@ const Reports: React.FC = () => {
 
   if (loadingWorkOrders || loadingTechnicians || loadingVehicles) {
     return (
-      <div className="flex h-screen bg-white">
-        <div className="w-80 border-r border-gray-200 flex flex-col">
-          <div className="px-4 py-4 border-b border-gray-200">
-            <Skeleton height={24} width={120} className="mb-3" />
-            <Skeleton height={36} />
+      <div className="flex h-screen bg-background">
+        <div className="w-80 border-r border-border flex flex-col">
+          <div className="px-4 py-4 border-b border-border">
+            <Skeleton className="h-6 w-30 mb-3" />
+            <Skeleton className="h-9 w-full" />
           </div>
           <div className="flex-1 p-4">
-            <Skeleton height={400} />
+            <Skeleton className="h-96 w-full" />
           </div>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <Skeleton height={48} width={48} className="mx-auto mb-3" />
-            <Skeleton height={20} width={160} className="mx-auto mb-2" />
-            <Skeleton height={16} width={240} className="mx-auto" />
+            <Skeleton className="h-12 w-12 mx-auto mb-3" />
+            <Skeleton className="h-5 w-40 mx-auto mb-2" />
+            <Skeleton className="h-4 w-60 mx-auto" />
           </div>
         </div>
       </div>
@@ -1483,26 +1596,31 @@ const Reports: React.FC = () => {
 
   return (
     <ReportsErrorBoundary>
-      <div className="flex h-screen bg-white dark:bg-gray-900">
+      <div className="flex h-screen bg-background">
         {/* Left Panel - Report Navigation & Controls */}
-        <div className="w-56 border-r border-gray-200 dark:border-gray-800 flex flex-col">
+        <div className="w-56 border-r border-border flex flex-col">
           {/* Header */}
-          <div className="px-3 py-2.5 border-b border-gray-200 dark:border-gray-800">
-            <div className="flex items-center justify-between mb-2.5">
-              <h1 className="text-sm font-semibold text-gray-900 dark:text-gray-100">Reports</h1>
-              <button
-                onClick={handleExportPDF}
-                className="p-1 rounded text-muted-foreground hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors min-h-[44px] min-w-[44px] md:min-h-[32px] md:min-w-[32px] flex items-center justify-center"
-              >
-                <HugeiconsIcon icon={FileIcon} size={14} />
-              </button>
-            </div>
+          <div className="px-3 py-2.5 border-b border-border">
+            <PageHeader
+              title="Reports"
+              subtitle="Analytics and insights"
+              icon={<BarChart3 className="w-5 h-5 text-muted-foreground" />}
+              actions={
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleExportPDF}
+                >
+                  <FileText className="w-4 h-4" />
+                </Button>
+              }
+            />
 
             {/* Date Range Selector */}
             <div className="mb-3">
-              <Label className="block text-[10px] font-medium text-gray-500 dark:text-muted-foreground uppercase tracking-wide mb-1">Date Range</Label>
+              <Label className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Date Range</Label>
               <Select value={dateRange} onValueChange={(value) => handleDateRangeChange(value as DateRange)}>
-                <SelectTrigger className="w-full h-11 md:h-8 text-xs">
+                <SelectTrigger className="w-full text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1519,7 +1637,7 @@ const Reports: React.FC = () => {
             {dateRange === 'custom' && (
               <div className="space-y-2 mb-3">
                 <div>
-                  <Label className="block text-[10px] font-medium text-gray-500 dark:text-muted-foreground mb-1">Start Date</Label>
+                  <Label className="block text-xs font-medium text-muted-foreground mb-1">Start Date</Label>
                   <Input
                     type="date"
                     value={startDate}
@@ -1528,7 +1646,7 @@ const Reports: React.FC = () => {
                   />
                 </div>
                 <div>
-                  <Label className="block text-[10px] font-medium text-gray-500 dark:text-muted-foreground mb-1">End Date</Label>
+                  <Label className="block text-xs font-medium text-muted-foreground mb-1">End Date</Label>
                   <Input
                     type="date"
                     value={endDate}
@@ -1541,36 +1659,39 @@ const Reports: React.FC = () => {
 
             {/* Report Type Selector */}
             <div>
-              <label className="block text-[10px] font-medium text-gray-500 dark:text-muted-foreground uppercase tracking-wide mb-1.5">Report Type</label>
+              <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">Report Type</label>
               <div className="space-y-0.5">
                 {[
-                  { id: 'overview', label: 'Overview', icon: Home01Icon },
-                  { id: 'fleet', label: 'Fleet Overview', icon: Car01Icon },
-                  { id: 'technician', label: 'Technician Performance', icon: UserIcon },
-                  { id: 'workorder', label: 'Work Order Analysis', icon: ClipboardIcon },
-                  { id: 'asset', label: 'Asset Reports', icon: Car01Icon },
-                  { id: 'financial', label: 'Financial Summary', icon: TagIcon },
-                  { id: 'inventory', label: 'Inventory Reports', icon: PackageIcon },
-                ].map((report) => (
-                  <button
-                    key={report.id}
-                    onClick={() => setReportType(report.id as ReportType)}
-                    className={`w-full flex items-center gap-2 px-2 py-1.5 text-xs rounded transition-colors min-h-[44px] md:min-h-[32px] ${reportType === report.id
-                      ? 'bg-primary-50 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300 font-medium'
-                      : 'text-gray-600 dark:text-muted-foreground hover:text-gray-900 dark:hover:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800'
-                      }`}
-                  >
-                    <HugeiconsIcon icon={report.icon} size={14} />
-                    {report.label}
-                  </button>
-                ))}
+                  { id: 'overview', label: 'Overview', icon: Home },
+                  { id: 'fleet', label: 'Fleet Overview', icon: Car },
+                  { id: 'technician', label: 'Technician Performance', icon: User },
+                  { id: 'workorder', label: 'Work Order Analysis', icon: Clipboard },
+                  { id: 'asset', label: 'Asset Reports', icon: Car },
+                  { id: 'financial', label: 'Financial Summary', icon: Tag },
+                  { id: 'cx', label: 'Customer Experience', icon: Users },
+                  { id: 'inventory', label: 'Inventory Reports', icon: Package },
+                ].map((report) => {
+                  const IconComponent = report.icon;
+                  return (
+                    <Button
+                      key={report.id}
+                      variant={reportType === report.id ? 'default' : 'ghost'}
+                      size="sm"
+                      onClick={() => setReportType(report.id as ReportType)}
+                      className="w-full justify-start"
+                    >
+                      <IconComponent className="w-4 h-4 mr-2" />
+                      {report.label}
+                    </Button>
+                  );
+                })}
               </div>
             </div>
           </div>
 
           {/* Quick Actions */}
-          <div className="px-3 py-2.5 border-b border-gray-200 dark:border-gray-800">
-            <h3 className="text-[10px] font-medium text-gray-500 dark:text-muted-foreground uppercase tracking-wide mb-1.5">Export Options</h3>
+          <div className="px-3 py-2.5 border-b border-border">
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">Export Options</h3>
             <div className="space-y-0.5">
               <Button
                 variant="outline"
@@ -1578,7 +1699,7 @@ const Reports: React.FC = () => {
                 onClick={handleExportPDF}
                 className="w-full justify-start gap-2 text-xs font-normal h-11 md:h-8"
               >
-                <HugeiconsIcon icon={FileIcon} size={14} />
+                <FileText className="w-4 h-4" />
                 Export PDF (Pilot)
               </Button>
               <Button
@@ -1587,7 +1708,7 @@ const Reports: React.FC = () => {
                 onClick={handleExportExcel}
                 className="w-full justify-start gap-2 text-xs font-normal h-11 md:h-8"
               >
-                <HugeiconsIcon icon={FileIcon} size={14} />
+                <FileText className="w-4 h-4" />
                 Export Excel
               </Button>
             </div>
@@ -1595,11 +1716,11 @@ const Reports: React.FC = () => {
 
           {/* Date Range Info */}
           <div className="px-3 py-2.5">
-            <h3 className="text-[10px] font-medium text-gray-500 dark:text-muted-foreground uppercase tracking-wide mb-1">Current Period</h3>
-            <div className="text-xs font-medium text-gray-900 dark:text-gray-100">
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Current Period</h3>
+            <div className="text-xs font-medium text-foreground">
               {dayjs(startDate).format('MMM D, YYYY')} - {dayjs(endDate).format('MMM D, YYYY')}
             </div>
-            <div className="text-[10px] text-gray-500 dark:text-muted-foreground mt-0.5">
+            <div className="text-xs text-muted-foreground mt-0.5">
               {dayjs(endDate).diff(dayjs(startDate), 'days')} days
             </div>
           </div>
@@ -1608,22 +1729,24 @@ const Reports: React.FC = () => {
         {/* Right Panel - Report Content */}
         <div className="flex-1 flex flex-col">
           {/* Header */}
-          <div className="px-4 py-2 border-b border-gray-200 dark:border-gray-800">
-            <h2 className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+          <div className="px-4 py-2 border-b border-border">
+            <h2 className="text-sm font-semibold text-foreground">
               {reportType === 'overview' ? 'Overview Report' :
                 reportType === 'technician' ? 'Technician Performance' :
                   reportType === 'workorder' ? 'Work Order Analysis' :
                     reportType === 'asset' ? 'Asset Reports' :
                       reportType === 'fleet' ? 'Fleet Overview' :
-                        reportType === 'financial' ? 'Financial Summary' : 'Inventory Reports'}
+                        reportType === 'financial' ? 'Financial Summary' :
+                          reportType === 'cx' ? 'Customer Experience' : 'Inventory Reports'}
             </h2>
-            <p className="text-xs text-gray-500 dark:text-muted-foreground">
+            <p className="text-xs text-muted-foreground">
               {reportType === 'overview' ? 'Comprehensive insights and performance metrics' :
                 reportType === 'technician' ? 'Individual technician performance analysis' :
                   reportType === 'workorder' ? 'Work order trends and patterns' :
                     reportType === 'asset' ? 'Asset maintenance and service history' :
                       reportType === 'fleet' ? 'Fleet status, health, and availability metrics' :
-                        reportType === 'financial' ? 'Revenue and cost analysis' : 'Inventory valuation, movement, and analytics'}
+                        reportType === 'financial' ? 'Revenue and cost analysis' :
+                          reportType === 'cx' ? 'Customer satisfaction and service quality metrics' : 'Inventory valuation, movement, and analytics'}
             </p>
           </div>
 
@@ -1672,6 +1795,14 @@ const Reports: React.FC = () => {
               />
             )}
 
+            {reportType === 'cx' && (
+              <CustomerExperienceReport
+                workOrders={workOrders || []}
+                startDate={startDate}
+                endDate={endDate}
+              />
+            )}
+
             {reportType === 'inventory' && (
               <InventoryReport />
             )}
@@ -1684,3 +1815,7 @@ const Reports: React.FC = () => {
 
 
 export default Reports;
+
+
+
+

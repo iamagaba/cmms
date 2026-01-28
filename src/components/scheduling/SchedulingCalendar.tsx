@@ -1,3 +1,4 @@
+import { ArrowLeft, MapPin, Plus } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 import {
     format,
@@ -9,14 +10,8 @@ import {
     parseISO,
     differenceInMinutes
 } from 'date-fns';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-    ArrowLeft01Icon,
-    ArrowRight01Icon,
-    FilterHorizontalIcon,
-    Location03Icon,
-    Add01Icon
-} from '@hugeicons/core-free-icons';
+
+
 import { cn } from '@/lib/utils';
 import ShiftCard, { ShiftCardProps } from './ShiftCard';
 import { ShiftEditorDialog } from './ShiftEditorDialog';
@@ -267,10 +262,11 @@ const SchedulingCalendar = () => {
                             className="h-7 w-7"
                             onClick={prevPeriod}
                             disabled={isLoading}
+                            aria-label="Previous period"
                         >
-                            <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
+                            <ArrowLeft className="w-5 h-5" />
                         </Button>
-                        <span className="px-3 text-xs font-semibold min-w-[140px] text-center text-foreground">
+                        <span className="px-3 text-sm font-semibold min-w-[140px] text-center text-foreground">
                             {viewMode === 'day'
                                 ? format(currentDate, 'MMMM d, yyyy')
                                 : `${format(startOfWeek(currentDate, { weekStartsOn: 0 }), 'MMM d')} - ${format(addDays(startOfWeek(currentDate, { weekStartsOn: 0 }), 6), 'MMM d, yyyy')}`
@@ -282,15 +278,16 @@ const SchedulingCalendar = () => {
                             className="h-7 w-7"
                             onClick={nextPeriod}
                             disabled={isLoading}
+                            aria-label="Next period"
                         >
-                            <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
+                            <ChevronRight className="w-4 h-4" />
                         </Button>
                     </div>
 
                     <Button
                         variant="outline"
                         size="sm"
-                        className="h-8 text-xs"
+                        className="h-8 text-sm"
                         onClick={today}
                         disabled={isLoading}
                     >
@@ -306,12 +303,12 @@ const SchedulingCalendar = () => {
                             onValueChange={setSelectedLocation}
                             disabled={isLoading}
                         >
-                            <SelectTrigger className="h-8 text-xs border-gray-200 dark:border-gray-800 bg-background shadow-sm focus:ring-1 focus:ring-primary/30 focus:ring-offset-0">
+                            <SelectTrigger className="h-8 text-sm border-gray-200 dark:border-gray-800 bg-background shadow-sm focus:ring-1 focus:ring-primary/30 focus:ring-offset-0">
                                 <SelectValue placeholder="Select Location" />
                             </SelectTrigger>
                             <SelectContent>
                                 {locations.map(loc => (
-                                    <SelectItem key={loc.id} value={loc.id} className="text-xs">{loc.name}</SelectItem>
+                                    <SelectItem key={loc.id} value={loc.id} className="text-sm">{loc.name}</SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
@@ -320,10 +317,10 @@ const SchedulingCalendar = () => {
                     <Button
                         variant={showFilters ? "secondary" : "outline"}
                         size="sm"
-                        className="h-8 text-xs gap-1.5"
+                        className="h-8 text-sm gap-1.5"
                         onClick={() => setShowFilters(!showFilters)}
                     >
-                        <HugeiconsIcon icon={FilterHorizontalIcon} size={14} />
+                        <FilterHorizontalIcon className="w-4 h-4" />
                         Filters
                     </Button>
 
@@ -331,7 +328,7 @@ const SchedulingCalendar = () => {
                         <button
                             onClick={() => setViewMode('week')}
                             className={cn(
-                                "px-3 py-1 text-xs font-semibold rounded-sm transition-all",
+                                "px-3 py-1 text-sm font-semibold rounded-sm transition-all",
                                 viewMode === 'week'
                                     ? "bg-background text-foreground shadow-sm"
                                     : "text-muted-foreground hover:text-foreground"
@@ -342,7 +339,7 @@ const SchedulingCalendar = () => {
                         <button
                             onClick={() => setViewMode('day')}
                             className={cn(
-                                "px-3 py-1 text-xs font-semibold rounded-sm transition-all",
+                                "px-3 py-1 text-sm font-semibold rounded-sm transition-all",
                                 viewMode === 'day'
                                     ? "bg-background text-foreground shadow-sm"
                                     : "text-muted-foreground hover:text-foreground"
@@ -358,7 +355,7 @@ const SchedulingCalendar = () => {
             {showFilters && (
                 <div className="px-3 py-2.5 border-b border-border bg-muted/30">
                     <div className="flex items-center gap-3">
-                        <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Filters:</span>
+                        <span className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Filters:</span>
 
                         {/* Shift Type Filter */}
                         <div className="w-[160px]">
@@ -366,13 +363,13 @@ const SchedulingCalendar = () => {
                                 value={filters.shiftType}
                                 onValueChange={(value) => setFilters({ ...filters, shiftType: value })}
                             >
-                                <SelectTrigger className="h-8 text-xs border-gray-200 dark:border-gray-800 bg-background shadow-sm focus:ring-1 focus:ring-primary/30 focus:ring-offset-0">
+                                <SelectTrigger className="h-8 text-sm border-gray-200 dark:border-gray-800 bg-background shadow-sm focus:ring-1 focus:ring-primary/30 focus:ring-offset-0">
                                     <SelectValue placeholder="Shift Type" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all" className="text-xs">All Shift Types</SelectItem>
+                                    <SelectItem value="all" className="text-sm">All Shift Types</SelectItem>
                                     {shiftTypes.map(type => (
-                                        <SelectItem key={type} value={type} className="text-xs">{type}</SelectItem>
+                                        <SelectItem key={type} value={type} className="text-sm">{type}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -384,13 +381,13 @@ const SchedulingCalendar = () => {
                                 value={filters.status}
                                 onValueChange={(value) => setFilters({ ...filters, status: value })}
                             >
-                                <SelectTrigger className="h-8 text-xs border-gray-200 dark:border-gray-800 bg-background shadow-sm focus:ring-1 focus:ring-primary/30 focus:ring-offset-0">
+                                <SelectTrigger className="h-8 text-sm border-gray-200 dark:border-gray-800 bg-background shadow-sm focus:ring-1 focus:ring-primary/30 focus:ring-offset-0">
                                     <SelectValue placeholder="Status" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all" className="text-xs">All Statuses</SelectItem>
+                                    <SelectItem value="all" className="text-sm">All Statuses</SelectItem>
                                     {statuses.map(status => (
-                                        <SelectItem key={status} value={status} className="text-xs">{status}</SelectItem>
+                                        <SelectItem key={status} value={status} className="text-sm">{status}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -402,13 +399,13 @@ const SchedulingCalendar = () => {
                                 value={filters.technician}
                                 onValueChange={(value) => setFilters({ ...filters, technician: value })}
                             >
-                                <SelectTrigger className="h-8 text-xs border-gray-200 dark:border-gray-800 bg-background shadow-sm focus:ring-1 focus:ring-primary/30 focus:ring-offset-0">
+                                <SelectTrigger className="h-8 text-sm border-gray-200 dark:border-gray-800 bg-background shadow-sm focus:ring-1 focus:ring-primary/30 focus:ring-offset-0">
                                     <SelectValue placeholder="Technician" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="all" className="text-xs">All Technicians</SelectItem>
+                                    <SelectItem value="all" className="text-sm">All Technicians</SelectItem>
                                     {technicians.map(tech => (
-                                        <SelectItem key={tech.id} value={tech.id} className="text-xs">{tech.name}</SelectItem>
+                                        <SelectItem key={tech.id} value={tech.id} className="text-sm">{tech.name}</SelectItem>
                                     ))}
                                 </SelectContent>
                             </Select>
@@ -419,7 +416,7 @@ const SchedulingCalendar = () => {
                             <Button
                                 variant="link"
                                 size="sm"
-                                className="h-8 text-xs text-muted-foreground hover:text-foreground"
+                                className="h-8 text-sm text-muted-foreground hover:text-foreground"
                                 onClick={() => setFilters({ shiftType: 'all', status: 'all', technician: 'all' })}
                             >
                                 Clear all
@@ -435,7 +432,7 @@ const SchedulingCalendar = () => {
                     <div className="flex items-center justify-center h-full">
                         <div className="text-center">
                             <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                            <p className="mt-2 text-xs text-muted-foreground">Loading schedule...</p>
+                            <p className="mt-2 text-sm text-muted-foreground">Loading schedule...</p>
                         </div>
                     </div>
                 ) : (
@@ -445,11 +442,11 @@ const SchedulingCalendar = () => {
                             className="grid border-b border-border bg-background sticky top-0 z-10"
                             style={{ gridTemplateColumns: `180px repeat(${calendarDays.length}, 1fr)` }}
                         >
-                            <div className="py-2 px-3 text-xs font-semibold text-muted-foreground border-r border-border/50">
+                            <div className="py-2 px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground border-r border-border/50">
                                 Technician
                             </div>
                             {calendarDays.map((day) => (
-                                <div key={day.toString()} className="py-2 text-center text-xs font-semibold text-muted-foreground border-r border-border/50 last:border-r-0">
+                                <div key={day.toString()} className="py-2 text-center text-xs font-medium uppercase tracking-wider text-muted-foreground border-r border-border/50 last:border-r-0">
                                     {viewMode === 'day' ? format(day, 'EEEE, MMM d') : format(day, 'EEE d')}
                                 </div>
                             ))}
@@ -502,7 +499,7 @@ const SchedulingCalendar = () => {
                                                                 onClick={() => setCreatingShift({ technicianId: technician.id, date: day })}
                                                                 className="w-full h-full min-h-[40px] flex items-center justify-center text-muted-foreground/30 hover:text-primary hover:bg-primary/5 rounded-sm transition-all opacity-0 hover:opacity-100 group-hover:opacity-100"
                                                             >
-                                                                <HugeiconsIcon icon={Add01Icon} size={20} />
+                                                                <Plus className="w-5 h-5" />
                                                             </button>
                                                         )}
                                                     </div>
@@ -543,3 +540,4 @@ const SchedulingCalendar = () => {
 };
 
 export default SchedulingCalendar;
+

@@ -1,15 +1,7 @@
+import { Calendar, Loader2, X } from 'lucide-react';
 import React, { useState } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  FileIcon,
-  Download01Icon,
-  Calendar01Icon,
-  PackageIcon,
-  Cancel01Icon,
-  Store01Icon,
-  Loading01Icon,
-  ChartBarOffIcon
-} from '@hugeicons/core-free-icons';
+
+
 import {
   useInventoryValuation,
   useStockMovementHistory,
@@ -56,31 +48,31 @@ export const InventoryReportsPanel: React.FC<InventoryReportsPanelProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
-      <div className="relative bg-white dark:bg-gray-900 rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col">
+      <div className="relative bg-card rounded-lg shadow-xl w-full max-w-5xl max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+            <h2 className="text-lg font-semibold text-foreground">
               Inventory Reports & Analytics
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-sm text-muted-foreground">
               Comprehensive inventory insights and analysis
             </p>
           </div>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg">
-            <HugeiconsIcon icon={Cancel01Icon} size={20} className="text-gray-500" />
+          <button onClick={onClose} className="p-2 hover:bg-accent rounded-lg">
+            <X className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
 
         {/* Report Tabs */}
-        <div className="flex border-b border-gray-200 dark:border-gray-700 overflow-x-auto">
+        <div className="flex border-b border-border overflow-x-auto">
           {REPORT_TABS.map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveReport(tab.id as ReportType)}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap transition-colors ${activeReport === tab.id
-                ? 'text-purple-600 dark:text-purple-400 border-b-2 border-purple-600 dark:border-purple-400'
-                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                ? 'text-primary border-b-2 border-primary'
+                : 'text-muted-foreground hover:text-foreground'
                 }`}
             >
               {/* TODO: Convert tab.icon prop to use HugeiconsIcon component */}
@@ -142,20 +134,20 @@ const ValuationReport: React.FC = () => {
 
       <div className="grid grid-cols-2 gap-6">
         {/* Value by Category */}
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Value by Category</h3>
+        <div className="bg-muted rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-foreground mb-4">Value by Category</h3>
           <div className="space-y-2 max-h-64 overflow-auto">
             {Object.entries(data.itemsByCategory)
               .sort(([, a], [, b]) => b.value - a.value)
               .map(([category, stats]) => (
-                <div key={category} className="flex items-center justify-between p-2 bg-white dark:bg-gray-700 rounded">
+                <div key={category} className="flex items-center justify-between p-2 bg-card rounded">
                   <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    <p className="text-sm font-medium text-foreground">
                       {ITEM_CATEGORY_LABELS[category as keyof typeof ITEM_CATEGORY_LABELS] || category}
                     </p>
-                    <p className="text-xs text-gray-500">{stats.count} items</p>
+                    <p className="text-xs text-muted-foreground">{stats.count} items</p>
                   </div>
-                  <span className="text-sm font-semibold text-emerald-600">
+                  <span className="text-sm font-semibold text-foreground">
                     UGX {stats.value.toLocaleString()}
                   </span>
                 </div>
@@ -164,18 +156,18 @@ const ValuationReport: React.FC = () => {
         </div>
 
         {/* Value by Warehouse */}
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Value by Warehouse</h3>
+        <div className="bg-muted rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-foreground mb-4">Value by Warehouse</h3>
           <div className="space-y-2 max-h-64 overflow-auto">
             {Object.entries(data.itemsByWarehouse)
               .sort(([, a], [, b]) => b.value - a.value)
               .map(([warehouse, stats]) => (
-                <div key={warehouse} className="flex items-center justify-between p-2 bg-white dark:bg-gray-700 rounded">
+                <div key={warehouse} className="flex items-center justify-between p-2 bg-card rounded">
                   <div>
-                    <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{warehouse}</p>
-                    <p className="text-xs text-gray-500">{stats.count} items</p>
+                    <p className="text-sm font-medium text-foreground">{warehouse}</p>
+                    <p className="text-xs text-muted-foreground">{stats.count} items</p>
                   </div>
-                  <span className="text-sm font-semibold text-emerald-600">
+                  <span className="text-sm font-semibold text-foreground">
                     UGX {stats.value.toLocaleString()}
                   </span>
                 </div>
@@ -185,11 +177,11 @@ const ValuationReport: React.FC = () => {
       </div>
 
       {/* Top Value Items */}
-      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Top 10 Highest Value Items</h3>
+      <div className="bg-muted rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-foreground mb-4">Top 10 Highest Value Items</h3>
         <div className="overflow-x-auto">
           <Table>
-            <TableHeader className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
+            <TableHeader className="text-left text-muted-foreground border-b border-border">
               <TableRow>
                 <TableHead className="pb-2 font-medium">Item</TableHead>
                 <TableHead className="pb-2 font-medium">SKU</TableHead>
@@ -203,7 +195,7 @@ const ValuationReport: React.FC = () => {
                 <TableRow key={item.id}>
                   <TableCell className="py-2">
                     <div className="flex items-center gap-2">
-                      <span className="w-5 h-5 flex items-center justify-center bg-purple-100 dark:bg-purple-900/30 text-purple-600 rounded text-xs font-medium">
+                      <span className="w-5 h-5 flex items-center justify-center bg-primary/10 text-primary rounded text-xs font-medium">
                         {idx + 1}
                       </span>
                       <span className="font-medium text-gray-900 dark:text-gray-100">{item.name}</span>
@@ -212,7 +204,7 @@ const ValuationReport: React.FC = () => {
                   <TableCell className="py-2 text-gray-500">{item.sku || '-'}</TableCell>
                   <TableCell className="py-2 text-right text-gray-900 dark:text-gray-100">{item.quantity_on_hand}</TableCell>
                   <TableCell className="py-2 text-right text-gray-900 dark:text-gray-100">UGX {Math.round(item.unit_price).toLocaleString()}</TableCell>
-                  <TableCell className="py-2 text-right font-semibold text-emerald-600">
+                  <TableCell className="py-2 text-right font-semibold text-foreground">
                     UGX {item.total_value.toLocaleString()}
                   </TableCell>
                 </TableRow>
@@ -314,7 +306,7 @@ const StockMovementReport: React.FC = () => {
               <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 {stats.count} <span className="text-sm font-normal text-gray-500">transactions</span>
               </p>
-              <p className={`text-sm ${stats.quantity >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
+              <p className={`text-sm ${stats.quantity >= 0 ? 'text-foreground' : 'text-destructive'}`}>
                 {stats.quantity >= 0 ? '+' : ''}{stats.quantity} units
               </p>
             </div>
@@ -347,13 +339,13 @@ const StockMovementReport: React.FC = () => {
                   </TableCell>
                   <TableCell className="py-2">
                     <span className={`px-2 py-0.5 rounded text-xs font-medium ${record.quantity_delta > 0
-                      ? 'bg-emerald-100 text-emerald-700'
-                      : 'bg-red-100 text-red-700'
+                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                      : 'bg-destructive/10 text-destructive'
                       }`}>
                       {REASON_LABELS[record.reason] || record.reason}
                     </span>
                   </TableCell>
-                  <TableCell className={`py-2 text-right font-medium ${record.quantity_delta > 0 ? 'text-emerald-600' : 'text-red-600'
+                  <TableCell className={`py-2 text-right font-medium ${record.quantity_delta > 0 ? 'text-foreground' : 'text-destructive'
                     }`}>
                     {record.quantity_delta > 0 ? '+' : ''}{record.quantity_delta}
                   </TableCell>
@@ -423,7 +415,7 @@ const SlowMovingReport: React.FC = () => {
               key={days}
               onClick={() => setThreshold(days as any)}
               className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${threshold === days
-                ? 'bg-purple-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'
                 }`}
             >
@@ -462,13 +454,13 @@ const SlowMovingReport: React.FC = () => {
                     </TableCell>
                     <TableCell className="py-2 text-gray-500">{item.warehouse || '-'}</TableCell>
                     <TableCell className="py-2 text-right text-gray-900 dark:text-gray-100">{item.quantity_on_hand}</TableCell>
-                    <TableCell className="py-2 text-right font-medium text-orange-600">
+                    <TableCell className="py-2 text-right font-medium text-muted-foreground">
                       UGX {Math.round(item.total_value).toLocaleString()}
                     </TableCell>
                     <TableCell className="py-2 text-right">
                       <span className={`px-2 py-0.5 rounded text-xs font-medium ${item.days_since_movement >= 180
-                        ? 'bg-red-100 text-red-700'
-                        : 'bg-orange-100 text-orange-700'
+                        ? 'bg-destructive/10 text-destructive'
+                        : 'bg-orange-500/10 text-muted-foreground dark:text-orange-400'
                         }`}>
                         {item.days_since_movement} days
                       </span>
@@ -518,10 +510,10 @@ const SlowMovingReport: React.FC = () => {
                     <TableCell className="py-2 text-right text-gray-900 dark:text-gray-100">{item.total_sold}</TableCell>
                     <TableCell className="py-2 text-right">
                       <span className={`px-2 py-0.5 rounded text-xs font-medium ${item.turnover_rate >= 4
-                        ? 'bg-emerald-100 text-emerald-700'
+                        ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
                         : item.turnover_rate >= 1
-                          ? 'bg-blue-100 text-blue-700'
-                          : 'bg-orange-100 text-orange-700'
+                          ? 'bg-blue-500/10 text-muted-foreground dark:text-blue-400'
+                          : 'bg-orange-500/10 text-muted-foreground dark:text-orange-400'
                         }`}>
                         {item.turnover_rate.toFixed(2)}x
                       </span>
@@ -563,7 +555,7 @@ const UsageTrendsReport: React.FC = () => {
               key={period}
               onClick={() => setPeriodType(period)}
               className={`px-3 py-1.5 text-sm rounded-lg capitalize transition-colors ${periodType === period
-                ? 'bg-purple-600 text-white'
+                ? 'bg-primary text-white'
                 : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 hover:bg-gray-200'
                 }`}
             >
@@ -620,7 +612,7 @@ const UsageTrendsReport: React.FC = () => {
                 {/* Usage bar (red) */}
                 <div className="flex-1 h-6 bg-gray-200 dark:bg-gray-700 rounded overflow-hidden relative">
                   <div
-                    className="h-full bg-red-400 dark:bg-red-500"
+                    className="h-full bg-destructive"
                     style={{ width: `${(trend.totalUsed / maxUsage) * 100}%` }}
                   />
                   <span className="absolute inset-0 flex items-center justify-center text-xs font-medium text-gray-700 dark:text-gray-300">
@@ -630,7 +622,7 @@ const UsageTrendsReport: React.FC = () => {
                 {/* Received bar (green) */}
                 <div className="flex-1 h-6 bg-gray-200 dark:bg-gray-700 rounded overflow-hidden relative">
                   <div
-                    className="h-full bg-emerald-400 dark:bg-emerald-500"
+                    className="h-full bg-emerald-500"
                     style={{ width: `${(trend.totalReceived / maxUsage) * 100}%` }}
                   />
                   <span className="absolute inset-0 flex items-center justify-center text-xs font-medium text-gray-700 dark:text-gray-300">
@@ -638,7 +630,7 @@ const UsageTrendsReport: React.FC = () => {
                   </span>
                 </div>
               </div>
-              <span className={`w-16 text-xs font-medium text-right ${trend.netChange >= 0 ? 'text-emerald-600' : 'text-red-600'
+              <span className={`w-16 text-xs font-medium text-right ${trend.netChange >= 0 ? 'text-foreground' : 'text-destructive'
                 }`}>
                 {trend.netChange >= 0 ? '+' : ''}{trend.netChange}
               </span>
@@ -647,11 +639,11 @@ const UsageTrendsReport: React.FC = () => {
         </div>
         <div className="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-red-400 rounded" />
+            <div className="w-3 h-3 bg-destructive rounded" />
             <span className="text-xs text-gray-500">Used</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-emerald-400 rounded" />
+            <div className="w-3 h-3 bg-emerald-500 rounded" />
             <span className="text-xs text-gray-500">Received</span>
           </div>
         </div>
@@ -675,9 +667,9 @@ const UsageTrendsReport: React.FC = () => {
               {data.trends.map(trend => (
                 <TableRow key={trend.period}>
                   <TableCell className="py-2 text-gray-900 dark:text-gray-100">{trend.period}</TableCell>
-                  <TableCell className="py-2 text-right text-red-600">-{trend.totalUsed}</TableCell>
-                  <TableCell className="py-2 text-right text-emerald-600">+{trend.totalReceived}</TableCell>
-                  <TableCell className={`py-2 text-right font-medium ${trend.netChange >= 0 ? 'text-emerald-600' : 'text-red-600'
+                  <TableCell className="py-2 text-right text-destructive">-{trend.totalUsed}</TableCell>
+                  <TableCell className="py-2 text-right text-foreground">+{trend.totalReceived}</TableCell>
+                  <TableCell className={`py-2 text-right font-medium ${trend.netChange >= 0 ? 'text-foreground' : 'text-destructive'
                     }`}>
                     {trend.netChange >= 0 ? '+' : ''}{trend.netChange}
                   </TableCell>
@@ -750,7 +742,7 @@ const CostAnalysisReport: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <div className="flex-1 h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
                     <div
-                      className="h-full bg-purple-500"
+                      className="h-full bg-primary"
                       style={{ width: `${(cat.totalValue / maxCategoryValue) * 100}%` }}
                     />
                   </div>
@@ -773,8 +765,8 @@ const CostAnalysisReport: React.FC = () => {
             {data.bySupplier.map((supplier, idx) => (
               <div key={supplier.supplier_id || idx} className="flex items-center justify-between p-3 bg-white dark:bg-gray-700 rounded-lg">
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
-                    <HugeiconsIcon icon={Store01Icon} size={16} className="text-blue-600 dark:text-blue-400" />
+                  <div className="w-8 h-8 bg-muted dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+                    <Store className="w-4 h-4 text-muted-foreground dark:text-blue-400" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
@@ -818,7 +810,7 @@ const CostAnalysisReport: React.FC = () => {
                   </td>
                   <td className="py-2 text-right text-gray-900 dark:text-gray-100">{cat.itemCount}</td>
                   <td className="py-2 text-right text-gray-900 dark:text-gray-100">{cat.totalQuantity}</td>
-                  <td className="py-2 text-right font-medium text-emerald-600">
+                  <td className="py-2 text-right font-medium text-foreground">
                     UGX {cat.totalValue.toLocaleString()}
                   </td>
                   <td className="py-2 text-right text-gray-900 dark:text-gray-100">
@@ -844,11 +836,11 @@ const StatCard: React.FC<{
   color: 'purple' | 'emerald' | 'blue' | 'orange' | 'red';
 }> = ({ label, value, icon, color }) => {
   const colorClasses = {
-    purple: 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
-    emerald: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400',
-    blue: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
-    orange: 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400',
-    red: 'bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400',
+    purple: 'bg-primary/10 text-primary',
+    emerald: 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400',
+    blue: 'bg-blue-500/10 text-muted-foreground dark:text-blue-400',
+    orange: 'bg-orange-500/10 text-muted-foreground dark:text-orange-400',
+    red: 'bg-destructive/10 text-destructive',
   };
 
   return (
@@ -866,15 +858,18 @@ const StatCard: React.FC<{
 
 const LoadingState: React.FC = () => (
   <div className="flex items-center justify-center py-12">
-    <HugeiconsIcon icon={Loading01Icon} size={32} className="animate-spin text-purple-600" />
+    <Loader2 className="w-8 h-8 animate-spin text-primary" />
   </div>
 );
 
 const EmptyState: React.FC<{ message: string }> = ({ message }) => (
   <div className="text-center py-12">
-    <HugeiconsIcon icon={ChartBarOffIcon} size={48} className="text-gray-300 mx-auto mb-3" />
+    <ChartBarOffIcon size={48} className="text-gray-300 mx-auto mb-3" />
     <p className="text-sm text-gray-500">{message}</p>
   </div>
 );
 
 export default InventoryReportsPanel;
+
+
+

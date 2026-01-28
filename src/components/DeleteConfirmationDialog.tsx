@@ -1,6 +1,5 @@
 import React from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Alert01Icon, Loading03Icon } from '@hugeicons/core-free-icons';
+import { AlertCircle, Loader2 } from 'lucide-react';
 import {
     Dialog,
     DialogContent,
@@ -35,7 +34,7 @@ export const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> =
             <DialogContent className="sm:max-w-md">
                 <div className="flex items-start gap-4">
                     <div className="flex-shrink-0 w-10 h-10 rounded-full bg-destructive/10 flex items-center justify-center">
-                        <HugeiconsIcon icon={Alert01Icon} size={24} className="text-destructive" />
+                        <AlertCircle className="w-5 h-5 text-destructive" />
                     </div>
                     <div className="flex-1 pt-1">
                         <DialogHeader>
@@ -55,6 +54,7 @@ export const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> =
                             <Button
                                 type="button"
                                 variant="outline"
+                                size="sm"
                                 onClick={onClose}
                                 disabled={isDeleting}
                             >
@@ -63,11 +63,11 @@ export const DeleteConfirmationDialog: React.FC<DeleteConfirmationDialogProps> =
                             <Button
                                 type="button"
                                 variant="destructive"
+                                size="sm"
                                 onClick={onConfirm}
                                 disabled={isDeleting}
-                                className="gap-2"
                             >
-                                {isDeleting && <HugeiconsIcon icon={Loading03Icon} size={16} className="animate-spin" />}
+                                {isDeleting && <Loader2 className="w-4 h-4 animate-spin mr-1.5" />}
                                 {isDeleting ? 'Deleting...' : 'Delete'}
                             </Button>
                         </DialogFooter>

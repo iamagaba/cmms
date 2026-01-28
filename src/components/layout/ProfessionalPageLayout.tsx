@@ -8,7 +8,7 @@
 
 import React, { forwardRef } from 'react';
 import { HugeiconsIcon } from '@hugeicons/react';
-import { ArrowRight01Icon } from '@hugeicons/core-free-icons';
+import { ChevronRight } from '@hugeicons/core-free-icons';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -181,18 +181,14 @@ const Breadcrumb: React.FC<BreadcrumbProps> = ({ items, className }) => {
       {items.map((item, index) => (
         <React.Fragment key={index}>
           {index > 0 && (
-            <HugeiconsIcon 
-              icon={ArrowRight01Icon} 
-              size={16}
-              className="text-machinery-400" 
+            <ChevronRight 
+              className="w-4 h-4 text-machinery-400" 
             />
           )}
           <div className="flex items-center gap-1.5">
             {item.icon && (
-              <HugeiconsIcon 
-                icon={item.icon} 
-                size={16}
-                className="text-machinery-500" 
+              <item.icon 
+                className="w-4 h-4 text-machinery-500" 
               />
             )}
             {item.href ? (
@@ -260,7 +256,7 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(
               <div className="flex items-start gap-4">
                 {icon && (
                   <div className="flex-shrink-0 w-12 h-12 bg-steel-100 rounded-xl flex items-center justify-center">
-                    <HugeiconsIcon icon={icon} size={24} className="text-steel-600" />
+                    <icon className="w-6 h-6 text-steel-600" />
                   </div>
                 )}
                 <div className="min-w-0 flex-1">
@@ -286,7 +282,7 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(
                       onClick={action.onClick}
                       size="default"
                     >
-                      {action.icon && <HugeiconsIcon icon={action.icon} size={16} className="mr-2" />}
+                      {action.icon && <action.icon className="w-4 h-4 mr-2" />}
                       {action.label}
                     </Button>
                   ))}
@@ -299,8 +295,8 @@ const PageHeader = forwardRef<HTMLDivElement, PageHeaderProps>(
                       disabled={primaryAction.loading}
                       size="default"
                     >
-                      {primaryAction.loading && <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="mr-2 animate-spin" />}
-                      {primaryAction.icon && !primaryAction.loading && <HugeiconsIcon icon={primaryAction.icon} size={16} className="mr-2" />}
+                      {primaryAction.loading && <ChevronRight className="w-4 h-4 mr-2 animate-spin" />}
+                      {primaryAction.icon && !primaryAction.loading && <primaryAction.icon className="w-4 h-4 mr-2" />}
                       {primaryAction.label}
                     </Button>
                   )}
@@ -361,7 +357,7 @@ const ContentSection = forwardRef<HTMLDivElement, ContentSectionProps>(
             <div className="flex items-start gap-3">
               {icon && (
                 <div className="flex-shrink-0 w-8 h-8 bg-steel-100 rounded-lg flex items-center justify-center">
-                  <HugeiconsIcon icon={icon} size={16} className="text-steel-600" />
+                  <icon className="w-4 h-4 text-steel-600" />
                 </div>
               )}
               <div className="min-w-0 flex-1">
@@ -504,3 +500,4 @@ export type {
   PageHeaderProps,
   ContentSectionProps,
 };
+

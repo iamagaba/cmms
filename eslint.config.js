@@ -29,6 +29,35 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
       // Allow sharing constants within files that also export components
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+      
+      // Design System Compliance Rules (Phase 1)
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "JSXAttribute[name.name='className'] Literal[value=/\\bbg-white\\b/]",
+          message: "Use semantic token 'bg-card' or 'bg-background' instead of 'bg-white'"
+        },
+        {
+          selector: "JSXAttribute[name.name='className'] Literal[value=/\\btext-gray-[0-9]/]",
+          message: "Use semantic tokens like 'text-foreground' or 'text-muted-foreground' instead of 'text-gray-*'"
+        },
+        {
+          selector: "JSXAttribute[name.name='className'] Literal[value=/\\bbg-gray-[0-9]/]",
+          message: "Use semantic tokens like 'bg-muted', 'bg-card', or 'bg-accent' instead of 'bg-gray-*'"
+        },
+        {
+          selector: "JSXAttribute[name.name='className'] Literal[value=/\\bbg-emerald-/]",
+          message: "Use semantic token 'bg-success' instead of 'bg-emerald-*'"
+        },
+        {
+          selector: "JSXAttribute[name.name='className'] Literal[value=/\\bbg-red-/]",
+          message: "Use semantic token 'bg-destructive' instead of 'bg-red-*'"
+        },
+        {
+          selector: "JSXAttribute[name.name='className'] Literal[value=/\\bbg-amber-/]",
+          message: "Use semantic token 'bg-warning' instead of 'bg-amber-*'"
+        }
+      ]
     },
   },
 );

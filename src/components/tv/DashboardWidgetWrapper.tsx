@@ -1,7 +1,8 @@
+import { X } from 'lucide-react';
 
 import React from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { MoreVerticalIcon, Cancel01Icon, Menu01Icon } from '@hugeicons/core-free-icons';
+
+
 
 interface DashboardWidgetWrapperProps {
     children: React.ReactNode;
@@ -32,7 +33,7 @@ export const DashboardWidgetWrapper = React.forwardRef<HTMLDivElement, Dashboard
                     <div className={`p-2 flex items-center justify-between ${isEditMode ? 'bg-neutral-100 dark:bg-neutral-700/50' : ''}`}>
                         {title && (
                             <div className="flex items-center gap-2 px-2">
-                                <span className="text-xs font-bold text-neutral-500 uppercase tracking-widest pointer-events-none select-none">{title}</span>
+                                <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest pointer-events-none select-none">{title}</span>
                             </div>
                         )}
 
@@ -46,10 +47,10 @@ export const DashboardWidgetWrapper = React.forwardRef<HTMLDivElement, Dashboard
                                     onMouseDown={(e) => e.stopPropagation()}
                                     className="p-1 rounded-full bg-error-100 text-error-600 hover:bg-error-200 dark:bg-error-900/30 dark:text-error-400 dark:hover:bg-error-900/50 cursor-pointer transition-colors"
                                 >
-                                    <HugeiconsIcon icon={Cancel01Icon} size={16} />
+                                    <X className="w-5 h-5" />
                                 </button>
                                 <div className="cursor-grab active:cursor-grabbing p-1 text-neutral-400">
-                                    <HugeiconsIcon icon={Menu01Icon} size={16} />
+                                    <Menu01Icon className="w-4 h-4" />
                                 </div>
                             </div>
                         )}
@@ -68,3 +69,5 @@ export const DashboardWidgetWrapper = React.forwardRef<HTMLDivElement, Dashboard
 );
 
 DashboardWidgetWrapper.displayName = 'DashboardWidgetWrapper';
+
+

@@ -1,6 +1,7 @@
+import { Settings } from 'lucide-react';
 import { useState } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Settings01Icon, TreeIcon, ListViewIcon, FlowIcon } from '@hugeicons/core-free-icons';
+
+
 import CategoryManager from '@/components/diagnostic/config/CategoryManager';
 import QuestionTreeView from '@/components/diagnostic/config/QuestionTreeView';
 import QuestionFlowView from '@/components/diagnostic/config/QuestionFlowView';
@@ -23,7 +24,7 @@ const DiagnosticsTab = () => {
                             : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                             }`}
                     >
-                        <HugeiconsIcon icon={ListViewIcon} size={16} />
+                        <List className="w-4 h-4" />
                         Questions List
                     </button>
                     <button
@@ -33,7 +34,7 @@ const DiagnosticsTab = () => {
                             : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
                             }`}
                     >
-                        <HugeiconsIcon icon={FlowIcon} size={16} />
+                        <FlowIcon className="w-4 h-4" />
                         Flow Visualizer
                     </button>
                 </div>
@@ -65,3 +66,4 @@ const DiagnosticsTab = () => {
 };
 
 export default DiagnosticsTab;
+

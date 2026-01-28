@@ -1,3 +1,4 @@
+import { AlertCircle, Info, Loader2, RefreshCw, WifiOff } from 'lucide-react';
 import React from 'react';
 import {
   Alert,
@@ -13,17 +14,7 @@ import {
   Container,
   Skeleton
 } from '@/components/tailwind-components';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-  InformationCircleIcon, 
-  AlertCircleIcon, 
-  Alert01Icon, 
-  AlertSquareIcon, 
-  RefreshIcon, 
-  ReloadIcon, 
-  Loading01Icon, 
-  WifiOffIcon 
-} from '@hugeicons/core-free-icons';
+import type { LucideIcon } from 'lucide-react';
 
 export interface ErrorFallbackProps {
   error?: Error;
@@ -59,21 +50,21 @@ export function ErrorFallback({
 
     // Network errors
     if (error.message.includes('Network Error') || error.message.includes('fetch')) {
-      return 'Network connection issue. Please check your internet connection.';
+      return 'Network connection failed. Check your internet connection.';
     }
 
     // Feature-specific messages
     if (feature) {
       const featureMessages: Record<string, string> = {
-        'work_orders': 'Unable to load work orders. Please try again.',
-        'technicians': 'Unable to load technician information. Please try again.',
-        'assets': 'Unable to load asset information. Please try again.',
-        'dashboard': 'Unable to load dashboard data. Please try again.',
-        'calendar': 'Unable to load calendar events. Please try again.',
-        'settings': 'Unable to load settings. Please try again.',
-        'data_table': 'Unable to load table data. Please try again.',
-        'form': 'There was an issue with the form. Please try again.',
-        'chart': 'Unable to load chart data. Please try again.'
+        'work_orders': 'Unable to load work orders',
+        'technicians': 'Unable to load technician information',
+        'assets': 'Unable to load asset information',
+        'dashboard': 'Unable to load dashboard data',
+        'calendar': 'Unable to load calendar events',
+        'settings': 'Unable to load settings',
+        'data_table': 'Unable to load table data',
+        'form': 'Form submission failed',
+        'chart': 'Unable to load chart data'
       };
 
       if (featureMessages[feature]) {
@@ -81,7 +72,7 @@ export function ErrorFallback({
       }
     }
 
-    return 'Something went wrong. Please try again.';
+    return 'Operation failed. Try again.';
   };
 
   const getErrorSeverity = (): 'low' | 'medium' | 'high' | 'critical' => {
@@ -105,12 +96,12 @@ export function ErrorFallback({
   const severity = getErrorSeverity();
   const message = getUserFriendlyMessage();
 
-  const getErrorIcon = () => {
-    const icons = {
-      low: InformationCircleIcon,
-      medium: AlertCircleIcon,
-      high: AlertCircleIcon,
-      critical: AlertSquareIcon
+  const getErrorIcon = (): LucideIcon => {
+    const icons: Record<string, LucideIcon> = {
+      low: Info,
+      medium: AlertCircle,
+      high: AlertCircle,
+      critical: AlertCircle
     };
     return icons[severity];
   };
@@ -130,7 +121,7 @@ export function ErrorFallback({
   };
 
   const color = getErrorColor();
-  const icon = getErrorIcon();
+  const IconComponent = getErrorIcon();
 
   // Page-level error fallback
   if (level === 'page') {
@@ -139,7 +130,7 @@ export function ErrorFallback({
         <Card shadow="md" padding="xl" radius="md">
           <Stack align="center" gap="lg">
             <Box c={color}>
-              <HugeiconsIcon icon={icon} size={64} />
+              <IconComponent className="w-16 h-16" />
             </Box>
 
             <Stack align="center" gap="xs">
@@ -163,7 +154,7 @@ export function ErrorFallback({
                 {showRetry && resetError && (
                   <Button
                     onClick={resetError}
-                    leftSection={<HugeiconsIcon icon={RefreshIcon} size={16} />}
+                    leftSection={<RefreshCw className="w-5 h-5" />}
                     size="lg"
                   >
                     Try Again
@@ -174,7 +165,7 @@ export function ErrorFallback({
                   <Button
                     onClick={handleReload}
                     variant="outline"
-                    leftSection={<HugeiconsIcon icon={ReloadIcon} size={16} />}
+                    leftSection={<RefreshCw className="w-4 h-4" />}
                     size="lg"
                   >
                     Refresh Page
@@ -194,7 +185,7 @@ export function ErrorFallback({
       <Alert
         color={color}
         title="Section Error"
-        icon={<HugeiconsIcon icon={icon} size={20} />}
+        icon={<IconComponent className="w-5 h-5" />}
         withCloseButton={false}
       >
         <Stack gap="sm">
@@ -208,7 +199,7 @@ export function ErrorFallback({
                   variant="light"
                   color={color}
                   onClick={resetError}
-                  leftSection={<HugeiconsIcon icon={RefreshIcon} size={14} />}
+                  leftSection={<RefreshCw className="w-5 h-5" />}
                 >
                   Retry
                 </Button>
@@ -220,7 +211,7 @@ export function ErrorFallback({
                   variant="outline"
                   color={color}
                   onClick={handleReload}
-                  leftSection={<HugeiconsIcon icon={ReloadIcon} size={14} />}
+                  leftSection={<RefreshCw className="w-4 h-4" />}
                 >
                   Reload
                 </Button>
@@ -244,7 +235,7 @@ export function ErrorFallback({
   return (
     <Alert
       color={color}
-      icon={<HugeiconsIcon icon={icon} size={16} />}
+      icon={<IconComponent className="w-4 h-4" />}
       withCloseButton={false}
     >
       <Group justify="space-between" align="center">
@@ -259,7 +250,7 @@ export function ErrorFallback({
               onClick={resetError}
               aria-label="Retry"
             >
-              <HugeiconsIcon icon={RefreshIcon} size={14} />
+              <RefreshCw className="w-5 h-5" />
             </ActionIcon>
           )}
 
@@ -290,7 +281,7 @@ export function LoadingErrorFallback({
             variant="light"
             size="sm"
             onClick={onRetry}
-            leftSection={<HugeiconsIcon icon={RefreshIcon} size={14} />}
+            leftSection={<RefreshCw className="w-5 h-5" />}
           >
             Retry Loading
           </Button>
@@ -302,7 +293,7 @@ export function LoadingErrorFallback({
   return (
     <Alert
       color="yellow"
-      icon={<HugeiconsIcon icon={Loading01Icon} size={16} />}
+      icon={<Loader2 className="w-5 h-5" />}
     >
       <Group justify="space-between" align="center">
         <Text size="sm">{message}</Text>
@@ -313,7 +304,7 @@ export function LoadingErrorFallback({
             onClick={onRetry}
             aria-label="Retry"
           >
-            <HugeiconsIcon icon={RefreshIcon} size={14} />
+            <RefreshCw className="w-5 h-5" />
           </ActionIcon>
         )}
       </Group>
@@ -333,13 +324,13 @@ export function NetworkErrorFallback({
     <Alert
       color="orange"
       title="Connection Issue"
-      icon={<HugeiconsIcon icon={WifiOffIcon} size={16} />}
+      icon={<WifiOff className="w-4 h-4" />}
     >
       <Stack gap="sm">
         <Text size="sm">
           {showOfflineMessage
             ? "You appear to be offline. Some features may be limited."
-            : "Unable to connect to the server. Please check your internet connection."
+            : "Unable to connect to server. Check your internet connection."
           }
         </Text>
 
@@ -349,7 +340,7 @@ export function NetworkErrorFallback({
             variant="light"
             color="orange"
             onClick={onRetry}
-            leftSection={<HugeiconsIcon icon={RefreshIcon} size={14} />}
+            leftSection={<RefreshCw className="w-5 h-5" />}
           >
             Try Again
           </Button>

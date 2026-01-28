@@ -5,8 +5,8 @@
 @layer base {
   :root {
     /* Zinc base colors (warm neutral grays) */
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --background: 210 20% 98%; /* Slate-50 tint */
+    --foreground: 222 47% 11%; /* Slate-900 */
 
     --card: 0 0% 100%;
     --card-foreground: 240 10% 3.9%;
@@ -14,9 +14,9 @@
     --popover: 0 0% 100%;
     --popover-foreground: 240 10% 3.9%;
 
-    /* Purple primary color (Nova-inspired) */
-    --primary: 262.1 83.3% 57.8%;
-    --primary-foreground: 210 20% 98%;
+    /* Purple primary color (Muted Industrial) */
+    --primary: 262 40% 48%; /* Muted Violet */
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 240 4.8% 95.9%;
     --secondary-foreground: 240 5.9% 10%;
@@ -32,7 +32,17 @@
 
     --border: 240 5.9% 90%;
     --input: 240 5.9% 90%;
-    --ring: 262.1 83.3% 57.8%;
+    --ring: 262 40% 48%;
+
+    /* Semantic Status Colors (Muted) */
+    --success: 159 40% 40%; /* Sage Green */
+    --success-foreground: 0 0% 100%;
+
+    --warning: 32 60% 45%; /* Deep Amber */
+    --warning-foreground: 0 0% 100%;
+
+    --info: 215 40% 48%; /* Steel Blue */
+    --info-foreground: 0 0% 100%;
 
     /* Medium border radius (reduced from large) */
     --radius: 0.75rem;
@@ -48,7 +58,7 @@
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 263.4 70% 50.4%;
+    --primary: 262 40% 55%;
     --primary-foreground: 210 20% 98%;
 
     --secondary: 240 3.7% 15.9%;
@@ -66,6 +76,15 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 263.4 70% 50.4%;
+
+    --success: 142.1 70.6% 45.3%;
+    --success-foreground: 144.9 80.4% 10%;
+
+    --warning: 48 96% 53%;
+    --warning-foreground: 38 92% 10%;
+
+    --info: 217.2 91.2% 59.8%;
+    --info-foreground: 222.2 47.4% 11.2%;
   }
 }
 
@@ -113,38 +132,8 @@
   background-color: hsl(var(--muted-foreground) / 0.5);
 }
 
-/* Nova-inspired compact spacing utilities */
+/* Utility classes */
 @layer utilities {
-
-  /* Compact spacing for containers */
-  .space-y-compact>*+* {
-    margin-top: 0.75rem;
-    /* 12px instead of 16px */
-  }
-
-  .space-x-compact>*+* {
-    margin-left: 0.75rem;
-  }
-
-  .gap-compact {
-    gap: 0.75rem;
-  }
-
-  /* Compact padding utilities */
-  .p-compact {
-    padding: 1rem;
-    /* 16px instead of 24px */
-  }
-
-  .px-compact {
-    padding-left: 0.75rem;
-    padding-right: 0.75rem;
-  }
-
-  .py-compact {
-    padding-top: 0.75rem;
-    padding-bottom: 0.75rem;
-  }
 
   /* Hide scrollbar for Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
@@ -158,4 +147,95 @@
     scrollbar-width: none;
     /* Firefox */
   }
+}
+
+/* Temporary dark mode overrides for pages not yet migrated to semantic tokens */
+/* TODO: Remove these after migrating all pages to use semantic tokens */
+/* Using higher specificity to override Tailwind's utility classes */
+
+.dark {
+  color-scheme: dark;
+}
+
+/* Background overrides */
+.dark .bg-white,
+.dark [class*="bg-white"] {
+  --tw-bg-opacity: 1;
+  background-color: hsl(var(--background)) !important;
+}
+
+.dark .bg-gray-50,
+.dark [class*="bg-gray-50"] {
+  --tw-bg-opacity: 1;
+  background-color: hsl(var(--card)) !important;
+}
+
+.dark .bg-gray-100,
+.dark [class*="bg-gray-100"] {
+  --tw-bg-opacity: 1;
+  background-color: hsl(var(--muted)) !important;
+}
+
+/* Text color overrides */
+.dark .text-gray-900,
+.dark [class*="text-gray-900"] {
+  --tw-text-opacity: 1;
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .text-gray-800,
+.dark [class*="text-gray-800"] {
+  --tw-text-opacity: 1;
+  color: hsl(var(--foreground)) !important;
+}
+
+.dark .text-gray-700,
+.dark [class*="text-gray-700"] {
+  --tw-text-opacity: 1;
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.dark .text-gray-600,
+.dark [class*="text-gray-600"] {
+  --tw-text-opacity: 1;
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.dark .text-gray-500,
+.dark [class*="text-gray-500"] {
+  --tw-text-opacity: 1;
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.dark .text-gray-400,
+.dark [class*="text-gray-400"] {
+  --tw-text-opacity: 1;
+  color: hsl(var(--muted-foreground) / 0.8) !important;
+}
+
+/* Border overrides */
+.dark .border-gray-200,
+.dark [class*="border-gray-200"] {
+  --tw-border-opacity: 1;
+  border-color: hsl(var(--border)) !important;
+}
+
+.dark .border-gray-300,
+.dark [class*="border-gray-300"] {
+  --tw-border-opacity: 1;
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Divide overrides (for divided lists) */
+.dark .divide-gray-200>*+*,
+.dark [class*="divide-gray-200"]>*+* {
+  --tw-divide-opacity: 1;
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Ring overrides (for focus states) */
+.dark .ring-gray-200,
+.dark [class*="ring-gray-200"] {
+  --tw-ring-opacity: 1;
+  --tw-ring-color: hsl(var(--border)) !important;
 }

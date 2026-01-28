@@ -1,20 +1,7 @@
+import { AlertCircle, Info, Loader2, Plus, Search, Settings, X } from 'lucide-react';
 import React, { useState, useEffect, useMemo } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  PackageIcon,
-  Add01Icon,
-  MinusSignIcon,
-  AlertCircleIcon,
-  InformationCircleIcon,
-  Settings02Icon,
-  Cancel01Icon,
-  Search01Icon,
-  Alert01Icon,
-  PackageRemoveIcon,
-  Tag01Icon,
-  NoteIcon,
-  Loading01Icon
-} from '@hugeicons/core-free-icons';
+
+
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import {
@@ -30,6 +17,11 @@ import {
 } from '@/utils/stock-adjustment-helpers';
 import { useBatchAdjustment } from '@/hooks/useStockAdjustments';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { X, AlertCircle } from 'lucide-react';
 
 
 interface StockAdjustmentDialogProps {
@@ -176,42 +168,44 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
       {/* Dialog */}
       <div className="absolute inset-y-0 right-0 flex max-w-full">
         <div
-          className="w-screen max-w-xl bg-white dark:bg-gray-900 shadow-2xl flex flex-col"
+          className="w-screen max-w-xl bg-background shadow-2xl flex flex-col border-l"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className={`flex items-center justify-between ${spacing.card} border-b border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800`}>
+          <div className="flex items-center justify-between p-3 border-b bg-muted/50">
             <div>
-              <div className={`flex items-center ${spacing.gap}`}>
-                <HugeiconsIcon icon={Settings02Icon} size={spacing.icon.lg} className="text-purple-600" />
-                <h2 className={`${isCompact ? 'text-lg' : 'text-xl'} font-semibold text-gray-900 dark:text-gray-100`}>
+              <div className="flex items-center gap-2">
+                <Settings className="w-5 h-5 text-primary" />
+                <h2 className="text-base font-semibold">
                   Stock Adjustment
                 </h2>
               </div>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 Adjust quantities for one or more items
               </p>
             </div>
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="h-7 w-7"
             >
-              <HugeiconsIcon icon={Cancel01Icon} size={24} />
-            </button>
+              <X className="w-4 h-4" />
+            </Button>
           </div>
 
           {/* Form */}
           <form id="stock-adjustment-form" onSubmit={handleSubmit} className="flex-1 overflow-y-auto">
-            <div className="p-6 space-y-6">
+            <div className="p-4 space-y-4">
 
               {/* Validation Errors */}
               {validationErrors.length > 0 && (
-                <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-800 rounded-lg p-3">
+                <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3">
                   <div className="flex items-start gap-2">
-                    <HugeiconsIcon icon={AlertCircleIcon} size={20} className="text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-medium text-red-800 dark:text-red-300">Please fix the following errors:</p>
-                      <ul className="mt-1 text-sm text-red-700 dark:text-red-400 list-disc list-inside">
+                    <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0 mt-0.5" />
+                  <div>
+                      <p className="text-xs font-medium text-destructive">Fix the following errors:</p>
+                      <ul className="mt-1 text-xs text-destructive list-disc list-inside">
                         {validationErrors.map((error, i) => (
                           <li key={i}>{error}</li>
                         ))}
@@ -223,34 +217,37 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
 
               {/* Item Search */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
-                  <HugeiconsIcon icon={PackageIcon} size={16} className="text-purple-600" />
+                <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                  <Package className="w-4 h-4 text-primary" />
                   Items to Adjust
                 </h3>
 
                 <div className="relative">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2">
+                    <Search className="w-5 h-5 text-muted-foreground" />
+                  </div>
                   <Input
                     placeholder="Search by name or SKU..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    leftIcon={<HugeiconsIcon icon={Search01Icon} size={16} className="text-gray-400" />}
+                    className="pl-10"
                   />
 
                   {/* Search Results Dropdown */}
                   {filteredItems.length > 0 && (
-                    <div className="absolute z-10 w-full mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-48 overflow-auto">
+                    <div className="absolute z-10 w-full mt-1 bg-background border rounded-lg shadow-lg max-h-48 overflow-auto">
                       {filteredItems.map(item => (
                         <button
                           key={item.id}
                           type="button"
                           onClick={() => handleAddItem(item)}
-                          className="w-full px-3 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 flex items-center justify-between"
+                          className="w-full px-3 py-2 text-left hover:bg-muted flex items-center justify-between"
                         >
                           <div>
-                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.name}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{item.sku}</p>
+                            <p className="text-sm font-medium">{item.name}</p>
+                            <p className="text-xs text-muted-foreground">{item.sku}</p>
                           </div>
-                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                          <span className="text-xs text-muted-foreground">
                             Qty: {item.quantity_on_hand}
                           </span>
                         </button>
@@ -271,52 +268,54 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
                       <div
                         key={item.id}
                         className={`border rounded-lg p-3 ${isNegative
-                            ? 'border-red-300 dark:border-red-700 bg-red-50 dark:bg-red-900/20'
-                            : 'border-gray-200 dark:border-gray-700'
+                            ? 'border-destructive/30 bg-destructive/10'
+                            : 'border-border'
                           }`}
                       >
                         <div className="flex items-start justify-between mb-2">
                           <div>
-                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100">{item.name}</p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400">{item.sku}</p>
+                            <p className="text-sm font-medium">{item.name}</p>
+                            <p className="text-xs text-muted-foreground">{item.sku}</p>
                           </div>
-                          <button
+                          <Button
                             type="button"
+                            variant="ghost"
+                            size="icon"
                             onClick={() => handleRemoveItem(item.id)}
-                            className="p-1 text-gray-400 hover:text-red-600 dark:hover:text-red-400"
+                            className="h-6 w-6"
                           >
-                            <HugeiconsIcon icon={Cancel01Icon} size={16} />
-                          </button>
+                            <X className="w-4 h-4" />
+                          </Button>
                         </div>
 
                         <div className="grid grid-cols-3 gap-3 items-center">
                           <div>
-                            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Current</label>
-                            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">
+                            <Label className="text-xs text-muted-foreground mb-1">Current</Label>
+                            <p className="text-sm font-semibold">
                               {item.quantity_on_hand ?? 0}
                             </p>
                           </div>
 
                           <div>
-                            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Change</label>
-                            <input
+                            <Label className="text-xs text-muted-foreground mb-1">Change</Label>
+                            <Input
                               type="number"
                               value={quantityDelta || ''}
                               onChange={(e) => handleQuantityChange(item.id, parseInt(e.target.value) || 0)}
-                              className="w-full px-2 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                               placeholder="0"
+                              className="h-8"
                             />
                           </div>
 
                           <div>
-                            <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Projected</label>
+                            <Label className="text-xs text-muted-foreground mb-1">Projected</Label>
                             <p className={`text-sm font-semibold ${isNegative
-                                ? 'text-red-600 dark:text-red-400'
-                                : 'text-gray-900 dark:text-gray-100'
+                                ? 'text-destructive'
+                                : ''
                               }`}>
                               {projected}
                               {isNegative && (
-                                <HugeiconsIcon icon={Alert01Icon} size={12} className="inline ml-1" />
+                                <AlertCircle className="w-4 h-4 inline ml-1" />
                               )}
                             </p>
                           </div>
@@ -328,45 +327,47 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
               )}
 
               {lineItems.length === 0 && (
-                <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                  <HugeiconsIcon icon={PackageRemoveIcon} size={32} className="mx-auto mb-2 opacity-50" />
+                <div className="text-center py-8 text-muted-foreground">
+                  <PackageRemoveIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
                   <p className="text-sm">Search and add items to adjust</p>
                 </div>
               )}
 
               {/* Reason Selection */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
-                  <HugeiconsIcon icon={Tag01Icon} size={16} className="text-purple-600" />
+                <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                  <Tag01Icon className="w-4 h-4 text-primary" />
                   Adjustment Reason
                 </h3>
 
-                <select
+                <Select
                   value={reason}
-                  onChange={(e) => setReason(e.target.value as AdjustmentReason)}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+                  onValueChange={(value) => setReason(value as AdjustmentReason)}
                   required
                 >
-                  <option value="">Select a reason...</option>
-                  {ADJUSTMENT_REASONS.map(r => (
-                    <option key={r} value={r}>{ADJUSTMENT_REASON_LABELS[r]}</option>
-                  ))}
-                </select>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a reason..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ADJUSTMENT_REASONS.map(r => (
+                      <SelectItem key={r} value={r}>{ADJUSTMENT_REASON_LABELS[r]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Notes */}
               <div>
-                <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-3 flex items-center gap-2">
-                  <HugeiconsIcon icon={NoteIcon} size={16} className="text-purple-600" />
+                <h3 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-primary" />
                   Notes
-                  {reason === 'other' && <span className="text-red-500">*</span>}
+                  {reason === 'other' && <span className="text-destructive">*</span>}
                 </h3>
 
-                <textarea
+                <Textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
                   placeholder={reason === 'other' ? 'Required: Explain the adjustment...' : 'Optional notes...'}
                   required={reason === 'other'}
                 />
@@ -376,30 +377,33 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
           </form>
 
           {/* Footer */}
-          <div className="flex items-center justify-between px-6 py-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800">
-            <button
+          <div className="flex items-center justify-between px-4 py-3 border-t bg-muted/50">
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={onClose}
               disabled={batchMutation.isPending}
-              className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 transition-colors"
             >
               Cancel
-            </button>
+            </Button>
 
-            <button
+            <Button
               type="submit"
+              size="sm"
               form="stock-adjustment-form"
               disabled={batchMutation.isPending || lineItems.length === 0}
-              className="px-4 py-2 text-sm font-medium text-white bg-purple-600 rounded-lg hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
               {batchMutation.isPending && (
-                <HugeiconsIcon icon={Loading01Icon} size={16} className="animate-spin" />
+                <Loader2 className="w-5 h-5 animate-spin mr-1.5" />
               )}
               Save Adjustment
-            </button>
+            </Button>
           </div>
         </div>
       </div>
     </div>
   );
 };
+
+

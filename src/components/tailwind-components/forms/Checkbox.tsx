@@ -46,7 +46,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                         type="checkbox"
                         disabled={disabled}
                         className={twMerge(
-                            'rounded border-gray-300 text-blue-600 focus:ring-blue-500',
+                            'rounded border-gray-300 text-muted-foreground focus:ring-blue-500',
                             sizeClasses[size],
                             disabled && 'opacity-50 cursor-not-allowed',
                             className
@@ -77,7 +77,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
                             </p>
                         )}
                         {error && (
-                            <p className="mt-1 text-sm text-red-600">
+                            <p className="mt-1 text-sm text-destructive">
                                 {error}
                             </p>
                         )}
@@ -119,7 +119,7 @@ export const CheckboxGroup = ({
             <div className="space-y-2">
                 {children}
             </div>
-            {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
+            {error && <p className="mt-1 text-sm text-destructive">{error}</p>}
         </div>
     );
 };
@@ -132,3 +132,4 @@ type CheckboxComponent = React.ForwardRefExoticComponent<CheckboxProps & React.R
 (Checkbox as unknown as CheckboxComponent).Group = CheckboxGroup;
 
 export default Checkbox as CheckboxComponent;
+

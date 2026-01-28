@@ -1,3 +1,4 @@
+import { AlertCircle, Info, RefreshCw, ChevronDown, ChevronUp, Bug } from 'lucide-react';
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import {
   Alert,
@@ -12,20 +13,10 @@ import {
   ActionIcon,
   Box,
   Container,
-  ThemeIcon
+  // ThemeIcon - removed due to Hugeicons dependency
 } from '@/components/tailwind-components';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-  InformationCircleIcon, 
-  AlertCircleIcon, 
-  Alert01Icon, 
-  AlertSquareIcon, 
-  RefreshIcon, 
-  ReloadIcon, 
-  ArrowUp01Icon, 
-  ArrowDown01Icon, 
-  BugIcon 
-} from '@hugeicons/core-free-icons';
+import type { LucideIcon } from 'lucide-react';
+
 import { showError } from '@/utils/toast';
 
 interface Props {
@@ -134,7 +125,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   private handleRetry = () => {
     if (this.state.retryCount >= this.maxRetries) {
-      showError('Maximum retries reached. Please refresh the page or contact support.');
+      showError('Maximum retries reached. Refresh the page or contact support.');
       return;
     }
 
@@ -165,13 +156,13 @@ export class ErrorBoundary extends Component<Props, State> {
     return 'medium';
   };
 
-  private getErrorIcon = () => {
+  private getErrorIcon = (): LucideIcon => {
     const severity = this.getErrorSeverity();
-    const icons = {
-      low: InformationCircleIcon,
-      medium: AlertCircleIcon,
-      high: AlertCircleIcon,
-      critical: AlertSquareIcon
+    const icons: Record<string, LucideIcon> = {
+      low: Info,
+      medium: AlertCircle,
+      high: AlertCircle,
+      critical: AlertCircle
     };
     return icons[severity];
   };
@@ -200,21 +191,21 @@ export class ErrorBoundary extends Component<Props, State> {
 
     // Network errors
     if (error.message.includes('Network Error') || error.message.includes('fetch')) {
-      return 'Network connection issue. Please check your internet connection.';
+      return 'Network connection failed. Check your internet connection.';
     }
 
     // Feature-specific messages
     if (feature) {
       const featureMessages: Record<string, string> = {
-        'work_orders': 'There was an issue with the work orders feature.',
-        'technicians': 'There was an issue with the technicians feature.',
-        'assets': 'There was an issue with the assets feature.',
-        'dashboard': 'There was an issue loading the dashboard.',
-        'calendar': 'There was an issue with the calendar feature.',
-        'settings': 'There was an issue with the settings.',
-        'cost_management': 'There was an issue with cost management.',
-        'resource_planning': 'There was an issue with resource planning.',
-        'workflow_management': 'There was an issue with workflow management.'
+        'work_orders': 'Unable to load work orders feature',
+        'technicians': 'Unable to load technicians feature',
+        'assets': 'Unable to load assets feature',
+        'dashboard': 'Unable to load dashboard',
+        'calendar': 'Unable to load calendar feature',
+        'settings': 'Unable to load settings',
+        'cost_management': 'Unable to load cost management',
+        'resource_planning': 'Unable to load resource planning',
+        'workflow_management': 'Unable to load workflow management'
       };
 
       if (featureMessages[feature]) {
@@ -222,15 +213,16 @@ export class ErrorBoundary extends Component<Props, State> {
       }
     }
 
-    return 'Something went wrong. Please try again.';
+    return 'Operation failed. Try again.';
   };
 
   private renderErrorContent = () => {
     const { level = 'component' } = this.props;
     const severity = this.getErrorSeverity();
     const color = this.getErrorColor();
-    const icon = this.getErrorIcon();
+    const IconComponent = this.getErrorIcon();
     const message = this.getUserFriendlyMessage();
+    const ToggleIcon = this.state.showDetails ? ChevronUp : ChevronDown;
 
     // Page-level error (full page)
     if (level === 'page') {
@@ -239,7 +231,7 @@ export class ErrorBoundary extends Component<Props, State> {
           <Card shadow="md" p="xl" radius="md">
             <Stack align="center" gap="lg">
               <Box className={`text-${color}-500`}>
-                <HugeiconsIcon icon={icon} size={64} />
+                <IconComponent className="w-16 h-16" />
               </Box>
 
               <Stack align="center" gap="xs">
@@ -265,7 +257,7 @@ export class ErrorBoundary extends Component<Props, State> {
                     size="lg"
                   >
                     <Group gap="xs">
-                      <HugeiconsIcon icon={RefreshIcon} size={16} />
+                      <RefreshCw className="w-5 h-5" />
                       <span>Try Again</span>
                     </Group>
                   </Button>
@@ -277,7 +269,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   size="lg"
                 >
                   <Group gap="xs">
-                    <HugeiconsIcon icon={ReloadIcon} size={16} />
+                    <RefreshCw className="w-4 h-4" />
                     <span>Refresh Page</span>
                   </Group>
                 </Button>
@@ -291,10 +283,7 @@ export class ErrorBoundary extends Component<Props, State> {
                       onClick={this.toggleDetails}
                       aria-label="Toggle error details"
                     >
-                      <HugeiconsIcon
-                        icon={this.state.showDetails ? ArrowUp01Icon : ArrowDown01Icon}
-                        size={16}
-                      />
+                      <ToggleIcon className="w-4 h-4" />
                     </ActionIcon>
                     <Text size="sm" c="dimmed">
                       {this.state.showDetails ? 'Hide' : 'Show'} Error Details
@@ -305,7 +294,7 @@ export class ErrorBoundary extends Component<Props, State> {
                     <Alert
                       color="red"
                       title="Technical Details"
-                      icon={<HugeiconsIcon icon={BugIcon} size={16} />}
+                      icon={<Bug className="w-4 h-4" />}
                     >
                       <Stack gap="xs">
                         <Text size="sm" fw={500}>Error Message:</Text>
@@ -346,7 +335,7 @@ export class ErrorBoundary extends Component<Props, State> {
         <Alert
           color={color}
           title="Section Error"
-          icon={<HugeiconsIcon icon={icon} size={20} />}
+          icon={<IconComponent className="w-5 h-5" />}
           withCloseButton={false}
         >
           <Stack gap="sm">
@@ -361,7 +350,7 @@ export class ErrorBoundary extends Component<Props, State> {
                   onClick={this.handleRetry}
                 >
                   <Group gap="xs">
-                    <HugeiconsIcon icon={RefreshIcon} size={14} />
+                    <RefreshCw className="w-5 h-5" />
                     <span>Retry</span>
                   </Group>
                 </Button>
@@ -382,16 +371,16 @@ export class ErrorBoundary extends Component<Props, State> {
     return (
       <Alert
         color={color}
-        icon={<HugeiconsIcon icon={icon} size={16} />}
+        icon={<IconComponent className="w-4 h-4" />}
         withCloseButton={false}
       >
         <Group justify="space-between" align="center">
           <Text size="sm">{message}</Text>
 
           {this.state.retryCount < this.maxRetries && (
-            <ThemeIcon size="lg" radius="md" variant="light" color="blue">
-              <HugeiconsIcon icon={RefreshIcon} size={20} />
-            </ThemeIcon>
+            <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
+              <RefreshCw className="w-5 h-5 text-blue-600" />
+            </div>
           )}
         </Group>
       </Alert>

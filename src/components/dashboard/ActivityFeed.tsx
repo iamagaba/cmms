@@ -1,3 +1,4 @@
+import { AlertCircle, Calendar, CheckCircle, Settings, User } from 'lucide-react';
 /**
  * Activity Feed Component
  * 
@@ -6,17 +7,8 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { 
-  CheckmarkCircle01Icon,
-  Alert01Icon,
-  Calendar01Icon,
-  UserIcon,
-  Settings01Icon,
-  UserAdd01Icon,
-  ArrowRight01Icon,
-  InboxIcon
-} from '@hugeicons/core-free-icons';
+
+
 import { Icon } from '@/components/icons/Icon';
 import { motion, AnimatePresence } from 'framer-motion';
 import dayjs from 'dayjs';
@@ -101,7 +93,7 @@ const mockActivities: Activity[] = [
     title: 'Work Order #WO-2024-001 completed',
     description: 'Pump maintenance completed by John Smith',
     timestamp: dayjs().subtract(2, 'minutes').toISOString(),
-    icon: CheckmarkCircle01Icon,
+    icon: CheckCircle,
     color: 'text-industrial-600',
     priority: 'medium',
     userName: 'John Smith'
@@ -112,7 +104,7 @@ const mockActivities: Activity[] = [
     title: 'High temperature alert',
     description: 'Motor B-202 temperature exceeds threshold (85°C)',
     timestamp: dayjs().subtract(15, 'minutes').toISOString(),
-    icon: Alert01Icon,
+    icon: AlertCircle,
     color: 'text-warning-600',
     priority: 'high'
   },
@@ -122,7 +114,7 @@ const mockActivities: Activity[] = [
     title: 'Preventive maintenance scheduled',
     description: 'Valve C-303 scheduled for next week',
     timestamp: dayjs().subtract(1, 'hour').toISOString(),
-    icon: Calendar01Icon,
+    icon: Calendar,
     color: 'text-steel-600',
     priority: 'low',
     userName: 'System'
@@ -133,7 +125,7 @@ const mockActivities: Activity[] = [
     title: 'Emergency repair completed',
     description: 'Conveyor belt repair finished ahead of schedule',
     timestamp: dayjs().subtract(2, 'hours').toISOString(),
-    icon: CheckmarkCircle01Icon,
+    icon: CheckCircle,
     color: 'text-industrial-600',
     priority: 'high',
     userName: 'Mike Johnson'
@@ -144,7 +136,7 @@ const mockActivities: Activity[] = [
     title: 'New technician assigned',
     description: 'Sarah Wilson assigned to Area A maintenance team',
     timestamp: dayjs().subtract(3, 'hours').toISOString(),
-    icon: UserAdd01Icon,
+    icon: UserPlus,
     color: 'text-machinery-600',
     priority: 'low',
     userName: 'Admin'
@@ -172,7 +164,7 @@ const ActivityItem: React.FC<ActivityItemProps> = ({ activity, onClick, index })
       transition={{ duration: 0.2, delay: index * 0.03 }}
       className={cn(
         'group flex items-start gap-3 px-6 py-3 transition-colors duration-150',
-        'hover:bg-gray-50',
+        'hover:bg-accent',
         isClickable && 'cursor-pointer'
       )}
       onClick={isClickable ? () => onClick(activity) : undefined}
@@ -184,19 +176,19 @@ const ActivityItem: React.FC<ActivityItemProps> = ({ activity, onClick, index })
       )}>
         <Icon 
           icon={activity.icon || config.defaultIcon} 
-          className={cn('w-4 h-4', activity.color || config.defaultColor)} 
+          className={cn('w-5 h-5', activity.color || config.defaultColor)} 
         />
       </div>
 
       {/* Content */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-gray-900 truncate">
+        <p className="text-sm font-medium text-foreground truncate">
           {activity.title}
         </p>
-        <p className="text-xs text-gray-600 mt-0.5 line-clamp-2">
+        <p className="text-sm text-muted-foreground mt-0.5 line-clamp-2">
           {activity.description}
         </p>
-        <p className="text-xs text-gray-500 mt-1">
+        <p className="text-xs text-muted-foreground mt-1">
           {dayjs(activity.timestamp).fromNow()}
         </p>
       </div>
@@ -204,7 +196,7 @@ const ActivityItem: React.FC<ActivityItemProps> = ({ activity, onClick, index })
       {isClickable && (
         <Icon 
           icon="tabler:chevron-right" 
-          className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-1" 
+          className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-1" 
         />
       )}
     </motion.div>
@@ -219,11 +211,11 @@ const ActivityFeedSkeleton: React.FC = () => (
   <div className="space-y-4">
     {Array.from({ length: 3 }).map((_, index) => (
       <div key={index} className="flex items-start gap-3 p-3">
-        <div className="w-7 h-7 bg-machinery-200 rounded-full animate-pulse flex-shrink-0" />
+        <div className="w-8 h-8 bg-muted rounded-lg animate-pulse flex-shrink-0" />
         <div className="flex-1 space-y-2">
-          <div className="h-4 w-3/4 bg-machinery-200 rounded animate-pulse" />
-          <div className="h-3 w-full bg-machinery-200 rounded animate-pulse" />
-          <div className="h-3 w-1/2 bg-machinery-200 rounded animate-pulse" />
+          <div className="h-4 w-3/4 bg-muted rounded animate-pulse" />
+          <div className="h-3 w-full bg-muted rounded animate-pulse" />
+          <div className="h-3 w-1/2 bg-muted rounded animate-pulse" />
         </div>
       </div>
     ))}
@@ -261,7 +253,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
   return (
     <div className={cn(className)}>
       {/* Filter Tabs */}
-      <div className="flex bg-gray-100 rounded-lg p-1 mb-4 mx-6 mt-4">
+      <div className="flex bg-muted rounded-lg p-1 mb-4 mx-6 mt-4">
         {[
           { key: 'all', label: 'All' },
           { key: 'alerts', label: 'Alerts' },
@@ -272,10 +264,10 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
             onClick={() => setFilter(tab.key as any)}
             className={cn(
               'flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-colors',
-              'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-1',
+              'focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1',
               filter === tab.key
-                ? 'bg-white text-gray-900 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
             )}
           >
             {tab.label}
@@ -284,7 +276,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
       </div>
       
       {/* Activity List */}
-      <div className="divide-y divide-gray-100">
+      <div className="divide-y divide-border">
         {loading ? (
           <ActivityFeedSkeleton />
         ) : displayActivities.length > 0 ? (
@@ -299,8 +291,8 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
             ))}
           </AnimatePresence>
         ) : (
-          <div className="text-center py-12 px-6 text-gray-500">
-            <HugeiconsIcon icon={InboxIcon} size={40} className="mx-auto mb-3 opacity-40" />
+          <div className="text-center py-12 px-6 text-muted-foreground">
+            <InboxIcon size={40} className="mx-auto mb-3 opacity-40" />
             <p className="text-sm">No recent activity</p>
           </div>
         )}

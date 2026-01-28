@@ -1,3 +1,5 @@
+import { AlertCircle, CheckCircle, Clock, Plus, RefreshCw, Clipboard, Folder, Home } from 'lucide-react';
+import PageHeader from '@/components/layout/PageHeader';
 /**
  * Professional CMMS Dashboard
  * 
@@ -7,15 +9,8 @@
  */
 
 import React, { useState, useMemo } from "react";
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  RefreshIcon,
-  Add01Icon,
-  Task01Icon,
-  Folder01Icon,
-  CheckmarkCircle01Icon,
-  AlertCircleIcon
-} from '@hugeicons/core-free-icons';
+
+
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { WorkOrder, Location, Vehicle } from "@/types/supabase";
@@ -58,7 +53,7 @@ class DashboardErrorBoundary extends React.Component<{ children: React.ReactNode
     if (this.state.hasError) {
       return (
         <Alert variant="destructive" className="m-4">
-          <AlertCircleIcon className="h-4 w-4" />
+          <AlertCircle className="h-4 w-4" />
           <AlertDescription>
             <h2 className="text-lg font-bold mb-2">Something went wrong in the Dashboard</h2>
             <pre className="bg-destructive/10 p-3 rounded border overflow-auto text-xs whitespace-pre-wrap mt-2">
@@ -79,6 +74,7 @@ const ProfessionalCMMSDashboard = () => {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedLocation] = useState<string>('all');
+  const [trendRange, setTrendRange] = useState<7 | 14>(7);
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
 
 
@@ -132,7 +128,7 @@ const ProfessionalCMMSDashboard = () => {
         openOrders: 0,
         completedToday: 0,
         overdueOrders: 0,
-        avgResponseTime: '0h',
+        avgCompletionTime: '0h',
         weeklyTrend: 0
       };
     }
@@ -152,6 +148,33 @@ const ProfessionalCMMSDashboard = () => {
       wo.dueDate && dayjs(wo.dueDate).isBefore(now) && wo.status !== 'Completed'
     ).length;
 
+    // Calculate average completion time
+    const completedOrders = realtimeWorkOrders.filter((wo: WorkOrder) =>
+      wo.status === 'Completed' && wo.created_at && wo.completed_at
+    );
+
+    let avgCompletionTime = '0h';
+    if (completedOrders.length > 0) {
+      const totalHours = completedOrders.reduce((sum, wo) => {
+        const created = dayjs(wo.created_at);
+        const completed = dayjs(wo.completed_at);
+        const hours = completed.diff(created, 'hours', true);
+        return sum + hours;
+      }, 0);
+
+      const avgHours = totalHours / completedOrders.length;
+
+      if (avgHours < 1) {
+        avgCompletionTime = `${Math.round(avgHours * 60)}m`;
+      } else if (avgHours < 24) {
+        avgCompletionTime = `${avgHours.toFixed(1)}h`;
+      } else {
+        const days = Math.floor(avgHours / 24);
+        const hours = Math.round(avgHours % 24);
+        avgCompletionTime = hours > 0 ? `${days}d ${hours}h` : `${days}d`;
+      }
+    }
+
     // Calculate weekly trend
     const thisWeekOrders = realtimeWorkOrders.filter((wo: WorkOrder) =>
       dayjs(wo.created_at).isAfter(weekAgo)
@@ -159,19 +182,74 @@ const ProfessionalCMMSDashboard = () => {
     const lastWeekOrders = realtimeWorkOrders.filter((wo: WorkOrder) =>
       dayjs(wo.created_at).isBetween(weekAgo.subtract(7, 'days'), weekAgo)
     ).length;
-    const weeklyTrend = lastWeekOrders > 0
-      ? ((thisWeekOrders - lastWeekOrders) / lastWeekOrders) * 100
-      : 0;
+    let weeklyTrend = 0;
+    if (lastWeekOrders > 0) {
+      weeklyTrend = ((thisWeekOrders - lastWeekOrders) / lastWeekOrders) * 100;
+    } else if (thisWeekOrders > 0) {
+      weeklyTrend = 100;
+    }
 
     return {
       totalOrders,
       openOrders,
       completedToday,
       overdueOrders,
-      avgResponseTime: '0h',
+      avgCompletionTime,
       weeklyTrend
     };
   }, [realtimeWorkOrders]);
+
+  // Generate trend data for the last 7 days with status breakdown
+  const trendData = useMemo(() => {
+    if (!realtimeWorkOrders || realtimeWorkOrders.length === 0) {
+      return [];
+    }
+
+    const now = dayjs();
+    const lastDays = [];
+
+    // Generate data for each of the last N days
+    for (let i = trendRange - 1; i >= 0; i--) {
+      const date = now.subtract(i, 'days');
+      const dayStart = date.startOf('day');
+      const dayEnd = date.endOf('day');
+
+      // Get work orders created on this day
+      const dayWorkOrders = realtimeWorkOrders.filter((wo: WorkOrder) => {
+        const createdAt = dayjs(wo.created_at);
+        return createdAt.isAfter(dayStart) && createdAt.isBefore(dayEnd);
+      });
+
+      // Count by current status (not status at creation time)
+      const statusCounts = {
+        open: 0,
+        confirmation: 0,
+        on_hold: 0,
+        ready: 0,
+        in_progress: 0,
+        completed: 0,
+        cancelled: 0
+      };
+
+      dayWorkOrders.forEach((wo: WorkOrder) => {
+        const status = (wo.status || 'Open').toLowerCase().replace(' ', '_');
+        if (status in statusCounts) {
+          statusCounts[status as keyof typeof statusCounts]++;
+        } else {
+          // Default to open if status is not recognized
+          statusCounts.open++;
+        }
+      });
+
+      lastDays.push({
+        date: date.format('MMM D'),
+        ...statusCounts,
+        total: dayWorkOrders.length
+      });
+    }
+
+    return lastDays;
+  }, [realtimeWorkOrders, trendRange]);
 
 
 
@@ -200,64 +278,67 @@ const ProfessionalCMMSDashboard = () => {
       <div className="w-full">
         <div className="space-y-6">
           {/* Header */}
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground tracking-tight">
-                Operations Dashboard
-              </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                {dayjs().format('dddd, MMMM D, YYYY')} • {locations?.length || 0} locations active
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => window.location.reload()}
-                className="gap-1.5 h-8 text-xs"
-              >
-                <HugeiconsIcon icon={RefreshIcon} size={14} />
-                Refresh
-              </Button>
-              <Button
-                size="sm"
-                onClick={() => navigate('/work-orders')}
-                className="gap-1.5 h-8 text-xs"
-              >
-                <HugeiconsIcon icon={Add01Icon} size={14} />
-                New Work Order
-              </Button>
-            </div>
-          </div>
+          <PageHeader
+            title="Dashboard"
+            subtitle={`${dayjs().format('dddd, MMMM D, YYYY')} • ${locations?.length || 0} locations`}
+            icon={<Home className="w-5 h-5 text-muted-foreground" />}
+            actions={
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.location.reload()}
+                  className="gap-1.5"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  Refresh
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => navigate('/work-orders')}
+                  className="gap-1.5"
+                >
+                  <Plus className="w-4 h-4" />
+                  Create
+                </Button>
+              </>
+            }
+          />
 
           {/* Stat Ribbon */}
           <StatRibbon
             stats={[
               {
-                title: "Total Work Orders",
+                title: "Work Orders",
                 value: metrics.totalOrders,
                 subtitle: `${metrics.weeklyTrend >= 0 ? '+' : ''}${typeof metrics.weeklyTrend === 'number' ? metrics.weeklyTrend.toFixed(1) : '0'}% vs last week`,
-                icon: Task01Icon,
+                icon: Clipboard,
                 color: "primary",
                 onClick: () => navigate('/work-orders')
               },
               {
-                title: "Open Orders",
+                title: "Open",
                 value: metrics.openOrders,
-                icon: Folder01Icon,
+                icon: Folder,
                 color: "amber",
                 onClick: () => navigate('/work-orders?status=open')
               },
               {
                 title: "Completed Today",
                 value: metrics.completedToday,
-                icon: CheckmarkCircle01Icon,
+                icon: CheckCircle,
                 color: "emerald"
               },
               {
-                title: "Overdue Orders",
+                title: "Avg Completion",
+                value: metrics.avgCompletionTime,
+                icon: Clock,
+                color: "blue"
+              },
+              {
+                title: "Overdue",
                 value: metrics.overdueOrders,
-                icon: AlertCircleIcon,
+                icon: AlertCircle,
                 color: "red",
                 onClick: () => navigate('/work-orders?status=overdue')
               }
@@ -269,7 +350,11 @@ const ProfessionalCMMSDashboard = () => {
             {/* Left Column */}
             <div className="lg:col-span-2 space-y-6">
               {/* Trends Chart */}
-              <WorkOrderTrendsChart data={[]} />
+              <WorkOrderTrendsChart
+                data={trendData}
+                range={trendRange}
+                onRangeChange={setTrendRange}
+              />
 
               <PriorityWorkOrders
                 workOrders={filteredWorkOrders}

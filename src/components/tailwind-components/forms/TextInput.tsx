@@ -55,7 +55,7 @@ export function TextInput({
             {label && (
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                     {label}
-                    {required && <span className="text-red-500 ml-1">*</span>}
+                    {required && <span className="text-destructive ml-1">*</span>}
                 </label>
             )}
             {description && (
@@ -74,7 +74,7 @@ export function TextInput({
                         sizeMap[size],
                         leftSection && 'pl-10',
                         rightSection && 'pr-10',
-                        error && 'border-red-500 focus:ring-red-500',
+                        error && 'border-destructive focus:ring-red-500',
                         disabled && 'bg-gray-100 cursor-not-allowed opacity-60',
                         className
                     )}
@@ -88,8 +88,9 @@ export function TextInput({
                 )}
             </div>
             {error && (
-                <p className="text-xs text-red-500 mt-1">{error}</p>
+                <p className="text-xs text-destructive mt-1">{error}</p>
             )}
         </div>
     );
 }
+

@@ -38,26 +38,26 @@ const variantMap = {
     filled: {
         primary: 'bg-primary-500 text-white',
         gray: 'bg-gray-500 text-white',
-        red: 'bg-red-500 text-white',
-        green: 'bg-green-500 text-white',
+        red: 'bg-destructive text-white',
+        green: 'bg-emerald-500 text-white',
         blue: 'bg-blue-500 text-white',
-        yellow: 'bg-yellow-500 text-white',
+        yellow: 'bg-amber-500 text-white',
     },
     light: {
         primary: 'bg-primary-100 text-primary-700',
         gray: 'bg-gray-100 text-gray-700',
-        red: 'bg-red-100 text-red-700',
-        green: 'bg-green-100 text-green-700',
-        blue: 'bg-blue-100 text-blue-700',
-        yellow: 'bg-yellow-100 text-yellow-700',
+        red: 'bg-destructive/20 text-destructive',
+        green: 'bg-emerald-100 text-emerald-700',
+        blue: 'bg-muted text-muted-foreground',
+        yellow: 'bg-amber-100 text-amber-700',
     },
     outline: {
         primary: 'border-2 border-primary-500 text-primary-500',
         gray: 'border-2 border-gray-500 text-gray-500',
-        red: 'border-2 border-red-500 text-red-500',
-        green: 'border-2 border-green-500 text-green-500',
+        red: 'border-2 border-destructive text-destructive',
+        green: 'border-2 border-emerald-500 text-emerald-500',
         blue: 'border-2 border-blue-500 text-blue-500',
-        yellow: 'border-2 border-yellow-500 text-yellow-500',
+        yellow: 'border-2 border-amber-500 text-amber-500',
     },
 };
 
@@ -96,3 +96,4 @@ export function ThemeIcon({
         </div>
     );
 }
+

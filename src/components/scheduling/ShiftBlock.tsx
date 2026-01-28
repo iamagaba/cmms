@@ -1,6 +1,5 @@
 import React from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Delete02Icon, Edit02Icon } from '@hugeicons/core-free-icons';
+import { Trash, Edit } from 'lucide-react';
 import dayjs from 'dayjs';
 
 interface Shift {
@@ -40,12 +39,12 @@ export const ShiftBlock: React.FC<ShiftBlockProps> = ({
         {startTime} - {endTime}
       </div>
       {shift.location && (
-        <div className="text-white/90 truncate text-[10px]">
+        <div className="text-white/90 truncate text-xs">
           {shift.location.name}
         </div>
       )}
       {shift.notes && (
-        <div className="text-white/80 truncate text-[10px] mt-0.5">
+        <div className="text-white/80 truncate text-xs mt-0.5">
           {shift.notes}
         </div>
       )}
@@ -59,18 +58,21 @@ export const ShiftBlock: React.FC<ShiftBlockProps> = ({
           }}
           className="p-1 bg-white/20 hover:bg-white/30 rounded backdrop-blur-sm"
         >
-          <HugeiconsIcon icon={Edit02Icon} size={12} />
+          <Edit className="w-4 h-4" />
         </button>
         <button
           onClick={(e) => {
             e.stopPropagation();
             onDelete(shift.id);
           }}
-          className="p-1 bg-white/20 hover:bg-red-500 rounded backdrop-blur-sm"
+          className="p-1 bg-white/20 hover:bg-destructive rounded backdrop-blur-sm"
         >
-          <HugeiconsIcon icon={Delete02Icon} size={12} />
+          <Trash className="w-4 h-4" />
         </button>
       </div>
     </div>
   );
 };
+
+
+

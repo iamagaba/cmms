@@ -6,11 +6,9 @@
  */
 
 import React from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import type { IconSvgElement } from '@hugeicons/react';
+import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-
 
 // ============================================
 // INTERFACES
@@ -19,11 +17,11 @@ import { Button } from '@/components/ui/button';
 export interface DashboardSectionProps {
   title: string;
   subtitle?: string;
-  icon?: IconSvgElement;
+  icon?: LucideIcon;
   action?: {
     label: string;
     onClick: () => void;
-    icon?: string;
+    icon?: LucideIcon;
     variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
   };
   children: React.ReactNode;
@@ -39,34 +37,34 @@ export interface DashboardSectionProps {
 const DashboardSection: React.FC<DashboardSectionProps> = ({
   title,
   subtitle,
-  icon,
+  icon: IconComponent,
   action,
   children,
   className,
   headerClassName,
   contentClassName
 }) => {
-
+  const ActionIcon = action?.icon;
 
   return (
-    <section className={cn('p-6 bg-white rounded-xl border border-gray-200 dark:border-gray-800 shadow-sm', className)}>
+    <section className={cn('p-6 bg-card rounded-xl border border-border shadow-sm', className)}>
       {/* Section Header */}
       <div className={cn(
         'flex items-center justify-between',
         headerClassName
       )}>
         <div className="flex items-center gap-3">
-          {icon && (
-            <div className="p-2 bg-steel-100 rounded-lg">
-              <HugeiconsIcon icon={icon} size={20} />
+          {IconComponent && (
+            <div className="p-2 bg-muted rounded-lg">
+              <IconComponent className="w-5 h-5 text-foreground" />
             </div>
           )}
           <div className="min-w-0 flex-1">
-            <h2 className="text-lg font-semibold text-machinery-900 truncate">
+            <h2 className="text-lg font-semibold text-foreground truncate">
               {title}
             </h2>
             {subtitle && (
-              <p className="text-sm text-machinery-600 mt-1 truncate">
+              <p className="text-sm text-muted-foreground mt-1 truncate">
                 {subtitle}
               </p>
             )}
@@ -80,7 +78,7 @@ const DashboardSection: React.FC<DashboardSectionProps> = ({
               size="sm"
               onClick={action.onClick}
             >
-              {action.icon && <HugeiconsIcon icon={action.icon} size={16} className="mr-2" />}
+              {ActionIcon && <ActionIcon className="w-4 h-4 mr-2" />}
               {action.label}
             </Button>
           </div>

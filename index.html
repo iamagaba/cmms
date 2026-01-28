@@ -13,6 +13,22 @@
   <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Inter:wght@100..900&display=swap" rel="stylesheet">
   <!-- Explicit neutral favicon to avoid browser fallback to /favicon.ico -->
   <link rel="icon" href="/placeholder.svg" type="image/svg+xml" />
+  
+  <!-- Apply theme immediately to prevent flash -->
+  <script>
+    (function() {
+      const theme = localStorage.getItem('theme') || 'system';
+      let actualTheme = 'light';
+      
+      if (theme === 'system') {
+        actualTheme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+      } else {
+        actualTheme = theme;
+      }
+      
+      document.documentElement.classList.add(actualTheme);
+    })();
+  </script>
 </head>
 
 <body>

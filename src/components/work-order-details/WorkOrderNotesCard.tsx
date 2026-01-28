@@ -1,12 +1,7 @@
 import React, { useState } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  Add01Icon,
-  FileIcon,
-  StethoscopeIcon,
-  Tick01Icon,
-  NoteIcon
-} from '@hugeicons/core-free-icons';
+import { Plus, FileText, Stethoscope, Check, StickyNote } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -74,9 +69,9 @@ export const WorkOrderNotesCard: React.FC<WorkOrderNotesCardProps> = ({
   }
 
   const typeConfig = {
-    note: { icon: NoteIcon, color: 'text-gray-600', bg: 'bg-gray-100', label: 'Note' },
-    diagnosis: { icon: StethoscopeIcon, color: 'text-blue-600', bg: 'bg-blue-100', label: 'Diagnosis' },
-    resolution: { icon: Tick01Icon, color: 'text-emerald-600', bg: 'bg-emerald-100', label: 'Resolution' },
+    note: { icon: StickyNote, color: 'text-gray-600', bg: 'bg-gray-100', label: 'Note' },
+    diagnosis: { icon: Stethoscope, color: 'text-muted-foreground', bg: 'bg-muted', label: 'Diagnosis' },
+    resolution: { icon: Check, color: 'text-foreground', bg: 'bg-muted', label: 'Resolution' },
   };
 
   const handleSubmit = () => {
@@ -91,26 +86,27 @@ export const WorkOrderNotesCard: React.FC<WorkOrderNotesCardProps> = ({
     <div className="bg-white border border-gray-200 overflow-hidden shadow-sm">
       {onAddNote && (
         <div className="px-3 py-2 border-b border-gray-200 flex items-center justify-end">
-          <button
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="text-xs text-primary-600 hover:text-primary-700 font-medium flex items-center gap-1"
           >
-            <HugeiconsIcon icon={Add01Icon} size={12} />
+            <Plus className="w-4 h-4 mr-1.5" />
             Add
-          </button>
+          </Button>
         </div>
       )}
 
       <div className="px-3 py-2 space-y-2">
         {/* Add Note Form */}
         {isExpanded && onAddNote && (
-          <div className="bg-gray-50 rounded p-2 space-y-2">
+          <div className="bg-muted rounded-lg p-2 space-y-2">
             <div className="flex gap-1">
               {(['note', 'diagnosis', 'resolution'] as const).map((type) => (
                 <button
                   key={type}
                   onClick={() => setNoteType(type)}
-                  className={`px-2 py-1 rounded text-xs font-medium transition-colors ${noteType === type
+                  className={`px-2 py-1 rounded-lg text-xs font-medium transition-colors ${noteType === type
                     ? `${typeConfig[type].bg} ${typeConfig[type].color}`
                     : 'bg-white text-gray-500 hover:bg-gray-100'
                     }`}
@@ -119,27 +115,27 @@ export const WorkOrderNotesCard: React.FC<WorkOrderNotesCardProps> = ({
                 </button>
               ))}
             </div>
-            <textarea
+            <Textarea
               value={newNote}
               onChange={(e) => setNewNote(e.target.value)}
               placeholder="Add a note..."
-              className="w-full px-2 py-1.5 text-xs border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-transparent resize-none"
               rows={2}
             />
             <div className="flex justify-end gap-1.5">
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setIsExpanded(false)}
-                className="px-2 py-1 text-xs text-gray-600 hover:bg-gray-100 rounded"
               >
                 Cancel
-              </button>
-              <button
+              </Button>
+              <Button
+                size="sm"
                 onClick={handleSubmit}
                 disabled={!newNote.trim()}
-                className="px-2 py-1 text-xs bg-primary-600 text-white rounded hover:bg-primary-700 disabled:opacity-50"
               >
                 Add
-              </button>
+              </Button>
             </div>
           </div>
         )}
@@ -147,17 +143,18 @@ export const WorkOrderNotesCard: React.FC<WorkOrderNotesCardProps> = ({
         {/* Existing Notes */}
         {existingNotes.length === 0 ? (
           <div className="text-center py-4">
-            <HugeiconsIcon icon={FileIcon} size={24} className="text-gray-300 mx-auto mb-1" />
+            <FileText className="w-6 h-6 text-gray-300 mx-auto mb-1" />
             <p className="text-xs text-gray-400">No notes yet</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-100">
             {existingNotes.map((note) => {
               const config = typeConfig[note.type];
+              const Icon = config.icon;
               return (
                 <div key={note.id} className="flex gap-2 py-2 first:pt-0 last:pb-0">
                   <div className={`w-6 h-6 rounded-full ${config.bg} flex items-center justify-center flex-shrink-0`}>
-                    <HugeiconsIcon icon={config.icon} size={12} className={config.color} />
+                    <Icon className={`w-4 h-4 ${config.color}`} />
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 mb-0.5">
@@ -182,3 +179,4 @@ export const WorkOrderNotesCard: React.FC<WorkOrderNotesCardProps> = ({
 };
 
 export default WorkOrderNotesCard;
+

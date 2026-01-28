@@ -1,3 +1,4 @@
+import { Bike, Calendar, Home, Plus, Search, Settings, User } from 'lucide-react';
 /**
  * Icon Test Component
  * 
@@ -8,19 +9,8 @@
  */
 
 import React from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  UserIcon,
-  Calendar01Icon,
-  Location01Icon,
-  Motorbike01Icon,
-  Home01Icon,
-  Search01Icon,
-  Settings01Icon,
-  Add01Icon,
-  Edit01Icon,
-  Delete01Icon,
-} from '@hugeicons/core-free-icons';
+
+
 
 export const IconTest: React.FC = () => {
   const testIcons = [
@@ -31,9 +21,9 @@ export const IconTest: React.FC = () => {
     { name: 'Home', Icon: Home01Icon },
     { name: 'Search', Icon: Search01Icon },
     { name: 'Settings', Icon: Settings01Icon },
-    { name: 'Add', Icon: Add01Icon },
+    { name: 'Add', Icon: Plus },
     { name: 'Edit', Icon: Edit01Icon },
-    { name: 'Delete', Icon: Delete01Icon },
+    { name: 'Delete', Icon: Trash2 },
   ];
 
   return (
@@ -47,12 +37,12 @@ export const IconTest: React.FC = () => {
         <div>
           <h3 className="text-lg font-semibold mb-3 text-gray-700">Size Variations</h3>
           <div className="flex items-center gap-4">
-            <HugeiconsIcon icon={UserIcon} size={12} className="text-gray-600" />
-            <HugeiconsIcon icon={UserIcon} size={16} className="text-gray-600" />
-            <HugeiconsIcon icon={UserIcon} size={20} className="text-gray-600" />
-            <HugeiconsIcon icon={UserIcon} size={24} className="text-gray-600" />
-            <HugeiconsIcon icon={UserIcon} size={32} className="text-gray-600" />
-            <HugeiconsIcon icon={UserIcon} size={48} className="text-gray-600" />
+            <User className="w-4 h-4 text-gray-600" />
+            <User className="w-4 h-4 text-gray-600" />
+            <User className="w-5 h-5 text-gray-600" />
+            <User className="w-6 h-6 text-gray-600" />
+            <User className="w-8 h-8 text-gray-600" />
+            <User className="w-5 h-5 text-gray-600" />
           </div>
           <p className="text-xs text-gray-500 mt-2">12px, 16px, 20px, 24px, 32px, 48px</p>
         </div>
@@ -61,12 +51,12 @@ export const IconTest: React.FC = () => {
         <div>
           <h3 className="text-lg font-semibold mb-3 text-gray-700">Color Variations</h3>
           <div className="flex items-center gap-4">
-            <HugeiconsIcon icon={Calendar01Icon} size={24} className="text-blue-600" />
-            <HugeiconsIcon icon={Calendar01Icon} size={24} className="text-emerald-600" />
-            <HugeiconsIcon icon={Calendar01Icon} size={24} className="text-amber-600" />
-            <HugeiconsIcon icon={Calendar01Icon} size={24} className="text-red-600" />
-            <HugeiconsIcon icon={Calendar01Icon} size={24} className="text-purple-600" />
-            <HugeiconsIcon icon={Calendar01Icon} size={24} className="text-gray-400" />
+            <Calendar className="w-6 h-6 text-muted-foreground" />
+            <Calendar className="w-6 h-6 text-foreground" />
+            <Calendar className="w-6 h-6 text-amber-600" />
+            <Calendar className="w-6 h-6 text-destructive" />
+            <Calendar className="w-6 h-6 text-primary" />
+            <Calendar className="w-6 h-6 text-gray-400" />
           </div>
           <p className="text-xs text-gray-500 mt-2">Blue, Emerald, Amber, Red, Purple, Gray</p>
         </div>
@@ -78,7 +68,7 @@ export const IconTest: React.FC = () => {
             {testIcons.map(({ name, Icon }) => (
               <div key={name} className="flex flex-col items-center gap-2">
                 <div className="p-3 bg-gray-50 rounded-lg">
-                  <HugeiconsIcon icon={Icon} size={24} className="text-gray-700" />
+                  <Icon className="w-6 h-6 text-gray-700" />
                 </div>
                 <span className="text-xs text-gray-600">{name}</span>
               </div>
@@ -91,27 +81,25 @@ export const IconTest: React.FC = () => {
           <h3 className="text-lg font-semibold mb-3 text-gray-700">Usage Example</h3>
           <div className="bg-gray-50 p-4 rounded-lg">
             <pre className="text-xs text-gray-800 overflow-x-auto">
-{`import { HugeiconsIcon } from '@hugeicons/react';
-import { UserIcon } from '@hugeicons/core-free-icons';
+{`
 
-<HugeiconsIcon 
-  icon={UserIcon} 
-  size={16} 
-  className="text-gray-400" 
+
+<User 
+  className="w-4 h-4 text-gray-400" 
 />`}
             </pre>
           </div>
         </div>
 
         {/* Status */}
-        <div className="mt-6 p-4 bg-emerald-50 border border-emerald-200 rounded-lg">
+        <div className="mt-6 p-4 bg-muted border border-emerald-200 rounded-lg">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
             <span className="text-sm font-medium text-emerald-900">
               ✓ Hugeicons installed and working correctly!
             </span>
           </div>
-          <p className="text-xs text-emerald-700 mt-2">
+          <p className="text-xs text-foreground mt-2">
             You can now start migrating components. Remove this test component when done.
           </p>
         </div>
@@ -121,3 +109,6 @@ import { UserIcon } from '@hugeicons/core-free-icons';
 };
 
 export default IconTest;
+
+
+

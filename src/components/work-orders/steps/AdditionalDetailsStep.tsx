@@ -1,8 +1,11 @@
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { ArrowDown01Icon, Cancel01Icon, ArrowUp01Icon, AlertCircleIcon } from '@hugeicons/core-free-icons';
+import { ArrowDown, X, ArrowUp, AlertCircle } from 'lucide-react';
 import { Stack } from '@/components/tailwind-components';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 import { Location } from '@/types/supabase';
 
@@ -77,10 +80,10 @@ export const AdditionalDetailsStep: React.FC<AdditionalDetailsStepProps> = ({
   }, [data.customerLocation, locations]);
 
   const priorities = [
-    { value: 'low', label: 'Low', color: 'bg-green-100 text-green-800', icon: ArrowDown01Icon },
-    { value: 'medium', label: 'Medium', color: 'bg-yellow-100 text-yellow-800', icon: Cancel01Icon },
-    { value: 'high', label: 'High', color: 'bg-orange-100 text-orange-800', icon: ArrowUp01Icon },
-    { value: 'urgent', label: 'Urgent', color: 'bg-red-100 text-red-800', icon: AlertCircleIcon }
+    { value: 'low', label: 'Low', color: 'bg-muted text-foreground', icon: ArrowDown },
+    { value: 'medium', label: 'Medium', color: 'bg-amber-50 text-amber-700', icon: X },
+    { value: 'high', label: 'High', color: 'bg-amber-50 text-amber-700', icon: ArrowUp },
+    { value: 'urgent', label: 'Urgent', color: 'bg-destructive/10 text-destructive', icon: AlertCircle }
   ];
 
 
@@ -89,78 +92,83 @@ export const AdditionalDetailsStep: React.FC<AdditionalDetailsStepProps> = ({
     <Stack gap="sm">
       {/* Priority Selection */}
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">
-          Priority <span className="text-red-500">*</span>
-        </label>
+        <Label className="text-xs font-medium mb-1.5">
+          Priority <span className="text-destructive">*</span>
+        </Label>
         <div className="flex flex-wrap gap-1.5">
-          {priorities.map((priority) => (
-            <button
-              key={priority.value}
-              onClick={() => onChange({ priority: priority.value })}
-              className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[10px] font-medium transition-all ${
-                data.priority === priority.value
-                  ? `${priority.color} ring-2 ring-offset-1 ring-current`
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              <HugeiconsIcon icon={priority.icon} size={12} />
-              {priority.label}
-            </button>
-          ))}
+          {priorities.map((priority) => {
+            const Icon = priority.icon;
+            return (
+              <button
+                key={priority.value}
+                onClick={() => onChange({ priority: priority.value })}
+                className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-all ${
+                  data.priority === priority.value
+                    ? `${priority.color} ring-2 ring-offset-1 ring-current`
+                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                }`}
+              >
+                <Icon className="w-4 h-4" />
+                {priority.label}
+              </button>
+            );
+          })}
         </div>
-        {errors.priority && <p className="text-[10px] text-red-600 mt-0.5">{errors.priority}</p>}
+        {errors.priority && <p className="text-xs text-destructive mt-0.5">{errors.priority}</p>}
       </div>
 
       {/* Service Location */}
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">
-          Service Location <span className="text-red-500">*</span>
-        </label>
-        <select
-          value={data.serviceLocationId}
-          onChange={(e) => onChange({ serviceLocationId: e.target.value })}
-          className={`w-full h-7 px-2 py-1 text-xs border rounded-md shadow-sm transition-colors focus:outline-none focus:ring-1 focus:ring-purple-600 focus:border-purple-600 ${errors.serviceLocationId ? 'border-red-500' : 'border-gray-200'
-            }`}
-        >
-          <option value="">Select service center...</option>
-          {locations?.map(l => (
-            <option key={l.id} value={l.id}>
-              {l.name} - {l.address}
-            </option>
-          ))}
-        </select>
-        {errors.serviceLocationId && <p className="text-[10px] text-red-600 mt-0.5">{errors.serviceLocationId}</p>}
+        <Label htmlFor="service-location" className="text-xs font-medium mb-1.5">
+          Service Location <span className="text-destructive">*</span>
+        </Label>
+        <Select value={data.serviceLocationId} onValueChange={(value) => onChange({ serviceLocationId: value })}>
+          <SelectTrigger id="service-location" className={errors.serviceLocationId ? 'border-destructive' : ''}>
+            <SelectValue placeholder="Select location" />
+          </SelectTrigger>
+          <SelectContent>
+            {locations?.map(l => (
+              <SelectItem key={l.id} value={l.id}>
+                {l.name} - {l.address}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {errors.serviceLocationId && <p className="text-xs text-destructive mt-0.5">{errors.serviceLocationId}</p>}
       </div>
 
       {/* Scheduled Date (Optional) */}
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">
+        <Label htmlFor="scheduled-date" className="text-xs font-medium mb-1.5">
           Scheduled Date (Optional)
-        </label>
-        <input
+        </Label>
+        <Input
+          id="scheduled-date"
           type="datetime-local"
           value={data.scheduledDate}
           onChange={(e) => onChange({ scheduledDate: e.target.value })}
-          className="w-full h-7 px-2 py-1 text-xs border border-gray-200 rounded-md shadow-sm transition-colors focus:outline-none focus:ring-1 focus:ring-purple-600 focus:border-purple-600"
         />
-        <p className="text-[10px] text-gray-500 mt-0.5">
+        <p className="text-xs text-muted-foreground mt-0.5">
           Leave empty for immediate service
         </p>
       </div>
 
       {/* Customer Notes */}
       <div>
-        <label className="block text-xs font-medium text-gray-700 mb-1">
+        <Label htmlFor="customer-notes" className="text-xs font-medium mb-1.5">
           Additional Notes (Optional)
-        </label>
-        <textarea
+        </Label>
+        <Textarea
+          id="customer-notes"
           value={data.customerNotes}
           onChange={(e) => onChange({ customerNotes: e.target.value })}
-          placeholder="Any additional information from the customer..."
+          placeholder="Additional notes"
           rows={3}
-          className="w-full px-2 py-1.5 text-xs border border-gray-200 rounded-md shadow-sm transition-colors focus:outline-none focus:ring-1 focus:ring-purple-600 focus:border-purple-600 resize-none"
         />
       </div>
     </Stack>
   );
 };
+
+
+

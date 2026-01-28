@@ -9,7 +9,7 @@ export const OPTIONAL_COLUMNS = [
   { label: 'Scheduled Date', value: 'scheduledDate' },
   { label: 'Due Date', value: 'dueDate' },
   { label: 'Channel', value: 'channel' },
-  { label: 'Customer Name', value: 'customerName' },
+  { label: 'Customer', value: 'customerName' },
   { label: 'Location', value: 'location' },
 ];
 
@@ -25,6 +25,6 @@ export const ALL_COLUMNS = [
   { label: 'Scheduled Date', value: 'scheduledDate', required: false },
   { label: 'Due Date', value: 'dueDate', required: false },
   { label: 'Channel', value: 'channel', required: false },
-  { label: 'Customer Name', value: 'customerName', required: false },
+  { label: 'Customer', value: 'customerName', required: false },
   { label: 'Location', value: 'location', required: false },
 ];

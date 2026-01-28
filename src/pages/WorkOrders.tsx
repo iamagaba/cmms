@@ -1,31 +1,33 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { Fragment } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
 import {
-  Car01Icon,
-  UserIcon,
-  Add01Icon,
-  RefreshIcon,
-  Download01Icon,
-  FilterIcon,
-  Cancel01Icon,
-  Search01Icon,
-  CheckmarkCircle01Icon,
-  ArrowDown01Icon,
-  ArrowUp01Icon,
-  Delete01Icon,
-  ListViewIcon,
-  Location01Icon,
-  Tick01Icon,
-  Clock01Icon,
-  PauseIcon,
-  AlertCircleIcon,
-  Menu01Icon,
-  FilterRemoveIcon,
-  UserAdd01Icon,
-  LayoutTwoColumnIcon,
-  Notification03Icon
-} from '@hugeicons/core-free-icons';
+  Car,
+  User,
+  Plus,
+  RefreshCw,
+  Download,
+  Filter,
+  X,
+  Search,
+  CheckCircle,
+  ChevronDown,
+  ChevronUp,
+  Trash2,
+  List,
+  MapPin,
+  Check,
+  Clock,
+  Pause,
+  AlertCircle,
+  Menu,
+  FilterX,
+  UserPlus,
+  Columns,
+  Bell,
+  ClipboardList
+} from 'lucide-react';
+
+import PageHeader from '@/components/layout/PageHeader';
 
 // shadcn UI components
 import { Button } from "@/components/ui/button";
@@ -36,6 +38,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { useDisclosure, useMediaQuery } from '@/hooks/tailwind';
 import { EnhancedWorkOrderDataTable } from "@/components/EnhancedWorkOrderDataTable";
@@ -75,17 +78,17 @@ type WorkOrderView = 'table' | 'map' | 'progress';
 
 // Enhanced status and priority configurations
 const STATUS_CONFIG = {
-  'Open': { color: 'blue', icon: Clock01Icon, label: 'Open' },
-  'In Progress': { color: 'orange', icon: Clock01Icon, label: 'In Progress' },
-  'Completed': { color: 'green', icon: CheckmarkCircle01Icon, label: 'Completed' },
-  'On Hold': { color: 'yellow', icon: PauseIcon, label: 'On Hold' },
-  'Cancelled': { color: 'red', icon: AlertCircleIcon, label: 'Cancelled' },
+  'Open': { color: 'blue', icon: Clock, label: 'Open' },
+  'In Progress': { color: 'orange', icon: Clock, label: 'In Progress' },
+  'Completed': { color: 'green', icon: CheckCircle, label: 'Completed' },
+  'On Hold': { color: 'yellow', icon: Pause, label: 'On Hold' },
+  'Cancelled': { color: 'red', icon: AlertCircle, label: 'Cancelled' },
 } as const;
 
 const PRIORITY_CONFIG = {
-  'High': { color: 'red', icon: ArrowUp01Icon, label: 'High Priority' },
-  'Medium': { color: 'yellow', icon: Menu01Icon, label: 'Medium Priority' },
-  'Low': { color: 'green', icon: ArrowDown01Icon, label: 'Low Priority' },
+  'High': { color: 'red', icon: ChevronUp, label: 'High Priority' },
+  'Medium': { color: 'yellow', icon: Menu, label: 'Medium Priority' },
+  'Low': { color: 'green', icon: ChevronDown, label: 'Low Priority' },
 } as const;
 
 // Helper component for multi-select filters using shadcn
@@ -121,7 +124,7 @@ const FilterMultiSelect = ({ label, value, onChange, options, placeholder, class
             <span className="truncate">
               {value.length === 0 ? placeholder || 'Select' : `${value.length} selected`}
             </span>
-            <HugeiconsIcon icon={ArrowDown01Icon} size={11} className="ml-2 h-3 w-3 shrink-0 opacity-50" />
+            <ChevronDown className="ml-2 h-3 w-3 shrink-0 opacity-50" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-56 max-h-60 overflow-y-auto">
@@ -498,17 +501,7 @@ const WorkOrdersPage = () => {
 
 
 
-  // Define pageActions for AppBreadcrumb (e.g., bulk actions, add button)
-  // Define pageActions for AppBreadcrumb (e.g., bulk actions, add button)
-  const pageActions = (
-    <button
-      onClick={onCreateNew}
-      className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-primary-600 hover:bg-primary-700 rounded-lg transition-colors shadow-sm shadow-primary-600/20 mb-4"
-    >
-      <HugeiconsIcon icon={Add01Icon} size={16} />
-      Create
-    </button>
-  );
+
 
   if (error) {
     return (
@@ -516,14 +509,14 @@ const WorkOrdersPage = () => {
         <Card className="max-w-md mx-auto">
           <CardContent className="text-center p-6">
             <div className="mx-auto w-12 h-12 bg-destructive/10 rounded-lg flex items-center justify-center mb-3">
-              <HugeiconsIcon icon={AlertCircleIcon} size={24} className="text-destructive" />
+              <AlertCircle className="w-6 h-6 text-destructive" />
             </div>
             <CardTitle className="text-base mb-2">Error Loading Work Orders</CardTitle>
             <CardDescription className="mb-3 max-w-md text-xs">
               {(error as any).message || 'An unexpected error occurred while loading work orders.'}
             </CardDescription>
             <Button onClick={() => refetch()} className="gap-1.5 h-8 text-xs">
-              <HugeiconsIcon icon={RefreshIcon} size={14} />
+              <RefreshCw className="w-4 h-4" />
               <span>Try Again</span>
             </Button>
           </CardContent>
@@ -539,33 +532,33 @@ const WorkOrdersPage = () => {
           {/* Header Skeleton */}
           <div className="flex justify-between items-start">
             <div>
-              <div className="h-6 w-40 bg-muted rounded animate-pulse" />
-              <div className="h-3 w-56 bg-muted rounded mt-1 animate-pulse" />
+              <Skeleton className="h-6 w-40" />
+              <Skeleton className="h-3 w-56 mt-1" />
             </div>
             <div className="flex gap-1.5">
-              <div className="h-7 w-20 bg-muted rounded animate-pulse" />
-              <div className="h-7 w-28 bg-muted rounded animate-pulse" />
+              <Skeleton className="h-7 w-20" />
+              <Skeleton className="h-7 w-28" />
             </div>
           </div>
 
           {/* Search Skeleton */}
           <div className="bg-card border border-border rounded-lg p-3">
-            <div className="h-8 bg-muted rounded-lg animate-pulse" />
+            <Skeleton className="h-8 rounded-lg" />
           </div>
 
           {/* Table Skeleton */}
           <div className="bg-card border border-border rounded-lg overflow-hidden">
             <div className="p-3 border-b border-border">
-              <div className="h-6 w-40 bg-muted rounded animate-pulse" />
+              <Skeleton className="h-6 w-40" />
             </div>
             <div className="divide-y divide-border">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="p-3 flex items-center gap-3">
-                  <div className="h-8 w-1 bg-muted rounded animate-pulse" />
-                  <div className="h-3 w-20 bg-muted rounded animate-pulse" />
-                  <div className="h-3 w-40 bg-muted rounded animate-pulse flex-1" />
-                  <div className="h-5 w-16 bg-muted rounded animate-pulse" />
-                  <div className="h-3 w-12 bg-muted rounded animate-pulse" />
+                  <Skeleton className="h-8 w-1" />
+                  <Skeleton className="h-3 w-20" />
+                  <Skeleton className="h-3 w-40 flex-1" />
+                  <Skeleton className="h-5 w-16" />
+                  <Skeleton className="h-3 w-12" />
                 </div>
               ))}
             </div>
@@ -579,45 +572,40 @@ const WorkOrdersPage = () => {
     <ErrorBoundary>
       <div className="h-[calc(100vh-2rem)] flex flex-col bg-background overflow-hidden">
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col overflow-hidden gap-2" style={{ scrollbarGutter: 'stable' }}>
-          <div className="flex-none px-4 pt-3 pb-2 space-y-3">
-            {/* Header Row */}
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-lg font-semibold">
-                  Work Orders
-                </h1>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  Manage and track all maintenance requests
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button onClick={onCreateNew} size="sm" className="gap-1.5 h-7 text-xs">
-                  <HugeiconsIcon icon={Add01Icon} size={13} />
+        <div className="flex-1 flex flex-col overflow-hidden gap-4" style={{ scrollbarGutter: 'stable' }}>
+          <div className="flex-none px-4 pt-4 pb-2 space-y-4">
+            {/* Page Header */}
+            <PageHeader
+              title="Work Orders"
+              subtitle="Manage and track all maintenance requests"
+              icon={<ClipboardList className="w-5 h-5 text-muted-foreground" />}
+              actions={
+                <Button onClick={onCreateNew} size="sm" className="gap-1.5">
+                  <Plus className="w-4 h-4" />
                   <span>{isMobile ? 'New' : 'Create'}</span>
                 </Button>
-              </div>
-            </div>
+              }
+            />
 
             {/* Controls Row */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-4">
               <div className="flex items-center p-0.5 bg-muted rounded-md border border-border">
                 <Button
                   variant={view === 'table' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setView('table')}
-                  className="gap-1.5 h-7 px-2.5 text-xs"
+                  className="gap-2 px-2.5"
                 >
-                  <HugeiconsIcon icon={ListViewIcon} size={13} />
+                  <List className="w-4 h-4" />
                   Table
                 </Button>
                 <Button
                   variant={view === 'map' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setView('map')}
-                  className="gap-1.5 h-7 px-2.5 text-xs"
+                  className="gap-2 px-2.5"
                 >
-                  <HugeiconsIcon icon={Location01Icon} size={13} />
+                  <MapPin className="w-4 h-4" />
                   Map
                 </Button>
               </div>
@@ -628,12 +616,13 @@ const WorkOrdersPage = () => {
               {view === 'table' && (
                 <div className="relative w-full sm:w-64">
                   <div className="absolute inset-y-0 left-0 pl-2 flex items-center pointer-events-none">
-                    <HugeiconsIcon icon={Search01Icon} size={13} className="text-muted-foreground" />
+                    <Search className="w-4 h-4 text-muted-foreground" />
                   </div>
                   <Input
                     type="text"
                     placeholder="Search..."
-                    className="w-full pl-7 pr-7 h-7 text-xs"
+                    aria-label="Search work orders"
+                    className="w-full pl-7 pr-7 text-sm"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
@@ -642,9 +631,9 @@ const WorkOrdersPage = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => setSearchQuery('')}
-                      className="absolute inset-y-0 right-0 h-7 w-7 p-0 hover:bg-transparent"
+                      className="absolute inset-y-0 right-0 w-7 p-0 hover:bg-transparent"
                     >
-                      <HugeiconsIcon icon={Cancel01Icon} size={13} className="text-muted-foreground hover:text-foreground" />
+                      <X className="w-4 h-4 text-muted-foreground hover:text-foreground" />
                     </Button>
                   )}
                 </div>
@@ -658,14 +647,14 @@ const WorkOrdersPage = () => {
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="gap-1.5 h-7 text-xs">
                       <span>Columns</span>
-                      <HugeiconsIcon icon={ArrowDown01Icon} size={13} />
+                      <ChevronDown className="w-4 h-4" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align="end">
                     <DropdownMenuLabel>
                       <div>
                         <p className="text-xs font-semibold">Visible Columns</p>
-                        <p className="text-[10px] text-muted-foreground mt-0.5">
+                        <p className="text-xs text-muted-foreground mt-0.5">
                           {visibleColumns.length} of {MAX_VISIBLE_COLUMNS} selected
                         </p>
                       </div>
@@ -752,7 +741,7 @@ const WorkOrdersPage = () => {
                 variant="ghost"
                 size="sm"
                 onClick={clearAllFilters}
-                className="text-[10px] text-muted-foreground hover:text-foreground underline whitespace-nowrap ml-auto pb-2 h-auto"
+                className="text-xs text-muted-foreground hover:text-foreground underline whitespace-nowrap ml-auto pb-2 h-auto"
               >
                 Clear all
               </Button>
@@ -765,7 +754,7 @@ const WorkOrdersPage = () => {
               <div className="flex items-center justify-between flex-wrap gap-2">
                 <div className="flex items-center gap-1.5">
                   <div className="w-5 h-5 rounded bg-muted flex items-center justify-center">
-                    <HugeiconsIcon icon={CheckmarkCircle01Icon} size={11} className="text-primary" />
+                    <CheckCircle className="w-4 h-4 text-primary" />
                   </div>
                   <span className="text-xs font-medium">
                     {selectedRecords.length} work order{selectedRecords.length !== 1 ? 's' : ''} selected
@@ -775,10 +764,10 @@ const WorkOrdersPage = () => {
                 <div className="flex items-center gap-1">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="gap-1 h-6 px-2 text-[10px]">
-                        <HugeiconsIcon icon={CheckmarkCircle01Icon} size={11} />
+                      <Button variant="outline" size="sm" className="gap-1 h-6 px-2 text-xs">
+                        <CheckCircle className="w-4 h-4" />
                         Status
-                        <HugeiconsIcon icon={ArrowDown01Icon} size={9} />
+                        <ChevronDown className="w-3 h-3" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
@@ -788,7 +777,7 @@ const WorkOrdersPage = () => {
                           onClick={() => handleBulkStatusUpdate(option.value)}
                           className="flex items-center gap-1.5 text-xs"
                         >
-                          <HugeiconsIcon icon={STATUS_CONFIG[option.value as keyof typeof STATUS_CONFIG]?.icon} size={11} />
+                          {React.createElement(STATUS_CONFIG[option.value as keyof typeof STATUS_CONFIG]?.icon, { className: "w-4 h-4" })}
                           {option.label}
                         </DropdownMenuItem>
                       ))}
@@ -797,10 +786,10 @@ const WorkOrdersPage = () => {
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="gap-1 h-6 px-2 text-[10px]">
-                        <HugeiconsIcon icon={UserAdd01Icon} size={11} />
+                      <Button variant="outline" size="sm" className="gap-1 h-6 px-2 text-xs">
+                        <UserPlus className="w-4 h-4" />
                         Assign
-                        <HugeiconsIcon icon={ArrowDown01Icon} size={9} />
+                        <ChevronDown className="w-3 h-3" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="max-h-60 overflow-y-auto">
@@ -810,7 +799,7 @@ const WorkOrdersPage = () => {
                           onClick={() => handleBulkAssign(tech.id)}
                           className="flex items-center gap-1.5 text-xs"
                         >
-                          <div className="w-4 h-4 rounded bg-muted flex items-center justify-center text-[8px] font-bold text-muted-foreground">
+                          <div className="w-4 h-4 rounded bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground">
                             {tech.name.charAt(0)}
                           </div>
                           {tech.name}
@@ -823,9 +812,9 @@ const WorkOrdersPage = () => {
                     variant="outline"
                     size="sm"
                     onClick={handleBulkDeleteClick}
-                    className="gap-1 h-6 px-2 text-[10px] border-destructive/50 text-destructive hover:bg-destructive/10"
+                    className="gap-1 h-6 px-2 text-xs border-destructive/50 text-destructive hover:bg-destructive/10"
                   >
-                    <HugeiconsIcon icon={Delete01Icon} size={11} />
+                    <Trash2 className="w-4 h-4" />
                     Delete
                   </Button>
 
@@ -835,7 +824,7 @@ const WorkOrdersPage = () => {
                     onClick={() => setSelectedRecords([])}
                     className="h-6 w-6 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
                   >
-                    <HugeiconsIcon icon={Cancel01Icon} size={11} />
+                    <X className="w-4 h-4" />
                   </Button>
                 </div>
               </div>
@@ -894,7 +883,7 @@ const WorkOrdersPage = () => {
                 className="h-11 w-11 rounded-lg shadow-sm hover:shadow-md transition-all active:scale-95"
                 aria-label="Create Work Order"
               >
-                <HugeiconsIcon icon={Add01Icon} size={20} />
+                <Plus className="w-5 h-5" />
               </Button>
             </div>
           )}
@@ -935,3 +924,4 @@ const WorkOrdersPage = () => {
 };
 
 export default WorkOrdersPage;
+

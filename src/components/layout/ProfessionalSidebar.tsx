@@ -1,3 +1,4 @@
+import { Archive, Building2, Calendar, ClipboardList, Home, MapPin, MessageSquare, Palette, Settings, TrendingUp, User, Users, Wrench } from 'lucide-react';
 /**
  * Professional CMMS Sidebar Navigation
  * 
@@ -8,25 +9,12 @@
 
 import React, { useState } from 'react';
 import { useLocation, Link } from 'react-router-dom';
-import { HugeiconsIcon } from '@hugeicons/react';
 
-import {
-  Home01Icon,
-  ClipboardIcon,
-  Building01Icon,
-  UserMultipleIcon,
-  Wrench01Icon,
-  Archive01Icon,
-  Location03Icon,
-  Calendar01Icon,
-  ChartLineData01Icon,
-  MessageIcon,
-  Settings01Icon,
-  UserIcon,
-  PaintBoardIcon
-} from '@hugeicons/core-free-icons';
+
+
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 // ============================================
 // NAVIGATION CONFIGURATION
@@ -62,7 +50,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'dashboard',
         label: 'Dashboard',
         href: '/',
-        icon: Home01Icon,
+        icon: Home,
         description: 'Overview and metrics',
         keywords: ['home', 'overview', 'metrics', 'stats'],
       },
@@ -70,7 +58,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'work-orders',
         label: 'Work Orders',
         href: '/work-orders',
-        icon: ClipboardIcon,
+        icon: ClipboardList,
         description: 'Maintenance requests and tasks',
         keywords: ['work', 'orders', 'tasks', 'maintenance', 'requests'],
       },
@@ -78,7 +66,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'assets',
         label: 'Assets',
         href: '/assets',
-        icon: Building01Icon,
+        icon: Building2,
         description: 'Equipment and machinery',
         keywords: ['assets', 'equipment', 'machinery', 'vehicles'],
       },
@@ -94,7 +82,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'customers',
         label: 'Customers',
         href: '/customers',
-        icon: UserMultipleIcon,
+        icon: Users,
         description: 'Customer management',
         keywords: ['customers', 'clients', 'contacts'],
       },
@@ -102,7 +90,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'technicians',
         label: 'Technicians',
         href: '/technicians',
-        icon: Wrench01Icon,
+        icon: Wrench,
         description: 'Staff and assignments',
         keywords: ['technicians', 'staff', 'team', 'workers'],
       },
@@ -110,7 +98,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'inventory',
         label: 'Inventory',
         href: '/inventory',
-        icon: Archive01Icon,
+        icon: Archive,
         description: 'Parts and supplies',
         keywords: ['inventory', 'parts', 'supplies', 'stock'],
       },
@@ -118,7 +106,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'locations',
         label: 'Service Centers',
         href: '/locations',
-        icon: Location03Icon,
+        icon: MapPin,
         description: 'Maintenance locations and facilities',
         keywords: ['locations', 'service', 'centers', 'facilities', 'sites'],
       },
@@ -134,7 +122,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'scheduling',
         label: 'Scheduling',
         href: '/scheduling',
-        icon: Calendar01Icon,
+        icon: Calendar,
         description: 'Maintenance planning',
         keywords: ['scheduling', 'calendar', 'planning', 'appointments'],
       },
@@ -142,7 +130,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'reports',
         label: 'Reports',
         href: '/reports',
-        icon: ChartLineData01Icon,
+        icon: TrendingUp,
         description: 'Analytics and insights',
         keywords: ['reports', 'analytics', 'insights', 'data'],
       },
@@ -158,7 +146,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'chat',
         label: 'Chat',
         href: '/chat',
-        icon: MessageIcon,
+        icon: MessageSquare,
         description: 'WhatsApp customer support',
         keywords: ['chat', 'messages', 'whatsapp', 'support'],
       },
@@ -166,7 +154,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'settings',
         label: 'Settings',
         href: '/settings',
-        icon: Settings01Icon,
+        icon: Settings,
         description: 'Configuration and preferences',
         keywords: ['settings', 'config', 'preferences', 'options'],
       },
@@ -174,7 +162,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'design-system',
         label: 'Design System',
         href: '/design-system-v2',
-        icon: PaintBoardIcon,
+        icon: Palette,
         description: 'shadcn/ui component library',
         keywords: ['design', 'components', 'ui', 'shadcn'],
       },
@@ -182,7 +170,7 @@ export const navigationConfig: NavigationSection[] = [
         id: 'design-system-nova',
         label: 'Design System (Nova)',
         href: '/design-system-nova',
-        icon: PaintBoardIcon,
+        icon: Palette,
         description: 'Nova style preview',
         keywords: ['design', 'nova', 'components', 'ui', 'preview'],
       },
@@ -241,15 +229,15 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
     <Link
       to={item.href}
       className={cn(
-        // Base styles - Industrial
-        'group relative flex items-center gap-2.5 py-2 transition-all duration-150 w-full text-left rounded-sm',
-        'text-[var(--industrial-slate-600)] hover:text-[var(--industrial-slate-900)] hover:bg-[var(--industrial-slate-100)]',
+        // Base styles - Use semantic tokens
+        'group relative flex items-center gap-3 py-2.5 transition-all duration-150 w-full text-left rounded-md',
+        'text-muted-foreground hover:text-foreground hover:bg-accent',
         'focus:outline-none no-underline',
         // Padding
-        isCollapsed ? 'justify-center px-2' : 'px-2.5',
+        isCollapsed ? 'justify-center px-2' : 'px-3',
 
-        // Active state - Industrial: stronger accent
-        isActive && 'bg-[rgba(168,85,247,0.08)] text-[var(--brand-purple-700)] font-semibold border-l-2 border-[var(--brand-purple-600)]',
+        // Active state - Use accent color like pages
+        isActive && 'bg-accent text-accent-foreground font-medium',
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -258,10 +246,9 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
       {/* Icon */}
       <div className={cn(
         'flex items-center justify-center flex-shrink-0',
-        isActive ? 'text-[var(--brand-purple-600)]' : 'text-[var(--industrial-slate-400)] group-hover:text-[var(--industrial-slate-600)]'
+        isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
       )}>
-        <HugeiconsIcon
-          icon={item.icon}
+        <item.icon
           size={isCollapsed ? 18 : 16}
         />
       </div>
@@ -269,7 +256,7 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
       {/* Label */}
       {!isCollapsed && (
         <span className={cn(
-          "flex-1 min-w-0 text-[13px] leading-tight",
+          "flex-1 min-w-0 text-sm leading-tight",
           isActive ? "font-semibold" : "font-medium"
         )}>
           {item.label}
@@ -284,7 +271,7 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}
-              className="flex items-center justify-center min-w-[16px] h-[16px] px-1 bg-red-500 text-white text-[9px] font-semibold rounded-full"
+              className="flex items-center justify-center min-w-4 h-4 w-4 h-4 px-1 bg-destructive text-white text-xs font-semibold rounded-full"
             >
               {item.badge}
             </motion.div>
@@ -293,7 +280,7 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}
-              className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-[14px] h-[14px] px-1 bg-red-500 text-white text-[9px] font-bold rounded-full border border-white"
+              className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-4 h-4 w-4 h-4 px-1 bg-destructive text-white text-xs font-bold rounded-full border border-white"
             >
               {item.badge}
             </motion.div>
@@ -309,26 +296,26 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
           exit={{ opacity: 0, x: -5 }}
           transition={{ duration: 0.1 }}
           className={cn(
-            'absolute left-full ml-2 px-2 py-1 bg-[var(--industrial-slate-900)] text-white text-xs rounded shadow-lg z-50',
+            'absolute left-full ml-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-lg z-50 border border-border',
             'pointer-events-none whitespace-nowrap'
           )}
         >
           <div className="flex items-center gap-2">
             <span className="font-medium">{item.label}</span>
             {item.badge && (
-              <span className="inline-flex items-center justify-center min-w-[16px] h-[16px] px-1 bg-red-600 text-white text-[9px] font-bold rounded-full">
+              <span className="inline-flex items-center justify-center min-w-4 h-4 w-4 h-4 px-1 bg-destructive text-destructive-foreground text-xs font-bold rounded-full">
                 {item.badge}
               </span>
             )}
           </div>
           {item.description && (
-            <div className="text-[10px] text-[var(--industrial-slate-300)] mt-0.5">
+            <div className="text-xs text-muted-foreground mt-0.5">
               {item.description}
             </div>
           )}
 
           {/* Arrow */}
-          <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-[var(--industrial-slate-900)] rotate-45" />
+          <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1 w-2 h-2 bg-popover rotate-45 border-l border-b border-border" />
         </motion.div>
       )}
     </Link>
@@ -347,9 +334,18 @@ const NavigationSectionComponent: React.FC<NavigationSectionProps> = ({
   const location = useLocation();
 
   return (
-    <div>
-      {/* Section Items - No headers, just items */}
-      <div className="space-y-0.5">
+    <div className="mb-4">
+      {/* Section Header */}
+      {!isCollapsed && (
+        <div className="px-3 mb-2">
+          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+            {section.label}
+          </h2>
+        </div>
+      )}
+
+      {/* Section Items */}
+      <div className="space-y-1">
         {section.items.map((item) => {
           const isActive = location.pathname === item.href ||
             (item.href !== '/' && location.pathname.startsWith(item.href));
@@ -407,8 +403,8 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
       }}
       className={cn(
         'fixed left-0 top-0 bottom-0 z-40',
-        'bg-[var(--industrial-slate-50)]', // Changed from bg-white
-        'border-r border-[var(--industrial-slate-200)]', // Changed from border-gray-200
+        'bg-card', // Use semantic token for dark mode support
+        'border-r border-border', // Use semantic token
         'flex flex-col overflow-hidden',
         'transition-[width] duration-300 ease-in-out',
         '!rounded-none !shadow-none !m-0',
@@ -417,12 +413,12 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
     >
       {/* Header */}
       <div className={cn(
-        'flex items-center gap-3 px-3 py-3 border-b border-[var(--industrial-slate-200)]', // Industrial border
+        'flex items-center gap-3 px-3 py-3 border-b border-border',
         !isExpanded && 'justify-center px-2'
       )}>
         {/* Logo */}
-        <div className="flex items-center justify-center w-8 h-8 bg-[var(--brand-purple-600)] rounded-lg shadow-sm flex-shrink-0">
-          <HugeiconsIcon icon={Wrench01Icon} size={16} className="text-white" />
+        <div className="flex items-center justify-center w-8 h-8 bg-primary rounded-lg shadow-sm flex-shrink-0">
+          <Wrench className="w-4 h-4 text-primary-foreground" />
         </div>
 
         {/* Brand Name */}
@@ -435,10 +431,10 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
               transition={{ duration: 0.2 }}
               className="flex-1 min-w-0"
             >
-              <h1 className="text-sm font-bold text-[var(--industrial-slate-900)] leading-tight font-brand tracking-tight">
+              <h1 className="text-base font-semibold text-foreground">
                 GOGO CMMS
               </h1>
-              <p className="text-[10px] text-[var(--industrial-slate-500)] leading-tight uppercase tracking-wider font-semibold">
+              <p className="text-xs text-muted-foreground">
                 Maintenance
               </p>
             </motion.div>
@@ -462,15 +458,25 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
 
       {/* Footer */}
       <div className={cn(
-        'px-3 py-3 border-t border-[var(--industrial-slate-200)]',
+        'px-3 py-3 border-t border-border',
         !isExpanded && 'px-2'
       )}>
+        {/* Theme Toggle */}
         <div className={cn(
-          'flex items-center gap-2.5 p-1.5',
+          'mb-2',
+          !isExpanded && 'flex justify-center'
+        )}>
+          <ThemeToggle />
+        </div>
+
+        {/* User Profile */}
+        <button className={cn(
+          'flex items-center gap-2.5 p-2 w-full rounded-md transition-colors',
+          'hover:bg-accent',
           !isExpanded && 'justify-center'
         )}>
-          <div className="w-7 h-7 bg-[var(--brand-purple-600)] rounded-full flex items-center justify-center flex-shrink-0">
-            <HugeiconsIcon icon={UserIcon} size={14} className="text-white" />
+          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+            <User className="w-4 h-4 text-primary-foreground" />
           </div>
 
           <AnimatePresence>
@@ -480,21 +486,24 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: -10 }}
                 transition={{ duration: 0.2 }}
-                className="flex-1 min-w-0"
+                className="flex-1 min-w-0 text-left"
               >
-                <div className="text-[13px] font-medium text-[var(--industrial-slate-900)] truncate leading-tight">
+                <div className="text-sm font-medium text-foreground truncate">
                   Admin User
                 </div>
-                <div className="text-[10px] text-[var(--industrial-slate-500)] leading-tight">
+                <div className="text-xs text-muted-foreground">
                   Administrator
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
+        </button>
       </div>
     </aside>
   );
 };
 
 export default ProfessionalSidebar;
+
+
+

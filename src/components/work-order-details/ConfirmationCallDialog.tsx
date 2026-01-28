@@ -1,14 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import {
-  Cancel01Icon,
-  Call02Icon,
-  UserIcon,
-  Tick01Icon,
-  Calendar01Icon,
-  AlertCircleIcon,
-  Alert01Icon
-} from '@hugeicons/core-free-icons';
+import { X, Phone, User, Check, Calendar, AlertCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -82,13 +73,13 @@ export const ConfirmationCallDialog: React.FC<ConfirmationCallDialogProps> = ({
 
     // Validation
     if (!notes.trim()) {
-      setValidationError('Please add notes about the call');
+      setValidationError('Add notes about the call');
       notesRef.current?.focus();
       return;
     }
 
     if (outcome === 'confirmed' && !appointmentDate) {
-      setValidationError('Please select an appointment date for the confirmed service');
+      setValidationError('Select an appointment date for confirmed service');
       return;
     }
 
@@ -115,7 +106,7 @@ export const ConfirmationCallDialog: React.FC<ConfirmationCallDialogProps> = ({
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
             <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <HugeiconsIcon icon={Call02Icon} size={20} className="text-primary-600" />
+              <Phone className="w-4 h-4 text-primary" />
             </div>
             <div>
               <DialogTitle>Confirmation Call</DialogTitle>
@@ -132,8 +123,8 @@ export const ConfirmationCallDialog: React.FC<ConfirmationCallDialogProps> = ({
             <div className="bg-muted/40 rounded-lg p-3 border border-border/50">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center shrink-0 text-blue-600">
-                    <HugeiconsIcon icon={UserIcon} size={16} />
+                  <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center shrink-0 text-muted-foreground">
+                    <User className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
                     <p className="text-sm font-medium truncate">{customerName}</p>
@@ -151,7 +142,7 @@ export const ConfirmationCallDialog: React.FC<ConfirmationCallDialogProps> = ({
                     asChild
                   >
                     <a href={`tel:${customerPhone}`}>
-                      <HugeiconsIcon icon={Call02Icon} size={14} />
+                      <Phone className="w-3.5 h-3.5" />
                       Call
                     </a>
                   </Button>
@@ -162,56 +153,56 @@ export const ConfirmationCallDialog: React.FC<ConfirmationCallDialogProps> = ({
 
           {/* Call Outcome */}
           <div className="space-y-2">
-            <Label>Call Outcome <span className="text-red-500">*</span></Label>
+            <Label>Call Outcome <span className="text-destructive">*</span></Label>
             <div className="grid grid-cols-3 gap-2">
-              <button
+              <Button
                 type="button"
+                variant={outcome === 'confirmed' ? 'default' : 'outline'}
+                size="sm"
                 onClick={() => handleOutcomeChange('confirmed')}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1.5 p-2 rounded-lg border-2 text-xs font-medium transition-all hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-                  outcome === 'confirmed'
-                    ? "border-green-500 bg-green-50 text-green-700 hover:bg-green-50"
-                    : "border-transparent bg-muted/30 hover:border-border text-muted-foreground"
+                  "flex flex-col items-center justify-center gap-1.5 h-auto py-2",
+                  outcome === 'confirmed' && "border-emerald-500 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
                 )}
               >
-                <HugeiconsIcon icon={Tick01Icon} size={18} />
-                Confirmed
-              </button>
-              <button
+                <Check className="w-4 h-4" />
+                <span className="text-xs font-medium">Confirmed</span>
+              </Button>
+              <Button
                 type="button"
+                variant={outcome === 'unreachable' ? 'default' : 'outline'}
+                size="sm"
                 onClick={() => handleOutcomeChange('unreachable')}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1.5 p-2 rounded-lg border-2 text-xs font-medium transition-all hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-                  outcome === 'unreachable'
-                    ? "border-orange-500 bg-orange-50 text-orange-700 hover:bg-orange-50"
-                    : "border-transparent bg-muted/30 hover:border-border text-muted-foreground"
+                  "flex flex-col items-center justify-center gap-1.5 h-auto py-2",
+                  outcome === 'unreachable' && "border-orange-500 bg-orange-50 text-orange-700 hover:bg-orange-100"
                 )}
               >
-                <HugeiconsIcon icon={Call02Icon} size={18} />
-                Unreachable
-              </button>
-              <button
+                <Phone className="w-4 h-4" />
+                <span className="text-xs font-medium">Unreachable</span>
+              </Button>
+              <Button
                 type="button"
+                variant={outcome === 'cancelled' ? 'default' : 'outline'}
+                size="sm"
                 onClick={() => handleOutcomeChange('cancelled')}
                 className={cn(
-                  "flex flex-col items-center justify-center gap-1.5 p-2 rounded-lg border-2 text-xs font-medium transition-all hover:bg-muted/50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-                  outcome === 'cancelled'
-                    ? "border-destructive/50 bg-destructive/10 text-destructive hover:bg-destructive/15"
-                    : "border-transparent bg-muted/30 hover:border-border text-muted-foreground"
+                  "flex flex-col items-center justify-center gap-1.5 h-auto py-2",
+                  outcome === 'cancelled' && "border-destructive/50 bg-destructive/10 text-destructive hover:bg-destructive/15"
                 )}
               >
-                <HugeiconsIcon icon={Cancel01Icon} size={18} />
-                Cancelled
-              </button>
+                <X className="w-4 h-4" />
+                <span className="text-xs font-medium">Cancelled</span>
+              </Button>
             </div>
           </div>
 
           {/* Outcome Info Sections */}
           {outcome === 'confirmed' && (
-            <div className="bg-green-50/50 border border-green-100 rounded-lg p-3 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
+            <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
               <div className="space-y-1.5">
-                <Label htmlFor="appointment-date" className="text-green-900 text-xs">
-                  Appointment Date & Time <span className="text-red-500">*</span>
+                <Label htmlFor="appointment-date" className="text-foreground text-xs">
+                  Appointment Date & Time <span className="text-destructive">*</span>
                 </Label>
                 <Input
                   id="appointment-date"
@@ -222,7 +213,7 @@ export const ConfirmationCallDialog: React.FC<ConfirmationCallDialogProps> = ({
                     if (validationError) setValidationError('');
                   }}
                   min={new Date().toISOString().slice(0, 16)}
-                  className="bg-white border-green-200 text-green-900 focus-visible:ring-green-500/30 h-9"
+                  className="bg-white border-emerald-200 text-foreground focus-visible:ring-emerald-500/30 h-9"
                   required
                 />
               </div>
@@ -230,22 +221,22 @@ export const ConfirmationCallDialog: React.FC<ConfirmationCallDialogProps> = ({
           )}
 
           {outcome === 'unreachable' && (
-            <div className="bg-orange-50/50 border border-orange-100 rounded-lg p-3 text-xs text-orange-800 animate-in fade-in slide-in-from-top-2 duration-200 flex items-start gap-2">
-              <HugeiconsIcon icon={Alert01Icon} size={16} className="shrink-0 mt-0.5" />
-              <p>Work order will remain open. Please try calling the customer again later.</p>
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-xs text-amber-700 animate-in fade-in slide-in-from-top-2 duration-200 flex items-start gap-2">
+              <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+              <p>Work order will remain open. Try calling the customer again later.</p>
             </div>
           )}
 
           {outcome === 'cancelled' && (
-            <div className="bg-red-50/50 border border-red-100 rounded-lg p-3 text-xs text-red-800 animate-in fade-in slide-in-from-top-2 duration-200 flex items-start gap-2">
-              <HugeiconsIcon icon={AlertCircleIcon} size={16} className="shrink-0 mt-0.5" />
+            <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-3 text-xs text-destructive animate-in fade-in slide-in-from-top-2 duration-200 flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <p>This will cancel the work order. This action can be reversed if needed by reopening the ticket.</p>
             </div>
           )}
 
           {/* Call Notes */}
           <div className="space-y-2">
-            <Label htmlFor="call-notes">Call Notes <span className="text-red-500">*</span></Label>
+            <Label htmlFor="call-notes">Call Notes <span className="text-destructive">*</span></Label>
             <Textarea
               id="call-notes"
               ref={notesRef}
@@ -263,7 +254,7 @@ export const ConfirmationCallDialog: React.FC<ConfirmationCallDialogProps> = ({
             />
             {validationError && (
               <p className="text-xs text-destructive flex items-center gap-1 font-medium">
-                <HugeiconsIcon icon={AlertCircleIcon} size={12} />
+                <AlertCircle className="w-3 h-3" />
                 {validationError}
               </p>
             )}
@@ -287,7 +278,7 @@ export const ConfirmationCallDialog: React.FC<ConfirmationCallDialogProps> = ({
                 <>Saving...</>
               ) : (
                 <>
-                  <HugeiconsIcon icon={Tick01Icon} size={16} />
+                  <Check className="w-4 h-4 mr-1.5" />
                   Complete Call
                 </>
               )}
@@ -298,3 +289,5 @@ export const ConfirmationCallDialog: React.FC<ConfirmationCallDialogProps> = ({
     </Dialog>
   );
 };
+
+

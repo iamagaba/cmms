@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Cancel01Icon, Add01Icon } from '@hugeicons/core-free-icons';
+import { X, Plus } from 'lucide-react';
 import { Technician, Location } from '@/types/supabase';
 
 
@@ -18,9 +17,6 @@ export const TechnicianFormDialog: React.FC<TechnicianFormDialogProps> = ({
   onSubmit,
   technician,
   locations
-}) => {
-  technician,
-    locations
 }) => {
   const [formData, setFormData] = useState<Partial<Technician>>({
     name: '',
@@ -97,7 +93,7 @@ export const TechnicianFormDialog: React.FC<TechnicianFormDialogProps> = ({
             onClick={onClose}
             className="p-2 text-gray-400 hover:text-gray-600"
           >
-            <HugeiconsIcon icon={Cancel01Icon} size={20} />
+            <X className="w-5 h-5" />
           </button>
         </div>
 
@@ -214,7 +210,7 @@ export const TechnicianFormDialog: React.FC<TechnicianFormDialogProps> = ({
                 onClick={handleAddSkill}
                 className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
               >
-                <HugeiconsIcon icon={Add01Icon} size={16} />
+                <Plus size={16} />
               </button>
             </div>
             {formData.specializations && formData.specializations.length > 0 && (
@@ -230,7 +226,7 @@ export const TechnicianFormDialog: React.FC<TechnicianFormDialogProps> = ({
                       onClick={() => handleRemoveSkill(skill)}
                       className="ml-1 text-blue-600 hover:text-blue-800"
                     >
-                      <HugeiconsIcon icon={Cancel01Icon} size={12} />
+                      <X size={12} />
                     </button>
                   </span>
                 ))}
@@ -259,3 +255,4 @@ export const TechnicianFormDialog: React.FC<TechnicianFormDialogProps> = ({
     </div>
   );
 };
+

@@ -1,7 +1,8 @@
+import { X } from 'lucide-react';
 import React, { useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { HugeiconsIcon } from '@hugeicons/react';
-import { Cancel01Icon } from '@hugeicons/core-free-icons';
+
+
 
 export interface DrawerProps {
     /** Whether drawer is open */
@@ -106,7 +107,7 @@ export function Drawer({
                                 onClick={onClose}
                                 className="ml-auto text-gray-400 hover:text-gray-600 transition-colors"
                             >
-                                <HugeiconsIcon icon={Cancel01Icon} size={24} />
+                                <X className="w-5 h-5" />
                             </button>
                         )}
                     </div>
@@ -118,3 +119,4 @@ export function Drawer({
         </div>
     );
 }
+

@@ -1,4 +1,4 @@
-import { Calendar, CheckCircle, ClipboardList, Info, Plus, Settings, User } from 'lucide-react';
+import { Calendar, CheckCircle, ClipboardList, Info, Plus, Settings, User, Package } from 'lucide-react';
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";

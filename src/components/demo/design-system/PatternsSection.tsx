@@ -1,4 +1,4 @@
-import { Calendar, CheckCircle, ClipboardList, Clock, Info, Plus, User } from 'lucide-react';
+import { Calendar, CheckCircle, ClipboardList, Clock, Info, Plus, User, Package } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';

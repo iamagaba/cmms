@@ -1,4 +1,4 @@
-import { CheckCircle, ClipboardList, User, X } from 'lucide-react';
+import { CheckCircle, ClipboardList, User, X, Package } from 'lucide-react';
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

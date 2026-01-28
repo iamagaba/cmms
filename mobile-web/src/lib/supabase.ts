@@ -1,7 +1,11 @@
 import { createClient } from '@supabase/supabase-js'
 
-const SUPABASE_URL = "https://ohbcjwshjvukitbmyklx.supabase.co"
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9oYmNqd3NoanZ1a2l0Ym15a2x4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2MTE3MTYsImV4cCI6MjA3MTE4NzcxNn0.8MiuGrw17pVRbFPN7iU5C5ss9hJxkstqdOsBCg8VVuU"
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  throw new Error('Missing Supabase environment variables. Please check your .env.local file.');
+}
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {

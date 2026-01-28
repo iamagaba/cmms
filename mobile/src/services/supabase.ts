@@ -1,10 +1,15 @@
 import {createClient} from '@supabase/supabase-js';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Keychain from 'react-native-keychain';
+import Constants from 'expo-constants';
 
-// Supabase configuration - matches the web app
-const SUPABASE_URL = 'https://ohbcjwshjvukitbmyklx.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9oYmNqd3NoanZ1a2l0Ym15a2x4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU2MTE3MTYsImV4cCI6MjA3MTE4NzcxNn0.8MiuGrw17pVRbFPN7iU5C5ss9hJxkstqdOsBCg8VVuU';
+// Supabase configuration - loaded from environment variables
+const SUPABASE_URL = Constants.expoConfig?.extra?.EXPO_PUBLIC_SUPABASE_URL || process.env.EXPO_PUBLIC_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY = Constants.expoConfig?.extra?.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY || process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+
+if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+  throw new Error('Missing Supabase environment variables. Please check your .env file.');
+}
 
 // Custom storage implementation with secure token handling
 class SecureStorage {
@@ -70,10 +75,11 @@ export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   },
 });
 
-// Export configuration for debugging
+// Export configuration for debugging (DO NOT log in production)
 export const supabaseConfig = {
   url: SUPABASE_URL,
-  anonKey: SUPABASE_PUBLISHABLE_KEY,
+  // Never export the actual key, just confirm it exists
+  hasKey: !!SUPABASE_PUBLISHABLE_KEY,
 };
 
 // Export types for use throughout the app

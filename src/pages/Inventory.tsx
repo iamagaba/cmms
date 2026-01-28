@@ -960,7 +960,7 @@ const InventoryPage: React.FC = () => {
         isOpen={transactionsPanelOpen}
         onClose={() => setTransactionsPanelOpen(false)}
       />
-    </div >
+    </div>
   );
 };
 

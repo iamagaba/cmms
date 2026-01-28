@@ -158,7 +158,7 @@ const AssetDetails = () => {
         />
       </div>
       <div className="w-full px-6 pt-2 pb-6">
-        <Stack gap="md">
+        <div className="space-y-6">
 
           {/* Vehicle Header Card with Owner & Specifications */}
           <Card>
@@ -545,7 +545,7 @@ const AssetDetails = () => {
             </CardContent>
           </Card>
           )}
-        </Stack>
+        </div>
 
         {/* Edit Asset Dialog */}
         <AssetFormDialog

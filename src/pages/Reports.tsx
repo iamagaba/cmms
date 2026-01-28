@@ -46,6 +46,7 @@ import { BarChart } from '@mui/x-charts/BarChart';
 import { LineChart } from '@mui/x-charts/LineChart';
 // Chart colors
 type ReportType = 'overview' | 'fleet' | 'technician' | 'workorder' | 'asset' | 'financial' | 'inventory' | 'cx';
+type DateRange = '7days' | '30days' | '90days' | 'year' | 'custom';
 
 const CHART_COLORS = {
   primary: '#2563eb',
@@ -119,22 +120,29 @@ const OverviewReport: React.FC<{
   }, [workOrders, technicians, vehicles]);
 
   // Prepare chart data
-  const statusChartData = useMemo(() => [
-    { name: 'Pending', value: stats.pending, color: CHART_COLORS.pending },
-    { name: 'In Progress', value: stats.inProgress, color: CHART_COLORS.inProgress },
-    { name: 'Completed', value: stats.completed, color: CHART_COLORS.completed },
-    { name: 'On Hold', value: stats.onHold, color: CHART_COLORS.onHold },
-  ], [stats]);
+  const statusChartData = useMemo(() => {
+    const data = [
+      { name: 'Pending', value: stats.pending, color: CHART_COLORS.pending },
+      { name: 'In Progress', value: stats.inProgress, color: CHART_COLORS.inProgress },
+      { name: 'Completed', value: stats.completed, color: CHART_COLORS.completed },
+      { name: 'On Hold', value: stats.onHold, color: CHART_COLORS.onHold },
+    ];
+    // Filter out zero values for cleaner chart
+    return data.filter(item => item.value > 0);
+  }, [stats]);
 
   const priorityChartData = useMemo(() => {
-    return ['urgent', 'high', 'medium', 'low'].map(priority => {
+    const data = ['urgent', 'high', 'medium', 'low'].map(priority => {
       const priorityKey = priority.charAt(0).toUpperCase() + priority.slice(1);
+      const count = workOrders.filter(wo => wo.priority?.toLowerCase() === priority).length;
       return {
         name: priorityKey,
-        count: workOrders.filter(wo => wo.priority?.toLowerCase() === priority).length,
+        count: count,
         color: CHART_COLORS[priority as keyof typeof CHART_COLORS] as string,
       };
     });
+    // Filter out zero values for cleaner chart
+    return data.filter(item => item.count > 0);
   }, [workOrders]);
 
   // Timeline data - group by day
@@ -171,7 +179,7 @@ const OverviewReport: React.FC<{
             </div>
             <div className="text-xl font-bold">{stats.total}</div>
             <div className="text-xs text-muted-foreground">
-              {dayjs(startDate).format('MMM D')} - {dayjs(endDate).format('MMM D, YYYY')}
+              {dayjs(startDate).format('MMM D, YYYY')} - {dayjs(endDate).format('MMM D, YYYY')}
             </div>
           </CardContent>
         </Card>
@@ -235,7 +243,7 @@ const OverviewReport: React.FC<{
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {statusChartData.some(item => item.value > 0) ? (
+            {statusChartData.length > 0 ? (
               <div className="h-[220px] w-full">
                 <PieChart
                   series={[

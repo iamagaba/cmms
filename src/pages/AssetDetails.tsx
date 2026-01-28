@@ -182,99 +182,100 @@ const AssetDetails = () => {
                 )}
               </div>
 
-            {/* Owner Information & Vehicle Specifications - Side by Side */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
-              {/* Owner Information */}
-              <div>
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <UserCircle className="w-5 h-5 text-muted-foreground" />
-                    Owner Information
-                  </h3>
-                  {vehicle.customers?.phone && (
-                    <a
-                      href={`tel:${vehicle.customers.phone}`}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors"
-                    >
-                      <Phone className="w-4 h-4" />
-                      Call
-                    </a>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                    <div className="text-xs font-medium text-muted-foreground mb-1">Owner Name</div>
-                    <div className="text-sm font-semibold text-foreground">{vehicle.customers?.name || 'N/A'}</div>
+              {/* Owner Information & Vehicle Specifications - Side by Side */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4">
+                {/* Owner Information */}
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                      <UserCircle className="w-5 h-5 text-muted-foreground" />
+                      Owner Information
+                    </h3>
+                    {vehicle.customers?.phone && (
+                      <a
+                        href={`tel:${vehicle.customers.phone}`}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium text-white bg-primary hover:bg-primary/90 rounded-lg transition-colors"
+                      >
+                        <Phone className="w-4 h-4" />
+                        Call
+                      </a>
+                    )}
                   </div>
-                  {vehicle.customers?.phone && (
+                  <div className="space-y-2">
                     <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                      <div className="text-xs font-medium text-muted-foreground mb-1">Phone Number</div>
-                      <div className="text-sm font-semibold text-foreground">{vehicle.customers.phone}</div>
+                      <div className="text-xs font-medium text-muted-foreground mb-1">Owner Name</div>
+                      <div className="text-sm font-semibold text-foreground">{vehicle.customers?.name || 'N/A'}</div>
                     </div>
-                  )}
-                  {vehicle.customers?.email && (
-                    <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                      <div className="text-xs font-medium text-muted-foreground mb-1">Email Address</div>
-                      <div className="text-sm font-semibold text-foreground truncate">{vehicle.customers.email}</div>
-                    </div>
-                  )}
+                    {vehicle.customers?.phone && (
+                      <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                        <div className="text-xs font-medium text-muted-foreground mb-1">Phone Number</div>
+                        <div className="text-sm font-semibold text-foreground">{vehicle.customers.phone}</div>
+                      </div>
+                    )}
+                    {vehicle.customers?.email && (
+                      <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                        <div className="text-xs font-medium text-muted-foreground mb-1">Email Address</div>
+                        <div className="text-sm font-semibold text-foreground truncate">{vehicle.customers.email}</div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              {/* Vehicle Specifications */}
-              <div>
-                <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                  <Info className="w-5 h-5 text-muted-foreground" />
-                  Vehicle Specifications
-                </h3>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                    <div className="text-xs font-medium text-muted-foreground mb-1">Ownership Type</div>
-                    <div className="text-sm font-semibold text-foreground">
-                      {vehicle.is_company_asset ? 'Company Asset' : 'Individual Asset'}
-                    </div>
-                  </div>
-                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                    <div className="text-xs font-medium text-muted-foreground mb-1">License Plate</div>
-                    <div className="text-sm font-semibold text-foreground">{vehicle.license_plate}</div>
-                  </div>
-                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                    <div className="text-xs font-medium text-muted-foreground mb-1">VIN</div>
-                    <div className="text-sm font-semibold text-foreground font-mono break-all">{vehicle.vin || 'N/A'}</div>
-                  </div>
-                  {vehicle.motor_number && (
+                {/* Vehicle Specifications */}
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <Info className="w-5 h-5 text-muted-foreground" />
+                    Vehicle Specifications
+                  </h3>
+                  <div className="grid grid-cols-2 gap-2">
                     <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                      <div className="text-xs font-medium text-muted-foreground mb-1">Motor Number</div>
-                      <div className="text-sm font-semibold text-foreground font-mono">{vehicle.motor_number}</div>
+                      <div className="text-xs font-medium text-muted-foreground mb-1">Ownership Type</div>
+                      <div className="text-sm font-semibold text-foreground">
+                        {vehicle.is_company_asset ? 'Company Asset' : 'Individual Asset'}
+                      </div>
                     </div>
-                  )}
-                  {vehicle.mileage && (
                     <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                      <div className="text-xs font-medium text-muted-foreground mb-1">Mileage</div>
-                      <div className="text-sm font-semibold text-foreground">{vehicle.mileage.toLocaleString()} km</div>
+                      <div className="text-xs font-medium text-muted-foreground mb-1">License Plate</div>
+                      <div className="text-sm font-semibold text-foreground">{vehicle.license_plate}</div>
                     </div>
-                  )}
-                  {vehicle.battery_capacity && (
                     <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                      <div className="text-xs font-medium text-muted-foreground mb-1">Battery Capacity</div>
-                      <div className="text-sm font-semibold text-foreground">{vehicle.battery_capacity} kWh</div>
+                      <div className="text-xs font-medium text-muted-foreground mb-1">VIN</div>
+                      <div className="text-sm font-semibold text-foreground font-mono break-all">{vehicle.vin || 'N/A'}</div>
                     </div>
-                  )}
-                  {vehicle.date_of_manufacture && (
+                    {vehicle.motor_number && (
+                      <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                        <div className="text-xs font-medium text-muted-foreground mb-1">Motor Number</div>
+                        <div className="text-sm font-semibold text-foreground font-mono">{vehicle.motor_number}</div>
+                      </div>
+                    )}
+                    {vehicle.mileage && (
+                      <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                        <div className="text-xs font-medium text-muted-foreground mb-1">Mileage</div>
+                        <div className="text-sm font-semibold text-foreground">{vehicle.mileage.toLocaleString()} km</div>
+                      </div>
+                    )}
+                    {vehicle.battery_capacity && (
+                      <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                        <div className="text-xs font-medium text-muted-foreground mb-1">Battery Capacity</div>
+                        <div className="text-sm font-semibold text-foreground">{vehicle.battery_capacity} kWh</div>
+                      </div>
+                    )}
+                    {vehicle.date_of_manufacture && (
+                      <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                        <div className="text-xs font-medium text-muted-foreground mb-1">Date of Manufacture</div>
+                        <div className="text-sm font-semibold text-foreground">{dayjs(vehicle.date_of_manufacture).format('MMM DD, YYYY')}</div>
+                      </div>
+                    )}
+                    {vehicle.year && (
+                      <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                        <div className="text-xs font-medium text-muted-foreground mb-1">Year</div>
+                        <div className="text-sm font-semibold text-foreground">{vehicle.year}</div>
+                      </div>
+                    )}
                     <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                      <div className="text-xs font-medium text-muted-foreground mb-1">Date of Manufacture</div>
-                      <div className="text-sm font-semibold text-foreground">{dayjs(vehicle.date_of_manufacture).format('MMM DD, YYYY')}</div>
+                      <div className="text-xs font-medium text-muted-foreground mb-1">Added to System</div>
+                      <div className="text-sm font-semibold text-foreground">{dayjs(vehicle.created_at).format('MMM DD, YYYY')}</div>
                     </div>
-                  )}
-                  {vehicle.year && (
-                    <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                      <div className="text-xs font-medium text-muted-foreground mb-1">Year</div>
-                      <div className="text-sm font-semibold text-foreground">{vehicle.year}</div>
-                    </div>
-                  )}
-                  <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                    <div className="text-xs font-medium text-muted-foreground mb-1">Added to System</div>
-                    <div className="text-sm font-semibold text-foreground">{dayjs(vehicle.created_at).format('MMM DD, YYYY')}</div>
                   </div>
                 </div>
               </div>
@@ -508,42 +509,42 @@ const AssetDetails = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
-                <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                  <div className="text-xs font-medium text-muted-foreground mb-1">Status</div>
-                  <div className="text-sm font-semibold">
-                    {dayjs(vehicle.warranty_end_date).isAfter(dayjs()) ? (
-                      <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                        <CheckCircle className="w-5 h-5" />
-                        Active
-                      </span>
-                    ) : (
-                      <span className="text-destructive flex items-center gap-1">
-                        <AlertCircle className="w-4 h-4" />
-                        Expired
-                      </span>
-                    )}
-                  </div>
-                </div>
-                {vehicle.warranty_start_date && (
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                   <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                    <div className="text-xs font-medium text-muted-foreground mb-1">Start Date</div>
-                    <div className="text-sm font-semibold text-foreground">{dayjs(vehicle.warranty_start_date).format('MMM DD, YYYY')}</div>
+                    <div className="text-xs font-medium text-muted-foreground mb-1">Status</div>
+                    <div className="text-sm font-semibold">
+                      {dayjs(vehicle.warranty_end_date).isAfter(dayjs()) ? (
+                        <span className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
+                          <CheckCircle className="w-5 h-5" />
+                          Active
+                        </span>
+                      ) : (
+                        <span className="text-destructive flex items-center gap-1">
+                          <AlertCircle className="w-4 h-4" />
+                          Expired
+                        </span>
+                      )}
+                    </div>
                   </div>
-                )}
-                <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                  <div className="text-xs font-medium text-muted-foreground mb-1">End Date</div>
-                  <div className="text-sm font-semibold text-foreground">{dayjs(vehicle.warranty_end_date).format('MMM DD, YYYY')}</div>
-                </div>
-                {vehicle.warranty_months && (
+                  {vehicle.warranty_start_date && (
+                    <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                      <div className="text-xs font-medium text-muted-foreground mb-1">Start Date</div>
+                      <div className="text-sm font-semibold text-foreground">{dayjs(vehicle.warranty_start_date).format('MMM DD, YYYY')}</div>
+                    </div>
+                  )}
                   <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                    <div className="text-xs font-medium text-muted-foreground mb-1">Duration</div>
-                    <div className="text-sm font-semibold text-foreground">{vehicle.warranty_months} months</div>
+                    <div className="text-xs font-medium text-muted-foreground mb-1">End Date</div>
+                    <div className="text-sm font-semibold text-foreground">{dayjs(vehicle.warranty_end_date).format('MMM DD, YYYY')}</div>
                   </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
+                  {vehicle.warranty_months && (
+                    <div className="bg-muted/50 rounded-lg p-3 border border-border">
+                      <div className="text-xs font-medium text-muted-foreground mb-1">Duration</div>
+                      <div className="text-sm font-semibold text-foreground">{vehicle.warranty_months} months</div>
+                    </div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
           )}
         </div>
 

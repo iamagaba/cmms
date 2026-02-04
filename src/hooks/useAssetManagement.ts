@@ -374,7 +374,7 @@ export const useAssetManagement = () => {
                 // Use computed status logic to match what's displayed
                 const assetWorkOrders = workOrders?.filter(wo => wo.vehicleId === asset.id) || [];
                 const hasActiveWorkOrder = assetWorkOrders.some(wo =>
-                    wo.status === 'Open' ||
+                    wo.status === 'New' ||
                     wo.status === 'Confirmation' ||
                     wo.status === 'Ready' ||
                     wo.status === 'In Progress' ||

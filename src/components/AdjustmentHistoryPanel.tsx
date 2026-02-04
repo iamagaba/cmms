@@ -1,4 +1,4 @@
-import { Clock } from 'lucide-react';
+import { Clock, Filter } from 'lucide-react';
 import React, { useState } from 'react';
 
 
@@ -104,7 +104,7 @@ export const AdjustmentHistoryPanel: React.FC<AdjustmentHistoryPanelProps> = ({
                 : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800'
                 }`}
             >
-              <FilterIcon className="w-4 h-4" />
+              <Filter className="w-4 h-4" />
               Filters
             </button>
           </div>

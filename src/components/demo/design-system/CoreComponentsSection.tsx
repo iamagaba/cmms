@@ -1,4 +1,4 @@
-import { Calendar as CalendarIcon, CheckCircle, ClipboardList, Clock, Info, Plus, RefreshCw, Settings, User, X, Package, Edit, Tag, Table as TableIcon, Folder, AlertCircle, MoreVertical, Trash2 } from 'lucide-react';
+import { Calendar as CalendarIcon, Car, CheckCircle, ClipboardList, Clock, Info, Plus, RefreshCw, Settings, User, X, Package, Edit, Tag, Table as TableIcon, Folder, AlertCircle, MoreVertical, Trash2 } from 'lucide-react';
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -42,7 +42,7 @@ const CoreComponentsSection: React.FC = () => {
                         <div className="grid grid-cols-6 gap-2">
                             {[50, 100, 500, 600, 700, 900].map((shade) => (
                                 <div key={shade} className="space-y-1">
-                                    <div className={`h-16 rounded-md bg-purple-${shade} border border-gray-200`} />
+                                    <div className={`h-16 rounded-md bg-primary/${shade === 50 ? '5' : shade === 100 ? '10' : shade === 500 ? '50' : shade === 600 ? '60' : shade === 700 ? '70' : '90'} border border-gray-200`} />
                                     <p className="text-xs text-gray-600 text-center">{shade}</p>
                                 </div>
                             ))}
@@ -361,7 +361,7 @@ const CoreComponentsSection: React.FC = () => {
                                 <h2 className="text-2xl font-semibold text-gray-900 mb-1">Heading 2 - 2xl (24px)</h2>
                                 <code className="text-xs text-gray-500">text-2xl font-semibold • Section titles</code>
                             </div>
-                            <div className="border-l-4 border-purple-400 pl-4">
+                            <div className="border-l-4 border-primary pl-4">
                                 <h3 className="text-xl font-semibold text-gray-900 mb-1">Heading 3 - xl (20px)</h3>
                                 <code className="text-xs text-gray-500">text-xl font-semibold • Subsection titles</code>
                             </div>

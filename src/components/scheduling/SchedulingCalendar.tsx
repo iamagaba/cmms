@@ -1,4 +1,4 @@
-import { ArrowLeft, MapPin, Plus } from 'lucide-react';
+import { ArrowLeft, MapPin, Plus, SlidersHorizontal, ChevronRight } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 import {
     format,
@@ -320,7 +320,7 @@ const SchedulingCalendar = () => {
                         className="h-8 text-sm gap-1.5"
                         onClick={() => setShowFilters(!showFilters)}
                     >
-                        <FilterHorizontalIcon className="w-4 h-4" />
+                        <SlidersHorizontal className="w-4 h-4" />
                         Filters
                     </Button>
 

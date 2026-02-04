@@ -81,7 +81,7 @@ const getStatusFromWorkOrder = (workOrder: WorkOrder): 'new' | 'in-progress' | '
   const status = workOrder.status?.toLowerCase().replace(/\s+/g, '-');
   switch (status) {
     case 'new':
-    case 'open':
+    case 'new':
       return 'new';
     case 'in-progress':
     case 'in_progress':
@@ -175,9 +175,11 @@ const ModernWorkOrderDataTable: React.FC<ModernWorkOrderDataTableProps> = ({
             <div className="font-mono font-medium tracking-tight text-sm text-foreground">
               {value || `WO-${record.id.slice(-6).toUpperCase()}`}
             </div>
-            <div className="text-xs text-muted-foreground font-mono">
-              ID: {record.id.slice(-8)}
-            </div>
+            {record.description && (
+              <div className="text-xs text-muted-foreground truncate max-w-[200px]">
+                {record.description}
+              </div>
+            )}
           </div>
         </div>
       ),

@@ -16,6 +16,7 @@ import React from 'react';
 import { BarChart } from '@mui/x-charts/BarChart';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { WorkOrder } from '@/types/supabase';
+import { getWorkOrderNumber } from '@/utils/work-order-display';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -117,7 +118,7 @@ export const ActiveWorkOrderList = ({ workOrders, assetLookup, techLookup }: Act
                                         </div>
                                         <div>
                                             <div className="flex items-center gap-2">
-                                                <span className="font-mono font-bold text-muted-foreground dark:text-neutral-400 text-sm">#{wo.id.slice(0, 6)}</span>
+                                                <span className="font-mono font-bold text-primary text-sm">{getWorkOrderNumber(wo)}</span>
                                                 <span className="font-semibold text-lg text-neutral-900 dark:text-white">{wo.service || wo.description}</span>
                                             </div>
                                             <div className="flex items-center gap-3 text-sm text-muted-foreground dark:text-neutral-400 mt-1">
@@ -181,7 +182,7 @@ export const WeeklyTrendChart = ({ data }: { data: any[] }) => {
                 }]}
                 series={[{
                     dataKey: 'count',
-                    color: '#9333ea',
+                    color: 'hsl(var(--primary))',
                 }]}
                 grid={{ horizontal: true, vertical: false }}
                 margin={{ top: 10, right: 10, bottom: 20, left: 10 }}

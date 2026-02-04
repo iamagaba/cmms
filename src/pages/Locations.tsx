@@ -1,4 +1,4 @@
-import { Check, CheckCircle, Map, MapPin, Search, Settings, User, X, FileText, List, ChevronRight } from 'lucide-react';
+import { Check, CheckCircle, MapPin, Search, Settings, User, X, FileText, List, ChevronRight, ClipboardList, AlertCircle } from 'lucide-react';
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { Stack, Text, Skeleton, SimpleGrid } from '@/components/tailwind-components';
 import PageHeader from '@/components/layout/PageHeader';
@@ -15,8 +15,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import MasterListShell from '@/components/layout/MasterListShell';
 import MasterListRow from '@/components/layout/MasterListRow';
-import MasterListShell from '@/components/layout/MasterListShell';
-import MasterListRow from '@/components/layout/MasterListRow';
 import mapboxgl from 'mapbox-gl';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -28,7 +26,7 @@ mapboxgl.accessToken = import.meta.env.VITE_APP_MAPBOX_API_KEY || '';
 type ViewMode = 'list' | 'map';
 
 const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
-  'Open': { bg: 'bg-muted', text: 'text-muted-foreground' },
+  'New': { bg: 'bg-muted', text: 'text-muted-foreground' },
   'In Progress': { bg: 'bg-muted', text: 'text-muted-foreground' },
   'Completed': { bg: 'bg-muted', text: 'text-foreground' },
   'On Hold': { bg: 'bg-amber-50', text: 'text-amber-700' },
@@ -191,7 +189,7 @@ const LocationsPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex h-screen bg-background">
-        <div className="w-80 border-r border-border flex flex-col">
+        <div className="w-80 border-r border-border flex flex-col bg-muted">
           <div className="px-4 py-4 border-b border-border">
             <Skeleton height={24} width={120} radius="md" className="mb-3" />
             <Skeleton height={36} radius="md" />
@@ -260,7 +258,7 @@ const LocationsPage: React.FC = () => {
                     icon: <ClipboardList className="w-3 h-3" />
                   },
                   ...(stats?.openOrders && stats.openOrders > 0 ? [{
-                    label: 'Open',
+                    label: 'New',
                     value: stats.openOrders,
                     icon: <AlertCircle className="w-3 h-3" />
                   }] : [])
@@ -369,10 +367,10 @@ const LocationsPage: React.FC = () => {
                             <p className="text-sm font-medium text-foreground truncate">{tech.name}</p>
                             <p className="text-xs text-muted-foreground">{tech.email || tech.phone || 'No contact'}</p>
                           </div>
-                          <Badge 
+                          <Badge
                             variant={
                               tech.status === 'available' ? 'success' :
-                              tech.status === 'busy' ? 'warning' : 'secondary'
+                                tech.status === 'busy' ? 'warning' : 'secondary'
                             }
                           >
                             {tech.status || 'offline'}

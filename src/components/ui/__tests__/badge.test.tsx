@@ -51,9 +51,9 @@ describe('Badge Component', () => {
   });
 
   describe('Work Order Status Variants', () => {
-    it('renders open variant', () => {
-      render(<Badge variant="open">Open</Badge>);
-      const badge = screen.getByText('Open');
+    it('renders new variant', () => {
+      render(<Badge variant="open">New</Badge>);
+      const badge = screen.getByText('New');
       expect(badge).toBeInTheDocument();
       expect(badge).toHaveClass('border-blue-200', 'bg-blue-50', 'text-blue-700');
     });
@@ -111,9 +111,9 @@ describe('Badge Component', () => {
   });
 
   describe('StatusBadge Helper Component', () => {
-    it('maps Open status to open variant', () => {
-      render(<StatusBadge status="Open" />);
-      const badge = screen.getByText('Open');
+    it('maps New status to open variant', () => {
+      render(<StatusBadge status="New" />);
+      const badge = screen.getByText('New');
       expect(badge).toBeInTheDocument();
       expect(badge).toHaveClass('border-blue-200', 'bg-blue-50', 'text-blue-700');
     });

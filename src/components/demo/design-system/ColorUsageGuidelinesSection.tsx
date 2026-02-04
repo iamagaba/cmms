@@ -24,7 +24,7 @@ const ColorUsageGuidelinesSection: React.FC = () => {
                     <h3 className="text-sm font-semibold text-amber-900 mb-4">Status Colors</h3>
                     <div className="space-y-3">
                         <div className="flex items-start gap-3 p-3 bg-muted rounded border border-blue-200">
-                            <Badge variant="status-open" className="mt-0.5">Open</Badge>
+                            <Badge variant="status-open" className="mt-0.5">New</Badge>
                             <div className="flex-1">
                                 <p className="text-sm font-medium text-gray-900">Blue (status-open)</p>
                                 <p className="text-xs text-gray-600">New, unstarted, pending, awaiting assignment</p>

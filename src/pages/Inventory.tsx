@@ -311,7 +311,7 @@ const InventoryPage: React.FC = () => {
     return (
       <div className="flex h-screen w-full bg-background overflow-hidden">
         {/* List Column */}
-        <div className="w-80 flex-none border-r border-border bg-card flex flex-col">
+        <div className="w-80 flex-none border-r border-border bg-muted flex flex-col">
           <div className="p-4 border-b border-border">
             <Skeleton className="h-6 mb-2" />
             <Skeleton className="h-4 w-3/4" />
@@ -367,27 +367,26 @@ const InventoryPage: React.FC = () => {
 
 
   return (
-    <div className="flex h-[calc(100vh-2rem)] w-full bg-background overflow-hidden">
+    <div className="flex h-screen w-full bg-background overflow-hidden">
       {/* List Column - Inventory List */}
-      <div className="w-80 flex-none border-r border-border bg-card flex flex-col">
+      <div className="w-80 flex-none border-r border-border bg-muted flex flex-col">
         {/* Header with Stat Ribbon */}
         <div className="border-b border-border">
           {/* Page Header */}
           <div className="px-3 py-2">
-            <PageHeader
-              title="Inventory"
-              subtitle="Manage parts and supplies"
-              icon={<Package className="w-5 h-5 text-muted-foreground" />}
-              actions={
-                <button
-                  onClick={() => { setEditingItem(null); setIsDialogOpen(true); }}
-                  className="inline-flex items-center justify-center w-6 h-6 text-primary-foreground bg-primary hover:bg-primary/90 rounded-md transition-colors"
-                  title="Add Item"
-                >
-                  <Plus className="w-5 h-5" />
-                </button>
-              }
-            />
+            <div className="flex items-center justify-between mb-1">
+              <div>
+                <h2 className="text-lg font-semibold text-foreground">Inventory</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Manage parts and supplies</p>
+              </div>
+              <button
+                onClick={() => { setEditingItem(null); setIsDialogOpen(true); }}
+                className="inline-flex items-center justify-center w-7 h-7 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors"
+                title="Add Item"
+              >
+                <Plus className="w-5 h-5" />
+              </button>
+            </div>
           </div>
 
           {/* Search */}
@@ -578,7 +577,7 @@ const InventoryPage: React.FC = () => {
                 return (
                   <div
                     key={item.id}
-                    className={`group relative list-row cursor-pointer ${isSelected ? 'list-row-active' : ''}`}
+                    className={`group relative cursor-pointer p-3 border-l-2 transition-all hover:bg-slate-50 dark:hover:bg-slate-800 ${isSelected ? 'bg-background border-l-primary shadow-sm' : 'border-l-transparent'}`}
                     onClick={() => handleSelectItem(item)}
                   >
                     <div className="flex items-center justify-between mb-1.5">
@@ -761,8 +760,8 @@ const InventoryPage: React.FC = () => {
                               <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
                                 <div
                                   className={`h-full rounded-full transition-all duration-300 ${isOut ? 'bg-rose-500' :
-                                      isLow ? 'bg-amber-500' :
-                                        'bg-emerald-500'
+                                    isLow ? 'bg-amber-500' :
+                                      'bg-emerald-500'
                                     }`}
                                   style={{ width: `${percentage}%` }}
                                 />
@@ -772,8 +771,8 @@ const InventoryPage: React.FC = () => {
                                   Reorder: {reorderLvl}
                                 </span>
                                 <span className={`font-medium ${isOut ? 'text-rose-600 dark:text-rose-400' :
-                                    isLow ? 'text-amber-600 dark:text-amber-400' :
-                                      'text-emerald-600 dark:text-emerald-400'
+                                  isLow ? 'text-amber-600 dark:text-amber-400' :
+                                    'text-emerald-600 dark:text-emerald-400'
                                   }`}>
                                   {percentage.toFixed(0)}%
                                 </span>

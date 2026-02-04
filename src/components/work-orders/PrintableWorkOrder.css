@@ -1,0 +1,374 @@
+/* PrintableWorkOrder.css - Print-optimized styles for work orders */
+
+.printable-work-order {
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 15mm;
+    background: white;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    font-size: 10pt;
+    line-height: 1.4;
+    color: #000;
+}
+
+/* Header Section */
+.wo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 15px;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #000;
+}
+
+.wo-header-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.company-logo {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+}
+
+.company-logo-placeholder {
+    width: 60px;
+    height: 60px;
+    background: #f0f0f0;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: #666;
+}
+
+.company-name {
+    font-size: 16pt;
+    font-weight: bold;
+    margin: 0;
+}
+
+.wo-header-right {
+    text-align: right;
+}
+
+.wo-title {
+    font-size: 18pt;
+    font-weight: bold;
+    margin: 0 0 5px 0;
+    letter-spacing: 1px;
+}
+
+.wo-number {
+    font-size: 14pt;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.wo-badges {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-bottom: 10px;
+}
+
+.wo-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 9pt;
+    font-weight: 600;
+    border: 1px solid;
+}
+
+.wo-dates {
+    font-size: 9pt;
+    color: #333;
+}
+
+.wo-date-item {
+    margin-bottom: 3px;
+}
+
+.wo-date-item .label {
+    font-weight: 600;
+    margin-right: 5px;
+}
+
+/* Section Grid */
+.wo-section-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+/* Info Boxes */
+.wo-info-box {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.wo-section-title {
+    background: #f5f5f5;
+    padding: 8px 12px;
+    margin: 0;
+    font-size: 10pt;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #ccc;
+}
+
+.wo-info-content {
+    padding: 12px;
+}
+
+.wo-info-row {
+    display: flex;
+    margin-bottom: 6px;
+    font-size: 9pt;
+}
+
+.wo-info-row:last-child {
+    margin-bottom: 0;
+}
+
+.wo-info-row .label {
+    font-weight: 600;
+    min-width: 80px;
+    color: #555;
+}
+
+.wo-info-row .value {
+    flex: 1;
+    color: #000;
+}
+
+/* Sections */
+.wo-section {
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.wo-section-content {
+    padding: 12px;
+}
+
+.wo-description {
+    margin-top: 10px;
+}
+
+.wo-description .label {
+    font-weight: 600;
+    display: block;
+    margin-bottom: 5px;
+    color: #555;
+}
+
+.wo-description .value {
+    margin: 0;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+.wo-notes {
+    margin: 0;
+    line-height: 1.6;
+    white-space: pre-wrap;
+}
+
+/* Tables */
+.wo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9pt;
+}
+
+.wo-table thead {
+    background: #f5f5f5;
+}
+
+.wo-table th {
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: bold;
+    border: 1px solid #ccc;
+    font-size: 9pt;
+}
+
+.wo-table td {
+    padding: 8px 10px;
+    border: 1px solid #ddd;
+}
+
+.wo-table tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+.wo-table .text-right {
+    text-align: right;
+}
+
+/* Cost Summary */
+.wo-cost-summary {
+    margin: 20px 0;
+    margin-left: auto;
+    max-width: 300px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.cost-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    border-bottom: 1px solid #eee;
+    font-size: 10pt;
+}
+
+.cost-row:last-child {
+    border-bottom: none;
+}
+
+.cost-row.total {
+    background: #f5f5f5;
+    font-weight: bold;
+    font-size: 11pt;
+    border-top: 2px solid #000;
+}
+
+.cost-row .label {
+    font-weight: 600;
+}
+
+/* Signatures */
+.wo-signatures {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin: 30px 0 20px 0;
+    page-break-inside: avoid;
+}
+
+.signature-box h4 {
+    font-size: 9pt;
+    font-weight: bold;
+    margin: 0 0 20px 0;
+    text-align: center;
+}
+
+.signature-line {
+    border-bottom: 1px solid #000;
+    margin-bottom: 8px;
+    height: 50px;
+}
+
+.signature-info {
+    font-size: 9pt;
+}
+
+.signature-info div {
+    margin-bottom: 4px;
+}
+
+/* Footer */
+.wo-footer {
+    margin-top: 30px;
+    padding-top: 15px;
+    border-top: 1px solid #ccc;
+    font-size: 8pt;
+    color: #666;
+}
+
+.footer-terms {
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+.footer-contact {
+    text-align: center;
+}
+
+/* Print-specific styles */
+@media print {
+    @page {
+        size: A4;
+        margin: 15mm;
+    }
+
+    .printable-work-order {
+        padding: 0;
+        margin: 0;
+        max-width: 100%;
+    }
+
+    /* Ensure exact colors print */
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Page break control */
+    .avoid-break {
+        page-break-inside: avoid;
+    }
+
+    .page-break {
+        page-break-after: always;
+    }
+
+    /* Hide elements not needed in print */
+    .no-print {
+        display: none !important;
+    }
+
+    /* Optimize table printing */
+    .wo-table {
+        page-break-inside: auto;
+    }
+
+    .wo-table tr {
+        page-break-inside: avoid;
+        page-break-after: auto;
+    }
+
+    .wo-table thead {
+        display: table-header-group;
+    }
+
+    .wo-table tfoot {
+        display: table-footer-group;
+    }
+
+    /* Ensure borders print */
+    .wo-table th,
+    .wo-table td {
+        border: 1px solid #000 !important;
+    }
+
+    /* Signature section always on same page */
+    .wo-signatures {
+        page-break-inside: avoid;
+    }
+
+    /* Footer at bottom */
+    .wo-footer {
+        page-break-inside: avoid;
+    }
+}
+
+/* Screen preview styles */
+@media screen {
+    .printable-work-order {
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin: 20px auto;
+    }
+}

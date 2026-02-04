@@ -10,7 +10,7 @@ interface StatRibbonProps {
         value: string | number;
         subtitle?: string;
         icon: LucideIcon;
-        color: 'primary' | 'emerald' | 'amber' | 'red';
+        color: 'primary' | 'emerald' | 'amber' | 'red' | 'slate' | 'blue';
         onClick?: () => void;
     }>;
 }
@@ -22,6 +22,8 @@ export const StatRibbon: React.FC<StatRibbonProps> = ({ stats }) => {
             case 'emerald': return 'text-success';
             case 'amber': return 'text-warning';
             case 'red': return 'text-destructive';
+            case 'blue': return 'text-blue-500';
+            case 'slate': return 'text-slate-500';
             default: return 'text-muted-foreground';
         }
     };
@@ -35,7 +37,7 @@ export const StatRibbon: React.FC<StatRibbonProps> = ({ stats }) => {
                         <div
                             key={index}
                             className={cn(
-                                'p-4 hover:bg-accent transition-colors group',
+                                'p-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors group',
                                 stat.onClick && 'cursor-pointer'
                             )}
                             onClick={stat.onClick}

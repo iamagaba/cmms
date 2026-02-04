@@ -49,7 +49,7 @@ export function MasterListShell({
   itemCount
 }: MasterListShellProps) {
   return (
-    <div className={cn("w-80 flex-none border-r border-border bg-card flex flex-col", className)}>
+    <div className={cn("w-80 flex-none border-r border-border bg-muted flex flex-col", className)}>
       {/* Header */}
       <div className="p-3 border-b border-border">
         <div className="flex items-center justify-between mb-3">
@@ -60,16 +60,6 @@ export function MasterListShell({
             )}
           </div>
           <div className="flex items-center gap-1">
-            {showFilters && onToggleFilters && (
-              <Button
-                variant={filtersActive ? "secondary" : "ghost"}
-                size="sm"
-                onClick={onToggleFilters}
-                className="w-7 p-0"
-              >
-                <Filter className="w-4 h-4" />
-              </Button>
-            )}
             {onCreateNew && (
               <Button
                 variant="ghost"
@@ -85,18 +75,36 @@ export function MasterListShell({
         </div>
 
         {/* Search */}
-        <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-            <Search className="w-5 h-5 text-muted-foreground" />
+        <div className="px-3 py-2">
+          <div className="relative">
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <Search className="w-5 h-5 text-muted-foreground" />
+            </div>
+            <input
+              type="text"
+              placeholder={searchPlaceholder}
+              className="w-full pl-10 pr-4 py-1.5 text-xs border border-input rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+              value={searchValue}
+              onChange={(e) => onSearchChange(e.target.value)}
+            />
           </div>
-          <Input
-            type="text"
-            placeholder={searchPlaceholder}
-            className="w-full pl-10 pr-4 py-1.5 text-xs"
-            value={searchValue}
-            onChange={(e) => onSearchChange(e.target.value)}
-          />
         </div>
+
+        {/* Actions Row */}
+        {(showFilters && onToggleFilters) && (
+          <div className="px-3 py-2 flex items-center gap-4 overflow-x-auto no-scrollbar">
+            <button
+              onClick={onToggleFilters}
+              className={`inline-flex items-center gap-1.5 px-2 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${filtersActive
+                ? 'bg-primary/10 text-primary border border-primary/20'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted border border-border'
+                }`}
+            >
+              <Filter className="w-5 h-5" />
+              Filters
+            </button>
+          </div>
+        )}
 
         {/* Filters */}
         {showFilters && filterContent && (

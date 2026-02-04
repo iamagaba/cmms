@@ -10,7 +10,7 @@ const CodeSnippetsSection: React.FC = () => {
   return (
     <Card className="border-primary/20 bg-primary/5">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-indigo-900">
+        <CardTitle className="flex items-center gap-2 text-foreground">
           <Package className="w-5 h-5" />
           Quick Copy Templates
         </CardTitle>
@@ -31,7 +31,7 @@ const CodeSnippetsSection: React.FC = () => {
           {/* Form Dialog Template */}
           <TabsContent value="form-dialog" className="space-y-3">
             <div>
-              <h4 className="text-sm font-semibold text-indigo-900 mb-2">Work Order Creation Dialog</h4>
+              <h4 className="text-sm font-semibold text-foreground mb-2">Work Order Creation Dialog</h4>
               <p className="text-xs text-primary mb-3">Complete form dialog with validation-ready structure</p>
             </div>
             <div className="relative">
@@ -95,7 +95,7 @@ const CodeSnippetsSection: React.FC = () => {
           {/* Data Table Template */}
           <TabsContent value="data-table" className="space-y-3">
             <div>
-              <h4 className="text-sm font-semibold text-indigo-900 mb-2">Interactive Data Table</h4>
+              <h4 className="text-sm font-semibold text-foreground mb-2">Interactive Data Table</h4>
               <p className="text-xs text-primary mb-3">Table with selection, actions, and status badges</p>
             </div>
             <div className="relative">
@@ -155,7 +155,7 @@ const CodeSnippetsSection: React.FC = () => {
           {/* Stat Ribbon Template */}
           <TabsContent value="stat-ribbon" className="space-y-3">
             <div>
-              <h4 className="text-sm font-semibold text-indigo-900 mb-2">Dashboard Stat Ribbon</h4>
+              <h4 className="text-sm font-semibold text-foreground mb-2">Dashboard Stat Ribbon</h4>
               <p className="text-xs text-primary mb-3">Horizontal metrics bar with icons and color-coded values</p>
             </div>
             <div className="relative">
@@ -201,7 +201,7 @@ const CodeSnippetsSection: React.FC = () => {
           {/* Status Badge Template */}
           <TabsContent value="status-badge" className="space-y-3">
             <div>
-              <h4 className="text-sm font-semibold text-indigo-900 mb-2">Status & Priority Badges</h4>
+              <h4 className="text-sm font-semibold text-foreground mb-2">Status & Priority Badges</h4>
               <p className="text-xs text-primary mb-3">All available badge variants for work orders</p>
             </div>
             <div className="relative">
@@ -238,7 +238,7 @@ const CodeSnippetsSection: React.FC = () => {
           {/* Action Menu Template */}
           <TabsContent value="action-menu" className="space-y-3">
             <div>
-              <h4 className="text-sm font-semibold text-indigo-900 mb-2">Dropdown Action Menu</h4>
+              <h4 className="text-sm font-semibold text-foreground mb-2">Dropdown Action Menu</h4>
               <p className="text-xs text-primary mb-3">Context menu for row actions and bulk operations</p>
             </div>
             <div className="relative">
@@ -258,11 +258,11 @@ const CodeSnippetsSection: React.FC = () => {
       Edit Details
     </DropdownMenuItem>
     <DropdownMenuItem>
-      <UserIcon className="w-4 h-4 mr-2" />
+      <User className="w-4 h-4 mr-2" />
       Assign Technician
     </DropdownMenuItem>
     <DropdownMenuItem>
-      <RefreshIcon className="w-4 h-4 mr-2" />
+      <RefreshCw className="w-4 h-4 mr-2" />
       Change Status
     </DropdownMenuItem>
     <DropdownMenuSeparator />
@@ -277,10 +277,10 @@ const CodeSnippetsSection: React.FC = () => {
           </TabsContent>
         </Tabs>
 
-        <Alert className="border-indigo-300 bg-primary/10 mt-4">
+        <Alert className="border-primary/30 bg-primary/10 mt-4">
           <Info className="w-4 h-4 text-primary" />
-          <AlertTitle className="text-indigo-900">How to Use These Templates</AlertTitle>
-          <AlertDescription className="text-indigo-800">
+          <AlertTitle className="text-foreground">How to Use These Templates</AlertTitle>
+          <AlertDescription className="text-muted-foreground">
             <ol className="text-xs space-y-1 mt-2 ml-4 list-decimal">
               <li>Copy the code snippet from the tab above</li>
               <li>Paste into your component file</li>

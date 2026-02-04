@@ -55,7 +55,7 @@ export const useWorkOrderFilters = (allWorkOrders: WorkOrder[], technicians: Tec
       case 'status':
       default:
         return [
-          { id: 'Open', title: 'Open' },
+          { id: 'New', title: 'New' },
           { id: 'Confirmation', title: 'Confirmation' },
           { id: 'Ready', title: 'Ready' },
           { id: 'In Progress', title: 'In Progress' },

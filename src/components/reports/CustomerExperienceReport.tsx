@@ -302,8 +302,8 @@ export const CustomerExperienceReport: React.FC<CustomerExperienceReportProps> =
                     <CardContent className="pt-3 pb-3">
                         <div className="flex items-center justify-between mb-1">
                             <span className="text-xs font-medium text-slate-500 uppercase tracking-wider">Unique Customers</span>
-                            <div className="p-1 bg-indigo-50 rounded">
-                                <Users className="w-4 h-4 text-indigo-700" />
+                            <div className="p-1 bg-primary/10 rounded">
+                                <Users className="w-4 h-4 text-primary" />
                             </div>
                         </div>
                         <div className="text-xl font-bold">{stats.uniqueCustomers}</div>

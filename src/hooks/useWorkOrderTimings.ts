@@ -45,9 +45,9 @@ export const useWorkOrderTimings = (workOrder: WorkOrder) => {
         return () => clearInterval(timer);
     }, [workOrder.status]);
 
-    const steps = useMemo(() => ['Open', 'Confirmation', 'Ready', 'In Progress', 'Completed'], []);
+    const steps = useMemo(() => ['New', 'Confirmation', 'Ready', 'In Progress', 'Completed'], []);
 
-    let currentStepIndex = steps.indexOf(workOrder.status || 'Open');
+    let currentStepIndex = steps.indexOf(workOrder.status || 'New');
     if (workOrder.status === 'On Hold') {
         currentStepIndex = steps.indexOf('In Progress');
     }
@@ -62,10 +62,10 @@ export const useWorkOrderTimings = (workOrder: WorkOrder) => {
             timings[step] = { start: null, end: null, activeDurationMs: 0, onHoldDurationMs: 0 };
         });
 
-        let currentStatus: WorkOrder['status'] = 'Open';
+        let currentStatus: WorkOrder['status'] = 'New';
 
         if (createdAt) {
-            timings['Open'].start = dayjs(createdAt);
+            timings['New'].start = dayjs(createdAt);
         }
 
         const sortedActivityLog = [...(workOrder.activityLog || [])].sort((a, b) =>
@@ -78,8 +78,8 @@ export const useWorkOrderTimings = (workOrder: WorkOrder) => {
 
             if (statusChangeMatch) {
                 const newStatus = statusChangeMatch[2] as WorkOrder['status'];
-                const prevKey = (currentStatus || 'Open') as string;
-                const nextKey = (newStatus || 'Open') as string;
+                const prevKey = (currentStatus || 'New') as string;
+                const nextKey = (newStatus || 'New') as string;
 
                 if (currentStatus !== 'On Hold' && timings[prevKey].start && !timings[prevKey].end) {
                     timings[prevKey].end = eventTime;
@@ -99,7 +99,7 @@ export const useWorkOrderTimings = (workOrder: WorkOrder) => {
             timings['In Progress'].start = dayjs(workStartedAt);
         }
 
-        const stageOrder = ['Open', 'Confirmation', 'Ready', 'In Progress', 'Completed'];
+        const stageOrder = ['New', 'Confirmation', 'Ready', 'In Progress', 'Completed'];
 
         if (timings['In Progress'].start && !timings['Ready'].start) {
             const hasReachedInProgress = currentStepIndex >= steps.indexOf('In Progress');
@@ -148,7 +148,7 @@ export const useWorkOrderTimings = (workOrder: WorkOrder) => {
             }
 
             if (timings[currentStage].end && !timings[nextStage].start && i < stageOrder.length - 2) {
-                const currentStepIndex = steps.indexOf(workOrder.status || 'Open');
+                const currentStepIndex = steps.indexOf(workOrder.status || 'New');
                 if (currentStepIndex > i + 1) {
                     timings[nextStage].start = timings[currentStage].end;
                 }
@@ -182,7 +182,7 @@ export const useWorkOrderTimings = (workOrder: WorkOrder) => {
             }
         }
 
-        const currentStepIdx = steps.indexOf(workOrder.status || 'Open');
+        const currentStepIdx = steps.indexOf(workOrder.status || 'New');
         for (let i = 0; i < currentStepIdx; i++) {
             const stage = steps[i];
             if (timings[stage].start && !timings[stage].end) {
@@ -206,11 +206,11 @@ export const useWorkOrderTimings = (workOrder: WorkOrder) => {
 
         const onHoldPeriods: { start: Dayjs; end: Dayjs }[] = [];
         let tempOnHoldStart: Dayjs | null = null;
-        let currentStatusForOnHold: WorkOrder['status'] = 'Open';
+        let currentStatusForOnHold: WorkOrder['status'] = 'New';
 
         const allEventsForOnHold: { time: Dayjs; status: WorkOrder['status'] }[] = [];
         if (workOrder.created_at) {
-            allEventsForOnHold.push({ time: dayjs(workOrder.created_at), status: 'Open' });
+            allEventsForOnHold.push({ time: dayjs(workOrder.created_at), status: 'New' });
         }
         (workOrder.activityLog || []).forEach(log => {
             const statusChangeMatch = log.activity.match(/Status changed from '(.+)' to '(.+)'/);
@@ -270,7 +270,7 @@ export const useWorkOrderTimings = (workOrder: WorkOrder) => {
         const confirmedAt = (workOrder as any).confirmedAt ?? workOrder.confirmed_at;
         const workStartedAt = (workOrder as any).workStartedAt ?? workOrder.work_started_at;
 
-        if (stage === 'Open' && createdAtTS) {
+        if (stage === 'New' && createdAtTS) {
             return dayjs(createdAtTS).format('MMM D, h:mm A');
         }
         if (stage === 'Confirmation' && confirmedAt) {

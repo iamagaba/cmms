@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Maximize2, X, Info, Tag, Clock, MapPin, Bike, Car, Wrench, Calendar, Shield, Gauge, User, Phone } from 'lucide-react';
+import { Maximize2, X, Info, Tag, Clock, MapPin, Bike, Car, Wrench, Calendar, Shield, Gauge, User, Phone, Printer } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { WorkOrder, Technician, Location, Customer, Vehicle, WorkOrderPart, Profile } from '@/types/supabase';
 import { DiagnosticCategoryRow } from '@/types/diagnostic';
+import { getWorkOrderNumber } from '@/utils/work-order-display';
 import { snakeToCamelCase, camelToSnakeCase } from '@/utils/data-helpers';
 import { Skeleton } from '@/components/tailwind-components';
 import dayjs from 'dayjs';
@@ -20,6 +21,7 @@ import { WorkOrderLocationMapCard } from '@/components/work-order-details/WorkOr
 import { WorkOrderRelatedHistoryCard } from '@/components/work-order-details/WorkOrderRelatedHistoryCard';
 import { ConfirmationCallDialog } from './work-order-details/ConfirmationCallDialog';
 import { AssignTechnicianModal } from '@/components/work-order-details/AssignTechnicianModal';
+import { WorkOrderPrintDialog } from '@/components/work-orders/WorkOrderPrintDialog';
 import AssignEmergencyBikeModal from '@/components/work-order-details/AssignEmergencyBikeModal';
 import { useWorkOrderMutations } from '@/hooks/useWorkOrderMutations';
 import { useAddPartToWorkOrder, useRemovePartFromWorkOrder } from '@/hooks/useWorkOrderParts';
@@ -50,6 +52,7 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
   const [isAssignEmergencyOpen, setIsAssignEmergencyOpen] = useState(false);
   const [isMaintenanceCompletionDrawerOpen, setIsMaintenanceCompletionDrawerOpen] = useState(false);
   const [isAddPartDialogOpen, setIsAddPartDialogOpen] = useState(false);
+  const [isPrintDialogOpen, setIsPrintDialogOpen] = useState(false);
 
   // Fetch work order
   const { data: workOrder, isLoading: isLoadingWorkOrder } = useQuery<WorkOrder | null>({
@@ -284,8 +287,8 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
         updates.status = 'Ready';
         updates.confirmed_at = now;
         updates.ready_at = now;
-        // If coming directly from Open, mark entry into confirmation flow as well
-        if (workOrder.status === 'Open') {
+        // If coming directly from New, mark entry into confirmation flow as well
+        if (workOrder.status === 'New') {
           updates.confirmation_status_entered_at = now;
         }
         if (appointmentDate) {
@@ -293,7 +296,7 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
         }
       } else if (outcome === 'unreachable') {
         // Move to 'Confirmation' status if we made contact attempt but failed
-        if (workOrder.status === 'Open') {
+        if (workOrder.status === 'New') {
           updates.status = 'Confirmation';
           updates.confirmation_status_entered_at = now;
         }
@@ -338,7 +341,7 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
       await queryClient.invalidateQueries({ queryKey: ['emergency_bike', bikeId] });
       await queryClient.invalidateQueries({ queryKey: ['company_emergency_bikes'] });
       await queryClient.invalidateQueries({ queryKey: ['active_emergency_bike_assignments'] });
-      
+
       setIsAssignEmergencyOpen(false);
       showSuccess('Emergency bike assigned successfully');
     } catch (error: any) {
@@ -383,7 +386,7 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
   const handleViewFullPage = () => {
     if (workOrderId) {
       // Pass the current work order data in state to ensure smooth transition
-      // and prevent stale "Open" status while fetching freshness
+      // and prevent stale "New" status while fetching freshness
       navigate(`/work-orders/${workOrderId}`, {
         state: { initialWorkOrder: workOrder }
       });
@@ -393,13 +396,13 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex justify-end" onClick={onClose}>
+      <div className="fixed inset-0 z-[100] flex justify-end" onClick={onClose}>
         {/* Backdrop */}
         <div className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
 
         {/* Drawer - width optimized for content density */}
         <div
-          className="relative bg-background shadow-lg h-full flex flex-col animate-in slide-in-from-right duration-300"
+          className="relative bg-background shadow-lg h-full w-[750px] flex flex-col animate-in slide-in-from-right duration-300"
           onClick={e => e.stopPropagation()}
         >
           {/* Header */}
@@ -446,6 +449,15 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
               )}
             </div>
             <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setIsPrintDialogOpen(true)}
+                className="h-7 w-7"
+                title="Print/Export"
+              >
+                <Printer className="w-4 h-4" />
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
@@ -517,12 +529,12 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
                           </p>
                           {activeEmergencyAssignment?.assigned_at && (
                             <p className="text-xs text-muted-foreground">
-                              Assigned {new Date(activeEmergencyAssignment.assigned_at).toLocaleString([], { 
-                                month: 'short', 
-                                day: 'numeric', 
+                              Assigned {new Date(activeEmergencyAssignment.assigned_at).toLocaleString([], {
+                                month: 'short',
+                                day: 'numeric',
                                 year: 'numeric',
-                                hour: '2-digit', 
-                                minute: '2-digit' 
+                                hour: '2-digit',
+                                minute: '2-digit'
                               })}
                             </p>
                           )}
@@ -702,9 +714,32 @@ export const WorkOrderDetailsDrawer: React.FC<WorkOrderDetailsDrawerProps> = ({
             isOpen={isConfirmationCallDialogOpen}
             onClose={() => setIsConfirmationCallDialogOpen(false)}
             onConfirm={handleConfirmationCall}
-            workOrderNumber={workOrder.workOrderNumber || workOrder.id || ''}
+            workOrderNumber={getWorkOrderNumber(workOrder)}
             customerName={customer?.name || workOrder.customerName || ''}
             customerPhone={customer?.phone || workOrder.customerPhone || ''}
+          />
+        )
+      }
+
+      {/* Print Dialog */}
+      {
+        workOrder && (
+          <WorkOrderPrintDialog
+            open={isPrintDialogOpen}
+            onOpenChange={setIsPrintDialogOpen}
+            workOrder={workOrder}
+            customerName={customer?.name || workOrder.customerName}
+            customerPhone={customer?.phone || workOrder.customerPhone}
+            customerEmail={customer?.email || workOrder.customerEmail}
+            customerType={customer?.customerType}
+            vehicleMake={vehicle?.make}
+            vehicleModel={vehicle?.model}
+            vehicleYear={vehicle?.year}
+            vehiclePlate={vehicle?.licensePlate || vehicle?.license_plate}
+            vehicleVin={vehicle?.vin}
+            technicianName={technician?.name}
+            locationName={location?.name}
+            showPricing={true}
           />
         )
       }

@@ -80,7 +80,7 @@ export function BatchOperationsPanel({
   );
 
   const statusOptions: WorkOrder['status'][] = [
-    'Open', 'Confirmation', 'On Hold', 'Ready', 'In Progress', 'Completed'
+    'New', 'Confirmation', 'On Hold', 'Ready', 'In Progress', 'Completed'
   ];
 
   const priorityOptions: WorkOrder['priority'][] = [

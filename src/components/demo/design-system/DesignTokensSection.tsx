@@ -159,7 +159,7 @@ const DesignTokensSection: React.FC = () => {
     return (
         <Card className="border-primary/20 bg-primary/5/30">
             <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-indigo-900">
+                <CardTitle className="flex items-center gap-2 text-foreground">
                     <Palette className="w-5 h-5" />
                     Live Design Tokens
                 </CardTitle>
@@ -180,7 +180,7 @@ const DesignTokensSection: React.FC = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {tokenGroups.map((group) => (
-                            <div key={group.category} className="bg-white/80 p-4 rounded-lg border border-indigo-100 backdrop-blur-sm">
+                            <div key={group.category} className="bg-white/80 p-4 rounded-lg border border-primary/10 backdrop-blur-sm">
                                 <h4 className="text-sm font-bold text-gray-800 mb-3 border-b pb-2">{group.category}</h4>
                                 <div className="space-y-2">
                                     {group.tokens.map(token => (
@@ -202,7 +202,7 @@ const DesignTokensSection: React.FC = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {industrialGroups.map((group) => (
-                            <div key={group.category} className="bg-white/80 p-4 rounded-lg border border-purple-100 backdrop-blur-sm">
+                            <div key={group.category} className="bg-white/80 p-4 rounded-lg border border-primary/10 backdrop-blur-sm">
                                 <h4 className="text-sm font-bold text-gray-800 mb-3 border-b pb-2">{group.category}</h4>
                                 <div className="space-y-2">
                                     {group.tokens.map(token => (
@@ -216,8 +216,8 @@ const DesignTokensSection: React.FC = () => {
 
                 <Alert className="bg-white border-primary/20">
                     <Info className="w-4 h-4 text-primary" />
-                    <AlertTitle className="text-indigo-900">Developer Note</AlertTitle>
-                    <AlertDescription className="text-indigo-800 text-xs">
+                    <AlertTitle className="text-foreground">Developer Note</AlertTitle>
+                    <AlertDescription className="text-muted-foreground text-xs">
                         These values are live-read from <code>document.documentElement</code>.
                         If you see a color here, it is available globally throughout the application.
                         Use standard shadcn variables (<code>--primary</code>) for components and Industrial variables (<code>--industrial-slate-500</code>) for custom workshop features.

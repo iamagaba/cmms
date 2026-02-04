@@ -128,7 +128,7 @@ export const MaintenanceCompletionDrawer: React.FC<MaintenanceCompletionDrawerPr
 
     return (
         <Transition.Root show={isOpen} as={Fragment}>
-            <Dialog as="div" className="relative z-50" onClose={onClose}>
+            <Dialog as="div" className="relative z-[150]" onClose={onClose}>
                 <Transition.Child
                     as={Fragment}
                     enter="ease-in-out duration-500"
@@ -320,7 +320,7 @@ export const MaintenanceCompletionDrawer: React.FC<MaintenanceCompletionDrawerPr
                                                                 <SelectTrigger id="fault-code">
                                                                     <SelectValue placeholder="Select a resolution code" />
                                                                 </SelectTrigger>
-                                                                <SelectContent>
+                                                                <SelectContent className="z-[200]">
                                                                     {FAULT_CODES.map((code) => (
                                                                         <SelectItem key={code.value} value={code.value}>
                                                                             {code.label}

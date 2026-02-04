@@ -1,6 +1,9 @@
 // Re-export from generated types
 export * from './supabase-generated';
 
+// Re-export activity timeline types
+export * from './activity-timeline';
+
 // Custom type aliases for convenience
 export type InventoryItem = {
   id: string;

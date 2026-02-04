@@ -39,7 +39,7 @@ const { data: workOrders, isLoading, error } = useQuery<WorkOrder[]>({
 const createMockWorkOrder = (overrides?: Partial<WorkOrder>): WorkOrder => ({
   id: 'test-id',
   title: 'Test Work Order',
-  status: 'Open',
+  status: 'New',
   ...overrides
 });
 
@@ -126,7 +126,7 @@ export const createTestWorkOrder = (overrides?: Partial<WorkOrder>): WorkOrder =
   id: faker.string.uuid(),
   title: faker.lorem.sentence(),
   description: faker.lorem.paragraph(),
-  status: 'Open',
+  status: 'New',
   priority: 'Medium',
   created_at: faker.date.recent().toISOString(),
   updated_at: faker.date.recent().toISOString(),

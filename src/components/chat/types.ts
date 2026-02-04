@@ -20,7 +20,6 @@ export interface WhatsAppChat {
     lastMessage: string;
     lastMessageTime: Date;
     unreadCount: number;
-    isActive: boolean;
     messages: WhatsAppMessage[];
     priority?: 'urgent' | 'high' | 'normal' | 'low';
     status?: 'active' | 'pending' | 'resolved';

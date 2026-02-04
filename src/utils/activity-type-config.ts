@@ -1,0 +1,114 @@
+/**
+ * Activity Type Configuration
+ * Defines visual styling and metadata for different activity types
+ */
+
+import type { ActivityType, ActivityTypeConfig } from '@/types/activity-timeline';
+
+/**
+ * Configuration for each activity type including icons, colors, and labels
+ */
+export const ACTIVITY_TYPE_CONFIGS: Record<ActivityType, ActivityTypeConfig> = {
+  created: {
+    type: 'created',
+    label: 'Created',
+    icon: 'Plus',
+    color: 'text-blue-600',
+    description: 'Work order was created'
+  },
+  assigned: {
+    type: 'assigned',
+    label: 'Assigned',
+    icon: 'User',
+    color: 'text-green-600',
+    description: 'Technician was assigned to work order'
+  },
+  started: {
+    type: 'started',
+    label: 'Started',
+    icon: 'Play',
+    color: 'text-orange-600',
+    description: 'Work was started on the order'
+  },
+  paused: {
+    type: 'paused',
+    label: 'Paused',
+    icon: 'Pause',
+    color: 'text-yellow-600',
+    description: 'Work was paused or put on hold'
+  },
+  completed: {
+    type: 'completed',
+    label: 'Completed',
+    icon: 'Check',
+    color: 'text-green-600',
+    description: 'Work order was completed'
+  },
+  note_added: {
+    type: 'note_added',
+    label: 'Note Added',
+    icon: 'MessageSquare',
+    color: 'text-gray-600',
+    description: 'A note was added to the work order'
+  },
+  status_changed: {
+    type: 'status_changed',
+    label: 'Status Changed',
+    icon: 'ArrowRight',
+    color: 'text-blue-600',
+    description: 'Work order status was updated'
+  },
+  priority_changed: {
+    type: 'priority_changed',
+    label: 'Priority Changed',
+    icon: 'AlertTriangle',
+    color: 'text-red-600',
+    description: 'Work order priority was updated'
+  }
+};
+
+/**
+ * Get configuration for a specific activity type
+ */
+export function getActivityTypeConfig(type: ActivityType): ActivityTypeConfig {
+  return ACTIVITY_TYPE_CONFIGS[type];
+}
+
+/**
+ * Get all available activity types for filtering
+ */
+export function getAllActivityTypes(): ActivityType[] {
+  return Object.keys(ACTIVITY_TYPE_CONFIGS) as ActivityType[];
+}
+
+/**
+ * Get activity types grouped by category
+ */
+export function getActivityTypesByCategory() {
+  return {
+    lifecycle: ['created', 'assigned', 'started', 'paused', 'completed'] as ActivityType[],
+    updates: ['status_changed', 'priority_changed'] as ActivityType[],
+    communication: ['note_added'] as ActivityType[]
+  };
+}
+
+/**
+ * Format activity type for display
+ */
+export function formatActivityType(type: ActivityType): string {
+  return ACTIVITY_TYPE_CONFIGS[type].label;
+}
+
+/**
+ * Get icon name for activity type (Lucide React)
+ */
+export function getActivityTypeIcon(type: ActivityType): string {
+  return ACTIVITY_TYPE_CONFIGS[type].icon;
+}
+
+/**
+ * Get color class for activity type
+ */
+export function getActivityTypeColor(type: ActivityType): string {
+  return ACTIVITY_TYPE_CONFIGS[type].color;
+}

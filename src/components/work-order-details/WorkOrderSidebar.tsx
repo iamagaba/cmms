@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
 import { WorkOrder } from '@/types/supabase';
 import { DiagnosticCategoryRow } from '@/types/diagnostic';
+import { getWorkOrderNumber } from '@/utils/work-order-display';
 import { useWorkOrderData } from '@/hooks/useWorkOrderData';
 import { supabase } from '@/integrations/supabase/client';
 import dayjs from 'dayjs';
@@ -85,7 +86,7 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
     };
     (allWorkOrders || []).forEach(wo => {
       counts.all++;
-      if (wo.status === 'Open') counts.open++;
+      if (wo.status === 'New') counts.open++;
       else if (wo.status === 'Confirmation') counts.confirmation++;
       else if (wo.status === 'Ready') counts.ready++;
       else if (wo.status === 'In Progress') counts.inProgress++;
@@ -103,7 +104,7 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
 
     // Status styles for distinct badge look
     const statusStyles: Record<string, string> = {
-      'Open': 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+      'New': 'bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-400',
       'Confirmation': 'bg-primary/10 text-primary',
       'Ready': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
       'In Progress': 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
@@ -111,7 +112,7 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
       'On Hold': 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
       'Cancelled': 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
     };
-    const statusClass = statusStyles[workOrder.status || 'Open'] || statusStyles['Open'];
+    const statusClass = statusStyles[workOrder.status || 'New'] || statusStyles['New'];
 
     // Format title with proper capitalization
     const formatTitle = (text: string) => {
@@ -176,7 +177,7 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
 
     // Use work order number as primary identifier
     const licensePlate = vehicle?.license_plate || 'N/A';
-    const woNumber = workOrder.work_order_number || `WO-${workOrder.id.substring(0, 6).toUpperCase()}`;
+    const woNumber = getWorkOrderNumber(workOrder);
 
     return (
       <div
@@ -218,7 +219,7 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
             </span>
           </div>
           <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide uppercase ${statusClass}`}>
-            {workOrder.status || 'Open'}
+            {workOrder.status || 'New'}
           </span>
         </div>
       </div>
@@ -275,7 +276,7 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
         <div className="flex flex-wrap gap-1">
           {[
             { key: 'all', label: 'All', count: statusCounts.all },
-            { key: 'Open', label: 'Open', count: statusCounts.open },
+            { key: 'New', label: 'New', count: statusCounts.open },
             { key: 'Confirmation', label: 'Confirmation', count: statusCounts.confirmation },
             { key: 'Ready', label: 'Ready', count: statusCounts.ready },
             { key: 'In Progress', label: 'In Progress', count: statusCounts.inProgress },

@@ -56,6 +56,8 @@ export const RealtimeDataProvider = ({ children }: { children: ReactNode }) => {
       total_paused_duration_seconds: item.total_paused_duration_seconds,
       emergency_bike_notified_at: item.emergency_bike_notified_at,
       active_emergency_bike_assignment: item.active_emergency_bike_assignment?.length > 0 ? item.active_emergency_bike_assignment[0] : (item.active_emergency_bike_assignment || null),
+      // Include vehicle relationship if present
+      vehicle: item.vehicles || item.vehicle || null,
     };
 
     // Calculate is_emergency_bike_eligible on the frontend
@@ -85,7 +87,10 @@ export const RealtimeDataProvider = ({ children }: { children: ReactNode }) => {
 
       const { data: woData, error: woError } = await supabase
         .from('work_orders')
-        .select('*');
+        .select(`
+          *,
+          vehicles(license_plate, make, model)
+        `);
 
       if (woError) {
         console.warn('Could not load work orders:', woError.message);
@@ -102,6 +107,7 @@ export const RealtimeDataProvider = ({ children }: { children: ReactNode }) => {
               .from('work_orders')
               .select(`
                   *,
+                  vehicles(license_plate, make, model),
                   service_categories(*)
                 `);
 
@@ -169,6 +175,7 @@ export const RealtimeDataProvider = ({ children }: { children: ReactNode }) => {
               supabase.from('work_orders')
                 .select(`
                   *,
+                  vehicles(license_plate, make, model),
                   service_categories(*)
                 `)
                 .eq('id', payload.new.id)
@@ -184,6 +191,7 @@ export const RealtimeDataProvider = ({ children }: { children: ReactNode }) => {
               supabase.from('work_orders')
                 .select(`
                   *,
+                  vehicles(license_plate, make, model),
                   service_categories(*)
                 `)
                 .eq('id', payload.new.id)

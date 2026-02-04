@@ -1,4 +1,4 @@
-import { AlertCircle, CheckCircle, Clock, Plus, RefreshCw, Clipboard, Folder, Home } from 'lucide-react';
+import { AlertCircle, Clock, Plus, RefreshCw, Clipboard, Folder, Home, Target } from 'lucide-react';
 import PageHeader from '@/components/layout/PageHeader';
 /**
  * Professional CMMS Dashboard
@@ -18,6 +18,8 @@ import dayjs from "dayjs";
 import isBetween from 'dayjs/plugin/isBetween';
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useRealtimeData } from "@/context/RealtimeDataContext";
+import { useSystemSettings } from "@/context/SystemSettingsContext";
+import { calculateSLACompliance } from "@/utils/slaCalculations";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -76,6 +78,7 @@ const ProfessionalCMMSDashboard = () => {
   const [selectedLocation] = useState<string>('all');
   const [trendRange, setTrendRange] = useState<7 | 14>(7);
   const [onHoldWorkOrder, setOnHoldWorkOrder] = useState<WorkOrder | null>(null);
+  const { settings } = useSystemSettings();
 
 
   // Data queries
@@ -139,13 +142,13 @@ const ProfessionalCMMSDashboard = () => {
 
     const totalOrders = realtimeWorkOrders.length;
     const openOrders = realtimeWorkOrders.filter((wo: WorkOrder) =>
-      wo.status === 'Open' || wo.status === 'In Progress'
+      wo.status === 'New' || wo.status === 'In Progress'
     ).length;
     const completedToday = realtimeWorkOrders.filter((wo: WorkOrder) =>
       wo.status === 'Completed' && dayjs(wo.updated_at).isAfter(today)
     ).length;
     const overdueOrders = realtimeWorkOrders.filter((wo: WorkOrder) =>
-      wo.dueDate && dayjs(wo.dueDate).isBefore(now) && wo.status !== 'Completed'
+      wo.sla_due && dayjs(wo.sla_due).isBefore(now) && wo.status !== 'Completed'
     ).length;
 
     // Calculate average completion time
@@ -189,15 +192,25 @@ const ProfessionalCMMSDashboard = () => {
       weeklyTrend = 100;
     }
 
+    // Calculate SLA compliance
+    const slaConfig = typeof settings?.sla_config === 'string'
+      ? JSON.parse(settings.sla_config)
+      : settings?.sla_config || null;
+
+    const slaCompliance = calculateSLACompliance(realtimeWorkOrders, slaConfig);
+
     return {
       totalOrders,
       openOrders,
       completedToday,
       overdueOrders,
       avgCompletionTime,
-      weeklyTrend
+      weeklyTrend,
+      slaCompliancePercent: slaCompliance.compliancePercent || 0,
+      slaCompletedWithin: slaCompliance.completedWithinSLA || 0,
+      slaCompletedTotal: slaCompliance.totalCompleted || 0,
     };
-  }, [realtimeWorkOrders]);
+  }, [realtimeWorkOrders, settings]);
 
   // Generate trend data for the last 7 days with status breakdown
   const trendData = useMemo(() => {
@@ -232,7 +245,7 @@ const ProfessionalCMMSDashboard = () => {
       };
 
       dayWorkOrders.forEach((wo: WorkOrder) => {
-        const status = (wo.status || 'Open').toLowerCase().replace(' ', '_');
+        const status = (wo.status || 'New').toLowerCase().replace(' ', '_');
         if (status in statusCounts) {
           statusCounts[status as keyof typeof statusCounts]++;
         } else {
@@ -257,7 +270,7 @@ const ProfessionalCMMSDashboard = () => {
     if (!realtimeWorkOrders) return [];
     return selectedLocation === 'all'
       ? realtimeWorkOrders
-      : realtimeWorkOrders.filter((wo: WorkOrder) => wo.locationId === selectedLocation);
+      : realtimeWorkOrders.filter((wo: WorkOrder) => wo.location_id === selectedLocation);
   }, [realtimeWorkOrders, selectedLocation]);
 
 
@@ -317,17 +330,11 @@ const ProfessionalCMMSDashboard = () => {
                 onClick: () => navigate('/work-orders')
               },
               {
-                title: "Open",
+                title: "New",
                 value: metrics.openOrders,
                 icon: Folder,
-                color: "amber",
-                onClick: () => navigate('/work-orders?status=open')
-              },
-              {
-                title: "Completed Today",
-                value: metrics.completedToday,
-                icon: CheckCircle,
-                color: "emerald"
+                color: "slate",
+                onClick: () => navigate('/work-orders?status=new')
               },
               {
                 title: "Avg Completion",
@@ -341,6 +348,13 @@ const ProfessionalCMMSDashboard = () => {
                 icon: AlertCircle,
                 color: "red",
                 onClick: () => navigate('/work-orders?status=overdue')
+              },
+              {
+                title: "SLA Compliance",
+                value: `${metrics.slaCompliancePercent.toFixed(0)}%`,
+                subtitle: `${metrics.slaCompletedWithin}/${metrics.slaCompletedTotal} completed on time`,
+                icon: Target,
+                color: metrics.slaCompliancePercent >= 90 ? "emerald" : metrics.slaCompliancePercent >= 70 ? "amber" : "red"
               }
             ]}
           />

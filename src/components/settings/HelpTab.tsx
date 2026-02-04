@@ -1,4 +1,4 @@
-import { AlertCircle, Check, Info } from 'lucide-react';
+import { AlertCircle, Check, Info, Lightbulb, ChevronRight, List } from 'lucide-react';
 import React, { useState } from 'react';
 
 
@@ -23,7 +23,7 @@ const articles = [
 
                 <div className="bg-muted dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-800 mt-4">
                     <h4 className="font-semibold text-blue-900 dark:text-blue-100 flex items-center gap-2 mb-2">
-                        <Idea01Icon className="w-5 h-5" />
+                        <Lightbulb className="w-5 h-5" />
                         Why use it?
                     </h4>
                     <ul className="list-disc list-inside space-y-2 text-sm text-blue-800 dark:text-blue-200">

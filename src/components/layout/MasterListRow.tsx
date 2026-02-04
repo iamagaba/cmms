@@ -48,8 +48,8 @@ export function MasterListRow({
   return (
     <div
       className={cn(
-        "p-3 border-b border-border last:border-b-0 hover:bg-accent/50 transition-all duration-200 cursor-pointer group",
-        isSelected && "bg-accent border-primary/20 shadow-sm",
+        "p-3 border-b border-border last:border-b-0 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200 cursor-pointer group",
+        isSelected && "bg-background border-l-2 border-l-primary shadow-sm",
         className
       )}
       onClick={onClick}

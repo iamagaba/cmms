@@ -116,8 +116,8 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
           disabled={item.disabled}
           className={cn(
             'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-left transition-all duration-200',
-            'hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1',
-            isActive && 'bg-accent text-primary font-medium',
+            'hover:bg-slate-50 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-1',
+            isActive && 'bg-teal-50 dark:bg-teal-900/20 text-primary font-medium border-l-2 border-l-primary',
             !isActive && 'text-foreground hover:text-foreground',
             item.disabled && 'opacity-50 cursor-not-allowed',
             level > 0 && 'ml-6 text-sm',
@@ -196,7 +196,7 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
         {collapsible && (
           <button
             onClick={toggleCollapse}
-            className="p-2 hover:bg-accent rounded-lg transition-colors"
+            className="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
             aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             <Icon
@@ -284,8 +284,8 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
           disabled={item.disabled}
           className={cn(
             'w-full flex items-center gap-4 px-4 py-3 text-left transition-colors min-h-[48px]',
-            'hover:bg-accent focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset',
-            isActive && 'bg-accent text-primary font-medium',
+            'hover:bg-slate-50 dark:hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-inset',
+            isActive && 'bg-teal-50 dark:bg-teal-900/20 text-primary font-medium border-l-2 border-l-primary',
             !isActive && 'text-foreground',
             item.disabled && 'opacity-50 cursor-not-allowed',
             level > 0 && 'ml-8 text-sm'
@@ -360,7 +360,7 @@ const MobileDrawer: React.FC<MobileDrawerProps> = ({
               {logo && <div className="flex-1">{logo}</div>}
               <button
                 onClick={onClose}
-                className="p-2 hover:bg-accent rounded-lg transition-colors"
+                className="p-2 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-lg transition-colors"
                 aria-label="Close navigation"
               >
                 <X className="w-6 h-6 text-muted-foreground" />

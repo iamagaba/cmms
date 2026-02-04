@@ -18,6 +18,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { Vehicle, Customer, WorkOrder } from '@/types/supabase';
+import { getWorkOrderNumber } from '@/utils/work-order-display';
 import { snakeToCamelCase, camelToSnakeCase } from '@/utils/data-helpers';
 import { AssetFormDialog } from '@/components/AssetFormDialog';
 import { showSuccess, showError } from '@/utils/toast';
@@ -108,7 +109,7 @@ const AssetDetails = () => {
 
   const recentWorkOrders = workOrders?.slice(0, 5) || [];
   const totalWorkOrders = workOrders?.length || 0;
-  const openWorkOrders = workOrders?.filter(wo => wo.status === 'Open' || wo.status === 'In Progress').length || 0;
+  const openWorkOrders = workOrders?.filter(wo => wo.status === 'New' || wo.status === 'In Progress').length || 0;
 
   const pageActions = (
     <div className="flex items-center gap-2">
@@ -422,7 +423,7 @@ const AssetDetails = () => {
                       >
                         <td className="py-5 px-5">
                           <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors font-mono">
-                            {wo.workOrderNumber || `WO-${wo.id.substring(0, 8).toUpperCase()}`}
+                            {getWorkOrderNumber(wo)}
                           </span>
                         </td>
                         <td className="py-5 px-3">
@@ -438,13 +439,13 @@ const AssetDetails = () => {
                               wo.status === 'On Hold' ? 'secondary' :
                               wo.status === 'Ready' ? 'info' :
                               wo.status === 'Confirmation' ? 'default' :
-                              wo.status === 'Open' ? 'info' : 'secondary'
+                              wo.status === 'New' ? 'info' : 'secondary'
                             }
                             className="gap-1.5"
                           >
                             {wo.status === 'Completed' && <CheckCircle className="w-4 h-4" />}
-                            {(wo.status === 'Open' || wo.status === 'In Progress') && <Clock className="w-4 h-4" />}
-                            {wo.status || 'Open'}
+                            {(wo.status === 'New' || wo.status === 'In Progress') && <Clock className="w-4 h-4" />}
+                            {wo.status || 'New'}
                           </Badge>
                         </td>
                         <td className="py-5 px-3">

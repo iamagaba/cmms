@@ -20,7 +20,7 @@ export const RecentWorkOrders: React.FC<RecentWorkOrdersProps> = ({
     error,
   } = useWorkOrders(
     {
-      status: ['Open', 'In Progress', 'Ready'],
+      status: ['New', 'In Progress', 'Ready'],
     },
     {
       field: 'appointmentDate',

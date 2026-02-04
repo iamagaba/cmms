@@ -127,7 +127,7 @@ import { Badge } from '@/components/ui/badge';
 import { StatusBadge, PriorityBadge } from '@/components/ui/badge';
 
 // Automatically maps status strings to correct variants
-<StatusBadge status="Open" />
+<StatusBadge status="New" />
 <StatusBadge status="In Progress" />
 <StatusBadge status="Completed" />
 

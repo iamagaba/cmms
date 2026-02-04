@@ -26,7 +26,7 @@ export function EnhancedWorkOrderCard({ order, onAction }: EnhancedWorkOrderCard
   // Smart contextual actions based on status
   const getContextualActions = () => {
     switch (order.status) {
-      case 'Open':
+      case 'New':
         return [
           { 
             id: 'start', 
@@ -114,7 +114,7 @@ export function EnhancedWorkOrderCard({ order, onAction }: EnhancedWorkOrderCard
           </div>
           
           {/* Status Chip */}
-          <StatusChip kind="status" value={order.status || 'Open'} />
+          <StatusChip kind="status" value={order.status || 'New'} />
         </div>
 
         {/* Secondary Info - Contextual */}

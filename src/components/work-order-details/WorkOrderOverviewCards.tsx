@@ -83,7 +83,7 @@ export const WorkOrderOverviewCards: React.FC<WorkOrderOverviewCardsProps> = ({
         <div className="flex items-center gap-4 pr-6 border-r border-border">
           {/* LICENSE PLATE */}
           <div>
-            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">Plate</div>
+            <div className="text-xs font-medium text-muted-foreground mb-0.5">Plate</div>
             <div className="text-xs font-medium text-foreground">
               {vehicle?.license_plate || vehicle?.licensePlate || '—'}
             </div>
@@ -91,7 +91,7 @@ export const WorkOrderOverviewCards: React.FC<WorkOrderOverviewCardsProps> = ({
 
           {/* MODEL */}
           <div>
-            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">Model</div>
+            <div className="text-xs font-medium text-muted-foreground mb-0.5">Model</div>
             <div className="text-xs font-medium text-foreground">
               {vehicle ? `${vehicle.make || ''} ${vehicle.model || ''}`.trim() || '—' : '—'}
             </div>
@@ -99,7 +99,7 @@ export const WorkOrderOverviewCards: React.FC<WorkOrderOverviewCardsProps> = ({
 
           {/* AGE */}
           <div>
-            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">Age</div>
+            <div className="text-xs font-medium text-muted-foreground mb-0.5">Age</div>
             <div className="text-xs font-medium text-foreground">
               {assetAge || '—'}
             </div>
@@ -110,7 +110,7 @@ export const WorkOrderOverviewCards: React.FC<WorkOrderOverviewCardsProps> = ({
         <div className="flex items-center gap-4 pl-2 pr-6 border-r border-border">
           {/* WARRANTY */}
           <div>
-            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">Warranty</div>
+            <div className="text-xs font-medium text-muted-foreground mb-0.5">Warranty</div>
             <div className={`text-xs font-medium ${warrantyInfo ? warrantyInfo.color : 'text-foreground'}`}>
               {warrantyInfo ? warrantyInfo.label : '—'}
             </div>
@@ -118,7 +118,7 @@ export const WorkOrderOverviewCards: React.FC<WorkOrderOverviewCardsProps> = ({
 
           {/* MILEAGE */}
           <div>
-            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">Mileage</div>
+            <div className="text-xs font-medium text-muted-foreground mb-0.5">Mileage</div>
             <div className="text-xs font-medium text-foreground">
               {(() => {
                 const mileage = vehicle?.mileage ?? (workOrder as any)?.mileage ?? (workOrder as any)?.odometer ?? (workOrder as any)?.odometer_reading;
@@ -132,7 +132,7 @@ export const WorkOrderOverviewCards: React.FC<WorkOrderOverviewCardsProps> = ({
         <div className="flex items-center gap-4 pl-2">
           {/* CUSTOMER */}
           <div>
-            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">Customer</div>
+            <div className="text-xs font-medium text-muted-foreground mb-0.5">Customer</div>
             <div className="text-xs font-medium text-foreground truncate max-w-[200px]">
               {customer?.name || workOrder.customerName || '—'}
             </div>
@@ -140,9 +140,29 @@ export const WorkOrderOverviewCards: React.FC<WorkOrderOverviewCardsProps> = ({
 
           {/* PHONE */}
           <div>
-            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">Phone</div>
+            <div className="text-xs font-medium text-muted-foreground mb-0.5">Phone</div>
             <div className="text-xs font-medium text-foreground">
               {customer?.phone || workOrder.customerPhone || '—'}
+            </div>
+          </div>
+        </div>
+
+
+        {/* Operations Group */}
+        <div className="flex items-center gap-4 pl-2 border-l border-border">
+          {/* LOCATION */}
+          <div>
+            <div className="text-xs font-medium text-muted-foreground mb-0.5 whitespace-nowrap">Location</div>
+            <div className="text-xs font-medium text-foreground truncate max-w-[150px]">
+              {location?.name || '—'}
+            </div>
+          </div>
+
+          {/* TECHNICIAN */}
+          <div>
+            <div className="text-xs font-medium text-muted-foreground mb-0.5 whitespace-nowrap">Technician</div>
+            <div className="text-xs font-medium text-foreground truncate max-w-[150px]">
+              {technician?.name || <span className="text-muted-foreground italic">Unassigned</span>}
             </div>
           </div>
         </div>

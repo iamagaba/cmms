@@ -164,7 +164,7 @@ const ActivityItem: React.FC<ActivityItemProps> = ({ activity, onClick, index })
       transition={{ duration: 0.2, delay: index * 0.03 }}
       className={cn(
         'group flex items-start gap-3 px-6 py-3 transition-colors duration-150',
-        'hover:bg-accent',
+        'hover:bg-slate-50 dark:hover:bg-slate-800',
         isClickable && 'cursor-pointer'
       )}
       onClick={isClickable ? () => onClick(activity) : undefined}
@@ -174,9 +174,9 @@ const ActivityItem: React.FC<ActivityItemProps> = ({ activity, onClick, index })
         'flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center',
         config.bgColor
       )}>
-        <Icon 
-          icon={activity.icon || config.defaultIcon} 
-          className={cn('w-5 h-5', activity.color || config.defaultColor)} 
+        <Icon
+          icon={activity.icon || config.defaultIcon}
+          className={cn('w-5 h-5', activity.color || config.defaultColor)}
         />
       </div>
 
@@ -192,11 +192,11 @@ const ActivityItem: React.FC<ActivityItemProps> = ({ activity, onClick, index })
           {dayjs(activity.timestamp).fromNow()}
         </p>
       </div>
-      
+
       {isClickable && (
-        <Icon 
-          icon="tabler:chevron-right" 
-          className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-1" 
+        <Icon
+          icon="tabler:chevron-right"
+          className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0 mt-1"
         />
       )}
     </motion.div>
@@ -236,17 +236,17 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
   loading = false
 }) => {
   const [filter, setFilter] = useState<'all' | 'alerts' | 'completed'>('all');
-  
+
   const displayActivities = useMemo(() => {
     const data = activities || mockActivities;
-    
+
     let filtered = data;
     if (filter === 'alerts') {
       filtered = data.filter(a => a.type === 'asset_alert');
     } else if (filter === 'completed') {
       filtered = data.filter(a => a.type === 'work_order_completed');
     }
-    
+
     return filtered.slice(0, maxItems);
   }, [activities, filter, maxItems]);
 
@@ -274,7 +274,7 @@ const ActivityFeed: React.FC<ActivityFeedProps> = ({
           </button>
         ))}
       </div>
-      
+
       {/* Activity List */}
       <div className="divide-y divide-border">
         {loading ? (

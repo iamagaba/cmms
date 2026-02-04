@@ -1,11 +1,11 @@
-import { Building2, Calendar, Clock, Info, Pause, Tag, User, ChevronRight, Flag } from 'lucide-react';
+import { Info, Pause, ChevronRight, Flag } from 'lucide-react';
 import React from 'react';
+import { WorkOrderSLAStatus } from './WorkOrderSLAStatus';
 
 
 import { WorkOrder, Location } from '@/types/supabase';
 import { DiagnosticCategoryRow } from '@/types/diagnostic';
 import { UgandaLicensePlate } from '@/components/ui/UgandaLicensePlate';
-import { Badge } from '@/components/ui/badge';
 import dayjs from 'dayjs';
 
 interface WorkOrderDetailsInfoCardProps {
@@ -18,11 +18,11 @@ interface WorkOrderDetailsInfoCardProps {
   emergencyAssignment?: any | null;
 }
 
-const PRIORITY_CONFIG: Record<string, { color: string; bg: string }> = {
-  'Critical': { color: 'text-destructive', bg: 'bg-destructive/10' },
-  'High': { color: 'text-amber-700', bg: 'bg-amber-50' },
-  'Medium': { color: 'text-amber-700', bg: 'bg-amber-50' },
-  'Low': { color: 'text-foreground', bg: 'bg-muted' },
+const PRIORITY_CONFIG: Record<string, { color: string; bg: string; border: string }> = {
+  'Critical': { color: 'text-destructive', bg: 'bg-destructive/10', border: 'border-destructive/20' },
+  'High': { color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-200' },
+  'Medium': { color: 'text-amber-700', bg: 'bg-amber-50', border: 'border-amber-200' },
+  'Low': { color: 'text-foreground', bg: 'bg-muted', border: 'border-border' },
 };
 
 export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> = ({
@@ -63,11 +63,17 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
           </h2>
         </div>
 
-        {/* Priority Badge */}
-        <span className={`flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-medium ${priorityConfig.bg} ${priorityConfig.color}`}>
-          <Flag className="w-4 h-4" />
-          {workOrder.priority ? workOrder.priority.charAt(0).toUpperCase() + workOrder.priority.slice(1).toLowerCase() : 'Medium'}
-        </span>
+        <div className="flex items-center gap-2">
+          {/* SLA Status Badge */}
+          <WorkOrderSLAStatus workOrder={workOrder} variant="compact" />
+
+          {/* Priority Badge */}
+          {/* Priority Badge */}
+          <span className={`flex-shrink-0 inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-medium ${priorityConfig.bg} ${priorityConfig.color} ${priorityConfig.border}`}>
+            <Flag className="w-3.5 h-3.5" />
+            {workOrder.priority ? workOrder.priority.charAt(0).toUpperCase() + workOrder.priority.slice(1).toLowerCase() : 'Medium'}
+          </span>
+        </div>
       </div>
 
       {/* Emergency Bike Alert */}
@@ -165,67 +171,7 @@ export const WorkOrderDetailsInfoCard: React.FC<WorkOrderDetailsInfoCardProps> =
 
 
 
-      {/* Compact Metadata Footer */}
-      <div className="px-3 py-2 bg-muted mt-auto">
-        <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-          {/* Created */}
-          {workOrder.created_at && (
-            <div className="flex items-center gap-1">
-              <Calendar className="w-5 h-5 text-muted-foreground" />
-              <span>{dayjs(workOrder.created_at).format('MMM D, h:mm A')}</span>
-            </div>
-          )}
 
-          {/* SLA Due */}
-          {workOrder.slaDue && (
-            <div className="flex items-center gap-1">
-              <Clock className="w-5 h-5 text-muted-foreground" />
-              <span className={`${dayjs(workOrder.slaDue).isBefore(dayjs()) ? 'text-destructive font-medium' : ''}`}>
-                Due {dayjs(workOrder.slaDue).format('MMM D, h:mm A')}
-              </span>
-            </div>
-          )}
-
-          {/* Location Chip */}
-          {location?.name && (
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-primary/5 text-primary border border-primary/20">
-              <Building2 className="w-5 h-5" />
-              {location.name}
-            </span>
-          )}
-
-          {/* Technician Chip - Closer to location */}
-          {(() => {
-            const technician = technicians?.find(t => t.id === workOrder.assignedTechnicianId);
-            if (technician) {
-              return (
-                <Badge variant="success" className="inline-flex items-center gap-1">
-                  <User className="w-5 h-5" />
-                  {technician.name}
-                </Badge>
-              );
-            } else if (workOrder.status === 'Ready' && onAssignClick) {
-              return (
-                <Badge 
-                  variant="info" 
-                  className="inline-flex items-center gap-1 cursor-pointer hover:bg-muted transition-colors"
-                  onClick={onAssignClick}
-                >
-                  <User className="w-5 h-5" />
-                  + Assign
-                </Badge>
-              );
-            } else {
-              return (
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground border border-border">
-                  <User className="w-5 h-5" />
-                  Unassigned
-                </span>
-              );
-            }
-          })()}
-        </div>
-      </div>
 
       {/* On Hold Reason (if applicable) */}
       {

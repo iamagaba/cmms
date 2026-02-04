@@ -5,7 +5,7 @@ export * from '../../src/types/supabase';
 export interface MobileWorkOrder {
   id: string;
   workOrderNumber: string;
-  status: 'Open' | 'In Progress' | 'Completed' | 'Cancelled' | 'On Hold';
+  status: 'New' | 'In Progress' | 'Completed' | 'Cancelled' | 'On Hold';
   priority: 'Low' | 'Medium' | 'High' | 'Emergency';
   mobileStatus: 'assigned' | 'traveling' | 'on_site' | 'in_progress' | 'completed';
   customerId: string;

@@ -57,10 +57,10 @@ const COLOR_CLASSES = {
     border: 'border-blue-200 dark:border-blue-800',
   },
   purple: {
-    bg: 'bg-purple-100 dark:bg-purple-900/30',
-    text: 'text-purple-600 dark:text-purple-400',
-    hover: 'hover:bg-purple-50 dark:hover:bg-purple-900/20',
-    border: 'border-purple-200 dark:border-purple-800',
+    bg: 'bg-primary/10',
+    text: 'text-primary',
+    hover: 'hover:bg-primary/20',
+    border: 'border-primary/20',
   },
   red: {
     bg: 'bg-red-100 dark:bg-red-900/30',

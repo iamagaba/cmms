@@ -6,6 +6,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { supabase } from '@/integrations/supabase/client';
 import { WorkOrder, Customer, Vehicle, Technician, Location, WorkOrderPart, EmergencyBikeAssignment } from '@/types/supabase';
+import { getWorkOrderNumber } from '@/utils/work-order-display';
 import { useWorkOrderData } from '@/hooks/useWorkOrderData';
 import { snakeToCamelCase } from '@/utils/data-helpers';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -20,6 +21,8 @@ import { WorkOrderCustomerVehicleCard } from '@/components/work-order-details/Wo
 import { WorkOrderDetailsInfoCard } from '@/components/work-order-details/WorkOrderDetailsInfoCard';
 import { WorkOrderServiceLifecycleCard } from '@/components/work-order-details/WorkOrderServiceLifecycleCard';
 import { WorkOrderActivityLogCard } from '@/components/work-order-details/WorkOrderActivityLogCard';
+import { TimelineContainer } from '@/components/timeline/TimelineContainer';
+import { TimelineDemo } from '@/components/timeline/TimelineDemo';
 import WorkOrderStepper from '@/components/WorkOrderStepper/WorkOrderStepper';
 import { Skeleton } from '@/components/tailwind-components';
 import { WorkOrderNotesCard } from '@/components/work-order-details/WorkOrderNotesCard';
@@ -455,7 +458,7 @@ const WorkOrderDetailsEnhanced: React.FC<WorkOrderDetailsProps> = ({
 
     return (
       <div className="flex items-center gap-2">
-        {status === 'Open' && (
+        {status === 'New' && (
           <Button
             size="sm"
             onClick={() => setIsConfirmationCallDialogOpen(true)}
@@ -532,7 +535,7 @@ const WorkOrderDetailsEnhanced: React.FC<WorkOrderDetailsProps> = ({
           </Button>
         )}
 
-        {(status === 'Open' || status === 'Confirmation' || status === 'Ready') && (
+        {(status === 'New' || status === 'Confirmation' || status === 'Ready') && (
           <Button
             size="sm"
             variant="destructive"
@@ -680,6 +683,11 @@ const WorkOrderDetailsEnhanced: React.FC<WorkOrderDetailsProps> = ({
               </TabsContent>
 
               <TabsContent value="details" className="p-4 space-y-4">
+                {/* Enhanced Activity Timeline - Primary Feature */}
+                <TimelineDemo 
+                  workOrderId={id!}
+                />
+                
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <WorkOrderActivityLogCard
                     workOrder={workOrder}
@@ -745,7 +753,7 @@ const WorkOrderDetailsEnhanced: React.FC<WorkOrderDetailsProps> = ({
         isOpen={isConfirmationCallDialogOpen}
         onClose={() => setIsConfirmationCallDialogOpen(false)}
         onConfirm={handleConfirmationCall}
-        workOrderNumber={workOrder.workOrderNumber || workOrder.id}
+        workOrderNumber={getWorkOrderNumber(workOrder)}
         customerName={customer?.name || workOrder.customerName}
         customerPhone={customer?.phone || workOrder.customerPhone}
         isSubmitting={updateWorkOrderMutation.isPending}

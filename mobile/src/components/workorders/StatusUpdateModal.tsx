@@ -22,7 +22,7 @@ interface StatusUpdateModalProps {
 }
 
 const statusOptions = [
-  {value: 'Open', label: 'Open', description: 'Work order is ready to be started'},
+  {value: 'New', label: 'New', description: 'Work order is ready to be started'},
   {value: 'In Progress', label: 'In Progress', description: 'Currently working on this order'},
   {value: 'On Hold', label: 'On Hold', description: 'Temporarily paused'},
   {value: 'Completed', label: 'Completed', description: 'Work has been finished'},
@@ -46,9 +46,9 @@ export const StatusUpdateModal: React.FC<StatusUpdateModalProps> = ({
     
     // Define valid status transitions
     const validTransitions: Record<string, string[]> = {
-      'Open': ['In Progress', 'On Hold'],
+      'New': ['In Progress', 'On Hold'],
       'In Progress': ['Completed', 'On Hold'],
-      'On Hold': ['Open', 'In Progress'],
+      'On Hold': ['New', 'In Progress'],
       'Completed': [], // Completed orders cannot be changed
     };
 
@@ -101,7 +101,7 @@ export const StatusUpdateModal: React.FC<StatusUpdateModalProps> = ({
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'Open':
+      case 'New':
         return 'assignment';
       case 'In Progress':
         return 'build';
@@ -116,7 +116,7 @@ export const StatusUpdateModal: React.FC<StatusUpdateModalProps> = ({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Open':
+      case 'New':
         return '#2196f3';
       case 'In Progress':
         return '#ff9800';

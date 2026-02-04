@@ -4,87 +4,118 @@
 
 @layer base {
   :root {
-    /* Zinc base colors (warm neutral grays) */
-    --background: 210 20% 98%; /* Slate-50 tint */
-    --foreground: 222 47% 11%; /* Slate-900 */
+    /* BASE WHITES & GRAYS */
+    --background: 0 0% 100%;
+    /* Pure White */
+    --foreground: 222 47% 11%;
+    /* Deep Navy Text #0F172A */
 
+    /* CARDS & POPOVERS */
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover-foreground: 222 47% 11%;
 
-    /* Purple primary color (Muted Industrial) */
-    --primary: 262 40% 48%; /* Muted Violet */
+    /* PRIMARY BRAND: Electric Teal (#0D9488) */
+    --primary: 173 80% 36%;
     --primary-foreground: 0 0% 100%;
+    /* White text */
 
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
+    /* SECONDARY BRAND: Deep Navy (#0F172A) */
+    /* Used for Sidebars and Header accents */
+    --secondary: 222 47% 11%;
+    --secondary-foreground: 210 40% 98%;
 
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
+    /* MUTED: Soft Gray-Blue */
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
+    /* ACCENT: Solar Orange (Legacy Bodawerk nod - for warnings/highlights) */
+    --accent: 27 96% 61%;
+    --accent-foreground: 222 47% 11%;
 
+    /* DESTRUCTIVE: Soft Red */
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    --destructive-foreground: 210 40% 98%;
 
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 262 40% 48%;
+    /* BORDERS & INPUTS */
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 173 80% 36%;
 
-    /* Semantic Status Colors (Muted) */
-    --success: 159 40% 40%; /* Sage Green */
+    /* SEMANTIC STATUS COLORS */
+    --success: 173 80% 36%;
+    /* Use Electric Teal for success */
     --success-foreground: 0 0% 100%;
 
-    --warning: 32 60% 45%; /* Deep Amber */
-    --warning-foreground: 0 0% 100%;
+    --warning: 27 96% 61%;
+    /* Solar Orange */
+    --warning-foreground: 222 47% 11%;
 
-    --info: 215 40% 48%; /* Steel Blue */
+    --info: 173 80% 36%;
+    /* Electric Teal */
     --info-foreground: 0 0% 100%;
 
-    /* Medium border radius (reduced from large) */
+    /* ROUNDED CORNERS */
+    /* Increase radius for a friendlier, modern feel */
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
+    /* BASE - Deep Navy backgrounds */
+    --background: 222 47% 11%;
+    /* Deep Navy #0F172A */
     --foreground: 0 0% 98%;
+    /* Off-white text */
 
-    --card: 240 10% 3.9%;
+    /* CARDS & POPOVERS - Slightly lighter navy */
+    --card: 222 47% 15%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 240 10% 3.9%;
+    --popover: 222 47% 15%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 262 40% 55%;
-    --primary-foreground: 210 20% 98%;
+    /* PRIMARY: Electric Teal (brighter in dark mode) */
+    --primary: 173 80% 45%;
+    /* Lighter teal for dark mode */
+    --primary-foreground: 222 47% 11%;
+    /* Deep navy text on teal */
 
-    --secondary: 240 3.7% 15.9%;
+    /* SECONDARY: Lighter Navy for contrast */
+    --secondary: 222 47% 20%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
+    /* MUTED: Mid-tone navy */
+    --muted: 222 47% 18%;
+    --muted-foreground: 210 40% 70%;
 
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
+    /* ACCENT: Solar Orange (same as light mode) */
+    --accent: 27 96% 61%;
+    --accent-foreground: 222 47% 11%;
 
-    --destructive: 0 62.8% 30.6%;
+    /* DESTRUCTIVE: Soft Red */
+    --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 263.4 70% 50.4%;
+    /* BORDERS & INPUTS - Subtle navy borders */
+    --border: 222 47% 25%;
+    --input: 222 47% 25%;
+    --ring: 173 80% 45%;
+    /* Electric teal focus ring */
 
-    --success: 142.1 70.6% 45.3%;
-    --success-foreground: 144.9 80.4% 10%;
+    /* SEMANTIC STATUS COLORS */
+    --success: 173 80% 45%;
+    /* Electric Teal */
+    --success-foreground: 222 47% 11%;
 
-    --warning: 48 96% 53%;
-    --warning-foreground: 38 92% 10%;
+    --warning: 27 96% 61%;
+    /* Solar Orange */
+    --warning-foreground: 222 47% 11%;
 
-    --info: 217.2 91.2% 59.8%;
-    --info-foreground: 222.2 47.4% 11.2%;
+    --info: 173 80% 45%;
+    /* Electric Teal */
+    --info-foreground: 222 47% 11%;
   }
 }
 
@@ -94,7 +125,7 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-muted text-foreground;
     font-family: 'Inter', system-ui, sans-serif;
   }
 }
@@ -131,6 +162,8 @@
 .dark *::-webkit-scrollbar-thumb:hover {
   background-color: hsl(var(--muted-foreground) / 0.5);
 }
+
+
 
 /* Utility classes */
 @layer utilities {
@@ -238,4 +271,68 @@
 .dark [class*="ring-gray-200"] {
   --tw-ring-opacity: 1;
   --tw-ring-color: hsl(var(--border)) !important;
+}
+
+
+/* ============================================ */
+/* DATA TABLE ROW STYLING OVERRIDES */
+/* ============================================ */
+
+/* Subtle hover state for table rows - light gray */
+table tbody tr:hover {
+  background-color: rgb(248 250 252) !important;
+  /* slate-50 */
+}
+
+/* Subtle selected state for table rows - pale teal */
+table tbody tr[data-state="selected"] {
+  background-color: rgb(240 253 250) !important;
+  /* teal-50 */
+}
+
+/* Ensure text stays dark on hover and selection */
+table tbody tr:hover td,
+table tbody tr[data-state="selected"] td {
+  color: rgb(15 23 42) !important;
+  /* slate-900 */
+}
+
+/* Dark mode overrides for table rows */
+.dark table tbody tr:hover {
+  background-color: hsl(var(--muted)) !important;
+}
+
+.dark table tbody tr[data-state="selected"] {
+  background-color: hsl(var(--primary) / 0.1) !important;
+}
+
+.dark table tbody tr:hover td,
+.dark table tbody tr[data-state="selected"] td {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* Thin scrollbar styling for timeline - scoped to timeline container only */
+.timeline-container .timeline-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+/* Webkit browsers (Chrome, Safari, Edge) - scoped to timeline */
+.timeline-container .timeline-scrollbar::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.timeline-container .timeline-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
+}
+
+.timeline-container .timeline-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.timeline-container .timeline-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }

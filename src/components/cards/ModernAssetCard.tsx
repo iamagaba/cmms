@@ -1,4 +1,4 @@
-import { Bike, User, Trash2 } from 'lucide-react';
+import { Bike, User, Trash2, Gauge, MoreHorizontal, MoreVertical } from 'lucide-react';
 import React from 'react';
 import { Menu } from '@/components/tailwind-components';
 
@@ -80,7 +80,7 @@ export const DetailedAssetCard = ({ asset, onEdit, onDelete, onViewDetails }: {
             <div className="grid grid-cols-2 gap-2 mb-3 flex-1">
                 <div className="bg-muted rounded-lg p-2 border">
                     <div className="flex items-center gap-1.5 mb-0.5">
-                        <SpeedometerIcon className="w-4 h-4 text-muted-foreground" />
+                        <Gauge className="w-4 h-4 text-muted-foreground" />
                         <span className="text-xs uppercase font-bold text-muted-foreground">Mileage</span>
                     </div>
                     <span className="text-sm font-semibold font-inconsolata">{(asset.mileage || 0).toLocaleString()} km</span>
@@ -107,7 +107,7 @@ export const DetailedAssetCard = ({ asset, onEdit, onDelete, onViewDetails }: {
                     <Menu>
                         <Menu.Target>
                             <button onClick={(e) => e.preventDefault()} className="w-8 h-8 flex items-center justify-center rounded-lg border text-muted-foreground hover:text-foreground hover:border-border bg-card transition-colors">
-                                <MoreHorizontalIcon className="w-4 h-4" />
+                                <MoreHorizontal className="w-4 h-4" />
                             </button>
                         </Menu.Target>
                         <Menu.Dropdown>
@@ -149,7 +149,7 @@ export const CompactAssetCard = ({ asset, onEdit, onDelete }: {
                     <Menu>
                         <Menu.Target>
                             <button onClick={(e) => { e.preventDefault(); e.stopPropagation(); }} className="text-muted-foreground hover:text-primary p-1">
-                                <MoreVerticalIcon className="w-4 h-4" />
+                                <MoreVertical className="w-4 h-4" />
                             </button>
                         </Menu.Target>
                         <Menu.Dropdown>

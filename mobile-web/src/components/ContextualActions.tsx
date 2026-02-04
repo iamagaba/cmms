@@ -38,7 +38,7 @@ export function ContextualActions({ workOrder, onAction, className = '' }: Conte
     const baseActions: Action[] = []
 
     switch (order.status) {
-      case 'Open':
+      case 'New':
         baseActions.push(
           {
             id: 'start-work',
@@ -213,7 +213,7 @@ interface QuickActionFABProps {
 export function QuickActionFAB({ workOrder, onAction }: QuickActionFABProps) {
   const getPrimaryAction = (order: WorkOrder): Action | null => {
     switch (order.status) {
-      case 'Open':
+      case 'New':
         return {
           id: 'start-work',
           label: 'Start Work',

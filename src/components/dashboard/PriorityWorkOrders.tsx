@@ -3,6 +3,7 @@ import { Calendar, AlertCircle, ArrowRight, Car, ShieldCheck } from 'lucide-reac
 import React from 'react';
 
 import { WorkOrder, Vehicle } from "@/types/supabase";
+import { getWorkOrderNumber } from '@/utils/work-order-display';
 import dayjs from "dayjs";
 import { cn } from '@/lib/utils';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
@@ -48,14 +49,14 @@ export const PriorityWorkOrders: React.FC<PriorityWorkOrdersProps> = ({ workOrde
                             return (
                                 <div
                                     key={order.id}
-                                    className="group hover:bg-accent -mx-4 px-4 py-3 rounded-lg transition-colors cursor-pointer"
+                                    className="group hover:bg-slate-50 dark:hover:bg-slate-800 -mx-4 px-4 py-3 rounded-lg transition-colors cursor-pointer"
                                     onClick={() => onViewDetails(order.id)}
                                 >
                                     <div className="flex items-start justify-between gap-3 mb-2">
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-1 flex-wrap">
                                                 <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
-                                                    {order.workOrderNumber || `WO-${order.id.substring(0, 6).toUpperCase()}`}
+                                                    {getWorkOrderNumber(order)}
                                                 </span>
                                                 <PriorityBadge priority={order.priority} />
                                                 <StatusBadge status={order.status} />
@@ -77,7 +78,7 @@ export const PriorityWorkOrders: React.FC<PriorityWorkOrdersProps> = ({ workOrde
                                                     'flex items-center gap-1 font-medium',
                                                     isOverdue ? 'text-destructive' : 'text-muted-foreground'
                                                 )}>
-                                                    <DateIcon className="w-4 h-4" />
+                                                    <Calendar className="w-4 h-4" />
                                                     {dayjs(order.dueDate).format('MMM D')}
                                                     {isOverdue && ' (Overdue)'}
                                                 </span>

@@ -19,14 +19,14 @@ interface WorkOrderServiceLifecycleCardProps {
 }
 
 const LIFECYCLE_STAGES = [
-  { key: 'Open', label: 'Created', icon: Plus },
+  { key: 'New', label: 'Created', icon: Plus },
   { key: 'Confirmation', label: 'Confirmed', icon: CheckCircle },
   { key: 'Ready', label: 'Ready', icon: Clock },
   { key: 'In Progress', label: 'In Progress', icon: Loader2 },
   { key: 'Completed', label: 'Completed', icon: CheckCircle },
 ];
 
-const STATUS_ORDER = ['Open', 'Confirmation', 'Ready', 'In Progress', 'Completed'];
+const STATUS_ORDER = ['New', 'Confirmation', 'Ready', 'In Progress', 'Completed'];
 
 export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCardProps> = ({
   workOrder,
@@ -35,7 +35,7 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
   emergencyBike,
   emergencyAssignment,
 }) => {
-  const currentStatus = workOrder.status || 'Open';
+  const currentStatus = workOrder.status || 'New';
   const currentIndex = STATUS_ORDER.indexOf(currentStatus);
   const isOnHold = currentStatus === 'On Hold';
 
@@ -92,7 +92,7 @@ export const WorkOrderServiceLifecycleCard: React.FC<WorkOrderServiceLifecycleCa
             const isLast = index === LIFECYCLE_STAGES.length - 1;
 
             let timestamp: string | null = null;
-            if (stage.key === 'Open' && createdAt) timestamp = createdAt.format('MMM D, h:mm A');
+            if (stage.key === 'New' && createdAt) timestamp = createdAt.format('MMM D, h:mm A');
             if (stage.key === 'Confirmation' && confirmedAt) timestamp = confirmedAt.format('MMM D, h:mm A');
             if (stage.key === 'In Progress' && workStartedAt) timestamp = workStartedAt.format('MMM D, h:mm A');
             if (stage.key === 'Completed' && completedAt) timestamp = completedAt.format('MMM D, h:mm A');

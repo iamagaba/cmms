@@ -1,7 +1,6 @@
 // Status colors matching desktop enterprise design system exactly
 export const STATUS_COLORS: Record<string, string> = {
-  Open: '#0077ce',        // Steel Blue (Primary)
-  New: '#0077ce',         // Steel Blue (Primary)
+  New: '#0077ce',        // Steel Blue (Primary)
   Confirmation: '#0c96f1', // Light Steel Blue
   Ready: '#64748b',       // Slate Gray
   Scheduled: '#64748b',   // Slate Gray
@@ -20,7 +19,7 @@ export const PRIORITY_COLORS: Record<string, string> = {
 }
 
 export const getStatusColor = (status: string | null): string => {
-  return STATUS_COLORS[status || ''] || STATUS_COLORS.Open
+  return STATUS_COLORS[status || ''] || STATUS_COLORS.New
 }
 
 export const getPriorityColor = (priority: string | null): string => {
@@ -46,7 +45,7 @@ export function getPriorityStyle(priority: string) {
 // CSS classes for styling
 export function getStatusClass(status: string) {
   switch (status) {
-    case 'Open':
+    case 'New':
       return 'status-open'
     case 'Confirmation':
       return 'status-confirmation'

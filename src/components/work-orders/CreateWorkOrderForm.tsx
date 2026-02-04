@@ -152,23 +152,32 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
   };
 
   const handleSubmit = async () => {
+    console.log('🚀 Submit started', { formData });
     setIsSubmitting(true);
 
     try {
       // Validate required fields
-      if (!formData.customerId || !formData.vehicleId) throw new Error('Customer and vehicle are required');
-      if (!formData.serviceLocationId) throw new Error('Service location is required');
+      if (!formData.customerId || !formData.vehicleId) {
+        throw new Error('Customer and vehicle are required');
+      }
+      if (!formData.serviceLocationId) {
+        throw new Error('Service location is required');
+      }
+
+      console.log('✅ Validation passed');
 
       const now = new Date();
       const dateStr = now.toISOString().split('T')[0].replace(/-/g, '');
       const randomNum = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
       const workOrderNumber = `WO-${dateStr}-${randomNum}`;
 
+      console.log('📝 Creating work order:', workOrderNumber);
+
       const workOrderData: Record<string, unknown> = {
         work_order_number: workOrderNumber,
         customer_id: formData.customerId,
         vehicle_id: formData.vehicleId,
-        status: 'Open',
+        status: 'New',
         priority: formData.priority || 'Medium',
         location_id: formData.serviceLocationId,
         customer_address: formData.customerLocation?.address || null,
@@ -185,11 +194,28 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
       workOrderData.service = formData.diagnosticSession?.finalCategory || 'General Service';
       if (formData.customerNotes) workOrderData.service_notes = formData.customerNotes;
 
-      const { error } = await supabase.from('work_orders').insert([workOrderData]);
-      if (error) throw error;
+      console.log('💾 Inserting to database...', workOrderData);
+
+      const { data, error } = await supabase.from('work_orders').insert([workOrderData]).select();
+      
+      if (error) {
+        console.error('❌ Database error:', error);
+        throw error;
+      }
+
+      console.log('✅ Work order created:', data);
 
       showSuccess(`Work Order ${workOrderNumber} created successfully!`);
+      
+      // Invalidate all work order queries
       queryClient.invalidateQueries({ queryKey: ['work-orders'] });
+      // Invalidate customer-specific work orders (all customers)
+      queryClient.invalidateQueries({ 
+        predicate: (query) => 
+          Array.isArray(query.queryKey) && 
+          query.queryKey[0] === 'customer-work-orders'
+      });
+      
       await refreshData();
 
       onClose();
@@ -244,55 +270,57 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/40 backdrop-blur-md z-40" onClick={onClose} />
-      <div className="fixed inset-y-0 right-0 w-full max-w-xl bg-background shadow-sm z-50 flex flex-col">
-        {/* Header */}
-        <div className="flex items-center justify-between px-3 py-2 border-b border-border bg-muted flex-shrink-0">
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40" onClick={onClose} />
+      <div className="fixed inset-y-0 right-0 w-full max-w-xl bg-background shadow-2xl z-50 flex flex-col border-l border-border/50">
+        {/* Header - Bespoke Industrial Style */}
+        <div className="flex items-center justify-between px-6 py-5 border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 flex-shrink-0">
           <div>
-            <h2 className="text-sm font-semibold text-foreground">Create Work Order</h2>
+            <h2 className="text-lg font-brand font-bold text-foreground tracking-tight">Create Work Order</h2>
+            <p className="text-xs text-muted-foreground mt-0.5 font-medium tracking-wide uppercase">New Service Request</p>
           </div>
-          <Button variant="ghost" size="icon" onClick={onClose}>
-            <X className="w-4 h-4" />
+          <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full hover:bg-muted/80">
+            <X className="w-5 h-5 text-muted-foreground/70" />
           </Button>
         </div>
 
-        {/* Clickable Stepper */}
-        <div className="px-3 py-2 border-b border-border bg-background flex-shrink-0">
-          <div className="flex items-center gap-2">
-            {sections.map((step, idx) => (
-              <React.Fragment key={idx}>
-                <div
+        {/* Custom "Tab-like" Stepper */}
+        <div className="px-6 py-4 bg-muted/20 border-b border-border/60 flex-shrink-0">
+          <div className="flex items-center gap-1">
+            {sections.map((step, idx) => {
+              const isActive = idx === activeSection;
+              const isCompleted = completedSections.includes(idx);
+              const isFuture = !isActive && !isCompleted;
+              
+              return (
+                <div 
+                  key={idx} 
+                  className="flex-1 group"
                   onClick={() => handleStepperClick(idx)}
-                  className="flex items-center gap-1.5 cursor-pointer group"
                 >
-                  <div className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-medium transition-all ${idx === activeSection
-                    ? 'bg-primary text-primary-foreground ring-2 ring-primary/20'
-                    : completedSections.includes(idx)
-                      ? 'bg-emerald-600 text-white'
-                      : 'bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary'
-                    }`}>
-                    {completedSections.includes(idx) && idx !== activeSection ? <Check className="w-4 h-4" /> : idx + 1}
+                  <div className={`
+                    relative h-1.5 rounded-full mb-2 transition-all duration-300 ease-out
+                    ${isActive ? 'bg-primary w-full shadow-[0_0_10px_-2px_rgba(13,148,136,0.5)]' : ''}
+                    ${isCompleted ? 'bg-primary/60 hover:bg-primary/80 cursor-pointer' : ''}
+                    ${isFuture ? 'bg-muted hover:bg-muted-foreground/20' : ''}
+                  `} />
+                  
+                  <div className={`
+                    flex items-center gap-1.5 text-xs font-medium transition-colors duration-200
+                    ${isActive ? 'text-primary font-bold' : ''}
+                    ${isCompleted ? 'text-foreground/80 cursor-pointer hover:text-primary' : ''}
+                    ${isFuture ? 'text-muted-foreground' : ''}
+                  `}>
+                    <span className="font-mono opacity-60">0{idx + 1}</span>
+                    <span className={isActive ? 'opacity-100' : 'opacity-70'}>{step.label}</span>
                   </div>
-                  <span className={`text-xs font-medium whitespace-nowrap hidden sm:block ${idx === activeSection
-                    ? 'text-primary'
-                    : completedSections.includes(idx)
-                      ? 'text-emerald-600'
-                      : 'text-muted-foreground group-hover:text-primary'
-                    }`}>
-                    {step.label}
-                  </span>
                 </div>
-                {idx < 3 && (
-                  <div className={`flex-1 h-0.5 min-w-5 mx-1 rounded transition-all ${completedSections.includes(idx) ? 'bg-emerald-600' : 'bg-border'
-                    }`} />
-                )}
-              </React.Fragment>
-            ))}
+              );
+            })}
           </div>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto px-3 py-2 pb-20">
+        {/* Content - Added "paper" texture effect */}
+        <div className="flex-1 overflow-y-auto px-6 py-6 pb-20 bg-muted/5">
           <SectionCard
             index={0}
             title="Vehicle & Customer"
@@ -307,8 +335,8 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
             hasErrors={sectionErrors[0]}
           >
             <CustomerVehicleStep data={formData} onChange={updateFormData} initialLicensePlate={initialData?.licensePlate} />
-            <div className="flex justify-end pt-2 border-t border-border mt-2">
-              <Button onClick={() => handleToggleSection(1)} size="sm">
+            <div className="flex justify-end pt-4 border-t border-border/50 mt-4">
+              <Button onClick={() => handleToggleSection(1)} size="sm" className="font-medium shadow-sm active:scale-95 transition-transform">
                 Next: Diagnostic
                 <motion.div
                   animate={{ x: [0, 4, 0] }}
@@ -335,8 +363,8 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
             hasErrors={sectionErrors[1]}
           >
             <DiagnosticStep data={formData} onChange={updateFormData} />
-            <div className="flex justify-end pt-2 border-t border-border mt-2">
-              <Button onClick={() => handleToggleSection(2)} size="sm">
+            <div className="flex justify-end pt-4 border-t border-border/50 mt-4">
+              <Button onClick={() => handleToggleSection(2)} size="sm" className="font-medium shadow-sm active:scale-95 transition-transform">
                 Next: Details
                 <motion.div
                   animate={{ x: [0, 4, 0] }}
@@ -363,8 +391,8 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
             hasErrors={sectionErrors[2]}
           >
             <AdditionalDetailsStep data={formData} onChange={updateFormData} />
-            <div className="flex justify-end pt-2 border-t border-border mt-2">
-              <Button onClick={() => handleToggleSection(3)} size="sm">
+            <div className="flex justify-end pt-4 border-t border-border/50 mt-4">
+              <Button onClick={() => handleToggleSection(3)} size="sm" className="font-medium shadow-sm active:scale-95 transition-transform">
                 Next: Review & Submit
                 <motion.div
                   animate={{ x: [0, 4, 0] }}

@@ -5,6 +5,7 @@ import mapboxgl from 'mapbox-gl';
 
 import { WorkOrder, Location, Vehicle } from '@/types/supabase';
 import { DiagnosticCategoryRow } from '@/types/diagnostic';
+import { getWorkOrderNumber } from '@/utils/work-order-display';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 
@@ -24,7 +25,7 @@ interface WorkOrdersMapProps {
 
 // Status colors for markers
 const STATUS_COLORS: Record<string, string> = {
-  'Open': '#3b82f6',        // blue
+  'New': '#64748b',        // slate
   'Confirmation': '#8b5cf6', // purple
   'On Hold': '#f59e0b',      // amber
   'Ready': '#06b6d4',        // cyan
@@ -140,7 +141,7 @@ export const WorkOrdersMap: React.FC<WorkOrdersMapProps> = ({
 
     // Helper to create a marker
     const createMarker = (wo: WorkOrder, lngLat: [number, number]) => {
-      const statusColor = STATUS_COLORS[wo.status || 'Open'] || '#6b7280';
+      const statusColor = STATUS_COLORS[wo.status || 'New'] || '#6b7280';
       const priorityColor = PRIORITY_COLORS[wo.priority || 'Medium'] || '#f59e0b';
 
       // Get data for tooltip
@@ -278,7 +279,7 @@ export const WorkOrdersMap: React.FC<WorkOrdersMapProps> = ({
           <div style="padding: 12px; min-width: 260px;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
               <div style="font-weight: 700; font-size: 15px; color: #111827;">
-                ${wo.workOrderNumber || wo.id.substring(0, 8)}
+                ${getWorkOrderNumber(wo)}
               </div>
               <div style="
                 padding: 3px 10px;
@@ -287,7 +288,7 @@ export const WorkOrdersMap: React.FC<WorkOrdersMapProps> = ({
                 border-radius: 4px;
                 font-size: 11px;
                 font-weight: 600;
-              ">${wo.status || 'Open'}</div>
+              ">${wo.status || 'New'}</div>
             </div>
             
             ${wo.title ? `
@@ -420,9 +421,9 @@ export const WorkOrdersMap: React.FC<WorkOrdersMapProps> = ({
   }, [workOrdersWithLocation, mapLoaded, onWorkOrderClick]);
 
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative h-full ${className}`}>
       {/* Map Container */}
-      <div ref={mapContainer} className="w-full h-[500px] rounded-lg" />
+      <div ref={mapContainer} className="w-full h-full rounded-lg" />
 
       {/* Legend */}
       <div className="absolute bottom-4 left-4 bg-white border border-gray-200 rounded-lg p-3 text-xs">

@@ -50,7 +50,7 @@ export default function MapViewPage() {
           `)
           .not('customerLat', 'is', null)
           .not('customerLng', 'is', null)
-          .in('status', ['Open', 'In Progress', 'Confirmation', 'Ready'])
+          .in('status', ['New', 'In Progress', 'Confirmation', 'Ready'])
           .order('created_at', { ascending: false })
 
         if (error) {
@@ -216,9 +216,9 @@ export default function MapViewPage() {
                 <div className="flex items-center space-x-2">
                   <div 
                     className="w-3 h-3 rounded-full shadow-sm" 
-                    style={{ backgroundColor: getStatusColor('Open') }}
+                    style={{ backgroundColor: getStatusColor('New') }}
                   ></div>
-                  <span className="text-sm text-gray-700 font-medium">Open</span>
+                  <span className="text-sm text-gray-700 font-medium">New</span>
                 </div>
               </div>
               <div className="px-3 py-1.5 bg-primary-50 text-primary-700 rounded-lg text-sm font-semibold">

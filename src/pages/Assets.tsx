@@ -5,6 +5,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { AssetDataTable } from "@/components/AssetDataTable";
 import { AssetFormDialog } from "@/components/AssetFormDialog";
 import { Vehicle, WorkOrder } from "@/types/supabase";
+import { getWorkOrderNumber } from '@/utils/work-order-display';
 import { useAssetManagement } from "@/hooks/useAssetManagement";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -166,7 +167,7 @@ const AssetsPage = () => {
     // Check if there are any active work orders for this asset
     const assetWorkOrders = workOrders?.filter(wo => wo.vehicleId === asset.id) || [];
     const hasActiveWorkOrder = assetWorkOrders.some(wo =>
-      wo.status === 'Open' ||
+      wo.status === 'New' ||
       wo.status === 'Confirmation' ||
       wo.status === 'Ready' ||
       wo.status === 'In Progress' ||
@@ -319,7 +320,7 @@ const AssetsPage = () => {
                   badge={{
                     text: computedStatus,
                     variant: computedStatus === 'Normal' ? 'success' :
-                             computedStatus === 'In Repair' ? 'warning' : 'outline'
+                      computedStatus === 'In Repair' ? 'warning' : 'outline'
                   }}
                   icon={<Car className="w-4 h-4 text-primary" />}
                   isSelected={isSelected}
@@ -420,7 +421,7 @@ const AssetsPage = () => {
                     <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-border">
                       {(() => {
                         const assetWorkOrders = workOrders?.filter(wo => wo.vehicleId === selectedAsset.id) || [];
-                        const openWorkOrders = assetWorkOrders.filter(wo => wo.status === 'Open' || wo.status === 'In Progress' || wo.status === 'Ready').length;
+                        const openWorkOrders = assetWorkOrders.filter(wo => wo.status === 'New' || wo.status === 'In Progress' || wo.status === 'Ready').length;
 
                         const stats = [
                           {
@@ -430,7 +431,7 @@ const AssetsPage = () => {
                             color: "primary"
                           },
                           {
-                            title: "Open WOs", 
+                            title: "Open WOs",
                             value: openWorkOrders,
                             icon: Clock,
                             color: openWorkOrders > 0 ? "amber" : "primary"
@@ -458,9 +459,9 @@ const AssetsPage = () => {
                           },
                           {
                             title: "Repair Cost",
-                            value: new Intl.NumberFormat('en-UG', { 
-                              style: 'currency', 
-                              currency: 'UGX', 
+                            value: new Intl.NumberFormat('en-UG', {
+                              style: 'currency',
+                              currency: 'UGX',
                               maximumFractionDigits: 0,
                               notation: 'compact'
                             }).format(
@@ -484,7 +485,7 @@ const AssetsPage = () => {
                           };
 
                           return (
-                            <div key={index} className="p-4 hover:bg-accent transition-colors">
+                            <div key={index} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
                               <div className="flex items-center justify-between">
                                 <div className="flex-1">
                                   <div className="flex items-center gap-2 mb-1">
@@ -729,11 +730,11 @@ const AssetsPage = () => {
                                       return (
                                         <tr
                                           key={workOrder.id}
-                                          className="transition-colors cursor-pointer group border-b border-border/50 hover:bg-accent/50"
+                                          className="transition-colors cursor-pointer group border-b border-border/50 hover:bg-slate-50 dark:hover:bg-slate-800"
                                           onClick={() => setSelectedWorkOrderId(workOrder.id)}
                                         >
                                           <td className="px-3 py-2 font-mono text-left">
-                                            {workOrder.workOrderNumber || `WO-${workOrder.id.substring(0, 6).toUpperCase()}`}
+                                            {getWorkOrderNumber(workOrder)}
                                           </td>
                                           <td className="px-3 py-2 text-muted-foreground max-w-[150px]">
                                             <Tooltip>
@@ -747,68 +748,68 @@ const AssetsPage = () => {
                                               </TooltipContent>
                                             </Tooltip>
                                           </td>
-                                        <td className="px-3 py-2">
-                                          {(() => {
-                                            const statusVariantMap: Record<string, 'open' | 'in-progress' | 'completed' | 'error' | 'warning' | 'info'> = {
-                                              'Open': 'open',
-                                              'Confirmation': 'info',
-                                              'On Hold': 'warning',
-                                              'Ready': 'info',
-                                              'In Progress': 'in-progress',
-                                              'Completed': 'completed',
-                                              'Cancelled': 'error',
-                                            };
-                                            const variant = statusVariantMap[workOrder.status || 'Open'] || 'open';
-                                            const dotColorClass =
-                                              workOrder.status === 'Completed'
-                                                ? 'bg-emerald-500'
-                                                : workOrder.status === 'In Progress'
-                                                  ? 'bg-amber-500'
-                                                  : workOrder.status === 'On Hold'
-                                                    ? 'bg-slate-400'
-                                                    : workOrder.status === 'Cancelled'
-                                                      ? 'bg-rose-500'
-                                                      : 'bg-blue-500';
-                                            return (
-                                              <Badge variant={variant} className="inline-flex items-center gap-1">
-                                                <span className={`w-1.5 h-1.5 rounded-full ${dotColorClass}`} />
-                                                {workOrder.status}
-                                              </Badge>
-                                            );
-                                          })()}
-                                        </td>
-                                        <td className="px-3 py-2 text-muted-foreground">
-                                          <div className="flex items-center gap-1">
-                                            <Map className="w-3 h-3 text-muted-foreground" />
-                                            {locationName}
-                                          </div>
-                                        </td>
-                                        <td className="px-3 py-2 text-right text-muted-foreground whitespace-nowrap">
-                                          {dayjs(workOrder.created_at).fromNow()}
-                                        </td>
-                                        <td className="px-3 py-2 text-right">
-                                          {workOrder.priority && (
-                                            <div className="inline-flex items-center justify-end gap-1.5">
-                                              <Badge
-                                                variant={
-                                                  workOrder.priority === 'Critical' ? 'critical' :
-                                                    workOrder.priority === 'High' ? 'high' :
-                                                      workOrder.priority === 'Medium' ? 'medium' :
-                                                        'low'
-                                                }
-                                                className="inline-flex items-center gap-1"
-                                              >
-                                                {workOrder.priority.charAt(0).toUpperCase() + workOrder.priority.slice(1).toLowerCase()}
-                                              </Badge>
-                                              <ChevronRight
-                                                className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
-                                              />
+                                          <td className="px-3 py-2">
+                                            {(() => {
+                                              const statusVariantMap: Record<string, 'open' | 'in-progress' | 'completed' | 'error' | 'warning' | 'info'> = {
+                                                'New': 'open',
+                                                'Confirmation': 'info',
+                                                'On Hold': 'warning',
+                                                'Ready': 'info',
+                                                'In Progress': 'in-progress',
+                                                'Completed': 'completed',
+                                                'Cancelled': 'error',
+                                              };
+                                              const variant = statusVariantMap[workOrder.status || 'New'] || 'open';
+                                              const dotColorClass =
+                                                workOrder.status === 'Completed'
+                                                  ? 'bg-emerald-500'
+                                                  : workOrder.status === 'In Progress'
+                                                    ? 'bg-amber-500'
+                                                    : workOrder.status === 'On Hold'
+                                                      ? 'bg-slate-400'
+                                                      : workOrder.status === 'Cancelled'
+                                                        ? 'bg-rose-500'
+                                                        : 'bg-slate-500';
+                                              return (
+                                                <Badge variant={variant} className="inline-flex items-center gap-1">
+                                                  <span className={`w-1.5 h-1.5 rounded-full ${dotColorClass}`} />
+                                                  {workOrder.status}
+                                                </Badge>
+                                              );
+                                            })()}
+                                          </td>
+                                          <td className="px-3 py-2 text-muted-foreground">
+                                            <div className="flex items-center gap-1">
+                                              <Map className="w-3 h-3 text-muted-foreground" />
+                                              {locationName}
                                             </div>
-                                          )}
-                                        </td>
-                                      </tr>
-                                    );
-                                  })}
+                                          </td>
+                                          <td className="px-3 py-2 text-right text-muted-foreground whitespace-nowrap">
+                                            {dayjs(workOrder.created_at).fromNow()}
+                                          </td>
+                                          <td className="px-3 py-2 text-right">
+                                            {workOrder.priority && (
+                                              <div className="inline-flex items-center justify-end gap-1.5">
+                                                <Badge
+                                                  variant={
+                                                    workOrder.priority === 'Critical' ? 'critical' :
+                                                      workOrder.priority === 'High' ? 'high' :
+                                                        workOrder.priority === 'Medium' ? 'medium' :
+                                                          'low'
+                                                  }
+                                                  className="inline-flex items-center gap-1"
+                                                >
+                                                  {workOrder.priority.charAt(0).toUpperCase() + workOrder.priority.slice(1).toLowerCase()}
+                                                </Badge>
+                                                <ChevronRight
+                                                  className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                                                />
+                                              </div>
+                                            )}
+                                          </td>
+                                        </tr>
+                                      );
+                                    })}
                                   </TooltipProvider>
                                 </TableBody>
                               </Table>

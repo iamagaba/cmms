@@ -227,8 +227,8 @@ export const MapboxLocationPicker: React.FC<MapboxLocationPickerProps> = ({
         <p className="text-xs text-destructive">{error}</p>
       )}
 
-      {/* Selected Location Info */}
-      {value && (
+      {/* Selected Location Info - Only show when map is visible */}
+      {value && showMap && (
         <div className="bg-muted border border-muted-foreground/20 rounded-lg p-2">
           <div className="flex items-start gap-1.5">
             <CheckCircle className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />

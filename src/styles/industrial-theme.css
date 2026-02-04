@@ -43,11 +43,11 @@
   --alert-red-600: #b03a3a;
   --alert-red-700: #8f2c2c;
 
-  /* Brand Purple - preserved but muted */
-  --brand-purple-500: #7e5cad;
-  /* Muted Violet */
-  --brand-purple-600: #684894;
-  --brand-purple-700: #55397a;
+  /* Brand Teal - Gogo Electric Primary */
+  --brand-teal-400: #14b8a6;  /* Lighter teal */
+  --brand-teal-500: #0D9488;  /* Electric Teal */
+  --brand-teal-600: #0d7c72;  /* Darker teal */
+  --brand-teal-700: #0a5f57;  /* Deep teal */
 
   /* REMOVED: SHADCN TOKENS - These are now defined in App.css only */
   /* This prevents conflicts with dark mode */
@@ -305,14 +305,14 @@
 }
 
 .btn-industrial-primary {
-  background: var(--brand-purple-600);
-  border-color: var(--brand-purple-700);
+  background: var(--brand-teal-500);
+  border-color: var(--brand-teal-600);
   color: white;
 }
 
 .btn-industrial-primary:hover {
-  background: var(--brand-purple-700);
-  box-shadow: 0 2px 4px rgba(147, 51, 234, 0.3);
+  background: var(--brand-teal-600);
+  box-shadow: 0 2px 4px rgba(13, 148, 136, 0.3);
 }
 
 .btn-industrial-secondary {
@@ -410,8 +410,8 @@
 
 .input-industrial:focus {
   outline: none;
-  border-color: var(--brand-purple-500);
-  box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+  border-color: var(--brand-teal-500);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
 }
 
 .input-industrial::placeholder {
@@ -431,7 +431,7 @@
 
 /* 
 *:focus-visible {
-  outline: 2px solid var(--brand-purple-500);
+  outline: 2px solid var(--brand-teal-500);
   outline-offset: 2px;
 }
 
@@ -557,8 +557,8 @@ table thead th,
 
 .input-industrial:focus {
   outline: none;
-  border-color: var(--brand-purple-500);
-  box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.1);
+  border-color: var(--brand-teal-500);
+  box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
 }
 
 /* -----------------------------------------------------------------------------

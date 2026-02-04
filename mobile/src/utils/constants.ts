@@ -16,7 +16,7 @@ export const PROXIMITY_THRESHOLD = 50; // meters for auto check-in
 
 // Work order constants
 export const WORK_ORDER_STATUSES = {
-  OPEN: 'Open',
+  NEW: 'New',
   IN_PROGRESS: 'In Progress',
   COMPLETED: 'Completed',
   CANCELLED: 'Cancelled',

@@ -1,4 +1,4 @@
-import { AlertCircle, Info, Loader2, Plus, Search, Settings, X } from 'lucide-react';
+import { AlertCircle, Info, Loader2, Plus, Search, Settings, X, PackageMinus } from 'lucide-react';
 import React, { useState, useEffect, useMemo } from 'react';
 
 
@@ -327,7 +327,7 @@ export const StockAdjustmentDialog: React.FC<StockAdjustmentDialogProps> = ({
 
               {lineItems.length === 0 && (
                 <div className="text-center py-8 text-muted-foreground">
-                  <PackageRemoveIcon className="w-8 h-8 mx-auto mb-2 opacity-50" />
+                  <PackageMinus className="w-8 h-8 mx-auto mb-2 opacity-50" />
                   <p className="text-sm">Search and add items to adjust</p>
                 </div>
               )}

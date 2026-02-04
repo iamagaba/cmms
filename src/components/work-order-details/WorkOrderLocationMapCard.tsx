@@ -286,15 +286,9 @@ export const WorkOrderLocationMapCard: React.FC<WorkOrderLocationMapCardProps> =
                   </div>
                 </div>
 
-                {/* Connector (Center) - Enhanced Visibility */}
+                {/* Connector (Center) - Simple Line */}
                 <div className="flex-shrink-0 flex items-center justify-center px-4">
-                  <div className="flex items-center text-muted-foreground">
-                    <div className="w-8 sm:w-12 h-px bg-border"></div>
-                    <div className="px-2">
-                      <Route className="w-5 h-5 text-muted-foreground transform rotate-45" />
-                    </div>
-                    <div className="w-8 sm:w-12 h-px bg-border"></div>
-                  </div>
+                  <div className="w-24 sm:w-32 h-px bg-slate-200"></div>
                 </div>
 
                 {/* Service Center (Right) */}

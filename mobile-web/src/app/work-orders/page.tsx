@@ -167,7 +167,7 @@ export default function WorkOrdersPage() {
   const filteredOrders = useMemo(() => {
     return sortedWorkOrders.filter(order => {
       const matchesFilter = filter === 'all' || 
-        (filter === 'open' && order.status === 'Open') ||
+        (filter === 'open' && order.status === 'New') ||
         (filter === 'progress' && order.status === 'In Progress') ||
         (filter === 'completed' && order.status === 'Completed') ||
         (filter === 'nearby' && order.distanceFromUser !== null && order.distanceFromUser !== undefined && order.distanceFromUser <= 10)
@@ -184,7 +184,7 @@ export default function WorkOrdersPage() {
 
   const filterCounts = useMemo(() => ({
     all: workOrdersWithDistance.length,
-    open: workOrdersWithDistance.filter(o => o.status === 'Open').length,
+    open: workOrdersWithDistance.filter(o => o.status === 'New').length,
     progress: workOrdersWithDistance.filter(o => o.status === 'In Progress').length,
     completed: workOrdersWithDistance.filter(o => o.status === 'Completed').length,
     nearby: location ? workOrdersWithDistance.filter(o => 
@@ -306,7 +306,7 @@ export default function WorkOrdersPage() {
           <div className="flex space-x-2 overflow-x-auto pb-1 scrollbar-hide">
             {[
               { key: 'all', label: 'All', count: filterCounts.all },
-              { key: 'open', label: 'Open', count: filterCounts.open },
+              { key: 'open', label: 'New', count: filterCounts.open },
               { key: 'progress', label: 'In Progress', count: filterCounts.progress },
               { key: 'completed', label: 'Completed', count: filterCounts.completed },
               { key: 'nearby', label: 'Near Me', count: filterCounts.nearby, icon: Navigation, disabled: !location },

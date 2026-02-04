@@ -57,7 +57,7 @@ export const WorkOrderCustomerVehicleCard: React.FC<WorkOrderCustomerVehicleCard
                   <p className="text-xs font-bold text-gray-900">{customerName || '-'}</p>
                 </div>
                 {customerType && (
-                  <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${customerType === 'WATU' ? 'bg-purple-50 text-purple-700 border-purple-200' :
+                  <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${customerType === 'WATU' ? 'bg-primary/10 text-primary border-primary/20' :
                       customerType === 'B2B' ? 'bg-blue-50 text-blue-700 border-blue-200' :
                         'bg-gray-50 text-gray-700 border-gray-200'
                     }`}>

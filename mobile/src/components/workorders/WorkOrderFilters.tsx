@@ -35,7 +35,7 @@ export const WorkOrderFiltersModal: React.FC<WorkOrderFiltersModalProps> = ({
     const [localFilters, setLocalFilters] = useState<WorkOrderFilters>(filters);
     const [localSort, setLocalSort] = useState<WorkOrderSortOptions>(sortOptions);
 
-    const statusOptions = ['Open', 'In Progress', 'Completed', 'On Hold', 'Cancelled'];
+    const statusOptions = ['New', 'In Progress', 'Completed', 'On Hold', 'Cancelled'];
     const priorityOptions = ['Emergency', 'High', 'Medium', 'Low'];
     const sortFieldOptions = [
         { value: 'priority', label: 'Priority' },

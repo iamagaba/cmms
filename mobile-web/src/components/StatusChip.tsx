@@ -3,7 +3,7 @@
 import React from 'react'
 import { motion } from 'framer-motion'
 
-export type StatusKind = 'Open' | 'Confirmation' | 'Ready' | 'In Progress' | 'On Hold' | 'Completed'
+export type StatusKind = 'New' | 'Confirmation' | 'Ready' | 'In Progress' | 'On Hold' | 'Completed'
 export type PriorityKind = 'High' | 'Medium' | 'Low'
 
 export interface StatusChipProps {
@@ -34,7 +34,7 @@ export function StatusChip({
     if (kind === 'status') {
       const status = String(value) as StatusKind
       switch (status) {
-        case 'Open':
+        case 'New':
           return { backgroundColor: '#2f54eb', color: 'white' }
         case 'Confirmation':
           return { backgroundColor: '#13c2c2', color: 'white' }

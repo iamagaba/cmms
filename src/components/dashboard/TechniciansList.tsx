@@ -90,7 +90,7 @@ export const TechniciansList: React.FC<TechniciansListProps> = ({ technicians, w
                         {technicianStats.map((tech) => (
                             <div
                                 key={tech.id}
-                                className="p-4 hover:bg-accent transition-colors cursor-pointer"
+                                className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                                 onClick={() => navigate('/technicians')}
                             >
                                 <div className="flex items-center gap-3">

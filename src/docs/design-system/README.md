@@ -216,7 +216,7 @@ import { PriorityBadge } from "@/components/PriorityBadge";
 <Badge variant="info">Info</Badge>
 
 // Work order status badges
-<Badge variant="open">Open</Badge>
+<Badge variant="open">New</Badge>
 <Badge variant="in-progress">In Progress</Badge>
 <Badge variant="completed">Completed</Badge>
 <Badge variant="cancelled">Cancelled</Badge>

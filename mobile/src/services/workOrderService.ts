@@ -132,7 +132,7 @@ class WorkOrderService {
         locations(address, latitude, longitude)
       `)
       .is('assignedTechnicianId', null)
-      .eq('status', 'Open')
+      .eq('status', 'New')
       .not('customerLat', 'is', null)
       .not('customerLng', 'is', null);
 
@@ -441,7 +441,7 @@ class WorkOrderService {
    */
   private determineMobileStatus(status: string): MobileWorkOrder['mobileStatus'] {
     switch (status) {
-      case 'Open':
+      case 'New':
       case 'Confirmation':
         return 'assigned';
       case 'Ready':

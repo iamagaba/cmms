@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { supabase } from '@/integrations/supabase/client';
 import { Customer, Vehicle, WorkOrder } from '@/types/supabase';
+import { getWorkOrderNumber } from '@/utils/work-order-display';
 import { snakeToCamelCase } from '@/utils/data-helpers';
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
@@ -170,7 +171,7 @@ const CustomerDetails = () => {
         <Card>
           <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-border">
             <button
-              className="px-6 py-4 hover:bg-accent transition-colors text-left"
+              className="px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-left"
               onClick={() => navigate(`/assets?customer=${id}`)}
             >
               <div className="flex items-center gap-2 mb-1">
@@ -185,7 +186,7 @@ const CustomerDetails = () => {
             </button>
 
             <button
-              className="px-6 py-4 hover:bg-accent transition-colors text-left"
+              className="px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-left"
               onClick={() => navigate(`/work-orders?customer=${id}`)}
             >
               <div className="flex items-center gap-2 mb-1">
@@ -227,7 +228,7 @@ const CustomerDetails = () => {
         <div className="space-y-6">
           {/* Contact Information */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-row items-center justify-between border-b">
               <CardTitle className="text-lg flex items-center gap-2">
                 <UserCircle className="w-5 h-5 text-muted-foreground" />
                 Contact Information
@@ -241,24 +242,24 @@ const CustomerDetails = () => {
                 </Button>
               )}
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-6">
                 {customer.phone && (
-                  <div className="bg-muted rounded-lg p-4">
-                    <div className="text-xs font-medium text-muted-foreground mb-1">Phone Number</div>
-                    <div className="text-sm font-semibold">{customer.phone}</div>
+                  <div>
+                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Phone Number</div>
+                    <div className="text-base font-medium text-slate-900">{customer.phone}</div>
                   </div>
                 )}
                 {customer.email && (
-                  <div className="bg-muted rounded-lg p-4">
-                    <div className="text-xs font-medium text-muted-foreground mb-1">Email Address</div>
-                    <div className="text-sm font-semibold truncate">{customer.email}</div>
+                  <div>
+                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Email Address</div>
+                    <div className="text-base font-medium text-slate-900 truncate">{customer.email}</div>
                   </div>
                 )}
                 {customer.address && (
-                  <div className="bg-muted rounded-lg p-4">
-                    <div className="text-xs font-medium text-muted-foreground mb-1">Address</div>
-                    <div className="text-sm font-semibold">{customer.address}</div>
+                  <div>
+                    <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Address</div>
+                    <div className="text-base font-medium text-slate-900">{customer.address}</div>
                   </div>
                 )}
               </div>
@@ -267,7 +268,7 @@ const CustomerDetails = () => {
 
           {/* Vehicles */}
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-row items-center justify-between border-b">
               <CardTitle className="text-lg flex items-center gap-2">
                 <Car className="w-5 h-5 text-muted-foreground" />
                 Vehicles
@@ -281,37 +282,55 @@ const CustomerDetails = () => {
                 <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
               {vehicles && vehicles.length > 0 ? (
-                <div className="space-y-4">
-                  {vehicles.slice(0, 5).map((vehicle) => (
-                    <button
-                      key={vehicle.id}
-                      className="group w-full border border-border rounded-lg p-4 hover:border-primary hover:bg-accent transition-all text-left"
-                      onClick={() => navigate(`/assets/${vehicle.id}`)}
-                    >
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex items-center gap-4 flex-1 min-w-0">
-                          <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                            <Bike className="w-5 h-5 text-muted-foreground" />
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-sm font-semibold group-hover:text-primary transition-colors">
+                <div className="space-y-6">
+                  {vehicles.slice(0, 5).map((vehicle, index) => (
+                    <div key={vehicle.id}>
+                      <button
+                        className="group w-full text-left hover:bg-slate-50 -mx-6 px-6 py-4 transition-colors"
+                        onClick={() => navigate(`/assets/${vehicle.id}`)}
+                      >
+                        <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-4">
+                          <div>
+                            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">License Plate</div>
+                            <div className="text-base font-medium text-slate-900 group-hover:text-primary transition-colors">
                               {vehicle.license_plate}
-                            </p>
-                            <p className="text-xs text-muted-foreground truncate">
-                              {vehicle.make} {vehicle.model} {vehicle.year && `(${vehicle.year})`}
-                            </p>
+                            </div>
                           </div>
+                          <div>
+                            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Make & Model</div>
+                            <div className="text-base font-medium text-slate-900">
+                              {vehicle.make} {vehicle.model}
+                            </div>
+                          </div>
+                          {vehicle.year && (
+                            <div>
+                              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Year</div>
+                              <div className="text-base font-medium text-slate-900">{vehicle.year}</div>
+                            </div>
+                          )}
+                          {vehicle.vin && (
+                            <div>
+                              <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">VIN</div>
+                              <div className="text-base font-medium text-slate-900 font-mono text-sm">{vehicle.vin}</div>
+                            </div>
+                          )}
                         </div>
-                        <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0" />
-                      </div>
-                    </button>
+                        <div className="flex items-center gap-2 mt-3 text-xs text-primary">
+                          <span>View Details</span>
+                          <ChevronRight className="w-3 h-3" />
+                        </div>
+                      </button>
+                      {index < vehicles.slice(0, 5).length - 1 && (
+                        <div className="border-b border-border mt-6" />
+                      )}
+                    </div>
                   ))}
                   {vehicles.length > 5 && (
                     <Button
                       variant="ghost"
-                      className="w-full"
+                      className="w-full mt-4"
                       onClick={() => navigate(`/assets?customer=${id}`)}
                     >
                       View {vehicles.length - 5} more vehicles
@@ -358,14 +377,14 @@ const CustomerDetails = () => {
                   {workOrders.slice(0, 5).map((wo) => (
                     <button
                       key={wo.id}
-                      className="group w-full border border-border rounded-lg p-4 hover:border-primary hover:bg-accent transition-all text-left"
+                      className="group w-full border border-border rounded-lg p-4 hover:border-primary hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-left"
                       onClick={() => navigate(`/work-orders/${wo.id}`)}
                     >
                       <div className="flex items-center justify-between gap-4">
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2 mb-1">
                             <p className="text-sm font-semibold group-hover:text-primary transition-colors">
-                              {wo.workOrderNumber || `WO-${wo.id}`}
+                              {getWorkOrderNumber(wo)}
                             </p>
                             <Badge variant={wo.status === 'Completed' ? 'completed' : wo.status === 'In Progress' ? 'in-progress' : 'open'}>
                               {wo.status}
@@ -408,29 +427,29 @@ const CustomerDetails = () => {
           {/* Additional Information */}
           {(customer.notes || customer.created_at) && (
             <Card>
-              <CardHeader>
+              <CardHeader className="border-b">
                 <CardTitle className="text-lg flex items-center gap-2">
                   <Info className="w-5 h-5 text-muted-foreground" />
                   Additional Information
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {customer.notes && (
-                    <div className="bg-muted rounded-lg p-4">
-                      <div className="text-xs font-medium text-muted-foreground mb-1">Notes</div>
-                      <div className="text-sm">{customer.notes}</div>
-                    </div>
-                  )}
+              <CardContent className="p-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
                   {customer.created_at && (
-                    <div className="bg-muted rounded-lg p-4">
-                      <div className="text-xs font-medium text-muted-foreground mb-1">Customer Since</div>
-                      <div className="text-sm font-semibold">
+                    <div>
+                      <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Customer Since</div>
+                      <div className="text-base font-medium text-slate-900">
                         {dayjs(customer.created_at).format('MMMM D, YYYY')}
                       </div>
                       <div className="text-xs text-muted-foreground mt-1">
                         {dayjs(customer.created_at).fromNow()}
                       </div>
+                    </div>
+                  )}
+                  {customer.notes && (
+                    <div className="sm:col-span-2">
+                      <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Notes</div>
+                      <div className="text-base font-medium text-slate-900">{customer.notes}</div>
                     </div>
                   )}
                 </div>

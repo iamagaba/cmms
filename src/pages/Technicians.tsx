@@ -15,6 +15,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Technician, WorkOrder, Location } from '@/types/supabase';
 import { snakeToCamelCase, camelToSnakeCase } from '@/utils/data-helpers';
+import { getWorkOrderNumber } from '@/utils/work-order-display';
 import { showSuccess, showError } from '@/utils/toast';
 import { TechnicianFormDrawer } from '@/components/TechnicianFormDrawer';
 import { DeleteConfirmationDialog } from '@/components/DeleteConfirmationDialog';
@@ -153,7 +154,7 @@ const TechniciansPage: React.FC = () => {
 
     return technicians.map(tech => {
       const techWorkOrders = workOrders.filter(wo => wo.assigned_technician_id === tech.id);
-      const openTasks = techWorkOrders.filter(wo => wo.status === 'Open' || wo.status === 'In Progress').length;
+      const openTasks = techWorkOrders.filter(wo => wo.status === 'New' || wo.status === 'In Progress').length;
       const completedTasks = techWorkOrders.filter(wo => wo.status === 'Completed').length;
 
       let workload: 'light' | 'moderate' | 'heavy' | 'overloaded' = 'light';
@@ -256,7 +257,7 @@ const TechniciansPage: React.FC = () => {
   if (isLoadingTechnicians) {
     return (
       <div className="flex h-screen w-full bg-background overflow-hidden">
-        <div className="w-80 flex-none border-r border-border bg-card/50 flex flex-col">
+        <div className="w-80 flex-none border-r border-border bg-muted flex flex-col">
           <div className="p-4 border-b border-border">
             <Skeleton className="h-6 mb-2" />
             <Skeleton className="h-4 w-3/4" />
@@ -281,49 +282,61 @@ const TechniciansPage: React.FC = () => {
   return (
     <div className="flex h-screen w-full overflow-hidden">
       {/* Left Column - Technician List */}
-      <div className="w-full sm:w-80 flex-none flex flex-col bg-card">
+      <div className="w-full sm:w-80 flex-none flex flex-col bg-muted">
         {/* Header */}
         <div className="p-3 border-b">
           <div className="flex items-center justify-between mb-3">
-            <h1 className="text-2xl font-bold">Technicians</h1>
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">Technicians</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Manage your team</p>
+            </div>
             <div className="flex items-center gap-1">
-              <Button
-                variant={filtersOpen || hasActiveFilters ? "secondary" : "ghost"}
-                size="sm"
-                onClick={() => setFiltersOpen(!filtersOpen)}
-                className="w-7 p-0"
-                title="Filters"
-              >
-                <Settings2 className="w-4 h-4" />
-                {hasActiveFilters && (
-                  <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-primary ring-2 ring-background" />
-                )}
-              </Button>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={handleAddTechnician}
-                className="w-7 p-0"
+                className="w-7 h-7 p-0 text-muted-foreground hover:text-foreground hover:bg-muted"
                 title="Add Technician"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-5 h-5" />
               </Button>
             </div>
           </div>
 
           {/* Search */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-              <Search className="w-4 h-4 text-muted-foreground" />
+          <div className="px-3 py-2">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="w-5 h-5 text-muted-foreground" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search technicians..."
+                aria-label="Search technicians"
+                className="w-full pl-10 pr-4 py-1.5 text-xs border border-input rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
             </div>
-            <Input
-              type="text"
-              placeholder="Search technicians..."
-              aria-label="Search technicians"
-              className="w-full pl-8 h-8 text-sm"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+          </div>
+
+          {/* Filters Toggle Row */}
+          <div className="px-3 py-2 flex items-center gap-4 overflow-x-auto no-scrollbar">
+            <button
+              onClick={() => setFiltersOpen(!filtersOpen)}
+              className={`inline-flex items-center gap-1.5 px-2 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${filtersOpen || hasActiveFilters
+                ? 'bg-primary/10 text-primary border border-primary/20'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted border border-border'
+                }`}
+            >
+              <Settings2 className="w-5 h-5" />
+              Filters
+              {hasActiveFilters && (
+                <span className="inline-flex items-center justify-center min-w-4 h-4 h-3.5 px-1 rounded-full bg-primary text-primary-foreground text-xs font-semibold">
+                  1
+                </span>
+              )}
+            </button>
           </div>
 
           {/* Advanced Filters */}
@@ -397,8 +410,8 @@ const TechniciansPage: React.FC = () => {
                 return (
                   <div
                     key={tech.id}
-                    className={`p-3 cursor-pointer border-l-2 transition-colors hover:bg-muted/50 ${isSelected
-                      ? 'bg-muted border-l-primary'
+                    className={`p-3 cursor-pointer border-l-2 transition-colors hover:bg-slate-50 ${isSelected
+                      ? 'bg-background border-l-primary shadow-sm'
                       : 'border-l-transparent'
                       }`}
                     onClick={() => setSelectedTechnician(tech)}
@@ -521,8 +534,6 @@ const TechniciansPage: React.FC = () => {
             <div className="flex-1 overflow-auto p-4 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent overscroll-y-contain">
 
               {/* Stats Grid */}
-
-              {/* Stats Grid */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
                 <Card>
                   <CardContent className="p-3 flex items-center justify-between">
@@ -591,8 +602,8 @@ const TechniciansPage: React.FC = () => {
                         <p className="text-xs mt-0.5 text-foreground">{selectedTechnician.phone || 'Not provided'}</p>
                       </div>
                       <div>
-                        <Label className="text-xs font-medium text-muted-foreground">Employee ID</Label>
-                        <p className="text-xs mt-0.5 font-mono text-foreground">#{selectedTechnician.id.substring(0, 8)}</p>
+                        <Label className="text-xs font-medium text-muted-foreground">Status</Label>
+                        <p className="text-xs mt-0.5 text-foreground capitalize">{selectedTechnician.status || 'Available'}</p>
                       </div>
                     </CardContent>
                   </Card>
@@ -649,7 +660,7 @@ const TechniciansPage: React.FC = () => {
                               {techWorkOrders.slice(0, 10).map((wo) => (
                                 <tr key={wo.id} className="hover:bg-muted/50 transition-colors">
                                   <td className="px-3 py-1.5 font-bold font-mono text-foreground text-xs">
-                                    {wo.work_order_number || `WO-${wo.id.substring(0, 6).toUpperCase()}`}
+                                    {getWorkOrderNumber(wo)}
                                   </td>
                                   <td className="px-3 py-1.5 text-muted-foreground max-w-[150px] truncate text-xs">
                                     {wo.service || wo.service_notes || 'General Service'}

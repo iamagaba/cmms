@@ -43,7 +43,7 @@ export function BadgeProvider({ children }: { children: ReactNode }) {
         .select('id, status, priority, created_at')
 
       if (!workOrdersError && workOrders) {
-        const openCount = workOrders.filter(wo => wo.status === 'Open').length
+        const openCount = workOrders.filter(wo => wo.status === 'New').length
         const urgentCount = workOrders.filter(wo => 
           wo.priority === 'High' && wo.status !== 'Completed'
         ).length

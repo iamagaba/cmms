@@ -1,4 +1,4 @@
-import { ArrowLeft, Check, Info, Loader2, RefreshCw, Wrench } from 'lucide-react';
+import { ArrowLeft, Check, Info, Loader2, RefreshCw, Wrench, Grid3x3 } from 'lucide-react';
 import React, { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { getQuestions, getAllOptions, getAllFollowupQuestions } from '@/api/diagnosticConfigApi';
@@ -252,7 +252,7 @@ const QuestionFlowView: React.FC = () => {
         <div className="p-4 bg-muted rounded-lg min-h-[500px] overflow-auto border border-border">
             <div className="mb-4 flex items-center justify-between">
                 <h3 className="text-lg font-semibold text-foreground flex items-center gap-2">
-                    <GridIcon className="w-5 h-5 text-primary" />
+                    <Grid3x3 className="w-5 h-5 text-primary" />
                     Logic Flow Visualization
                 </h3>
                 <div className="flex items-center gap-3 text-xs text-muted-foreground">

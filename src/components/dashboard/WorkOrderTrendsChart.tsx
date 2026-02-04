@@ -7,16 +7,16 @@ import { Button } from '@/components/ui/button';
 
 // Status color configuration matching the application's status colors
 const STATUS_COLORS = {
-  'Open': '#3b82f6',           // Blue
-  'Confirmation': '#8b5cf6',   // Purple  
-  'On Hold': '#f59e0b',        // Amber
-  'Ready': '#06b6d4',          // Cyan
-  'In Progress': '#f97316',    // Orange
-  'Completed': '#10b981',      // Emerald
-  'Cancelled': '#ef4444',      // Red
+    'New': '#64748b',           // Slate (Passive state)
+    'Confirmation': '#8b5cf6',   // Purple  
+    'On Hold': '#f59e0b',        // Amber
+    'Ready': '#06b6d4',          // Cyan
+    'In Progress': '#f97316',    // Orange
+    'Completed': '#0d9488',      // Teal (Brand Primary)
+    'Cancelled': '#ef4444',      // Red
 };
 
-const STATUS_ORDER = ['Open', 'Confirmation', 'Ready', 'In Progress', 'On Hold', 'Completed', 'Cancelled'];
+const STATUS_ORDER = ['New', 'Confirmation', 'Ready', 'In Progress', 'On Hold', 'Completed', 'Cancelled'];
 
 export const WorkOrderTrendsChart = ({
     data,
@@ -47,7 +47,7 @@ export const WorkOrderTrendsChart = ({
                                         key={days}
                                         variant={range === days ? "secondary" : "ghost"}
                                         size="sm"
-                                        className={`h-7 text-xs px-2 ${range === days ? 'bg-background shadow-sm' : 'hover:bg-background/50'}`}
+                                        className={`h-7 text-xs px-2 ${range === days ? 'bg-background shadow-sm text-foreground font-semibold hover:bg-background' : 'text-muted-foreground hover:text-foreground hover:bg-background/50'}`}
                                         onClick={() => onRangeChange(days as 7 | 14)}
                                     >
                                         {days}d
@@ -113,7 +113,7 @@ export const WorkOrderTrendsChart = ({
                                     key={days}
                                     variant={range === days ? "secondary" : "ghost"}
                                     size="sm"
-                                    className={`h-7 text-xs px-2 ${range === days ? 'bg-background shadow-sm' : 'hover:bg-background/50'}`}
+                                    className={`h-7 text-xs px-2 ${range === days ? 'bg-background shadow-sm text-foreground font-semibold hover:bg-background' : 'text-muted-foreground hover:text-foreground hover:bg-background/50'}`}
                                     onClick={() => onRangeChange(days as 7 | 14)}
                                 >
                                     {days}d
@@ -149,18 +149,20 @@ export const WorkOrderTrendsChart = ({
                         margin={{ top: 40, right: 10, bottom: 30, left: 10 }}
                         grid={{ horizontal: true, vertical: false }}
                         borderRadius={4}
-                        legend={{
-                            direction: 'row',
-                            position: { vertical: 'top', horizontal: 'left' },
-                            padding: 0,
-                            itemMarkWidth: 12,
-                            itemMarkHeight: 12,
-                            markGap: 6,
-                            itemGap: 16,
-                            labelStyle: {
-                                fontSize: 12,
-                                fill: `hsl(${mutedForeground})`,
-                            },
+                        slotProps={{
+                            legend: {
+                                direction: 'row',
+                                position: { vertical: 'top', horizontal: 'left' },
+                                padding: 0,
+                                itemMarkWidth: 12,
+                                itemMarkHeight: 12,
+                                markGap: 6,
+                                itemGap: 16,
+                                labelStyle: {
+                                    fontSize: 12,
+                                    fill: `hsl(${mutedForeground})`,
+                                },
+                            }
                         }}
                         sx={{
                             '& .MuiChartsGrid-line': {

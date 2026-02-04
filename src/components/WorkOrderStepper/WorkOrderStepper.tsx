@@ -14,14 +14,14 @@ interface WorkOrderStepperProps {
 }
 
 const STEPS = [
-  { key: 'Open', label: 'Open', icon: FileText },
+  { key: 'New', label: 'New', icon: FileText },
   { key: 'Confirmation', label: 'Confirmation', icon: Phone },
   { key: 'Ready', label: 'Ready', icon: Wrench },
   { key: 'In Progress', label: 'In Progress', icon: Wrench },
   { key: 'Completed', label: 'Completed', icon: CheckCircle },
 ];
 
-const STATUS_ORDER = ['Open', 'Confirmation', 'Ready', 'In Progress', 'Completed'];
+const STATUS_ORDER = ['New', 'Confirmation', 'Ready', 'In Progress', 'Completed'];
 
 // Format duration in human-readable format
 const formatDuration = (ms: number): string => {
@@ -46,14 +46,14 @@ const formatDuration = (ms: number): string => {
 };
 
 const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact = false, profileMap, onConfirmationClick, onCompletionClick, onInProgressClick, onReadyClick }) => {
-  const currentStatus = workOrder?.status || 'Open';
+  const currentStatus = workOrder?.status || 'New';
   const currentIndex = STATUS_ORDER.indexOf(currentStatus);
   const [hoveredStep, setHoveredStep] = useState<string | null>(null);
 
   // Check if confirmation call is needed or if we're in confirmation status
-  const needsConfirmationCall = workOrder?.status === 'Open' && !workOrder?.confirmation_call_completed;
-  // Make confirmation step clickable in Open or Confirmation status
-  const canClickConfirmation = workOrder?.status === 'Open' || workOrder?.status === 'Confirmation';
+  const needsConfirmationCall = workOrder?.status === 'New' && !workOrder?.confirmation_call_completed;
+  // Make confirmation step clickable in New or Confirmation status
+  const canClickConfirmation = workOrder?.status === 'New' || workOrder?.status === 'Confirmation';
 
   // Make in-progress step clickable ONLY if currently In Progress (to resolve)
   const canClickInProgress = workOrder?.status === 'In Progress';
@@ -95,7 +95,7 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
   const getStepTimestamp = (stepKey: string): dayjs.Dayjs | null => {
     // First try the dedicated database fields (check both snake_case and camelCase)
     switch (stepKey) {
-      case 'Open':
+      case 'New':
         if (workOrder.created_at) return dayjs(workOrder.created_at);
         if ((workOrder as any).createdAt) return dayjs((workOrder as any).createdAt);
         break;
@@ -163,7 +163,7 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
     // Find the next step's timestamp
     let nextTimestamp: dayjs.Dayjs | null = null;
 
-    if (stepKey === 'Open') {
+    if (stepKey === 'New') {
       nextTimestamp = getStepTimestamp('Confirmation') || getStepTimestamp('In Progress') || getStepTimestamp('Completed');
     } else if (stepKey === 'Confirmation') {
       nextTimestamp = getStepTimestamp('Ready') || getStepTimestamp('In Progress') || getStepTimestamp('Completed');
@@ -237,7 +237,7 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
                   }}
                 >
                   <div className="flex items-center gap-1">
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center relative transition-colors duration-200 ${showAsCurrent ? 'bg-purple-500 ripple-animation' :
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center relative transition-colors duration-200 ${showAsCurrent ? 'bg-primary ripple-animation' :
                       showAsCompleted ? 'bg-emerald-500' :
                         'bg-gray-300'
                       }`}>
@@ -250,7 +250,7 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
                         <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full border border-white animate-pulse" />
                       )}
                     </div>
-                    <span className={`text-xs font-medium transition-colors duration-200 ${showAsCurrent ? 'text-purple-600' :
+                    <span className={`text-xs font-medium transition-colors duration-200 ${showAsCurrent ? 'text-primary' :
                       showAsCompleted ? 'text-emerald-600' :
                         'text-gray-400'
                       }`}>
@@ -335,7 +335,7 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
                     }
                   }}
                 >
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center relative transition-colors duration-200 ${showAsCurrent ? 'bg-purple-500 ripple-animation' :
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center relative transition-colors duration-200 ${showAsCurrent ? 'bg-primary ripple-animation' :
                     showAsCompleted ? 'bg-emerald-500' :
                       'bg-gray-300'
                     }`}>
@@ -348,7 +348,7 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
                       <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-white animate-pulse" />
                     )}
                   </div>
-                  <span className={`text-xs mt-1 font-medium text-center transition-colors duration-200 leading-tight ${showAsCurrent ? 'text-purple-600' :
+                  <span className={`text-xs mt-1 font-medium text-center transition-colors duration-200 leading-tight ${showAsCurrent ? 'text-primary' :
                     showAsCompleted ? 'text-emerald-600' :
                       'text-gray-400'
                     }`}>

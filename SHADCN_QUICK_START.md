@@ -185,7 +185,7 @@ import { Badge } from './badge';
 
 export function WorkOrderStatusBadge({ status }: { status: string }) {
   const statusMap: Record<string, { variant: any; label: string }> = {
-    'Open': { variant: 'new', label: 'Open' },
+    'New': { variant: 'new', label: 'New' },
     'In Progress': { variant: 'in-progress', label: 'In Progress' },
     'On Hold': { variant: 'on-hold', label: 'On Hold' },
     'Completed': { variant: 'completed', label: 'Completed' },

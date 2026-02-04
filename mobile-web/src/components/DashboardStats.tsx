@@ -52,7 +52,7 @@ export function DashboardStats({ refreshing = false }: DashboardStatsProps) {
           total: allOrders?.length || 0,
           inProgress: allOrders?.filter(o => o.status === 'In Progress').length || 0,
           completed: allOrders?.filter(o => o.status === 'Completed').length || 0,
-          open: allOrders?.filter(o => o.status === 'Open').length || 0,
+          open: allOrders?.filter(o => o.status === 'New').length || 0,
           todayCompleted: allOrders?.filter(o => {
             if (o.status === 'Completed' && o.completedAt) {
               const completedDate = new Date(o.completedAt)

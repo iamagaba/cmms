@@ -36,7 +36,7 @@ const radiusMap = {
 // Industrial color variants - with borders for definition
 const variantMap = {
     filled: {
-        primary: 'bg-purple-600 text-white border border-purple-700',
+        primary: 'bg-primary text-primary-foreground border border-primary',
         gray: 'bg-slate-500 text-white border border-slate-600',
         red: 'bg-red-600 text-white border border-red-700',
         green: 'bg-green-600 text-white border border-green-700',
@@ -45,7 +45,7 @@ const variantMap = {
         orange: 'bg-orange-500 text-white border border-orange-600',
     },
     light: {
-        primary: 'bg-purple-50 text-purple-700 border border-purple-300',
+        primary: 'bg-primary/10 text-primary border border-primary/20',
         gray: 'bg-slate-50 text-slate-700 border border-slate-300',
         red: 'bg-red-50 text-red-700 border border-red-300',
         green: 'bg-green-50 text-green-700 border border-green-300',
@@ -54,7 +54,7 @@ const variantMap = {
         orange: 'bg-orange-50 text-orange-700 border border-orange-300',
     },
     outline: {
-        primary: 'border-2 border-purple-500 text-purple-600 bg-transparent',
+        primary: 'border-2 border-primary text-primary bg-transparent',
         gray: 'border-2 border-slate-400 text-slate-600 bg-transparent',
         red: 'border-2 border-red-500 text-red-600 bg-transparent',
         green: 'border-2 border-green-500 text-green-600 bg-transparent',
@@ -63,7 +63,7 @@ const variantMap = {
         orange: 'border-2 border-orange-500 text-orange-600 bg-transparent',
     },
     dot: {
-        primary: 'bg-purple-50 text-purple-700 border border-purple-200',
+        primary: 'bg-primary/10 text-primary border border-primary/20',
         gray: 'bg-slate-50 text-slate-700 border border-slate-200',
         red: 'bg-red-50 text-red-700 border border-red-200',
         green: 'bg-green-50 text-green-700 border border-green-200',

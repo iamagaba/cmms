@@ -85,7 +85,7 @@ export function LocationContext({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Open': return 'bg-blue-500'
+      case 'New': return 'bg-blue-500'
       case 'In Progress': return 'bg-yellow-500'
       case 'On Hold': return 'bg-orange-500'
       default: return 'bg-gray-500'
@@ -168,7 +168,7 @@ export function LocationContext({
             >
               <div className="flex items-center space-x-3 flex-1 min-w-0">
                 {/* Status indicator */}
-                <div className={`w-3 h-3 rounded-full ${getStatusColor(order.status || 'Open')}`} />
+                <div className={`w-3 h-3 rounded-full ${getStatusColor(order.status || 'New')}`} />
                 
                 {/* Work order info */}
                 <div className="flex-1 min-w-0">

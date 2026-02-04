@@ -94,10 +94,10 @@ const ComponentUsageGuideSection: React.FC = () => {
                     </AccordionItem>
 
                     <AccordionItem value="dialogs" className="border-primary/20">
-                        <AccordionTrigger className="text-sm font-semibold text-purple-900">
+                        <AccordionTrigger className="text-sm font-semibold text-foreground">
                             Dialog vs Popover vs Dropdown?
                         </AccordionTrigger>
-                        <AccordionContent className="text-sm text-purple-800">
+                        <AccordionContent className="text-sm text-muted-foreground">
                             <div className="space-y-3">
                                 <div>
                                     <p className="font-medium mb-1">Dialog (Modal):</p>
@@ -119,10 +119,10 @@ const ComponentUsageGuideSection: React.FC = () => {
                     </AccordionItem>
 
                     <AccordionItem value="forms" className="border-primary/20">
-                        <AccordionTrigger className="text-sm font-semibold text-purple-900">
+                        <AccordionTrigger className="text-sm font-semibold text-foreground">
                             Which form component should I use?
                         </AccordionTrigger>
-                        <AccordionContent className="text-sm text-purple-800">
+                        <AccordionContent className="text-sm text-muted-foreground">
                             <div className="space-y-3">
                                 <div>
                                     <p className="font-medium mb-1">Input:</p>

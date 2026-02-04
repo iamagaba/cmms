@@ -16,6 +16,7 @@ interface SystemSettingsContextType {
   settings: SystemSettings;
   isLoading: boolean;
   updateSetting: (key: string, value: string | boolean | number | null) => void;
+  updateSettings: (updates: Record<string, string | boolean | number | null>) => Promise<void>;
   toggleDarkMode: () => void;
   isDarkMode: boolean;
 }
@@ -86,6 +87,16 @@ export const SystemSettingsProvider = ({ children }: { children: ReactNode }) =>
     updateMutation.mutate({ key, value });
   };
 
+  const updateSettings = async (updates: Record<string, string | boolean | number | null>) => {
+    // Update multiple settings in parallel
+    const promises = Object.entries(updates).map(([key, value]) =>
+      supabase.from('system_settings').upsert({ key, value: value?.toString() || null })
+    );
+
+    await Promise.all(promises);
+    queryClient.invalidateQueries({ queryKey: ['system_settings'] });
+  };
+
   const toggleDarkMode = () => {
     updateSetting('color_scheme', isDarkMode ? 'light' : 'dark');
     // Toggle body class for dark mode
@@ -99,9 +110,10 @@ export const SystemSettingsProvider = ({ children }: { children: ReactNode }) =>
     settings,
     isLoading: isLoading && !error, // Don't show loading if there's an error
     updateSetting,
+    updateSettings,
     toggleDarkMode,
     isDarkMode,
-  }), [settings, isLoading, error, updateSetting, toggleDarkMode, isDarkMode]);
+  }), [settings, isLoading, error, isDarkMode]);
 
   return (
     <SystemSettingsContext.Provider value={contextValue}>

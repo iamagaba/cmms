@@ -21,7 +21,7 @@ export function useContextualActions() {
 
   const getWorkOrderActions = (status: string, priority?: string): ContextualAction[] => {
     const baseActions: Record<string, ContextualAction[]> = {
-      'Open': [
+      'New': [
         {
           id: 'start',
           label: 'Start Work',

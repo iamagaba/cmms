@@ -229,15 +229,15 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
     <Link
       to={item.href}
       className={cn(
-        // Base styles - Use semantic tokens
+        // Base styles - Enterprise dark theme
         'group relative flex items-center gap-3 py-2.5 transition-all duration-150 w-full text-left rounded-md',
-        'text-muted-foreground hover:text-foreground hover:bg-accent',
+        'text-secondary-foreground/90 hover:text-secondary-foreground hover:bg-white/10',
         'focus:outline-none no-underline',
         // Padding
         isCollapsed ? 'justify-center px-2' : 'px-3',
 
-        // Active state - Use accent color like pages
-        isActive && 'bg-accent text-accent-foreground font-medium',
+        // Active state - Electric Teal highlight
+        isActive && 'bg-primary text-primary-foreground font-medium hover:bg-primary hover:text-primary-foreground',
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -246,7 +246,7 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
       {/* Icon */}
       <div className={cn(
         'flex items-center justify-center flex-shrink-0',
-        isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground'
+        isActive ? 'text-primary-foreground' : 'text-secondary-foreground/90 group-hover:text-secondary-foreground'
       )}>
         <item.icon
           size={isCollapsed ? 18 : 16}
@@ -271,7 +271,7 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}
-              className="flex items-center justify-center min-w-4 h-4 w-4 h-4 px-1 bg-destructive text-white text-xs font-semibold rounded-full"
+              className="flex items-center justify-center min-w-4 h-4 w-4 h-4 px-1 bg-destructive text-destructive-foreground text-xs font-semibold rounded-full"
             >
               {item.badge}
             </motion.div>
@@ -280,7 +280,7 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}
-              className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-4 h-4 w-4 h-4 px-1 bg-destructive text-white text-xs font-bold rounded-full border border-white"
+              className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-4 h-4 w-4 h-4 px-1 bg-destructive text-destructive-foreground text-xs font-bold rounded-full border-2 border-secondary"
             >
               {item.badge}
             </motion.div>
@@ -338,7 +338,7 @@ const NavigationSectionComponent: React.FC<NavigationSectionProps> = ({
       {/* Section Header */}
       {!isCollapsed && (
         <div className="px-3 mb-2">
-          <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+          <h2 className="text-xs font-semibold text-secondary-foreground/60 uppercase tracking-wide">
             {section.label}
           </h2>
         </div>
@@ -403,8 +403,8 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
       }}
       className={cn(
         'fixed left-0 top-0 bottom-0 z-40',
-        'bg-card', // Use semantic token for dark mode support
-        'border-r border-border', // Use semantic token
+        'bg-secondary', // Dark Navy background
+        'border-r border-white/10', // Subtle border
         'flex flex-col overflow-hidden',
         'transition-[width] duration-300 ease-in-out',
         '!rounded-none !shadow-none !m-0',
@@ -413,7 +413,7 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
     >
       {/* Header */}
       <div className={cn(
-        'flex items-center gap-3 px-3 py-3 border-b border-border',
+        'flex items-center gap-3 px-3 py-3 border-b border-white/10',
         !isExpanded && 'justify-center px-2'
       )}>
         {/* Logo */}
@@ -431,10 +431,10 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
               transition={{ duration: 0.2 }}
               className="flex-1 min-w-0"
             >
-              <h1 className="text-base font-semibold text-foreground">
+              <h1 className="text-base font-semibold text-white">
                 Fleet CMMS
               </h1>
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-secondary-foreground/60">
                 Maintenance
               </p>
             </motion.div>
@@ -445,7 +445,7 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
 
 
       {/* Navigation */}
-      <nav className="flex-1 py-2 overflow-y-auto scrollbar-hide">
+      <nav className="flex-1 py-2 overflow-y-auto no-scrollbar">
         {filteredSections.map((section) => (
           <NavigationSectionComponent
             key={section.id}
@@ -458,7 +458,7 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
 
       {/* Footer */}
       <div className={cn(
-        'px-3 py-3 border-t border-border',
+        'px-3 py-3 border-t border-white/10',
         !isExpanded && 'px-2'
       )}>
         {/* Theme Toggle */}
@@ -472,7 +472,7 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
         {/* User Profile */}
         <button className={cn(
           'flex items-center gap-2.5 p-2 w-full rounded-md transition-colors',
-          'hover:bg-accent',
+          'hover:bg-white/10 text-secondary-foreground/90 hover:text-secondary-foreground',
           !isExpanded && 'justify-center'
         )}>
           <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
@@ -488,10 +488,10 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
                 transition={{ duration: 0.2 }}
                 className="flex-1 min-w-0 text-left"
               >
-                <div className="text-sm font-medium text-foreground truncate">
+                <div className="text-sm font-medium text-white truncate">
                   Admin User
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-xs text-secondary-foreground/70">
                   Administrator
                 </div>
               </motion.div>

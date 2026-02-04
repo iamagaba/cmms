@@ -207,7 +207,7 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
               key={tab.id}
               onClick={() => setActiveView(tab.id as ViewType)}
               className={`flex-1 flex items-center justify-center gap-2 px-4 py-3 text-sm font-medium transition-colors ${activeView === tab.id
-                  ? 'text-purple-600 dark:text-purple-400 border-b-2 border-purple-600 dark:border-purple-400'
+                  ? 'text-primary border-b-2 border-primary'
                   : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                 }`}
             >
@@ -221,7 +221,7 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
         <div className="flex-1 overflow-auto p-6">
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader className="w-32 h-32 animate-spin text-purple-600" />
+              <Loader className="w-32 h-32 animate-spin text-primary" />
             </div>
           ) : (
             <>
@@ -267,7 +267,7 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
                           className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-800 rounded-lg"
                         >
                           <div className="flex items-center gap-3">
-                            <span className="w-6 h-6 flex items-center justify-center bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded text-xs font-medium">
+                            <span className="w-6 h-6 flex items-center justify-center bg-primary/10 text-primary rounded text-xs font-medium">
                               {index + 1}
                             </span>
                             <div>
@@ -333,7 +333,7 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
                 <div className="space-y-2">
                   {isLoadingVehicle ? (
                     <div className="text-center py-8">
-                      <Loader className="w-6 h-6 animate-spin mx-auto text-purple-600" />
+                      <Loader className="w-6 h-6 animate-spin mx-auto text-primary" />
                     </div>
                   ) : (
                     <>
@@ -379,7 +379,7 @@ export const PartsUsageAnalyticsPanel: React.FC<PartsUsageAnalyticsPanelProps> =
                 <div className="space-y-2">
                   {isLoadingCategory ? (
                     <div className="text-center py-8">
-                      <Loader className="w-6 h-6 animate-spin mx-auto text-purple-600" />
+                      <Loader className="w-6 h-6 animate-spin mx-auto text-primary" />
                     </div>
                   ) : (
                     <>
@@ -436,7 +436,7 @@ const StatCard: React.FC<{
   color: 'purple' | 'emerald' | 'blue' | 'orange';
 }> = ({ label, value, icon, color }) => {
   const colorClasses = {
-    purple: 'bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400',
+    purple: 'bg-primary/10 text-primary',
     emerald: 'bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400',
     blue: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400',
     orange: 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400',

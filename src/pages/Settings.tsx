@@ -396,6 +396,10 @@ const SystemTab = () => {
   };
 
   const onSubmit = async (data: any) => {
+    console.log('=== Settings Save Started ===');
+    console.log('Form data:', data);
+    console.log('SLA Configs:', slaConfigs);
+
     try {
       // Convert UI state back to stored format (total hours)
       const storedConfig: Record<string, { high: number; medium: number; low: number }> = {};
@@ -408,16 +412,27 @@ const SystemTab = () => {
         };
       });
 
+      console.log('Stored config to save:', storedConfig);
+      console.log('updateSettings function exists:', !!updateSettings);
+
       if (updateSettings) {
-        await updateSettings({
+        const updates = {
           notifications_enabled: data.notifications,
           dark_mode: data.darkMode,
           sla_threshold: data.slaThreshold,
           sla_config: JSON.stringify(storedConfig),
-        });
+        };
+        console.log('Calling updateSettings with:', updates);
+
+        await updateSettings(updates);
+        console.log('Settings updated successfully');
         showSuccess('Settings updated.');
+      } else {
+        console.error('updateSettings function not available');
+        showError('Settings update function not available');
       }
     } catch (error: any) {
+      console.error('Error saving settings:', error);
       showError(error.message || 'Failed to update settings');
     }
   };
@@ -670,60 +685,43 @@ const SettingsPage = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           {/* Top Navigation Tabs */}
-          <Card className="sticky top-[60px] z-40">
-            <CardContent className="pt-6">
-              <TabsList className="w-full justify-start">
-                {availableTabs.map((tab) => {
-                  const IconComponent = tab.icon;
-                  return (
-                    <TabsTrigger
-                      key={tab.key}
-                      value={tab.key}
-                      className="flex items-center gap-2"
-                    >
-                      <IconComponent className="w-4 h-4" />
-                      <span>{tab.label}</span>
-                    </TabsTrigger>
-                  );
-                })}
-              </TabsList>
-            </CardContent>
-          </Card>
+          <div className="sticky top-[60px] z-40">
+            <TabsList className="w-full justify-start">
+              {availableTabs.map((tab) => {
+                const IconComponent = tab.icon;
+                return (
+                  <TabsTrigger
+                    key={tab.key}
+                    value={tab.key}
+                    className="flex items-center gap-2"
+                  >
+                    <IconComponent className="w-4 h-4" />
+                    <span>{tab.label}</span>
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+          </div>
 
           {/* Content */}
           <div className="min-h-[600px]">
             <TabsContent value="profile" className="space-y-6">
-              <p className="text-sm text-muted-foreground">
-                Manage your personal information and preferences
-              </p>
               <ProfileTab />
             </TabsContent>
 
             <TabsContent value="notifications" className="space-y-6">
-              <p className="text-sm text-muted-foreground">
-                View and manage your notifications
-              </p>
               <NotificationsTab />
             </TabsContent>
 
             <TabsContent value="configuration" className="space-y-6">
-              <p className="text-sm text-muted-foreground">
-                Configure diagnostics and application workflows
-              </p>
               <ConfigurationTab />
             </TabsContent>
 
             <TabsContent value="system" className="space-y-6">
-              <p className="text-sm text-muted-foreground">
-                Configure system-wide settings and preferences
-              </p>
               <SystemTab />
             </TabsContent>
 
             <TabsContent value="help" className="space-y-6">
-              <p className="text-sm text-muted-foreground">
-                Guides and documentation for using Fleet CMMS
-              </p>
               <HelpTab />
             </TabsContent>
           </div>

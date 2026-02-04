@@ -91,7 +91,7 @@ export function AppLayout({ children }: AppLayoutProps) {
                 )}
 
                 {/* Mobile Sidebar */}
-                <div className={`fixed inset-y-0 left-0 z-[70] w-[200px] bg-background transform transition-transform duration-300 ease-in-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+                <div className={`fixed inset-y-0 left-0 z-[70] w-[200px] bg-secondary transform transition-transform duration-300 ease-in-out ${mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
                     }`}>
                     <ProfessionalSidebar
                         collapsed={false}
@@ -120,8 +120,11 @@ export function AppLayout({ children }: AppLayoutProps) {
             >
                 {/* Mobile header spacing - single spacer */}
                 <div className="lg:hidden pt-16" />
-                
-                {location.pathname === '/chat' || /^\/work-orders\/[^/]+$/.test(location.pathname) ? (
+
+                {(
+                    location.pathname === '/chat' ||
+                    /^\/(work-orders|assets|technicians|customers|inventory|locations|reports)(\/.*)?$/.test(location.pathname)
+                ) ? (
                     // Full-bleed pages: Chat and work order details (no extra padding)
                     <div className="w-full h-full">
                         {children}

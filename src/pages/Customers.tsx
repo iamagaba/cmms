@@ -145,58 +145,70 @@ const CustomersPage = () => {
   const selectedCustomerStats = selectedCustomerId ? getCustomerStats(selectedCustomerId) : null;
 
   return (
-    <div className="flex h-[calc(100vh-2rem)] w-full overflow-hidden">
+    <div className="flex h-screen w-full overflow-hidden">
       {/* Left Panel - Customer List */}
-      <div className="w-full sm:w-80 border-r flex flex-col">
+      <div className="w-full sm:w-80 border-r flex flex-col bg-muted">
         {/* Header */}
         <div className="p-3 border-b">
           <div className="flex items-center justify-between mb-3">
-            <h1 className="text-2xl font-bold">Customers</h1>
-            <Button
-              variant={filtersOpen ? "secondary" : "ghost"}
-              size="sm"
-              onClick={() => setFiltersOpen(!filtersOpen)}
-              className="w-7 p-0"
-            >
-              <Filter className="w-4 h-4" />
-            </Button>
+            <div>
+              <h2 className="text-lg font-semibold text-foreground">Customers</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Manage your customers</p>
+            </div>
           </div>
 
           {/* Search */}
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-              <Search className="w-4 h-4 text-muted-foreground" />
+          <div className="px-3 py-2">
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="w-5 h-5 text-muted-foreground" />
+              </div>
+              <input
+                type="text"
+                placeholder="Search customers..."
+                aria-label="Search customers"
+                className="w-full pl-10 pr-4 py-1.5 text-xs border border-input rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
             </div>
-            <Input
-              type="text"
-              placeholder="Search customers..."
-              aria-label="Search customers"
-              className="pl-8 text-sm"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
           </div>
 
-          {/* Filters */}
-          {filtersOpen && (
-            <div className="mt-3 pt-2 border-t">
-              <div className="mb-3">
-                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Customer Type</label>
-                <Select value={customerTypeFilter} onValueChange={setCustomerTypeFilter}>
-                  <SelectTrigger className="text-sm">
-                    <SelectValue placeholder="All Types" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Types</SelectItem>
-                    <SelectItem value="Cash">Cash</SelectItem>
-                    <SelectItem value="WATU">WATU</SelectItem>
-                    <SelectItem value="B2B">B2B</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          )}
+          {/* Filters Toggle Row */}
+          <div className="px-3 py-2 flex items-center gap-4 overflow-x-auto no-scrollbar">
+            <button
+              onClick={() => setFiltersOpen(!filtersOpen)}
+              className={`inline-flex items-center gap-1.5 px-2 py-1.5 text-xs font-medium rounded-md transition-colors whitespace-nowrap ${filtersOpen
+                ? 'bg-primary/10 text-primary border border-primary/20'
+                : 'text-muted-foreground hover:text-foreground hover:bg-muted border border-border'
+                }`}
+            >
+              <Filter className="w-5 h-5" />
+              Filters
+            </button>
+          </div>
         </div>
+
+        {/* Filters */}
+        {filtersOpen && (
+          <div className="mt-3 pt-2 border-t">
+            <div className="mb-3">
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">Customer Type</label>
+              <Select value={customerTypeFilter} onValueChange={setCustomerTypeFilter}>
+                <SelectTrigger className="text-sm bg-background">
+                  <SelectValue placeholder="All Types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Types</SelectItem>
+                  <SelectItem value="Cash">Cash</SelectItem>
+                  <SelectItem value="WATU">WATU</SelectItem>
+                  <SelectItem value="B2B">B2B</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+
 
         {/* Customer List */}
         <div className="flex-1 overflow-y-auto overscroll-y-contain">
@@ -208,6 +220,7 @@ const CustomersPage = () => {
                   <div className="flex-1 space-y-1.5">
                     <Skeleton className="h-3.5 w-32" />
                     <Skeleton className="h-3 w-24" />
+
                   </div>
                 </div>
               ))}
@@ -219,7 +232,7 @@ const CustomersPage = () => {
               description={hasActiveFilters ? "Try adjusting your filters" : "Add your first customer"}
             />
           ) : (
-            <div className="divide-y">
+            <div className="divide-y border-t border-border">
               {filteredCustomers.map((customer) => {
                 const stats = getCustomerStats(customer.id);
                 const isSelected = selectedCustomerId === customer.id;
@@ -228,7 +241,7 @@ const CustomersPage = () => {
                 return (
                   <button
                     key={customer.id}
-                    className={`w-full text-left p-2.5 transition-colors hover:bg-accent ${isSelected ? 'bg-accent border-l-2 border-l-primary' : ''
+                    className={`w-full text-left p-2.5 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${isSelected ? 'bg-background border-l-2 border-l-primary shadow-sm' : 'border-l-2 border-l-transparent'
                       }`}
                     onClick={() => handleViewDetails(customer.id)}
                   >
@@ -270,163 +283,164 @@ const CustomersPage = () => {
             </div>
           )}
         </div>
-      </div>
+      </div >
 
       {/* Right Panel - Customer Details */}
-      <div className={`${isMobile ? (selectedCustomerId ? 'flex-1 w-full' : 'hidden') : 'flex-1'} flex flex-col`}>
-        {selectedCustomer ? (
-          <>
-            {/* Header */}
-            <div className="p-3 border-b">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2.5">
-                  {isMobile && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSelectedCustomerId(null)}
-                      className="mr-1 -ml-1 h-7 w-7 p-0"
-                    >
-                      <ArrowLeft className="w-4 h-4" />
-                    </Button>
-                  )}
-                  <Avatar className="w-9 h-9">
-                    <AvatarFallback className="text-sm">
-                      {selectedCustomer.name ? selectedCustomer.name.charAt(0).toUpperCase() : 'C'}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h2 className="text-base font-semibold">{selectedCustomer.name}</h2>
+      < div className={`${isMobile ? (selectedCustomerId ? 'flex-1 w-full' : 'hidden') : 'flex-1'} flex flex-col`}>
+        {
+          selectedCustomer ? (
+            <>
+              {/* Header */}
+              < div className="p-3 border-b" >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    {isMobile && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setSelectedCustomerId(null)}
+                        className="mr-1 -ml-1 h-7 w-7 p-0"
+                      >
+                        <ArrowLeft className="w-4 h-4" />
+                      </Button>
+                    )}
+                    <Avatar className="w-9 h-9">
+                      <AvatarFallback className="text-sm">
+                        {selectedCustomer.name ? selectedCustomer.name.charAt(0).toUpperCase() : 'C'}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h2 className="text-base font-semibold">{selectedCustomer.name}</h2>
+                    </div>
                   </div>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => navigate(`/customers/${selectedCustomer.id}`)}
+                    className="text-xs h-7"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    View Details
+                  </Button>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate(`/customers/${selectedCustomer.id}`)}
-                  className="text-xs h-7"
-                >
-                  <ExternalLink className="w-3.5 h-3.5" />
-                  View Details
-                </Button>
-              </div>
-            </div>
+              </div >
 
-            {/* Stats Ribbon */}
-            <div className="grid grid-cols-4 gap-4 p-4 border-b bg-muted/30">
-              <div className="space-y-1">
-                <div className="flex items-center gap-1.5">
-                  <Car className="w-3.5 h-3.5 text-muted-foreground" />
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Vehicles</p>
+              {/* Stats Ribbon */}
+              < div className="grid grid-cols-4 gap-4 p-4 border-b bg-muted/30" >
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5">
+                    <Car className="w-3.5 h-3.5 text-muted-foreground" />
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Vehicles</p>
+                  </div>
+                  <p className="text-xl font-bold">{selectedCustomerStats?.vehicleCount || 0}</p>
                 </div>
-                <p className="text-xl font-bold">{selectedCustomerStats?.vehicleCount || 0}</p>
-              </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-1.5">
-                  <ClipboardList className="w-3.5 h-3.5 text-muted-foreground" />
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total</p>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5">
+                    <ClipboardList className="w-3.5 h-3.5 text-muted-foreground" />
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Total</p>
+                  </div>
+                  <p className="text-xl font-bold">{selectedCustomerStats?.totalWorkOrders || 0}</p>
                 </div>
-                <p className="text-xl font-bold">{selectedCustomerStats?.totalWorkOrders || 0}</p>
-              </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-1.5">
-                  <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Open</p>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Open</p>
+                  </div>
+                  <p className="text-xl font-bold">{selectedCustomerStats?.openWorkOrders || 0}</p>
                 </div>
-                <p className="text-xl font-bold">{selectedCustomerStats?.openWorkOrders || 0}</p>
-              </div>
-              <div className="space-y-1">
-                <div className="flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Since</p>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Since</p>
+                  </div>
+                  <p className="text-sm font-semibold">
+                    {dayjs(selectedCustomer.created_at).format('MMM YYYY')}
+                  </p>
                 </div>
-                <p className="text-sm font-semibold">
-                  {dayjs(selectedCustomer.created_at).format('MMM YYYY')}
+              </div >
+
+              {/* Content */}
+              < div className="flex-1 overflow-y-auto p-3 overscroll-y-contain" >
+                <div className="space-y-4">
+                  {/* Contact Information */}
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-sm font-medium">Contact Information</CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {selectedCustomer.phone && (
+                          <div className="bg-muted rounded-md p-2.5">
+                            <div className="text-xs font-medium text-muted-foreground mb-0.5 uppercase tracking-wide">Phone</div>
+                            <div className="text-sm font-semibold">{selectedCustomer.phone}</div>
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Recent Activity */}
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <div className="flex items-center justify-between">
+                        <CardTitle className="text-sm font-medium">Work Order History</CardTitle>
+                        <Button
+                          variant="link"
+                          size="sm"
+                          onClick={() => navigate(`/work-orders?customer=${selectedCustomer.id}`)}
+                          className="h-auto p-0 text-xs"
+                        >
+                          View All <ArrowRight className="w-3 h-3 ml-0.5" />
+                        </Button>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="p-0 pt-0">
+                      {workOrders && workOrders.filter(wo => wo.customer_id === selectedCustomer.id).length > 0 ? (
+                        <EnhancedWorkOrderDataTable
+                          workOrders={workOrders.filter(wo => wo.customer_id === selectedCustomer.id)}
+                          technicians={technicians}
+                          locations={locations}
+                          customers={customers ? [selectedCustomer] : []}
+                          vehicles={vehicles || []}
+                          profiles={profiles}
+                          serviceCategories={serviceCategories}
+                          onEdit={(wo) => navigate(`/work-orders/${wo.id}`)}
+                          onDelete={() => { }}
+                          onUpdateWorkOrder={() => { }}
+                          onViewDetails={(id) => navigate(`/work-orders/${id}`)}
+                          enableBulkActions={false}
+                          enableAdvancedFilters={false}
+                          enableExport={false}
+                          compactMode={true}
+                          visibleColumns={['workOrderNumber', 'status', 'priority', 'createdAt', 'service']}
+                        />
+                      ) : (
+                        <EmptyState
+                          icon={<ClipboardList className="w-6 h-6 text-muted-foreground" />}
+                          title="No work orders yet"
+                          description="Work orders will appear here"
+                        />
+                      )}
+                    </CardContent>
+                  </Card>
+                </div>
+              </div >
+            </>
+          ) : (
+            <div className="flex-1 flex items-center justify-center">
+              <div className="text-center">
+                <div className="w-14 h-14 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
+                  <Users className="w-8 h-8 text-muted-foreground" />
+                </div>
+                <h3 className="text-base font-semibold mb-1.5">Select a Customer</h3>
+                <p className="text-sm text-muted-foreground max-w-sm">
+                  Choose a customer from the list to view their details, vehicles, and service history.
                 </p>
               </div>
             </div>
-
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto p-3 overscroll-y-contain">
-              <div className="space-y-4">
-                {/* Contact Information */}
-                <Card>
-                  <CardHeader className="pb-2">
-                    <CardTitle className="text-sm font-medium">Contact Information</CardTitle>
-                  </CardHeader>
-                  <CardContent className="pt-0">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      {selectedCustomer.phone && (
-                        <div className="bg-muted rounded-md p-2.5">
-                          <div className="text-xs font-medium text-muted-foreground mb-0.5 uppercase tracking-wide">Phone</div>
-                          <div className="text-sm font-semibold">{selectedCustomer.phone}</div>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Recent Activity */}
-                <Card>
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm font-medium">Work Order History</CardTitle>
-                      <Button
-                        variant="link"
-                        size="sm"
-                        onClick={() => navigate(`/work-orders?customer=${selectedCustomer.id}`)}
-                        className="h-auto p-0 text-xs"
-                      >
-                        View All <ArrowRight className="w-3 h-3 ml-0.5" />
-                      </Button>
-                    </div>
-                  </CardHeader>
-                  <CardContent className="p-0 pt-0">
-                    {workOrders && workOrders.filter(wo => wo.customer_id === selectedCustomer.id).length > 0 ? (
-                      <EnhancedWorkOrderDataTable
-                        workOrders={workOrders.filter(wo => wo.customer_id === selectedCustomer.id)}
-                        technicians={technicians}
-                        locations={locations}
-                        customers={customers ? [selectedCustomer] : []}
-                        vehicles={vehicles || []}
-                        profiles={profiles}
-                        serviceCategories={serviceCategories}
-                        onEdit={(wo) => navigate(`/work-orders/${wo.id}`)}
-                        onDelete={() => { }}
-                        onUpdateWorkOrder={() => { }}
-                        onViewDetails={(id) => navigate(`/work-orders/${id}`)}
-                        enableBulkActions={false}
-                        enableAdvancedFilters={false}
-                        enableExport={false}
-                        compactMode={true}
-                        visibleColumns={['workOrderNumber', 'status', 'priority', 'createdAt', 'service']}
-                      />
-                    ) : (
-                      <EmptyState
-                        icon={<ClipboardList className="w-6 h-6 text-muted-foreground" />}
-                        title="No work orders yet"
-                        description="Work orders will appear here"
-                      />
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-          </>
-        ) : (
-          <div className="flex-1 flex items-center justify-center">
-            <div className="text-center">
-              <div className="w-14 h-14 bg-muted rounded-full flex items-center justify-center mx-auto mb-3">
-                <Users className="w-8 h-8 text-muted-foreground" />
-              </div>
-              <h3 className="text-base font-semibold mb-1.5">Select a Customer</h3>
-              <p className="text-sm text-muted-foreground max-w-sm">
-                Choose a customer from the list to view their details, vehicles, and service history.
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
+          )}
+      </div >
+    </div >
   );
 };
 

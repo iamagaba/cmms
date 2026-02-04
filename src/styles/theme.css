@@ -10,25 +10,25 @@
 /* ============================================ */
 
 :root {
-  /* Color System - Light Mode (Default) */
+  /* Color System - Light Mode (Gogo Electric) */
   --color-background: #ffffff;
   --color-surface: #f8fafc;
   --color-border: #e2e8f0;
-  --color-text-primary: #1e293b;
+  --color-text-primary: #0F172A;  /* Deep Navy */
   --color-text-secondary: #64748b;
   --color-text-muted: #94a3b8;
   
   /* Interactive States */
   --color-hover: #f1f5f9;
   --color-active: #e2e8f0;
-  --color-focus: #3b82f6;
-  --color-focus-ring: rgba(59, 130, 246, 0.2);
+  --color-focus: #0D9488;  /* Electric Teal */
+  --color-focus-ring: rgba(13, 148, 136, 0.2);
   
   /* Status Colors */
-  --color-success: #059669;
-  --color-warning: #d97706;
+  --color-success: #0D9488;  /* Electric Teal */
+  --color-warning: #fb923c;  /* Solar Orange */
   --color-error: #dc2626;
-  --color-info: #0284c7;
+  --color-info: #0D9488;  /* Electric Teal */
   
   /* Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -48,7 +48,7 @@
 /* ============================================ */
 
 .theme-dark {
-  --color-background: #0f172a;
+  --color-background: #0f172a;  /* Deep Navy */
   --color-surface: #1e293b;
   --color-border: #334155;
   --color-text-primary: #f1f5f9;
@@ -58,8 +58,8 @@
   /* Interactive States */
   --color-hover: #334155;
   --color-active: #475569;
-  --color-focus: #60a5fa;
-  --color-focus-ring: rgba(96, 165, 250, 0.2);
+  --color-focus: #14b8a6;  /* Lighter Electric Teal for dark mode */
+  --color-focus-ring: rgba(20, 184, 166, 0.2);
   
   /* Enhanced shadows for dark mode */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);

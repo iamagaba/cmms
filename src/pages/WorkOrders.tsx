@@ -24,10 +24,15 @@ import {
   UserPlus,
   Columns,
   Bell,
-  ClipboardList
+  ClipboardList,
+  Calendar,
+  Settings,
+  Lock,
+  LayoutGrid,
+  RotateCcw
 } from 'lucide-react';
 
-import PageHeader from '@/components/layout/PageHeader';
+
 
 // shadcn UI components
 import { Button } from "@/components/ui/button";
@@ -42,7 +47,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 import { useDisclosure, useMediaQuery } from '@/hooks/tailwind';
 import { EnhancedWorkOrderDataTable } from "@/components/EnhancedWorkOrderDataTable";
-import { REQUIRED_COLUMNS, OPTIONAL_COLUMNS } from "@/components/work-order-columns-constants";
+import { REQUIRED_COLUMNS, OPTIONAL_COLUMNS, ALL_COLUMNS } from "@/components/work-order-columns-constants";
 import { WorkOrderDetailsDrawer } from "@/components/WorkOrderDetailsDrawer";
 import { CreateWorkOrderForm } from "@/components/work-orders/CreateWorkOrderForm";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
@@ -64,32 +69,27 @@ import { useSearchHistory } from "@/hooks/useSearchHistory";
 import { useNotifications } from '@/hooks/useNotifications';
 import { useDebouncedValue } from "@/hooks/useDebouncedValue";
 import { WorkOrder } from "@/types/supabase";
+import { getWorkOrderNumber } from '@/utils/work-order-display';
 import { WorkOrdersMap } from "@/components/maps/WorkOrdersMap";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 
 // Fix import if file exists, otherwise comment out or remove if verified unused
 // import WorkOrderProgressTimeline from "@/components/WorkOrderProgressTimeline";
+import { WorkOrderTimeline, useWorkOrderTimeline } from "@/components/work-order-timeline";
+
+const WorkOrderTimelineWrapper = ({ workOrders, onWorkOrderClick, isLoading }: { workOrders: WorkOrder[], onWorkOrderClick: (wo: any) => void, isLoading?: boolean }) => {
+  const timelineData = useWorkOrderTimeline(workOrders);
+  return <WorkOrderTimeline workOrders={timelineData} onWorkOrderClick={onWorkOrderClick} className="h-full" isLoading={isLoading} />;
+};
 
 dayjs.extend(isBetween);
 dayjs.extend(relativeTime);
 
-type WorkOrderView = 'table' | 'map' | 'progress';
+type WorkOrderView = 'table' | 'map' | 'timeline';
 
 // Enhanced status and priority configurations
-const STATUS_CONFIG = {
-  'Open': { color: 'blue', icon: Clock, label: 'Open' },
-  'In Progress': { color: 'orange', icon: Clock, label: 'In Progress' },
-  'Completed': { color: 'green', icon: CheckCircle, label: 'Completed' },
-  'On Hold': { color: 'yellow', icon: Pause, label: 'On Hold' },
-  'Cancelled': { color: 'red', icon: AlertCircle, label: 'Cancelled' },
-} as const;
-
-const PRIORITY_CONFIG = {
-  'High': { color: 'red', icon: ChevronUp, label: 'High Priority' },
-  'Medium': { color: 'yellow', icon: Menu, label: 'Medium Priority' },
-  'Low': { color: 'green', icon: ChevronDown, label: 'Low Priority' },
-} as const;
+import { STATUS_CONFIG, PRIORITY_CONFIG } from '@/config/status';
 
 // Helper component for multi-select filters using shadcn
 const FilterMultiSelect = ({ label, value, onChange, options, placeholder, className }: {
@@ -249,7 +249,7 @@ const WorkOrdersPage = () => {
     slaPolicies,
     isLoading,
     error,
-    refetch
+    refetch: refetchWorkOrders
   } = useWorkOrderData();
 
   // Fetch active emergency bike assignments
@@ -427,7 +427,7 @@ const WorkOrdersPage = () => {
     const csvContent = [
       ['Work Order', 'Status', 'Priority', 'Vehicle', 'Technician', 'Created', 'SLA Due'].join(','),
       ...processedWorkOrders.map(wo => [
-        wo.workOrderNumber || wo.id.substring(0, 8),
+        getWorkOrderNumber(wo),
         wo.status || '',
         wo.priority || '',
         vehicles?.find(v => v.id === wo.vehicleId)?.license_plate || '',
@@ -570,22 +570,11 @@ const WorkOrdersPage = () => {
 
   return (
     <ErrorBoundary>
-      <div className="h-[calc(100vh-2rem)] flex flex-col bg-background overflow-hidden">
+      <div className="h-screen flex flex-col bg-background overflow-hidden">
         {/* Main Content Area */}
-        <div className="flex-1 flex flex-col overflow-hidden gap-4" style={{ scrollbarGutter: 'stable' }}>
+        <div className="flex-1 flex flex-col overflow-hidden gap-4">
           <div className="flex-none px-4 pt-4 pb-2 space-y-4">
-            {/* Page Header */}
-            <PageHeader
-              title="Work Orders"
-              subtitle="Manage and track all maintenance requests"
-              icon={<ClipboardList className="w-5 h-5 text-muted-foreground" />}
-              actions={
-                <Button onClick={onCreateNew} size="sm" className="gap-1.5">
-                  <Plus className="w-4 h-4" />
-                  <span>{isMobile ? 'New' : 'Create'}</span>
-                </Button>
-              }
-            />
+
 
             {/* Controls Row */}
             <div className="flex flex-wrap items-center gap-4">
@@ -594,20 +583,30 @@ const WorkOrdersPage = () => {
                   variant={view === 'table' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setView('table')}
-                  className="gap-2 px-2.5"
+                  className="gap-1.5 px-2 h-7 text-xs"
                 >
-                  <List className="w-4 h-4" />
+                  <List className="w-3.5 h-3.5" />
                   Table
                 </Button>
                 <Button
                   variant={view === 'map' ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setView('map')}
-                  className="gap-2 px-2.5"
+                  className="gap-1.5 px-2 h-7 text-xs"
                 >
-                  <MapPin className="w-4 h-4" />
+                  <MapPin className="w-3.5 h-3.5" />
                   Map
                 </Button>
+                <Button
+                  variant={view === 'timeline' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setView('timeline')}
+                  className="gap-1.5 px-2 h-7 text-xs"
+                >
+                  <Calendar className="w-3.5 h-3.5" />
+                  Timeline
+                </Button>
+
               </div>
 
               <div className="flex-1" />
@@ -646,53 +645,115 @@ const WorkOrdersPage = () => {
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="outline" size="sm" className="gap-1.5 h-7 text-xs">
+                      <Settings className="w-3.5 h-3.5" />
                       <span>Columns</span>
-                      <ChevronDown className="w-4 h-4" />
+                      <ChevronDown className="w-3.5 h-3.5" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-56" align="end">
-                    <DropdownMenuLabel>
-                      <div>
-                        <p className="text-xs font-semibold">Visible Columns</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {visibleColumns.length} of {MAX_VISIBLE_COLUMNS} selected
-                        </p>
+                  <DropdownMenuContent className="w-64" align="end">
+                    {/* Header */}
+                    <div className="px-3 py-2.5 border-b border-border">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-xs font-semibold text-foreground">Customize Columns</p>
+                          <p className="text-[10px] text-muted-foreground mt-0.5">
+                            {visibleColumns.length} of {MAX_VISIBLE_COLUMNS} selected
+                          </p>
+                        </div>
+                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Settings className="w-4 h-4 text-primary" />
+                        </div>
                       </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <div className="max-h-64 overflow-y-auto">
-                      {OPTIONAL_COLUMNS.map((col) => {
-                        const isChecked = visibleColumns.includes(col.value);
-                        const isDisabled = !isChecked && visibleColumns.length >= MAX_VISIBLE_COLUMNS;
-
-                        return (
-                          <DropdownMenuItem
-                            key={col.value}
-                            className="flex items-center space-x-2 cursor-pointer"
-                            disabled={isDisabled}
-                            onSelect={(e) => {
-                              e.preventDefault();
-                              if (!isDisabled) toggleColumn(col.value);
-                            }}
-                          >
-                            <Checkbox
-                              checked={isChecked}
-                              disabled={isDisabled}
-                              className="h-3.5 w-3.5"
-                            />
-                            <span className="text-xs">{col.label}</span>
-                          </DropdownMenuItem>
-                        );
-                      })}
                     </div>
+
+                    {/* Required Columns Section */}
+                    <div className="px-2 py-2">
+                      <div className="flex items-center gap-1.5 px-2 py-1">
+                        <Lock className="w-3 h-3 text-muted-foreground" />
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Required</span>
+                      </div>
+                      <div className="space-y-0.5">
+                        {REQUIRED_COLUMNS.map((colValue) => {
+                          const col = ALL_COLUMNS.find(c => c.value === colValue);
+                          if (!col) return null;
+                          return (
+                            <div
+                              key={col.value}
+                              className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-muted/30"
+                            >
+                              <div className="h-3.5 w-3.5 rounded border-2 border-muted-foreground/30 bg-muted flex items-center justify-center">
+                                <Check className="w-2.5 h-2.5 text-muted-foreground" />
+                              </div>
+                              <span className="text-xs text-muted-foreground">{col.label}</span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onSelect={resetColumnsToDefault}>
-                      <span className="text-xs text-primary hover:text-primary/80 font-medium">
-                        Reset to default
-                      </span>
-                    </DropdownMenuItem>
+
+                    {/* Optional Columns Section */}
+                    <div className="px-2 py-2">
+                      <div className="flex items-center gap-1.5 px-2 py-1">
+                        <LayoutGrid className="w-3 h-3 text-muted-foreground" />
+                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Optional</span>
+                      </div>
+                      <div className="max-h-48 overflow-y-auto space-y-0.5">
+                        {OPTIONAL_COLUMNS.map((col) => {
+                          const isChecked = visibleColumns.includes(col.value);
+                          const isDisabled = !isChecked && visibleColumns.length >= MAX_VISIBLE_COLUMNS;
+
+                          return (
+                            <DropdownMenuItem
+                              key={col.value}
+                              className={`flex items-center gap-2 cursor-pointer px-2 py-1.5 rounded-md ${isChecked ? 'bg-primary/5' : ''
+                                } ${isDisabled ? 'opacity-40 cursor-not-allowed' : ''}`}
+                              disabled={isDisabled}
+                              onSelect={(e) => {
+                                e.preventDefault();
+                                if (!isDisabled) toggleColumn(col.value);
+                              }}
+                            >
+                              <Checkbox
+                                checked={isChecked}
+                                disabled={isDisabled}
+                                className="h-3.5 w-3.5"
+                              />
+                              <span className={`text-xs flex-1 ${isChecked ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+                                {col.label}
+                              </span>
+                              {isChecked && (
+                                <Check className="w-3 h-3 text-primary" />
+                              )}
+                            </DropdownMenuItem>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <DropdownMenuSeparator />
+
+                    {/* Reset Button */}
+                    <div className="p-2">
+                      <DropdownMenuItem
+                        onSelect={resetColumnsToDefault}
+                        className="cursor-pointer px-2 py-1.5 rounded-md hover:bg-primary/5"
+                      >
+                        <div className="flex items-center gap-2 w-full">
+                          <RotateCcw className="w-3.5 h-3.5 text-primary" />
+                          <span className="text-xs text-primary font-medium">Reset to default</span>
+                        </div>
+                      </DropdownMenuItem>
+                    </div>
                   </DropdownMenuContent>
                 </DropdownMenu>
+              )}
+              {view === 'table' && (
+                <Button onClick={onCreateNew} size="sm" className="gap-1.5 h-7 text-xs ml-auto">
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>{isMobile ? 'New' : 'Create'}</span>
+                </Button>
               )}
             </div>
 
@@ -716,10 +777,14 @@ const WorkOrdersPage = () => {
                   : 'text-muted-foreground hover:text-foreground border-transparent'
                   }`}
               >
-                All
+                <span>All</span>
+                <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold ${statusFilter.length === 0 ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                  {processedWorkOrders.length}
+                </span>
               </Button>
-              {['Open', 'In Progress', 'Completed', 'On Hold'].map((status) => {
+              {['New', 'Ready', 'In Progress', 'Completed', 'On Hold'].map((status) => {
                 const isActive = statusFilter.length === 1 && statusFilter[0] === status;
+                const count = allWorkOrders?.filter(wo => wo.status === status).length || 0;
                 return (
                   <Button
                     key={status}
@@ -731,7 +796,10 @@ const WorkOrdersPage = () => {
                       : 'text-muted-foreground hover:text-foreground border-transparent'
                       }`}
                   >
-                    {status}
+                    <span>{status}</span>
+                    <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold ${isActive ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                      {count}
+                    </span>
                   </Button>
                 );
               })}
@@ -840,27 +908,29 @@ const WorkOrdersPage = () => {
 
 
               {/* Content Area - No overflow here, let children handle it */}
-              <div className="flex-1 min-h-0 px-4 overscroll-y-contain" style={{ scrollbarGutter: 'stable' }}>
+              <div className="flex-1 min-h-0 px-4 overscroll-y-contain flex flex-col">
                 {view === 'table' && (
-                  <EnhancedWorkOrderDataTable
-                    workOrders={preset === 'active-loaners' ? processedWorkOrders.filter(wo => (wo as any).hasActiveLoaner ?? (wo as any).has_active_loaner) : processedWorkOrders}
-                    technicians={technicians}
-                    locations={locations}
-                    customers={customers}
-                    vehicles={vehicles}
-                    profiles={profiles}
-                    serviceCategories={serviceCategories}
-                    onEdit={(wo) => { setEditingWorkOrder(wo); setIsFormDialogOpen(true); }}
-                    onDelete={handleDeleteClick}
-                    onUpdateWorkOrder={handleUpdateWorkOrder}
-                    onViewDetails={handleViewDetails}
-                    loading={isLoading}
-                    visibleColumns={visibleColumns}
-                    emergencyBikeAssignments={emergencyBikeAssignments}
-                  />
+                  <div className="flex-1 min-h-0 flex flex-col">
+                    <EnhancedWorkOrderDataTable
+                      workOrders={preset === 'active-loaners' ? processedWorkOrders.filter(wo => (wo as any).hasActiveLoaner ?? (wo as any).has_active_loaner) : processedWorkOrders}
+                      technicians={technicians}
+                      locations={locations}
+                      customers={customers}
+                      vehicles={vehicles}
+                      profiles={profiles}
+                      serviceCategories={serviceCategories}
+                      onEdit={(wo) => { setEditingWorkOrder(wo); setIsFormDialogOpen(true); }}
+                      onDelete={handleDeleteClick}
+                      onUpdateWorkOrder={handleUpdateWorkOrder}
+                      onViewDetails={handleViewDetails}
+                      loading={isLoading}
+                      visibleColumns={visibleColumns}
+                      emergencyBikeAssignments={emergencyBikeAssignments}
+                    />
+                  </div>
                 )}
                 {view === 'map' && (
-                  <div className="flex-1 min-h-[500px]">
+                  <div className="flex-1 h-full">
                     <WorkOrdersMap
                       workOrders={processedWorkOrders}
                       locations={locations}
@@ -870,6 +940,16 @@ const WorkOrdersPage = () => {
                     />
                   </div>
                 )}
+                {view === 'timeline' && (
+                  <div className="flex-1 overflow-hidden flex flex-col min-h-0">
+                    <WorkOrderTimelineWrapper
+                      workOrders={processedWorkOrders}
+                      onWorkOrderClick={(wo) => handleViewDetails(wo.id)}
+                      isLoading={isLoading}
+                    />
+                  </div>
+                )}
+
               </div>
             </div>
           </ErrorBoundary>
@@ -892,6 +972,7 @@ const WorkOrdersPage = () => {
           <WorkOrderDetailsDrawer
             open={!!drawerWorkOrderId}
             onClose={() => {
+              refetchWorkOrders();
               setDrawerWorkOrderId(null);
               isDrawerOpenRef.current = false;
             }}
@@ -912,9 +993,9 @@ const WorkOrdersPage = () => {
             onConfirm={handleConfirmDelete}
             title={workOrderToDelete ? "Delete Work Order" : "Delete Work Orders"}
             message={workOrderToDelete
-              ? `Are you sure you want to delete work order ${workOrderToDelete.workOrderNumber || workOrderToDelete.id.substring(0, 8)}? This action cannot be undone.`
+              ? `Are you sure you want to delete work order ${getWorkOrderNumber(workOrderToDelete)}? This action cannot be undone.`
               : `Are you sure you want to delete ${selectedRecords.length} work orders? This action cannot be undone.`}
-            itemName={workOrderToDelete ? (workOrderToDelete.workOrderNumber || "this work order") : `${selectedRecords.length} work orders`}
+            itemName={workOrderToDelete ? getWorkOrderNumber(workOrderToDelete) : `${selectedRecords.length} work orders`}
             isDeleting={isDeleting}
           />
         </div>

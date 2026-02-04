@@ -76,7 +76,7 @@ export const useWorkOrderMutations = ({
 
     let isValidTransition = false;
 
-    if (normalizedOld === 'open') {
+    if (normalizedOld === 'new') {
       if (newStatus === 'Confirmation') {
         isValidTransition = true;
       } else if (newStatus === 'In Progress' && isServiceCenter) {

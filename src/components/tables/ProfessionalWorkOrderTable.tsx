@@ -68,7 +68,7 @@ const getStatusFromWorkOrder = (workOrder: WorkOrder): 'new' | 'in-progress' | '
   const status = workOrder.status?.toLowerCase().replace(/\s+/g, '-');
   switch (status) {
     case 'new':
-    case 'open':
+    case 'new':
       return 'new';
     case 'in-progress':
     case 'in_progress':

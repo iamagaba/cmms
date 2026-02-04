@@ -20,7 +20,7 @@ const badgeVariants = cva(
         info: "border-transparent bg-info text-info-foreground hover:bg-info/80",
 
         // Work order status variants with dark mode support
-        open: "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-400",
+        open: "border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400",
         "in-progress": "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-400",
         completed: "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-400",
         cancelled: "border-gray-200 bg-gray-50 text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400",
@@ -32,7 +32,7 @@ const badgeVariants = cva(
         low: "border-gray-200 bg-gray-50 text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-400",
 
         // Legacy color variants (kept for backward compatibility)
-        purple: "border-transparent bg-purple-100 text-purple-800",
+        purple: "border-transparent bg-primary/10 text-primary",
         green: "border-transparent bg-emerald-100 text-emerald-800",
         blue: "border-transparent bg-blue-100 text-blue-800",
         orange: "border-transparent bg-orange-100 text-orange-800",
@@ -41,7 +41,7 @@ const badgeVariants = cva(
         gray: "border-transparent bg-gray-100 text-gray-800",
 
         // Legacy status variants (kept for backward compatibility)
-        "status-open": "border-blue-200 bg-blue-50 text-blue-700 dark:border-blue-800 dark:bg-blue-950 dark:text-blue-400",
+        "status-open": "border-slate-200 bg-slate-50 text-slate-700 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-400",
         "status-in-progress": "border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-400",
         "status-completed": "border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-800 dark:bg-emerald-950 dark:text-emerald-400",
         "status-on-hold": "border-orange-200 bg-orange-50 text-orange-700 dark:border-orange-800 dark:bg-orange-950 dark:text-orange-400",
@@ -78,13 +78,20 @@ export interface StatusBadgeProps extends Omit<BadgeProps, 'variant'> {
 }
 
 const statusVariantMap: Record<string, BadgeProps['variant']> = {
-  'Open': 'open',
+  'New': 'open',
   'Confirmation': 'open',
   'Ready': 'open',
   'In Progress': 'in-progress',
   'On Hold': 'warning',
   'Completed': 'completed',
   'Cancelled': 'cancelled',
+  // Lowercase variants for compatibility
+  'open': 'open',
+  'new': 'open',
+  'in-progress': 'in-progress',
+  'completed': 'completed',
+  'on-hold': 'warning',
+  'cancelled': 'cancelled',
 };
 
 export function StatusBadge({ status, className, children, ...props }: StatusBadgeProps) {

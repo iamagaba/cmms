@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowDown, X, ArrowUp, AlertCircle } from 'lucide-react';
+import { ArrowDown, X, ArrowUp, AlertCircle, MapPin, Calendar, FileText } from 'lucide-react';
 import { Stack } from '@/components/tailwind-components';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -89,27 +89,39 @@ export const AdditionalDetailsStep: React.FC<AdditionalDetailsStepProps> = ({
 
 
   return (
-    <Stack gap="sm">
-      {/* Priority Selection */}
-      <div>
-        <Label className="text-xs font-medium mb-1.5">
-          Priority <span className="text-destructive">*</span>
+    <div className="space-y-6">
+      {/* Priority Selection - "Radio Card" Style */}
+      <div className="space-y-3">
+        <Label className="text-xs font-medium ml-1 text-muted-foreground uppercase tracking-wider">
+          Service Priority <span className="text-destructive">*</span>
         </Label>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {priorities.map((priority) => {
             const Icon = priority.icon;
+            const isSelected = data.priority === priority.value;
             return (
               <button
                 key={priority.value}
                 onClick={() => onChange({ priority: priority.value })}
-                className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium transition-all ${
-                  data.priority === priority.value
-                    ? `${priority.color} ring-2 ring-offset-1 ring-current`
-                    : 'bg-muted text-muted-foreground hover:bg-muted/80'
-                }`}
+                className={`relative flex items-center justify-center gap-2 p-2 rounded-lg border transition-all duration-200 ${isSelected
+                  ? `bg-background border-${priority.value === 'urgent' ? 'destructive' : priority.value === 'high' ? 'amber-500' : priority.value === 'medium' ? 'primary' : 'slate-500'} shadow-sm`
+                  : 'bg-muted/20 border-transparent hover:bg-muted/40 hover:border-border/50'
+                  }`}
               >
-                <Icon className="w-4 h-4" />
-                {priority.label}
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${isSelected
+                  ? `bg-${priority.value === 'urgent' ? 'destructive' : priority.value === 'high' ? 'amber-500' : priority.value === 'medium' ? 'primary' : 'slate-500'}/10`
+                  : 'bg-muted'
+                  }`}>
+                  <Icon className={`w-3 h-3 ${priority.value === 'urgent' ? 'text-destructive' :
+                    priority.value === 'high' ? 'text-amber-500' :
+                      priority.value === 'medium' ? 'text-primary' :
+                        'text-slate-500'
+                    }`} />
+                </div>
+                <span className={`text-[10px] sm:text-xs font-bold uppercase tracking-wider ${isSelected ? 'text-foreground' : 'text-muted-foreground'
+                  }`}>
+                  {priority.label}
+                </span>
               </button>
             );
           })}
@@ -117,56 +129,79 @@ export const AdditionalDetailsStep: React.FC<AdditionalDetailsStepProps> = ({
         {errors.priority && <p className="text-xs text-destructive mt-0.5">{errors.priority}</p>}
       </div>
 
-      {/* Service Location */}
-      <div>
-        <Label htmlFor="service-location" className="text-xs font-medium mb-1.5">
-          Service Location <span className="text-destructive">*</span>
-        </Label>
-        <Select value={data.serviceLocationId} onValueChange={(value) => onChange({ serviceLocationId: value })}>
-          <SelectTrigger id="service-location" className={errors.serviceLocationId ? 'border-destructive' : ''}>
-            <SelectValue placeholder="Select location" />
-          </SelectTrigger>
-          <SelectContent>
-            {locations?.map(l => (
-              <SelectItem key={l.id} value={l.id}>
-                {l.name} - {l.address}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        {errors.serviceLocationId && <p className="text-xs text-destructive mt-0.5">{errors.serviceLocationId}</p>}
-      </div>
+      <div className="grid md:grid-cols-2 gap-6">
+        {/* Service Location */}
+        <div className="space-y-2">
+          <Label htmlFor="service-location" className="text-xs font-medium text-muted-foreground uppercase tracking-wider ml-1">
+            Service Location <span className="text-destructive">*</span>
+          </Label>
+          <div className="relative group">
+            <div className="absolute left-3 top-2.5 pointer-events-none text-muted-foreground group-focus-within:text-primary transition-colors">
+              <MapPin className="w-4 h-4" />
+            </div>
+            <Select value={data.serviceLocationId} onValueChange={(value) => onChange({ serviceLocationId: value })}>
+              <SelectTrigger
+                id="service-location"
+                className={`pl-10 transition-all duration-200 focus:ring-4 focus:ring-primary/10 focus:border-primary ${errors.serviceLocationId ? 'border-destructive' : 'hover:border-primary/50'}`}
+              >
+                <SelectValue placeholder="Select location" />
+              </SelectTrigger>
+              <SelectContent>
+                {locations?.map(l => (
+                  <SelectItem key={l.id} value={l.id}>
+                    {l.name} - {l.address}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {errors.serviceLocationId && <p className="text-xs text-destructive mt-0.5">{errors.serviceLocationId}</p>}
+        </div>
 
-      {/* Scheduled Date (Optional) */}
-      <div>
-        <Label htmlFor="scheduled-date" className="text-xs font-medium mb-1.5">
-          Scheduled Date (Optional)
-        </Label>
-        <Input
-          id="scheduled-date"
-          type="datetime-local"
-          value={data.scheduledDate}
-          onChange={(e) => onChange({ scheduledDate: e.target.value })}
-        />
-        <p className="text-xs text-muted-foreground mt-0.5">
-          Leave empty for immediate service
-        </p>
+        {/* Scheduled Date (Optional) */}
+        <div className="space-y-2">
+          <Label htmlFor="scheduled-date" className="text-xs font-medium text-muted-foreground uppercase tracking-wider ml-1">
+            Scheduled Date (Optional)
+          </Label>
+          <div className="relative group">
+            <div className="absolute left-3 top-2.5 pointer-events-none text-muted-foreground group-focus-within:text-primary transition-colors">
+              <Calendar className="w-4 h-4" />
+            </div>
+            <Input
+              id="scheduled-date"
+              type="datetime-local"
+              value={data.scheduledDate}
+              onChange={(e) => onChange({ scheduledDate: e.target.value })}
+              onClick={(e) => e.currentTarget.showPicker()}
+              className="pl-10 transition-all duration-200 focus:ring-4 focus:ring-primary/10 focus:border-primary hover:border-primary/50 [&::-webkit-calendar-picker-indicator]:hidden cursor-pointer"
+            />
+          </div>
+          <p className="text-[10px] text-muted-foreground ml-1">
+            Leave empty for immediate service
+          </p>
+        </div>
       </div>
 
       {/* Customer Notes */}
-      <div>
-        <Label htmlFor="customer-notes" className="text-xs font-medium mb-1.5">
-          Additional Notes (Optional)
+      <div className="space-y-2">
+        <Label htmlFor="customer-notes" className="text-xs font-medium text-muted-foreground uppercase tracking-wider ml-1">
+          Customer Notes
         </Label>
-        <Textarea
-          id="customer-notes"
-          value={data.customerNotes}
-          onChange={(e) => onChange({ customerNotes: e.target.value })}
-          placeholder="Additional notes"
-          rows={3}
-        />
+        <div className="relative group">
+          <div className="absolute left-3 top-3 pointer-events-none text-muted-foreground group-focus-within:text-primary transition-colors">
+            <FileText className="w-4 h-4" />
+          </div>
+          <Textarea
+            id="customer-notes"
+            value={data.customerNotes}
+            onChange={(e) => onChange({ customerNotes: e.target.value })}
+            placeholder="Any special requests or additional information..."
+            rows={4}
+            className="pl-10 resize-none min-h-[100px] transition-all duration-200 focus:ring-4 focus:ring-primary/10 focus:border-primary hover:border-primary/50"
+          />
+        </div>
       </div>
-    </Stack>
+    </div>
   );
 };
 

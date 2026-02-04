@@ -187,7 +187,7 @@ export const WorkOrderDetailsScreen: React.FC<WorkOrderDetailsScreenProps> = ({
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Open':
+      case 'New':
         return '#2196f3';
       case 'In Progress':
         return '#ff9800';

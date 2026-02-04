@@ -87,7 +87,7 @@ export const isValidStatusTransition = (
     return false; // Cannot change status of a completed work order
   }
 
-  if (normalizedOld === 'open') {
+  if (normalizedOld === 'new') {
     if (newStatus === 'Confirmation') return true;
     if (newStatus === 'In Progress' && isServiceCenterChannel) return true;
     if (['Ready', 'Cancelled', 'On Hold'].includes(newStatus)) return true; // Allow broader transitions for robustness

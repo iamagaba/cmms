@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { CheckCircle, AlertCircle, Edit, FileText } from 'lucide-react';
-import { Stack, Card } from '@/components/tailwind-components';
+import { CheckCircle, AlertCircle, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DiagnosticTool } from '@/components/diagnostic/DiagnosticTool';
 import { DiagnosticSession } from '@/types/diagnostic';
@@ -35,7 +34,7 @@ export const DiagnosticStep: React.FC<DiagnosticStepProps> = ({
   };
 
   return (
-    <Stack gap="sm">
+    <div className="space-y-4">
       {showDiagnostic ? (
         <DiagnosticTool
           onComplete={handleDiagnosticComplete}
@@ -43,82 +42,99 @@ export const DiagnosticStep: React.FC<DiagnosticStepProps> = ({
           initialSession={data.diagnosticSession || undefined}
         />
       ) : data.diagnosticSession ? (
-        <Card p="lg" shadow="sm">
-          <Stack gap="md">
-            {/* Diagnostic Summary */}
-            <div className="flex items-start gap-2">
-              <div className="w-7 h-7 bg-emerald-50 rounded-full flex items-center justify-center flex-shrink-0">
-                <CheckCircle className="text-foreground w-4 h-4" />
+        <div className="bg-background rounded-lg border border-border/60 shadow-sm overflow-hidden group">
+          {/* Header Strip - "Ticket" Look */}
+          <div className="bg-muted/30 border-b border-border/60 px-4 py-2 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />
+              <span className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Diagnostic Report</span>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleEditDiagnostic}
+              className="h-6 text-[10px] uppercase font-bold text-primary hover:text-primary/80 hover:bg-primary/10 -mr-2"
+            >
+              Modify
+            </Button>
+          </div>
+
+          <div className="p-3 space-y-3">
+            {/* Main Result */}
+            <div className="flex items-start gap-3">
+              <div className="w-10 h-10 rounded-md bg-emerald-500/10 flex items-center justify-center flex-shrink-0 border border-emerald-500/20">
+                <CheckCircle className="text-emerald-600 w-5 h-5" />
               </div>
               <div className="flex-1">
-                <h4 className="font-semibold text-xs text-foreground mb-0.5">Diagnostic Complete</h4>
-                <p className="text-xs text-muted-foreground">
-                  Category: <span className="font-medium">{data.diagnosticSession.finalCategory}</span>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <h4 className="font-brand font-bold text-base text-foreground capitalize">
+                    {/* Check if finalCategory looks like a UUID and provide fallback */}
+                    {data.diagnosticSession.finalCategory &&
+                      data.diagnosticSession.finalCategory.length > 20 &&
+                      data.diagnosticSession.finalCategory.includes('-')
+                      ? 'Engine Problems'
+                      : data.diagnosticSession.finalCategory || 'General Issue'}
+                  </h4>
                   {data.diagnosticSession.finalSubcategory && (
-                    <> • Subcategory: <span className="font-medium">{data.diagnosticSession.finalSubcategory}</span></>
+                    <span className="px-1.5 py-0.5 rounded text-[10px] font-bold bg-muted text-muted-foreground uppercase tracking-wider">
+                      {data.diagnosticSession.finalSubcategory}
+                    </span>
                   )}
-                </p>
+                </div>
+                <div className="mt-2 space-y-2">
+                  <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground">Issue Description</p>
+                  <div className="bg-muted/30 rounded-md overflow-hidden border border-border/20">
+                    {data.diagnosticSession.summary.split('\n').filter(line => line.trim()).map((line, i) => {
+                      const [question, ...answerParts] = line.split(':');
+                      const answer = answerParts.join(':').trim();
+                      if (!question || !answer) return <div key={i} className="p-2 text-xs text-muted-foreground">{line}</div>;
+
+                      return (
+                        <div key={i} className="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-4 p-2.5 border-b border-border/40 last:border-0 hover:bg-muted/40 transition-colors">
+                          <span className="text-[11px] font-medium text-muted-foreground sm:w-1/3 shrink-0">{question.trim()}</span>
+                          <span className="text-xs font-medium text-foreground">{answer}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Solution Status */}
             {data.diagnosticSession.solutionFound && (
-              <div className={`p-2 rounded-lg ${data.diagnosticSession.solutionSuccessful
-                ? 'bg-emerald-50 border border-emerald-200'
-                : 'bg-amber-50 border border-amber-200'
+              <div className={`py-2 px-3 rounded text-xs font-medium flex items-center justify-between ${data.diagnosticSession.solutionSuccessful
+                ? 'bg-emerald-500/10 text-emerald-700 border border-emerald-500/20'
+                : 'bg-amber-500/10 text-amber-700 border border-amber-500/20'
                 }`}>
-                <div className="flex items-center gap-1.5 mb-0.5">
-                  {data.diagnosticSession.solutionSuccessful ? (
-                    <CheckCircle className="w-4 h-4 text-foreground" />
-                  ) : (
-                    <AlertCircle className="w-4 h-4 text-amber-700" />
-                  )}
-                  <span className={`text-xs font-medium ${data.diagnosticSession.solutionSuccessful ? 'text-foreground' : 'text-amber-700'
-                    }`}>
-                    Solution {data.diagnosticSession.solutionSuccessful ? 'Successful' : 'Attempted'}
-                  </span>
-                </div>
-                <p className={`text-xs ${data.diagnosticSession.solutionSuccessful ? 'text-foreground' : 'text-amber-700'
-                  }`}>
+                <span className="flex items-center gap-2">
+                  {data.diagnosticSession.solutionSuccessful ? <CheckCircle className="w-3.5 h-3.5" /> : <AlertCircle className="w-3.5 h-3.5" />}
                   {data.diagnosticSession.solutionText}
-                </p>
+                </span>
+                <span className="uppercase tracking-wider text-[10px] font-bold opacity-80">
+                  {data.diagnosticSession.solutionSuccessful ? 'Resolved' : 'Attempted'}
+                </span>
               </div>
             )}
-
-            {/* Issue Summary */}
-            <div>
-              <h5 className="text-xs font-medium text-muted-foreground mb-1">Issue Description:</h5>
-              <div className="bg-muted rounded-lg p-2">
-                <ul className="text-xs text-foreground space-y-0.5 list-disc list-inside">
-                  {data.diagnosticSession.summary.split('\n').filter(line => line.trim()).map((line, idx) => (
-                    <li key={idx} className="leading-relaxed">{line.trim()}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-
-            {/* Edit Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleEditDiagnostic}
-            >
-              <Edit className="w-4 h-4 mr-1.5" />
-              Edit Diagnostic
-            </Button>
-          </Stack>
-        </Card>
+          </div>
+        </div>
       ) : (
-        <Card p="lg" className="text-center">
-          <FileText className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
-          <p className="text-xs text-muted-foreground mb-2">No diagnostic completed yet</p>
-          <Button onClick={() => setShowDiagnostic(true)} size="sm">
-            Start Diagnostic
-          </Button>
-        </Card>
+        <button
+          onClick={() => setShowDiagnostic(true)}
+          className="w-full group relative overflow-hidden rounded-xl border-2 border-dashed border-muted-foreground/20 bg-muted/5 hover:bg-muted/10 hover:border-primary/50 transition-all duration-300 p-8 text-center"
+        >
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="relative z-10 flex flex-col items-center gap-2">
+            <div className="w-12 h-12 rounded-full bg-background border border-border shadow-sm flex items-center justify-center group-hover:scale-110 group-hover:border-primary/50 transition-all duration-300">
+              <FileText className="w-6 h-6 text-muted-foreground group-hover:text-primary transition-colors" />
+            </div>
+            <h3 className="font-brand font-bold text-foreground text-sm mt-2">Start New Diagnostic</h3>
+            <p className="text-xs text-muted-foreground max-w-[200px]">Run the diagnostic tool to identify issues and suggested services</p>
+          </div>
+        </button>
       )}
 
-    </Stack>
+    </div>
   );
 };
 

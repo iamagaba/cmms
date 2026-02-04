@@ -12,20 +12,20 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 const DataTablePatternsSection: React.FC = () => {
     return (
-        <Card className="border-violet-200 bg-violet-50">
+        <Card className="border-primary/20 bg-primary/5">
             <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-violet-900">
+                <CardTitle className="flex items-center gap-2 text-foreground">
                     <TableIcon className="w-5 h-5" />
                     Data Table Patterns
                 </CardTitle>
-                <CardDescription className="text-violet-700">
+                <CardDescription className="text-muted-foreground">
                     Comprehensive table patterns for CMMS data management
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
                 {/* Basic Table Structure */}
-                <div className="bg-white rounded-lg border border-violet-200 p-4">
-                    <h3 className="text-sm font-semibold text-violet-900 mb-4">Basic Table Structure</h3>
+                <div className="bg-white rounded-lg border border-primary/20 p-4">
+                    <h3 className="text-sm font-semibold text-foreground mb-4">Basic Table Structure</h3>
                     <div className="border rounded-lg overflow-hidden">
                         <Table>
                             <TableHeader>
@@ -83,9 +83,9 @@ const DataTablePatternsSection: React.FC = () => {
                             </TableBody>
                         </Table>
                     </div>
-                    <div className="mt-4 bg-violet-50 p-3 rounded border border-violet-200">
-                        <p className="text-xs font-semibold text-violet-900 mb-2">Column Width Guidelines:</p>
-                        <ul className="text-xs text-violet-800 space-y-1 ml-4 list-disc">
+                    <div className="mt-4 bg-primary/5 p-3 rounded border border-primary/20">
+                        <p className="text-xs font-semibold text-foreground mb-2">Column Width Guidelines:</p>
+                        <ul className="text-xs text-muted-foreground space-y-1 ml-4 list-disc">
                             <li><code>w-[100px]</code> - ID columns, short codes</li>
                             <li><code>min-w-[200px]</code> - Names, titles (allow expansion)</li>
                             <li><code>min-w-[120px]</code> - Status, priority, dates</li>
@@ -95,8 +95,8 @@ const DataTablePatternsSection: React.FC = () => {
                 </div>
 
                 {/* Table with Selection */}
-                <div className="bg-white rounded-lg border border-violet-200 p-4">
-                    <h3 className="text-sm font-semibold text-violet-900 mb-4">Table with Row Selection</h3>
+                <div className="bg-white rounded-lg border border-primary/20 p-4">
+                    <h3 className="text-sm font-semibold text-foreground mb-4">Table with Row Selection</h3>
                     <div className="border rounded-lg overflow-hidden">
                         <Table>
                             <TableHeader>
@@ -129,9 +129,9 @@ const DataTablePatternsSection: React.FC = () => {
                             </TableBody>
                         </Table>
                     </div>
-                    <div className="mt-3 bg-primary/10 border border-purple-300 rounded p-3">
+                    <div className="mt-3 bg-primary/10 border border-primary/30 rounded p-3">
                         <div className="flex items-center justify-between">
-                            <span className="text-sm text-purple-900">1 item selected</span>
+                            <span className="text-sm text-foreground">1 item selected</span>
                             <div className="flex gap-2">
                                 <Button size="sm" variant="outline">Assign Technician</Button>
                                 <Button size="sm" variant="outline">Change Status</Button>
@@ -142,8 +142,8 @@ const DataTablePatternsSection: React.FC = () => {
                 </div>
 
                 {/* Empty Table State */}
-                <div className="bg-white rounded-lg border border-violet-200 p-4">
-                    <h3 className="text-sm font-semibold text-violet-900 mb-4">Empty Table State</h3>
+                <div className="bg-white rounded-lg border border-primary/20 p-4">
+                    <h3 className="text-sm font-semibold text-foreground mb-4">Empty Table State</h3>
                     <Card>
                         <CardContent className="py-12">
                             <div className="text-center">
@@ -165,8 +165,8 @@ const DataTablePatternsSection: React.FC = () => {
                 </div>
 
                 {/* Table Loading State */}
-                <div className="bg-white rounded-lg border border-violet-200 p-4">
-                    <h3 className="text-sm font-semibold text-violet-900 mb-4">Table Loading State</h3>
+                <div className="bg-white rounded-lg border border-primary/20 p-4">
+                    <h3 className="text-sm font-semibold text-foreground mb-4">Table Loading State</h3>
                     <div className="border rounded-lg overflow-hidden">
                         <Table>
                             <TableHeader>
@@ -195,8 +195,8 @@ const DataTablePatternsSection: React.FC = () => {
                 </div>
 
                 {/* Mobile Responsive Table */}
-                <div className="bg-white rounded-lg border border-violet-200 p-4">
-                    <h3 className="text-sm font-semibold text-violet-900 mb-4">Mobile Responsive Table</h3>
+                <div className="bg-white rounded-lg border border-primary/20 p-4">
+                    <h3 className="text-sm font-semibold text-foreground mb-4">Mobile Responsive Table</h3>
                     <div className="overflow-x-auto">
                         <div className="border rounded-lg">
                             <Table>
@@ -219,8 +219,8 @@ const DataTablePatternsSection: React.FC = () => {
                             </Table>
                         </div>
                     </div>
-                    <div className="mt-4 bg-violet-50 p-3 rounded border border-violet-200">
-                        <code className="text-xs text-violet-800">
+                    <div className="mt-4 bg-primary/5 p-3 rounded border border-primary/20">
+                        <code className="text-xs text-muted-foreground">
                             {`<div className="overflow-x-auto">
   <Table>
     <TableHead className="min-w-[120px]">...</TableHead>
@@ -231,8 +231,8 @@ const DataTablePatternsSection: React.FC = () => {
                 </div>
 
                 {/* Pagination */}
-                <div className="bg-white rounded-lg border border-violet-200 p-4">
-                    <h3 className="text-sm font-semibold text-violet-900 mb-4">Table Pagination</h3>
+                <div className="bg-white rounded-lg border border-primary/20 p-4">
+                    <h3 className="text-sm font-semibold text-foreground mb-4">Table Pagination</h3>
                     <div className="flex items-center justify-between">
                         <div className="text-sm text-gray-600">
                             Showing 1-10 of 247 results
@@ -257,10 +257,10 @@ const DataTablePatternsSection: React.FC = () => {
                     </div>
                 </div>
 
-                <Alert className="border-violet-300 bg-violet-100">
-                    <CheckCircle className="w-4 h-4 text-violet-700" />
-                    <AlertTitle className="text-violet-900">Data Table Best Practices</AlertTitle>
-                    <AlertDescription className="text-violet-800">
+                <Alert className="border-primary/30 bg-primary/10">
+                    <CheckCircle className="w-4 h-4 text-primary" />
+                    <AlertTitle className="text-foreground">Data Table Best Practices</AlertTitle>
+                    <AlertDescription className="text-muted-foreground">
                         <ul className="text-xs space-y-1 mt-2 ml-4 list-disc">
                             <li>Use fixed width for ID and action columns</li>
                             <li>Use min-width for content columns (allows expansion)</li>

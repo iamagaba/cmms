@@ -35,7 +35,7 @@ export const ChatList: React.FC<ChatListProps> = ({
                         placeholder="Search conversations..."
                         value={searchQuery}
                         onChange={(e) => onSearchChange(e.target.value)}
-                        className="pl-9 bg-secondary/50 border-transparent focus:bg-background transition-colors"
+                        className="pl-9 bg-muted/50 border-transparent focus:bg-background focus:border-primary transition-colors"
                     />
                 </div>
                 <div className="flex items-center justify-between text-xs font-medium text-muted-foreground tracking-wide">
@@ -54,7 +54,7 @@ export const ChatList: React.FC<ChatListProps> = ({
                         className={cn(
                             "px-3 py-3 cursor-pointer transition-all rounded-xl border border-transparent",
                             selectedChat?.id === chat.id
-                                ? "bg-secondary text-secondary-foreground"
+                                ? "bg-primary/10 border-primary/20 text-foreground"
                                 : "hover:bg-muted/50"
                         )}
                     >
@@ -69,9 +69,6 @@ export const ChatList: React.FC<ChatListProps> = ({
                                         className="w-full h-full object-cover"
                                     />
                                 </div>
-                                {chat.isActive && (
-                                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-background rounded-full"></div>
-                                )}
                             </div>
 
                             <div className="flex-1 min-w-0">

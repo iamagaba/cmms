@@ -1,7 +1,7 @@
 export interface WorkOrder {
   id: string
   workOrderNumber: string
-  status: 'Open' | 'Confirmation' | 'On Hold' | 'Ready' | 'In Progress' | 'Completed' | null
+  status: 'New' | 'Confirmation' | 'On Hold' | 'Ready' | 'In Progress' | 'Completed' | null
   priority: 'High' | 'Medium' | 'Low' | null
   channel: string | null
   assignedTechnicianId: string | null

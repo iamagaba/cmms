@@ -3,6 +3,7 @@ import React from 'react';
 
 
 import { WorkOrder, Vehicle } from '@/types/supabase';
+import { getWorkOrderNumber } from '@/utils/work-order-display';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { snakeToCamelCase } from '@/utils/data-helpers';
@@ -28,7 +29,7 @@ interface WorkOrderRelatedHistoryCardProps {
 }
 
 const STATUS_CONFIG: Record<string, { bg: string; text: string; dot: string }> = {
-  'Open': { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-blue-500' },
+  'New': { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-slate-500' },
   'Confirmation': { bg: 'bg-primary/5', text: 'text-primary', dot: 'bg-primary' },
   'On Hold': { bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500' },
   'Ready': { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-blue-500' },
@@ -108,7 +109,7 @@ export const WorkOrderRelatedHistoryCard: React.FC<WorkOrderRelatedHistoryCardPr
                 const rWo = wo as any;
                 const categoryLabel = serviceCategories?.find(cat => cat.id === rWo.service)?.label;
                 const description = categoryLabel || rWo.title || rWo.service || rWo.initialDiagnosis || rWo.description;
-                const statusConfig = STATUS_CONFIG[rWo.status || 'Open'] || STATUS_CONFIG['Open'];
+                const statusConfig = STATUS_CONFIG[rWo.status || 'New'] || STATUS_CONFIG['New'];
 
                 return (
                   <TableRow
@@ -117,7 +118,7 @@ export const WorkOrderRelatedHistoryCard: React.FC<WorkOrderRelatedHistoryCardPr
                     className="hover:bg-primary/5 hover:shadow-sm transition-all cursor-pointer group border-b border-border last:border-0"
                   >
                     <TableCell className="px-3 py-2 font-medium text-foreground whitespace-nowrap text-sm">
-                      {rWo.workOrderNumber || `WO-${rWo.id.substring(0, 6).toUpperCase()}`}
+                      {getWorkOrderNumber(rWo)}
                     </TableCell>
                     <TableCell className="px-3 py-2 text-muted-foreground text-sm">
                       <div className="truncate max-w-[300px]">

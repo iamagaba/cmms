@@ -1582,7 +1582,7 @@ const Reports: React.FC = () => {
   if (loadingWorkOrders || loadingTechnicians || loadingVehicles) {
     return (
       <div className="flex h-screen bg-background">
-        <div className="w-80 border-r border-border flex flex-col">
+        <div className="w-80 border-r border-border flex flex-col bg-muted">
           <div className="px-4 py-4 border-b border-border">
             <Skeleton className="h-6 w-30 mb-3" />
             <Skeleton className="h-9 w-full" />
@@ -1606,29 +1606,19 @@ const Reports: React.FC = () => {
     <ReportsErrorBoundary>
       <div className="flex h-screen bg-background">
         {/* Left Panel - Report Navigation & Controls */}
-        <div className="w-56 border-r border-border flex flex-col">
+        <div className="w-80 border-r border-border flex flex-col bg-muted">
           {/* Header */}
-          <div className="px-3 py-2.5 border-b border-border">
-            <PageHeader
-              title="Reports"
-              subtitle="Analytics and insights"
-              icon={<BarChart3 className="w-5 h-5 text-muted-foreground" />}
-              actions={
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleExportPDF}
-                >
-                  <FileText className="w-4 h-4" />
-                </Button>
-              }
-            />
+          <div className="p-3 border-b border-border">
+            <div className="mb-3">
+              <h2 className="text-lg font-semibold text-foreground">Reports</h2>
+              <p className="text-xs text-muted-foreground">Analytics and insights</p>
+            </div>
 
             {/* Date Range Selector */}
             <div className="mb-3">
-              <Label className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1">Date Range</Label>
+              <Label className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5">Date Range</Label>
               <Select value={dateRange} onValueChange={(value) => handleDateRangeChange(value as DateRange)}>
-                <SelectTrigger className="w-full text-sm">
+                <SelectTrigger className="w-full text-xs h-8">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -1667,8 +1657,8 @@ const Reports: React.FC = () => {
 
             {/* Report Type Selector */}
             <div>
-              <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">Report Type</label>
-              <div className="space-y-0.5">
+              <label className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5">Report Type</label>
+              <div className="space-y-1">
                 {[
                   { id: 'overview', label: 'Overview', icon: Home },
                   { id: 'fleet', label: 'Fleet Overview', icon: Car },
@@ -1686,9 +1676,9 @@ const Reports: React.FC = () => {
                       variant={reportType === report.id ? 'default' : 'ghost'}
                       size="sm"
                       onClick={() => setReportType(report.id as ReportType)}
-                      className="w-full justify-start"
+                      className="w-full justify-start text-xs h-8 font-normal"
                     >
-                      <IconComponent className="w-4 h-4 mr-2" />
+                      <IconComponent className="w-3.5 h-3.5 mr-2" />
                       {report.label}
                     </Button>
                   );
@@ -1697,10 +1687,10 @@ const Reports: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="px-3 py-2.5 border-b border-border">
-            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">Export Options</h3>
-            <div className="space-y-0.5">
+          {/* Export Options */}
+          <div className="p-3 border-b border-border">
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5">Export Options</h3>
+            <div className="space-y-1">
               <Button
                 variant="outline"
                 size="sm"
@@ -1722,9 +1712,9 @@ const Reports: React.FC = () => {
             </div>
           </div>
 
-          {/* Date Range Info */}
-          <div className="px-3 py-2.5">
-            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Current Period</h3>
+          {/* Current Period */}
+          <div className="p-3">
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-1.5">Current Period</h3>
             <div className="text-xs font-medium text-foreground">
               {dayjs(startDate).format('MMM D, YYYY')} - {dayjs(endDate).format('MMM D, YYYY')}
             </div>

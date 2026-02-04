@@ -40,7 +40,7 @@ export const WorkOrderMapWidget = ({ workOrders, isDarkMode = true }: WorkOrderM
     // Filter orders with valid coordinates and active status
     const mapOrders = workOrders.filter(
         wo =>
-            (wo.status === 'Open' || wo.status === 'In Progress' || wo.status === 'Ready') &&
+            (wo.status === 'New' || wo.status === 'In Progress' || wo.status === 'Ready') &&
             wo.customerLat &&
             wo.customerLng
     );

@@ -76,7 +76,7 @@ const mockUser = {
 const mockWorkOrder: MobileWorkOrder = {
   id: 'wo-123',
   workOrderNumber: 'WO-2024-001',
-  status: 'Open',
+  status: 'New',
   priority: 'High',
   mobileStatus: 'assigned',
   customerId: 'cust-123',
@@ -155,7 +155,7 @@ describe('useWorkOrders', () => {
 
   it('should handle filters and sorting', async () => {
     const wrapper = createWrapper();
-    const filters = {status: ['Open', 'In Progress']};
+    const filters = {status: ['New', 'In Progress']};
     const sort = {field: 'appointmentDate', direction: 'asc'} as const;
     
     const {result} = renderHook(() => useWorkOrders(filters, sort), {wrapper});
@@ -494,7 +494,7 @@ describe('useWorkOrderFiltersWithStore', () => {
     
     const {result} = renderHook(() => useWorkOrderFiltersWithStore(), {wrapper});
 
-    const newFilters = {status: ['Open']};
+    const newFilters = {status: ['New']};
     const newSort = {field: 'appointmentDate', direction: 'asc'} as const;
 
     act(() => {

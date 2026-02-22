@@ -65,7 +65,7 @@ export default defineConfig(({ mode }) => ({
           // Vendor chunks for large dependencies
           if (id.includes('node_modules')) {
             // React ecosystem - MUST be first to avoid duplication
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-is') || id.includes('scheduler')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-is') || id.includes('scheduler') || id.includes('react-router')) {
               return 'vendor-react';
             }
             // Calendar and date libraries

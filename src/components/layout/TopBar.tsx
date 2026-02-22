@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, Search, Keyboard, PanelLeft, PanelLeftClose } from 'lucide-react';
+import { Bell, Search, PanelLeft, PanelLeftClose } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,12 +13,11 @@ import {
 interface TopBarProps {
   className?: string;
   onQuickSearchClick?: () => void;
-  onShortcutsClick?: () => void;
   sidebarCollapsed?: boolean;
   onToggleSidebar?: () => void;
 }
 
-export function TopBar({ className, onQuickSearchClick, onShortcutsClick, sidebarCollapsed, onToggleSidebar }: TopBarProps) {
+export function TopBar({ className, onQuickSearchClick, sidebarCollapsed, onToggleSidebar }: TopBarProps) {
   const location = useLocation();
   
   // Map routes to page titles
@@ -94,18 +93,6 @@ export function TopBar({ className, onQuickSearchClick, onShortcutsClick, sideba
 
       {/* Right: Actions */}
       <div className="flex items-center gap-2">
-        {/* Keyboard Shortcuts */}
-        {onShortcutsClick && (
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onShortcutsClick}
-            title="Keyboard shortcuts (⌘?)"
-          >
-            <Keyboard className="w-5 h-5" />
-          </Button>
-        )}
-
         {/* Quick Search Trigger */}
         {onQuickSearchClick && (
           <Button
@@ -116,9 +103,6 @@ export function TopBar({ className, onQuickSearchClick, onShortcutsClick, sideba
           >
             <Search className="w-4 h-4" />
             <span className="hidden sm:inline">Quick Search</span>
-            <kbd className="hidden sm:inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground">
-              <span className="text-xs">⌘</span>K
-            </kbd>
           </Button>
         )}
 

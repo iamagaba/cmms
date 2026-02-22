@@ -194,7 +194,6 @@ export function AppLayout({ children }: AppLayoutProps) {
                     <div className="hidden lg:block">
                         <TopBar 
                             onQuickSearchClick={() => setCommandPaletteOpen(true)}
-                            onShortcutsClick={() => setShortcutsDialogOpen(true)}
                             sidebarCollapsed={sidebarCollapsed}
                             onToggleSidebar={handleToggleSidebar}
                         />

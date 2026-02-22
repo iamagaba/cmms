@@ -323,7 +323,7 @@ export interface Notification {
   title: string;
   message: string;
   work_order_id?: string | null;
-  read: boolean;
+  is_read: boolean;
   created_at: string;
   updated_at: string;
 }

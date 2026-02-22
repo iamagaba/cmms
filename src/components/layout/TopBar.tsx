@@ -57,7 +57,7 @@ export function TopBar({ className, onQuickSearchClick, sidebarCollapsed, onTogg
 
   const handleNotificationClick = (notification: any) => {
     // Mark as read
-    if (!notification.read) {
+    if (!notification.is_read) {
       markAsRead(notification.id);
     }
     
@@ -152,7 +152,7 @@ export function TopBar({ className, onQuickSearchClick, sidebarCollapsed, onTogg
                       key={notification.id}
                       className={cn(
                         'p-3 rounded-lg border cursor-pointer hover:bg-muted transition-colors group',
-                        !notification.read && 'bg-muted/50 border-primary/20'
+                        !notification.is_read && 'bg-muted/50 border-primary/20'
                       )}
                       onClick={() => handleNotificationClick(notification)}
                     >
@@ -172,7 +172,7 @@ export function TopBar({ className, onQuickSearchClick, sidebarCollapsed, onTogg
                           </div>
                         </div>
                         <div className="flex items-center gap-1">
-                          {!notification.read && (
+                          {!notification.is_read && (
                             <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0" />
                           )}
                           <Button

@@ -6,14 +6,14 @@ CREATE TABLE IF NOT EXISTS notifications (
     title TEXT NOT NULL,
     message TEXT NOT NULL,
     work_order_id UUID REFERENCES work_orders(id) ON DELETE CASCADE,
-    read BOOLEAN DEFAULT FALSE,
+    is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Create index for faster queries
 CREATE INDEX IF NOT EXISTS idx_notifications_user_id ON notifications(user_id);
-CREATE INDEX IF NOT EXISTS idx_notifications_read ON notifications(read);
+CREATE INDEX IF NOT EXISTS idx_notifications_is_read ON notifications(is_read);
 CREATE INDEX IF NOT EXISTS idx_notifications_created_at ON notifications(created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_notifications_work_order_id ON notifications(work_order_id);
 

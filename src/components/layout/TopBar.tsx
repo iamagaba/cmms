@@ -1,5 +1,5 @@
 import React from 'react';
-import { Bell, Search, Keyboard } from 'lucide-react';
+import { Bell, Search, Keyboard, PanelLeft, PanelLeftClose } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -13,9 +13,11 @@ interface TopBarProps {
   className?: string;
   onQuickSearchClick?: () => void;
   onShortcutsClick?: () => void;
+  sidebarCollapsed?: boolean;
+  onToggleSidebar?: () => void;
 }
 
-export function TopBar({ className, onQuickSearchClick, onShortcutsClick }: TopBarProps) {
+export function TopBar({ className, onQuickSearchClick, onShortcutsClick, sidebarCollapsed, onToggleSidebar }: TopBarProps) {
   const [notifications] = React.useState([
     {
       id: '1',
@@ -46,8 +48,24 @@ export function TopBar({ className, onQuickSearchClick, onShortcutsClick }: TopB
         className
       )}
     >
-      {/* Left: Page title placeholder */}
-      <div className="flex-1 min-w-0">
+      {/* Left: Sidebar toggle + Page title */}
+      <div className="flex items-center gap-3 flex-1 min-w-0">
+        {/* Sidebar Toggle Button */}
+        {onToggleSidebar && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onToggleSidebar}
+            title={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {sidebarCollapsed ? (
+              <PanelLeft className="w-5 h-5" />
+            ) : (
+              <PanelLeftClose className="w-5 h-5" />
+            )}
+          </Button>
+        )}
+        
         <h2 className="text-sm font-medium text-muted-foreground">Navigation</h2>
       </div>
 

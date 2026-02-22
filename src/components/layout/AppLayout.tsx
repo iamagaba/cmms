@@ -1,6 +1,5 @@
 import React, { ReactNode, useState, useEffect } from 'react';
 import ProfessionalSidebar from './ProfessionalSidebar';
-import { PanelLeft, PanelLeftClose } from 'lucide-react';
 import { MobileBottomNav, NavigationItem } from '../navigation/ResponsiveNavigation';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CommandPalette } from '../navigation/CommandPalette';
@@ -196,27 +195,11 @@ export function AppLayout({ children }: AppLayoutProps) {
                         <TopBar 
                             onQuickSearchClick={() => setCommandPaletteOpen(true)}
                             onShortcutsClick={() => setShortcutsDialogOpen(true)}
+                            sidebarCollapsed={sidebarCollapsed}
+                            onToggleSidebar={handleToggleSidebar}
                         />
                     </div>
                 )}
-
-                {/* Sidebar Toggle Button - Desktop only */}
-                <button
-                    onClick={handleToggleSidebar}
-                    className="hidden lg:flex fixed z-50 items-center justify-center w-10 h-10 bg-background border border-border rounded-lg shadow-sm hover:bg-muted transition-colors"
-                    style={{
-                        top: isFullBleedPage ? '20px' : '76px', // Below top bar if present
-                        left: sidebarExpanded ? '212px' : '68px',
-                        transition: 'left 400ms cubic-bezier(0.25, 0.1, 0.25, 1), top 400ms cubic-bezier(0.25, 0.1, 0.25, 1)',
-                    }}
-                    aria-label={sidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-                >
-                    {sidebarCollapsed ? (
-                        <PanelLeft className="w-5 h-5 text-muted-foreground" />
-                    ) : (
-                        <PanelLeftClose className="w-5 h-5 text-muted-foreground" />
-                    )}
-                </button>
 
                 {/* Mobile header spacing */}
                 <div className="lg:hidden pt-16" />

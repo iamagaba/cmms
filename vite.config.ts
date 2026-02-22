@@ -35,6 +35,8 @@ export default defineConfig(({ mode }) => ({
       '@radix-ui/react-toast',
     ],
     exclude: [],
+    // Force rebuild on changes
+    force: true,
   },
   resolve: {
     alias: {
@@ -48,10 +50,6 @@ export default defineConfig(({ mode }) => ({
       "@mantine/dropzone": path.resolve(__dirname, "./src/mocks/mantine-dropzone.tsx"),
       "@mantine/spotlight": path.resolve(__dirname, "./src/mocks/mantine-spotlight.tsx"),
       "mantine-datatable": path.resolve(__dirname, "./src/mocks/mantine-datatable.tsx"),
-      // Force single React instance
-      'react': path.resolve(__dirname, './node_modules/react'),
-      'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
-      'react/jsx-runtime': path.resolve(__dirname, './node_modules/react/jsx-runtime'),
     },
     dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react-is'],
   },
@@ -66,6 +64,10 @@ export default defineConfig(({ mode }) => ({
         manualChunks: (id) => {
           // Vendor chunks for large dependencies
           if (id.includes('node_modules')) {
+            // React ecosystem - MUST be first to avoid duplication
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-is') || id.includes('scheduler')) {
+              return 'vendor-react';
+            }
             // Calendar and date libraries
             if (id.includes('react-big-calendar') || id.includes('moment') || id.includes('date-fns') || id.includes('dayjs')) {
               return 'vendor-calendar';
@@ -73,10 +75,6 @@ export default defineConfig(({ mode }) => ({
             // Map libraries
             if (id.includes('mapbox-gl') || id.includes('leaflet')) {
               return 'vendor-maps';
-            }
-            // React ecosystem
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
-              return 'vendor-react';
             }
             // Query and state management
             if (id.includes('@tanstack/react-query') || id.includes('react-hook-form')) {

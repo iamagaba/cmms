@@ -78,7 +78,7 @@ export function TimelineFilters({
 
     const now = new Date()
     let start: Date
-    let end: Date = new Date(now)
+    const end: Date = new Date(now)
 
     switch (range) {
       case 'today':

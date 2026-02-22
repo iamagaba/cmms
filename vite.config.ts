@@ -61,47 +61,48 @@ export default defineConfig(({ mode }) => ({
         entryFileNames: `assets/[name].[hash].js`,
         chunkFileNames: `assets/[name].[hash].js`,
         assetFileNames: `assets/[name].[hash].[ext]`,
-        manualChunks: (id) => {
-          // Vendor chunks for large dependencies
-          if (id.includes('node_modules')) {
-            // React ecosystem - MUST be first to avoid duplication
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-is') || id.includes('scheduler') || id.includes('react-router')) {
-              return 'vendor-react';
-            }
-            // Calendar and date libraries
-            if (id.includes('react-big-calendar') || id.includes('moment') || id.includes('date-fns') || id.includes('dayjs')) {
-              return 'vendor-calendar';
-            }
-            // Map libraries
-            if (id.includes('mapbox-gl') || id.includes('leaflet')) {
-              return 'vendor-maps';
-            }
-            // Query and state management
-            if (id.includes('@tanstack/react-query') || id.includes('react-hook-form')) {
-              return 'vendor-state';
-            }
-            // Supabase
-            if (id.includes('@supabase')) {
-              return 'vendor-supabase';
-            }
-            // Other large libraries
-            if (id.includes('framer-motion') || id.includes('embla-carousel')) {
-              return 'vendor-animations';
-            }
-            // Remaining node_modules
-            return 'vendor-misc';
-          }
-
-          // App chunks by feature
-          if (id.includes('/pages/Calendar') || id.includes('/components/Calendar')) {
-            return 'feature-calendar';
-          }
-          if (id.includes('/pages/Analytics') || id.includes('/components/charts')) {
-            return 'feature-analytics';
-          }
-          if (id.includes('/pages/MapView') || id.includes('/components/map')) {
-            return 'feature-maps';
-          }
+        manualChunks: {
+          // Single React chunk to avoid circular dependencies
+          'vendor-react': [
+            'react',
+            'react-dom',
+            'react/jsx-runtime',
+            'react-is',
+            'react-router-dom',
+            'scheduler',
+          ],
+          // Radix UI components
+          'vendor-radix': [
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-select',
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-checkbox',
+            '@radix-ui/react-label',
+            '@radix-ui/react-slot',
+            '@radix-ui/react-separator',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-toast',
+            '@radix-ui/react-avatar',
+            '@radix-ui/react-popover',
+            '@radix-ui/react-progress',
+            '@radix-ui/react-radio-group',
+            '@radix-ui/react-scroll-area',
+            '@radix-ui/react-slider',
+            '@radix-ui/react-switch',
+            '@radix-ui/react-tooltip',
+            '@radix-ui/react-accordion',
+            '@radix-ui/react-alert-dialog',
+          ],
+          // Supabase
+          'vendor-supabase': ['@supabase/supabase-js', '@supabase/auth-ui-react', '@supabase/auth-ui-shared'],
+          // TanStack Query
+          'vendor-query': ['@tanstack/react-query', '@tanstack/react-table'],
+          // Maps
+          'vendor-maps': ['mapbox-gl', 'leaflet', 'react-leaflet'],
+          // Calendar
+          'vendor-calendar': ['react-big-calendar', 'dayjs', 'date-fns', 'moment'],
+          // Forms
+          'vendor-forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
         },
       },
     },

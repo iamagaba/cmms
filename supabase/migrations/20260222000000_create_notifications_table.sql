@@ -37,13 +37,13 @@ CREATE POLICY "System can insert notifications"
 CREATE OR REPLACE FUNCTION notify_work_order_assigned()
 RETURNS TRIGGER AS $$
 BEGIN
-    -- Only create notification if assigned_to changed and is not null
-    IF (TG_OP = 'UPDATE' AND NEW.assigned_to IS DISTINCT FROM OLD.assigned_to AND NEW.assigned_to IS NOT NULL) OR
-       (TG_OP = 'INSERT' AND NEW.assigned_to IS NOT NULL) THEN
+    -- Only create notification if assigned_technician_id changed and is not null
+    IF (TG_OP = 'UPDATE' AND NEW.assigned_technician_id IS DISTINCT FROM OLD.assigned_technician_id AND NEW.assigned_technician_id IS NOT NULL) OR
+       (TG_OP = 'INSERT' AND NEW.assigned_technician_id IS NOT NULL) THEN
         
         INSERT INTO notifications (user_id, type, title, message, work_order_id)
         VALUES (
-            NEW.assigned_to,
+            NEW.assigned_technician_id,
             'work_order_assigned',
             'New Work Order Assigned',
             'Work Order #' || NEW.work_order_number || ' has been assigned to you',
@@ -63,11 +63,11 @@ DECLARE
 BEGIN
     -- Find all overdue work orders that haven't been notified in the last 24 hours
     FOR overdue_wo IN
-        SELECT wo.id, wo.work_order_number, wo.assigned_to, wo.sla_due
+        SELECT wo.id, wo.work_order_number, wo.assigned_technician_id, wo.sla_due
         FROM work_orders wo
         WHERE wo.status NOT IN ('Completed', 'Cancelled')
           AND wo.sla_due < NOW()
-          AND wo.assigned_to IS NOT NULL
+          AND wo.assigned_technician_id IS NOT NULL
           AND NOT EXISTS (
               SELECT 1 FROM notifications n
               WHERE n.work_order_id = wo.id
@@ -77,7 +77,7 @@ BEGIN
     LOOP
         INSERT INTO notifications (user_id, type, title, message, work_order_id)
         VALUES (
-            overdue_wo.assigned_to,
+            overdue_wo.assigned_technician_id,
             'work_order_overdue',
             'Work Order Overdue',
             'Work Order #' || overdue_wo.work_order_number || ' is overdue',
@@ -90,7 +90,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 -- Trigger for work order assignment
 DROP TRIGGER IF EXISTS trigger_notify_work_order_assigned ON work_orders;
 CREATE TRIGGER trigger_notify_work_order_assigned
-    AFTER INSERT OR UPDATE OF assigned_to ON work_orders
+    AFTER INSERT OR UPDATE OF assigned_technician_id ON work_orders
     FOR EACH ROW
     EXECUTE FUNCTION notify_work_order_assigned();
 

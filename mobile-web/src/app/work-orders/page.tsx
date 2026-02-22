@@ -73,7 +73,7 @@ export default function WorkOrdersPage() {
         if (error) {
           console.error('Error fetching work orders:', error)
         } else if (data) {
-          const transformedData = data.map(workOrder => snakeToCamelCase(workOrder) as WorkOrder)
+          const transformedData = data.map((workOrder: any) => snakeToCamelCase(workOrder) as WorkOrder)
           setWorkOrders(transformedData)
           setWorkOrdersCache(transformedData)
           setLastFetchTime(now)

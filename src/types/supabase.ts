@@ -308,3 +308,22 @@ export const LOSS_TYPE_LABELS: Record<LossType, string> = {
   vendor_error: 'Vendor Error',
   unknown: 'Unknown'
 };
+
+// Notification types
+export type NotificationType = 
+  | 'work_order_assigned' 
+  | 'work_order_overdue' 
+  | 'work_order_completed' 
+  | 'work_order_updated';
+
+export interface Notification {
+  id: string;
+  user_id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  work_order_id?: string | null;
+  read: boolean;
+  created_at: string;
+  updated_at: string;
+}

@@ -1,228 +1,128 @@
-import { useCallback, useRef } from 'react';
-import { 
-  notificationSystem,
-  EnhancedNotificationConfig,
-  NotificationAction,
-  showSuccessNotification,
-  showErrorNotification,
-  showWarningNotification,
-  showInfoNotification,
-  showLoadingNotification,
-  showCriticalNotification,
-  showActionNotification,
-  showProgressNotification
-} from '@/components/notifications/NotificationSystem';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { Notification } from '@/types/supabase';
+import { useEffect } from 'react';
+import { useSession } from '@/context/SessionContext';
 
-export interface UseNotificationsReturn {
-  // Basic notification methods
-  showSuccess: (message: string, config?: Partial<EnhancedNotificationConfig>) => string;
-  showError: (message: string, config?: Partial<EnhancedNotificationConfig>) => string;
-  showWarning: (message: string, config?: Partial<EnhancedNotificationConfig>) => string;
-  showInfo: (message: string, config?: Partial<EnhancedNotificationConfig>) => string;
-  showLoading: (message: string, config?: Partial<EnhancedNotificationConfig>) => string;
-  showCritical: (message: string, config?: Partial<EnhancedNotificationConfig>) => string;
-  
-  // Advanced notification methods
-  showAction: (message: string, actions: NotificationAction[], config?: Partial<EnhancedNotificationConfig>) => string;
-  showProgress: (message: string, config?: Partial<EnhancedNotificationConfig>) => string;
-  show: (config: EnhancedNotificationConfig) => string;
-  
-  // Management methods
-  update: (id: string, config: Partial<EnhancedNotificationConfig>) => void;
-  hide: (id: string) => void;
-  hideAll: () => void;
-  
-  // Utility methods
-  getActiveCount: () => number;
-  getQueuedCount: () => number;
-  
-  // Specialized notification patterns
-  showOperationResult: (success: boolean, successMessage: string, errorMessage: string) => string;
-  showConfirmAction: (message: string, onConfirm: () => void, onCancel?: () => void) => string;
-  showUndoAction: (message: string, onUndo: () => void, undoTimeout?: number) => string;
-  showSaveStatus: (isSaving: boolean, saveMessage?: string, successMessage?: string) => string;
-}
+export function useNotifications() {
+  const queryClient = useQueryClient();
+  const { user } = useSession();
 
-/**
- * Enhanced notifications hook with common patterns and utilities
- */
-export function useNotifications(): UseNotificationsReturn {
-  const loadingNotificationRef = useRef<string | null>(null);
-
-  // Basic notification methods
-  const showSuccess = useCallback((message: string, config?: Partial<EnhancedNotificationConfig>) => {
-    return showSuccessNotification(message, config);
-  }, []);
-
-  const showError = useCallback((message: string, config?: Partial<EnhancedNotificationConfig>) => {
-    return showErrorNotification(message, config);
-  }, []);
-
-  const showWarning = useCallback((message: string, config?: Partial<EnhancedNotificationConfig>) => {
-    return showWarningNotification(message, config);
-  }, []);
-
-  const showInfo = useCallback((message: string, config?: Partial<EnhancedNotificationConfig>) => {
-    return showInfoNotification(message, config);
-  }, []);
-
-  const showLoading = useCallback((message: string, config?: Partial<EnhancedNotificationConfig>) => {
-    return showLoadingNotification(message, config);
-  }, []);
-
-  const showCritical = useCallback((message: string, config?: Partial<EnhancedNotificationConfig>) => {
-    return showCriticalNotification(message, config);
-  }, []);
-
-  // Advanced notification methods
-  const showAction = useCallback((
-    message: string, 
-    actions: NotificationAction[], 
-    config?: Partial<EnhancedNotificationConfig>
-  ) => {
-    return showActionNotification(message, actions, config);
-  }, []);
-
-  const showProgress = useCallback((message: string, config?: Partial<EnhancedNotificationConfig>) => {
-    return showProgressNotification(message, config);
-  }, []);
-
-  const show = useCallback((config: EnhancedNotificationConfig) => {
-    return notificationSystem.show(config);
-  }, []);
-
-  // Management methods
-  const update = useCallback((id: string, config: Partial<EnhancedNotificationConfig>) => {
-    notificationSystem.update(id, config);
-  }, []);
-
-  const hide = useCallback((id: string) => {
-    notificationSystem.hide(id);
-  }, []);
-
-  const hideAll = useCallback(() => {
-    notificationSystem.hideAll();
-  }, []);
-
-  // Utility methods
-  const getActiveCount = useCallback(() => {
-    return notificationSystem.getActiveCount();
-  }, []);
-
-  const getQueuedCount = useCallback(() => {
-    return notificationSystem.getQueuedCount();
-  }, []);
-
-  // Specialized notification patterns
-  const showOperationResult = useCallback((
-    success: boolean, 
-    successMessage: string, 
-    errorMessage: string
-  ) => {
-    if (success) {
-      return showSuccess(successMessage);
-    } else {
-      return showError(errorMessage);
-    }
-  }, [showSuccess, showError]);
-
-  const showConfirmAction = useCallback((
-    message: string, 
-    onConfirm: () => void, 
-    onCancel?: () => void
-  ) => {
-    return showAction(message, [
-      {
-        label: 'Confirm',
-        onClick: onConfirm,
-        variant: 'filled',
-        color: 'blue'
-      },
-      {
-        label: 'Cancel',
-        onClick: onCancel || (() => {}),
-        variant: 'subtle'
-      }
-    ], {
-      type: 'user-action',
-      persistent: true
-    });
-  }, [showAction]);
-
-  const showUndoAction = useCallback((
-    message: string, 
-    onUndo: () => void, 
-    undoTimeout: number = 5000
-  ) => {
-    return showAction(message, [
-      {
-        label: 'Undo',
-        onClick: onUndo,
-        variant: 'light',
-        icon: 'mdi:undo'
-      }
-    ], {
-      type: 'info',
-      autoClose: undoTimeout
-    });
-  }, [showAction]);
-
-  const showSaveStatus = useCallback((
-    isSaving: boolean, 
-    saveMessage: string = 'Saving...', 
-    successMessage: string = 'Saved successfully'
-  ) => {
-    if (isSaving) {
-      // Hide previous loading notification if exists
-      if (loadingNotificationRef.current) {
-        hide(loadingNotificationRef.current);
-      }
+  // Fetch notifications
+  const { data: notifications = [], isLoading } = useQuery<Notification[]>({
+    queryKey: ['notifications', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
       
-      // Show new loading notification
-      const id = showLoading(saveMessage);
-      loadingNotificationRef.current = id;
-      return id;
-    } else {
-      // Hide loading notification
-      if (loadingNotificationRef.current) {
-        hide(loadingNotificationRef.current);
-        loadingNotificationRef.current = null;
-      }
-      
-      // Show success notification
-      return showSuccess(successMessage);
-    }
-  }, [showLoading, showSuccess, hide]);
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) throw error;
+      return data || [];
+    },
+    enabled: !!user?.id,
+    staleTime: 30 * 1000, // 30 seconds
+  });
+
+  // Subscribe to real-time notifications
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel('notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          // Refetch notifications when a new one is inserted
+          queryClient.invalidateQueries({ queryKey: ['notifications', user.id] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`,
+        },
+        () => {
+          // Refetch notifications when one is updated
+          queryClient.invalidateQueries({ queryKey: ['notifications', user.id] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, queryClient]);
+
+  // Mark notification as read
+  const markAsReadMutation = useMutation({
+    mutationFn: async (notificationId: string) => {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true, updated_at: new Date().toISOString() })
+        .eq('id', notificationId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications', user?.id] });
+    },
+  });
+
+  // Mark all as read
+  const markAllAsReadMutation = useMutation({
+    mutationFn: async () => {
+      if (!user?.id) return;
+
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true, updated_at: new Date().toISOString() })
+        .eq('user_id', user.id)
+        .eq('read', false);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications', user?.id] });
+    },
+  });
+
+  // Delete notification
+  const deleteNotificationMutation = useMutation({
+    mutationFn: async (notificationId: string) => {
+      const { error } = await supabase
+        .from('notifications')
+        .delete()
+        .eq('id', notificationId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['notifications', user?.id] });
+    },
+  });
+
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return {
-    // Basic methods
-    showSuccess,
-    showError,
-    showWarning,
-    showInfo,
-    showLoading,
-    showCritical,
-    
-    // Advanced methods
-    showAction,
-    showProgress,
-    show,
-    
-    // Management methods
-    update,
-    hide,
-    hideAll,
-    
-    // Utility methods
-    getActiveCount,
-    getQueuedCount,
-    
-    // Specialized patterns
-    showOperationResult,
-    showConfirmAction,
-    showUndoAction,
-    showSaveStatus
+    notifications,
+    unreadCount,
+    isLoading,
+    markAsRead: markAsReadMutation.mutate,
+    markAllAsRead: markAllAsReadMutation.mutate,
+    deleteNotification: deleteNotificationMutation.mutate,
   };
 }
-
-export default useNotifications;

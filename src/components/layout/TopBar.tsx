@@ -1,5 +1,6 @@
 import React from 'react';
 import { Bell, Search, Keyboard, PanelLeft, PanelLeftClose } from 'lucide-react';
+import { useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
@@ -18,6 +19,28 @@ interface TopBarProps {
 }
 
 export function TopBar({ className, onQuickSearchClick, onShortcutsClick, sidebarCollapsed, onToggleSidebar }: TopBarProps) {
+  const location = useLocation();
+  
+  // Map routes to page titles
+  const getPageTitle = () => {
+    const path = location.pathname;
+    
+    if (path === '/') return 'Dashboard';
+    if (path.startsWith('/work-orders')) return 'Work Orders';
+    if (path.startsWith('/assets')) return 'Assets';
+    if (path.startsWith('/customers')) return 'Customers';
+    if (path.startsWith('/technicians')) return 'Technicians';
+    if (path.startsWith('/inventory')) return 'Inventory';
+    if (path.startsWith('/locations')) return 'Service Centers';
+    if (path.startsWith('/scheduling')) return 'Scheduling';
+    if (path.startsWith('/reports')) return 'Reports';
+    if (path.startsWith('/settings')) return 'Settings';
+    if (path.startsWith('/design-system')) return 'Design System';
+    if (path.startsWith('/customer-care')) return 'Customer Care';
+    
+    return 'Navigation';
+  };
+  
   const [notifications] = React.useState([
     {
       id: '1',
@@ -66,7 +89,7 @@ export function TopBar({ className, onQuickSearchClick, onShortcutsClick, sideba
           </Button>
         )}
         
-        <h2 className="text-sm font-medium text-muted-foreground">Navigation</h2>
+        <h2 className="text-sm font-medium text-muted-foreground">{getPageTitle()}</h2>
       </div>
 
       {/* Right: Actions */}

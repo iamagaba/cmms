@@ -27,7 +27,7 @@ export const PriorityWorkOrders: React.FC<PriorityWorkOrdersProps> = ({ workOrde
                     <div className="flex items-center gap-2">
                         <AlertCircle className="w-5 h-5 text-muted-foreground" />
                         <div>
-                            <CardTitle className="text-lg">Priority Work Orders</CardTitle>
+                            <CardTitle className="text-base font-bold text-gray-900">Priority Work Orders</CardTitle>
                             <CardDescription>High priority items</CardDescription>
                         </div>
                     </div>
@@ -44,7 +44,6 @@ export const PriorityWorkOrders: React.FC<PriorityWorkOrdersProps> = ({ workOrde
                         {priorityOrders.map((order) => {
                             const vehicle = vehicles.find(v => v.id === order.vehicleId);
                             const isOverdue = order.dueDate && dayjs(order.dueDate).isBefore(dayjs());
-                            const DateIcon = isOverdue ? AlertCircle : Calendar;
 
                             return (
                                 <div
@@ -58,8 +57,8 @@ export const PriorityWorkOrders: React.FC<PriorityWorkOrdersProps> = ({ workOrde
                                                 <span className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">
                                                     {getWorkOrderNumber(order)}
                                                 </span>
-                                                <PriorityBadge priority={order.priority} />
-                                                <StatusBadge status={order.status} />
+                                                <PriorityBadge priority={order.priority || 'Medium'} />
+                                                <StatusBadge status={order.status || 'New'} />
                                             </div>
                                             <p className="text-xs text-muted-foreground line-clamp-1">{order.description || order.service || 'General Service'}</p>
                                         </div>

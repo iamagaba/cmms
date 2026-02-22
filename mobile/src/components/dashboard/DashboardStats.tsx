@@ -1,8 +1,8 @@
 import React from 'react';
-import {View, StyleSheet, RefreshControl} from 'react-native';
-import {Card, Title, Paragraph, ActivityIndicator} from 'react-native-paper';
-import {useWorkOrderStats} from '@/hooks/useWorkOrders';
-import {ResponsiveGrid} from '@/components/common';
+import { View, StyleSheet, RefreshControl } from 'react-native';
+import { Card, Title, Paragraph, ActivityIndicator } from 'react-native-paper';
+import { useWorkOrderStats } from '@/hooks/useWorkOrders';
+import { ResponsiveGrid } from '@/components/common';
 
 interface DashboardStatsProps {
   refreshing?: boolean;
@@ -58,8 +58,8 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
   };
 
   return (
-    <ResponsiveGrid 
-      columns={2} 
+    <ResponsiveGrid
+      columns={2}
       spacing={12}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
@@ -88,9 +88,9 @@ export const DashboardStats: React.FC<DashboardStatsProps> = ({
 
       <Card style={styles.statCard}>
         <Card.Content>
-          <Title 
+          <Title
             style={[
-              styles.statNumber, 
+              styles.statNumber,
               statsData.overdue > 0 && styles.overdueNumber
             ]}
           >

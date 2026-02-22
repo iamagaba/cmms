@@ -147,7 +147,7 @@ const CustomersPage = () => {
   return (
     <div className="flex h-screen w-full overflow-hidden">
       {/* Left Panel - Customer List */}
-      <div className="w-full sm:w-80 border-r flex flex-col bg-muted">
+      <div className="w-full sm:w-80 border-r flex flex-col bg-muted dark:bg-background">
         {/* Header */}
         <div className="p-3 border-b">
           <div className="flex items-center justify-between mb-3">
@@ -167,7 +167,7 @@ const CustomersPage = () => {
                 type="text"
                 placeholder="Search customers..."
                 aria-label="Search customers"
-                className="w-full pl-10 pr-4 py-1.5 text-xs border border-input rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                className="w-full pl-10 pr-4 py-1.5 text-xs border border-input rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -241,7 +241,7 @@ const CustomersPage = () => {
                 return (
                   <button
                     key={customer.id}
-                    className={`w-full text-left p-2.5 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800 ${isSelected ? 'bg-background border-l-2 border-l-primary shadow-sm' : 'border-l-2 border-l-transparent'
+                    className={`w-full text-left p-2.5 transition-colors hover:bg-muted ${isSelected ? 'bg-background border-l-2 border-l-primary shadow-sm' : 'border-l-2 border-l-transparent'
                       }`}
                     onClick={() => handleViewDetails(customer.id)}
                   >

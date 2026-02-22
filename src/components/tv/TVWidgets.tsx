@@ -130,7 +130,7 @@ export const ActiveWorkOrderList = ({ workOrders, assetLookup, techLookup }: Act
                                     </div>
 
                                     <div className="flex flex-col items-end gap-1">
-                                        <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${wo.status === 'In Progress' ? 'bg-primary-100 text-primary-700 dark:bg-primary-500/20 dark:text-primary-300' : 'bg-neutral-200 text-muted-foreground dark:bg-neutral-700 dark:text-neutral-300'
+                                        <div className={`px-3 py-1 rounded-lg text-xs font-bold uppercase tracking-wide ${wo.status === 'In Progress' ? 'bg-primary-100 text-primary-700 dark:bg-primary-500/20 dark:text-primary-300' : 'bg-neutral-200 text-muted-foreground dark:bg-neutral-700 dark:text-neutral-300'
                                             }`}>
                                             {wo.status}
                                         </div>

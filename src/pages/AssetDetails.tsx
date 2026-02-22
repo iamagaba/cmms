@@ -230,7 +230,7 @@ const AssetDetails = () => {
                   </h3>
                   <div className="grid grid-cols-2 gap-2">
                     <div className="bg-muted/50 rounded-lg p-3 border border-border">
-                      <div className="text-xs font-medium text-muted-foreground mb-1">Ownership Type</div>
+                      <div className="text-xs font-medium text-muted-foreground mb-1 uppercase tracking-wide">Ownership Type</div>
                       <div className="text-sm font-semibold text-foreground">
                         {vehicle.is_company_asset ? 'Company Asset' : 'Individual Asset'}
                       </div>

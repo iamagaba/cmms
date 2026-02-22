@@ -1,0 +1,415 @@
+[
+  {
+    "id": "TC001",
+    "title": "Dashboard Load Performance with Large Data Sets",
+    "description": "Verify the Mission Control Dashboard loads within 1.5 seconds and renders real-time data for 500+ map markers without UI lag or degradation.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Simulate data source with 500+ active work orders and technician locations."
+      },
+      {
+        "type": "action",
+        "description": "Navigate to Mission Control Dashboard."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify dashboard loads completely within 1.5 seconds."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm all KPI cards, activity feed, technician heatmaps, and maps render with accurate real-time data."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify map responsiveness and smooth rendering of all markers without lag."
+      }
+    ]
+  },
+  {
+    "id": "TC002",
+    "title": "Work Order Creation and Auto-Assignment",
+    "description": "Ensure new work orders are created successfully and intelligently auto-assigned to technicians based on location, skills, and availability within 100 milliseconds.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Create a new work order with specific location, required skills, and priority via the wizard-form."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify work order is saved correctly in the system."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm the automation engine processes the assignment within 100 milliseconds."
+      },
+      {
+        "type": "assertion",
+        "description": "Check the work order is assigned to a technician matching location, skills, and availability criteria."
+      }
+    ]
+  },
+  {
+    "id": "TC003",
+    "title": "Work Order Status Update and SLA Monitoring",
+    "description": "Validate real-time SLA monitoring triggers alerts for at-risk and breached work orders with appropriate automated escalations.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Update a work order status to simulate progress towards SLA breach."
+      },
+      {
+        "type": "assertion",
+        "description": "Check SLA status indicator updates to show at-risk status appropriately."
+      },
+      {
+        "type": "action",
+        "description": "Simulate the work order reaching SLA breach condition."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify SLA breach alert is triggered and escalations workflows are initiated automatically."
+      }
+    ]
+  },
+  {
+    "id": "TC004",
+    "title": "Role-Based Access Control and Row-Level Security Verification",
+    "description": "Verify that data access is correctly restricted based on user roles and row-level security policies.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Login as Admin user and navigate through various data views (work orders, assets, technicians)."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm full access to all data without restriction."
+      },
+      {
+        "type": "action",
+        "description": "Login as Dispatcher user."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify access to assigned work orders and related data only."
+      },
+      {
+        "type": "action",
+        "description": "Login as Technician user."
+      },
+      {
+        "type": "assertion",
+        "description": "Check visibility limited to assigned work orders and personal profile."
+      },
+      {
+        "type": "action",
+        "description": "Attempt unauthorized data queries beyond permissions via API."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm access is denied and no sensitive data is exposed."
+      }
+    ]
+  },
+  {
+    "id": "TC005",
+    "title": "Offline Support and Background Sync",
+    "description": "Ensure the Progressive Web App supports offline access, data updates, background synchronization, and conflict resolution.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Load the app and cache initial data."
+      },
+      {
+        "type": "action",
+        "description": "Switch device to airplane mode (offline)."
+      },
+      {
+        "type": "action",
+        "description": "Access cached work orders and assets."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify data is accessible and UI functions correctly in offline mode."
+      },
+      {
+        "type": "action",
+        "description": "Make changes such as status updates and asset edits while offline."
+      },
+      {
+        "type": "action",
+        "description": "Restore network connection to trigger background sync."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm local changes are synchronized with server without data loss."
+      },
+      {
+        "type": "action",
+        "description": "Simulate data conflicts during sync, e.g. concurrent updates on same record."
+      },
+      {
+        "type": "assertion",
+        "description": "Validate correct conflict resolution behavior and user notification."
+      }
+    ]
+  },
+  {
+    "id": "TC006",
+    "title": "Technician Scheduling and Conflict Detection",
+    "description": "Verify accurate appointment booking, drag-and-drop rescheduling, and conflict prevention in the calendar module.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Schedule a new appointment for a technician with valid time and duration."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm appointment appears correctly in the calendar."
+      },
+      {
+        "type": "action",
+        "description": "Drag-and-drop the appointment to a new time slot."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify calendar updates with new time and any overlapping appointments are detected."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to schedule or move an appointment overlapping an existing one."
+      },
+      {
+        "type": "assertion",
+        "description": "Ensure the system prevents the conflict and notifies the user."
+      }
+    ]
+  },
+  {
+    "id": "TC007",
+    "title": "QR Code Scanning and Asset Tracking",
+    "description": "Validate that scanning QR codes correctly fetches and displays asset details and maintenance history.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Use QR scanner to scan asset QR code."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify asset details page opens with accurate and up-to-date information."
+      },
+      {
+        "type": "assertion",
+        "description": "Check maintenance history and downtime tracking data are displayed."
+      },
+      {
+        "type": "action",
+        "description": "Scan invalid or corrupted QR code."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm appropriate error message appears and no incorrect asset data is shown."
+      }
+    ]
+  },
+  {
+    "id": "TC008",
+    "title": "Inventory Low-Stock Alerts and Reorder Notifications",
+    "description": "Ensure inventory system triggers low-stock alerts and reorder notifications accurately and timely.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Adjust inventory levels to fall below predefined low-stock thresholds."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify low-stock alert is triggered and visible on inventory dashboard."
+      },
+      {
+        "type": "assertion",
+        "description": "Check reorder notification message content is accurate and actionable."
+      },
+      {
+        "type": "action",
+        "description": "Simulate inventory replenishment."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm alert and notification are cleared appropriately after stock update."
+      }
+    ]
+  },
+  {
+    "id": "TC009",
+    "title": "Real-time Notifications Delivery and Display",
+    "description": "Verify that in-app notifications related to work order updates, SLA alerts, and system events are delivered and displayed in real time.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Trigger a work order status update event."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm real-time notification appears in Notification Center with correct details."
+      },
+      {
+        "type": "action",
+        "description": "Trigger SLA at-risk and breach alert events."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify SLA alerts are delivered immediately and escalate if appropriate."
+      },
+      {
+        "type": "action",
+        "description": "Generate a system event notification."
+      },
+      {
+        "type": "assertion",
+        "description": "Check system event notification is received without delay."
+      }
+    ]
+  },
+  {
+    "id": "TC010",
+    "title": "Map & Location Services Route Optimization",
+    "description": "Validate that the map displays work order and technician markers correctly, and route optimization minimizes travel time and distance.",
+    "category": "functional",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open the map view with multiple active work orders and technicians."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify all markers show at correct geo-locations."
+      },
+      {
+        "type": "action",
+        "description": "Invoke route optimization for a technician with multiple assigned work orders."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm the optimized route is displayed and travel time/distance is minimized compared to default order."
+      }
+    ]
+  },
+  {
+    "id": "TC011",
+    "title": "Audit Logs Capture and Immutable Trail",
+    "description": "Ensure all user actions and system automated processes are captured in audit logs immutably with accurate timestamps and user identification.",
+    "category": "security",
+    "priority": "High",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Perform diverse system actions: create/update/delete work orders, asset edits, user profile changes."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify each action is logged with correct user ID, timestamp, and action details."
+      },
+      {
+        "type": "action",
+        "description": "Attempt to modify or delete audit log records."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm audit logs are immutable and cannot be altered or deleted."
+      },
+      {
+        "type": "action",
+        "description": "Access audit logs with users having different permission levels."
+      },
+      {
+        "type": "assertion",
+        "description": "Validate only authorized roles can view audit logs."
+      }
+    ]
+  },
+  {
+    "id": "TC012",
+    "title": "Search and Filters Accuracy Across Entities",
+    "description": "Verify that advanced multi-criteria search and filters function correctly across work orders, assets, and inventory.",
+    "category": "functional",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Enter search terms and apply multiple filters simultaneously in work order view."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm results accurately match search criteria and filters."
+      },
+      {
+        "type": "action",
+        "description": "Perform similar multi-filter searches in asset and inventory views."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify correct filtering and quick search response."
+      },
+      {
+        "type": "action",
+        "description": "Remove filters and search terms to reset views."
+      },
+      {
+        "type": "assertion",
+        "description": "Check full unfiltered dataset is restored without errors."
+      }
+    ]
+  },
+  {
+    "id": "TC013",
+    "title": "User Interface Responsiveness and Accessibility",
+    "description": "Ensure all UI components are responsive across devices and comply with accessibility standards (keyboard navigation, screen reader support).",
+    "category": "ui",
+    "priority": "Medium",
+    "steps": [
+      {
+        "type": "action",
+        "description": "Open key modules (Dashboard, Work Orders, Assets, Scheduling) on devices of varying screen sizes."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify UI layout adapts responsively without content overflow or truncated elements."
+      },
+      {
+        "type": "action",
+        "description": "Use keyboard only navigation to interact with menus, forms, dialogs."
+      },
+      {
+        "type": "assertion",
+        "description": "Confirm all interactive elements are reachable and usable without mouse."
+      },
+      {
+        "type": "action",
+        "description": "Enable screen reader and test content is read out meaningfully and labels are present."
+      },
+      {
+        "type": "assertion",
+        "description": "Verify UI components comply with accessibility guidelines."
+      }
+    ]
+  }
+]

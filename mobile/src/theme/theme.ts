@@ -1,4 +1,4 @@
-import {MD3LightTheme, configureFonts} from 'react-native-paper';
+import { MD3LightTheme, configureFonts } from 'react-native-paper';
 
 const fontConfig = {
   web: {
@@ -59,7 +59,8 @@ const fontConfig = {
 
 export const theme = {
   ...MD3LightTheme,
-  fonts: configureFonts({config: fontConfig}),
+  roundness: 2, // Corresponds to ~8px border radius (default base is 4)
+  fonts: configureFonts({ config: fontConfig }),
   colors: {
     ...MD3LightTheme.colors,
     primary: '#6A0DAD', // Purple brand color from web app

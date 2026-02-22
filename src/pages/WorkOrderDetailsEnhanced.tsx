@@ -1,4 +1,4 @@
-import { ArrowLeft, Bike, Check, ClipboardList, Clock, Home, Info, Loader2, Map as MapIcon, Pause, Tag, X } from 'lucide-react';
+import { ArrowLeft, Bike, Check, ClipboardList, Clock, Home, Info, Loader2, Map as MapIcon, Pause, Tag, X, MessageSquare, Wrench } from 'lucide-react';
 import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -8,11 +8,12 @@ import { supabase } from '@/integrations/supabase/client';
 import { WorkOrder, Customer, Vehicle, Technician, Location, WorkOrderPart, EmergencyBikeAssignment } from '@/types/supabase';
 import { getWorkOrderNumber } from '@/utils/work-order-display';
 import { useWorkOrderData } from '@/hooks/useWorkOrderData';
-import { snakeToCamelCase } from '@/utils/data-helpers';
+import { snakeToCamelCase, camelToSnakeCase } from '@/utils/data-helpers';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
+import { ContextualTopBar } from '@/components/layout/ContextualTopBar';
 
 // Modular Components
 import { WorkOrderOverviewCards } from '@/components/work-order-details/WorkOrderOverviewCards';
@@ -20,15 +21,16 @@ import { WorkOrderSidebar } from '@/components/work-order-details/WorkOrderSideb
 import { WorkOrderCustomerVehicleCard } from '@/components/work-order-details/WorkOrderCustomerVehicleCard';
 import { WorkOrderDetailsInfoCard } from '@/components/work-order-details/WorkOrderDetailsInfoCard';
 import { WorkOrderServiceLifecycleCard } from '@/components/work-order-details/WorkOrderServiceLifecycleCard';
-import { WorkOrderActivityLogCard } from '@/components/work-order-details/WorkOrderActivityLogCard';
 import { TimelineContainer } from '@/components/timeline/TimelineContainer';
-import { TimelineDemo } from '@/components/timeline/TimelineDemo';
+import { ActivityTimeline } from '@/components/timeline/ActivityTimeline';
 import WorkOrderStepper from '@/components/WorkOrderStepper/WorkOrderStepper';
 import { Skeleton } from '@/components/tailwind-components';
-import { WorkOrderNotesCard } from '@/components/work-order-details/WorkOrderNotesCard';
 import { WorkOrderCostSummaryCard } from '@/components/work-order-details/WorkOrderCostSummaryCard';
 import { WorkOrderLocationMapCard } from '@/components/work-order-details/WorkOrderLocationMapCard';
 import { WorkOrderRelatedHistoryCard } from '@/components/work-order-details/WorkOrderRelatedHistoryCard';
+import { WorkOrderDetailsSkeleton } from '@/components/work-order-details/WorkOrderDetailsSkeleton';
+import { WorkOrderRightPanel } from '@/components/work-order-details/WorkOrderRightPanel';
+import { WorkOrderNotes } from '@/components/work-order-details/WorkOrderNotes';
 
 // Dialogs
 import { AssignTechnicianModal } from '@/components/work-order-details/AssignTechnicianModal';
@@ -178,25 +180,53 @@ const WorkOrderDetailsEnhanced: React.FC<WorkOrderDetailsProps> = ({
   const emergencyEligible = workOrder?.status !== 'Completed' && !hasActiveEmergencyAssignment && elapsedSec >= sixHoursSec;
   const isLoadingEmergencyBike = false; // We fetch this in parent but don't strictly track its loading separately for the banner, assuming minimal delay.
 
+  // Render top bar actions
+  const renderTopBarActions = () => {
+    if (!workOrder) return null;
+
+    return (
+      <>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => setIsAssignModalOpen(true)}
+        >
+          <Wrench className="w-4 h-4 mr-2" />
+          Assign
+        </Button>
+        <Button
+          variant="default"
+          size="sm"
+          onClick={() => setIsMaintenanceCompletionDrawerOpen(true)}
+        >
+          <Check className="w-4 h-4 mr-2" />
+          Complete
+        </Button>
+      </>
+    );
+  };
+
   // Helper for displaying banner
   const renderEmergencyBikeBanner = () => {
     if (!emergencyEligible && !hasActiveEmergencyAssignment) return null;
 
     return (
-      <div className={`px-4 py-2 flex items-center justify-between border-b ${hasActiveEmergencyAssignment ? 'bg-muted border-blue-200' : 'bg-muted border-orange-200'
+      <div className={`px-4 py-2 flex items-center justify-between border-b ${hasActiveEmergencyAssignment
+        ? 'bg-primary/5 border-primary/20'
+        : 'bg-amber-50 border-amber-200'
         }`}>
         <div className="flex items-center gap-2">
-          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${hasActiveEmergencyAssignment ? 'bg-background' : 'bg-background'
+          <div className={`w-8 h-8 rounded-full flex items-center justify-center ${hasActiveEmergencyAssignment ? 'bg-primary/10' : 'bg-amber-100'
             }`}>
-            <Bike className={`w-5 h-5 ${hasActiveEmergencyAssignment ? 'text-blue-600' : 'text-orange-600'
+            <Bike className={`w-5 h-5 ${hasActiveEmergencyAssignment ? 'text-primary' : 'text-amber-600'
               }`} />
           </div>
           <div>
-            <p className={`text-sm font-bold ${hasActiveEmergencyAssignment ? 'text-blue-900' : 'text-orange-900'
+            <p className={`text-xs font-bold ${hasActiveEmergencyAssignment ? 'text-foreground' : 'text-amber-900'
               }`}>
               {hasActiveEmergencyAssignment
                 ? `Emergency Bike: ${emergencyBike ? ((emergencyBike as any).licensePlate || emergencyBike.license_plate) : 'Loading...'}`
-                : 'Customer Eligible for Emergency Bike'
+                : 'Eligible for Emergency Bike'
               }
             </p>
             {hasActiveEmergencyAssignment && (
@@ -225,7 +255,7 @@ const WorkOrderDetailsEnhanced: React.FC<WorkOrderDetailsProps> = ({
             )}
             {emergencyEligible && (
               <p className="text-xs text-muted-foreground">
-                Repair time &gt; 6 hours.
+                Repair has exceeded 6 hours
               </p>
             )}
           </div>
@@ -235,12 +265,13 @@ const WorkOrderDetailsEnhanced: React.FC<WorkOrderDetailsProps> = ({
           <Button
             size="sm"
             onClick={() => setIsAssignEmergencyOpen(true)}
-            className="bg-orange-600 hover:bg-orange-700 text-white border-none"
+            className="h-8 text-xs bg-orange-600 hover:bg-orange-700 text-white border-none"
           >
+            <Bike className="w-4 h-4 mr-1.5" />
             Assign Bike
           </Button>
         ) : (
-          <Badge variant="info" className="uppercase tracking-wider">
+          <Badge variant="secondary" className="uppercase tracking-wider">
             Active
           </Badge>
         )}
@@ -253,9 +284,12 @@ const WorkOrderDetailsEnhanced: React.FC<WorkOrderDetailsProps> = ({
     mutationFn: async (updates: Partial<WorkOrder>) => {
       if (!id) throw new Error('No work order ID');
 
+      // Convert camelCase to snake_case for database
+      const snakeCaseUpdates = camelToSnakeCase(updates);
+
       const { data, error } = await supabase
         .from('work_orders')
-        .update(updates)
+        .update(snakeCaseUpdates)
         .eq('id', id)
         .select()
         .single();
@@ -325,6 +359,10 @@ const WorkOrderDetailsEnhanced: React.FC<WorkOrderDetailsProps> = ({
     } else if (outcome === 'cancelled') {
       updates.status = 'Cancelled';
       await handleStatusUpdate('Cancelled', updates);
+    } else if (outcome === 'unreachable') {
+      // Move to 'Confirmation' status when no answer
+      updates.status = 'Confirmation';
+      await handleStatusUpdate('Confirmation', updates);
     } else {
       await updateWorkOrderMutation.mutateAsync(updates);
     }
@@ -334,13 +372,25 @@ const WorkOrderDetailsEnhanced: React.FC<WorkOrderDetailsProps> = ({
 
   // Handle technician assignment
   const handleAssignTechnician = async (technicianId: string) => {
-    await updateWorkOrderMutation.mutateAsync({
-      assignedTechnicianId: technicianId,
-      status: 'In Progress',
-      workStartedAt: new Date().toISOString(),
-    });
-    await addActivityLog(`Technician assigned`);
-    setIsAssignModalOpen(false);
+    try {
+      await updateWorkOrderMutation.mutateAsync({
+        assignedTechnicianId: technicianId,
+        status: 'In Progress',
+        workStartedAt: new Date().toISOString(),
+      });
+      await addActivityLog(`Technician assigned`);
+      setIsAssignModalOpen(false);
+    } catch (error: any) {
+      // Error is already handled by the mutation's onError, but we can add specific handling here
+      console.error('Failed to assign technician:', error);
+
+      // Show a more user-friendly error message
+      toast({
+        title: 'Permission Error',
+        description: 'Unable to assign technician due to database permissions. Please contact your administrator.',
+        variant: 'destructive',
+      });
+    }
   };
 
   // Handle emergency bike assignment
@@ -552,17 +602,7 @@ const WorkOrderDetailsEnhanced: React.FC<WorkOrderDetailsProps> = ({
 
   // Loading state
   if (isLoading) {
-    return (
-      <div className="flex flex-col h-screen bg-background">
-
-        <div className="flex-1 flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading work order...</p>
-          </div>
-        </div>
-      </div>
-    );
+    return <WorkOrderDetailsSkeleton />;
   }
 
   // Error state
@@ -588,18 +628,27 @@ const WorkOrderDetailsEnhanced: React.FC<WorkOrderDetailsProps> = ({
   // Main render
   return (
     <div className="flex h-screen bg-background overflow-hidden">
-      {/* Sidebar - Desktop only */}
+      {/* Left Sidebar - Work Order List (Desktop only) */}
       {!isDrawerMode && (
         <WorkOrderSidebar
           currentWorkOrderId={id!}
           onSelectWorkOrder={handleSelectWorkOrder}
-          className="hidden lg:block w-80 flex-shrink-0"
+          className="hidden lg:block w-[300px] flex-shrink-0"
         />
       )}
 
-      {/* Main Content */}
+      {/* Center Content - Main Work Details */}
       <div className="flex-1 flex flex-col overflow-hidden">
-
+        {/* Contextual Top Bar with Tabs */}
+        <ContextualTopBar
+          title={getWorkOrderNumber(workOrder)}
+          subtitle={workOrder.title}
+          backUrl="/work-orders"
+          backLabel="Work Orders"
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          actions={renderTopBarActions()}
+        />
 
         {/* Overview Cards */}
         <WorkOrderOverviewCards
@@ -627,41 +676,48 @@ const WorkOrderDetailsEnhanced: React.FC<WorkOrderDetailsProps> = ({
         {/* Tabs Content */}
         <div className="flex-1 overflow-hidden">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
-            <div className="flex border-b border-border px-4 bg-card">
-              <TabsList className="h-auto p-0 bg-transparent border-b-0 space-x-6 rounded-none">
+            <div className="px-4 border-b border-border bg-background">
+              <TabsList className="h-auto w-full justify-start rounded-none bg-transparent p-0 overflow-x-auto overflow-y-hidden">
                 <TabsTrigger
                   value="overview"
-                  className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-primary data-[state=active]:text-primary border-b-2 border-transparent rounded-none px-2 py-3 text-xs font-medium gap-2"
+                  className="gap-2 data-[state=active]:border-primary data-[state=active]:text-primary border-b-2 border-transparent rounded-none bg-transparent px-4 py-3 font-medium text-muted-foreground hover:bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                 >
-                  <Info className="w-5 h-5" />
+                  <Info className="w-4 h-4" />
                   Overview
                 </TabsTrigger>
                 <TabsTrigger
-                  value="details"
-                  className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-primary data-[state=active]:text-primary border-b-2 border-transparent rounded-none px-2 py-3 text-xs font-medium gap-2"
+                  value="notes"
+                  className="gap-2 data-[state=active]:border-primary data-[state=active]:text-primary border-b-2 border-transparent rounded-none bg-transparent px-4 py-3 font-medium text-muted-foreground hover:bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                 >
-                  <ClipboardList className="w-5 h-5" />
+                  <MessageSquare className="w-4 h-4" />
+                  Notes
+                </TabsTrigger>
+                <TabsTrigger
+                  value="details"
+                  className="gap-2 data-[state=active]:border-primary data-[state=active]:text-primary border-b-2 border-transparent rounded-none bg-transparent px-4 py-3 font-medium text-muted-foreground hover:bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                >
+                  <ClipboardList className="w-4 h-4" />
                   Details
                 </TabsTrigger>
                 <TabsTrigger
                   value="parts"
-                  className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-primary data-[state=active]:text-primary border-b-2 border-transparent rounded-none px-2 py-3 text-xs font-medium gap-2"
+                  className="gap-2 data-[state=active]:border-primary data-[state=active]:text-primary border-b-2 border-transparent rounded-none bg-transparent px-4 py-3 font-medium text-muted-foreground hover:bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                 >
-                  <Tag className="w-5 h-5" />
+                  <Tag className="w-4 h-4" />
                   Parts & Costs
                 </TabsTrigger>
                 <TabsTrigger
                   value="history"
-                  className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-primary data-[state=active]:text-primary border-b-2 border-transparent rounded-none px-2 py-3 text-xs font-medium gap-2"
+                  className="gap-2 data-[state=active]:border-primary data-[state=active]:text-primary border-b-2 border-transparent rounded-none bg-transparent px-4 py-3 font-medium text-muted-foreground hover:bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                 >
-                  <Clock className="w-5 h-5" />
+                  <Clock className="w-4 h-4" />
                   History
                 </TabsTrigger>
                 <TabsTrigger
                   value="location"
-                  className="data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-primary data-[state=active]:text-primary border-b-2 border-transparent rounded-none px-2 py-3 text-xs font-medium gap-2"
+                  className="gap-2 data-[state=active]:border-primary data-[state=active]:text-primary border-b-2 border-transparent rounded-none bg-transparent px-4 py-3 font-medium text-muted-foreground hover:bg-transparent hover:text-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
                 >
-                  <MapIcon className="w-5 h-5" />
+                  <MapIcon className="w-4 h-4" />
                   Location
                 </TabsTrigger>
               </TabsList>
@@ -682,22 +738,17 @@ const WorkOrderDetailsEnhanced: React.FC<WorkOrderDetailsProps> = ({
                 </div>
               </TabsContent>
 
+              <TabsContent value="notes" className="p-4 h-full">
+                <div className="h-[600px]">
+                  <WorkOrderNotes workOrderId={id!} />
+                </div>
+              </TabsContent>
+
               <TabsContent value="details" className="p-4 space-y-4">
-                {/* Enhanced Activity Timeline - Primary Feature */}
-                <TimelineDemo 
+                {/* Activity Timeline */}
+                <ActivityTimeline
                   workOrderId={id!}
                 />
-                
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  <WorkOrderActivityLogCard
-                    workOrder={workOrder}
-                    profileMap={profileMap}
-                  />
-                  <WorkOrderNotesCard
-                    workOrder={workOrder}
-                    profileMap={profileMap}
-                  />
-                </div>
               </TabsContent>
 
               <TabsContent value="parts" className="p-4 space-y-4">
@@ -733,6 +784,19 @@ const WorkOrderDetailsEnhanced: React.FC<WorkOrderDetailsProps> = ({
           </Tabs>
         </div>
       </div>
+
+      {/* Right Sidebar - Technician & Financial (Desktop only) */}
+      {!isDrawerMode && (
+        <WorkOrderRightPanel
+          workOrder={workOrder}
+          technician={technician}
+          allTechnicians={technicians || []}
+          usedParts={usedParts}
+          laborRate={50}
+          onAssignTechnician={handleAssignTechnician}
+          profileMap={profileMap}
+        />
+      )}
 
       {/* Dialogs */}
       <AssignTechnicianModal
@@ -773,8 +837,8 @@ const WorkOrderDetailsEnhanced: React.FC<WorkOrderDetailsProps> = ({
         <WorkOrderPartsDialog
           isOpen={isAddPartDialogOpen}
           onClose={() => setIsAddPartDialogOpen(false)}
-          workOrder={workOrder}
-          onAddPart={handleAddPart}
+          workOrderId={id!}
+          workOrderNumber={getWorkOrderNumber(workOrder)}
         />
       )}
 

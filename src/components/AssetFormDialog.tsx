@@ -307,7 +307,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
             </div>
             <button
               onClick={onClose}
-              className="p-1.5 text-muted-foreground hover:text-foreground rounded-lg hover:bg-accent transition-colors"
+              className="p-1.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-accent transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
@@ -368,7 +368,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                             key={type}
                             type="button"
                             onClick={() => setOwnershipType(type)}
-                            className={`px-3 py-2 text-xs rounded-lg border-2 font-medium transition-all ${ownershipType === type
+                            className={`px-3 py-2 text-xs rounded-md border-2 font-medium transition-all ${ownershipType === type
                               ? 'border-primary bg-primary/10 text-primary'
                               : 'border-border bg-background text-foreground hover:border-input'
                               }`}
@@ -502,7 +502,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                         required
                         value={formData.license_plate}
                         onChange={(e) => setFormData({ ...formData, license_plate: e.target.value })}
-                        className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        className="w-full px-3 py-2 text-sm border border-input rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         placeholder="Enter license plate"
                       />
                     </div>
@@ -516,7 +516,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                           required
                           value={formData.make}
                           onChange={(e) => setFormData({ ...formData, make: e.target.value })}
-                          className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className="w-full px-3 py-2 text-sm border border-input rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                           placeholder="e.g., TVS"
                         />
                       </div>
@@ -529,7 +529,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                           required
                           value={formData.model}
                           onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                          className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className="w-full px-3 py-2 text-sm border border-input rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                           placeholder="e.g., iQube"
                         />
                       </div>
@@ -545,7 +545,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                             const year = e.target.value ? new Date(e.target.value).getFullYear() : undefined;
                             setFormData({ ...formData, date_of_manufacture: dateValue, year });
                           }}
-                          className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className="w-full px-3 py-2 text-sm border border-input rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         />
                       </div>
                       <div>
@@ -556,7 +556,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                           required
                           value={formData.status || 'Normal'}
                           onChange={(e) => setFormData({ ...formData, status: e.target.value as any })}
-                          className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                          className="w-full px-3 py-2 text-sm border border-input rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         >
                           <option value="Normal">Normal</option>
                           <option value="In Repair">In Repair</option>
@@ -628,7 +628,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                         required
                         value={formData.vin}
                         onChange={(e) => setFormData({ ...formData, vin: e.target.value })}
-                        className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        className="w-full px-3 py-2 text-sm border border-input rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         placeholder="Vehicle Identification Number"
                       />
                     </div>
@@ -643,7 +643,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                         max={new Date().getFullYear() + 1}
                         value={formData.year || ''}
                         onChange={(e) => setFormData({ ...formData, year: e.target.value ? parseInt(e.target.value) : new Date().getFullYear() })}
-                        className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        className="w-full px-3 py-2 text-sm border border-input rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         placeholder="Manufacturing year"
                       />
                     </div>
@@ -653,7 +653,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                         type="text"
                         value={formData.motor_number || ''}
                         onChange={(e) => setFormData({ ...formData, motor_number: e.target.value })}
-                        className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        className="w-full px-3 py-2 text-sm border border-input rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         placeholder="Motor/Engine Number"
                       />
                     </div>
@@ -664,7 +664,7 @@ export const AssetFormDialog: React.FC<AssetFormDialogProps> = ({ isOpen, onClos
                         min="0"
                         value={formData.mileage ?? ''}
                         onChange={(e) => setFormData({ ...formData, mileage: e.target.value === '' ? undefined : parseInt(e.target.value) })}
-                        className="w-full px-3 py-2 text-sm border border-input rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                        className="w-full px-3 py-2 text-sm border border-input rounded-md focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         placeholder="Current mileage"
                       />
                     </div>

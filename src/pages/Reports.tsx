@@ -605,15 +605,28 @@ const TechnicianPerformanceReport: React.FC<{
 // Work Order Analysis Report
 const WorkOrderAnalysisReport: React.FC<{
   workOrders: WorkOrder[];
-}> = ({ workOrders }) => {
+  serviceCategories?: Array<{ id: string; name: string; label: string }>;
+}> = ({ workOrders, serviceCategories = [] }) => {
+  // Build a lookup map: uuid/name -> display label
+  const serviceLabelMap = useMemo(() => {
+    const map = new Map<string, string>();
+    serviceCategories.forEach(cat => {
+      map.set(cat.id, cat.label || cat.name);
+      map.set(cat.name, cat.label || cat.name);
+    });
+    return map;
+  }, [serviceCategories]);
+
   const analysis = useMemo(() => {
     const byServiceType: Record<string, number> = {};
     const byStatus: Record<string, number> = {};
     const byPriority: Record<string, number> = {};
 
     workOrders.forEach(wo => {
-      // Service type
-      const serviceType = wo.service_type || 'Unknown';
+      // Service type — use service_category_id, service (FK), or service_type as fallback
+      const rawServiceId = (wo as any).service_category_id || wo.service || wo.service_type || null;
+      const serviceType = (rawServiceId && serviceLabelMap.get(rawServiceId)) || rawServiceId || 'Unknown';
+
       byServiceType[serviceType] = (byServiceType[serviceType] || 0) + 1;
 
       // Status - normalize to lowercase with underscores
@@ -626,6 +639,82 @@ const WorkOrderAnalysisReport: React.FC<{
     });
 
     return { byServiceType, byStatus, byPriority };
+  }, [workOrders]);
+
+  // Average Time per Status calculation
+  const averageTimeData = useMemo(() => {
+    let newTimeCount = 0;
+    let newTimeTotal = 0; // ms
+
+    let confirmationTimeCount = 0;
+    let confirmationTimeTotal = 0;
+
+    let readyTimeCount = 0;
+    let readyTimeTotal = 0;
+
+    let inProgressTimeCount = 0;
+    let inProgressTimeTotal = 0;
+
+    workOrders.forEach(wo => {
+      const getTimestamp = (key: 'created_at' | 'confirmation_status_entered_at' | 'ready_at' | 'work_started_at' | 'completed_at') => {
+        return wo[key] ? dayjs(wo[key] as string) : null;
+      };
+
+      const created = getTimestamp('created_at');
+      const confirmedAtFallback = (wo as any).confirmed_at;
+      const confirmation = getTimestamp('confirmation_status_entered_at') || (confirmedAtFallback ? dayjs(confirmedAtFallback as string) : null);
+      const ready = getTimestamp('ready_at');
+      const started = getTimestamp('work_started_at');
+      const completed = getTimestamp('completed_at');
+
+      // Fallback logic from activity log if dates are missing not implemented here to keep calculations fast. 
+      // Most new records will have these timestamps on the parent record.
+
+      // Time spent in 'New' (waiting for confirmation or directly to ready)
+      if (created) {
+        const nextStatus = confirmation || ready || started || completed;
+        if (nextStatus) {
+          newTimeTotal += nextStatus.diff(created);
+          newTimeCount++;
+        }
+      }
+
+      // Time spent in 'Confirmation'
+      if (confirmation) {
+        const nextStatus = ready || started || completed;
+        if (nextStatus) {
+          confirmationTimeTotal += nextStatus.diff(confirmation);
+          confirmationTimeCount++;
+        }
+      }
+
+      // Time spent in 'Ready'
+      if (ready) {
+        const nextStatus = started || completed;
+        if (nextStatus) {
+          readyTimeTotal += nextStatus.diff(ready);
+          readyTimeCount++;
+        }
+      }
+
+      // Time spent in 'In Progress'
+      if (started) {
+        const nextStatus = completed;
+        if (nextStatus) {
+          inProgressTimeTotal += nextStatus.diff(started);
+          inProgressTimeCount++;
+        }
+      }
+    });
+
+    const msToHours = (ms: number, count: number) => count > 0 ? Number(((ms / count) / (1000 * 60 * 60)).toFixed(1)) : 0;
+
+    return [
+      { name: 'New', hours: msToHours(newTimeTotal, newTimeCount), color: CHART_COLORS.open },
+      { name: 'Confirmation', hours: msToHours(confirmationTimeTotal, confirmationTimeCount), color: CHART_COLORS.pending },
+      { name: 'Ready', hours: msToHours(readyTimeTotal, readyTimeCount), color: CHART_COLORS.ready },
+      { name: 'In Progress', hours: msToHours(inProgressTimeTotal, inProgressTimeCount), color: CHART_COLORS.in_progress },
+    ].filter(item => item.hours > 0); // Only show relevant bars
   }, [workOrders]);
 
   // Service type chart data
@@ -688,6 +777,73 @@ const WorkOrderAnalysisReport: React.FC<{
 
   return (
     <div className="space-y-4">
+      {/* Average Time per Status Chart */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-1.5">
+            <Clock className="w-4 h-4 text-primary" />
+            Average Time per Status (Hours)
+          </CardTitle>
+          <CardDescription className="text-xs">
+            Measures the average duration work orders spend in each workflow state.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {averageTimeData.length > 0 ? (
+            <div className="h-[220px] w-full">
+              <BarChart
+                dataset={averageTimeData}
+                layout="horizontal"
+                yAxis={[
+                  {
+                    scaleType: 'band',
+                    dataKey: 'name',
+                    tickLabelStyle: {
+                      fontSize: 10,
+                      fill: '#6b7280',
+                    },
+                  },
+                ]}
+                xAxis={[
+                  {
+                    tickLabelStyle: {
+                      fontSize: 10,
+                      fill: '#6b7280',
+                    },
+                    valueFormatter: (value) => `${value}h`,
+                  },
+                ]}
+                series={[
+                  {
+                    dataKey: 'hours',
+                    label: 'Hours',
+                    color: CHART_COLORS.steelBlue,
+                    valueFormatter: (value) => `${value} hrs`,
+                  },
+                ]}
+                margin={{ top: 10, right: 30, bottom: 20, left: 80 }}
+                grid={{ vertical: true, horizontal: false }}
+                borderRadius={4}
+                sx={{
+                  '& .MuiChartsGrid-line': {
+                    stroke: '#e5e7eb',
+                    strokeDasharray: '3 3',
+                  },
+                  '& .MuiChartsAxis-line': {
+                    display: 'none',
+                  },
+                  '& .MuiChartsAxis-tick': {
+                    display: 'none',
+                  },
+                }}
+              />
+            </div>
+          ) : (
+            <div className="h-[220px] flex items-center justify-center text-xs text-muted-foreground">No duration data available yet</div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Service Type Bar Chart */}
       <Card>
         <CardHeader className="pb-2">
@@ -1527,7 +1683,7 @@ const Reports: React.FC = () => {
         .from('work_orders')
         .select('*, technician:technicians(*), customer:customers(*), vehicle:vehicles(*)')
         .gte('created_at', startDate)
-        .lte('created_at', endDate)
+        .lte('created_at', `${endDate}T23:59:59`)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -1563,6 +1719,20 @@ const Reports: React.FC = () => {
     },
   });
 
+  // Fetch service categories
+  const { data: serviceCategories, isLoading: loadingServiceCategories } = useQuery({
+    queryKey: ['diagnostic_categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('diagnostic_categories')
+        .select('*')
+        .order('display_order', { ascending: true });
+
+      if (error) throw error;
+      return data as Array<{ id: string; name: string; label: string }>;
+    },
+  });
+
   const handleExportPDF = () => {
     // TODO: Implement PDF export
     toast({
@@ -1579,10 +1749,10 @@ const Reports: React.FC = () => {
     });
   };
 
-  if (loadingWorkOrders || loadingTechnicians || loadingVehicles) {
+  if (loadingWorkOrders || loadingTechnicians || loadingVehicles || loadingServiceCategories) {
     return (
       <div className="flex h-screen bg-background">
-        <div className="w-80 border-r border-border flex flex-col bg-muted">
+        <div className="w-80 border-r border-border flex flex-col bg-muted dark:bg-background">
           <div className="px-4 py-4 border-b border-border">
             <Skeleton className="h-6 w-30 mb-3" />
             <Skeleton className="h-9 w-full" />
@@ -1606,7 +1776,7 @@ const Reports: React.FC = () => {
     <ReportsErrorBoundary>
       <div className="flex h-screen bg-background">
         {/* Left Panel - Report Navigation & Controls */}
-        <div className="w-80 border-r border-border flex flex-col bg-muted">
+        <div className="w-80 border-r border-border flex flex-col bg-muted dark:bg-background">
           {/* Header */}
           <div className="p-3 border-b border-border">
             <div className="mb-3">
@@ -1777,6 +1947,7 @@ const Reports: React.FC = () => {
             {reportType === 'workorder' && (
               <WorkOrderAnalysisReport
                 workOrders={workOrders || []}
+                serviceCategories={serviceCategories || []}
               />
             )}
 
@@ -1798,6 +1969,7 @@ const Reports: React.FC = () => {
                 workOrders={workOrders || []}
                 startDate={startDate}
                 endDate={endDate}
+                serviceCategories={serviceCategories || []}
               />
             )}
 

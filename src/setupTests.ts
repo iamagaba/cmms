@@ -1,5 +1,8 @@
 import '@testing-library/jest-dom';
 
+// Import CSS to load theme variables
+import './App.css';
+
 // Polyfills for jsdom environment used in vitest
 if (typeof (window as any).matchMedia !== 'function') {
 	(window as any).matchMedia = (query: string) => ({
@@ -12,13 +15,6 @@ if (typeof (window as any).matchMedia !== 'function') {
 		removeEventListener: () => {},
 		dispatchEvent: () => false,
 	});
-}
-
-// getComputedStyle is sometimes used by libraries in tests
-if (typeof window.getComputedStyle !== 'function') {
-	window.getComputedStyle = (_elt: Element) => ({
-		getPropertyValue: (_prop: string) => '',
-	} as any);
 }
 
 // ResizeObserver is used by Mantine components

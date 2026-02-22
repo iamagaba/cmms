@@ -44,13 +44,56 @@
   --alert-red-700: #8f2c2c;
 
   /* Brand Teal - Gogo Electric Primary */
-  --brand-teal-400: #14b8a6;  /* Lighter teal */
-  --brand-teal-500: #0D9488;  /* Electric Teal */
-  --brand-teal-600: #0d7c72;  /* Darker teal */
-  --brand-teal-700: #0a5f57;  /* Deep teal */
+  --brand-teal-400: #14b8a6;
+  /* Lighter teal */
+  --brand-teal-500: #0D9488;
+  /* Electric Teal */
+  --brand-teal-600: #0d7c72;
+  /* Darker teal */
+  --brand-teal-700: #0a5f57;
+  /* Deep teal */
 
   /* REMOVED: SHADCN TOKENS - These are now defined in App.css only */
   /* This prevents conflicts with dark mode */
+}
+
+/* DARK MODE INVERSIONS FOR INDUSTRIAL THEME */
+.dark {
+  /* Inverted Slate Scale for Dark Mode */
+  --industrial-slate-50: #0f172a;
+  --industrial-slate-100: #1e293b;
+  --industrial-slate-200: #334155;
+  --industrial-slate-300: #475569;
+  --industrial-slate-400: #64748b;
+  --industrial-slate-500: #94a3b8;
+  --industrial-slate-600: #cbd5e1;
+  --industrial-slate-700: #e2e8f0;
+  --industrial-slate-800: #f1f5f9;
+  --industrial-slate-900: #f8fafc;
+
+  /* Adjusted Semantic Colors for Dark Backgrounds */
+  --safety-amber-50: #451a03;
+  --safety-amber-100: #78350f;
+  --safety-amber-200: #92400e;
+  --safety-amber-500: #fbbf24;
+  /* Brighter for dark mode visibility */
+  --safety-amber-600: #f59e0b;
+  --safety-amber-700: #d97706;
+
+  --operational-green-500: #34d399;
+  /* Brighter */
+  --operational-green-600: #10b981;
+  --operational-green-700: #059669;
+
+  --alert-red-500: #f87171;
+  /* Brighter */
+  --alert-red-600: #ef4444;
+  --alert-red-700: #dc2626;
+
+  --brand-teal-400: #2dd4bf;
+  --brand-teal-500: #14b8a6;
+  --brand-teal-600: #0d9488;
+  --brand-teal-700: #0f766e;
 }
 
 /* -----------------------------------------------------------------------------

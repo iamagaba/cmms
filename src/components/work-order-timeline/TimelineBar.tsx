@@ -41,7 +41,7 @@ export const TimelineBar: React.FC<TimelineBarProps> = ({
     totalDuration = 0
 }) => {
     return (
-        <div className="flex h-6 overflow-hidden shadow-sm">
+        <div className="flex h-5 overflow-hidden shadow-sm">
             {segments.map((segment, index) => {
                 let widthStyle = {};
 

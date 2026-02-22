@@ -15,6 +15,7 @@ interface WorkOrderTimelineProps {
     className?: string;
     onWorkOrderClick?: (workOrder: TimelineWorkOrder) => void;
     isLoading?: boolean;
+    externalCurrentTime?: Date; // Optional: sync with parent's currentTime for accurate bar positioning
 }
 
 // Mobile Card Component
@@ -30,9 +31,9 @@ const MobileTimelineCard = ({ workOrder, onClick }: { workOrder: TimelineWorkOrd
                     <span className="text-xs font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded">
                         {workOrder.work_order_number}
                     </span>
-                    <h4 className="font-semibold text-sm mt-1">{workOrder.vehicle?.license_plate || 'No Plate'}</h4>
+                    <h4 className="font-semibold text-sm mt-1 text-primary">{workOrder.vehicle?.license_plate || 'No Plate'}</h4>
                 </div>
-                <div className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${workOrder.status === 'In Progress' ? 'bg-orange-100 text-orange-700' :
+                <div className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-lg ${workOrder.status === 'In Progress' ? 'bg-orange-100 text-orange-700' :
                     workOrder.status === 'Completed' ? 'bg-green-100 text-green-700' :
                         'bg-slate-100 text-slate-700'
                     }`}>
@@ -73,22 +74,27 @@ export const WorkOrderTimeline: React.FC<WorkOrderTimelineProps> = ({
     workOrders,
     className,
     onWorkOrderClick,
-    isLoading = false
+    isLoading = false,
+    externalCurrentTime
 }) => {
     const [viewMode, setViewMode] = useState<TimelineViewMode>('day');
     const [groupBy, setGroupBy] = useState<TimelineGroupBy>('technician');
     const [baseDate, setBaseDate] = useState(new Date());
-    const [currentTime, setCurrentTime] = useState(new Date());
+    // If externalCurrentTime is provided, use it; otherwise manage internally
+    const [internalCurrentTime, setInternalCurrentTime] = useState(new Date());
+    const currentTime = externalCurrentTime || internalCurrentTime;
     const isMobile = useMediaQuery('(max-width: 768px)');
 
     // Update current time every minute to keep the timeline "red line" and active bars moving
+    // Only update internal state if not using external time
     useEffect(() => {
+        if (externalCurrentTime) return; // Skip if using external time
         const timer = setInterval(() => {
-            setCurrentTime(new Date());
+            setInternalCurrentTime(new Date());
         }, 60000); // 1 minute
 
         return () => clearInterval(timer);
-    }, []);
+    }, [externalCurrentTime]);
 
     // Calculate Date Range based on View Mode
     const dateRange = useMemo(() => {
@@ -162,7 +168,7 @@ export const WorkOrderTimeline: React.FC<WorkOrderTimelineProps> = ({
     const totalWidth = useMemo(() => {
         if (viewMode === 'day') return 1200; // 50px per hour - Fits full day on larger screens
         if (viewMode === 'week') return 1200; // ~170px per day - Fits full week tightly
-        if (viewMode === 'month') return 3000; // 100px per day
+        if (viewMode === 'month') return null; // Use 100% width - fit all 30 days in viewport
         return 1200;
     }, [viewMode]);
 
@@ -317,10 +323,10 @@ export const WorkOrderTimeline: React.FC<WorkOrderTimelineProps> = ({
 
     if (isMobile) {
         return (
-            <Card className={`flex flex-col h-full border-slate-200 shadow-sm bg-slate-50 ${className}`}>
-                <div className="p-3 border-b border-slate-200 bg-white sticky top-0 z-20">
-                    <h3 className="font-bold text-slate-800 flex items-center gap-2">
-                        <CalendarDays className="w-5 h-5 text-slate-500" />
+            <Card className={`flex flex-col h-full border shadow-sm bg-card ${className}`}>
+                <div className="p-3 border-b border-border bg-background sticky top-0 z-20">
+                    <h3 className="font-bold text-foreground flex items-center gap-2">
+                        <CalendarDays className="w-5 h-5 text-muted-foreground" />
                         Current Activity
                     </h3>
                     <p className="text-xs text-slate-500 mt-1">
@@ -346,7 +352,7 @@ export const WorkOrderTimeline: React.FC<WorkOrderTimelineProps> = ({
                         <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => navigateDate('prev')}>
                             <ChevronLeft className="w-4 h-4" />
                         </Button>
-                        <span className="text-sm font-semibold w-40 text-center">
+                        <span className="text-xs font-semibold w-40 text-center">
                             {viewMode === 'day' && dayjs(baseDate).format('ddd, MMM D')}
                             {viewMode === 'week' && `${dayjs(dateRange.from).format('MMM D')} - ${dayjs(dateRange.to).format('MMM D')}`}
                             {viewMode === 'month' && `${dayjs(dateRange.from).format('MMM D')} - ${dayjs(dateRange.to).format('MMM D')}`}
@@ -412,16 +418,16 @@ export const WorkOrderTimeline: React.FC<WorkOrderTimelineProps> = ({
 
                     {groupedData.map(group => (
                         <div key={group.id}>
-                            <div className="h-10 bg-slate-50 px-4 border-b border-slate-100 text-xs font-bold text-slate-600 sticky top-0 z-10 flex items-center">
+                            <div className="h-10 bg-muted px-4 border-b border-border text-xs font-bold text-muted-foreground sticky top-0 z-10 flex items-center">
                                 {group.label} ({group.items.length})
                             </div>
                             {group.items.map((wo, i) => (
                                 <div
                                     key={wo.id}
-                                    className={`h-9 border-b border-slate-100 px-4 flex flex-col justify-center cursor-pointer group transition-colors ${i % 2 === 0 ? 'bg-white' : 'bg-slate-50/50'} hover:bg-blue-50/50`}
+                                    className={`h-9 border-b border-border/50 px-4 flex flex-col justify-center cursor-pointer group transition-colors ${i % 2 === 0 ? 'bg-background' : 'bg-muted/50'} hover:bg-primary/5`}
                                     onClick={() => onWorkOrderClick?.(wo)}
                                 >
-                                    <div className="font-semibold text-slate-800 text-xs group-hover:text-blue-600 transition-colors truncate">
+                                    <div className="font-semibold text-primary text-sm group-hover:text-blue-600 transition-colors truncate">
                                         {wo.vehicle?.license_plate || 'No Plate'}
                                         <span className="text-slate-400 mx-1.5">•</span>
                                         <span className="text-slate-500 font-normal">{wo.work_order_number}</span>
@@ -440,16 +446,16 @@ export const WorkOrderTimeline: React.FC<WorkOrderTimelineProps> = ({
                     className="flex-1 overflow-x-scroll overflow-y-auto relative timeline-scrollbar"
                 >
                     {/* Timeline Canvas Wrapper */}
-                    <div className="bg-slate-50 relative min-w-fit flex-1">
+                    <div className="bg-muted relative min-w-fit flex-1">
                         <TimelineGrid viewMode={viewMode} dateRange={dateRange} totalWidthPx={totalWidth ? Math.max(totalWidth, 800) : null} currentTime={currentTime}>
                             {groupedData.map(group => (
                                 <div key={group.id}>
                                     {/* Spacer for Group Header - synced sticky */}
-                                    <div className="h-10 border-b border-transparent sticky top-0 z-10 bg-slate-50/50 backdrop-blur-[1px]" />
+                                    <div className="h-10 border-b border-transparent sticky top-0 z-10 bg-muted/50 backdrop-blur-[1px]" />
                                     {group.items.map((wo, i) => (
-                                        <div key={wo.id} className="h-9 relative border-b border-slate-100/50">
+                                        <div key={wo.id} className="h-9 relative border-b border-border/50">
                                             {/* Zebra background for grid rows to match sidebar */}
-                                            <div className={`absolute inset-0 w-full h-full pointer-events-none ${i % 2 === 0 ? 'bg-white/50' : 'bg-slate-50/30'}`} />
+                                            <div className={`absolute inset-0 w-full h-full pointer-events-none ${i % 2 === 0 ? 'bg-background/50' : 'bg-muted/30'}`} />
 
                                             {/* Render Bars */}
                                             <div className="relative z-10 h-full">
@@ -461,7 +467,7 @@ export const WorkOrderTimeline: React.FC<WorkOrderTimelineProps> = ({
                                                     rowHeight={36}
                                                     usePercentage={true}
                                                     currentTime={currentTime}
-                                                    className={`${i % 2 === 0 ? 'bg-white' : 'bg-slate-50/20'} hover:bg-blue-50/50 transition-colors`}
+                                                    className={`${i % 2 === 0 ? 'bg-background' : 'bg-muted/20'} hover:bg-primary/5 transition-colors`}
                                                     onClick={() => onWorkOrderClick?.(wo)}
                                                 />
                                             </div>

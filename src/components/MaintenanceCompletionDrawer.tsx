@@ -2,6 +2,7 @@
 import React, { Fragment, useState, useEffect, useMemo } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { CheckCircle, X, AlertCircle, Plus, Search, Trash2, Package, ArrowLeft } from 'lucide-react';
+import { Loader } from '@/components/tailwind-components';
 import { WorkOrderPart, InventoryItem } from '@/types/supabase';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -209,8 +210,8 @@ export const MaintenanceCompletionDrawer: React.FC<MaintenanceCompletionDrawerPr
                                                         {/* Item Selection */}
                                                         <div className="max-h-48 overflow-auto border border-gray-200 rounded-lg">
                                                             {filteredItems.length === 0 ? (
-                                                                <div className="p-4 text-center text-sm text-gray-500">
-                                                                    {inventoryItems ? 'No items found' : 'Loading...'}
+                                                                <div className="p-4 text-center text-sm text-gray-500 flex justify-center">
+                                                                    {inventoryItems ? 'No items found' : <Loader size="sm" />}
                                                                 </div>
                                                             ) : (
                                                                 filteredItems.map(item => {

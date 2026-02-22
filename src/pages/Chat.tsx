@@ -4,6 +4,7 @@ import { ChatWindow } from '@/components/chat/ChatWindow';
 import { ChatDetails } from '@/components/chat/ChatDetails';
 import { WhatsAppChat, WhatsAppMessage } from '@/components/chat/types';
 import { CreateWorkOrderForm } from '@/components/work-orders/CreateWorkOrderForm';
+import { TicketFormDrawer } from '@/components/ticketing/TicketFormDrawer';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -130,6 +131,7 @@ const Chat: React.FC = () => {
   const [newMessage, setNewMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreateWorkOrderOpen, setIsCreateWorkOrderOpen] = useState(false);
+  const [isCreateTicketOpen, setIsCreateTicketOpen] = useState(false);
 
   // Fetch customers and vehicles to link mock data to real database
   const { data: customers } = useQuery({
@@ -156,16 +158,16 @@ const Chat: React.FC = () => {
       console.log('🔗 Linking chats to database...');
       console.log('Customers:', customers.length);
       console.log('Vehicles:', vehicles.length);
-      
+
       const updatedChats = mockChats.map(chat => {
         // Try to find customer by phone or name
-        const customer = customers.find(c => 
-          c.phone === chat.customerPhone || 
+        const customer = customers.find(c =>
+          c.phone === chat.customerPhone ||
           c.name.toLowerCase() === chat.customerName?.toLowerCase()
         );
 
         // Try to find vehicle by license plate
-        const vehicle = vehicles.find(v => 
+        const vehicle = vehicles.find(v =>
           v.license_plate === chat.licensePlate
         );
 
@@ -183,7 +185,7 @@ const Chat: React.FC = () => {
       });
 
       setChats(updatedChats);
-      
+
       // Update selected chat if it exists
       if (selectedChat) {
         const updatedSelectedChat = updatedChats.find(c => c.id === selectedChat.id);
@@ -233,6 +235,10 @@ const Chat: React.FC = () => {
     setIsCreateWorkOrderOpen(true);
   };
 
+  const handleCreateTicket = () => {
+    setIsCreateTicketOpen(true);
+  };
+
   const filteredChats = chats.filter(chat =>
     !searchQuery ||
     chat.customerName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -258,9 +264,10 @@ const Chat: React.FC = () => {
         />
 
         {selectedChat && (
-          <ChatDetails 
-            chat={selectedChat} 
+          <ChatDetails
+            chat={selectedChat}
             onCreateWorkOrder={handleCreateWorkOrder}
+            onCreateTicket={handleCreateTicket}
           />
         )}
       </div>
@@ -278,6 +285,18 @@ const Chat: React.FC = () => {
           }}
         />
       )}
+
+      {/* Create Ticket Drawer */}
+      <TicketFormDrawer
+        isOpen={isCreateTicketOpen}
+        onClose={() => setIsCreateTicketOpen(false)}
+        prefill={{
+          customer_id: selectedChat?.customerId,
+          vehicle_id: selectedChat?.vehicleId,
+          customer_name: selectedChat?.customerName,
+          channel: 'whatsapp'
+        }}
+      />
     </>
   );
 };

@@ -15,29 +15,29 @@ export const AssetMetricsGrid = ({ metrics }: AssetMetricsGridProps) => {
             label: 'Total Assets',
             value: metrics.total,
             icon: Package,
-            color: 'bg-primary-50 text-primary-600',
-            borderColor: 'border-primary-100',
+            color: 'bg-primary/10 text-primary',
+            borderColor: 'border-primary/20',
         },
         {
             label: 'Operational',
             value: metrics.operational,
             icon: Check,
-            color: 'bg-muted text-foreground',
-            borderColor: 'border-emerald-100',
+            color: 'bg-success/10 text-success',
+            borderColor: 'border-success/20',
         },
         {
             label: 'Maintenance',
             value: metrics.maintenance,
             icon: Wrench,
-            color: 'bg-amber-50 text-amber-600',
-            borderColor: 'border-amber-100',
+            color: 'bg-warning/10 text-warning',
+            borderColor: 'border-warning/20',
         },
         {
             label: 'Down',
             value: metrics.down,
             icon: AlertCircle,
-            color: 'bg-rose-50 text-rose-600',
-            borderColor: 'border-rose-100',
+            color: 'bg-destructive/10 text-destructive',
+            borderColor: 'border-destructive/20',
         },
         {
             label: 'Avg Health',
@@ -50,8 +50,8 @@ export const AssetMetricsGrid = ({ metrics }: AssetMetricsGridProps) => {
             label: 'Critical Issues',
             value: metrics.criticalIssues,
             icon: AlertCircle,
-            color: 'bg-rose-50 text-rose-600',
-            borderColor: 'border-rose-100',
+            color: 'bg-destructive/10 text-destructive',
+            borderColor: 'border-destructive/20',
         }
     ];
 
@@ -63,7 +63,7 @@ export const AssetMetricsGrid = ({ metrics }: AssetMetricsGridProps) => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className="bg-white rounded-lg border border-border px-3 py-2.5 shadow-sm flex items-center gap-3 hover:border-gray-300 transition-colors"
+                    className="bg-card rounded-lg border border-border px-3 py-2.5 shadow-sm flex items-center gap-3 hover:border-primary/30 transition-colors"
                 >
                     <div className={`p-1.5 rounded-md ${stat.color} shrink-0`}>
                         <stat.icon className="w-4 h-4" />

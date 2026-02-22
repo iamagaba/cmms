@@ -384,7 +384,7 @@ export const StockTransferDialog: React.FC<StockTransferDialogProps> = ({
             </div>
 
             {/* Footer */}
-            <div className="flex items-center justify-end gap-3 p-4 border-t border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+            <div className="flex items-center justify-end gap-3 p-4 border-t border-border bg-muted">
               <Button
                 type="button"
                 variant="outline"

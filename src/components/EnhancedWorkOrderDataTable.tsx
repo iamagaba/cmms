@@ -1,4 +1,4 @@
-import { ClipboardList, MoreVertical, Eye, Edit, Trash2, ChevronUp, ChevronDown, User, Clock } from 'lucide-react';
+import { ClipboardList, MoreVertical, Eye, Edit, Trash2, ChevronUp, ChevronDown, User, Clock, Flag, Check, ArrowRight, Pause, PhoneOff } from 'lucide-react';
 import React, { useState, useMemo } from 'react';
 import {
   ColumnDef,
@@ -14,7 +14,8 @@ import { DiagnosticCategoryRow } from '@/types/diagnostic';
 import { getWorkOrderNumber } from '@/utils/work-order-display';
 
 import { useSystemSettings } from '@/context/SystemSettingsContext';
-import { WorkOrderSLAStatus } from '@/components/work-order-details/WorkOrderSLAStatus';
+import { calculateStatusSLA, formatDuration } from '@/utils/slaCalculations';
+import { SLA_CONFIG } from '@/config/slaConfig';
 
 
 import dayjs from 'dayjs';
@@ -49,19 +50,22 @@ interface EnhancedWorkOrderDataTableProps {
   enableExport?: boolean;
   compactMode?: boolean;
   visibleColumns?: string[];
+  columnOrder?: string[];
   emergencyBikeAssignments?: any[];
   mobileBreakpoint?: number;
 }
 
-// Status colors for badges
-const STATUS_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  'New': { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-slate-500' },
-  'Confirmation': { bg: 'bg-primary/10', text: 'text-primary', dot: 'bg-primary' },
-  'On Hold': { bg: 'bg-amber-50', text: 'text-amber-700', dot: 'bg-amber-500' },
-  'Ready': { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-blue-500' },
-  'In Progress': { bg: 'bg-muted', text: 'text-muted-foreground', dot: 'bg-orange-500' },
-  'Completed': { bg: 'bg-muted', text: 'text-foreground', dot: 'bg-emerald-500' },
-  'Cancelled': { bg: 'bg-destructive/10', text: 'text-destructive', dot: 'bg-destructive' },
+// Status colors for circular icons - UNIFIED SYSTEM
+// These colors match the badge variants in src/components/ui/badge.tsx
+const STATUS_COLORS: Record<string, { color: string; label: string; icon: 'dashed' | 'check' | 'arrow' | 'pause' | 'phoneOff' }> = {
+  'New': { color: '#64748b', label: 'New', icon: 'dashed' },           // slate-500
+  'Open': { color: '#64748b', label: 'New', icon: 'dashed' },          // slate-500
+  'Confirmation': { color: '#64748b', label: 'Confirmation', icon: 'phoneOff' }, // slate-500 (same as Open/New)
+  'Ready': { color: '#64748b', label: 'Ready', icon: 'arrow' },         // slate-500 (same as Open/New)
+  'On Hold': { color: '#f97316', label: 'On Hold', icon: 'pause' },     // orange-500
+  'In Progress': { color: '#f59e0b', label: 'In Progress', icon: 'arrow' }, // amber-500
+  'Completed': { color: '#10b981', label: 'Completed', icon: 'check' }, // emerald-500
+  'Cancelled': { color: '#6b7280', label: 'Cancelled', icon: 'dashed' }, // gray-500
 };
 
 // Helper for short time format (e.g., 2d, 1mo)
@@ -113,7 +117,7 @@ const getPriorityConfig = (priority?: string) => {
   };
 };
 
-const DEFAULT_COLUMNS = ['workOrderNumber', 'service', 'vehicleCustomer', 'status', 'priority', 'sla', 'technician'];
+const DEFAULT_COLUMNS = ['workOrderNumber', 'service', 'status', 'location', 'priority', 'technician', 'createdAt'];
 
 export function EnhancedWorkOrderDataTable({
   workOrders,
@@ -127,6 +131,7 @@ export function EnhancedWorkOrderDataTable({
   onViewDetails,
   loading = false,
   visibleColumns = DEFAULT_COLUMNS,
+  columnOrder = [],
 }: EnhancedWorkOrderDataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const { settings } = useSystemSettings();
@@ -174,9 +179,14 @@ export function EnhancedWorkOrderDataTable({
         header: 'Summary',
         cell: ({ row }) => {
           const wo = row.original;
+          const w = wo as any;
+          // Display the actual issue description from service_notes, or fall back to service category
+          const issueDescription = w.service_notes || w.serviceNotes;
+          const serviceCategoryLabel = serviceCategories?.find(cat => cat.id === wo.service)?.label;
+
           return (
             <div className="max-w-[200px] truncate text-sm">
-              {wo.title || wo.initial_diagnosis || serviceCategories?.find(cat => cat.id === wo.service)?.label || wo.service || 'General Service'}
+              {issueDescription || serviceCategoryLabel || wo.service || 'No description'}
             </div>
           );
         },
@@ -188,13 +198,70 @@ export function EnhancedWorkOrderDataTable({
         accessorKey: 'status',
         header: 'Status',
         cell: ({ row }) => {
-          const status = row.original.status || 'New';
+          const wo = row.original;
+          const status = wo.status || 'New';
           const statusConfig = STATUS_COLORS[status] || STATUS_COLORS['New'];
+
+          const renderIcon = () => {
+            if (statusConfig.icon === 'dashed') {
+              return (
+                <div
+                  className="w-5 h-5 rounded-full flex-shrink-0 border-2 border-dashed"
+                  style={{ borderColor: statusConfig.color }}
+                />
+              );
+            }
+
+            if (statusConfig.icon === 'check') {
+              return (
+                <div
+                  className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center"
+                  style={{ backgroundColor: statusConfig.color }}
+                >
+                  <Check className="w-3 h-3 text-white" strokeWidth={3} />
+                </div>
+              );
+            }
+
+            if (statusConfig.icon === 'arrow') {
+              return (
+                <div
+                  className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center"
+                  style={{ backgroundColor: statusConfig.color }}
+                >
+                  <ArrowRight className="w-3 h-3 text-white" strokeWidth={3} />
+                </div>
+              );
+            }
+
+            if (statusConfig.icon === 'pause') {
+              return (
+                <div
+                  className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center"
+                  style={{ backgroundColor: statusConfig.color }}
+                >
+                  <Pause className="w-3 h-3 text-white" strokeWidth={3} fill="white" />
+                </div>
+              );
+            }
+
+            if (statusConfig.icon === 'phoneOff') {
+              return (
+                <div
+                  className="w-5 h-5 rounded-full flex-shrink-0 flex items-center justify-center"
+                  style={{ backgroundColor: statusConfig.color }}
+                >
+                  <PhoneOff className="w-3 h-3 text-white" strokeWidth={3} />
+                </div>
+              );
+            }
+          };
+
           return (
-            <Badge variant="outline" className={`${statusConfig.bg} ${statusConfig.text} border-current/20`}>
-              <span className={`w-1.5 h-1.5 rounded-full ${statusConfig.dot} mr-1.5`} />
-              {status}
-            </Badge>
+            <div className="flex items-center gap-2">
+              {renderIcon()}
+              <span className="text-sm text-foreground">{statusConfig.label}</span>
+            </div>
           );
         },
       });
@@ -246,12 +313,25 @@ export function EnhancedWorkOrderDataTable({
         accessorKey: 'priority',
         header: 'Priority',
         cell: ({ row }) => {
-          const priorityConfig = getPriorityConfig(row.original.priority || undefined);
+          const priority = (row.original.priority || 'none').toLowerCase();
+
+          const priorityConfig: Record<string, { color: string; label: string }> = {
+            'critical': { color: '#ef4444', label: 'High' },
+            'urgent': { color: '#ef4444', label: 'High' },
+            'high': { color: '#ef4444', label: 'High' },
+            'medium': { color: '#22c55e', label: 'Low' },
+            'normal': { color: '#22c55e', label: 'Low' },
+            'low': { color: '#22c55e', label: 'Low' },
+            'routine': { color: '#94a3b8', label: 'None' },
+            'none': { color: '#94a3b8', label: 'None' },
+          };
+
+          const config = priorityConfig[priority] || priorityConfig['none'];
+
           return (
-            <div>
-              <Badge variant="outline" className={`text-xs ${priorityConfig.className}`}>
-                {priorityConfig.label}
-              </Badge>
+            <div className="flex items-center gap-2">
+              <Flag className="w-4 h-4 flex-shrink-0" style={{ color: config.color }} fill={config.color} />
+              <span className="text-sm text-foreground">{config.label}</span>
             </div>
           );
         },
@@ -264,7 +344,144 @@ export function EnhancedWorkOrderDataTable({
         accessorKey: 'sla',
         header: 'SLA',
         cell: ({ row }) => {
-          return <WorkOrderSLAStatus workOrder={row.original} variant="table" />;
+          const wo = row.original;
+          const slaStats = calculateStatusSLA(wo);
+
+          // If no SLA or completed, show completed status with time
+          if (!slaStats || wo.status === 'Completed') {
+            // Calculate completion time for completed work orders
+            const completedTime = wo.completed_at
+              ? formatDuration(Math.abs(dayjs(wo.completed_at).diff(dayjs(wo.created_at), 'minute')))
+              : 'N/A';
+
+            // Check if completed after SLA deadline
+            let checkColor = '#22c55e'; // Default green
+            if (wo.completed_at && wo.created_at) {
+              const completedAt = dayjs(wo.completed_at);
+              const createdAt = dayjs(wo.created_at);
+              const totalMinutes = completedAt.diff(createdAt, 'minute');
+
+              // Get total SLA time (sum of all status thresholds)
+              const totalSLAMinutes = Object.values(SLA_CONFIG.statusThresholds).reduce((sum, val) => sum + val, 0);
+
+              // If completed after total SLA time, mark as red
+              if (totalMinutes > totalSLAMinutes) {
+                checkColor = '#ef4444'; // Red for breach
+              }
+            }
+
+            return (
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 flex-shrink-0" style={{ color: checkColor }} />
+                <span className="text-sm text-foreground">{completedTime}</span>
+              </div>
+            );
+          }
+
+          const slaConfig: Record<string, { color: string; icon: typeof Clock; label: string }> = {
+            'on-track': { color: '#22c55e', icon: Clock, label: formatDuration(slaStats.timeRemaining) },
+            'at-risk': { color: '#f97316', icon: Clock, label: formatDuration(slaStats.timeRemaining) },
+            'breached': { color: '#ef4444', icon: Clock, label: formatDuration(slaStats.timeRemaining).replace('-', '') }
+          };
+
+          const config = slaConfig[slaStats.status] || slaConfig['on-track'];
+          const SlaIcon = config.icon;
+
+          return (
+            <div className="flex items-center gap-2">
+              <SlaIcon className="w-4 h-4 flex-shrink-0" style={{ color: config.color }} />
+              <span className="text-sm text-foreground">{config.label}</span>
+            </div>
+          );
+        },
+      });
+    }
+
+    // Due Date column
+    if (isColumnVisible('dueDate')) {
+      cols.push({
+        accessorKey: 'appointment_date',
+        header: 'Due Date',
+        cell: ({ row }) => {
+          const appointmentDate = row.original.appointment_date || (row.original as any).appointmentDate;
+          return (
+            <div className="text-sm text-muted-foreground whitespace-nowrap">
+              {appointmentDate ? dayjs(appointmentDate).format('MMM D, YYYY') : '—'}
+            </div>
+          );
+        },
+      });
+    }
+
+    // Channel column
+    if (isColumnVisible('channel')) {
+      cols.push({
+        accessorKey: 'channel',
+        header: 'Channel',
+        cell: ({ row }) => {
+          const channel = row.original.channel || (row.original as any).channel || 'Walk-in';
+          return (
+            <div className="text-sm text-foreground">
+              {channel}
+            </div>
+          );
+        },
+      });
+    }
+
+    // Customer Name column
+    if (isColumnVisible('customerName')) {
+      cols.push({
+        accessorKey: 'customer_name',
+        header: 'Customer',
+        cell: ({ row }) => {
+          const wo = row.original;
+          const w = wo as any;
+          const customerId = w.customer_id || w.customerId;
+          const customer = customers?.find(c => c.id === customerId);
+          const customerName = customer?.name || w.customer_name || w.customerName;
+
+          return (
+            <div className="text-sm text-foreground">
+              {customerName || '—'}
+            </div>
+          );
+        },
+      });
+    }
+
+    // Location column
+    if (isColumnVisible('location')) {
+      cols.push({
+        accessorKey: 'location_id',
+        header: 'Location',
+        cell: ({ row }) => {
+          const wo = row.original;
+          const w = wo as any;
+          const locationId = w.location_id || w.locationId;
+          const location = locations?.find(l => l.id === locationId);
+
+          return (
+            <div className="text-sm text-foreground">
+              {location?.name || '—'}
+            </div>
+          );
+        },
+      });
+    }
+
+    // Scheduled Date column
+    if (isColumnVisible('scheduledDate')) {
+      cols.push({
+        accessorKey: 'scheduled_date',
+        header: 'Scheduled',
+        cell: ({ row }) => {
+          const scheduledDate = row.original.scheduled_date || (row.original as any).scheduledDate;
+          return (
+            <div className="text-sm text-muted-foreground whitespace-nowrap">
+              {scheduledDate ? dayjs(scheduledDate).format('MMM D, YYYY') : '—'}
+            </div>
+          );
         },
       });
     }
@@ -318,31 +535,85 @@ export function EnhancedWorkOrderDataTable({
       },
     });
 
+    // Reorder columns based on columnOrder if provided
+    // Required columns stay in fixed positions, only optional columns are reordered
+    if (columnOrder && columnOrder.length > 0) {
+      // Map logical column names to accessor keys
+      const keyMapping: Record<string, string> = {
+        'service': 'service',
+        'priority': 'priority',
+        'sla': 'sla',
+        'technician': 'assignedTechnicianId',
+        'scheduledDate': 'scheduled_date',
+        'dueDate': 'appointment_date',
+        'channel': 'channel',
+        'customerName': 'customer_name',
+        'location': 'location_id',
+        'createdAt': 'created_at',
+      };
+
+      // Required columns in fixed order
+      const requiredOrder = ['workOrderNumber', 'service', 'status', 'location_id'];
+
+      const orderedCols: ColumnDef<WorkOrder>[] = [];
+      const colMap = new Map<string, ColumnDef<WorkOrder>>();
+
+      // Create a map of accessor key to column definition
+      cols.forEach(col => {
+        const key = typeof col.accessorKey === 'string' ? col.accessorKey : col.id;
+        if (key) colMap.set(key, col);
+      });
+
+      // First, add required columns in their fixed order
+      requiredOrder.forEach(key => {
+        const col = colMap.get(key);
+        if (col) {
+          orderedCols.push(col);
+          colMap.delete(key);
+        }
+      });
+
+      // Then add optional columns in the order specified by columnOrder
+      columnOrder.forEach(logicalKey => {
+        const accessorKey = keyMapping[logicalKey] || logicalKey;
+        // Skip if it's a required column (already added)
+        if (requiredOrder.includes(accessorKey)) return;
+
+        const col = colMap.get(accessorKey);
+        if (col) {
+          orderedCols.push(col);
+          colMap.delete(accessorKey);
+        }
+      });
+
+      // Add any remaining columns (like actions)
+      colMap.forEach(col => orderedCols.push(col));
+
+      return orderedCols;
+    }
+
     return cols;
-  }, [visibleColumns, vehicles, technicians, serviceCategories, onEdit, onDelete, onViewDetails]);
+  }, [visibleColumns, columnOrder, vehicles, technicians, serviceCategories, onEdit, onDelete, onViewDetails]);
 
   // Initialize table
   const table = useReactTable({
     data: workOrders,
     columns,
     getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     onSortingChange: setSorting,
     state: {
       sorting,
     },
-    initialState: {
-      pagination: {
-        pageSize: 10,
-      },
-    },
+    // Disable client-side pagination since we're using server-side pagination
+    manualPagination: true,
+    pageCount: -1, // Unknown page count (handled by server)
   });
 
   // Loading state
   if (loading) {
     return (
-      <div className="border border-border rounded-lg overflow-hidden bg-card">
+      <div className="border-0 rounded-lg overflow-hidden bg-card">
         <Table>
           <TableHeader className="bg-muted">
             <TableRow>
@@ -376,7 +647,7 @@ export function EnhancedWorkOrderDataTable({
   // Empty state
   if (workOrders.length === 0) {
     return (
-      <div className="border border-border rounded-lg p-12 bg-card text-center">
+      <div className="border-0 rounded-lg p-12 bg-card text-center">
         <div className="mx-auto w-12 h-12 bg-muted rounded-lg flex items-center justify-center mb-3">
           <ClipboardList className="w-5 h-5 text-muted-foreground" />
         </div>
@@ -388,11 +659,11 @@ export function EnhancedWorkOrderDataTable({
 
   // Main table
   return (
-    <div className="flex flex-col h-full max-h-full border border-border rounded-lg overflow-hidden bg-card shadow-sm">
-      {/* Table Container with Flex */}
-      <div className="flex-1 overflow-auto min-h-0">
+    <div className="flex flex-col h-full max-h-full border-0 rounded-lg overflow-hidden bg-card shadow-sm">
+      {/* Table Container - Fixed: Remove horizontal scroll, fix header bleeding */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden min-h-0">
         <Table>
-          <TableHeader className="sticky top-0 z-10 bg-muted/50 border-b border-border">
+          <TableHeader className="sticky top-0 z-10 bg-muted border-b border-border backdrop-blur-sm">
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id} className="hover:bg-transparent">
                 {headerGroup.headers.map((header) => (
@@ -423,7 +694,7 @@ export function EnhancedWorkOrderDataTable({
               <TableRow
                 key={row.id}
                 onClick={() => onViewDetails(row.original.id)}
-                className={`cursor-pointer transition-all duration-150 hover:scale-[1.002] hover:shadow-sm hover:bg-accent/50 dark:hover:bg-accent ${index % 2 === 1 ? 'bg-muted/50' : 'bg-background'
+                className={`cursor-pointer transition-all duration-150 hover:scale-[1.002] hover:shadow-sm hover:bg-muted dark:hover:bg-muted/50 ${index % 2 === 1 ? 'bg-muted/30' : 'bg-background'
                   }`}
               >
                 {row.getVisibleCells().map((cell) => (
@@ -437,56 +708,7 @@ export function EnhancedWorkOrderDataTable({
         </Table>
       </div>
 
-      {/* Pagination - Fixed at bottom */}
-      <div className="flex-shrink-0 px-4 py-2 bg-muted border-t border-border">
-        <div className="flex items-center justify-between gap-4">
-          <p className="text-xs text-muted-foreground whitespace-nowrap">
-            {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}-
-            {Math.min((table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize, workOrders.length)} of {workOrders.length}
-          </p>
-
-          <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground whitespace-nowrap">Rows:</span>
-              <Select
-                value={table.getState().pagination.pageSize.toString()}
-                onValueChange={(value) => table.setPageSize(Number(value))}
-              >
-                <SelectTrigger className="w-16 h-7 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="10">10</SelectItem>
-                  <SelectItem value="25">25</SelectItem>
-                  <SelectItem value="50">50</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.previousPage()}
-                disabled={!table.getCanPreviousPage()}
-                className="h-7 px-2 text-xs"
-              >
-                Prev
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => table.nextPage()}
-                disabled={!table.getCanNextPage()}
-                className="h-7 px-2 text-xs"
-              >
-                Next
-                Next
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+      {/* Pagination controls removed - using server-side pagination in parent component */}
     </div>
   );
 }

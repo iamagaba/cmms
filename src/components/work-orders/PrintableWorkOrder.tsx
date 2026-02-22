@@ -6,17 +6,14 @@ import './PrintableWorkOrder.css';
 
 interface PrintableWorkOrderProps {
     workOrder: WorkOrder;
-    customerName?: string;
-    customerPhone?: string;
-    customerEmail?: string;
-    customerType?: string;
     vehicleMake?: string;
     vehicleModel?: string;
     vehicleYear?: number;
-    vehiclePlate?: string;
     vehicleVin?: string;
+    warrantyEndDate?: string | null;
     technicianName?: string;
     locationName?: string;
+    serviceName?: string;
     parts?: Array<{
         name: string;
         quantity: number;
@@ -28,37 +25,30 @@ interface PrintableWorkOrderProps {
         hours: number;
         rate: number;
     }>;
-    showPricing?: boolean;
     companyName?: string;
     companyLogo?: string;
     companyAddress?: string;
     companyPhone?: string;
     companyEmail?: string;
-    companyWebsite?: string;
 }
 
 export const PrintableWorkOrder: React.FC<PrintableWorkOrderProps> = ({
     workOrder,
-    customerName = 'N/A',
-    customerPhone = 'N/A',
-    customerEmail = 'N/A',
-    customerType = 'Individual',
     vehicleMake = 'N/A',
     vehicleModel = 'N/A',
     vehicleYear,
-    vehiclePlate = 'N/A',
     vehicleVin = 'N/A',
+    warrantyEndDate,
     technicianName = 'Unassigned',
     locationName = 'N/A',
+    serviceName = 'General Service',
     parts = [],
     laborItems = [],
-    showPricing = true,
     companyName = 'Fleet CMMS',
     companyLogo,
     companyAddress = '123 Service Street, Kampala, Uganda',
     companyPhone = '+256 700 000 000',
     companyEmail = 'info@fleetcmms.com',
-    companyWebsite = 'www.fleetcmms.com',
 }) => {
     // Calculate totals
     const partsTotal = parts.reduce((sum, part) => sum + part.price * part.quantity, 0);
@@ -67,34 +57,16 @@ export const PrintableWorkOrder: React.FC<PrintableWorkOrderProps> = ({
     const tax = subtotal * 0.18; // 18% tax
     const total = subtotal + tax;
 
-    // Status badge styling
-    const getStatusColor = (status: string) => {
-        switch (status?.toLowerCase()) {
-            case 'completed':
-                return 'bg-green-100 text-green-800 border-green-200';
-            case 'in progress':
-                return 'bg-orange-100 text-orange-800 border-orange-200';
-            case 'on hold':
-                return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-            case 'cancelled':
-                return 'bg-red-100 text-red-800 border-red-200';
-            default:
-                return 'bg-gray-100 text-gray-800 border-gray-200';
-        }
+    // Calculate warranty status
+    const getWarrantyStatus = () => {
+        if (!warrantyEndDate) return 'N/A';
+        const endDate = new Date(warrantyEndDate);
+        const now = new Date();
+        if (isNaN(endDate.getTime())) return 'N/A';
+        return endDate > now ? 'Active' : 'Expired';
     };
 
-    const getPriorityColor = (priority: string) => {
-        switch (priority?.toLowerCase()) {
-            case 'high':
-                return 'bg-red-100 text-red-800 border-red-200';
-            case 'medium':
-                return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-            case 'low':
-                return 'bg-green-100 text-green-800 border-green-200';
-            default:
-                return 'bg-gray-100 text-gray-800 border-gray-200';
-        }
-    };
+
 
     // Format currency
     const formatCurrency = (amount: number) => {
@@ -120,264 +92,213 @@ export const PrintableWorkOrder: React.FC<PrintableWorkOrderProps> = ({
     return (
         <div className="printable-work-order">
             {/* Header Section */}
-            <div className="wo-header">
-                <div className="wo-header-left">
-                    {companyLogo ? (
-                        <img src={companyLogo} alt={companyName} className="company-logo" />
-                    ) : (
-                        <div className="company-logo-placeholder">
-                            <span className="text-2xl font-bold">{companyName.charAt(0)}</span>
-                        </div>
+            <header className="wo-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    {companyLogo && (
+                        <img src={companyLogo} alt={companyName} className="company-logo" style={{ width: '50px', height: '50px', objectFit: 'contain' }} />
                     )}
-                    <div className="company-info">
+                    <div>
                         <h1 className="company-name">{companyName}</h1>
+                        <div style={{ fontSize: '8pt', color: '#666', marginTop: '2px' }}>
+                            {companyAddress} • {companyPhone}
+                            {companyEmail && <> • {companyEmail}</>}
+                        </div>
                     </div>
                 </div>
                 <div className="wo-header-right">
-                    <h2 className="wo-title">WORK ORDER</h2>
-                    <div className="wo-number">#{getWorkOrderNumber(workOrder)}</div>
-                    <div className="wo-badges">
-                        <span className={`wo-badge ${getStatusColor(workOrder.status)}`}>
-                            {workOrder.status}
-                        </span>
-                        <span className={`wo-badge ${getPriorityColor(workOrder.priority)}`}>
-                            {workOrder.priority} Priority
-                        </span>
-                    </div>
-                    <div className="wo-dates">
-                        <div className="wo-date-item">
-                            <span className="label">Issued:</span>
-                            <span className="value">{formatDate(workOrder.created_at, 'MMM dd, yyyy')}</span>
-                        </div>
-                        {workOrder.appointment_date && (
-                            <div className="wo-date-item">
-                                <span className="label">Due:</span>
-                                <span className="value">{formatDate(workOrder.appointment_date, 'MMM dd, yyyy')}</span>
+                    <h2 className="wo-title">#{getWorkOrderNumber(workOrder)}</h2>
+                </div>
+            </header>
+
+            <div className="header-divider" />
+
+            {/* Top Metrics Row */}
+            <section className="metrics-row">
+                <div className="metric-item">
+                    <span className="metric-label">Assigned To</span>
+                    <span className="metric-value bold">{technicianName}</span>
+                </div>
+                <div className="metric-item">
+                    <span className="metric-label">Due Date</span>
+                    <span className="metric-value">{formatDate(workOrder.appointment_date, 'MMM dd, yyyy')}</span>
+                </div>
+                <div className="metric-item">
+                    <span className="metric-label">Status</span>
+                    <span className="metric-value bold">{workOrder.status}</span>
+                </div>
+                <div className="metric-item">
+                    <span className="metric-label">Priority</span>
+                    <span className="metric-value bold" style={{
+                        color: workOrder.priority === 'Critical' ? '#D32F2F' :
+                            workOrder.priority === 'High' ? '#F57C00' :
+                                workOrder.priority === 'Medium' ? '#0288D1' : '#388E3C'
+                    }}>
+                        {workOrder.priority}
+                    </span>
+                </div>
+            </section>
+
+            {/* Work Order Information */}
+            <section className="wo-section-grid">
+                <div>
+                    <h3 className="section-heading">Work Order Information</h3>
+                    <div className="info-grid-row">
+                        <div className="column">
+                            <div className="field-group">
+                                <span className="field-label">Assigned By</span>
+                                <span className="field-value">{companyName} Admin</span>
                             </div>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            {/* Customer & Vehicle Information */}
-            <div className="wo-section-grid">
-                <div className="wo-info-box">
-                    <h3 className="wo-section-title">CUSTOMER</h3>
-                    <div className="wo-info-content">
-                        <div className="wo-info-row">
-                            <span className="label">Name:</span>
-                            <span className="value">{customerName}</span>
-                        </div>
-                        <div className="wo-info-row">
-                            <span className="label">Phone:</span>
-                            <span className="value">{customerPhone}</span>
-                        </div>
-                        <div className="wo-info-row">
-                            <span className="label">Email:</span>
-                            <span className="value">{customerEmail}</span>
-                        </div>
-                        <div className="wo-info-row">
-                            <span className="label">Type:</span>
-                            <span className="value">{customerType}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="wo-info-box">
-                    <h3 className="wo-section-title">VEHICLE</h3>
-                    <div className="wo-info-content">
-                        <div className="wo-info-row">
-                            <span className="label">Make:</span>
-                            <span className="value">{vehicleMake}</span>
-                        </div>
-                        <div className="wo-info-row">
-                            <span className="label">Model:</span>
-                            <span className="value">{vehicleModel}</span>
-                        </div>
-                        {vehicleYear && (
-                            <div className="wo-info-row">
-                                <span className="label">Year:</span>
-                                <span className="value">{vehicleYear}</span>
+                            <div className="field-group">
+                                <span className="field-label">Last Updated</span>
+                                <span className="field-value">{formatDate(new Date().toISOString(), 'MM/dd/yy - hh:mm a')}</span>
                             </div>
-                        )}
-                        <div className="wo-info-row">
-                            <span className="label">Plate:</span>
-                            <span className="value">{vehiclePlate}</span>
+                            <div className="field-group">
+                                <span className="field-label">Assigned Team</span>
+                                <span className="field-value">Maintenance</span>
+                            </div>
                         </div>
-                        <div className="wo-info-row">
-                            <span className="label">VIN:</span>
-                            <span className="value">{vehicleVin}</span>
+                        <div className="column">
+                            <div className="field-group">
+                                <span className="field-label">Created On</span>
+                                <span className="field-value">{formatDate(workOrder.created_at || (workOrder as any).createdAt, 'MM/dd/yy - hh:mm a')}</span>
+                            </div>
+                            <div className="field-group">
+                                <span className="field-label">Completed On</span>
+                                <span className="field-value">{formatDate(workOrder.completed_at || (workOrder as any).completedAt, 'MM/dd/yy - hh:mm a')}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="field-group">
+                        <span className="field-label">Location</span>
+                        <span className="field-value bold">{locationName}</span>
+                    </div>
+                </div>
+            </section>
+
+            <div className="section-divider" />
+
+            {/* Task Description */}
+            <section className="wo-section-plain">
+                <h3 className="section-heading">Task Description</h3>
+                <div className="task-description">
+                    <div className="field-group">
+                        <span className="field-value bold ">{serviceName}</span>
+                        <p>{workOrder.service_notes || "Perform scheduled maintenance task."}</p>
+                    </div>
+                </div>
+            </section>
+
+            <div className="section-divider" />
+
+            {/* Asset Details */}
+            <section className="wo-section-plain">
+                <h3 className="section-heading">Asset Details</h3>
+                <div className="info-grid-row">
+                    <div className="column">
+                        <div className="field-group">
+                            <span className="field-label">Asset Name</span>
+                            <span className="field-value bold">{vehicleMake} {vehicleModel} {vehicleYear}</span>
+                        </div>
+                        <div className="field-group">
+                            <span className="field-label">Barcode</span>
+                            <span className="field-value bold">{vehicleVin || 'N/A'}</span>
+                        </div>
+                        <div className="field-group">
+                            <span className="field-label">Location Name</span>
+                            <span className="field-value bold">{locationName}</span>
+                        </div>
+                    </div>
+                    <div className="column">
+                        <div className="field-group">
+                            <span className="field-label">Model</span>
+                            <span className="field-value bold">{vehicleModel}</span>
+                        </div>
+                        <div className="field-group">
+                            <span className="field-label">Area</span>
+                            <span className="field-value bold">{locationName}</span>
+                        </div>
+                        <div className="field-group">
+                            <span className="field-label">Warranty Status</span>
+                            <span className="field-value bold">{getWarrantyStatus()}</span>
                         </div>
                     </div>
                 </div>
-            </div>
+            </section>
 
-            {/* Service Details */}
-            <div className="wo-section avoid-break">
-                <h3 className="wo-section-title">SERVICE INFORMATION</h3>
-                <div className="wo-section-content">
-                    <div className="wo-info-row">
-                        <span className="label">Service Type:</span>
-                        <span className="value">{workOrder.service || 'General Service'}</span>
-                    </div>
-                    {workOrder.service_notes && (
-                        <div className="wo-description">
-                            <span className="label">Description:</span>
-                            <p className="value">{workOrder.service_notes}</p>
-                        </div>
-                    )}
-                    <div className="wo-info-row">
-                        <span className="label">Assigned Technician:</span>
-                        <span className="value">{technicianName}</span>
-                    </div>
-                    <div className="wo-info-row">
-                        <span className="label">Location:</span>
-                        <span className="value">{locationName}</span>
-                    </div>
-                </div>
-            </div>
+            <div className="section-divider" />
 
-            {/* Parts & Materials */}
-            {showPricing && parts.length > 0 && (
-                <div className="wo-section avoid-break">
-                    <h3 className="wo-section-title">PARTS & MATERIALS</h3>
-                    <table className="wo-table">
-                        <thead>
-                            <tr>
-                                <th>QTY</th>
-                                <th>DESCRIPTION</th>
-                                <th>UNIT</th>
-                                <th className="text-right">PRICE</th>
-                                <th className="text-right">TOTAL</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {parts.map((part, index) => (
-                                <tr key={index}>
-                                    <td>{part.quantity}</td>
-                                    <td>{part.name}</td>
-                                    <td>{part.unit}</td>
-                                    <td className="text-right">{formatCurrency(part.price)}</td>
-                                    <td className="text-right">{formatCurrency(part.price * part.quantity)}</td>
+            {/* Parts & Costs */}
+            <section className="wo-section-plain">
+                <h3 className="section-heading">Parts & Costs</h3>
+                {parts.length === 0 ? (
+                    <p className="no-parts">No parts used</p>
+                ) : (
+                    <>
+                        {/* Parts Table */}
+                        <table className="wo-table parts-table">
+                            <thead>
+                                <tr>
+                                    <th style={{ width: '40%', textAlign: 'left' }}>Part</th>
+                                    <th style={{ width: '20%', textAlign: 'right' }}>Cost</th>
+                                    <th style={{ width: '20%', textAlign: 'right' }}>Quantity</th>
+                                    <th style={{ width: '20%', textAlign: 'right' }}>Total</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+                            </thead>
+                            <tbody>
+                                {parts.map((p, i) => (
+                                    <tr key={`p-${i}`}>
+                                        <td>{p.name}</td>
+                                        <td style={{ textAlign: 'right' }}>{formatCurrency(p.price)}</td>
+                                        <td style={{ textAlign: 'right' }}>{p.quantity}</td>
+                                        <td style={{ textAlign: 'right' }}>{formatCurrency(p.price * p.quantity)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
 
-            {/* Labor */}
-            {showPricing && laborItems.length > 0 && (
-                <div className="wo-section avoid-break">
-                    <h3 className="wo-section-title">LABOR</h3>
-                    <table className="wo-table">
-                        <thead>
-                            <tr>
-                                <th>HOURS</th>
-                                <th>DESCRIPTION</th>
-                                <th className="text-right">RATE</th>
-                                <th className="text-right">TOTAL</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {laborItems.map((item, index) => (
-                                <tr key={index}>
-                                    <td>{item.hours}</td>
-                                    <td>{item.description}</td>
-                                    <td className="text-right">{formatCurrency(item.rate)}/hr</td>
-                                    <td className="text-right">{formatCurrency(item.hours * item.rate)}</td>
+                        {/* Summary Row */}
+                        <table className="wo-table summary-table" style={{ marginTop: '15px' }}>
+                            <thead>
+                                <tr>
+                                    <th style={{ width: '25%', textAlign: 'left' }}>Time</th>
+                                    <th style={{ width: '25%', textAlign: 'right' }}>Additional Cost</th>
+                                    <th style={{ width: '25%', textAlign: 'right' }}>Labor Cost</th>
+                                    <th style={{ width: '25%', textAlign: 'right' }}>Total Cost</th>
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            )}
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>0 hours 0 minutes</td>
+                                    <td style={{ textAlign: 'right' }}>{formatCurrency(0)}</td>
+                                    <td style={{ textAlign: 'right' }}>{formatCurrency(laborTotal)}</td>
+                                    <td style={{ textAlign: 'right' }} className="text-red bold">{formatCurrency(total)}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </>
+                )}
+            </section>
 
-            {/* Timeline */}
-            <div className="wo-section avoid-break">
-                <h3 className="wo-section-title">TIMELINE</h3>
-                <div className="wo-section-content">
-                    <div className="wo-info-row">
-                        <span className="label">Created:</span>
-                        <span className="value">{formatDate(workOrder.created_at, 'MMM dd, yyyy hh:mm a')}</span>
-                    </div>
-                    {workOrder.work_started_at && (
-                        <div className="wo-info-row">
-                            <span className="label">Started:</span>
-                            <span className="value">{formatDate(workOrder.work_started_at, 'MMM dd, yyyy hh:mm a')}</span>
-                        </div>
-                    )}
-                    {workOrder.completed_at && (
-                        <div className="wo-info-row">
-                            <span className="label">Completed:</span>
-                            <span className="value">{formatDate(workOrder.completed_at, 'MMM dd, yyyy hh:mm a')}</span>
-                        </div>
-                    )}
-                </div>
-            </div>
+            <div className="section-divider" />
 
-            {/* Technician Notes */}
-            {workOrder.service_notes && (
-                <div className="wo-section avoid-break">
-                    <h3 className="wo-section-title">TECHNICIAN NOTES</h3>
-                    <div className="wo-section-content">
-                        <p className="wo-notes">{workOrder.service_notes}</p>
-                    </div>
+            {/* Tasks Section Placeholder */}
+            <section className="wo-section-plain">
+                <h3 className="section-heading">Tasks</h3>
+                <div className="task-list">
+                    <p style={{ fontSize: '9pt', paddingLeft: '20px' }}>New Task</p>
                 </div>
-            )}
+            </section>
 
-            {/* Cost Summary */}
-            {showPricing && (parts.length > 0 || laborItems.length > 0) && (
-                <div className="wo-cost-summary">
-                    <div className="cost-row">
-                        <span className="label">Parts:</span>
-                        <span className="value">{formatCurrency(partsTotal)}</span>
-                    </div>
-                    <div className="cost-row">
-                        <span className="label">Labor:</span>
-                        <span className="value">{formatCurrency(laborTotal)}</span>
-                    </div>
-                    <div className="cost-row">
-                        <span className="label">Tax (18%):</span>
-                        <span className="value">{formatCurrency(tax)}</span>
-                    </div>
-                    <div className="cost-row total">
-                        <span className="label">TOTAL:</span>
-                        <span className="value">{formatCurrency(total)}</span>
-                    </div>
-                </div>
-            )}
-
-            {/* Signature Section */}
-            <div className="wo-signatures avoid-break">
-                <div className="signature-box">
-                    <h4>TECHNICIAN SIGNATURE</h4>
-                    <div className="signature-line"></div>
-                    <div className="signature-info">
-                        <div>Name: {technicianName}</div>
-                        <div>Date: _________________</div>
-                    </div>
-                </div>
-                <div className="signature-box">
-                    <h4>CUSTOMER SIGNATURE</h4>
-                    <div className="signature-line"></div>
-                    <div className="signature-info">
-                        <div>Name: _________________</div>
-                        <div>Date: _________________</div>
-                    </div>
-                </div>
-            </div>
+            <div className="section-divider" />
 
             {/* Footer */}
-            <div className="wo-footer">
-                <div className="footer-terms">
-                    <strong>Terms & Conditions:</strong> Warranty valid for 30 days from completion date.
-                    Parts warranty as per manufacturer specifications.
+            <footer className="page-footer">
+                <div className="footer-brand">
+                    <span className="footer-logo-small">⚙</span>
+                    <strong>{companyName}</strong> | Page 1 of 1
                 </div>
-                <div className="footer-contact">
-                    {companyAddress} | {companyPhone} | {companyEmail} | {companyWebsite}
-                </div>
-            </div>
+            </footer>
         </div>
     );
 };

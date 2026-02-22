@@ -29,7 +29,7 @@ const STATUS_COLORS: Record<string, { bg: string; text: string }> = {
   'New': { bg: 'bg-muted', text: 'text-muted-foreground' },
   'In Progress': { bg: 'bg-muted', text: 'text-muted-foreground' },
   'Completed': { bg: 'bg-muted', text: 'text-foreground' },
-  'On Hold': { bg: 'bg-amber-50', text: 'text-amber-700' },
+  'On Hold': { bg: 'bg-warning/10', text: 'text-warning' },
 };
 
 const LocationsPage: React.FC = () => {
@@ -189,7 +189,7 @@ const LocationsPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex h-screen bg-background">
-        <div className="w-80 border-r border-border flex flex-col bg-muted">
+        <div className="w-80 border-r border-border flex flex-col bg-muted dark:bg-background">
           <div className="px-4 py-4 border-b border-border">
             <Skeleton height={24} width={120} radius="md" className="mb-3" />
             <Skeleton height={36} radius="md" />
@@ -286,7 +286,7 @@ const LocationsPage: React.FC = () => {
               </div>
               <button
                 onClick={() => setSelectedLocation(null)}
-                className="px-3 py-2 text-sm font-medium text-muted-foreground bg-background border border-input rounded-lg hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary"
+                className="px-3 py-2 text-sm font-medium text-muted-foreground bg-background border border-input rounded-md hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -305,14 +305,14 @@ const LocationsPage: React.FC = () => {
               </div>
               <div className="px-6 py-4">
                 <div className="flex items-center gap-2 mb-1">
-                  <FileText className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                  <FileText className="w-4 h-4 text-warning" />
                   <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Open Orders</p>
                 </div>
                 <p className="text-2xl font-bold text-foreground">{selectedStats?.openOrders || 0}</p>
               </div>
               <div className="px-6 py-4">
                 <div className="flex items-center gap-2 mb-1">
-                  <Check className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                  <Check className="w-5 h-5 text-success" />
                   <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Completed</p>
                 </div>
                 <p className="text-2xl font-bold text-foreground">
@@ -491,14 +491,14 @@ const LocationsPage: React.FC = () => {
                 </div>
                 <div className="px-6 py-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <User className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                    <User className="w-5 h-5 text-success" />
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">With Technicians</p>
                   </div>
                   <p className="text-2xl font-bold text-foreground">{overallStats.withTechnicians}</p>
                 </div>
                 <div className="px-6 py-4">
                   <div className="flex items-center gap-2 mb-1">
-                    <FileText className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                    <FileText className="w-4 h-4 text-warning" />
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Active Orders</p>
                   </div>
                   <p className="text-2xl font-bold text-foreground">{overallStats.withOpenOrders}</p>

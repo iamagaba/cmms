@@ -29,6 +29,31 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_", varsIgnorePattern: "^_" }],
       // Allow sharing constants within files that also export components
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
+
+      // Prevent re-introducing the legacy Tailwind component layer (use `src/components/tailwind-components/*` instead)
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@/components/tailwind-components-legacy",
+              message: "Do not import legacy Tailwind components. Use `@/components/tailwind-components` (folder) or shadcn/ui components instead."
+            },
+            {
+              name: "@/components/tailwind-components-legacy.tsx",
+              message: "Do not import legacy Tailwind components. Use `@/components/tailwind-components` (folder) or shadcn/ui components instead."
+            },
+            {
+              name: "./tailwind-components-legacy",
+              message: "Do not import legacy Tailwind components. Use `@/components/tailwind-components` (folder) or shadcn/ui components instead."
+            },
+            {
+              name: "../tailwind-components-legacy",
+              message: "Do not import legacy Tailwind components. Use `@/components/tailwind-components` (folder) or shadcn/ui components instead."
+            }
+          ]
+        }
+      ],
       
       // Design System Compliance Rules (Phase 1)
       "no-restricted-syntax": [

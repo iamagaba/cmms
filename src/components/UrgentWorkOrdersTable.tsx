@@ -143,13 +143,13 @@ const UrgentWorkOrdersTable: React.FC<UrgentWorkOrdersTableProps> = ({ workOrder
               <Table>
                 <TableHeader>
                   <TableRow className="border-b border-border hover:bg-transparent">
-                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">License Plate</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Custody</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Service</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Technician</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Location</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Status</TableHead>
-                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground uppercase tracking-wider">Due</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground">License Plate</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground">Custody</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground">Service</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground">Technician</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground">Location</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground">Status</TableHead>
+                    <TableHead className="px-4 py-3 text-xs font-bold text-muted-foreground">Due</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

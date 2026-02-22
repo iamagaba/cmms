@@ -5,10 +5,8 @@
 @layer base {
   :root {
     /* BASE WHITES & GRAYS */
-    --background: 0 0% 100%;
-    /* Pure White */
-    --foreground: 222 47% 11%;
-    /* Deep Navy Text #0F172A */
+    --background: 0 0% 100%; /* Pure White */
+    --foreground: 222 47% 11%; /* Deep Navy Text #0F172A */
 
     /* CARDS & POPOVERS */
     --card: 0 0% 100%;
@@ -20,10 +18,8 @@
     /* PRIMARY BRAND: Electric Teal (#0D9488) */
     --primary: 173 80% 36%;
     --primary-foreground: 0 0% 100%;
-    /* White text */
 
     /* SECONDARY BRAND: Deep Navy (#0F172A) */
-    /* Used for Sidebars and Header accents */
     --secondary: 222 47% 11%;
     --secondary-foreground: 210 40% 98%;
 
@@ -31,8 +27,8 @@
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    /* ACCENT: Solar Orange (Legacy Bodawerk nod - for warnings/highlights) */
-    --accent: 27 96% 61%;
+    /* ACCENT: Neutral Gray (Matches Muted) */
+    --accent: 210 40% 96.1%;
     --accent-foreground: 222 47% 11%;
 
     /* DESTRUCTIVE: Soft Red */
@@ -45,77 +41,79 @@
     --ring: 173 80% 36%;
 
     /* SEMANTIC STATUS COLORS */
-    --success: 173 80% 36%;
-    /* Use Electric Teal for success */
-    --success-foreground: 0 0% 100%;
+    --success: 142 76% 36%; /* Green */
+    --success-foreground: 355.7 100% 97.3%;
+    
+    --warning: 38 92% 50%; /* Amber */
+    --warning-foreground: 48 96% 89%;
 
-    --warning: 27 96% 61%;
-    /* Solar Orange */
-    --warning-foreground: 222 47% 11%;
+    --info: 217.2 91.2% 59.8%; /* Blue */
+    --info-foreground: 222.2 47.4% 11.2%;
 
-    --info: 173 80% 36%;
-    /* Electric Teal */
-    --info-foreground: 0 0% 100%;
+    /* CHARTS */
+    --chart-1: 173 80% 36%;
+    --chart-2: 27 96% 61%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
 
-    /* ROUNDED CORNERS */
-    /* Increase radius for a friendlier, modern feel */
-    --radius: 0.75rem;
+    /* RADIUS */
+    --radius: 0.5rem;
   }
 
   .dark {
-    /* BASE - Deep Navy backgrounds */
-    --background: 222 47% 11%;
-    /* Deep Navy #0F172A */
-    --foreground: 0 0% 98%;
-    /* Off-white text */
+    /* BASE - Pure Black backgrounds */
+    --background: 0 0% 0%; /* Pure Black #000000 */
+    --foreground: 0 0% 98%; /* High contrast white */
 
-    /* CARDS & POPOVERS - Slightly lighter navy */
-    --card: 222 47% 15%;
+    /* CARDS & POPOVERS */
+    --card: 0 0% 6%; /* Subtle elevation #0F0F0F */
     --card-foreground: 0 0% 98%;
 
-    --popover: 222 47% 15%;
+    --popover: 0 0% 6%; /* Match card for consistency */
     --popover-foreground: 0 0% 98%;
 
-    /* PRIMARY: Electric Teal (brighter in dark mode) */
-    --primary: 173 80% 45%;
-    /* Lighter teal for dark mode */
-    --primary-foreground: 222 47% 11%;
-    /* Deep navy text on teal */
+    /* PRIMARY - Electric Teal (brighter for pure black) */
+    --primary: 173 80% 50%; /* Brighter teal for visibility */
+    --primary-foreground: 0 0% 0%; /* Pure black text on teal */
 
-    /* SECONDARY: Lighter Navy for contrast */
-    --secondary: 222 47% 20%;
+    /* SECONDARY */
+    --secondary: 0 0% 15%; /* Dark gray #262626 */
     --secondary-foreground: 0 0% 98%;
 
-    /* MUTED: Mid-tone navy */
-    --muted: 222 47% 18%;
-    --muted-foreground: 210 40% 70%;
+    /* MUTED */
+    --muted: 0 0% 12%; /* Between background and card #1F1F1F */
+    --muted-foreground: 0 0% 65%; /* Readable secondary text #A6A6A6 */
 
-    /* ACCENT: Solar Orange (same as light mode) */
-    --accent: 27 96% 61%;
-    --accent-foreground: 222 47% 11%;
+    /* ACCENT */
+    --accent: 0 0% 12%; /* Match muted for consistency */
+    --accent-foreground: 0 0% 98%;
 
-    /* DESTRUCTIVE: Soft Red */
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
+    /* DESTRUCTIVE */
+    --destructive: 0 85% 60%; /* Bright red for visibility */
+    --destructive-foreground: 0 0% 10%; /* Dark text on bright destructive */
 
-    /* BORDERS & INPUTS - Subtle navy borders */
-    --border: 222 47% 25%;
-    --input: 222 47% 25%;
-    --ring: 173 80% 45%;
-    /* Electric teal focus ring */
+    /* BORDERS & INPUTS */
+    --border: 0 0% 20%; /* Visible borders #333333 */
+    --input: 0 0% 20%; /* Match border */
+    --ring: 173 80% 50%; /* Match primary for focus rings */
 
     /* SEMANTIC STATUS COLORS */
-    --success: 173 80% 45%;
-    /* Electric Teal */
-    --success-foreground: 222 47% 11%;
+    --success: 142 70% 60%; /* Bright green for visibility */
+    --success-foreground: 0 0% 10%; /* Dark text on bright success */
+    
+    --warning: 38 92% 55%; /* Bright amber #F59E0B */
+    --warning-foreground: 0 0% 10%; /* Dark text on bright warning */
+    
+    --info: 217 91% 65%; /* Bright blue for visibility */
+    --info-foreground: 0 0% 10%; /* Dark text on bright info */
 
-    --warning: 27 96% 61%;
-    /* Solar Orange */
-    --warning-foreground: 222 47% 11%;
-
-    --info: 173 80% 45%;
-    /* Electric Teal */
-    --info-foreground: 222 47% 11%;
+    /* CHARTS - Bright and distinguishable */
+    --chart-1: 173 80% 55%; /* Teal - Brighter primary */
+    --chart-2: 27 96% 65%; /* Orange - Solar orange */
+    --chart-3: 217 70% 55%; /* Blue - Distinct from teal */
+    --chart-4: 43 90% 50%; /* Yellow - Bright accent (darker for distinguishability) */
+    --chart-5: 142 70% 50%; /* Green - Success color */
   }
 }
 
@@ -123,216 +121,98 @@
   * {
     @apply border-border;
   }
-
   body {
-    @apply bg-muted text-foreground;
+    @apply bg-background text-foreground;
     font-family: 'Inter', system-ui, sans-serif;
   }
 }
 
-/* Thin scrollbar styling */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: hsl(var(--border)) transparent;
-}
-
-*::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
-}
-
-*::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-*::-webkit-scrollbar-thumb {
-  background-color: hsl(var(--border));
-  border-radius: 3px;
-}
-
-*::-webkit-scrollbar-thumb:hover {
-  background-color: hsl(var(--muted-foreground) / 0.3);
-}
-
-/* For dark mode */
-.dark *::-webkit-scrollbar-thumb {
-  background-color: hsl(var(--border));
-}
-
-.dark *::-webkit-scrollbar-thumb:hover {
-  background-color: hsl(var(--muted-foreground) / 0.5);
-}
-
-
-
-/* Utility classes */
+/* Scrollbar styling */
 @layer utilities {
-
-  /* Hide scrollbar for Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
-
-  /* Hide scrollbar for IE, Edge and Firefox */
   .no-scrollbar {
     -ms-overflow-style: none;
-    /* IE and Edge */
     scrollbar-width: none;
-    /* Firefox */
   }
 }
 
-/* Temporary dark mode overrides for pages not yet migrated to semantic tokens */
-/* TODO: Remove these after migrating all pages to use semantic tokens */
-/* Using higher specificity to override Tailwind's utility classes */
-
-.dark {
-  color-scheme: dark;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--border));
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground));
 }
 
-/* Background overrides */
+/*
+  LEGACY COMPATIBILITY OVERRIDES
+  These allow standard tailwind classes like 'bg-white' to adapt to dark mode
+  automatically, avoiding the need to refactor every component to 'bg-card'.
+*/
+
 .dark .bg-white,
 .dark [class*="bg-white"] {
+  background-color: hsl(var(--card)) !important;
   --tw-bg-opacity: 1;
-  background-color: hsl(var(--background)) !important;
 }
 
 .dark .bg-gray-50,
 .dark [class*="bg-gray-50"] {
+  background-color: hsl(var(--muted) / 0.5) !important;
   --tw-bg-opacity: 1;
-  background-color: hsl(var(--card)) !important;
 }
 
 .dark .bg-gray-100,
 .dark [class*="bg-gray-100"] {
-  --tw-bg-opacity: 1;
   background-color: hsl(var(--muted)) !important;
+  --tw-bg-opacity: 1;
 }
 
-/* Text color overrides */
 .dark .text-gray-900,
-.dark [class*="text-gray-900"] {
-  --tw-text-opacity: 1;
-  color: hsl(var(--foreground)) !important;
-}
-
 .dark .text-gray-800,
+.dark [class*="text-gray-900"],
 .dark [class*="text-gray-800"] {
-  --tw-text-opacity: 1;
   color: hsl(var(--foreground)) !important;
-}
-
-.dark .text-gray-700,
-.dark [class*="text-gray-700"] {
   --tw-text-opacity: 1;
-  color: hsl(var(--muted-foreground)) !important;
 }
 
 .dark .text-gray-600,
-.dark [class*="text-gray-600"] {
-  --tw-text-opacity: 1;
+.dark .text-gray-700,
+.dark [class*="text-gray-600"],
+.dark [class*="text-gray-700"] {
   color: hsl(var(--muted-foreground)) !important;
-}
-
-.dark .text-gray-500,
-.dark [class*="text-gray-500"] {
   --tw-text-opacity: 1;
-  color: hsl(var(--muted-foreground)) !important;
 }
 
-.dark .text-gray-400,
-.dark [class*="text-gray-400"] {
-  --tw-text-opacity: 1;
-  color: hsl(var(--muted-foreground) / 0.8) !important;
-}
-
-/* Border overrides */
 .dark .border-gray-200,
-.dark [class*="border-gray-200"] {
-  --tw-border-opacity: 1;
-  border-color: hsl(var(--border)) !important;
-}
-
 .dark .border-gray-300,
+.dark [class*="border-gray-200"],
 .dark [class*="border-gray-300"] {
+  border-color: hsl(var(--border)) !important;
   --tw-border-opacity: 1;
-  border-color: hsl(var(--border)) !important;
 }
 
-/* Divide overrides (for divided lists) */
-.dark .divide-gray-200>*+*,
-.dark [class*="divide-gray-200"]>*+* {
+.dark .divide-gray-200 > * + *,
+.dark [class*="divide-gray-200"] > * + * {
+  border-color: hsl(var(--border)) !important;
   --tw-divide-opacity: 1;
-  border-color: hsl(var(--border)) !important;
 }
 
-/* Ring overrides (for focus states) */
-.dark .ring-gray-200,
-.dark [class*="ring-gray-200"] {
-  --tw-ring-opacity: 1;
-  --tw-ring-color: hsl(var(--border)) !important;
-}
-
-
-/* ============================================ */
-/* DATA TABLE ROW STYLING OVERRIDES */
-/* ============================================ */
-
-/* Subtle hover state for table rows - light gray */
-table tbody tr:hover {
-  background-color: rgb(248 250 252) !important;
-  /* slate-50 */
-}
-
-/* Subtle selected state for table rows - pale teal */
-table tbody tr[data-state="selected"] {
-  background-color: rgb(240 253 250) !important;
-  /* teal-50 */
-}
-
-/* Ensure text stays dark on hover and selection */
-table tbody tr:hover td,
-table tbody tr[data-state="selected"] td {
-  color: rgb(15 23 42) !important;
-  /* slate-900 */
-}
-
-/* Dark mode overrides for table rows */
+/* Table Row Hover Overrides */
 .dark table tbody tr:hover {
-  background-color: hsl(var(--muted)) !important;
+  background-color: hsl(var(--muted) / 0.5) !important;
 }
 
 .dark table tbody tr[data-state="selected"] {
-  background-color: hsl(var(--primary) / 0.1) !important;
-}
-
-.dark table tbody tr:hover td,
-.dark table tbody tr[data-state="selected"] td {
-  color: hsl(var(--foreground)) !important;
-}
-
-/* Thin scrollbar styling for timeline - scoped to timeline container only */
-.timeline-container .timeline-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 #f1f5f9;
-}
-
-/* Webkit browsers (Chrome, Safari, Edge) - scoped to timeline */
-.timeline-container .timeline-scrollbar::-webkit-scrollbar {
-  height: 8px;
-  width: 8px;
-}
-
-.timeline-container .timeline-scrollbar::-webkit-scrollbar-track {
-  background: #f1f5f9;
-  border-radius: 4px;
-}
-
-.timeline-container .timeline-scrollbar::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 4px;
-}
-
-.timeline-container .timeline-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background-color: hsl(var(--primary) / 0.2) !important;
 }

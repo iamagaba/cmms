@@ -6,6 +6,239 @@
     padding: 15mm;
     background: white;
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    font-size: 9pt;
+    line-height: 1.4;
+    color: #000;
+}
+
+/* Utilities */
+.text-red {
+    color: #D32F2F !important;
+}
+
+.bold {
+    font-weight: 700;
+}
+
+.section-divider {
+    border-bottom: 1px solid #ccc;
+    margin: 15px 0;
+}
+
+/* Header Section */
+.wo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    /* Align bottom */
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+
+.company-name {
+    font-size: 20pt;
+    font-weight: 800;
+    margin: 0;
+    color: #000;
+}
+
+.wo-header-right {
+    text-align: right;
+}
+
+.wo-title {
+    font-size: 14pt;
+    font-weight: 700;
+    margin: 0;
+    color: #D32F2F;
+    /* Red color */
+}
+
+.header-divider {
+    border-top: 1px solid #D32F2F;
+    /* Red line */
+    margin-bottom: 15px;
+}
+
+/* Top Metrics Row */
+.metrics-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 25px;
+}
+
+.metric-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.metric-label {
+    font-size: 7pt;
+    color: #555;
+    margin-bottom: 2px;
+}
+
+.metric-value {
+    font-size: 9pt;
+    font-weight: 600;
+}
+
+/* Section Headings */
+.section-heading {
+    font-size: 11pt;
+    font-weight: 700;
+    margin: 0 0 10px 0;
+    color: #333;
+}
+
+/* Grid Layouts for Info */
+.info-grid-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    /* 2 columns */
+    gap: 20px 40px;
+    /* Row gap, Col gap */
+    margin-bottom: 20px;
+}
+
+.field-group {
+    margin-bottom: 10px;
+}
+
+.field-label {
+    font-size: 7pt;
+    color: #555;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.field-value {
+    font-size: 9pt;
+    font-weight: 600;
+    display: block;
+}
+
+/* Address/Location block specific */
+.address-block {
+    margin-top: 5px;
+    font-size: 9pt;
+    font-weight: 700;
+}
+
+/* Task Description */
+.task-description p {
+    font-size: 9pt;
+    margin: 0;
+}
+
+/* Tables */
+.wo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 8pt;
+    margin-top: 5px;
+}
+
+.wo-table th {
+    text-align: left;
+    padding: 8px 5px;
+    border-bottom: 1px solid #eee;
+    font-weight: 600;
+    color: #555;
+    background: #f9f9f9;
+}
+
+.wo-table td {
+    padding: 8px 5px;
+    border-bottom: 1px solid #eee;
+}
+
+.wo-table .text-right {
+    text-align: right;
+}
+
+/* Cost Summary Footer */
+.cost-summary-footer {
+    display: flex;
+    justify-content: space-between;
+    background: #f9f9f9;
+    padding: 10px 15px;
+    margin-top: 0;
+    /* Connected to table */
+    font-weight: 600;
+    font-size: 9pt;
+}
+
+.total-cost-value {
+    color: #D32F2F;
+}
+
+/* Footer Page Info */
+.page-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-top: 40px;
+    padding-top: 10px;
+    border-top: 1px solid #eee;
+    font-size: 8pt;
+    color: #666;
+}
+
+.footer-logo-small {
+    margin-right: 5px;
+    color: #D32F2F;
+}
+
+
+/* Print-specific styles */
+@media print {
+    @page {
+        size: A4;
+        margin: 10mm;
+    }
+
+    .printable-work-order {
+        padding: 0;
+        margin: 0;
+        max-width: 100%;
+    }
+
+    /* Ensure exact colors print */
+    * {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+    /* Page break control */
+    .avoid-break {
+        page-break-inside: avoid;
+    }
+
+    /* Hide elements not needed in print */
+    .no-print {
+        display: none !important;
+    }
+
+    .wo-table th {
+        background-color: #f9f9f9 !important;
+    }
+}
+
+/* Screen preview styles */
+@media screen {
+    .printable-work-order {
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        margin: 20px auto;
+    }
+}
+
+.printable-work-order {
+    max-width: 210mm;
+    margin: 0 auto;
+    padding: 15mm;
+    background: white;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
     font-size: 10pt;
     line-height: 1.4;
     color: #000;
@@ -15,41 +248,18 @@
 .wo-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #000;
-}
-
-.wo-header-left {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-}
-
-.company-logo {
-    width: 60px;
-    height: 60px;
-    object-fit: contain;
-}
-
-.company-logo-placeholder {
-    width: 60px;
-    height: 60px;
-    background: #f0f0f0;
-    border: 2px solid #ccc;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    color: #666;
+    align-items: flex-end;
+    /* Align bottom */
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+    /* Removed border-bottom to avoid double line */
 }
 
 .company-name {
-    font-size: 16pt;
-    font-weight: bold;
+    font-size: 20pt;
+    font-weight: 800;
     margin: 0;
+    color: #000;
 }
 
 .wo-header-right {
@@ -57,10 +267,13 @@
 }
 
 .wo-title {
-    font-size: 18pt;
-    font-weight: bold;
-    margin: 0 0 5px 0;
-    letter-spacing: 1px;
+    font-size: 14pt;
+    font-weight: 700;
+    margin: 0;
+    color: #D32F2F;
+    /* Red color */
+    white-space: nowrap;
+    /* Prevent wrapping */
 }
 
 .wo-number {

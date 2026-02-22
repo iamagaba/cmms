@@ -1,0 +1,110 @@
+{
+  "tech_stack": [
+    "TypeScript",
+    "React 18.3",
+    "Vite",
+    "Supabase",
+    "PostgreSQL",
+    "Tailwind CSS",
+    "shadcn/ui",
+    "React Query",
+    "React Router",
+    "Mapbox GL",
+    "Recharts"
+  ],
+  "features": [
+    {
+      "name": "Authentication & Authorization",
+      "description": "User authentication with Supabase, JWT tokens, session management, role-based access control with immediate navigation after successful login",
+      "files": [
+        "src/pages/Login.tsx",
+        "src/context/SessionContext.tsx",
+        "src/integrations/supabase/client.ts"
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "description": "Real-time overview dashboard with KPIs, active work orders, technician status, SLA monitoring",
+      "files": [
+        "src/pages/Dashboard.tsx",
+        "src/components/dashboard/StatsCards.tsx"
+      ]
+    },
+    {
+      "name": "Work Order Management",
+      "description": "Complete CRUD operations for work orders with auto-assignment, status updates, SLA tracking",
+      "files": [
+        "src/pages/WorkOrders.tsx",
+        "src/pages/WorkOrderDetail.tsx"
+      ]
+    },
+    {
+      "name": "Asset Management",
+      "description": "Asset tracking with QR code scanning, maintenance history, downtime tracking",
+      "files": [
+        "src/pages/Assets.tsx",
+        "src/pages/AssetDetail.tsx"
+      ]
+    },
+    {
+      "name": "Inventory Management",
+      "description": "Parts inventory with stock tracking, low stock alerts, usage history",
+      "files": [
+        "src/pages/Inventory.tsx",
+        "src/pages/InventoryDetail.tsx"
+      ]
+    },
+    {
+      "name": "Scheduling",
+      "description": "Appointment scheduling, calendar views, conflict detection",
+      "files": [
+        "src/pages/Schedule.tsx",
+        "src/components/schedule/CalendarView.tsx"
+      ]
+    },
+    {
+      "name": "Map & Location Services",
+      "description": "Interactive maps with work order markers, technician locations, route optimization",
+      "files": [
+        "src/pages/Map.tsx",
+        "src/components/map/MapView.tsx"
+      ]
+    },
+    {
+      "name": "Real-time Notifications",
+      "description": "In-app notifications for work order updates, SLA alerts, system events",
+      "files": [
+        "src/components/notifications/NotificationCenter.tsx"
+      ]
+    },
+    {
+      "name": "Audit Logs",
+      "description": "Immutable audit trail capturing all system actions and user activities",
+      "files": [
+        "src/pages/AuditLogs.tsx"
+      ]
+    },
+    {
+      "name": "Offline Support",
+      "description": "Progressive Web App with offline data access and background sync",
+      "files": [
+        "src/services/offlineSync.ts"
+      ]
+    },
+    {
+      "name": "Search & Filters",
+      "description": "Advanced search across work orders, assets, and inventory with multi-criteria filtering",
+      "files": [
+        "src/components/common/SearchBar.tsx"
+      ]
+    },
+    {
+      "name": "Security",
+      "description": "JWT authentication, row-level security, role-based permissions",
+      "files": [
+        "src/integrations/supabase/client.ts",
+        "src/hooks/usePermissions.ts"
+      ]
+    }
+  ]
+}

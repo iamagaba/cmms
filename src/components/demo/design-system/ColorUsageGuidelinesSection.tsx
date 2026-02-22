@@ -8,20 +8,20 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 
 const ColorUsageGuidelinesSection: React.FC = () => {
     return (
-        <Card className="border-amber-200 bg-amber-50">
+        <Card className="border-border bg-card">
             <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-amber-900">
-                    <Palette className="w-5 h-5" />
+                <CardTitle className="flex items-center gap-2 text-foreground">
+                    <Palette className="w-5 h-5 text-primary" />
                     Color Usage Guidelines
                 </CardTitle>
-                <CardDescription className="text-amber-700">
+                <CardDescription className="text-muted-foreground">
                     When to use each color and semantic meanings
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
                 {/* Status Colors */}
-                <div className="bg-white rounded-lg border border-amber-200 p-4">
-                    <h3 className="text-sm font-semibold text-amber-900 mb-4">Status Colors</h3>
+                <div className="bg-card rounded-lg border border-border p-4">
+                    <h3 className="text-sm font-semibold text-foreground mb-4">Status Colors</h3>
                     <div className="space-y-3">
                         <div className="flex items-start gap-3 p-3 bg-muted rounded border border-blue-200">
                             <Badge variant="status-open" className="mt-0.5">New</Badge>
@@ -62,8 +62,8 @@ const ColorUsageGuidelinesSection: React.FC = () => {
                 </div>
 
                 {/* Priority Colors */}
-                <div className="bg-white rounded-lg border border-amber-200 p-4">
-                    <h3 className="text-sm font-semibold text-amber-900 mb-4">Priority Colors</h3>
+                <div className="bg-card rounded-lg border border-border p-4">
+                    <h3 className="text-sm font-semibold text-foreground mb-4">Priority Colors</h3>
                     <div className="space-y-3">
                         <div className="flex items-start gap-3 p-3 bg-red-50 rounded border border-destructive/20">
                             <Badge variant="priority-critical" className="mt-0.5">Critical</Badge>
@@ -97,8 +97,8 @@ const ColorUsageGuidelinesSection: React.FC = () => {
                 </div>
 
                 {/* Semantic Colors */}
-                <div className="bg-white rounded-lg border border-amber-200 p-4">
-                    <h3 className="text-sm font-semibold text-amber-900 mb-4">Semantic Colors</h3>
+                <div className="bg-card rounded-lg border border-border p-4">
+                    <h3 className="text-sm font-semibold text-foreground mb-4">Semantic Colors</h3>
                     <div className="space-y-3">
                         <div className="flex items-start gap-3 p-3 bg-red-50 rounded border border-destructive/20">
                             <AlertCircle className="w-5 h-5 text-destructive mt-0.5" />
@@ -139,8 +139,8 @@ const ColorUsageGuidelinesSection: React.FC = () => {
                 </div>
 
                 {/* Text Colors */}
-                <div className="bg-white rounded-lg border border-amber-200 p-4">
-                    <h3 className="text-sm font-semibold text-amber-900 mb-4">Text Color Hierarchy</h3>
+                <div className="bg-card rounded-lg border border-border p-4">
+                    <h3 className="text-sm font-semibold text-foreground mb-4">Text Color Hierarchy</h3>
                     <div className="space-y-2">
                         <div className="flex items-center justify-between p-3 bg-gray-50 rounded">
                             <span className="text-sm text-gray-900 font-semibold">text-gray-900</span>
@@ -162,8 +162,8 @@ const ColorUsageGuidelinesSection: React.FC = () => {
                 </div>
 
                 {/* Background Colors */}
-                <div className="bg-white rounded-lg border border-amber-200 p-4">
-                    <h3 className="text-sm font-semibold text-amber-900 mb-4">Background Colors</h3>
+                <div className="bg-card rounded-lg border border-border p-4">
+                    <h3 className="text-sm font-semibold text-foreground mb-4">Background Colors</h3>
                     <div className="space-y-2">
                         <div className="p-3 bg-white border border-gray-200 rounded">
                             <div className="flex items-center justify-between">

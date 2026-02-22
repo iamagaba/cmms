@@ -29,7 +29,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 import { CreateWorkOrderForm } from "@/components/work-orders/CreateWorkOrderForm";
 import { cn } from '@/lib/utils';
-import { Bike, ClipboardList, Clock, Map, Plus, Search, Tag, Users, Filter, Car, Edit, Trash2, ChevronRight, Calendar, AlertCircle } from 'lucide-react';
+import { ArrowRight, Bike, Check, CheckCircle, Circle, CircleDot, ClipboardList, Clock, Flag, Loader, Map, Pause, PhoneOff, Plus, Search, Tag, Users, Filter, Car, Edit, Trash2, ChevronRight, Calendar, AlertCircle } from 'lucide-react';
 import { EmptyState } from '@/components/ui/empty-state';
 dayjs.extend(relativeTime);
 
@@ -193,8 +193,8 @@ const AssetsPage = () => {
     return (
       <div className="flex h-screen w-full bg-background overflow-hidden">
         {/* List Column */}
-        <div className="w-80 flex-none border-r border bg-card flex flex-col">
-          <div className="p-4 border-b border">
+        <div className="w-80 flex-none border-r border-border bg-muted dark:bg-background flex flex-col">
+          <div className="p-4 border-b border-border">
             <Skeleton className="h-6 mb-2" />
             <Skeleton className="h-4 w-3/4" />
           </div>
@@ -350,62 +350,68 @@ const AssetsPage = () => {
                 {(() => {
                   const computedStatus = getComputedAssetStatus(selectedAsset);
                   return (
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-                          <Bike className="w-5 h-5 text-primary" />
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/20">
+                          <Bike className="w-6 h-6 text-primary" />
                         </div>
                         <div>
-                          <div className="flex items-center gap-2">
-                            <h2 className="text-xl font-semibold font-mono">
+                          <div className="flex items-center gap-3 mb-1">
+                            <h2 className="text-2xl font-bold font-mono tracking-tight text-foreground">
                               {selectedAsset.license_plate}
                             </h2>
                             <Badge variant={
                               computedStatus === 'Normal' ? 'success' :
                                 computedStatus === 'In Repair' ? 'warning' :
                                   'outline'
-                            }>
-                              <span className={`w-1 h-1 rounded-full mr-1 ${computedStatus === 'Normal' ? 'bg-success' :
-                                computedStatus === 'In Repair' ? 'bg-warning' :
-                                  'bg-muted-foreground'
-                                }`} />
+                            } className="px-2.5 py-0.5 text-xs font-semibold capitalize">
                               {computedStatus}
                             </Badge>
                             {selectedAsset.is_emergency_bike && (
-                              <Badge variant="info">
-                                <span className="w-1 h-1 rounded-full bg-blue-500 mr-1" />
+                              <Badge variant="destructive" className="px-2.5 py-0.5 text-xs font-semibold animate-pulse">
                                 Emergency
                               </Badge>
                             )}
                           </div>
-                          <p className="text-sm text-muted-foreground">
-                            {selectedAsset.make && selectedAsset.model ? `${selectedAsset.make} ${selectedAsset.model}` : 'Unknown Model'}
-                            {selectedAsset.year && ` (${selectedAsset.year})`}
-                            {' • '}
-                            {(() => {
-                              const customer = customers?.find(c => c.id === selectedAsset.customer_id);
-                              return customer?.name || 'No Customer Assigned';
-                            })()}
-                          </p>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <span className="font-medium text-foreground">
+                              {selectedAsset.make && selectedAsset.model ? `${selectedAsset.make} ${selectedAsset.model}` : 'Unknown Model'}
+                            </span>
+                            {selectedAsset.year && <span>• {selectedAsset.year}</span>}
+                            <span>•</span>
+                            <span className="flex items-center gap-1.5">
+                              <Users className="w-3.5 h-3.5" />
+                              {(() => {
+                                const customer = customers?.find(c => c.id === selectedAsset.customer_id);
+                                return customer ? (
+                                  <span className="text-foreground font-medium hover:underline cursor-pointer">
+                                    {customer.name}
+                                  </span>
+                                ) : (
+                                  <span className="italic text-muted-foreground/70">No Customer Assigned</span>
+                                );
+                              })()}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 self-start sm:self-center">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => handleEdit(selectedAsset)}
-                          className="px-2.5 py-1 text-xs font-medium flex items-center gap-1.5"
+                          className="h-9 px-3 text-xs font-medium"
                         >
-                          <Edit className="w-4 h-4" />
+                          <Edit className="w-3.5 h-3.5 mr-2" />
                           Edit
                         </Button>
                         <Button
-                          variant="outline"
+                          variant="ghost"
                           size="sm"
                           onClick={() => handleDeleteClick(selectedAsset)}
-                          className="px-2.5 py-1 text-xs font-medium text-destructive hover:bg-destructive/10 flex items-center gap-1.5"
+                          className="h-9 px-3 text-xs font-medium text-destructive hover:bg-destructive/10 hover:text-destructive"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash2 className="w-3.5 h-3.5 mr-2" />
                           Delete
                         </Button>
                       </div>
@@ -417,226 +423,223 @@ const AssetsPage = () => {
               <div className="flex-1 overflow-auto px-4 py-0 scrollbar-thin scrollbar-thumb-muted scrollbar-track-transparent overscroll-y-contain">
                 <div className="max-w-6xl mx-auto">
                   {/* Stats Grid */}
-                  <div className="bg-card border border-border rounded-lg overflow-hidden shadow-sm mb-6">
-                    <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-border">
-                      {(() => {
-                        const assetWorkOrders = workOrders?.filter(wo => wo.vehicleId === selectedAsset.id) || [];
-                        const openWorkOrders = assetWorkOrders.filter(wo => wo.status === 'New' || wo.status === 'In Progress' || wo.status === 'Ready').length;
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+                    {(() => {
+                      const assetWorkOrders = workOrders?.filter(wo => wo.vehicleId === selectedAsset.id) || [];
+                      const openWorkOrders = assetWorkOrders.filter(wo => wo.status === 'New' || wo.status === 'In Progress' || wo.status === 'Ready').length;
 
-                        const stats = [
-                          {
-                            title: "Total WOs",
-                            value: assetWorkOrders.length,
-                            icon: ClipboardList,
-                            color: "primary"
-                          },
-                          {
-                            title: "Open WOs",
-                            value: openWorkOrders,
-                            icon: Clock,
-                            color: openWorkOrders > 0 ? "amber" : "primary"
-                          },
-                          {
-                            title: "Downtime",
-                            value: (() => {
-                              const totalMinutes = assetWorkOrders.reduce((acc, wo) => {
-                                if (wo.status === 'Completed' || wo.status === 'In Progress') {
-                                  const start = (wo as any).workStartedAt ? dayjs((wo as any).workStartedAt) :
-                                    (wo.work_started_at ? dayjs(wo.work_started_at) :
-                                      ((wo as any).createdAt ? dayjs((wo as any).createdAt) : dayjs(wo.created_at)));
-                                  const end = wo.completedAt ? dayjs(wo.completedAt) : dayjs();
-                                  return acc + end.diff(start, 'minute');
-                                }
-                                return acc;
-                              }, 0);
-                              const hours = Math.floor(totalMinutes / 60);
-                              const days = Math.floor(hours / 24);
-                              const remainingHours = hours % 24;
-                              return days > 0 ? `${days}d ${remainingHours}h` : `${hours}h`;
-                            })(),
-                            icon: Clock,
-                            color: "primary"
-                          },
-                          {
-                            title: "Repair Cost",
-                            value: new Intl.NumberFormat('en-UG', {
-                              style: 'currency',
-                              currency: 'UGX',
-                              maximumFractionDigits: 0,
-                              notation: 'compact'
-                            }).format(
-                              assetWorkOrders.reduce((sum, wo) => sum + ((wo as any).cost || 0), 0)
-                            ),
-                            icon: Tag,
-                            color: "primary"
-                          }
-                        ];
+                      const stats = [
+                        {
+                          title: "Total Work Orders",
+                          value: assetWorkOrders.length,
+                          icon: ClipboardList,
+                          iconBgClass: "bg-info/10",
+                          iconClass: "text-info"
+                        },
+                        {
+                          title: "Open Work Orders",
+                          value: openWorkOrders,
+                          icon: Clock,
+                          iconBgClass: openWorkOrders > 0 ? "bg-warning/10" : "bg-success/10",
+                          iconClass: openWorkOrders > 0 ? "text-warning" : "text-success"
+                        },
+                        {
+                          title: "Total Downtime",
+                          value: (() => {
+                            const totalMinutes = assetWorkOrders.reduce((acc, wo) => {
+                              if (wo.status === 'Completed' || wo.status === 'In Progress') {
+                                const start = (wo as any).workStartedAt ? dayjs((wo as any).workStartedAt) :
+                                  (wo.work_started_at ? dayjs(wo.work_started_at) :
+                                    ((wo as any).createdAt ? dayjs((wo as any).createdAt) : dayjs(wo.created_at)));
+                                const end = wo.completedAt ? dayjs(wo.completedAt) : dayjs();
+                                return acc + end.diff(start, 'minute');
+                              }
+                              return acc;
+                            }, 0);
+                            const hours = Math.floor(totalMinutes / 60);
+                            const days = Math.floor(hours / 24);
+                            const remainingHours = hours % 24;
+                            return days > 0 ? `${days}d ${remainingHours}h` : `${hours}h`;
+                          })(),
+                          icon: Clock,
+                          iconBgClass: "bg-primary/10",
+                          iconClass: "text-primary"
+                        },
+                        {
+                          title: "Repair Cost",
+                          value: new Intl.NumberFormat('en-UG', {
+                            style: 'currency',
+                            currency: 'UGX',
+                            maximumFractionDigits: 0,
+                            notation: 'compact'
+                          }).format(
+                            assetWorkOrders.reduce((sum, wo) => sum + ((wo as any).cost || 0), 0)
+                          ),
+                          icon: Tag,
+                          iconBgClass: "bg-muted",
+                          iconClass: "text-muted-foreground"
+                        }
+                      ];
 
-                        return stats.map((stat, index) => {
-                          const IconComponent = stat.icon;
-                          const getIconColorClass = (color: string) => {
-                            switch (color) {
-                              case 'primary': return 'text-primary';
-                              case 'emerald': return 'text-success';
-                              case 'amber': return 'text-warning';
-                              case 'red': return 'text-destructive';
-                              default: return 'text-muted-foreground';
-                            }
-                          };
-
-                          return (
-                            <div key={index} className="p-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors">
-                              <div className="flex items-center justify-between">
-                                <div className="flex-1">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <IconComponent className={cn('w-4 h-4', getIconColorClass(stat.color))} />
-                                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                                      {stat.title}
-                                    </p>
-                                  </div>
-                                  <p className="text-2xl font-bold text-foreground font-mono">
-                                    {stat.value}
-                                  </p>
-                                </div>
+                      return stats.map((stat, index) => {
+                        const IconComponent = stat.icon;
+                        return (
+                          <Card key={index} className="border border-border/60 shadow-sm hover:shadow-md transition-shadow">
+                            <CardContent className="p-4 flex items-center justify-between">
+                              <div>
+                                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+                                  {stat.title}
+                                </p>
+                                <p className="text-2xl font-bold text-foreground font-mono tracking-tight">
+                                  {stat.value}
+                                </p>
                               </div>
-                            </div>
-                          );
-                        });
-                      })()}
-                    </div>
+                              <div className={cn("w-10 h-10 rounded-lg flex items-center justify-center", stat.iconBgClass)}>
+                                <IconComponent className={cn("w-5 h-5", stat.iconClass)} />
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      });
+                    })()}
                   </div>
 
                   {/* Asset Details */}
                   <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       {/* Vehicle Information */}
-                      <div>
-                        <h3 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
+                      <Card className="overflow-hidden rounded-lg border-border/60 shadow-sm">
+                        <div className="bg-muted/30 px-4 py-3 border-b border-border/60 flex items-center gap-2">
                           <Car className="w-4 h-4 text-primary" />
-                          Vehicle Information
-                        </h3>
-                        <Card className="overflow-hidden rounded-lg">
-                          <CardContent className="p-4 space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">License Plate</Label>
-                                <p className="text-sm mt-1 font-bold font-mono text-foreground">
-                                  {selectedAsset.license_plate || <span className="text-muted-foreground italic font-normal">Not specified</span>}
-                                </p>
-                              </div>
-                              <div>
-                                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Make & Model</Label>
-                                <p className="text-sm mt-1 font-medium text-foreground">
-                                  {selectedAsset.make && selectedAsset.model ? `${selectedAsset.make} ${selectedAsset.model}` : <span className="text-muted-foreground italic font-normal">Not specified</span>}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Year</Label>
-                                <p className="text-sm mt-1 font-medium text-foreground">
-                                  {selectedAsset.year || <span className="text-muted-foreground italic font-normal">Unknown</span>}
-                                </p>
-                              </div>
-                              <div>
-                                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Production Date</Label>
-                                <p className="text-sm mt-1 font-medium text-foreground">
-                                  {selectedAsset.date_of_manufacture ? dayjs(selectedAsset.date_of_manufacture).format('MMM DD, YYYY') : <span className="text-muted-foreground italic font-normal">Not specified</span>}
-                                </p>
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      </div>
-
-                      {/* Operational Details */}
-                      <div>
-                        <h3 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
-                          <Clock className="w-4 h-4 text-primary" />
-                          Operational Details
-                        </h3>
-                        <Card className="overflow-hidden rounded-lg">
-                          <CardContent className="p-4 space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                              <div>
-                                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Mileage</Label>
-                                <p className="text-sm mt-1 font-bold font-mono text-foreground">
-                                  {selectedAsset.mileage != null ? `${selectedAsset.mileage.toLocaleString()} km` : '0 km'}
-                                </p>
-                              </div>
-                              <div>
-                                <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Warranty</Label>
-                                <p className="text-sm mt-1 font-medium">
-                                  {(() => {
-                                    const endDate = selectedAsset.warranty_end_date || (selectedAsset.date_of_manufacture ? dayjs(selectedAsset.date_of_manufacture).add(1, 'year').toISOString() : null);
-                                    if (!endDate) return <span className="text-muted-foreground italic font-normal">No warranty info</span>;
-                                    const warrantyEnd = dayjs(endDate);
-                                    const today = dayjs();
-                                    if (warrantyEnd.isBefore(today)) {
-                                      return <span className="text-destructive font-semibold">Expired • {warrantyEnd.format('MMM DD, YYYY')}</span>;
-                                    }
-                                    const daysRemaining = warrantyEnd.diff(today, 'day');
-                                    if (daysRemaining <= 30) {
-                                      return <span className="text-warning font-semibold">{daysRemaining}d left</span>;
-                                    }
-                                    const monthsRemaining = warrantyEnd.diff(today, 'month');
-                                    return <span className="text-success font-semibold">{monthsRemaining}mo left</span>;
-                                  })()}
-                                </p>
-                              </div>
-                            </div>
+                          <h3 className="text-sm font-semibold text-foreground">Vehicle Information</h3>
+                        </div>
+                        <CardContent className="p-4 space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
                             <div>
-                              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Ownership Type</Label>
-                              <p className="text-sm mt-1 font-medium text-foreground">
-                                {selectedAsset.is_company_asset ? 'Company Asset' : 'Individual Asset'}
+                              <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">License Plate</Label>
+                              <p className="text-sm mt-0.5 font-bold font-mono text-foreground">
+                                {selectedAsset.license_plate || <span className="text-muted-foreground/50 italic font-normal">Not specified</span>}
                               </p>
                             </div>
-                          </CardContent>
-                        </Card>
-                      </div>
+                            <div>
+                              <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Make & Model</Label>
+                              <p className="text-sm mt-0.5 font-medium text-foreground">
+                                {selectedAsset.make && selectedAsset.model ? `${selectedAsset.make} ${selectedAsset.model}` : <span className="text-muted-foreground/50 italic font-normal">Not specified</span>}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Year</Label>
+                              <p className="text-sm mt-0.5 font-medium text-foreground">
+                                {selectedAsset.year || <span className="text-muted-foreground/50 italic font-normal">Unknown</span>}
+                              </p>
+                            </div>
+                            <div>
+                              <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Production Date</Label>
+                              <p className="text-sm mt-0.5 font-medium text-foreground">
+                                {selectedAsset.date_of_manufacture ? dayjs(selectedAsset.date_of_manufacture).format('MMM DD, YYYY') : <span className="text-muted-foreground/50 italic font-normal">Not specified</span>}
+                              </p>
+                            </div>
+                          </div>
+                          <div>
+                            <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">VIN / Chassis No.</Label>
+                            <p className="text-sm mt-0.5 font-mono text-foreground break-all text-xs">
+                              {selectedAsset.vin || <span className="text-muted-foreground/50 italic font-normal">Not recorded</span>}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      {/* Operational Details */}
+                      <Card className="overflow-hidden rounded-lg border-border/60 shadow-sm">
+                        <div className="bg-muted/30 px-4 py-3 border-b border-border/60 flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-primary" />
+                          <h3 className="text-sm font-semibold text-foreground">Operational Details</h3>
+                        </div>
+                        <CardContent className="p-4 space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Mileage</Label>
+                              <p className="text-sm mt-0.5 font-bold font-mono text-foreground">
+                                {selectedAsset.mileage != null ? `${selectedAsset.mileage.toLocaleString()} km` : <span className="text-muted-foreground/50 italic font-normal">0 km</span>}
+                              </p>
+                            </div>
+                            <div>
+                              <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Warranty</Label>
+                              <p className="text-sm mt-0.5 font-medium">
+                                {(() => {
+                                  const endDate = selectedAsset.warranty_end_date || (selectedAsset.date_of_manufacture ? dayjs(selectedAsset.date_of_manufacture).add(1, 'year').toISOString() : null);
+                                  if (!endDate) return <span className="text-muted-foreground/50 italic font-normal">No info</span>;
+                                  const warrantyEnd = dayjs(endDate);
+                                  const today = dayjs();
+                                  if (warrantyEnd.isBefore(today)) {
+                                    return <span className="text-destructive font-semibold">Expired • {warrantyEnd.format('MMM DD, YYYY')}</span>;
+                                  }
+                                  const daysRemaining = warrantyEnd.diff(today, 'day');
+                                  if (daysRemaining <= 30) {
+                                    return <span className="text-warning font-semibold">{daysRemaining}d left</span>;
+                                  }
+                                  const monthsRemaining = warrantyEnd.diff(today, 'month');
+                                  return <span className="text-success font-semibold">{monthsRemaining}mo left</span>;
+                                })()}
+                              </p>
+                            </div>
+                          </div>
+                          <div>
+                            <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Ownership Type</Label>
+                            <p className="text-sm mt-0.5 font-medium text-foreground">
+                              {selectedAsset.is_company_asset ? 'Company Asset' : 'Individual Asset'}
+                            </p>
+                          </div>
+                        </CardContent>
+                      </Card>
 
                       {/* Customer Information */}
-                      <div>
-                        <h3 className="text-base font-semibold text-foreground mb-4 flex items-center gap-2">
+                      <Card className="overflow-hidden rounded-lg border-border/60 shadow-sm">
+                        <div className="bg-muted/30 px-4 py-3 border-b border-border/60 flex items-center gap-2">
                           <Users className="w-4 h-4 text-primary" />
-                          Customer Information
-                        </h3>
-                        <Card className="overflow-hidden rounded-lg">
-                          <CardContent className="p-0">
-                            {(() => {
-                              const customer = customers?.find(c => c.id === selectedAsset.customer_id);
-                              return customer ? (
-                                <div className="p-4 space-y-4">
-                                  <div className="grid grid-cols-2 gap-4">
-                                    <div>
-                                      <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Customer</Label>
-                                      <p className="text-sm mt-1 font-semibold text-foreground">{customer.name}</p>
-                                    </div>
-                                    <div>
-                                      <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Email</Label>
-                                      <p className="text-sm mt-1 font-medium text-foreground">{customer.email || <span className="text-muted-foreground italic font-normal">Not provided</span>}</p>
-                                    </div>
+                          <h3 className="text-sm font-semibold text-foreground">Customer Information</h3>
+                        </div>
+                        <CardContent className="p-0">
+                          {(() => {
+                            const customer = customers?.find(c => c.id === selectedAsset.customer_id);
+                            return customer ? (
+                              <div className="p-4 space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Customer</Label>
+                                    <p className="text-sm mt-0.5 font-semibold text-foreground">{customer.name}</p>
                                   </div>
                                   <div>
-                                    <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Phone</Label>
-                                    <p className="text-sm mt-1 font-medium text-foreground">{customer.phone || <span className="text-muted-foreground italic font-normal">Not provided</span>}</p>
+                                    <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Email</Label>
+                                    <p className="text-sm mt-0.5 font-medium text-foreground truncate" title={customer.email || ''}>
+                                      {customer.email || <span className="text-muted-foreground/50 italic font-normal">Not provided</span>}
+                                    </p>
                                   </div>
                                 </div>
-                              ) : (
-                                <div className="p-6 text-center">
-                                  <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
-                                    <Users className="w-5 h-5 text-muted-foreground" />
-                                  </div>
-                                  <p className="text-sm font-semibold text-foreground mb-1">No customer assigned</p>
-                                  <p className="text-xs text-muted-foreground">
-                                    Assign a customer to track ownership
+                                <div>
+                                  <Label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Phone</Label>
+                                  <p className="text-sm mt-0.5 font-medium text-foreground">
+                                    {customer.phone || <span className="text-muted-foreground/50 italic font-normal">Not provided</span>}
                                   </p>
                                 </div>
-                              );
-                            })()}
-                          </CardContent>
-                        </Card>
-                      </div>
+                              </div>
+                            ) : (
+                              <div className="p-6 text-center">
+                                <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center mx-auto mb-3">
+                                  <Users className="w-5 h-5 text-muted-foreground" />
+                                </div>
+                                <p className="text-sm font-semibold text-foreground mb-1">No customer assigned</p>
+                                <p className="text-xs text-muted-foreground">
+                                  Assign a customer to track ownership
+                                </p>
+                              </div>
+                            );
+                          })()}
+                        </CardContent>
+                      </Card>
                     </div>
                   </div>
 
@@ -730,7 +733,7 @@ const AssetsPage = () => {
                                       return (
                                         <tr
                                           key={workOrder.id}
-                                          className="transition-colors cursor-pointer group border-b border-border/50 hover:bg-slate-50 dark:hover:bg-slate-800"
+                                          className="transition-colors cursor-pointer group border-b border-border/50 hover:bg-muted"
                                           onClick={() => setSelectedWorkOrderId(workOrder.id)}
                                         >
                                           <td className="px-3 py-2 font-mono text-left">
@@ -750,30 +753,27 @@ const AssetsPage = () => {
                                           </td>
                                           <td className="px-3 py-2">
                                             {(() => {
-                                              const statusVariantMap: Record<string, 'open' | 'in-progress' | 'completed' | 'error' | 'warning' | 'info'> = {
-                                                'New': 'open',
-                                                'Confirmation': 'info',
+                                              const status = workOrder.status || 'New';
+
+                                              const statusVariant: Record<string, 'secondary' | 'warning' | 'success' | 'destructive'> = {
+                                                New: 'secondary',
+                                                Open: 'secondary',
+                                                Confirmation: 'secondary',
+                                                Ready: 'warning',
                                                 'On Hold': 'warning',
-                                                'Ready': 'info',
-                                                'In Progress': 'in-progress',
-                                                'Completed': 'completed',
-                                                'Cancelled': 'error',
+                                                'In Progress': 'warning',
+                                                Completed: 'success',
+                                                Cancelled: 'destructive',
                                               };
-                                              const variant = statusVariantMap[workOrder.status || 'New'] || 'open';
-                                              const dotColorClass =
-                                                workOrder.status === 'Completed'
-                                                  ? 'bg-emerald-500'
-                                                  : workOrder.status === 'In Progress'
-                                                    ? 'bg-amber-500'
-                                                    : workOrder.status === 'On Hold'
-                                                      ? 'bg-slate-400'
-                                                      : workOrder.status === 'Cancelled'
-                                                        ? 'bg-rose-500'
-                                                        : 'bg-slate-500';
+
+                                              const label = status === 'Open' ? 'New' : status;
+
                                               return (
-                                                <Badge variant={variant} className="inline-flex items-center gap-1">
-                                                  <span className={`w-1.5 h-1.5 rounded-full ${dotColorClass}`} />
-                                                  {workOrder.status}
+                                                <Badge
+                                                  variant={statusVariant[status] || 'secondary'}
+                                                  className="text-xs"
+                                                >
+                                                  {label}
                                                 </Badge>
                                               );
                                             })()}
@@ -790,17 +790,29 @@ const AssetsPage = () => {
                                           <td className="px-3 py-2 text-right">
                                             {workOrder.priority && (
                                               <div className="inline-flex items-center justify-end gap-1.5">
-                                                <Badge
-                                                  variant={
-                                                    workOrder.priority === 'Critical' ? 'critical' :
-                                                      workOrder.priority === 'High' ? 'high' :
-                                                        workOrder.priority === 'Medium' ? 'medium' :
-                                                          'low'
-                                                  }
-                                                  className="inline-flex items-center gap-1"
-                                                >
-                                                  {workOrder.priority.charAt(0).toUpperCase() + workOrder.priority.slice(1).toLowerCase()}
-                                                </Badge>
+                                                {(() => {
+                                                  const priority = (workOrder.priority || 'none').toLowerCase();
+                                                  
+                                                  const priorityConfig: Record<string, { className: string; label: string }> = {
+                                                    'critical': { className: 'text-destructive', label: 'High' },
+                                                    'urgent': { className: 'text-destructive', label: 'High' },
+                                                    'high': { className: 'text-destructive', label: 'High' },
+                                                    'medium': { className: 'text-success', label: 'Low' },
+                                                    'normal': { className: 'text-success', label: 'Low' },
+                                                    'low': { className: 'text-success', label: 'Low' },
+                                                    'routine': { className: 'text-muted-foreground', label: 'None' },
+                                                    'none': { className: 'text-muted-foreground', label: 'None' },
+                                                  };
+                                                  
+                                                  const config = priorityConfig[priority] || priorityConfig['none'];
+                                                  
+                                                  return (
+                                                    <div className="flex items-center gap-2">
+                                                      <Flag className={cn("w-4 h-4 flex-shrink-0", config.className)} fill="currentColor" />
+                                                      <span className="text-sm text-foreground">{config.label}</span>
+                                                    </div>
+                                                  );
+                                                })()}
                                                 <ChevronRight
                                                   className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
                                                 />

@@ -297,8 +297,8 @@ const StockMovementReport: React.FC = () => {
       </div>
 
       {/* Movement by Reason */}
-      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Movement by Reason</h3>
+      <div className="bg-muted rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-foreground mb-4">Movement by Reason</h3>
         <div className="grid grid-cols-3 gap-3">
           {Object.entries(data.byReason).map(([reason, stats]) => (
             <div key={reason} className="p-3 bg-white dark:bg-gray-700 rounded-lg">
@@ -315,12 +315,12 @@ const StockMovementReport: React.FC = () => {
       </div>
 
       {/* Recent Movements Table */}
-      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Recent Movements</h3>
+      <div className="bg-muted rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-foreground mb-4">Recent Movements</h3>
         <div className="overflow-x-auto max-h-80">
           <Table>
-            <TableHeader className="sticky top-0 bg-gray-50 dark:bg-gray-800">
-              <TableRow className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
+            <TableHeader className="sticky top-0 bg-muted">
+              <TableRow className="text-left text-muted-foreground border-b border-border">
                 <TableHead className="pb-2 font-medium">Date</TableHead>
                 <TableHead className="pb-2 font-medium">Item</TableHead>
                 <TableHead className="pb-2 font-medium">Reason</TableHead>
@@ -426,8 +426,8 @@ const SlowMovingReport: React.FC = () => {
       </div>
 
       {/* Slow-Moving Items Table */}
-      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <div className="bg-muted rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-foreground mb-4">
           Slow-Moving Stock ({threshold}+ days without movement)
         </h3>
         {!slowMoving?.length ? (
@@ -435,8 +435,8 @@ const SlowMovingReport: React.FC = () => {
         ) : (
           <div className="overflow-x-auto max-h-64">
             <Table>
-              <TableHeader className="sticky top-0 bg-gray-50 dark:bg-gray-800">
-                <TableRow className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
+              <TableHeader className="sticky top-0 bg-muted">
+                <TableRow className="text-left text-muted-foreground border-b border-border">
                   <TableHead className="pb-2 font-medium">Item</TableHead>
                   <TableHead className="pb-2 font-medium">Warehouse</TableHead>
                   <TableHead className="pb-2 font-medium text-right">Qty</TableHead>
@@ -479,8 +479,8 @@ const SlowMovingReport: React.FC = () => {
       </div>
 
       {/* Inventory Turnover */}
-      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <div className="bg-muted rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-foreground mb-4">
           Inventory Turnover Rate (Last 12 Months)
         </h3>
         {!turnover?.length ? (
@@ -488,8 +488,8 @@ const SlowMovingReport: React.FC = () => {
         ) : (
           <div className="overflow-x-auto max-h-64">
             <Table>
-              <TableHeader className="sticky top-0 bg-gray-50 dark:bg-gray-800">
-                <TableRow className="text-left text-gray-500 border-b border-gray-200 dark:border-gray-700">
+              <TableHeader className="sticky top-0 bg-muted">
+                <TableRow className="text-left text-muted-foreground border-b border-border">
                   <TableHead className="pb-2 font-medium">Item</TableHead>
                   <TableHead className="pb-2 font-medium text-right">Avg Inventory</TableHead>
                   <TableHead className="pb-2 font-medium text-right">Total Sold</TableHead>
@@ -594,8 +594,8 @@ const UsageTrendsReport: React.FC = () => {
       </div>
 
       {/* Trend Chart (Simple Bar Chart) */}
-      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">
+      <div className="bg-muted rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-foreground mb-4">
           Usage Over Time
         </h3>
         <div className="space-y-2">
@@ -650,8 +650,8 @@ const UsageTrendsReport: React.FC = () => {
       </div>
 
       {/* Trend Data Table */}
-      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Detailed Data</h3>
+      <div className="bg-muted rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-foreground mb-4">Detailed Data</h3>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
@@ -726,8 +726,8 @@ const CostAnalysisReport: React.FC = () => {
 
       <div className="grid grid-cols-2 gap-6">
         {/* Cost by Category */}
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Cost by Category</h3>
+        <div className="bg-muted rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-foreground mb-4">Cost by Category</h3>
           <div className="space-y-3">
             {data.byCategory.map(cat => (
               <div key={cat.category}>
@@ -759,8 +759,8 @@ const CostAnalysisReport: React.FC = () => {
         </div>
 
         {/* Cost by Supplier */}
-        <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Cost by Supplier</h3>
+        <div className="bg-muted rounded-lg p-4">
+          <h3 className="text-sm font-semibold text-foreground mb-4">Cost by Supplier</h3>
           <div className="space-y-2 max-h-80 overflow-auto">
             {data.bySupplier.map((supplier, idx) => (
               <div key={supplier.supplier_id || idx} className="flex items-center justify-between p-3 bg-white dark:bg-gray-700 rounded-lg">
@@ -788,8 +788,8 @@ const CostAnalysisReport: React.FC = () => {
       </div>
 
       {/* Category Details Table */}
-      <div className="bg-gray-50 dark:bg-gray-800 rounded-lg p-4">
-        <h3 className="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-4">Category Details</h3>
+      <div className="bg-muted rounded-lg p-4">
+        <h3 className="text-sm font-semibold text-foreground mb-4">Category Details</h3>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
@@ -844,7 +844,7 @@ const StatCard: React.FC<{
   };
 
   return (
-    <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+    <div className="p-4 bg-muted rounded-lg">
       <div className="flex items-center gap-3 mb-2">
         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${colorClasses[color]}`}>
           {/* TODO: Convert icon prop to use HugeiconsIcon component */}

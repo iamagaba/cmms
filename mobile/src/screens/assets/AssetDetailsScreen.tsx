@@ -1,18 +1,18 @@
 import React from 'react';
-import {View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert} from 'react-native';
-import {RouteProp, useRoute, useNavigation} from '@react-navigation/native';
-import {Card, Icon, Badge, Button, Divider} from 'react-native-elements';
-import {ScreenWrapper, LoadingSpinner, ErrorState} from '@/components/common';
-import {useAssetDetails, useAssetMaintenanceHistory} from '@/hooks/useAssets';
-import {AssetsStackParams} from '@/types';
-import {theme} from '@/theme/theme';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { RouteProp, useRoute, useNavigation } from '@react-navigation/native';
+import { Card, Icon, Badge, Button, Divider } from 'react-native-elements';
+import { ScreenWrapper, LoadingSpinner, ErrorState } from '@/components/common';
+import { useAssetDetails, useAssetMaintenanceHistory } from '@/hooks/useAssets';
+import { AssetsStackParams } from '@/types';
+import { theme } from '@/theme/theme';
 
 type AssetDetailsScreenRouteProp = RouteProp<AssetsStackParams, 'AssetDetails'>;
 
 export const AssetDetailsScreen: React.FC = () => {
   const route = useRoute<AssetDetailsScreenRouteProp>();
   const navigation = useNavigation();
-  const {assetId} = route.params;
+  const { assetId } = route.params;
 
   const {
     data: asset,
@@ -114,7 +114,7 @@ export const AssetDetailsScreen: React.FC = () => {
               </View>
               <Badge
                 value={getStatusText()}
-                badgeStyle={[styles.statusBadge, {backgroundColor: getStatusColor()}]}
+                badgeStyle={[styles.statusBadge, { backgroundColor: getStatusColor() }]}
                 textStyle={styles.statusText}
               />
             </View>
@@ -207,8 +207,8 @@ export const AssetDetailsScreen: React.FC = () => {
                       'Call Owner',
                       `Call ${asset.customers?.name} at ${asset.customers?.phone}?`,
                       [
-                        {text: 'Cancel', style: 'cancel'},
-                        {text: 'Call', onPress: () => {/* Implement phone call */}},
+                        { text: 'Cancel', style: 'cancel' },
+                        { text: 'Call', onPress: () => {/* Implement phone call */ } },
                       ]
                     );
                   }}
@@ -238,7 +238,7 @@ export const AssetDetailsScreen: React.FC = () => {
               />
             )}
           </View>
-          
+
           {historyError ? (
             <Text style={styles.errorText}>Failed to load maintenance history</Text>
           ) : maintenanceHistory.length === 0 ? (
@@ -268,8 +268,8 @@ export const AssetDetailsScreen: React.FC = () => {
                             workOrder.status === 'Completed'
                               ? theme.colors.success
                               : workOrder.status === 'In Progress'
-                              ? theme.colors.warning
-                              : theme.colors.grey3,
+                                ? theme.colors.warning
+                                : theme.colors.grey3,
                         },
                       ]}
                       textStyle={styles.historyStatusText}

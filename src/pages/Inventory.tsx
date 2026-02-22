@@ -11,6 +11,7 @@ import { snakeToCamelCase, camelToSnakeCase } from '@/utils/data-helpers';
 import { showSuccess, showError } from '@/utils/toast';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -311,7 +312,7 @@ const InventoryPage: React.FC = () => {
     return (
       <div className="flex h-screen w-full bg-background overflow-hidden">
         {/* List Column */}
-        <div className="w-80 flex-none border-r border-border bg-muted flex flex-col">
+        <div className="w-80 flex-none border-r border-border bg-muted dark:bg-background flex flex-col">
           <div className="p-4 border-b border-border">
             <Skeleton className="h-6 mb-2" />
             <Skeleton className="h-4 w-3/4" />
@@ -369,7 +370,7 @@ const InventoryPage: React.FC = () => {
   return (
     <div className="flex h-screen w-full bg-background overflow-hidden">
       {/* List Column - Inventory List */}
-      <div className="w-80 flex-none border-r border-border bg-muted flex flex-col">
+      <div className="w-80 flex-none border-r border-border bg-muted dark:bg-background flex flex-col">
         {/* Header with Stat Ribbon */}
         <div className="border-b border-border">
           {/* Page Header */}
@@ -399,7 +400,7 @@ const InventoryPage: React.FC = () => {
                 type="text"
                 placeholder="Search inventory..."
                 aria-label="Search inventory"
-                className="w-full pl-10 pr-4 py-1.5 text-xs border border-input rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                className="w-full pl-10 pr-4 py-1.5 text-xs border border-input rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -577,14 +578,11 @@ const InventoryPage: React.FC = () => {
                 return (
                   <div
                     key={item.id}
-                    className={`group relative cursor-pointer p-3 border-l-2 transition-all hover:bg-slate-50 dark:hover:bg-slate-800 ${isSelected ? 'bg-background border-l-primary shadow-sm' : 'border-l-transparent'}`}
+                    className={`group relative cursor-pointer p-3 transition-all hover:bg-muted ${isSelected ? 'bg-background shadow-sm' : ''}`}
                     onClick={() => handleSelectItem(item)}
                   >
                     <div className="flex items-center justify-between mb-1.5">
                       <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-md bg-primary/10 flex items-center justify-center">
-                          <Archive className="w-5 h-5 text-primary" />
-                        </div>
                         <div>
                           <p className="text-xs font-semibold text-foreground">
                             {item.name || 'Unnamed Item'}
@@ -615,40 +613,6 @@ const InventoryPage: React.FC = () => {
                       <span>{formatQuantityWithUnit(qty, item.unit_of_measure, item.units_per_package)}</span>
                       <span>UGX {(item.unitPrice ?? item.unit_price ?? 0).toLocaleString()}</span>
                     </div>
-
-                    {/* Quick Actions - Show on hover */}
-                    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1 bg-card rounded-md shadow-lg border border-border p-1">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleQuickAdjust(item);
-                        }}
-                        className="p-1 hover:bg-muted rounded transition-colors"
-                        title="Adjust Stock"
-                      >
-                        <PlusCircle className="w-4 h-4 text-muted-foreground" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleEdit(item);
-                        }}
-                        className="p-1.5 hover:bg-muted rounded-md transition-colors"
-                        title="Edit"
-                      >
-                        <Edit className="w-4 h-4 text-muted-foreground" />
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteClick(item);
-                        }}
-                        className="p-1.5 hover:bg-destructive/10 rounded-md transition-colors"
-                        title="Delete"
-                      >
-                        <Trash2 className="w-4 h-4 text-destructive" />
-                      </button>
-                    </div>
                   </div>
                 );
               })}
@@ -674,21 +638,32 @@ const InventoryPage: React.FC = () => {
                     {selectedItem.sku || 'No SKU'}
                   </p>
                 </div>
-                <div className="flex items-center gap-2 pointer-events-auto">
-                  <button
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => handleQuickAdjust(selectedItem)}
-                    className="inline-flex items-center justify-center h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors border border-border"
                     title="Adjust Stock"
                   >
                     <PlusCircle className="w-4 h-4" />
-                  </button>
-                  <button
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     onClick={() => handleEdit(selectedItem)}
-                    className="inline-flex items-center justify-center h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted rounded-md transition-colors border border-border"
                     title="Edit Item"
                   >
                     <Edit className="w-4 h-4" />
-                  </button>
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleDeleteClick(selectedItem)}
+                    title="Delete Item"
+                    className="hover:text-destructive"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
                 </div>
               </div>
             </div>
@@ -738,7 +713,7 @@ const InventoryPage: React.FC = () => {
                       {/* On Hand - Primary Metric */}
                       <div className="col-span-1 bg-card rounded-lg p-5 border border-border shadow-sm">
                         <span className="block text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">On Hand</span>
-                        <div className="flex items-baseline gap-1 mb-3">
+                        <div className="flex items-baseline gap-1">
                           <span className="text-3xl font-bold text-foreground">
                             {(selectedItem.quantityOnHand ?? selectedItem.quantity_on_hand ?? 0).toLocaleString()}
                           </span>
@@ -746,40 +721,6 @@ const InventoryPage: React.FC = () => {
                             {UNIT_OF_MEASURE_LABELS[selectedItem.unitOfMeasure ?? selectedItem.unit_of_measure ?? 'each'] ?? 'Units'}
                           </span>
                         </div>
-                        {/* Stock Level Progress Bar */}
-                        {(() => {
-                          const qty = selectedItem.quantityOnHand ?? selectedItem.quantity_on_hand ?? 0;
-                          const reorderLvl = selectedItem.reorderLevel ?? selectedItem.reorder_level ?? 0;
-                          const maxStock = reorderLvl * 3 || 100; // Assume max is 3x reorder level
-                          const percentage = Math.min((qty / maxStock) * 100, 100);
-                          const isLow = qty <= reorderLvl && qty > 0;
-                          const isOut = qty === 0;
-
-                          return (
-                            <div className="space-y-1.5">
-                              <div className="w-full bg-muted rounded-full h-2 overflow-hidden">
-                                <div
-                                  className={`h-full rounded-full transition-all duration-300 ${isOut ? 'bg-rose-500' :
-                                    isLow ? 'bg-amber-500' :
-                                      'bg-emerald-500'
-                                    }`}
-                                  style={{ width: `${percentage}%` }}
-                                />
-                              </div>
-                              <div className="flex justify-between text-xs">
-                                <span className="text-muted-foreground">
-                                  Reorder: {reorderLvl}
-                                </span>
-                                <span className={`font-medium ${isOut ? 'text-rose-600 dark:text-rose-400' :
-                                  isLow ? 'text-amber-600 dark:text-amber-400' :
-                                    'text-emerald-600 dark:text-emerald-400'
-                                  }`}>
-                                  {percentage.toFixed(0)}%
-                                </span>
-                              </div>
-                            </div>
-                          );
-                        })()}
                       </div>
 
                       {/* Value & Price - Secondary Metrics */}

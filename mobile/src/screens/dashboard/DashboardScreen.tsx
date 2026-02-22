@@ -1,11 +1,11 @@
-import React, {useState, useCallback} from 'react';
-import {StyleSheet, RefreshControl, ScrollView} from 'react-native';
-import {Title, Paragraph} from 'react-native-paper';
-import {useNavigation} from '@react-navigation/native';
+import React, { useState, useCallback } from 'react';
+import { StyleSheet, RefreshControl, ScrollView } from 'react-native';
+import { Title, Paragraph } from 'react-native-paper';
+import { useNavigation } from '@react-navigation/native';
 
-import {ScreenWrapper} from '@/components/common';
-import {DashboardStats, QuickActions, RecentWorkOrders} from '@/components/dashboard';
-import {MobileWorkOrder} from '@/types';
+import { ScreenWrapper } from '@/components/common';
+import { DashboardStats, QuickActions, RecentWorkOrders } from '@/components/dashboard';
+import { MobileWorkOrder } from '@/types';
 
 export const DashboardScreen: React.FC = () => {
   const navigation = useNavigation();
@@ -23,14 +23,14 @@ export const DashboardScreen: React.FC = () => {
   const handleWorkOrderPress = (workOrder: MobileWorkOrder) => {
     navigation.navigate('WorkOrders' as never, {
       screen: 'WorkOrderDetails',
-      params: {workOrderId: workOrder.id},
+      params: { workOrderId: workOrder.id },
     } as never);
   };
 
   const handleQRScan = () => {
     navigation.navigate('Assets' as never, {
       screen: 'QRScanner',
-      params: {type: 'asset'},
+      params: { type: 'asset' },
     } as never);
   };
 

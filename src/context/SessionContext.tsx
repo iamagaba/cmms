@@ -133,10 +133,7 @@ export const SessionProvider = ({ children }: { children: ReactNode }) => {
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <Stack align="center" gap="md">
-          <Loader size="lg" />
-          <Text c="dimmed">Loading session...</Text>
-        </Stack>
+        <Loader size="lg" />
       </div>
     );
   }

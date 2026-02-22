@@ -5,7 +5,8 @@ import {
     AlertCircle,
     ChevronUp,
     Menu,
-    ChevronDown
+    ChevronDown,
+    ClipboardCheck
 } from 'lucide-react';
 
 // Enhanced status and priority configurations
@@ -13,7 +14,7 @@ export const STATUS_CONFIG = {
     'New': { color: 'slate', icon: Clock, label: 'New' },
     'Confirmation': { color: 'blue', icon: Clock, label: 'Confirmation' },
     'In Progress': { color: 'orange', icon: Clock, label: 'In Progress' },
-    'Ready': { color: 'indigo', icon: CheckCircle, label: 'Ready' },
+    'Ready': { color: 'indigo', icon: ClipboardCheck, label: 'Ready' },
     'Completed': { color: 'green', icon: CheckCircle, label: 'Completed' },
     'On Hold': { color: 'yellow', icon: Pause, label: 'On Hold' },
     'Cancelled': { color: 'red', icon: AlertCircle, label: 'Cancelled' },

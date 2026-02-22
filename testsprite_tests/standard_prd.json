@@ -1,0 +1,264 @@
+{
+  "meta": {
+    "project": "Professional CMMS & Field Service Platform",
+    "date": "2026-02-06",
+    "prepared_by": "Senior Product Manager"
+  },
+  "product_overview": "A comprehensive field service and maintenance management platform designed as an intelligent, real-time orchestration system for assets, technicians, and work orders, providing proactive maintenance, smart automation, and seamless communication for field service teams.",
+  "core_goals": [
+    "Maximize technician utilization by reducing travel and idle time through smart scheduling and optimized routing.",
+    "Ensure zero missed SLAs with proactive at-risk warnings and automated escalation workflows.",
+    "Provide complete asset lifecycle visibility with tracking from procurement to disposal and total cost of ownership insights.",
+    "Enable seamless communication and real-time collaboration between back-office and field staff with integrated chat and messaging."
+  ],
+  "key_features": [
+    "Mission Control Dashboard with KPI cards, real-time activity feed, technician availability heatmaps, and performance visualizations.",
+    "Intelligent Work Order Management including sortable list, map, and timeline views with automated status tracking and priority management.",
+    "Automation Engine featuring rule-based intelligent work order auto-assignment and SLA monitoring with alerts and escalations.",
+    "Asset & Inventory Management supporting QR code scanning, hierarchical asset organization, downtime tracking, multi-warehouse inventory, and stock alerts.",
+    "Air Traffic Control Live Monitor designed for operational centers with a high-contrast, dark mode optimized display showing urgent and active work items.",
+    "Integrated Communications with internal team chat and WhatsApp automation for customer notifications and interactions.",
+    "Technician Management including profiles, availability scheduling, skill tracking, and performance monitoring.",
+    "Scheduling & Calendar with appointment booking, drag-and-drop rescheduling, and conflict detection.",
+    "Map & Location Services with interactive maps, technician location markers, and optimized routing for efficient travel.",
+    "Real-time Notifications for work order updates, SLA alerts, and system events.",
+    "Reports & Analytics providing customer experience insights, SLA compliance, cost analysis, and custom report generation.",
+    "Audit Logs maintaining an immutable trail of system actions and user activities.",
+    "Offline Support as a Progressive Web App allowing offline data access and background sync.",
+    "Search & Filters enabling advanced multi-criteria searches across work orders, assets, and inventory.",
+    "User Interface built with shadcn/ui components ensuring responsive, accessible, and modern UX.",
+    "Security features including JWT authentication, row-level security, role-based permissions, and secure API access."
+  ],
+  "user_flow_summary": [
+    "User logs in via secure authentication and is redirected immediately to their personalized dashboard based on role.",
+    "Dispatchers monitor work order statuses in real-time through list, map, and timeline views, and can create or update work orders using a wizard-style form.",
+    "Automation engine evaluates new work orders and assigns technicians automatically based on location, skills, availability, and workload.",
+    "Technicians receive their assigned tasks with clear priorities and locations, use offline mode when necessary, and update statuses via the mobile-friendly interface.",
+    "Inventory and assets are managed by scanning QR codes, updating maintenance history, and tracking stock levels with alerts for reordering.",
+    "Scheduling is handled via an interactive calendar allowing appointment creation, drag-and-drop rescheduling, and conflict detection.",
+    "Operations managers and directors review comprehensive reports and KPIs through customizable dashboards and live monitoring screens.",
+    "All user actions and system events are logged immutably for audit and compliance purposes."
+  ],
+  "validation_criteria": [
+    "Dashboard loads in under 1.5 seconds with real-time data rendering for up to 500+ map markers without lag.",
+    "Auto-assignment algorithm processes work order assignments within 100 milliseconds.",
+    "SLA monitoring detects and alerts on at-risk and breached work orders with automated escalation workflows functioning correctly.",
+    "Role-based access control correctly restricts data access at row-level in accordance with user permissions.",
+    "Offline support maintains data consistency with robust background synchronization and conflict resolution.",
+    "UI components comply with accessibility standards and provide responsive, consumer-grade experience across devices.",
+    "Real-time notifications are delivered reliably for critical system events, work order updates, and SLA alerts.",
+    "Audit logs capture a comprehensive, immutable history of system and user actions.",
+    "Inventory low-stock alerts trigger timely reorder notifications and reflect accurate stock adjustments.",
+    "Scheduling conflicts are detected and prevented in the calendar module.",
+    "Map-based routing optimizes technician travel routes to minimize time and distance."
+  ],
+  "code_summary": {
+    "tech_stack": [
+      "TypeScript",
+      "React 18.3",
+      "Vite",
+      "Supabase",
+      "PostgreSQL",
+      "Tailwind CSS",
+      "shadcn/ui",
+      "React Query",
+      "React Router",
+      "Mapbox GL",
+      "Recharts"
+    ],
+    "features": [
+      {
+        "name": "Authentication & Authorization",
+        "description": "User authentication with Supabase, JWT tokens, session management, role-based access control (Admin, Dispatcher, Technician, Customer), and row-level security. Now includes immediate navigation after successful login.",
+        "files": [
+          "src/pages/Login.tsx",
+          "src/context/SessionContext.tsx",
+          "src/integrations/supabase/client.ts",
+          "src/hooks/usePermissions.ts"
+        ]
+      },
+      {
+        "name": "Mission Control Dashboard",
+        "description": "Real-time overview dashboard with KPIs, active work orders, technician status, SLA monitoring, and performance metrics",
+        "files": [
+          "src/pages/Dashboard.tsx",
+          "src/components/dashboard/StatsCards.tsx",
+          "src/components/dashboard/ActivityFeed.tsx",
+          "src/components/dashboard/PerformanceCharts.tsx"
+        ]
+      },
+      {
+        "name": "Work Order Management",
+        "description": "Complete CRUD operations for work orders including creation, assignment, status updates, priority management, SLA tracking, and timeline visualization",
+        "files": [
+          "src/pages/WorkOrders.tsx",
+          "src/pages/WorkOrderDetail.tsx",
+          "src/components/workorders/WorkOrderForm.tsx",
+          "src/components/workorders/WorkOrderTimeline.tsx",
+          "src/components/workorders/SLAIndicator.tsx"
+        ]
+      },
+      {
+        "name": "Asset Management",
+        "description": "Asset tracking with QR code scanning, hierarchical organization, maintenance history, downtime tracking, and asset search",
+        "files": [
+          "src/pages/Assets.tsx",
+          "src/pages/AssetDetail.tsx",
+          "src/components/assets/AssetForm.tsx",
+          "src/components/assets/AssetHierarchy.tsx",
+          "src/components/assets/QRScanner.tsx"
+        ]
+      },
+      {
+        "name": "Inventory Management",
+        "description": "Parts inventory with stock tracking, adjustments, transfers, usage history, low stock alerts, and reorder management",
+        "files": [
+          "src/pages/Inventory.tsx",
+          "src/pages/InventoryDetail.tsx",
+          "src/components/inventory/InventoryForm.tsx",
+          "src/components/inventory/StockAdjustment.tsx",
+          "src/components/inventory/UsageHistory.tsx"
+        ]
+      },
+      {
+        "name": "Technician Management",
+        "description": "Technician profiles, availability scheduling, shift management, skill tracking, and performance monitoring",
+        "files": [
+          "src/pages/Technicians.tsx",
+          "src/pages/TechnicianDetail.tsx",
+          "src/components/technicians/TechnicianForm.tsx",
+          "src/components/technicians/AvailabilityCalendar.tsx",
+          "src/components/technicians/SkillsMatrix.tsx"
+        ]
+      },
+      {
+        "name": "Scheduling & Calendar",
+        "description": "Appointment scheduling, calendar views, drag-and-drop rescheduling, and conflict detection",
+        "files": [
+          "src/pages/Schedule.tsx",
+          "src/components/schedule/CalendarView.tsx",
+          "src/components/schedule/AppointmentForm.tsx",
+          "src/components/schedule/TimeSlotPicker.tsx"
+        ]
+      },
+      {
+        "name": "Map & Location Services",
+        "description": "Interactive maps with work order markers, technician locations, route optimization, and distance calculations",
+        "files": [
+          "src/pages/Map.tsx",
+          "src/components/map/MapView.tsx",
+          "src/components/map/WorkOrderMarker.tsx",
+          "src/components/map/RouteOptimizer.tsx"
+        ]
+      },
+      {
+        "name": "Real-time Notifications",
+        "description": "In-app notifications for work order updates, SLA alerts, assignment changes, and system events",
+        "files": [
+          "src/components/notifications/NotificationCenter.tsx",
+          "src/components/notifications/NotificationBadge.tsx",
+          "src/hooks/useNotifications.ts"
+        ]
+      },
+      {
+        "name": "Reports & Analytics",
+        "description": "Customer experience reports, performance metrics, SLA compliance, cost analysis, and custom report generation",
+        "files": [
+          "src/pages/Reports.tsx",
+          "src/components/reports/ReportBuilder.tsx",
+          "src/components/reports/PerformanceMetrics.tsx",
+          "src/components/reports/SLAReport.tsx"
+        ]
+      },
+      {
+        "name": "Audit Logs",
+        "description": "Immutable audit trail capturing all system actions, user activities, and automated processes",
+        "files": [
+          "src/pages/AuditLogs.tsx",
+          "src/components/audit/AuditLogViewer.tsx",
+          "src/hooks/useAuditLog.ts"
+        ]
+      },
+      {
+        "name": "Automated Assignment",
+        "description": "Intelligent work order assignment based on technician location, availability, skills, and workload",
+        "files": [
+          "src/services/assignmentEngine.ts",
+          "src/components/workorders/AutoAssignButton.tsx"
+        ]
+      },
+      {
+        "name": "SLA Monitoring",
+        "description": "Real-time SLA tracking, at-risk detection, breach alerts, and automated escalation workflows",
+        "files": [
+          "src/services/slaMonitor.ts",
+          "src/components/workorders/SLATimer.tsx",
+          "src/components/dashboard/SLAAlerts.tsx"
+        ]
+      },
+      {
+        "name": "Offline Support",
+        "description": "Progressive Web App with offline data access, background sync, and conflict resolution",
+        "files": [
+          "src/services/offlineSync.ts",
+          "src/hooks/useOfflineStatus.ts",
+          "src/components/common/OfflineIndicator.tsx"
+        ]
+      },
+      {
+        "name": "Search & Filters",
+        "description": "Advanced search across work orders, assets, and inventory with multi-criteria filtering",
+        "files": [
+          "src/components/common/SearchBar.tsx",
+          "src/components/common/FilterPanel.tsx",
+          "src/hooks/useSearch.ts"
+        ]
+      },
+      {
+        "name": "Route Optimization",
+        "description": "Optimized routing for technicians to minimize travel time and maximize efficiency",
+        "files": [
+          "src/services/routeOptimizer.ts",
+          "src/components/map/OptimizedRoute.tsx"
+        ]
+      },
+      {
+        "name": "Stock Alerts",
+        "description": "Automated alerts when inventory levels fall below thresholds with reorder suggestions",
+        "files": [
+          "src/services/stockAlerts.ts",
+          "src/components/inventory/LowStockAlert.tsx"
+        ]
+      },
+      {
+        "name": "User Interface",
+        "description": "Consumer-grade UI with shadcn/ui components, responsive design, accessibility compliance, and modern UX patterns",
+        "files": [
+          "src/components/ui/button.tsx",
+          "src/components/ui/card.tsx",
+          "src/components/ui/dialog.tsx",
+          "src/components/ui/table.tsx",
+          "src/components/layout/Sidebar.tsx",
+          "src/components/layout/Header.tsx"
+        ]
+      },
+      {
+        "name": "Data Tables",
+        "description": "Advanced data tables with sorting, filtering, pagination, column visibility, and export functionality",
+        "files": [
+          "src/components/ui/EnhancedDataTable.tsx",
+          "src/hooks/useDataTable.ts"
+        ]
+      },
+      {
+        "name": "Security",
+        "description": "JWT authentication, row-level security (RLS), role-based permissions, and secure API access",
+        "files": [
+          "src/integrations/supabase/client.ts",
+          "src/hooks/usePermissions.ts",
+          "src/middleware/auth.ts"
+        ]
+      }
+    ]
+  }
+}

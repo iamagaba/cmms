@@ -74,6 +74,20 @@ export type Customer = {
   updated_at: string;
 };
 
+export type Profile = {
+  id: string;
+  full_name?: string | null;
+  fullName?: string | null; // camelCase alias
+  email?: string | null;
+  avatar_url?: string | null;
+  avatarUrl?: string | null; // camelCase alias
+  is_admin?: boolean | null;
+  isAdmin?: boolean | null; // camelCase alias
+  role?: string | null;
+  updated_at: string;
+  updatedAt?: string; // camelCase alias
+};
+
 
 export type Technician = {
   id: string;
@@ -124,13 +138,29 @@ export type WorkOrder = {
   work_started_at?: string | null;
   created_at: string;
   updated_at: string;
+  title?: string | null;
+  initial_diagnosis?: string | null;
+  initialDiagnosis?: string | null; // Alias for camelCase
+  fault_code?: string | null;
+  faultCode?: string | null; // Alias for camelCase
+  maintenance_notes?: string | null;
+  maintenanceNotes?: string | null; // Alias for camelCase
+  locationId?: string | null; // Alias for camelCase
+  customerId?: string | null; // Alias for camelCase
+  vehicleId?: string | null; // Alias for camelCase
+  onHoldReason?: string | null; // Alias for camelCase
+  confirmationCallNotes?: string | null; // Alias for camelCase
+  confirmationCallAt?: string | null; // Alias for camelCase
+  confirmationCallBy?: string | null; // Alias for camelCase
+  confirmationCallCompleted?: boolean | null; // Alias for camelcase
+  confirmationStatusEnteredAt?: string | null; // Alias for camelCase
+  completedAt?: string | null; // Alias for camelCase
+  createdAt?: string; // Alias for camelCase
+  updatedAt?: string; // Alias for camelCase
+  dueDate?: string | null; // Alias for camelCase (sla_due)
+  description?: string | null; // Alias for camelCase (service_notes)
   technician?: Technician;
   customer?: any;
-  confirmation_call_completed?: boolean | null;
-  confirmation_call_notes?: string | null;
-  confirmation_call_by?: string | null;
-  confirmation_call_at?: string | null;
-  confirmation_status_entered_at?: string | null;
   vehicle?: any;
 };
 

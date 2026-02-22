@@ -37,7 +37,7 @@ export const AssetFilterBar = ({
     ];
 
     return (
-        <div className="bg-white/85 backdrop-blur-md backdrop-saturate-150 shadow-sm rounded-lg border border-border px-3 py-2 mb-3 sticky top-2 z-20">
+        <div className="bg-card/85 backdrop-blur-md backdrop-saturate-150 shadow-sm rounded-lg border border-border px-3 py-2 mb-3 sticky top-2 z-20">
             <TableFiltersBar
                 searchValue={searchTerm}
                 onSearchChange={setSearchTerm}

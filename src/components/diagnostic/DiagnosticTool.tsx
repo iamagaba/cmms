@@ -144,7 +144,7 @@ export const DiagnosticTool: React.FC<DiagnosticToolProps> = ({
       ...session,
       answers,
       completedAt: new Date().toISOString(),
-      finalCategory: lastOption?.category || session.finalCategory || 'other',
+      finalCategory: lastOption?.category || session.finalCategory || 'Other',
       finalSubcategory: lastOption?.subcategory || session.finalSubcategory || 'unknown',
       solutionFound: solutionAttempted,
       solutionText: solutionOption?.solutionText,

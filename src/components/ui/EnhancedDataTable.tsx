@@ -378,8 +378,8 @@ const DensityControl: React.FC<DensityControlProps> = ({ density, onDensityChang
                 }}
                 className={cn(
                   'w-full px-4 py-2 text-left text-sm flex items-center gap-3',
-                  'hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors',
-                  density === option.value && 'bg-teal-50 dark:bg-teal-900/20 text-foreground font-medium'
+                  'hover:bg-muted transition-colors',
+                  density === option.value && 'bg-primary/10 text-foreground font-medium'
                 )}
               >
                 <Icon icon={option.icon} className="w-4 h-4" />

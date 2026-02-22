@@ -44,6 +44,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
+import { WorkOrdersSkeleton } from "@/components/skeletons/WorkOrdersSkeleton";
 
 import { useDisclosure, useMediaQuery } from '@/hooks/tailwind';
 import { EnhancedWorkOrderDataTable } from "@/components/EnhancedWorkOrderDataTable";
@@ -51,6 +52,7 @@ import { REQUIRED_COLUMNS, OPTIONAL_COLUMNS, ALL_COLUMNS } from "@/components/wo
 import { WorkOrderDetailsDrawer } from "@/components/WorkOrderDetailsDrawer";
 import { CreateWorkOrderForm } from "@/components/work-orders/CreateWorkOrderForm";
 import { DeleteConfirmationDialog } from "@/components/DeleteConfirmationDialog";
+import { WorkOrderStatusBar } from "@/components/work-orders/WorkOrderStatusBar";
 
 
 // Utility functions
@@ -63,6 +65,7 @@ import isBetween from 'dayjs/plugin/isBetween';
 import {
   useWorkOrderData,
 } from "@/hooks/useWorkOrderData";
+import { useWorkOrderSearch } from "@/hooks/useWorkOrderSearch";
 import { useWorkOrderMutations } from "@/hooks/useWorkOrderMutations";
 import { useWorkOrderFilters } from "@/hooks/useWorkOrderFilters";
 import { useSearchHistory } from "@/hooks/useSearchHistory";
@@ -78,9 +81,21 @@ import { supabase } from "@/integrations/supabase/client";
 // import WorkOrderProgressTimeline from "@/components/WorkOrderProgressTimeline";
 import { WorkOrderTimeline, useWorkOrderTimeline } from "@/components/work-order-timeline";
 
-const WorkOrderTimelineWrapper = ({ workOrders, onWorkOrderClick, isLoading }: { workOrders: WorkOrder[], onWorkOrderClick: (wo: any) => void, isLoading?: boolean }) => {
-  const timelineData = useWorkOrderTimeline(workOrders);
-  return <WorkOrderTimeline workOrders={timelineData} onWorkOrderClick={onWorkOrderClick} className="h-full" isLoading={isLoading} />;
+const WorkOrderTimelineWrapper = ({ workOrders, vehicles, onWorkOrderClick, isLoading }: { workOrders: WorkOrder[], vehicles?: any[], onWorkOrderClick: (wo: any) => void, isLoading?: boolean }) => {
+  // Shared currentTime state - ensures hook and component use the same time reference
+  const [currentTime, setCurrentTime] = useState(new Date());
+
+  // Update currentTime every second for accurate synchronization
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000); // Update every second for accuracy
+    return () => clearInterval(timer);
+  }, []);
+
+  // Pass currentTime to the hook so bar positions match the "Now" line
+  const timelineData = useWorkOrderTimeline(workOrders, vehicles, currentTime);
+  return <WorkOrderTimeline workOrders={timelineData} onWorkOrderClick={onWorkOrderClick} className="h-full" isLoading={isLoading} externalCurrentTime={currentTime} />;
 };
 
 dayjs.extend(isBetween);
@@ -151,7 +166,19 @@ const FilterMultiSelect = ({ label, value, onChange, options, placeholder, class
   );
 };
 
-const WorkOrdersPage = () => {
+interface WorkOrdersPageProps {
+  readOnly?: boolean;
+}
+
+const WorkOrdersPage: React.FC<WorkOrdersPageProps> = ({ readOnly = false }) => {
+  // Feature flag for scalable search (can be controlled via localStorage or environment variable)
+  const [useScalableSearch, setUseScalableSearch] = useState(() => {
+    // Check localStorage for feature flag
+    const stored = localStorage.getItem('useScalableSearch');
+    // Default to true for new users, or respect stored preference
+    return stored !== null ? stored === 'true' : true;
+  });
+
   // Component state
   const [view, setView] = useState<WorkOrderView>('table');
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -179,6 +206,10 @@ const WorkOrdersPage = () => {
 
   const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 300);
 
+  // Pagination state for scalable search
+  const [page, setPage] = useState(0);
+  const [pageSize] = useState(25);
+
   // Handler to open the new work order form dialog
   const onCreateNew = () => {
     setIsCreateModalOpen(true);
@@ -191,7 +222,7 @@ const WorkOrdersPage = () => {
   // Required columns are always included
   const [visibleColumns, setVisibleColumns] = useState<string[]>(() => {
     const saved = localStorage.getItem('workOrderVisibleColumns');
-    const defaultOptional = ['service', 'priority', 'technician'];
+    const defaultOptional = ['priority', 'technician', 'createdAt'];
     if (saved) {
       const parsed = JSON.parse(saved).filter((col: string) => col !== 'actions');
       // Ensure required columns are always included
@@ -201,13 +232,30 @@ const WorkOrdersPage = () => {
     return [...REQUIRED_COLUMNS, ...defaultOptional];
   });
 
+  // Column order state
+  const [columnOrder, setColumnOrder] = useState<string[]>(() => {
+    const saved = localStorage.getItem('workOrderColumnOrder');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    return OPTIONAL_COLUMNS.map(col => col.value);
+  });
+
   // Column selector menu state
   const [columnMenuOpened, setColumnMenuOpened] = useState(false);
+
+  // Drag state
+  const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
 
   // Save visible columns to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('workOrderVisibleColumns', JSON.stringify(visibleColumns));
   }, [visibleColumns]);
+
+  // Save column order to localStorage
+  useEffect(() => {
+    localStorage.setItem('workOrderColumnOrder', JSON.stringify(columnOrder));
+  }, [columnOrder]);
 
   // Toggle column visibility (only for optional columns)
   const toggleColumn = (columnValue: string) => {
@@ -230,10 +278,43 @@ const WorkOrdersPage = () => {
     });
   };
 
+  // Handle drag start
+  const handleDragStart = (e: React.DragEvent, columnValue: string) => {
+    setDraggedColumn(columnValue);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  // Handle drag over
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  // Handle drop
+  const handleDrop = (e: React.DragEvent, targetColumn: string) => {
+    e.preventDefault();
+    if (!draggedColumn || draggedColumn === targetColumn) return;
+
+    setColumnOrder(prev => {
+      const newOrder = [...prev];
+      const draggedIndex = newOrder.indexOf(draggedColumn);
+      const targetIndex = newOrder.indexOf(targetColumn);
+
+      // Remove dragged item and insert at target position
+      newOrder.splice(draggedIndex, 1);
+      newOrder.splice(targetIndex, 0, draggedColumn);
+
+      return newOrder;
+    });
+
+    setDraggedColumn(null);
+  };
+
   // Reset columns to default
   const resetColumnsToDefault = () => {
-    const defaultOptional = ['service', 'priority', 'technician'];
+    const defaultOptional = ['priority', 'technician', 'createdAt'];
     setVisibleColumns([...REQUIRED_COLUMNS, ...defaultOptional]);
+    setColumnOrder(OPTIONAL_COLUMNS.map(col => col.value));
     setColumnMenuOpened(false);
   };
 
@@ -251,6 +332,23 @@ const WorkOrdersPage = () => {
     error,
     refetch: refetchWorkOrders
   } = useWorkOrderData();
+
+  // Server-side search hook (scalable approach)
+  const {
+    data: searchResult,
+    isLoading: isSearching,
+    error: searchError,
+    refetch: refetchSearch
+  } = useWorkOrderSearch({
+    searchQuery: useScalableSearch ? debouncedSearchQuery : '',
+    statusFilter: useScalableSearch ? statusFilter : [],
+    priorityFilter: useScalableSearch ? priorityFilter : [],
+    technicianFilter: useScalableSearch ? technicianFilter : [],
+    locationFilter: useScalableSearch ? locationFilter : [],
+    page: useScalableSearch ? page : 0,
+    pageSize: useScalableSearch ? pageSize : 50,
+    enabled: useScalableSearch,
+  });
 
   // Fetch active emergency bike assignments
   const { data: emergencyBikeAssignments } = useQuery({
@@ -284,7 +382,18 @@ const WorkOrdersPage = () => {
   const { add: addToSearchHistory } = useSearchHistory();
 
   // Enhanced filtering and search
+  // ⚠️ SCALABILITY WARNING: This client-side filtering approach will not scale beyond ~10k records
+  // For production use with large datasets, see:
+  // - SCALABILITY_SOLUTION_SUMMARY.md
+  // - src/hooks/useWorkOrderSearch.ts (server-side search)
+  // - src/pages/WorkOrdersScalable.tsx (scalable implementation)
   const processedWorkOrders = useMemo(() => {
+    // Use server-side search results if enabled
+    if (useScalableSearch && searchResult) {
+      return searchResult.workOrders;
+    }
+
+    // Fall back to client-side filtering (legacy approach)
     let filtered = filteredWorkOrders || [];
 
     // Advanced search filter
@@ -329,7 +438,7 @@ const WorkOrdersPage = () => {
     }
 
     return filtered;
-  }, [filteredWorkOrders, debouncedSearchQuery, statusFilter, priorityFilter, technicianFilter, locationFilter, vehicles, customers, technicians, locations]);
+  }, [useScalableSearch, searchResult, filteredWorkOrders, debouncedSearchQuery, statusFilter, priorityFilter, technicianFilter, locationFilter, vehicles, customers, technicians, locations]);
 
 
 
@@ -339,6 +448,13 @@ const WorkOrdersPage = () => {
       addToSearchHistory(vehicleFilter.trim(), processedWorkOrders.length);
     }
   }, [vehicleFilter, processedWorkOrders?.length, addToSearchHistory]);
+
+  // Reset to page 0 when filters change (for scalable search)
+  useEffect(() => {
+    if (useScalableSearch) {
+      setPage(0);
+    }
+  }, [useScalableSearch, debouncedSearchQuery, statusFilter, priorityFilter, technicianFilter, locationFilter]);
 
   // Saved preset filter: All vs Active Loaners
   const [preset] = useState<'all' | 'active-loaners'>('all');
@@ -374,8 +490,12 @@ const WorkOrdersPage = () => {
           title: 'Work Orders Deleted',
         });
       }
-      // Manually refresh data to update UI since Realtime doesn't sync with mutation invalidation automatically
-      await refetch();
+      // Manually refresh data to update UI
+      if (useScalableSearch) {
+        await refetchSearch();
+      } else {
+        await refetchWorkOrders();
+      }
 
       setDeleteDialogOpen(false);
       setWorkOrderToDelete(null);
@@ -464,7 +584,25 @@ const WorkOrdersPage = () => {
     setTechnicianFilter([]);
     setLocationFilter([]);
     setVehicleFilter(''); // Clear the existing vehicle filter too
+    setPage(0); // Reset pagination
   }, [setVehicleFilter]);
+
+  // Pagination handlers for scalable search
+  const handleNextPage = () => {
+    if (useScalableSearch && searchResult?.hasMore) {
+      setPage(prev => prev + 1);
+    }
+  };
+
+  const handlePrevPage = () => {
+    if (useScalableSearch && page > 0) {
+      setPage(prev => prev - 1);
+    }
+  };
+
+  const totalCount = useScalableSearch ? (searchResult?.totalCount || 0) : processedWorkOrders.length;
+  const totalPages = Math.ceil(totalCount / pageSize);
+  const currentPageDisplay = page + 1;
 
   const hasActiveFilters = searchQuery || statusFilter.length > 0 || priorityFilter.length > 0 ||
     technicianFilter.length > 0 || locationFilter.length > 0;
@@ -503,7 +641,8 @@ const WorkOrdersPage = () => {
 
 
 
-  if (error) {
+  if (error || (useScalableSearch && searchError)) {
+    const displayError = error || searchError;
     return (
       <div className="w-full px-4 py-4 bg-background min-h-screen">
         <Card className="max-w-md mx-auto">
@@ -513,9 +652,9 @@ const WorkOrdersPage = () => {
             </div>
             <CardTitle className="text-base mb-2">Error Loading Work Orders</CardTitle>
             <CardDescription className="mb-3 max-w-md text-xs">
-              {(error as any).message || 'An unexpected error occurred while loading work orders.'}
+              {(displayError as any).message || 'An unexpected error occurred while loading work orders.'}
             </CardDescription>
-            <Button onClick={() => refetch()} className="gap-1.5 h-8 text-xs">
+            <Button onClick={() => useScalableSearch ? refetchSearch() : refetchWorkOrders()} className="gap-1.5 h-8 text-xs">
               <RefreshCw className="w-4 h-4" />
               <span>Try Again</span>
             </Button>
@@ -525,47 +664,8 @@ const WorkOrdersPage = () => {
     );
   }
 
-  if (isLoading) {
-    return (
-      <div className="w-full px-4 py-4 bg-background min-h-screen">
-        <div className="flex flex-col gap-4">
-          {/* Header Skeleton */}
-          <div className="flex justify-between items-start">
-            <div>
-              <Skeleton className="h-6 w-40" />
-              <Skeleton className="h-3 w-56 mt-1" />
-            </div>
-            <div className="flex gap-1.5">
-              <Skeleton className="h-7 w-20" />
-              <Skeleton className="h-7 w-28" />
-            </div>
-          </div>
-
-          {/* Search Skeleton */}
-          <div className="bg-card border border-border rounded-lg p-3">
-            <Skeleton className="h-8 rounded-lg" />
-          </div>
-
-          {/* Table Skeleton */}
-          <div className="bg-card border border-border rounded-lg overflow-hidden">
-            <div className="p-3 border-b border-border">
-              <Skeleton className="h-6 w-40" />
-            </div>
-            <div className="divide-y divide-border">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="p-3 flex items-center gap-3">
-                  <Skeleton className="h-8 w-1" />
-                  <Skeleton className="h-3 w-20" />
-                  <Skeleton className="h-3 w-40 flex-1" />
-                  <Skeleton className="h-5 w-16" />
-                  <Skeleton className="h-3 w-12" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+  if (isLoading || (useScalableSearch && isSearching && page === 0)) {
+    return <WorkOrdersSkeleton />;
   }
 
   return (
@@ -619,7 +719,7 @@ const WorkOrdersPage = () => {
                   </div>
                   <Input
                     type="text"
-                    placeholder="Search..."
+                    placeholder="Search by license plate, work order, technician..."
                     aria-label="Search work orders"
                     className="w-full pl-7 pr-7 text-sm"
                     value={searchQuery}
@@ -638,16 +738,84 @@ const WorkOrdersPage = () => {
                 </div>
               )}
 
+              {view === 'table' && !readOnly && (
+                <Button onClick={onCreateNew} size="sm" className="gap-1.5 h-7 text-xs ml-auto">
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>{isMobile ? 'New' : 'Create'}</span>
+                </Button>
+              )}
+            </div>
 
+            {/* Search and Columns Row - Only show in table view */}
 
-              {/* Columns Menu */}
+          </div>
+
+          {/* Status Bar - Visual summary of work order distribution */}
+          {view === 'table' && (
+            <div className="mx-4">
+              <WorkOrderStatusBar workOrders={allWorkOrders || []} />
+            </div>
+          )}
+
+          {/* Quick Status Tabs with Pagination and Column Selector */}
+          <div className="mx-4 mt-2 border-b border-border flex items-center justify-between gap-2">
+            <div className="flex-1 min-w-0 flex items-center gap-3 overflow-x-auto scrollbar-none">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setStatusFilter([])}
+                className={`pb-2 h-auto text-sm font-medium whitespace-nowrap transition-colors relative border-b-2 rounded-none ${statusFilter.length === 0
+                  ? 'text-primary border-primary'
+                  : 'text-muted-foreground hover:text-foreground border-transparent'
+                  }`}
+              >
+                <span>All</span>
+                <span className={`ml-0.5 px-1.5 py-0.5 rounded-lg text-xs font-semibold ${statusFilter.length === 0 ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                  {allWorkOrders?.length || 0}
+                </span>
+              </Button>
+              {['New', 'Confirmation', 'Ready', 'In Progress', 'Completed', 'On Hold'].map((status) => {
+                const isActive = statusFilter.length === 1 && statusFilter[0] === status;
+                const count = allWorkOrders?.filter(wo => wo.status === status).length || 0;
+                return (
+                  <Button
+                    key={status}
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setStatusFilter([status])}
+                    className={`pb-2 h-auto text-sm font-medium whitespace-nowrap transition-colors relative border-b-2 rounded-none ${isActive
+                      ? 'text-primary border-primary'
+                      : 'text-muted-foreground hover:text-foreground border-transparent'
+                      }`}
+                  >
+                    <span>{status}</span>
+                    <span className={`ml-0.5 px-1.5 py-0.5 rounded-lg text-xs font-semibold ${isActive ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
+                      {count}
+                    </span>
+                  </Button>
+                );
+              })}
+            </div>
+
+            {/* Right side controls: Clear filters, Column Selector, Pagination */}
+            <div className="flex items-center gap-2 pb-2">
+              {(statusFilter.length > 0 || priorityFilter.length > 0 || technicianFilter.length > 0 || locationFilter.length > 0 || searchQuery) && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={clearAllFilters}
+                  className="text-xs text-muted-foreground hover:text-foreground underline whitespace-nowrap h-auto"
+                >
+                  Clear all
+                </Button>
+              )}
+
+              {/* Column Selector - Icon Only */}
               {view === 'table' && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="outline" size="sm" className="gap-1.5 h-7 text-xs">
-                      <Settings className="w-3.5 h-3.5" />
-                      <span>Columns</span>
-                      <ChevronDown className="w-3.5 h-3.5" />
+                    <Button variant="outline" size="sm" className="h-7 w-7 p-0">
+                      <Columns className="w-3.5 h-3.5" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-64" align="end">
@@ -666,67 +834,38 @@ const WorkOrdersPage = () => {
                       </div>
                     </div>
 
-                    {/* Required Columns Section */}
+                    {/* Optional Columns Section */}
                     <div className="px-2 py-2">
-                      <div className="flex items-center gap-1.5 px-2 py-1">
-                        <Lock className="w-3 h-3 text-muted-foreground" />
-                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Required</span>
-                      </div>
-                      <div className="space-y-0.5">
-                        {REQUIRED_COLUMNS.map((colValue) => {
-                          const col = ALL_COLUMNS.find(c => c.value === colValue);
+                      <div className="max-h-48 overflow-y-auto space-y-0.5">
+                        {columnOrder.map((colValue) => {
+                          const col = OPTIONAL_COLUMNS.find(c => c.value === colValue);
                           if (!col) return null;
+
+                          const isChecked = visibleColumns.includes(col.value);
+                          const isDisabled = !isChecked && visibleColumns.length >= MAX_VISIBLE_COLUMNS;
+                          const isDragging = draggedColumn === col.value;
+
                           return (
                             <div
                               key={col.value}
-                              className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-muted/30"
-                            >
-                              <div className="h-3.5 w-3.5 rounded border-2 border-muted-foreground/30 bg-muted flex items-center justify-center">
-                                <Check className="w-2.5 h-2.5 text-muted-foreground" />
-                              </div>
-                              <span className="text-xs text-muted-foreground">{col.label}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <DropdownMenuSeparator />
-
-                    {/* Optional Columns Section */}
-                    <div className="px-2 py-2">
-                      <div className="flex items-center gap-1.5 px-2 py-1">
-                        <LayoutGrid className="w-3 h-3 text-muted-foreground" />
-                        <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">Optional</span>
-                      </div>
-                      <div className="max-h-48 overflow-y-auto space-y-0.5">
-                        {OPTIONAL_COLUMNS.map((col) => {
-                          const isChecked = visibleColumns.includes(col.value);
-                          const isDisabled = !isChecked && visibleColumns.length >= MAX_VISIBLE_COLUMNS;
-
-                          return (
-                            <DropdownMenuItem
-                              key={col.value}
-                              className={`flex items-center gap-2 cursor-pointer px-2 py-1.5 rounded-md ${isChecked ? 'bg-primary/5' : ''
-                                } ${isDisabled ? 'opacity-40 cursor-not-allowed' : ''}`}
-                              disabled={isDisabled}
-                              onSelect={(e) => {
+                              draggable
+                              onDragStart={(e) => handleDragStart(e, col.value)}
+                              onDragOver={handleDragOver}
+                              onDrop={(e) => handleDrop(e, col.value)}
+                              className={`flex items-center gap-2 cursor-move px-2 py-1.5 rounded-md transition-all ${isChecked ? 'bg-muted/30' : ''
+                                } ${isDisabled ? 'opacity-40' : ''} ${isDragging ? 'opacity-50' : ''
+                                }`}
+                              onClick={(e) => {
                                 e.preventDefault();
                                 if (!isDisabled) toggleColumn(col.value);
                               }}
                             >
-                              <Checkbox
-                                checked={isChecked}
-                                disabled={isDisabled}
-                                className="h-3.5 w-3.5"
-                              />
-                              <span className={`text-xs flex-1 ${isChecked ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
-                                {col.label}
-                              </span>
-                              {isChecked && (
-                                <Check className="w-3 h-3 text-primary" />
-                              )}
-                            </DropdownMenuItem>
+                              <Menu className="w-3 h-3 text-muted-foreground/50 flex-shrink-0" />
+                              <div className="h-3.5 w-3.5 rounded border-2 border-muted-foreground/30 bg-muted flex items-center justify-center flex-shrink-0">
+                                {isChecked && <Check className="w-2.5 h-2.5 text-muted-foreground" strokeWidth={2} />}
+                              </div>
+                              <span className="text-xs text-muted-foreground flex-1">{col.label}</span>
+                            </div>
                           );
                         })}
                       </div>
@@ -749,71 +888,36 @@ const WorkOrdersPage = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
               )}
-              {view === 'table' && (
-                <Button onClick={onCreateNew} size="sm" className="gap-1.5 h-7 text-xs ml-auto">
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>{isMobile ? 'New' : 'Create'}</span>
-                </Button>
+
+              {/* Pagination Controls */}
+              {view === 'table' && useScalableSearch && (
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handlePrevPage}
+                    disabled={page === 0 || isSearching}
+                    className="gap-1 h-7 text-xs"
+                  >
+                    <ChevronUp className="w-3.5 h-3.5 rotate-[-90deg]" />
+                    Prev
+                  </Button>
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">
+                    Page {currentPageDisplay} of {totalPages || 1}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleNextPage}
+                    disabled={!searchResult?.hasMore || isSearching}
+                    className="gap-1 h-7 text-xs"
+                  >
+                    Next
+                    <ChevronDown className="w-3.5 h-3.5 rotate-[-90deg]" />
+                  </Button>
+                </div>
               )}
             </div>
-
-            {/* Search and Columns Row - Only show in table view */}
-
-          </div>
-
-
-
-
-
-          {/* Quick Status Tabs */}
-          <div className="mx-4 mt-2 border-b border-border flex items-center justify-between gap-2">
-            <div className="flex-1 min-w-0 flex items-center gap-3 overflow-x-auto scrollbar-none">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setStatusFilter([])}
-                className={`pb-2 h-auto text-xs font-medium whitespace-nowrap transition-colors relative border-b-2 rounded-none ${statusFilter.length === 0
-                  ? 'text-primary border-primary'
-                  : 'text-muted-foreground hover:text-foreground border-transparent'
-                  }`}
-              >
-                <span>All</span>
-                <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold ${statusFilter.length === 0 ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
-                  {processedWorkOrders.length}
-                </span>
-              </Button>
-              {['New', 'Ready', 'In Progress', 'Completed', 'On Hold'].map((status) => {
-                const isActive = statusFilter.length === 1 && statusFilter[0] === status;
-                const count = allWorkOrders?.filter(wo => wo.status === status).length || 0;
-                return (
-                  <Button
-                    key={status}
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setStatusFilter([status])}
-                    className={`pb-2 h-auto text-xs font-medium whitespace-nowrap transition-colors relative border-b-2 rounded-none ${isActive
-                      ? 'text-primary border-primary'
-                      : 'text-muted-foreground hover:text-foreground border-transparent'
-                      }`}
-                  >
-                    <span>{status}</span>
-                    <span className={`ml-1 px-1.5 py-0.5 rounded-full text-[10px] font-semibold ${isActive ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'}`}>
-                      {count}
-                    </span>
-                  </Button>
-                );
-              })}
-            </div>
-            {(statusFilter.length > 0 || priorityFilter.length > 0 || technicianFilter.length > 0 || locationFilter.length > 0 || searchQuery) && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={clearAllFilters}
-                className="text-xs text-muted-foreground hover:text-foreground underline whitespace-nowrap ml-auto pb-2 h-auto"
-              >
-                Clear all
-              </Button>
-            )}
           </div>
 
           {/* Bulk Actions Bar */}
@@ -910,7 +1014,8 @@ const WorkOrdersPage = () => {
               {/* Content Area - No overflow here, let children handle it */}
               <div className="flex-1 min-h-0 px-4 overscroll-y-contain flex flex-col">
                 {view === 'table' && (
-                  <div className="flex-1 min-h-0 flex flex-col">
+                  <div className="flex-1 min-h-0 flex flex-col gap-2">
+                    {/* Table */}
                     <EnhancedWorkOrderDataTable
                       workOrders={preset === 'active-loaners' ? processedWorkOrders.filter(wo => (wo as any).hasActiveLoaner ?? (wo as any).has_active_loaner) : processedWorkOrders}
                       technicians={technicians}
@@ -923,8 +1028,8 @@ const WorkOrdersPage = () => {
                       onDelete={handleDeleteClick}
                       onUpdateWorkOrder={handleUpdateWorkOrder}
                       onViewDetails={handleViewDetails}
-                      loading={isLoading}
                       visibleColumns={visibleColumns}
+                      columnOrder={columnOrder}
                       emergencyBikeAssignments={emergencyBikeAssignments}
                     />
                   </div>
@@ -944,6 +1049,7 @@ const WorkOrdersPage = () => {
                   <div className="flex-1 overflow-hidden flex flex-col min-h-0">
                     <WorkOrderTimelineWrapper
                       workOrders={processedWorkOrders}
+                      vehicles={vehicles}
                       onWorkOrderClick={(wo) => handleViewDetails(wo.id)}
                       isLoading={isLoading}
                     />
@@ -970,14 +1076,18 @@ const WorkOrdersPage = () => {
 
           {/* Work Order Details Drawer */}
           <WorkOrderDetailsDrawer
-            open={!!drawerWorkOrderId}
+            open={!!drawerWorkOrderId && isDrawerOpenRef.current}
             onClose={() => {
-              refetchWorkOrders();
               setDrawerWorkOrderId(null);
               isDrawerOpenRef.current = false;
             }}
             workOrderId={drawerWorkOrderId}
-            onWorkOrderChange={(id) => setDrawerWorkOrderId(id)}
+            readOnly={readOnly}
+            onWorkOrderChange={(id) => {
+              // If ID changes (e.g. via Related History), update the drawer ID
+              // We need to close and reopen to trigger proper data fetching if using 'enabled'
+              setDrawerWorkOrderId(id);
+            }}
           />
 
           {/* Create Work Order Form Modal */}

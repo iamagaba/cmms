@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, Package, ChevronUp, ChevronDown, Trash2, Clock, CheckCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { WorkOrder, WorkOrderPart } from '@/types/supabase';
 
 interface WorkOrderCostSummaryCardProps {
@@ -53,21 +54,36 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
   const formatCurrency = (amount: number) => `UGX ${amount.toLocaleString()}`;
   const formatHours = (hours: number) => hours < 1 ? `${Math.round(hours * 60)}m` : `${hours.toFixed(1)}h`;
 
+  const canAddParts = workOrder.status === 'In Progress' || workOrder.status === 'Completed';
+  const addPartTooltip = canAddParts 
+    ? 'Add parts to this work order' 
+    : 'Parts can only be added when work order is In Progress or Completed';
+
   return (
     <div className="bg-white border border-border rounded-lg overflow-hidden shadow-sm">
       <div className="flex flex-col h-full">
         {setIsAddPartDialogOpen && (
-          <div className="px-4 py-3 border-b border-border flex items-center justify-between bg-slate-50/50">
+          <div className="px-4 py-3 border-b border-border flex items-center justify-between bg-muted/50">
             <h3 className="font-semibold text-sm text-foreground">Parts & Cost</h3>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setIsAddPartDialogOpen(true)}
-              className="h-7 text-xs"
-            >
-              <Plus className="w-3.5 h-3.5 mr-1.5" />
-              Add Part
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsAddPartDialogOpen(true)}
+                    disabled={!canAddParts}
+                    className="h-7 text-xs"
+                  >
+                    <Plus className="w-3.5 h-3.5 mr-1.5" />
+                    Add Part
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>{addPartTooltip}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
         )}
 
@@ -164,7 +180,7 @@ export const WorkOrderCostSummaryCard: React.FC<WorkOrderCostSummaryCardProps> =
         </div>
 
         {/* Total Footer */}
-        <div className="bg-slate-50 border-t border-border px-4 py-3 mt-auto">
+        <div className="bg-muted border-t border-border px-4 py-3 mt-auto">
           {estimatedHours > 0 && actualLaborHours === 0 && (
             <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
               <span>Estimated Total</span>

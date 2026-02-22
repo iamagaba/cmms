@@ -1,4 +1,4 @@
-import { X } from 'lucide-react';
+import { X, Menu } from 'lucide-react';
 
 import React from 'react';
 
@@ -50,7 +50,7 @@ export const DashboardWidgetWrapper = React.forwardRef<HTMLDivElement, Dashboard
                                     <X className="w-5 h-5" />
                                 </button>
                                 <div className="cursor-grab active:cursor-grabbing p-1 text-neutral-400">
-                                    <Menu01Icon className="w-4 h-4" />
+                                    <Menu className="w-4 h-4" />
                                 </div>
                             </div>
                         )}

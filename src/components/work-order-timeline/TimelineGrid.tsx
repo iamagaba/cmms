@@ -95,7 +95,7 @@ export const TimelineGrid: React.FC<TimelineGridProps> = ({
                 });
             }
         } else {
-            // Month view - show exactly 30 days
+            // Month view - show exactly 30 days using percentage-based layout
             let current = start.startOf('day');
             const daysToShow = 30;
             const dayWidthPercent = 100 / daysToShow;
@@ -111,39 +111,39 @@ export const TimelineGrid: React.FC<TimelineGridProps> = ({
             }
         }
         return blocks;
-    }, [viewMode, dateRange]);
+    }, [viewMode, dateRange, totalWidthPx]);
 
     return (
-        <div className="flex-1 bg-slate-50 border-l border-slate-200 relative min-w-0">
+        <div className="flex-1 bg-muted border-l border-border relative min-w-0">
             <div style={{ width: totalWidthPx ? `${totalWidthPx}px` : '100%', position: 'relative' }}>
 
                 {/* Time Scale Axis Header */}
-                <div className="sticky top-0 z-[60] bg-white border-b border-slate-200 shadow-sm">
+                <div className="sticky top-0 z-[60] bg-background border-b border-border shadow-sm">
                     {/* Top Row: Date Range Header (for all views) */}
-                    <div className="h-6 flex items-center bg-slate-50 border-b border-slate-100 relative">
+                    <div className="h-6 flex items-center bg-muted border-b border-border relative">
                         {viewMode === 'day' && (
-                            <div className="sticky left-0 px-4 py-1 text-xs font-bold text-slate-700 tracking-wide bg-slate-50/95 backdrop-blur-sm z-20 border-r border-slate-200">
+                            <div className="sticky left-0 px-4 py-1 text-xs font-bold text-foreground tracking-wide bg-muted/95 backdrop-blur-sm z-20 border-r border-border">
                                 {dayjs(dateRange.from).format('dddd, MMMM D, YYYY')}
                             </div>
                         )}
                         {viewMode === 'week' && (
-                            <div className="sticky left-0 px-4 py-1 text-xs font-bold text-slate-700 tracking-wide bg-slate-50/95 backdrop-blur-sm z-20 border-r border-slate-200">
+                            <div className="sticky left-0 px-4 py-1 text-xs font-bold text-foreground tracking-wide bg-muted/95 backdrop-blur-sm z-20 border-r border-border">
                                 {dayjs(dateRange.from).format('MMMM D')} - {dayjs(dateRange.to).format('MMMM D, YYYY')}
                             </div>
                         )}
                         {viewMode === 'month' && (
-                            <div className="sticky left-0 px-4 py-1 text-xs font-bold text-slate-700 tracking-wide bg-slate-50/95 backdrop-blur-sm z-20 border-r border-slate-200">
+                            <div className="sticky left-0 px-4 py-1 text-xs font-bold text-foreground tracking-wide bg-muted/95 backdrop-blur-sm z-20 border-r border-border">
                                 {dayjs(dateRange.to).format('MMMM YYYY')}
                             </div>
                         )}
                     </div>
 
                     {/* Second Row: Day/Hour Labels */}
-                    <div className="h-6 flex items-center bg-slate-50 border-b border-slate-100 relative">
+                    <div className="h-6 flex items-center bg-muted border-b border-border relative">
                         {headerBlocks?.map((block, i) => (
                             <div
                                 key={i}
-                                className="absolute top-0 bottom-0 flex items-center justify-center text-[10px] font-bold text-slate-600 tracking-wide border-r border-slate-200 bg-slate-50"
+                                className="absolute top-0 bottom-0 flex items-center justify-center text-[10px] font-bold text-muted-foreground tracking-wide border-r border-border bg-muted"
                                 style={{ left: `${block.left}%`, width: `${block.width}%` }}
                             >
                                 {block.label}

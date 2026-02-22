@@ -22,6 +22,7 @@ import {
     TableRow,
 } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 // Define the shape of our data (EnhancedAsset effectively)
 export interface AssetTableItem extends Vehicle {
@@ -89,8 +90,8 @@ export const ModernAssetDataTable = ({
                 const name = customer ? `${customer.first_name || ''} ${customer.last_name || ''}`.trim() : '-';
                 return (
                     <div className="flex flex-col">
-                        <span className="text-sm font-medium text-gray-900">{name}</span>
-                        <span className="text-xs text-gray-500">Owner</span>
+                        <span className="text-sm font-medium text-foreground">{name}</span>
+                        <span className="text-xs text-muted-foreground">Owner</span>
                     </div>
                 );
             }
@@ -98,9 +99,9 @@ export const ModernAssetDataTable = ({
         columnHelper.accessor('location', {
             header: 'Location',
             cell: info => (
-                <div className="flex items-center gap-1.5 text-gray-700">
-                    <Location01Icon className="w-4 h-4 text-gray-400" />
-                    <span className="text-sm font-medium">{info.getValue()?.name || 'Unassigned'}</span>
+                <div className="flex items-center gap-1.5 text-muted-foreground">
+                    <Location01Icon className="w-4 h-4 text-muted-foreground" />
+                    <span className="text-sm font-medium text-foreground">{info.getValue()?.name || 'Unassigned'}</span>
                 </div>
             )
         }),
@@ -108,15 +109,19 @@ export const ModernAssetDataTable = ({
             header: 'Status',
             cell: info => {
                 const status = info.getValue() as string;
-                const statusColors: Record<string, string> = {
-                    'Normal': 'bg-emerald-50 text-emerald-700 border-emerald-300',
-                    'In Repair': 'bg-amber-50 text-amber-700 border-amber-300',
-                    'Decommissioned': 'bg-destructive/10 text-destructive border-destructive/30',
+                const statusVariant: Record<string, 'success' | 'warning' | 'destructive' | 'secondary'> = {
+                    'Normal': 'success',
+                    'In Repair': 'warning',
+                    'Decommissioned': 'destructive',
                 };
+
                 return (
-                    <span className={`inline-flex px-2 py-0.5 rounded-sm text-xs font-bold uppercase tracking-wide border ${statusColors[status] || 'bg-muted text-muted-foreground border-border'}`}>
+                    <Badge
+                        variant={statusVariant[status] || 'secondary'}
+                        className="text-xs font-semibold"
+                    >
                         {status || 'Normal'}
-                    </span>
+                    </Badge>
                 );
             },
         }),
@@ -158,8 +163,8 @@ export const ModernAssetDataTable = ({
                 const workOrderCount = workOrders?.filter(wo => wo.vehicle_id === vehicleId || wo.vehicleId === vehicleId).length || 0;
                 return (
                     <div className="flex items-center gap-1.5">
-                        <ClipboardList className="w-4 h-4 text-gray-400" />
-                        <span className="text-xs font-medium text-gray-700">{workOrderCount}</span>
+                        <ClipboardList className="w-4 h-4 text-muted-foreground" />
+                        <span className="text-xs font-medium text-foreground">{workOrderCount}</span>
                     </div>
                 );
             },
@@ -190,14 +195,14 @@ export const ModernAssetDataTable = ({
                                 <MoreVertical className="w-4 h-4" />
                             </button>
                             {isOpen && (
-                                <div className="absolute right-0 top-full mt-1 w-40 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+                                <div className="absolute right-0 top-full mt-1 w-40 bg-popover rounded-lg shadow-lg border border-border py-1 z-50">
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             onEdit(info.row.original);
                                             setOpenMenuId(null);
                                         }}
-                                        className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                        className="w-full px-3 py-2 text-left text-sm text-foreground hover:bg-accent flex items-center gap-2"
                                     >
                                         <Edit className="w-4 h-4" />
                                         Edit Asset
@@ -208,12 +213,12 @@ export const ModernAssetDataTable = ({
                                             onViewDetails(info.row.original.id);
                                             setOpenMenuId(null);
                                         }}
-                                        className="w-full px-3 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                                        className="w-full px-3 py-2 text-left text-sm text-foreground hover:bg-accent flex items-center gap-2"
                                     >
                                         <Eye className="w-4 h-4" />
                                         View Details
                                     </button>
-                                    <div className="border-t border-gray-200 my-1" />
+                                    <div className="border-t border-border my-1" />
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();

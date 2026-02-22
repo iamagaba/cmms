@@ -1,4 +1,4 @@
-import { AlertCircle, Info, Loader2, Plus, Search, Settings, X, PackageMinus } from 'lucide-react';
+import { AlertCircle, Info, Loader2, Plus, Search, Settings, X, PackageMinus, Package } from 'lucide-react';
 import React, { useState, useEffect, useMemo } from 'react';
 
 

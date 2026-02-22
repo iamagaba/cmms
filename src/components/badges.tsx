@@ -38,7 +38,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, size = 'md', c
     }
 
     return (
-        <Badge color={color} size={size} className={className}>
+        <Badge color={color} size={size} radius="full" className={className}>
             {children}
         </Badge>
     );

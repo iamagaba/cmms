@@ -13,17 +13,14 @@ interface WorkOrderPrintDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     workOrder: WorkOrder;
-    customerName?: string;
-    customerPhone?: string;
-    customerEmail?: string;
-    customerType?: string;
     vehicleMake?: string;
     vehicleModel?: string;
     vehicleYear?: number;
-    vehiclePlate?: string;
     vehicleVin?: string;
+    warrantyEndDate?: string | null;
     technicianName?: string;
     locationName?: string;
+    serviceName?: string;
     parts?: Array<{
         name: string;
         quantity: number;
@@ -35,7 +32,6 @@ interface WorkOrderPrintDialogProps {
         hours: number;
         rate: number;
     }>;
-    showPricing?: boolean;
 }
 
 export const WorkOrderPrintDialog: React.FC<WorkOrderPrintDialogProps> = ({
@@ -136,7 +132,7 @@ export const WorkOrderPrintDialog: React.FC<WorkOrderPrintDialogProps> = ({
                 {/* Print Preview */}
                 <div className="border rounded-lg overflow-hidden bg-white">
                     <div ref={printRef}>
-                        <PrintableWorkOrder workOrder={workOrder} {...printProps} />
+                        <PrintableWorkOrder workOrder={workOrder} serviceName={printProps.serviceName} {...printProps} />
                     </div>
                 </div>
             </DialogContent>

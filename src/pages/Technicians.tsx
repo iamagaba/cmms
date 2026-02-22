@@ -257,7 +257,7 @@ const TechniciansPage: React.FC = () => {
   if (isLoadingTechnicians) {
     return (
       <div className="flex h-screen w-full bg-background overflow-hidden">
-        <div className="w-80 flex-none border-r border-border bg-muted flex flex-col">
+        <div className="w-80 flex-none border-r border-border bg-muted dark:bg-background flex flex-col">
           <div className="p-4 border-b border-border">
             <Skeleton className="h-6 mb-2" />
             <Skeleton className="h-4 w-3/4" />
@@ -282,7 +282,7 @@ const TechniciansPage: React.FC = () => {
   return (
     <div className="flex h-screen w-full overflow-hidden">
       {/* Left Column - Technician List */}
-      <div className="w-full sm:w-80 flex-none flex flex-col bg-muted">
+      <div className="w-full sm:w-80 flex-none flex flex-col bg-muted dark:bg-background">
         {/* Header */}
         <div className="p-3 border-b">
           <div className="flex items-center justify-between mb-3">
@@ -313,7 +313,7 @@ const TechniciansPage: React.FC = () => {
                 type="text"
                 placeholder="Search technicians..."
                 aria-label="Search technicians"
-                className="w-full pl-10 pr-4 py-1.5 text-xs border border-input rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+                className="w-full pl-10 pr-4 py-1.5 text-xs border border-input rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -410,7 +410,7 @@ const TechniciansPage: React.FC = () => {
                 return (
                   <div
                     key={tech.id}
-                    className={`p-3 cursor-pointer border-l-2 transition-colors hover:bg-slate-50 ${isSelected
+                    className={`p-3 cursor-pointer border-l-2 transition-colors hover:bg-muted ${isSelected
                       ? 'bg-background border-l-primary shadow-sm'
                       : 'border-l-transparent'
                       }`}

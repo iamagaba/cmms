@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, Phone, Wrench, CheckCircle, AlertCircle } from 'lucide-react';
+import { FileText, Phone, Wrench, CheckCircle, AlertCircle, ClipboardCheck } from 'lucide-react';
 import { WorkOrder } from '@/types/supabase';
 import dayjs from 'dayjs';
 
@@ -16,7 +16,7 @@ interface WorkOrderStepperProps {
 const STEPS = [
   { key: 'New', label: 'New', icon: FileText },
   { key: 'Confirmation', label: 'Confirmation', icon: Phone },
-  { key: 'Ready', label: 'Ready', icon: Wrench },
+  { key: 'Ready', label: 'Ready', icon: ClipboardCheck },
   { key: 'In Progress', label: 'In Progress', icon: Wrench },
   { key: 'Completed', label: 'Completed', icon: CheckCircle },
 ];
@@ -237,8 +237,8 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
                   }}
                 >
                   <div className="flex items-center gap-1">
-                    <div className={`w-5 h-5 rounded-full flex items-center justify-center relative transition-colors duration-200 ${showAsCurrent ? 'bg-primary ripple-animation' :
-                      showAsCompleted ? 'bg-emerald-500' :
+                    <div className={`w-5 h-5 rounded-full flex items-center justify-center relative transition-colors duration-200 ${showAsCurrent ? 'bg-teal-500 ripple-animation' :
+                      showAsCompleted ? 'bg-teal-500' :
                         'bg-gray-300'
                       }`}>
                       {showAsCompleted ? (
@@ -250,8 +250,8 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
                         <div className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full border border-white animate-pulse" />
                       )}
                     </div>
-                    <span className={`text-xs font-medium transition-colors duration-200 ${showAsCurrent ? 'text-primary' :
-                      showAsCompleted ? 'text-emerald-600' :
+                    <span className={`text-xs font-medium transition-colors duration-200 ${showAsCurrent ? 'text-teal-600' :
+                      showAsCompleted ? 'text-teal-600' :
                         'text-gray-400'
                       }`}>
                       {step.label}
@@ -284,7 +284,7 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
                 </div>
                 {
                   index < STEPS.length - 1 && (
-                    <div className={`w-4 h-0.5 flex-shrink-0 step-connector ${isCompleted ? 'bg-emerald-500' : 'bg-gray-200'
+                    <div className={`w-4 h-px flex-shrink-0 step-connector ${isCompleted ? 'bg-teal-500' : 'bg-gray-200'
                       }`} />
                   )
                 }
@@ -299,7 +299,7 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
   return (
     <>
       <style>{rippleStyles}</style>
-      <div className="bg-white border border-gray-200 shadow-md px-3 py-3">
+      <div className="bg-white px-3 py-3">
         {/* Horizontal Stepper - Compact */}
         <div className="flex items-start justify-between gap-1">
           {STEPS.map((step, index) => {
@@ -335,8 +335,8 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
                     }
                   }}
                 >
-                  <div className={`w-8 h-8 rounded-full flex items-center justify-center relative transition-colors duration-200 ${showAsCurrent ? 'bg-primary ripple-animation' :
-                    showAsCompleted ? 'bg-emerald-500' :
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center relative transition-colors duration-200 ${showAsCurrent ? 'bg-teal-500 ripple-animation' :
+                    showAsCompleted ? 'bg-teal-500' :
                       'bg-gray-300'
                     }`}>
                     {showAsCompleted ? (
@@ -348,8 +348,8 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
                       <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full border border-white animate-pulse" />
                     )}
                   </div>
-                  <span className={`text-xs mt-1 font-medium text-center transition-colors duration-200 leading-tight ${showAsCurrent ? 'text-primary' :
-                    showAsCompleted ? 'text-emerald-600' :
+                  <span className={`text-xs mt-1 font-medium text-center transition-colors duration-200 leading-tight ${showAsCurrent ? 'text-teal-600' :
+                    showAsCompleted ? 'text-teal-600' :
                       'text-gray-400'
                     }`}>
                     {step.label}
@@ -383,7 +383,7 @@ const WorkOrderStepper: React.FC<WorkOrderStepperProps> = ({ workOrder, compact 
                 </div>
                 {
                   !isLast && (
-                    <div className={`flex-1 h-0.5 mt-3 mx-1 step-connector ${isCompleted ? 'bg-emerald-500' : 'bg-gray-200'
+                    <div className={`flex-1 h-0.5 mt-3 mx-1 step-connector ${isCompleted ? 'bg-teal-500' : 'bg-gray-200'
                       }`} />
                   )
                 }

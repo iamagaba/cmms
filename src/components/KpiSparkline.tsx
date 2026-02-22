@@ -1,5 +1,6 @@
 import React from 'react';
-import { ResponsiveContainer, LineChart, Line, Tooltip as RechartsTooltip, AreaChart, Area, BarChart, Bar } from 'recharts';
+import { LineChart } from '@mui/x-charts/LineChart';
+import { BarChart } from '@mui/x-charts/BarChart';
 
 interface KpiSparklineProps {
   variant: 'line' | 'area' | 'bar';
@@ -21,77 +22,90 @@ const KpiSparkline: React.FC<KpiSparklineProps> = ({
   title,
   effectiveSparklineColor,
 }) => {
-  // Render appropriate recharts visualization depending on variant
+  // Render appropriate MUI X Charts visualization depending on variant
   if (variant === 'line' && validSparklineData.length > 0) {
     return (
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={validSparklineData} margin={{ top: 6, right: 4, left: 4, bottom: 0 }}>
-          {showSparklineTooltip && (
-            <RechartsTooltip
-              cursor={false}
-              formatter={(val: any) => [typeof val === 'number' ? val.toFixed(precision) : val, title]}
-              contentStyle={{ background: '#fff', border: `1px solid #eee`, padding: '4px 8px' }}
-            />
-          )}
-          <Line
-            type="monotone"
-            dataKey="value"
-            stroke={effectiveSparklineColor}
-            strokeWidth={1.75}
-            dot={false}
-            isAnimationActive={true}
-            strokeLinejoin="round"
-            strokeLinecap="round"
-          />
-        </LineChart>
-      </ResponsiveContainer>
+      <LineChart
+        xAxis={[{ 
+          data: validSparklineData.map((_, i) => i),
+          hideTooltip: !showSparklineTooltip,
+          disableLine: true,
+          disableTicks: true
+        }]}
+        series={[{
+          data: validSparklineData.map(d => d.value),
+          color: effectiveSparklineColor,
+          showMark: false,
+          curve: 'monotoneX',
+          label: title
+        }]}
+        height={60}
+        margin={{ top: 6, right: 4, left: 4, bottom: 0 }}
+        slotProps={{
+          legend: { hidden: true }
+        }}
+        sx={{
+          '& .MuiChartsAxis-root': { display: 'none' },
+          '& .MuiChartsGrid-root': { display: 'none' }
+        }}
+      />
     );
   }
 
   if (variant === 'area' && validSparklineData.length > 0) {
     return (
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart data={validSparklineData} margin={{ top: 6, right: 4, left: 4, bottom: 0 }}>
-          <defs>
-            <linearGradient id={`areaGradient-${title.replace(/\s/g, '')}`} x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={effectiveSparklineColor} stopOpacity={0.12} />
-              <stop offset="95%" stopColor={effectiveSparklineColor} stopOpacity={0.02} />
-            </linearGradient>
-          </defs>
-          {showSparklineTooltip && (
-            <RechartsTooltip
-              cursor={false}
-              formatter={(val: any) => [typeof val === 'number' ? val.toFixed(precision) : val, title]}
-              contentStyle={{ background: '#fff', border: `1px solid #eee`, padding: '4px 8px' }}
-            />
-          )}
-          <Area
-            type="monotone"
-            dataKey="value"
-            stroke={effectiveSparklineColor}
-            strokeWidth={1.5}
-            fill={`url(#areaGradient-${title.replace(/\s/g, '')})`}
-            isAnimationActive={true}
-          />
-        </AreaChart>
-      </ResponsiveContainer>
+      <LineChart
+        xAxis={[{ 
+          data: validSparklineData.map((_, i) => i),
+          hideTooltip: !showSparklineTooltip,
+          disableLine: true,
+          disableTicks: true
+        }]}
+        series={[{
+          data: validSparklineData.map(d => d.value),
+          color: effectiveSparklineColor,
+          showMark: false,
+          curve: 'monotoneX',
+          area: true,
+          label: title
+        }]}
+        height={60}
+        margin={{ top: 6, right: 4, left: 4, bottom: 0 }}
+        slotProps={{
+          legend: { hidden: true }
+        }}
+        sx={{
+          '& .MuiChartsAxis-root': { display: 'none' },
+          '& .MuiChartsGrid-root': { display: 'none' }
+        }}
+      />
     );
   }
 
   if (variant === 'bar' && comparisonBarData.length > 0) {
     return (
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={comparisonBarData} margin={{ top: 6, right: 4, left: 4, bottom: 0 }}>
-          {showSparklineTooltip && (
-            <RechartsTooltip
-              cursor={false}
-              formatter={(val: any) => [typeof val === 'number' ? val.toFixed(precision) : val]}
-              contentStyle={{ background: '#fff', border: `1px solid #eee`, padding: '4px 8px' }}
-            />
-          )}
-          <Bar dataKey="value" radius={[2, 2, 0, 0]} isAnimationActive={true} />
-        </BarChart>
-      </ResponsiveContainer>
+      <BarChart
+        xAxis={[{ 
+          data: comparisonBarData.map(d => d.name),
+          scaleType: 'band',
+          hideTooltip: !showSparklineTooltip,
+          disableLine: true,
+          disableTicks: true
+        }]}
+        series={[{
+          data: comparisonBarData.map(d => d.value),
+          color: effectiveSparklineColor
+        }]}
+        height={60}
+        margin={{ top: 6, right: 4, left: 4, bottom: 0 }}
+        slotProps={{
+          legend: { hidden: true }
+        }}
+        sx={{
+          '& .MuiChartsAxis-root': { display: 'none' },
+          '& .MuiChartsGrid-root': { display: 'none' }
+        }}
+      />
     );
   }
 

@@ -18,6 +18,8 @@ import { LineChart } from '@mui/x-charts/LineChart';
 import { PieChart } from '@mui/x-charts/PieChart';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { calculateStatusSLA, formatDuration } from '@/utils/slaCalculations';
+import { SLA_CONFIG } from '@/config/slaConfig';
 
 // Chart colors (Muted Industrial)
 const CHART_COLORS = {
@@ -33,12 +35,14 @@ interface CustomerExperienceReportProps {
     workOrders: WorkOrder[];
     startDate: string;
     endDate: string;
+    serviceCategories?: Array<{ id: string; name: string; label: string }>;
 }
 
 export const CustomerExperienceReport: React.FC<CustomerExperienceReportProps> = ({
     workOrders,
     startDate,
     endDate,
+    serviceCategories = [],
 }) => {
     // ---------------------------------------------------------------------------
     // 1. KPI Calculations
@@ -188,21 +192,24 @@ export const CustomerExperienceReport: React.FC<CustomerExperienceReportProps> =
         const breachesByService: Record<string, number> = {};
 
         workOrders.forEach(wo => {
-            if (wo.status?.toLowerCase() === 'completed' && wo.sla_due && wo.completed_at) {
-                const completedAt = dayjs(wo.completed_at);
-                const dueAt = dayjs(wo.sla_due);
-                if (completedAt.isAfter(dueAt)) {
-                    const service = wo.service_type || 'Unspecified'; // Assuming field is service_type or service
-                    // The type def says `service`: string | null, and existing code used `service` or `service_type` (need to check type again).
-                    // Type definition says `service`. Existing code in Reports.tsx used `service_type` (line 597: `wo.service_type || 'Unknown'`). 
-                    // I should verify if `service_type` exists on `WorkOrder` or if it was mapped/extended. 
-                    // `supabase.ts` shows `service?: string`. I will use `service`.
-                    // Actually `supabase.ts` line 104 `service?: string | null`. 
-                    // But `Reports.tsx` line 597 uses `wo.service_type`. 
-                    // Let's assume `service` for now based on strict type, or check if existing code casts it.
-                    const s = (wo as any).service_type || wo.service || 'General';
-                    breachesByService[s] = (breachesByService[s] || 0) + 1;
+            // Check ALL work orders (not just completed ones)
+            // Use the SLA calculation utility to determine if this work order breached SLA
+            const slaStats = calculateStatusSLA(wo);
+            
+            // Check if SLA was breached - status can be 'breached' or 'overdue'
+            if (slaStats && (slaStats.status === 'breached' || slaStats.status === 'overdue')) {
+                const serviceId = (wo as any).service_type || wo.service;
+                
+                // Map service UUID to service name
+                let serviceName = 'General';
+                if (serviceId && serviceCategories.length > 0) {
+                    const category = serviceCategories.find(cat => cat.id === serviceId);
+                    serviceName = category?.label || category?.name || serviceId;
+                } else if (serviceId) {
+                    serviceName = serviceId;
                 }
+                
+                breachesByService[serviceName] = (breachesByService[serviceName] || 0) + 1;
             }
         });
 
@@ -211,10 +218,91 @@ export const CustomerExperienceReport: React.FC<CustomerExperienceReportProps> =
             .sort(([, a], [, b]) => b - a)
             .slice(0, 5)
             .map(([name, value]) => ({ name, value }));
-    }, [workOrders]);
+    }, [workOrders, serviceCategories]);
+
+    // C. Detailed SLA Breach Analysis by Service Type
+    const slaBreachDetailsData = useMemo(() => {
+        interface ServiceBreachStats {
+            serviceName: string;
+            totalBreaches: number;
+            breachTimes: number[]; // in minutes (negative values)
+            residualTimes: number[]; // in minutes (positive values)
+            completedWithinSLA: number; // completed orders that met SLA
+        }
+
+        const statsByService: Record<string, ServiceBreachStats> = {};
+
+        workOrders.forEach(wo => {
+            const slaStats = calculateStatusSLA(wo);
+            if (!slaStats) return;
+
+            const serviceId = (wo as any).service_type || wo.service;
+            
+            // Map service UUID to service name
+            let serviceName = 'General';
+            if (serviceId && serviceCategories.length > 0) {
+                const category = serviceCategories.find(cat => cat.id === serviceId);
+                serviceName = category?.label || category?.name || serviceId;
+            } else if (serviceId) {
+                serviceName = serviceId;
+            }
+
+            if (!statsByService[serviceName]) {
+                statsByService[serviceName] = {
+                    serviceName,
+                    totalBreaches: 0,
+                    breachTimes: [],
+                    residualTimes: [],
+                    completedWithinSLA: 0
+                };
+            }
+
+            const isCompleted = wo.status?.toLowerCase() === 'completed';
+
+            if (slaStats.status === 'breached' || slaStats.status === 'overdue') {
+                statsByService[serviceName].totalBreaches++;
+                statsByService[serviceName].breachTimes.push(slaStats.timeRemaining); // negative value
+            } else if (slaStats.status === 'on-track' || slaStats.status === 'at-risk') {
+                statsByService[serviceName].residualTimes.push(slaStats.timeRemaining); // positive value
+                
+                // Count completed orders that met SLA
+                if (isCompleted) {
+                    statsByService[serviceName].completedWithinSLA++;
+                }
+            }
+        });
+
+        // Calculate averages and format
+        return Object.values(statsByService)
+            .filter(stat => stat.totalBreaches > 0) // Only show services with breaches
+            .map(stat => {
+                const avgBreachMinutes = stat.breachTimes.length > 0
+                    ? stat.breachTimes.reduce((sum, t) => sum + Math.abs(t), 0) / stat.breachTimes.length
+                    : 0;
+                
+                const worstBreachMinutes = stat.breachTimes.length > 0
+                    ? Math.max(...stat.breachTimes.map(t => Math.abs(t)))
+                    : 0;
+
+                const avgResidualMinutes = stat.residualTimes.length > 0
+                    ? stat.residualTimes.reduce((sum, t) => sum + t, 0) / stat.residualTimes.length
+                    : 0;
+
+                return {
+                    serviceName: stat.serviceName,
+                    totalBreaches: stat.totalBreaches,
+                    avgBreachTime: formatDuration(avgBreachMinutes),
+                    worstBreachTime: formatDuration(worstBreachMinutes),
+                    avgResidualTime: stat.residualTimes.length > 0 ? formatDuration(avgResidualMinutes) : 'N/A',
+                    onTrackCount: stat.residualTimes.length,
+                    completedWithinSLA: stat.completedWithinSLA
+                };
+            })
+            .sort((a, b) => b.totalBreaches - a.totalBreaches);
+    }, [workOrders, serviceCategories]);
 
 
-    // C. Top Customers (by Completed Orders)
+    // D. Top Customers (by Completed Orders)
     const topCustomersData = useMemo(() => {
         const customerCounts: Record<string, { name: string, count: number, ownershipType: string }> = {};
         workOrders.forEach(wo => {
@@ -409,6 +497,63 @@ export const CustomerExperienceReport: React.FC<CustomerExperienceReportProps> =
                     </CardContent>
                 </Card>
             </div>
+
+            {/* SLA Breach Details Table */}
+            {slaBreachDetailsData.length > 0 && (
+                <Card>
+                    <CardHeader className="pb-2">
+                        <CardTitle className="text-sm flex items-center gap-1.5 text-slate-800">
+                            <Clock className="w-4 h-4 text-amber-600" />
+                            SLA Breach Time Analysis
+                        </CardTitle>
+                        <CardDescription className="text-xs">
+                            Detailed breach and residual time metrics by service type
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                        <div className="overflow-x-auto">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="bg-slate-50 border-b border-slate-200">
+                                        <TableHead className="text-left py-2 px-3 font-bold text-slate-500 uppercase tracking-wider text-[10px]">Service Type</TableHead>
+                                        <TableHead className="text-center py-2 px-3 font-bold text-slate-500 uppercase tracking-wider text-[10px]">Total Breaches</TableHead>
+                                        <TableHead className="text-center py-2 px-3 font-bold text-slate-500 uppercase tracking-wider text-[10px]">Resolved Within SLA</TableHead>
+                                        <TableHead className="text-center py-2 px-3 font-bold text-slate-500 uppercase tracking-wider text-[10px]">Avg Breach Time</TableHead>
+                                        <TableHead className="text-center py-2 px-3 font-bold text-slate-500 uppercase tracking-wider text-[10px]">Worst Breach</TableHead>
+                                        <TableHead className="text-center py-2 px-3 font-bold text-slate-500 uppercase tracking-wider text-[10px]">Avg Residual Time</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody className="divide-y divide-border">
+                                    {slaBreachDetailsData.map((item, i) => (
+                                        <TableRow key={i} className="hover:bg-slate-50 transition-colors border-slate-100">
+                                            <TableCell className="py-2 px-3 font-medium">{item.serviceName}</TableCell>
+                                            <TableCell className="py-2 px-3 text-center">
+                                                <Badge variant="destructive" className="font-semibold">
+                                                    {item.totalBreaches}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="py-2 px-3 text-center">
+                                                <Badge variant="outline" className="font-semibold bg-emerald-50 text-emerald-700 border-emerald-200">
+                                                    {item.completedWithinSLA}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="py-2 px-3 text-center font-medium text-red-600">
+                                                {item.avgBreachTime}
+                                            </TableCell>
+                                            <TableCell className="py-2 px-3 text-center font-semibold text-red-700">
+                                                {item.worstBreachTime}
+                                            </TableCell>
+                                            <TableCell className="py-2 px-3 text-center font-medium text-emerald-600">
+                                                {item.avgResidualTime}
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    </CardContent>
+                </Card>
+            )}
 
             {/* Top Loyalty / At Risk Table */}
             <Card>

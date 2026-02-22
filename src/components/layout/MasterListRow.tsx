@@ -48,7 +48,7 @@ export function MasterListRow({
   return (
     <div
       className={cn(
-        "p-3 border-b border-border last:border-b-0 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200 cursor-pointer group",
+        "py-2 px-3 border-b border-border last:border-b-0 hover:bg-slate-50 dark:hover:bg-slate-800 transition-all duration-200 cursor-pointer group",
         isSelected && "bg-background border-l-2 border-l-primary shadow-sm",
         className
       )}
@@ -65,12 +65,12 @@ export function MasterListRow({
         {/* Content */}
         <div className="flex-1 min-w-0">
           {/* Title and Badge */}
-          <div className="flex items-start justify-between gap-2 mb-1">
+          <div className="flex items-start justify-between gap-2 mb-0.5">
             <h3 className="text-sm font-bold text-foreground truncate font-mono">
               {title}
             </h3>
             {badge && (
-              <Badge variant={badge.variant || 'default'} className="flex-shrink-0">
+              <Badge variant={badge.variant || 'default'} className="flex-shrink-0 py-0 h-5">
                 {badge.text}
               </Badge>
             )}
@@ -78,21 +78,21 @@ export function MasterListRow({
 
           {/* Subtitle */}
           {subtitle && (
-            <p className="text-xs text-muted-foreground mb-1 truncate">
+            <p className="text-xs text-muted-foreground mb-0.5 truncate">
               {subtitle}
             </p>
           )}
 
           {/* Description */}
           {description && (
-            <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
+            <p className="text-xs text-muted-foreground line-clamp-2">
               {description}
             </p>
           )}
 
           {/* Metadata */}
           {metadata && metadata.length > 0 && (
-            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+            <div className="flex items-center gap-3 text-xs text-muted-foreground mt-1.5">
               {metadata.map((item, index) => (
                 <div key={index} className="flex items-center gap-1">
                   {item.icon}

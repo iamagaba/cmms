@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Search, Clipboard } from 'lucide-react';
+import { Search, Clipboard, Check, ArrowRight, Pause, Flag, PhoneOff } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
@@ -102,17 +102,116 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
     const technician = technicians?.find(t => t.id === workOrder.assigned_technician_id);
     const isSelected = workOrder.id === currentWorkOrderId;
 
-    // Status styles for distinct badge look
-    const statusStyles: Record<string, string> = {
-      'New': 'bg-slate-100 text-slate-700 dark:bg-slate-900/30 dark:text-slate-400',
-      'Confirmation': 'bg-primary/10 text-primary',
-      'Ready': 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
-      'In Progress': 'bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400',
-      'Completed': 'bg-slate-200 text-slate-700 dark:bg-slate-800 dark:text-slate-400 border border-slate-300 dark:border-slate-700',
-      'On Hold': 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
-      'Cancelled': 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400',
+    // Status configuration matching the table - UNIFIED SYSTEM
+    const getStatusConfig = (status: string) => {
+      const statusMap: Record<string, { color: string; label: string; icon: 'dashed' | 'check' | 'arrow' | 'pause' | 'phoneOff' }> = {
+        'New': { color: '#64748b', label: 'New', icon: 'dashed' },           // slate-500
+        'Open': { color: '#64748b', label: 'New', icon: 'dashed' },          // slate-500
+        'Confirmation': { color: '#64748b', label: 'Confirmation', icon: 'phoneOff' }, // slate-500
+        'Ready': { color: '#64748b', label: 'Ready', icon: 'arrow' },         // slate-500
+        'On Hold': { color: '#f97316', label: 'On Hold', icon: 'pause' },     // orange-500
+        'In Progress': { color: '#f59e0b', label: 'In Progress', icon: 'arrow' }, // amber-500
+        'Completed': { color: '#10b981', label: 'Completed', icon: 'check' }, // emerald-500
+        'Cancelled': { color: '#6b7280', label: 'Cancelled', icon: 'dashed' }, // gray-500
+      };
+      return statusMap[status] || statusMap['New'];
     };
-    const statusClass = statusStyles[workOrder.status || 'New'] || statusStyles['New'];
+
+    // Priority configuration matching the table
+    const getPriorityConfig = (priority?: string) => {
+      const p = (priority || 'none').toLowerCase();
+      const priorityMap: Record<string, { color: string; label: string }> = {
+        'critical': { color: '#ef4444', label: 'High' },
+        'urgent': { color: '#ef4444', label: 'High' },
+        'high': { color: '#ef4444', label: 'High' },
+        'medium': { color: '#22c55e', label: 'Low' },
+        'normal': { color: '#22c55e', label: 'Low' },
+        'low': { color: '#22c55e', label: 'Low' },
+        'routine': { color: '#94a3b8', label: 'None' },
+        'none': { color: '#94a3b8', label: 'None' },
+      };
+      return priorityMap[p] || priorityMap['none'];
+    };
+
+    const statusConfig = getStatusConfig(workOrder.status || 'New');
+    const priorityConfig = getPriorityConfig(workOrder.priority || undefined);
+
+    // Render status icon
+    const renderStatusIcon = () => {
+      const iconStyle = {
+        width: '16px',
+        height: '16px',
+        borderRadius: '50%',
+        display: 'grid',
+        placeItems: 'center',
+        flexShrink: 0
+      };
+      
+      if (statusConfig.icon === 'dashed') {
+        return (
+          <div
+            style={{
+              ...iconStyle,
+              border: '2px dashed',
+              borderColor: statusConfig.color,
+              backgroundColor: 'transparent'
+            }}
+          />
+        );
+      }
+
+      if (statusConfig.icon === 'check') {
+        return (
+          <div
+            style={{
+              ...iconStyle,
+              backgroundColor: statusConfig.color
+            }}
+          >
+            <Check style={{ width: '10px', height: '10px', color: 'white', strokeWidth: 3 }} />
+          </div>
+        );
+      }
+
+      if (statusConfig.icon === 'arrow') {
+        return (
+          <div
+            style={{
+              ...iconStyle,
+              backgroundColor: statusConfig.color
+            }}
+          >
+            <ArrowRight style={{ width: '10px', height: '10px', color: 'white', strokeWidth: 3 }} />
+          </div>
+        );
+      }
+
+      if (statusConfig.icon === 'pause') {
+        return (
+          <div
+            style={{
+              ...iconStyle,
+              backgroundColor: statusConfig.color
+            }}
+          >
+            <Pause style={{ width: '10px', height: '10px', color: 'white', strokeWidth: 3, fill: 'white' }} />
+          </div>
+        );
+      }
+
+      if (statusConfig.icon === 'phoneOff') {
+        return (
+          <div
+            style={{
+              ...iconStyle,
+              backgroundColor: statusConfig.color
+            }}
+          >
+            <PhoneOff style={{ width: '10px', height: '10px', color: 'white', strokeWidth: 3 }} />
+          </div>
+        );
+      }
+    };
 
     // Format title with proper capitalization
     const formatTitle = (text: string) => {
@@ -182,44 +281,38 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
     return (
       <div
         onClick={() => onSelectWorkOrder(workOrder.id)}
-        className={`px-3 py-2.5 border-b border-border cursor-pointer transition-all ${isSelected ? 'bg-primary/5' : 'hover:bg-muted/50'
+        className={`px-3 py-2 border-b border-border cursor-pointer transition-colors ${isSelected ? 'bg-primary/5 border-l border-l-primary' : 'hover:bg-muted/50 border-l border-l-transparent'
           }`}
       >
-        {/* Row 1: License Plate + Time */}
+        {/* Header Row: License Plate + Status + Time */}
         <div className="flex items-center justify-between mb-1">
-          <div className="flex items-center gap-2">
-            <span className={`text-sm font-semibold ${isSelected ? 'text-primary' : 'text-foreground'}`}>
-              {licensePlate}
-            </span>
-          </div>
-          <span className="text-xs text-muted-foreground whitespace-nowrap">
-            {getShortTime(workOrder.created_at)}
+          <span className={`text-xs ${isSelected ? 'text-primary' : 'text-foreground'}`}>
+            {woNumber}
           </span>
-        </div>
-
-        {/* Row 2: Issue Type + Vehicle Model (combined) */}
-        <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1.5">
-          <span className="truncate font-medium">{formattedTitle}</span>
-          {vehicle && (
-            <>
-              <span className="text-muted-foreground">•</span>
-              <span className="text-muted-foreground truncate">{vehicle.make} {vehicle.model}</span>
-            </>
-          )}
-        </div>
-
-        {/* Row 3: WO Number + Technician + Status */}
-        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className={`text-xs ${isSelected ? 'text-primary' : 'text-primary'}`}>
-              {woNumber}
-            </span>
-            <span className={`text-xs ${technician ? 'text-muted-foreground' : 'text-amber-600 font-medium'}`}>
-              {technician ? technician.name : 'Unassigned'}
+            <div className="flex items-center gap-1">
+              {renderStatusIcon()}
+              <span className="text-[10px] text-muted-foreground">{statusConfig.label}</span>
+            </div>
+            <span className="text-[10px] text-muted-foreground">
+              {getShortTime(workOrder.created_at)}
             </span>
           </div>
-          <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold tracking-wide uppercase ${statusClass}`}>
-            {workOrder.status || 'New'}
+        </div>
+
+        {/* Issue Type */}
+        <div className="text-xs text-foreground mb-1 truncate">
+          {formattedTitle}
+        </div>
+
+        {/* Bottom Row: Priority + Technician */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <Flag className="w-3 h-3 flex-shrink-0" style={{ color: priorityConfig.color }} fill={priorityConfig.color} />
+            <span className="text-[10px] text-muted-foreground">{priorityConfig.label}</span>
+          </div>
+          <span className={`text-[10px] truncate max-w-[100px] ${technician ? 'text-muted-foreground' : 'text-amber-600'}`}>
+            {technician ? technician.name : 'Unassigned'}
           </span>
         </div>
       </div>
@@ -228,20 +321,20 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
 
   if (isLoading) {
     return (
-      <div className={`bg-muted border-r border-border ${className}`}>
-        <div className="p-4 border-b border-border">
-          <div className="h-4 bg-muted-foreground/20 rounded-lg animate-pulse mb-3" />
-          <div className="h-8 bg-muted-foreground/20 rounded-lg animate-pulse" />
+      <div className={`bg-background border-r border-border ${className}`}>
+        <div className="p-3 border-b border-border">
+          <div className="h-4 bg-muted rounded animate-pulse mb-2" />
+          <div className="h-8 bg-muted rounded animate-pulse" />
         </div>
-        <div className="divide-y divide-border">
+        <div>
           {[...Array(8)].map((_, i) => (
-            <div key={i} className="px-4 py-3 space-y-2">
+            <div key={i} className="px-3 py-2 border-b border-border space-y-1.5">
               <div className="flex justify-between">
-                <div className="h-3 bg-muted-foreground/20 rounded-lg w-20 animate-pulse" />
-                <div className="h-3 bg-muted-foreground/20 rounded-lg w-12 animate-pulse" />
+                <div className="h-3 bg-muted rounded w-20 animate-pulse" />
+                <div className="h-3 bg-muted rounded w-12 animate-pulse" />
               </div>
-              <div className="h-3 bg-muted-foreground/20 rounded-lg w-full animate-pulse" />
-              <div className="h-3 bg-muted-foreground/20 rounded-lg w-3/4 animate-pulse" />
+              <div className="h-3 bg-muted rounded w-full animate-pulse" />
+              <div className="h-3 bg-muted rounded w-3/4 animate-pulse" />
             </div>
           ))}
         </div>
@@ -250,23 +343,23 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
   }
 
   return (
-    <div className={`bg-muted border-r border-border flex flex-col ${className}`}>
+    <div className={`bg-background border-r border-border flex flex-col ${className}`}>
       {/* Header - Sticky */}
-      <div className="p-4 border-b border-border sticky top-0 bg-muted/95 backdrop-blur-md backdrop-saturate-150 z-10">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold text-foreground">Work Orders</h2>
+      <div className="p-3 border-b border-border sticky top-0 bg-background z-10">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-xs text-foreground">Work Orders</h2>
           <span className="text-xs text-muted-foreground">{filteredWorkOrders.length}</span>
         </div>
 
         {/* Search */}
-        <div className="relative mb-3">
+        <div className="relative mb-2">
           <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
-            <Search className="w-4 h-4 text-muted-foreground" />
+            <Search className="w-3.5 h-3.5 text-muted-foreground" />
           </div>
           <Input
             type="text"
             placeholder="Search work orders..."
-            className="pl-8"
+            className="pl-8 h-8 text-xs"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -276,22 +369,18 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
         <div className="flex flex-wrap gap-1">
           {[
             { key: 'all', label: 'All', count: statusCounts.all },
-            { key: 'New', label: 'New', count: statusCounts.open },
-            { key: 'Confirmation', label: 'Confirmation', count: statusCounts.confirmation },
             { key: 'Ready', label: 'Ready', count: statusCounts.ready },
             { key: 'In Progress', label: 'In Progress', count: statusCounts.inProgress },
-            { key: 'On Hold', label: 'On Hold', count: statusCounts.onHold },
             { key: 'Completed', label: 'Completed', count: statusCounts.completed },
-            { key: 'Cancelled', label: 'Cancelled', count: statusCounts.cancelled },
           ]
             .filter(({ key, count }) => key === 'all' || count > 0)
             .map(({ key, label, count }) => (
               <Button
                 key={key}
-                variant={statusFilter === key ? "default" : "ghost"}
+                variant={statusFilter === key ? "default" : "outline"}
                 size="sm"
                 onClick={() => setStatusFilter(key)}
-                className="h-7 px-2 text-xs"
+                className="h-6 px-2 text-[10px]"
               >
                 {label} ({count})
               </Button>
@@ -300,7 +389,7 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
       </div>
 
       {/* Work Orders List - Clean Master List */}
-      <div className="flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-muted-foreground scrollbar-track-transparent">
+      <div className="flex-1 overflow-y-auto">
         {filteredWorkOrders.length === 0 ? (
           <div className="p-6 text-center">
             <Clipboard className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
@@ -309,7 +398,7 @@ export const WorkOrderSidebar: React.FC<WorkOrderSidebarProps> = ({
             </p>
           </div>
         ) : (
-          <div className="divide-y divide-border">
+          <div>
             {filteredWorkOrders.map((workOrder) => (
               <WorkOrderItem key={workOrder.id} workOrder={workOrder} />
             ))}

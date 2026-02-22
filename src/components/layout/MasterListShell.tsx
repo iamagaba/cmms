@@ -49,7 +49,7 @@ export function MasterListShell({
   itemCount
 }: MasterListShellProps) {
   return (
-    <div className={cn("w-80 flex-none border-r border-border bg-muted flex flex-col", className)}>
+    <div className={cn("w-80 flex-none border-r border-border bg-muted dark:bg-background flex flex-col", className)}>
       {/* Header */}
       <div className="p-3 border-b border-border">
         <div className="flex items-center justify-between mb-3">
@@ -83,7 +83,7 @@ export function MasterListShell({
             <input
               type="text"
               placeholder={searchPlaceholder}
-              className="w-full pl-10 pr-4 py-1.5 text-xs border border-input rounded-lg bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
+              className="w-full pl-10 pr-4 py-1.5 text-xs border border-input rounded-md bg-background text-foreground placeholder-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent"
               value={searchValue}
               onChange={(e) => onSearchChange(e.target.value)}
             />

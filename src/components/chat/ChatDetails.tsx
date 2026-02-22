@@ -1,4 +1,4 @@
-import { Bike, Plus, Phone, MapPin } from 'lucide-react';
+import { Bike, Plus, Phone, MapPin, Ticket } from 'lucide-react';
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -14,9 +14,10 @@ import { WorkOrderDetailsDrawer } from '@/components/WorkOrderDetailsDrawer';
 interface ChatDetailsProps {
     chat: WhatsAppChat;
     onCreateWorkOrder?: () => void;
+    onCreateTicket?: () => void;
 }
 
-export const ChatDetails: React.FC<ChatDetailsProps> = ({ chat, onCreateWorkOrder }) => {
+export const ChatDetails: React.FC<ChatDetailsProps> = ({ chat, onCreateWorkOrder, onCreateTicket }) => {
     const [activeTab, setActiveTab] = useState<'details' | 'files' | 'work-orders'>('details');
     const [selectedWorkOrderId, setSelectedWorkOrderId] = useState<string | null>(null);
     const [isWorkOrderDrawerOpen, setIsWorkOrderDrawerOpen] = useState(false);
@@ -56,7 +57,7 @@ export const ChatDetails: React.FC<ChatDetailsProps> = ({ chat, onCreateWorkOrde
                 .select('*')
                 .eq('customer_id', chat.customerId)
                 .order('created_at', { ascending: false });
-            
+
             if (error) {
                 console.error('❌ Error fetching work orders:', error);
                 throw error;
@@ -93,7 +94,7 @@ export const ChatDetails: React.FC<ChatDetailsProps> = ({ chat, onCreateWorkOrde
                 .select('*')
                 .eq('vehicle_id', chat.vehicleId)
                 .order('created_at', { ascending: false });
-            
+
             if (error) {
                 console.error('❌ Error fetching work orders by vehicle:', error);
                 throw error;
@@ -207,8 +208,8 @@ export const ChatDetails: React.FC<ChatDetailsProps> = ({ chat, onCreateWorkOrde
                             ) : (
                                 <div className="space-y-2">
                                     {recentWorkOrders.map((wo) => (
-                                        <div 
-                                            key={wo.id} 
+                                        <div
+                                            key={wo.id}
                                             onClick={() => handleWorkOrderClick(wo.id)}
                                             className="group hover:bg-muted/50 p-2.5 -mx-2.5 rounded-xl transition-all cursor-pointer border border-transparent hover:border-border"
                                         >
@@ -236,14 +237,20 @@ export const ChatDetails: React.FC<ChatDetailsProps> = ({ chat, onCreateWorkOrde
                         </div>
                     </div>
 
-                    {/* Fixed Create Work Order Button at Bottom */}
-                    <div className="p-5 border-t border-border shrink-0">
-                        <button 
+                    <div className="p-5 border-t border-border shrink-0 space-y-2">
+                        <button
                             onClick={onCreateWorkOrder}
                             className="w-full text-sm font-bold gap-2 px-4 py-3 bg-[#25d366] text-white rounded-lg hover:bg-[#20bd5a] transition-colors flex items-center justify-center"
                         >
                             <Plus className="w-5 h-5" />
                             Create Work Order
+                        </button>
+                        <button
+                            onClick={onCreateTicket}
+                            className="w-full text-sm font-bold gap-2 px-4 py-2.5 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors flex items-center justify-center"
+                        >
+                            <Ticket className="w-4 h-4" />
+                            Create Ticket
                         </button>
                     </div>
                 </>
@@ -269,8 +276,8 @@ export const ChatDetails: React.FC<ChatDetailsProps> = ({ chat, onCreateWorkOrde
                     ) : (
                         <div className="space-y-2">
                             {displayWorkOrders.map((wo) => (
-                                <div 
-                                    key={wo.id} 
+                                <div
+                                    key={wo.id}
                                     onClick={() => handleWorkOrderClick(wo.id)}
                                     className="group hover:bg-muted/50 p-2.5 -mx-2.5 rounded-xl transition-all cursor-pointer border border-transparent hover:border-border"
                                 >

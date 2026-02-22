@@ -171,7 +171,7 @@ const CustomerDetails = () => {
         <Card>
           <div className="grid grid-cols-2 lg:grid-cols-4 divide-x divide-border">
             <button
-              className="px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-left"
+              className="px-6 py-4 hover:bg-muted transition-colors text-left"
               onClick={() => navigate(`/assets?customer=${id}`)}
             >
               <div className="flex items-center gap-2 mb-1">
@@ -186,7 +186,7 @@ const CustomerDetails = () => {
             </button>
 
             <button
-              className="px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors text-left"
+              className="px-6 py-4 hover:bg-muted transition-colors text-left"
               onClick={() => navigate(`/work-orders?customer=${id}`)}
             >
               <div className="flex items-center gap-2 mb-1">
@@ -288,7 +288,7 @@ const CustomerDetails = () => {
                   {vehicles.slice(0, 5).map((vehicle, index) => (
                     <div key={vehicle.id}>
                       <button
-                        className="group w-full text-left hover:bg-slate-50 -mx-6 px-6 py-4 transition-colors"
+                        className="group w-full text-left hover:bg-muted -mx-6 px-6 py-4 transition-colors"
                         onClick={() => navigate(`/assets/${vehicle.id}`)}
                       >
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-4">
@@ -377,7 +377,7 @@ const CustomerDetails = () => {
                   {workOrders.slice(0, 5).map((wo) => (
                     <button
                       key={wo.id}
-                      className="group w-full border border-border rounded-lg p-4 hover:border-primary hover:bg-slate-50 dark:hover:bg-slate-800 transition-all text-left"
+                      className="group w-full border border-border rounded-lg p-4 hover:border-primary hover:bg-muted transition-all text-left"
                       onClick={() => navigate(`/work-orders/${wo.id}`)}
                     >
                       <div className="flex items-center justify-between gap-4">

@@ -1,5 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
-import { createContext, useContext, ReactNode, useMemo, useEffect } from 'react';
+import { createContext, useContext, ReactNode, useMemo, useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -74,12 +74,24 @@ export const SystemSettingsProvider = ({ children }: { children: ReactNode }) =>
     }, {} as SystemSettings);
   }, [settingsData]);
 
-  const isDarkMode = settings['color_scheme'] === 'dark';
+  // Server state for dark mode
+  const serverDarkMode = settings['color_scheme'] === 'dark';
 
-  // Set initial dark mode class
+  // Local state for optimistic updates
+  const [optimisticDarkMode, setOptimisticDarkMode] = useState<boolean | null>(null);
+
+  // Sync local state with server state when server state changes (and no pending local change)
+  useEffect(() => {
+    setOptimisticDarkMode(serverDarkMode);
+  }, [serverDarkMode]);
+
+  // Derived effective state
+  const isDarkMode = optimisticDarkMode ?? serverDarkMode;
+
+  // Effect to apply class to document
   useEffect(() => {
     if (typeof document !== 'undefined') {
-      document.body.classList.toggle('dark-mode', isDarkMode);
+      document.documentElement.classList.toggle('dark', isDarkMode);
     }
   }, [isDarkMode]);
 
@@ -98,11 +110,11 @@ export const SystemSettingsProvider = ({ children }: { children: ReactNode }) =>
   };
 
   const toggleDarkMode = () => {
-    updateSetting('color_scheme', isDarkMode ? 'light' : 'dark');
-    // Toggle body class for dark mode
-    if (typeof document !== 'undefined') {
-      document.body.classList.toggle('dark-mode', !isDarkMode);
-    }
+    const newMode = !isDarkMode;
+    // Optimistic update
+    setOptimisticDarkMode(newMode);
+    // Persist update
+    updateSetting('color_scheme', newMode ? 'dark' : 'light');
   };
 
   // Don't block rendering if system settings fail to load
@@ -113,7 +125,7 @@ export const SystemSettingsProvider = ({ children }: { children: ReactNode }) =>
     updateSettings,
     toggleDarkMode,
     isDarkMode,
-  }), [settings, isLoading, error, isDarkMode]);
+  }), [settings, isLoading, error, isDarkMode, optimisticDarkMode]); // Added optimisticDarkMode to deps
 
   return (
     <SystemSettingsContext.Provider value={contextValue}>

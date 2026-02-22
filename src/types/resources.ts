@@ -80,7 +80,7 @@ export interface ResourcePlanningRequest {
   work_order_id?: string;
   template_id?: string;
   requirements: ResourceRequirement[];
-  priority: 'Low' | 'Medium' | 'High' | 'Critical';
+  priority: 'Low' | 'Medium' | 'High' | 'Urgent';
   estimated_duration: number; // in hours
   preferred_start_date?: string;
   deadline?: string;

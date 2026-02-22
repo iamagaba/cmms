@@ -1,4 +1,4 @@
-import { Archive, Building2, Calendar, ClipboardList, Home, MapPin, MessageSquare, Palette, Settings, TrendingUp, User, Users, Wrench } from 'lucide-react';
+import { Archive, Building2, Calendar, ClipboardList, Home, MapPin, Palette, Settings, TrendingUp, User, Users, Wrench } from 'lucide-react';
 /**
  * Professional CMMS Sidebar Navigation
  * 
@@ -15,6 +15,9 @@ import { useLocation, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { useActiveSystem } from '@/context/ActiveSystemContext';
+import { SystemSwitcher } from './SystemSwitcher';
+import { ticketingNavigationConfig } from '@/config/ticketingNavigation';
 
 // ============================================
 // NAVIGATION CONFIGURATION
@@ -142,14 +145,7 @@ export const navigationConfig: NavigationSection[] = [
     collapsible: true,
     defaultCollapsed: false,
     items: [
-      {
-        id: 'chat',
-        label: 'Chat',
-        href: '/chat',
-        icon: MessageSquare,
-        description: 'WhatsApp customer support',
-        keywords: ['chat', 'messages', 'whatsapp', 'support'],
-      },
+
       {
         id: 'settings',
         label: 'Settings',
@@ -165,14 +161,6 @@ export const navigationConfig: NavigationSection[] = [
         icon: Palette,
         description: 'shadcn/ui component library',
         keywords: ['design', 'components', 'ui', 'shadcn'],
-      },
-      {
-        id: 'design-system-nova',
-        label: 'Design System (Nova)',
-        href: '/design-system-nova',
-        icon: Palette,
-        description: 'Nova style preview',
-        keywords: ['design', 'nova', 'components', 'ui', 'preview'],
       },
     ],
   },
@@ -231,7 +219,8 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
       className={cn(
         // Base styles - Enterprise dark theme
         'group relative flex items-center gap-3 py-2.5 transition-all duration-150 w-full text-left rounded-md',
-        'text-secondary-foreground/90 hover:text-secondary-foreground hover:bg-white/10',
+        'text-secondary-foreground dark:text-muted-foreground hover:text-secondary-foreground dark:hover:text-foreground',
+        'hover:bg-secondary-foreground/10 dark:hover:bg-muted',
         'focus:outline-none no-underline',
         // Padding
         isCollapsed ? 'justify-center px-2' : 'px-3',
@@ -246,7 +235,7 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
       {/* Icon */}
       <div className={cn(
         'flex items-center justify-center flex-shrink-0',
-        isActive ? 'text-primary-foreground' : 'text-secondary-foreground/90 group-hover:text-secondary-foreground'
+        isActive ? 'text-primary-foreground' : 'text-secondary-foreground dark:text-muted-foreground group-hover:text-secondary-foreground dark:group-hover:text-foreground'
       )}>
         <item.icon
           size={isCollapsed ? 18 : 16}
@@ -280,7 +269,7 @@ const NavigationItemComponent: React.FC<NavigationItemProps> = ({
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0 }}
-              className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-4 h-4 w-4 h-4 px-1 bg-destructive text-destructive-foreground text-xs font-bold rounded-full border-2 border-secondary"
+              className="absolute -top-0.5 -right-0.5 flex items-center justify-center min-w-4 h-4 w-4 h-4 px-1 bg-destructive text-destructive-foreground text-xs font-bold rounded-full border-2 border-secondary dark:border-background"
             >
               {item.badge}
             </motion.div>
@@ -338,7 +327,7 @@ const NavigationSectionComponent: React.FC<NavigationSectionProps> = ({
       {/* Section Header */}
       {!isCollapsed && (
         <div className="px-3 mb-2">
-          <h2 className="text-xs font-semibold text-secondary-foreground/60 uppercase tracking-wide">
+          <h2 className="text-xs font-semibold text-secondary-foreground/60 dark:text-muted-foreground uppercase tracking-wide">
             {section.label}
           </h2>
         </div>
@@ -372,7 +361,6 @@ const NavigationSectionComponent: React.FC<NavigationSectionProps> = ({
 const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
   className,
   collapsed = false,
-
   onNavigate,
 }) => {
 
@@ -385,8 +373,9 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
     window.dispatchEvent(event);
   }, [isExpanded]);
 
-  // Filter navigation items based on search - Simplified to direct return
-  const filteredSections = navigationConfig;
+  // Switch navigation based on active system
+  const { activeSystem } = useActiveSystem();
+  const filteredSections = activeSystem === 'ticketing' ? ticketingNavigationConfig : navigationConfig;
 
   return (
     <aside
@@ -403,44 +392,18 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
       }}
       className={cn(
         'fixed left-0 top-0 bottom-0 z-40',
-        'bg-secondary', // Dark Navy background
-        'border-r border-white/10', // Subtle border
+        'bg-secondary dark:bg-background', // Navy in light mode, pure black in dark mode
+        'border-r border-border', // Theme-aware border
         'flex flex-col overflow-hidden',
         'transition-[width] duration-300 ease-in-out',
         '!rounded-none !shadow-none !m-0',
         className
       )}
     >
-      {/* Header */}
-      <div className={cn(
-        'flex items-center gap-3 px-3 py-3 border-b border-white/10',
-        !isExpanded && 'justify-center px-2'
-      )}>
-        {/* Logo */}
-        <div className="flex items-center justify-center w-8 h-8 bg-primary rounded-lg shadow-sm flex-shrink-0">
-          <Wrench className="w-4 h-4 text-primary-foreground" />
-        </div>
+      {/* Header & Switcher */}
+      <SystemSwitcher isCollapsed={!isExpanded} />
 
-        {/* Brand Name */}
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              transition={{ duration: 0.2 }}
-              className="flex-1 min-w-0"
-            >
-              <h1 className="text-base font-semibold text-white">
-                Fleet CMMS
-              </h1>
-              <p className="text-xs text-secondary-foreground/60">
-                Maintenance
-              </p>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+      <div className="h-px bg-border/50 mx-3 my-2" />
 
 
 
@@ -458,7 +421,7 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
 
       {/* Footer */}
       <div className={cn(
-        'px-3 py-3 border-t border-white/10',
+        'px-3 py-3 border-t border-border',
         !isExpanded && 'px-2'
       )}>
         {/* Theme Toggle */}
@@ -472,7 +435,8 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
         {/* User Profile */}
         <button className={cn(
           'flex items-center gap-2.5 p-2 w-full rounded-md transition-colors',
-          'hover:bg-white/10 text-secondary-foreground/90 hover:text-secondary-foreground',
+          'hover:bg-secondary-foreground/10 dark:hover:bg-muted',
+          'text-secondary-foreground dark:text-muted-foreground hover:text-secondary-foreground dark:hover:text-foreground',
           !isExpanded && 'justify-center'
         )}>
           <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
@@ -488,10 +452,10 @@ const ProfessionalSidebar: React.FC<ProfessionalSidebarProps> = ({
                 transition={{ duration: 0.2 }}
                 className="flex-1 min-w-0 text-left"
               >
-                <div className="text-sm font-medium text-white truncate">
+                <div className="text-sm font-medium text-secondary-foreground dark:text-foreground truncate">
                   Admin User
                 </div>
-                <div className="text-xs text-secondary-foreground/70">
+                <div className="text-xs text-secondary-foreground/70 dark:text-muted-foreground">
                   Administrator
                 </div>
               </motion.div>

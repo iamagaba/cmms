@@ -1,6 +1,6 @@
 
 import { useMemo } from 'react';
-import { WorkOrder } from '@/types/supabase';
+import { WorkOrder, Vehicle } from '@/types/supabase';
 import { TimelineWorkOrder, StatusSegment } from '@/components/work-order-timeline/types';
 import dayjs from 'dayjs';
 
@@ -14,11 +14,17 @@ const STATUS_CHANGE_REGEX = /Status changed from '([^']+)' to '([^']+)'.*/i;
 /**
  * Helper to parse a single work order's activity log into status segments
  */
-const parseStatusHistory = (workOrder: WorkOrder): StatusSegment[] => {
+const parseStatusHistory = (workOrder: WorkOrder, currentTime: Date): StatusSegment[] => {
     const segments: StatusSegment[] = [];
     const activityLog = (workOrder.activity_log as any[]) || [];
-    const createdAt = dayjs(workOrder.created_at);
-    const now = dayjs(); // Current time - recalculated each time
+    const now = dayjs(currentTime); // Use passed-in currentTime for consistency
+    let createdAt = dayjs(workOrder.created_at);
+
+    // FIX: Handle clock skew where server creation time might be slightly ahead of client time
+    // If created_at is in the future, clamp it to now so the bar doesn't start ahead of the "Now" line
+    if (createdAt.isAfter(now)) {
+        createdAt = now;
+    }
 
     // Sort log by timestamp ascending to process history linearly
     const sortedLog = [...activityLog].sort((a, b) =>
@@ -99,21 +105,28 @@ const parseStatusHistory = (workOrder: WorkOrder): StatusSegment[] => {
     return segments;
 };
 
-export const useWorkOrderTimeline = (workOrders: WorkOrder[]): TimelineWorkOrder[] => {
+export const useWorkOrderTimeline = (workOrders: WorkOrder[], vehicles?: Vehicle[], currentTime?: Date): TimelineWorkOrder[] => {
+    // Use a stable current time reference - if not provided, use Date.now()
+    const stableCurrentTime = currentTime || new Date();
+
     return useMemo(() => {
         if (!workOrders) return [];
 
         return workOrders.map(wo => {
-            const statusHistory = parseStatusHistory(wo);
+            const statusHistory = parseStatusHistory(wo, stableCurrentTime);
             const totalDurationMs = statusHistory.reduce((acc, seg) => acc + seg.durationMs, 0);
             const currentStatusDurationMs = statusHistory[statusHistory.length - 1]?.durationMs || 0;
 
+            // Find and attach the vehicle data
+            const vehicle = vehicles?.find(v => v.id === wo.vehicle_id);
+
             return {
                 ...wo,
+                vehicle, // Explicitly attach vehicle
                 statusHistory,
                 totalDurationMs,
                 currentStatusDurationMs
             };
         });
-    }, [workOrders]);
+    }, [workOrders, vehicles, stableCurrentTime]);
 };

@@ -117,7 +117,7 @@ const AssignEmergencyBikeModal: React.FC<AssignEmergencyBikeModalProps> = ({
               </div>
               <div>
                 <h2 id="assign-emergency-bike-title" className="text-base font-semibold text-foreground">Assign Emergency Bike</h2>
-                <p className="text-xs text-muted-foreground">Temporary bike for customer</p>
+                <p className="text-xs text-muted-foreground">Temporary bike while vehicle is repaired</p>
               </div>
             </div>
             <Button
@@ -139,8 +139,7 @@ const AssignEmergencyBikeModal: React.FC<AssignEmergencyBikeModalProps> = ({
                 <div className="flex gap-3">
                   <Info className="w-4 h-4 text-muted-foreground flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-blue-800">
-                    Assign an emergency bike to the customer while their vehicle is being repaired.
-                    The bike will be marked as in-use until the work order is completed.
+                    Bike will be marked as in-use until work order is completed.
                   </div>
                 </div>
               </div>
@@ -159,7 +158,7 @@ const AssignEmergencyBikeModal: React.FC<AssignEmergencyBikeModalProps> = ({
                 ) : availableBikes.length === 0 ? (
                   <div className="text-center py-8 bg-muted rounded-lg border border-border">
                     <Bike className="w-12 h-12 text-muted-foreground mx-auto mb-2" />
-                    <p className="text-sm text-muted-foreground">No emergency bikes available at the moment</p>
+                    <p className="text-sm text-muted-foreground">No emergency bikes available</p>
                     <p className="text-xs text-muted-foreground mt-1">All bikes are currently assigned</p>
                   </div>
                 ) : (
@@ -213,7 +212,7 @@ const AssignEmergencyBikeModal: React.FC<AssignEmergencyBikeModalProps> = ({
                   id="emergency-bike-notes"
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Add any notes about this emergency bike assignment..."
+                  placeholder="Notes for this assignment"
                   rows={3}
                   className="resize-none"
                 />
@@ -240,7 +239,7 @@ const AssignEmergencyBikeModal: React.FC<AssignEmergencyBikeModalProps> = ({
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin mr-1.5" />
-                  <span>Assigning...</span>
+                  <span>Assigning</span>
                 </>
               ) : (
                 <>

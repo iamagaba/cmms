@@ -4,6 +4,7 @@ import { WorkOrder, ServiceCategory, SlaPolicy, Technician, Location } from "@/t
 import { camelToSnakeCase } from "@/utils/data-helpers";
 import { showSuccess, showError, showInfo } from "@/utils/toast";
 import { useSession } from "@/context/SessionContext";
+import { useRealtimeData } from "@/context/RealtimeDataContext";
 import dayjs from "dayjs";
 
 interface UseWorkOrderMutationsProps {
@@ -21,21 +22,80 @@ export const useWorkOrderMutations = ({
 }: UseWorkOrderMutationsProps) => {
   const queryClient = useQueryClient();
   const { session } = useSession();
+  const { refreshData } = useRealtimeData();
 
   const workOrderMutation = useMutation({
     mutationFn: async (workOrderData: Partial<WorkOrder>) => {
       const { error } = await supabase.from('work_orders').upsert([workOrderData]);
       if (error) throw new Error(error.message);
     },
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['work_orders'] });
-      if (variables.id) {
-        queryClient.invalidateQueries({ queryKey: ['work_order', variables.id] });
-        queryClient.invalidateQueries({ queryKey: ['work_order_drawer', variables.id] });
+    onMutate: async (newWorkOrder) => {
+      // Cancel outgoing refetches
+      await queryClient.cancelQueries({ queryKey: ['work_orders'] });
+      if (newWorkOrder.id) {
+        await queryClient.cancelQueries({ queryKey: ['work_order', newWorkOrder.id] });
+        await queryClient.cancelQueries({ queryKey: ['work_order_drawer', newWorkOrder.id] });
       }
+
+      // Snapshot previous values
+      const previousWorkOrders = queryClient.getQueryData(['work_orders']);
+      const previousWorkOrder = newWorkOrder.id 
+        ? queryClient.getQueryData(['work_order', newWorkOrder.id])
+        : null;
+      const previousDrawerWorkOrder = newWorkOrder.id
+        ? queryClient.getQueryData(['work_order_drawer', newWorkOrder.id])
+        : null;
+
+      // Optimistically update work orders list
+      if (previousWorkOrders && Array.isArray(previousWorkOrders)) {
+        const updatedWorkOrders = previousWorkOrders.map((wo: any) =>
+          wo.id === newWorkOrder.id ? { ...wo, ...newWorkOrder } : wo
+        );
+        queryClient.setQueryData(['work_orders'], updatedWorkOrders);
+      }
+
+      // Optimistically update single work order queries
+      if (newWorkOrder.id && previousWorkOrder) {
+        queryClient.setQueryData(['work_order', newWorkOrder.id], {
+          ...previousWorkOrder,
+          ...newWorkOrder,
+        });
+      }
+      if (newWorkOrder.id && previousDrawerWorkOrder) {
+        queryClient.setQueryData(['work_order_drawer', newWorkOrder.id], {
+          ...previousDrawerWorkOrder,
+          ...newWorkOrder,
+        });
+      }
+
+      return { previousWorkOrders, previousWorkOrder, previousDrawerWorkOrder };
+    },
+    onError: (error, variables, context) => {
+      // Rollback on error
+      if (context?.previousWorkOrders) {
+        queryClient.setQueryData(['work_orders'], context.previousWorkOrders);
+      }
+      if (variables.id && context?.previousWorkOrder) {
+        queryClient.setQueryData(['work_order', variables.id], context.previousWorkOrder);
+      }
+      if (variables.id && context?.previousDrawerWorkOrder) {
+        queryClient.setQueryData(['work_order_drawer', variables.id], context.previousDrawerWorkOrder);
+      }
+      showError(error.message);
+    },
+    onSettled: async (_, __, variables) => {
+      // Refetch in background for consistency, but don't refetch drawer to prevent re-render
+      queryClient.invalidateQueries({ 
+        queryKey: ['work_orders'],
+        refetchType: 'none' // Mark as stale but don't refetch immediately
+      });
+      
+      // Refresh realtime data in background
+      refreshData();
+    },
+    onSuccess: () => {
       showSuccess('Work order has been saved.');
     },
-    onError: (error) => showError(error.message),
   });
 
   const deleteMutation = useMutation({
@@ -43,8 +103,10 @@ export const useWorkOrderMutations = ({
       const { error } = await supabase.from('work_orders').delete().eq('id', id);
       if (error) throw new Error(error.message);
     },
-    onSuccess: () => {
+    onSuccess: async () => {
       queryClient.invalidateQueries({ queryKey: ['work_orders'] });
+      // Force immediate refresh of realtime data
+      await refreshData();
       showSuccess('Work order has been deleted.');
     },
     onError: (error) => showError(error.message),
@@ -79,7 +141,7 @@ export const useWorkOrderMutations = ({
     if (normalizedOld === 'new') {
       if (newStatus === 'Confirmation') {
         isValidTransition = true;
-      } else if (newStatus === 'In Progress' && isServiceCenter) {
+      } else if (newStatus === 'In Progress') {
         isValidTransition = true;
       }
     } else if (normalizedOld === 'confirmation') {
@@ -116,14 +178,15 @@ export const useWorkOrderMutations = ({
     const oldStatus = workOrder.status;
     const newStatus = updates.status;
 
-    // Enforce: Technician can only be assigned when moving from Ready -> In Progress in the same update
+    // Enforce: Technician can only be assigned when moving to In Progress in the same update
     if (
       'assignedTechnicianId' in updates &&
       updates.assignedTechnicianId !== workOrder.assignedTechnicianId
     ) {
+      const isNewToInProgress = oldStatus?.toLowerCase() === 'new' && newStatus === 'In Progress';
       const isReadyToInProgress = oldStatus?.toLowerCase() === 'ready' && newStatus === 'In Progress';
-      if (!isReadyToInProgress) {
-        showError('Technician can only be assigned when moving from Ready to In Progress.');
+      if (!isNewToInProgress && !isReadyToInProgress) {
+        showError('Technician can only be assigned when moving from New or Ready to In Progress.');
         return;
       }
     }

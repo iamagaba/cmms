@@ -166,6 +166,59 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
 
       console.log('✅ Validation passed');
 
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      const userId = user?.id || null;
+
+      console.log('👤 Current user:', { userId, email: user?.email });
+
+      // Ensure user has a profile (create/update if needed)
+      if (userId && user?.email) {
+        const { data: existingProfile } = await supabase
+          .from('profiles')
+          .select('id, full_name, email')
+          .eq('id', userId)
+          .single();
+        
+        console.log('👤 Existing profile:', existingProfile);
+
+        if (!existingProfile) {
+          // Create profile if it doesn't exist
+          console.log('📝 Creating profile for user...');
+          const { error: profileError } = await supabase
+            .from('profiles')
+            .insert({
+              id: userId,
+              email: user.email,
+              full_name: user.user_metadata?.full_name || user.email,
+              updated_at: new Date().toISOString()
+            });
+          
+          if (profileError) {
+            console.error('❌ Error creating profile:', profileError);
+          } else {
+            console.log('✅ Profile created');
+          }
+        } else if (!existingProfile.full_name && !existingProfile.email) {
+          // Update profile if it's missing full_name and email
+          console.log('📝 Updating profile with email...');
+          const { error: updateError } = await supabase
+            .from('profiles')
+            .update({
+              email: user.email,
+              full_name: user.user_metadata?.full_name || user.email,
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', userId);
+          
+          if (updateError) {
+            console.error('❌ Error updating profile:', updateError);
+          } else {
+            console.log('✅ Profile updated');
+          }
+        }
+      }
+
       const now = new Date();
       const dateStr = now.toISOString().split('T')[0].replace(/-/g, '');
       const randomNum = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
@@ -187,7 +240,12 @@ export const CreateWorkOrderForm: React.FC<CreateWorkOrderFormProps> = ({
         category: formData.diagnosticSession?.finalCategory || null,
         subcategory: formData.diagnosticSession?.finalSubcategory || null,
         solution_attempted: formData.diagnosticSession?.solutionAttempted || false,
-        needs_confirmation_call: true
+        needs_confirmation_call: true,
+        activity_log: [{
+          timestamp: new Date().toISOString(),
+          activity: 'Work order created.',
+          userId: userId
+        }]
       };
 
       if (formData.diagnosticSession?.summary) workOrderData.initial_diagnosis = formData.diagnosticSession.summary;

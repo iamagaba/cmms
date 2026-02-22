@@ -22,6 +22,8 @@ export default defineConfig(({ mode }) => ({
     include: [
       'react', 
       'react-dom',
+      'react/jsx-runtime',
+      'react-is',
       '@radix-ui/react-dropdown-menu',
       '@radix-ui/react-select',
       '@radix-ui/react-dialog',
@@ -32,6 +34,7 @@ export default defineConfig(({ mode }) => ({
       '@radix-ui/react-tabs',
       '@radix-ui/react-toast',
     ],
+    exclude: [],
   },
   resolve: {
     alias: {
@@ -45,8 +48,12 @@ export default defineConfig(({ mode }) => ({
       "@mantine/dropzone": path.resolve(__dirname, "./src/mocks/mantine-dropzone.tsx"),
       "@mantine/spotlight": path.resolve(__dirname, "./src/mocks/mantine-spotlight.tsx"),
       "mantine-datatable": path.resolve(__dirname, "./src/mocks/mantine-datatable.tsx"),
+      // Force single React instance
+      'react': path.resolve(__dirname, './node_modules/react'),
+      'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
+      'react/jsx-runtime': path.resolve(__dirname, './node_modules/react/jsx-runtime'),
     },
-    dedupe: ['react', 'react-dom', 'react/jsx-runtime'],
+    dedupe: ['react', 'react-dom', 'react/jsx-runtime', 'react-is'],
   },
   build: {
     // Optimize chunk size

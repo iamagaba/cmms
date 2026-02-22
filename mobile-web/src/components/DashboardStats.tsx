@@ -50,10 +50,10 @@ export function DashboardStats({ refreshing = false }: DashboardStatsProps) {
 
         const statsData: StatsData = {
           total: allOrders?.length || 0,
-          inProgress: allOrders?.filter(o => o.status === 'In Progress').length || 0,
-          completed: allOrders?.filter(o => o.status === 'Completed').length || 0,
-          open: allOrders?.filter(o => o.status === 'New').length || 0,
-          todayCompleted: allOrders?.filter(o => {
+          inProgress: allOrders?.filter((o: any) => o.status === 'In Progress').length || 0,
+          completed: allOrders?.filter((o: any) => o.status === 'Completed').length || 0,
+          open: allOrders?.filter((o: any) => o.status === 'New').length || 0,
+          todayCompleted: allOrders?.filter((o: any) => {
             if (o.status === 'Completed' && o.completedAt) {
               const completedDate = new Date(o.completedAt)
               completedDate.setHours(0, 0, 0, 0)

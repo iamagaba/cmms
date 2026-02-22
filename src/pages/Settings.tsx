@@ -122,7 +122,7 @@ const Settings = () => {
   const availableTabs = tabs.filter((tab) => tab.roles.includes(userRole));
 
   return (
-    <div className="flex-1 space-y-4 p-8 pt-2">
+    <div className="flex-1 space-y-4 p-8 pt-0">
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         {/* Top Navigation Tabs */}
         <div className="sticky top-0 z-40 bg-background pb-2">

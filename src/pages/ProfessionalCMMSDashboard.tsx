@@ -1,5 +1,4 @@
-import { AlertCircle, Clock, Plus, RefreshCw, Clipboard, Folder, Home, Target } from 'lucide-react';
-import PageHeader from '@/components/layout/PageHeader';
+import { AlertCircle, Clock, Plus, RefreshCw, Clipboard, Folder, Target } from 'lucide-react';
 /**
  * Professional CMMS Dashboard
  * 
@@ -509,32 +508,30 @@ const ProfessionalCMMSDashboard = () => {
       <div className="w-full">
         <div className="space-y-8">
           {/* Header */}
-          <PageHeader
-            title="Dashboard"
-            subtitle={`${dayjs().format('dddd, MMMM D, YYYY')} • ${locations?.length || 0} locations`}
-            icon={<Home className="w-5 h-5 text-muted-foreground" />}
-            actions={
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.location.reload()}
-                  className="gap-1.5"
-                >
-                  <RefreshCw className="w-4 h-4" />
-                  Refresh
-                </Button>
-                <Button
-                  size="sm"
-                  onClick={() => navigate('/work-orders')}
-                  className="gap-1.5"
-                >
-                  <Plus className="w-4 h-4" />
-                  New Work Order
-                </Button>
-              </>
-            }
-          />
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="text-sm text-muted-foreground">
+              {dayjs().format('dddd, MMMM D, YYYY')} • {locations?.length || 0} locations
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => window.location.reload()}
+                className="gap-1.5"
+              >
+                <RefreshCw className="w-4 h-4" />
+                Refresh
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => navigate('/work-orders')}
+                className="gap-1.5"
+              >
+                <Plus className="w-4 h-4" />
+                New Work Order
+              </Button>
+            </div>
+          </div>
 
           {/* Stat Ribbon */}
           <StatRibbon
